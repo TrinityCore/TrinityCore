@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,10 +23,16 @@
 #include "WorldPacket.h"
 #include "ruby_sanctum.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0, 100.0) },
+    { DATA_HALION, new CircleBoundary(Position(3156.037f, 533.2656f), 48.5) }
+};
+
 DoorData const doorData[] =
 {
-    {GO_FIRE_FIELD,     DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE,  BOUNDARY_E   },
-    {0,                 0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {GO_FIRE_FIELD,     DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE },
+    {0,                 0,                          DOOR_TYPE_ROOM },
 };
 
 class instance_ruby_sanctum : public InstanceMapScript
@@ -40,6 +46,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 BaltharusSharedHealth    = 0;
             }

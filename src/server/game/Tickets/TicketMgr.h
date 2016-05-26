@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,7 +84,7 @@ enum TicketType
     TICKET_TYPE_CHARACTER_DELETED = 2,
 };
 
-class GmTicket
+class TC_GAME_API GmTicket
 {
 public:
     GmTicket();
@@ -181,18 +181,14 @@ private:
 };
 typedef std::map<uint32, GmTicket*> GmTicketList;
 
-class TicketMgr
+class TC_GAME_API TicketMgr
 {
 private:
     TicketMgr();
     ~TicketMgr();
 
 public:
-    static TicketMgr* instance()
-    {
-        static TicketMgr instance;
-        return &instance;
-    }
+    static TicketMgr* instance();
 
     void LoadTickets();
     void LoadSurveys();

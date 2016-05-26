@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,22 +19,23 @@
 #define __GITREVISION_H__
 
 #include <string>
+#include "Define.h"
 
 namespace GitRevision
 {
-    char const* GetHash();
-    char const* GetDate();
-    char const* GetBranch();
-    char const* GetSourceDirectory();
-    char const* GetMySQLExecutable();
-    char const* GetFullDatabase();
-    char const* GetFullVersion();
-    char const* GetCompanyNameStr();
-    char const* GetLegalCopyrightStr();
-    char const* GetFileVersionStr();
-    char const* GetProductVersionStr();
-    char const* GetCompilerCFlags();
-    char const* GetCompilerCXXFlags();
+    TC_COMMON_API char const* GetHash();
+    TC_COMMON_API char const* GetDate();
+    TC_COMMON_API char const* GetBranch();
+    TC_COMMON_API char const* GetCMakeCommand();
+    TC_COMMON_API char const* GetBuildDirectory();
+    TC_COMMON_API char const* GetSourceDirectory();
+    TC_COMMON_API char const* GetMySQLExecutable();
+    TC_COMMON_API char const* GetFullDatabase();
+    TC_COMMON_API char const* GetFullVersion();
+    TC_COMMON_API char const* GetCompanyNameStr();
+    TC_COMMON_API char const* GetLegalCopyrightStr();
+    TC_COMMON_API char const* GetFileVersionStr();
+    TC_COMMON_API char const* GetProductVersionStr();
 }
 
 #endif

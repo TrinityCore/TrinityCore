@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,11 @@
 #include "eye_of_eternity.h"
 #include "Player.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
+};
+
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
@@ -37,6 +42,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
+            LoadBossBoundaries(boundaries);
         }
 
         void OnPlayerEnter(Player* player) override

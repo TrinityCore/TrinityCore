@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,6 +55,14 @@ public:
         _queue.push_back(item);
 
         unlock();
+    }
+
+    //! Adds items back to front of the queue
+    template<class Iterator>
+    void readd(Iterator begin, Iterator end)
+    {
+        std::lock_guard<std::mutex> lock(_lock);
+        _queue.insert(_queue.begin(), begin, end);
     }
 
     //! Gets the next result in the queue, if any.

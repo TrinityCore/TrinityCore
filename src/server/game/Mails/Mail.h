@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,7 +79,7 @@ enum MailShowFlags
     MAIL_SHOW_RETURN  = 0x0010
 };
 
-class MailSender
+class TC_GAME_API MailSender
 {
     public:                                                 // Constructors
         MailSender(MailMessageType messageType, ObjectGuid::LowType sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
@@ -100,7 +100,7 @@ class MailSender
         MailStationery m_stationery;
 };
 
-class MailReceiver
+class TC_GAME_API MailReceiver
 {
     public:                                                 // Constructors
         explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) { }
@@ -114,7 +114,7 @@ class MailReceiver
         ObjectGuid::LowType  m_receiver_lowguid;
 };
 
-class MailDraft
+class TC_GAME_API MailDraft
 {
     typedef std::map<ObjectGuid::LowType, Item*> MailItemMap;
 
@@ -162,7 +162,7 @@ struct MailItemInfo
 };
 typedef std::vector<MailItemInfo> MailItemInfoVec;
 
-struct Mail
+struct TC_GAME_API Mail
 {
     uint32 messageID;
     uint8 messageType;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -187,6 +187,12 @@ void WardenCheckMgr::LoadWardenOverrides()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u warden action overrides.", count);
+}
+
+WardenCheckMgr* WardenCheckMgr::instance()
+{
+    static WardenCheckMgr instance;
+    return &instance;
 }
 
 WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)

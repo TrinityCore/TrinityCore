@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -230,6 +230,9 @@ enum Spells
 
     // Descend Into Madness
     SPELL_TELEPORT_PORTAL_VISUAL            = 64416,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION    = 63989,
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION      = 63997,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION     = 63998,
 
     // Illusions
     SPELL_GRIM_REPRISAL                     = 63305,
@@ -395,6 +398,14 @@ enum MiscData
 {
     ACHIEV_TIMED_START_EVENT                = 21001,
     SOUND_LUNATIC_GAZE                      = 15757,
+    MAX_ILLUSION_ROOMS                      = 3
+};
+
+uint32 const IllusionSpells[MAX_ILLUSION_ROOMS]
+{
+    SPELL_TELEPORT_TO_CHAMBER_ILLUSION,
+    SPELL_TELEPORT_TO_ICECROWN_ILLUSION,
+    SPELL_TELEPORT_TO_STORMWIND_ILLUSION
 };
 
 class StartAttackEvent : public BasicEvent
@@ -405,7 +416,7 @@ class StartAttackEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->SetReactState(REACT_AGGRESSIVE);
             if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
@@ -447,9 +458,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     me->SetInCombatWithZone();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
 
                 for (uint8 i = DATA_SARA; i <= DATA_MIMIRON_YS; ++i)
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
@@ -1419,7 +1430,11 @@ class npc_descend_into_madness : public CreatureScript
             {
                 if (!result)
                     return;
+
                 clicker->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
+                uint32 illusion = _instance->GetData(DATA_ILLUSION);
+                if (illusion < MAX_ILLUSION_ROOMS)
+                    DoCast(clicker, IllusionSpells[illusion], true);
                 me->DespawnOrUnsummon();
             }
 

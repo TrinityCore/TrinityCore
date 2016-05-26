@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -483,8 +483,8 @@ class spell_mount_check : public SpellScriptLoader
                 else if (!owner->IsMounted() && target->IsMounted())
                     target->Dismount();
 
-                target->SetSpeed(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
-                target->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
+                target->SetSpeedRate(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                target->SetSpeedRate(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
             }
 
             void Register() override

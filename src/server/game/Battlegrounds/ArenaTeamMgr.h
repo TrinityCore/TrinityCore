@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,18 +20,14 @@
 
 #include "ArenaTeam.h"
 
-class ArenaTeamMgr
+class TC_GAME_API ArenaTeamMgr
 {
 private:
     ArenaTeamMgr();
     ~ArenaTeamMgr();
 
 public:
-    static ArenaTeamMgr* instance()
-    {
-        static ArenaTeamMgr instance;
-        return &instance;
-    }
+    static ArenaTeamMgr* instance();
 
     typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;
 

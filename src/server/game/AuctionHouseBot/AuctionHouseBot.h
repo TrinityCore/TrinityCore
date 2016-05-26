@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,6 +137,21 @@ enum AuctionBotConfigUInt32Values
     CONFIG_AHBOT_CLASS_TRADEGOOD_MAX_ITEM_LEVEL,
     CONFIG_AHBOT_CLASS_CONTAINER_MIN_ITEM_LEVEL,
     CONFIG_AHBOT_CLASS_CONTAINER_MAX_ITEM_LEVEL,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_CONSUMABLE,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_CONTAINER,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_WEAPON,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_GEM,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_ARMOR,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_REAGENT,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_PROJECTILE,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_TRADEGOOD,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_GENERIC,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_RECIPE,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_QUIVER,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_QUEST,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_KEY,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_MISC,
+    CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_GLYPH,
     CONFIG_UINT32_AHBOT_UINT32_COUNT
 };
 
@@ -181,7 +196,7 @@ enum AuctionBotConfigFloatValues
 };
 
 // All basic config data used by other AHBot classes for self-configure.
-class AuctionBotConfig
+class TC_GAME_API AuctionBotConfig
 {
 private:
     AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) {}
@@ -190,11 +205,7 @@ private:
     AuctionBotConfig& operator=(const AuctionBotConfig&);
 
 public:
-    static AuctionBotConfig* instance()
-    {
-        static AuctionBotConfig instance;
-        return &instance;
-    }
+    static AuctionBotConfig* instance();
 
     bool Initialize();
     const std::string& GetAHBotIncludes() const { return _AHBotIncludes; }
@@ -259,7 +270,7 @@ typedef AuctionHouseBotStatusInfoPerType AuctionHouseBotStatusInfo[MAX_AUCTION_H
 
 // This class handle both Selling and Buying method
 // (holder of AuctionBotBuyer and AuctionBotSeller objects)
-class AuctionHouseBot
+class TC_GAME_API AuctionHouseBot
 {
 private:
     AuctionHouseBot();
@@ -268,11 +279,7 @@ private:
     AuctionHouseBot& operator=(const AuctionHouseBot&);
 
 public:
-    static AuctionHouseBot* instance()
-    {
-        static AuctionHouseBot instance;
-        return &instance;
-    }
+    static AuctionHouseBot* instance();
 
     void Update();
     void Initialize();

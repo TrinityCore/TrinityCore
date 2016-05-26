@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -110,29 +110,23 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 if (me->GetEntry() != NPC_INGVAR)
                     me->UpdateEntry(NPC_INGVAR);
-
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
 
                 _Reset();
-                events.SetPhase(PHASE_HUMAN);
-
-                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             }
 
             void DamageTaken(Unit* /*doneBy*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
+                    events.SetPhase(PHASE_EVENT);
+                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
+
                     me->RemoveAllAuras();
+                    me->StopMoving();
                     DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
 
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-
-                    events.SetPhase(PHASE_EVENT);
-                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
                     Talk(SAY_DEATH);
                 }
@@ -152,13 +146,28 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 me->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                 DoCast(me, SPELL_INGVAR_TRANSFORM, true);
                 me->UpdateEntry(NPC_INGVAR_UNDEAD);
-                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 2 * IN_MILLISECONDS, 0, PHASE_EVENT);
+                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, IN_MILLISECONDS / 2, 0, PHASE_EVENT);
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
+                if (events.IsInPhase(PHASE_EVENT) || events.IsInPhase(PHASE_UNDEAD)) // ingvar gets multiple EnterCombat calls
+                    return;
                 _EnterCombat();
+
                 Talk(SAY_AGGRO);
+                events.SetPhase(PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+            }
+
+            void AttackStart(Unit* who) override
+            {
+                if (events.IsInPhase(PHASE_EVENT)) // prevent ingvar from beginning to attack/chase during transition
+                    return;
+                BossAI::AttackStart(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -171,7 +180,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 events.SetPhase(PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             }
@@ -214,9 +223,17 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             events.ScheduleEvent(EVENT_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_JUST_TRANSFORMED:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                            DoZoneInCombat();
                             ScheduleSecondPhase();
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                            if (Unit* target = me->getThreatManager().getHostilTarget())
+                                AttackStart(target);
+                            else
+                            {
+                                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                                return;
+                            }
+                            Talk(SAY_AGGRO);
+                            DoZoneInCombat();
                             return;
                         case EVENT_SUMMON_BANSHEE:
                             DoCast(me, SPELL_SUMMON_BANSHEE);

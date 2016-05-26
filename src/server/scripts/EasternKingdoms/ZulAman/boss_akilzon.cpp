@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -425,7 +425,7 @@ class npc_akilzon_eagle : public CreatureScript
                     if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
                         DoCast(target, SPELL_EAGLE_SWOOP, true);
                     TargetGUID.Clear();
-                    me->SetSpeed(MOVE_RUN, 1.2f);
+                    me->SetSpeedRate(MOVE_RUN, 1.2f);
                     EagleSwoop_Timer = urand(5000, 10000);
                 }
             }
@@ -454,7 +454,7 @@ class npc_akilzon_eagle : public CreatureScript
                         {
                             target->GetContactPoint(me, x, y, z);
                             z += 2;
-                            me->SetSpeed(MOVE_RUN, 5.0f);
+                            me->SetSpeedRate(MOVE_RUN, 5.0f);
                             TargetGUID = target->GetGUID();
                         }
                         me->GetMotionMaster()->MovePoint(0, x, y, z);

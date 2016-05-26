@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -154,7 +154,7 @@ public:
             Initialize();
 
             // Not in progress
-            instance->SetData(TYPE_ARAN, NOT_STARTED);
+            instance->SetBossState(DATA_ARAN, NOT_STARTED);
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
@@ -167,7 +167,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(TYPE_ARAN, DONE);
+            instance->SetBossState(DATA_ARAN, DONE);
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
@@ -175,7 +175,7 @@ public:
         {
             Talk(SAY_AGGRO);
 
-            instance->SetData(TYPE_ARAN, IN_PROGRESS);
+            instance->SetBossState(DATA_ARAN, IN_PROGRESS);
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
         }
 

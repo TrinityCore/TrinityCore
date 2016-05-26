@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -144,6 +144,7 @@ enum Spells
     // Thaladred the Darkener spells
     SPELL_PSYCHIC_BLOW                          = 10689,
     SPELL_SILENCE                               = 30225,
+    SPELL_REND                                  = 36965,
     // Lord Sanguinar spells
     SPELL_BELLOWING_ROAR                        = 40636,
     // Grand Astromancer Capernian spells
@@ -881,11 +882,13 @@ class boss_thaladred_the_darkener : public CreatureScript
             {
                 Gaze_Timer = 100;
                 Silence_Timer = 20000;
+                Rend_Timer = 4000;
                 PsychicBlow_Timer = 10000;
             }
 
             uint32 Gaze_Timer;
             uint32 Silence_Timer;
+            uint32 Rend_Timer;
             uint32 PsychicBlow_Timer;
 
             void Reset() override
@@ -938,6 +941,15 @@ class boss_thaladred_the_darkener : public CreatureScript
                 }
                 else
                     Silence_Timer -= diff;
+
+                //Rend_Timer
+                if (Rend_Timer <= diff)
+                {
+                    DoCastVictim(SPELL_REND);
+                    Rend_Timer = 4000;
+                }
+                else
+                    Rend_Timer -= diff;
 
                 //PsychicBlow_Timer
                 if (PsychicBlow_Timer <= diff)

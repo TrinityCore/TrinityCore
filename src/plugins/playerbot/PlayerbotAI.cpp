@@ -439,13 +439,13 @@ void PlayerbotAI::DoNextAction()
     {
         bot->m_movementInfo.SetMovementFlags((MovementFlags)(MOVEMENTFLAG_FLYING|MOVEMENTFLAG_CAN_FLY));
 
-        bot->SetSpeed(MOVE_FLIGHT, 1.0f, true);
-        bot->SetSpeed(MOVE_RUN, 1.0f, true);
+        bot->SetSpeed(MOVE_FLIGHT, 1.0f);
+        bot->SetSpeed(MOVE_RUN, 1.0f);
 
         if (master)
         {
-            bot->SetSpeed(MOVE_FLIGHT, master->GetSpeedRate(MOVE_FLIGHT), true);
-            bot->SetSpeed(MOVE_RUN, master->GetSpeedRate(MOVE_FLIGHT), true);
+            bot->SetSpeed(MOVE_FLIGHT, master->GetSpeedRate(MOVE_FLIGHT));
+            bot->SetSpeed(MOVE_RUN, master->GetSpeedRate(MOVE_FLIGHT));
         }
 
     }

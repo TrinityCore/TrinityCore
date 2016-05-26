@@ -150,8 +150,6 @@ add_executable(tests
   ${tests_STAT_PCH_SRC}
 )
 
-add_dependencies(tests revision.h)
-
 target_link_libraries(tests
   game
   plugins

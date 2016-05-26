@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -92,6 +92,13 @@ void Abort(char const* file, int line, char const* function)
 {
     fprintf(stderr, "\n%s:%i in %s ABORTED\n",
                    file, line, function);
+    *((volatile int*)NULL) = 0;
+    exit(1);
+}
+
+void AbortHandler(int /*sigval*/)
+{
+    // nothing useful to log here, no way to pass args
     *((volatile int*)NULL) = 0;
     exit(1);
 }

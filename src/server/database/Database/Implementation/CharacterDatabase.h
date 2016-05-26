@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -334,7 +334,7 @@ enum CharacterDatabaseStatements
     CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID,
     CHAR_UPD_CHAR_INSTANCE,
     CHAR_INS_CHAR_INSTANCE,
-    CHAR_UPD_GENDER_PLAYERBYTES,
+    CHAR_UPD_GENDER_AND_APPEARANCE,
     CHAR_DEL_CHARACTER_SKILL,
     CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS,
     CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS,
@@ -365,12 +365,12 @@ enum CharacterDatabaseStatements
     CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN,
     CHAR_SEL_CHAR_AT_LOGIN_TITLES,
     CHAR_SEL_INSTANCE,
+    CHAR_SEL_PERM_BIND_BY_INSTANCE,
     CHAR_SEL_CHAR_COD_ITEM_MAIL,
     CHAR_SEL_CHAR_SOCIAL,
     CHAR_SEL_CHAR_OLD_CHARS,
     CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID,
     CHAR_SEL_MAIL,
-    CHAR_SEL_CHAR_PLAYERBYTES2,
     CHAR_SEL_CHAR_GUID_BY_NAME,
     CHAR_DEL_CHAR_AURA_FROZEN,
     CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM,
@@ -396,9 +396,10 @@ enum CharacterDatabaseStatements
     CHAR_INS_CHAR_GIFT,
     CHAR_DEL_INSTANCE_BY_INSTANCE,
     CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE,
-    CHAR_DEL_CHAR_INSTANCE_BY_MAP_DIFF,
+    CHAR_DEL_EXPIRED_CHAR_INSTANCE_BY_MAP_DIFF,
     CHAR_DEL_GROUP_INSTANCE_BY_MAP_DIFF,
-    CHAR_DEL_INSTANCE_BY_MAP_DIFF,
+    CHAR_DEL_EXPIRED_INSTANCE_BY_MAP_DIFF,
+    CHAR_UPD_EXPIRE_CHAR_INSTANCE_BY_MAP_DIFF,
     CHAR_DEL_MAIL_ITEM_BY_ID,
     CHAR_INS_PETITION,
     CHAR_DEL_PETITION_BY_GUID,
@@ -536,7 +537,7 @@ enum CharacterDatabaseStatements
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
-class CharacterDatabaseConnection : public MySQLConnection
+class TC_DATABASE_API CharacterDatabaseConnection : public MySQLConnection
 {
 public:
     typedef CharacterDatabaseStatements Statements;

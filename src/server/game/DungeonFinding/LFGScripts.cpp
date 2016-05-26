@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -239,6 +239,12 @@ void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
     // leader and no gguid == first invite after leader is added to new group (this is the real invite)
     if (leader && !gguid)
         sLFGMgr->LeaveLfg(leader);
+}
+
+void AddSC_LFGScripts()
+{
+    new LFGPlayerScript();
+    new LFGGroupScript();
 }
 
 } // namespace lfg

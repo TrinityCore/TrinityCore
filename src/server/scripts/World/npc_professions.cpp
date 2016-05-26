@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,27 +18,26 @@
 
 /* ScriptData
 SDName: Npc_Professions
-SD%Complete: 80
-SDComment: Provides learn/unlearn/relearn-options for professions. Not supported: Unlearn engineering, re-learn engineering, re-learn leatherworking.
-SDCategory: NPCs
+SD%Complete: 100
+SDComment: Provides learn/unlearn/relearn-options for professions.
+SDCategory: NPCs/GOBs
 EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "WorldSession.h"
 
 /*
 A few notes for future developement:
-- A full implementation of gossip for GO's is required. They must have the same scripting capabilities as creatures. Basically,
-there is no difference here (except that default text is chosen with `gameobject_template`.`data3` (for GO type2, different dataN for a few others)
 - It's possible blacksmithing still require some tweaks and adjustments due to the way we _have_ to use reputation.
 */
 
 /*###
-# to be removed from here (->ncp_text). This is data for database projects.
+# to be removed from here (->npc_text). This is data for database projects.
 ###*/
 #define TALK_MUST_UNLEARN_WEAPON    "You must forget your weapon type specialty before I can help you. Go to Everlook in Winterspring and seek help there."
 
@@ -152,6 +151,9 @@ enum ProfessionSpells
 
     S_LEARN_GOBLIN          = 20221,
     S_LEARN_GNOMISH         = 20220,
+
+    S_UNLEARN_GOBLIN        = 68334,
+    S_UNLEARN_GNOMISH       = 68333,
 
     S_SPELLFIRE             = 26797,
     S_MOONCLOTH             = 26798,
@@ -375,6 +377,27 @@ void ProfessionUnlearnSpells(Player* player, uint32 type)
             player->RemoveSpell(35588);                     // Windhawk Bracers
             player->RemoveSpell(36075);                     // Wildfeather Leggings
             player->RemoveSpell(36078);                     // Living Crystal Breastplate
+            break;
+        case S_UNLEARN_GOBLIN:                              // S_UNLEARN_GOBLIN
+            player->RemoveSpell(30565);                     // Foreman's Enchanted Helmet
+            player->RemoveSpell(30566);                     // Foreman's Reinforced Helmet
+            player->RemoveSpell(30563);                     // Goblin Rocket Launcher
+            player->RemoveSpell(56514);                     // Global Thermal Sapper Charge
+            player->RemoveSpell(36954);                     // Dimensional Ripper - Area 52
+            player->RemoveSpell(23486);                     // Dimensional Ripper - Everlook
+            player->RemoveSpell(23078);                     // Goblin Jumper Cables XL
+            player->RemoveSpell(72952);                     // Shatter Rounds
+            break;
+        case S_UNLEARN_GNOMISH:                             // S_UNLEARN_GNOMISH
+            player->RemoveSpell(30575);                     // Gnomish Battle Goggles
+            player->RemoveSpell(30574);                     // Gnomish Power Goggles
+            player->RemoveSpell(56473);                     // Gnomish X-Ray Specs
+            player->RemoveSpell(30569);                     // Gnomish Poultryizer
+            player->RemoveSpell(30563);                     // Ultrasafe Transporter - Toshley's Station
+            player->RemoveSpell(23489);                     // Ultrasafe Transporter - Gadgetzan
+            player->RemoveSpell(23129);                     // World Enlarger
+            player->RemoveSpell(23096);                     // Gnomish Alarm-o-Bot
+            player->RemoveSpell(72953);                     // Iceblade Arrow
             break;
         case S_UNLEARN_SPELLFIRE:                           // S_UNLEARN_SPELLFIRE
             player->RemoveSpell(26752);                     // Spellfire Belt
@@ -923,6 +946,76 @@ public:
     }
 };
 
+// Object ID - 177226
+// Book "Soothsaying for dummies"
+enum SoothsayingForDummies
+{
+    GOSSIP_ID                = 7058,
+
+    // Engineering
+    OPTION_UNLEARN_GNOMISH   = 0,
+    OPTION_UNLEARN_GOBLIN    = 1,
+    OPTION_LEARN_GNOMISH     = 2,
+    OPTION_LEARN_GOBLIN      = 3,
+
+    // Leatherworking
+    OPTION_LEARN_DRAGONSCALE = 4,
+    OPTION_LEARN_ELEMENTAL   = 5,
+    OPTION_LEARN_TRIBAL      = 6
+};
+
+class go_soothsaying_for_dummies : public GameObjectScript
+{
+    public:
+        go_soothsaying_for_dummies() : GameObjectScript("go_soothsaying_for_dummies") { }
+
+        struct go_soothsaying_for_dummiesAI : public GameObjectAI
+        {
+            go_soothsaying_for_dummiesAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                if (menuId != GOSSIP_ID)
+                    return false;
+
+                switch (gossipListId)
+                {
+                    case OPTION_UNLEARN_GNOMISH:
+                        ProcessUnlearnAction(player, nullptr, S_UNLEARN_GNOMISH, 0, 0); // cost is handled by gossip code
+                        break;
+                    case OPTION_UNLEARN_GOBLIN:
+                        ProcessUnlearnAction(player, nullptr, S_UNLEARN_GOBLIN, 0, 0);
+                        break;
+                    case OPTION_LEARN_GNOMISH:
+                        player->CastSpell(player, S_LEARN_GNOMISH, true);
+                        break;
+                    case OPTION_LEARN_GOBLIN:
+                        player->CastSpell(player, S_LEARN_GOBLIN, true);
+                        break;
+                    case OPTION_LEARN_DRAGONSCALE:
+                        player->CastSpell(player, S_LEARN_DRAGON, true);
+                        break;
+                    case OPTION_LEARN_ELEMENTAL:
+                        player->CastSpell(player, S_LEARN_ELEMENTAL, true);
+                        break;
+                    case OPTION_LEARN_TRIBAL:
+                        player->CastSpell(player, S_LEARN_TRIBAL, true);
+                        break;
+                    default:
+                        return false;
+                }
+
+                player->CLOSE_GOSSIP_MENU();
+                return true; // prevent further processing
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_soothsaying_for_dummiesAI(go);
+        }
+};
+
 /*###
 # start menues leatherworking
 ###*/
@@ -1212,6 +1305,7 @@ void AddSC_npc_professions()
     new npc_prof_alchemy();
     new npc_prof_blacksmith();
     new npc_engineering_tele_trinket();
+    new go_soothsaying_for_dummies();
     new npc_prof_leather();
     new npc_prof_tailor();
 }

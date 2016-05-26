@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ class TaskContext;
 /// with the same duration or a new one.
 /// It also provides access to the repeat counter which is useful for task that repeat itself often
 /// but behave different every time (spoken event dialogs for example).
-class TaskScheduler
+class TC_COMMON_API TaskScheduler
 {
     friend class TaskContext;
 
@@ -131,7 +131,7 @@ class TaskScheduler
         };
     };
 
-    class TaskQueue
+    class TC_COMMON_API TaskQueue
     {
         std::multiset<TaskContainer, Compare> container;
 
@@ -401,14 +401,14 @@ private:
         auto const milli_max = std::chrono::duration_cast<std::chrono::milliseconds>(max);
 
         // TC specific: use SFMT URandom
-        return std::chrono::milliseconds(urand(milli_min.count(), milli_max.count()));
+        return std::chrono::milliseconds(urand(uint32(milli_min.count()), uint32(milli_max.count())));
     }
 
     /// Dispatch remaining tasks
     void Dispatch(success_t const& callback);
 };
 
-class TaskContext
+class TC_COMMON_API TaskContext
 {
     friend class TaskScheduler;
 

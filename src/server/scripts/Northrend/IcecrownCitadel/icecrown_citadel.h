@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -115,7 +115,7 @@ enum DataTypes
     DATA_ARTHAS_PLATFORM               = 38,
     DATA_TERENAS_MENETHIL              = 39,
     DATA_ENEMY_GUNSHIP                 = 40,
-    DATA_UPPERSPIRE_TELE_ACT           = 41,
+    DATA_UPPERSPIRE_TELE_ACT           = 41, /// also used by conditions
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42
 };
 
@@ -569,14 +569,10 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         TriggerCastFlags _triggerFlags;
 };
 
-template<class AI>
-CreatureAI* GetIcecrownCitadelAI(Creature* creature)
+template<class AI, class T>
+inline AI* GetIcecrownCitadelAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(obj, ICCScriptName);
 }
 
 #endif // ICECROWN_CITADEL_H_

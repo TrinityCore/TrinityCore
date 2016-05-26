@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 class PreparedStatement;
 
 /*! Transactions, high level class. */
-class Transaction
+class TC_DATABASE_API Transaction
 {
     friend class TransactionTask;
     friend class MySQLConnection;
@@ -58,7 +58,7 @@ class Transaction
 typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
-class TransactionTask : public SQLOperation
+class TC_DATABASE_API TransactionTask : public SQLOperation
 {
     template <class T> friend class DatabaseWorkerPool;
     friend class DatabaseWorker;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -348,10 +348,10 @@ public:
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
                 uint32 locale = handler->GetSessionDbcLocale();
 
-                AreaTableEntry const* area = GetAreaEntryByAreaID(p->GetAreaId());
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
                     if (zone)
                         zoneName = zone->area_name[locale];
                 }

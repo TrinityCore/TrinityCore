@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -706,7 +706,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
     std::string searchedname;
-    uint8 levelmin, levelmax, usable;
+    uint8 levelmin, levelmax, usable, getAll;
     uint32 listfrom, auctionSlotID, auctionMainCategory, auctionSubCategory, quality;
     ObjectGuid guid;
 
@@ -718,7 +718,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     recvData >> auctionSlotID >> auctionMainCategory >> auctionSubCategory;
     recvData >> quality >> usable;
 
-    recvData.read_skip<uint8>();                           // unk
+    recvData >> getAll;
 
     // this block looks like it uses some lame byte packing or similar...
     uint8 unkCnt;
@@ -760,11 +760,11 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     auctionHouse->BuildListAuctionItems(data, _player,
         wsearchedname, listfrom, levelmin, levelmax, usable,
         auctionSlotID, auctionMainCategory, auctionSubCategory, quality,
-        count, totalcount);
+        count, totalcount, (getAll != 0 && sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY) != 0));
 
     data.put<uint32>(0, count);
     data << (uint32) totalcount;
-    data << (uint32) 300;                                   // unk 2.3.0 const?
+    data << (uint32) sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     SendPacket(&data);
 }
 

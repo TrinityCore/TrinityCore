@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,7 +167,7 @@ class boss_warp_splinter : public CreatureScript
             {
                 Initialize();
 
-                me->SetSpeed(MOVE_RUN, 0.7f, true);
+                me->SetSpeedRate(MOVE_RUN, 0.7f);
             }
 
             void EnterCombat(Unit* /*who*/) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,10 +54,10 @@ class boss_thorim : public CreatureScript
                 _Reset();
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 Talk(SAY_WIPE);
-                _EnterEvadeMode();
+                _EnterEvadeMode(why);
             }
 
             void KilledUnit(Unit* who) override
@@ -78,7 +78,7 @@ class boss_thorim : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -86,8 +86,6 @@ class boss_thorim : public CreatureScript
 
                 //
                 DoMeleeAttackIfReady();
-
-                EnterEvadeIfOutOfCombatArea(diff);
             }
         };
 

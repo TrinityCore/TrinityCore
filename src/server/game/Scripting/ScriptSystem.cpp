@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,13 @@
 #include "DatabaseEnv.h"
 #include "ScriptMgr.h"
 
-ScriptPointVector const SystemMgr::_empty;
+TC_GAME_API ScriptPointVector const SystemMgr::_empty;
+
+SystemMgr* SystemMgr::instance()
+{
+    static SystemMgr instance;
+    return &instance;
+}
 
 void SystemMgr::LoadScriptWaypoints()
 {

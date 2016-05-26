@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -454,11 +454,11 @@ public:
                     float distance = me->GetDistance(JedogaPosition[1]);
 
                     if (distance < 9.0f)
-                        me->SetSpeed(MOVE_WALK, 0.5f, true);
+                        me->SetSpeedRate(MOVE_WALK, 0.5f);
                     else if (distance < 15.0f)
-                        me->SetSpeed(MOVE_WALK, 0.75f, true);
+                        me->SetSpeedRate(MOVE_WALK, 0.75f);
                     else if (distance < 20.0f)
-                        me->SetSpeed(MOVE_WALK, 1.0f, true);
+                        me->SetSpeedRate(MOVE_WALK, 1.0f);
 
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MovePoint(1, JedogaPosition[1]);

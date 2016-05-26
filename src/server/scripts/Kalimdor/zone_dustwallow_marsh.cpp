@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@ SDCategory: Dustwallow Marsh
 EndScriptData */
 
 /* ContentData
-npc_lady_jaina_proudmoore
 npc_nat_pagle
 npc_private_hendel
 npc_cassa_crimsonwing - handled by npc_taxi
@@ -37,49 +36,6 @@ EndContentData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_lady_jaina_proudmoore
-######*/
-
-enum LadyJaina
-{
-    QUEST_JAINAS_AUTOGRAPH = 558,
-    SPELL_JAINAS_AUTOGRAPH = 23122
-};
-
-#define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
-
-class npc_lady_jaina_proudmoore : public CreatureScript
-{
-public:
-    npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->SEND_GOSSIP_MENU(7012, creature->GetGUID());
-            player->CastSpell(player, SPELL_JAINAS_AUTOGRAPH, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_JAINAS_AUTOGRAPH) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_nat_pagle
@@ -417,7 +373,6 @@ class spell_energize_aoe : public SpellScriptLoader
 
 void AddSC_dustwallow_marsh()
 {
-    new npc_lady_jaina_proudmoore();
     new npc_nat_pagle();
     new npc_private_hendel();
     new npc_zelfrax();

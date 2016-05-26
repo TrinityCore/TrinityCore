@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,109 +29,104 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "zulaman.h"
 
-#define YELL_AGGRO              "Da shadow gonna fall on you... "
-#define SOUND_YELL_AGGRO        12041
-#define YELL_SPIRIT_BOLTS       "Your soul gonna bleed!"
-#define SOUND_YELL_SPIRIT_BOLTS 12047
-#define YELL_DRAIN_POWER        "Darkness comin\' for you"
-#define SOUND_YELL_DRAIN_POWER  12046
-#define YELL_KILL_ONE           "Dis a nightmare ya don\' wake up from!"
-#define SOUND_YELL_KILL_ONE     12043
-#define YELL_KILL_TWO           "Azzaga choogo zinn!"
-#define SOUND_YELL_KILL_TWO     12044
-#define YELL_DEATH              "Dis not... da end of me..."
-#define SOUND_YELL_DEATH        12051
-
+enum Yells
+{
+    YELL_AGGRO                    = 0,
+    YELL_KILL_ONE                 = 1,
+    YELL_KILL_TWO                 = 2,
+    YELL_DRAIN_POWER              = 3,
+    YELL_SPIRIT_BOLTS             = 4,
+    YELL_DEATH                    = 5
+};
 
 enum Creatures
 {
-    NPC_TEMP_TRIGGER                = 23920
+    NPC_TEMP_TRIGGER              = 23920
 };
 
 enum Spells
 {
-    SPELL_SPIRIT_BOLTS              = 43383,
-    SPELL_DRAIN_POWER               = 44131,
-    SPELL_SIPHON_SOUL               = 43501,
+    SPELL_SPIRIT_BOLTS            = 43383,
+    SPELL_DRAIN_POWER             = 44131,
+    SPELL_SIPHON_SOUL             = 43501,
 
     // Druid
-    SPELL_DR_THORNS                 = 43420,
-    SPELL_DR_LIFEBLOOM              = 43421,
-    SPELL_DR_MOONFIRE               = 43545,
+    SPELL_DR_THORNS               = 43420,
+    SPELL_DR_LIFEBLOOM            = 43421,
+    SPELL_DR_MOONFIRE             = 43545,
 
     // Hunter
-    SPELL_HU_EXPLOSIVE_TRAP         = 43444,
-    SPELL_HU_FREEZING_TRAP          = 43447,
-    SPELL_HU_SNAKE_TRAP             = 43449,
+    SPELL_HU_EXPLOSIVE_TRAP       = 43444,
+    SPELL_HU_FREEZING_TRAP        = 43447,
+    SPELL_HU_SNAKE_TRAP           = 43449,
 
     // Mage
-    SPELL_MG_FIREBALL               = 41383,
-    SPELL_MG_FROST_NOVA             = 43426,
-    SPELL_MG_ICE_LANCE              = 43427,
-    SPELL_MG_FROSTBOLT              = 43428,
+    SPELL_MG_FIREBALL             = 41383,
+    SPELL_MG_FROST_NOVA           = 43426,
+    SPELL_MG_ICE_LANCE            = 43427,
+    SPELL_MG_FROSTBOLT            = 43428,
 
     // Paladin
-    SPELL_PA_CONSECRATION           = 43429,
-    SPELL_PA_AVENGING_WRATH         = 43430,
-    SPELL_PA_HOLY_LIGHT             = 43451,
+    SPELL_PA_CONSECRATION         = 43429,
+    SPELL_PA_AVENGING_WRATH       = 43430,
+    SPELL_PA_HOLY_LIGHT           = 43451,
 
     // Priest
-    SPELL_PR_HEAL                   = 41372,
-    SPELL_PR_MIND_BLAST             = 41374,
-    SPELL_PR_SW_DEATH               = 41375,
-    SPELL_PR_PSYCHIC_SCREAM         = 43432,
-    SPELL_PR_MIND_CONTROL           = 43550,
-    SPELL_PR_PAIN_SUPP              = 44416,
+    SPELL_PR_HEAL                 = 41372,
+    SPELL_PR_MIND_BLAST           = 41374,
+    SPELL_PR_SW_DEATH             = 41375,
+    SPELL_PR_PSYCHIC_SCREAM       = 43432,
+    SPELL_PR_MIND_CONTROL         = 43550,
+    SPELL_PR_PAIN_SUPP            = 44416,
 
     // Rogue
-    SPELL_RO_BLIND                  = 43433,
-    SPELL_RO_SLICE_DICE             = 43457,
-    SPELL_RO_WOUND_POISON           = 43461,
+    SPELL_RO_BLIND                = 43433,
+    SPELL_RO_SLICE_DICE           = 43457,
+    SPELL_RO_WOUND_POISON         = 43461,
 
     // Shaman
-    SPELL_SH_CHAIN_LIGHT            = 43435,
-    SPELL_SH_FIRE_NOVA              = 43436,
-    SPELL_SH_HEALING_WAVE           = 43548,
+    SPELL_SH_CHAIN_LIGHT          = 43435,
+    SPELL_SH_FIRE_NOVA            = 43436,
+    SPELL_SH_HEALING_WAVE         = 43548,
 
     // Warlock
-    SPELL_WL_CURSE_OF_DOOM          = 43439,
-    SPELL_WL_RAIN_OF_FIRE           = 43440,
-    SPELL_WL_UNSTABLE_AFFL          = 43522,
-    SPELL_WL_UNSTABLE_AFFL_DISPEL   = 43523,
+    SPELL_WL_CURSE_OF_DOOM        = 43439,
+    SPELL_WL_RAIN_OF_FIRE         = 43440,
+    SPELL_WL_UNSTABLE_AFFL        = 43522,
+    SPELL_WL_UNSTABLE_AFFL_DISPEL = 43523,
 
     // Warrior
-    SPELL_WR_MORTAL_STRIKE          = 43441,
-    SPELL_WR_WHIRLWIND              = 43442,
-    SPELL_WR_SPELL_REFLECT          = 43443,
+    SPELL_WR_MORTAL_STRIKE        = 43441,
+    SPELL_WR_WHIRLWIND            = 43442,
+    SPELL_WR_SPELL_REFLECT        = 43443,
 
     // Thurg
-    SPELL_BLOODLUST                 = 43578,
-    SPELL_CLEAVE                    = 15496,
+    SPELL_BLOODLUST               = 43578,
+    SPELL_CLEAVE                  = 15496,
 
     // Gazakroth
-    SPELL_FIREBOLT                  = 43584,
+    SPELL_FIREBOLT                = 43584,
 
     // Alyson Antille
-    SPELL_FLASH_HEAL                = 43575,
-    SPELL_DISPEL_MAGIC              = 43577,
+    SPELL_FLASH_HEAL              = 43575,
+    SPELL_DISPEL_MAGIC            = 43577,
 
     // Lord Raadan
-    SPELL_FLAME_BREATH              = 43582,
-    SPELL_THUNDERCLAP               = 43583,
+    SPELL_FLAME_BREATH            = 43582,
+    SPELL_THUNDERCLAP             = 43583,
 
     // Darkheart
-    SPELL_PSYCHIC_WAIL              = 43590,
+    SPELL_PSYCHIC_WAIL            = 43590,
 
     // Slither
-    SPELL_VENOM_SPIT                = 43579,
+    SPELL_VENOM_SPIT              = 43579,
 
     // Fenstalker
-    SPELL_VOLATILE_INFECTION        = 43586,
+    SPELL_VOLATILE_INFECTION      = 43586,
 
     // Koragg
-    SPELL_COLD_STARE                = 43593,
-    SPELL_MIGHTY_BLOW               = 43592
-
+    SPELL_COLD_STARE              = 43593,
+    SPELL_MIGHTY_BLOW             = 43592
 };
 
 #define ORIENT                  1.5696f
@@ -306,8 +301,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 instance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
-                me->Yell(YELL_AGGRO, LANG_UNIVERSAL);
-                DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
+                Talk(YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -327,12 +321,10 @@ class boss_hexlord_malacrass : public CreatureScript
                 switch (urand(0, 1))
                 {
                     case 0:
-                        me->Yell(YELL_KILL_ONE, LANG_UNIVERSAL);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
+                        Talk(YELL_KILL_ONE);
                         break;
                     case 1:
-                        me->Yell(YELL_KILL_TWO, LANG_UNIVERSAL);
-                        DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
+                        Talk(YELL_KILL_TWO);
                         break;
                 }
             }
@@ -341,8 +333,7 @@ class boss_hexlord_malacrass : public CreatureScript
             {
                 instance->SetData(DATA_HEXLORDEVENT, DONE);
 
-                me->Yell(YELL_DEATH, LANG_UNIVERSAL);
-                DoPlaySoundToSet(me, SOUND_YELL_DEATH);
+                Talk(YELL_DEATH);
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -415,8 +406,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 if (DrainPower_Timer <= diff)
                 {
                     DoCast(me, SPELL_DRAIN_POWER, true);
-                    me->Yell(YELL_DRAIN_POWER, LANG_UNIVERSAL);
-                    DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
+                    Talk(YELL_DRAIN_POWER);
                     DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
                 } else DrainPower_Timer -= diff;
 
@@ -427,8 +417,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         DoCast(me, SPELL_SPIRIT_BOLTS, false);
-                        me->Yell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL);
-                        DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
+                        Talk(YELL_SPIRIT_BOLTS);
                         SpiritBolts_Timer = 40000;
                         SiphonSoul_Timer = 10000;    // ready to drain
                         PlayerAbility_Timer = 99999;

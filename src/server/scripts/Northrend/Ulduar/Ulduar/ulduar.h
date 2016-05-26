@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -427,7 +427,8 @@ enum UlduarEvents
     EVENT_DESPAWN_ALGALON       = 1,
     EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
-    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7
+    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7,
+    EVENT_LEVIATHAN_BREAK_DOOR   = 8
 };
 
 enum YoggSaronIllusions

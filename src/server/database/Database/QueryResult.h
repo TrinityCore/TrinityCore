@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@
 #endif
 #include <mysql.h>
 
-class ResultSet
+class TC_DATABASE_API ResultSet
 {
     public:
         ResultSet(MYSQL_RES* result, MYSQL_FIELD* fields, uint64 rowCount, uint32 fieldCount);
@@ -60,7 +60,7 @@ class ResultSet
 
 typedef std::shared_ptr<ResultSet> QueryResult;
 
-class PreparedResultSet
+class TC_DATABASE_API PreparedResultSet
 {
     public:
         PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES* result, uint64 rowCount, uint32 fieldCount);

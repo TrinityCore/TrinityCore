@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -408,20 +408,15 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     MovepointReached(Data);
 }
 
-void SmartAI::EnterEvadeMode()
+void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     if (!me->IsAlive() || me->IsInEvadeMode())
         return;
 
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
+    me->RemoveAurasOnEvade();
 
     me->AddUnitState(UNIT_STATE_EVADE);
-    me->DeleteThreatList();
-    me->CombatStop(true);
-    me->LoadCreaturesAddon();
-    me->SetLootRecipient(NULL);
-    me->ResetPlayerDamageReq();
-    me->SetLastDamagedTime(0);
+    _EnterEvadeMode();
 
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
 
@@ -466,6 +461,9 @@ bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 
 bool SmartAI::AssistPlayerInCombat(Unit* who)
 {
+    if (me->HasReactState(REACT_PASSIVE))
+        return false;
+
     if (!who || !who->GetVictim())
         return false;
 
@@ -650,8 +648,8 @@ void SmartAI::OnCharmed(bool apply)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 
-    if (!apply && !me->IsInEvadeMode() && me->GetCharmerGUID())
-        if (Unit* charmer = ObjectAccessor::GetUnit(*me, me->GetCharmerGUID()))
+    if (!apply && !me->IsInEvadeMode())
+        if (Unit* charmer = me->GetCharmer())
             AttackStart(charmer);
 }
 

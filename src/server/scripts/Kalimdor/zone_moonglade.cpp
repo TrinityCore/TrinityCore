@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npc_bunthen_plainswind
-npc_great_bear_spirit
 npc_silva_filnaveth
 npc_clintar_spirit
 npc_clintar_dreamwalker
@@ -305,7 +304,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (player && player->IsInCombat() && player->getAttackerForHelper())
@@ -313,7 +312,7 @@ public:
                 AttackStart(player->getAttackerForHelper());
                 return;
             }
-            npc_escortAI::EnterEvadeMode();
+            npc_escortAI::EnterEvadeMode(why);
         }
 
         void StartEvent(Player* player)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,6 +38,7 @@ npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
 npc_locksmith            75%    list of keys needs to be confirmed
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
+npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -515,6 +516,67 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_dancing_flamesAI(creature);
+    }
+};
+
+/*######
+## npc_torch_tossing_target_bunny_controller
+######*/
+
+enum TorchTossingTarget
+{
+    NPC_TORCH_TOSSING_TARGET_BUNNY      = 25535,
+    SPELL_TARGET_INDICATOR              = 45723
+};
+
+class npc_torch_tossing_target_bunny_controller : public CreatureScript
+{
+public:
+    npc_torch_tossing_target_bunny_controller() : CreatureScript("npc_torch_tossing_target_bunny_controller") { }
+
+    struct npc_torch_tossing_target_bunny_controllerAI : public ScriptedAI
+    {
+        npc_torch_tossing_target_bunny_controllerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _targetTimer = 3000;
+        }
+
+        ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
+        {
+            std::list<Creature*> targets;
+            me->GetCreatureListWithEntryInGrid(targets, NPC_TORCH_TOSSING_TARGET_BUNNY, 60.0f);
+            targets.remove_if([lastTargetGUID](Creature* creature) { return creature->GetGUID() == lastTargetGUID; });
+
+            if (!targets.empty())
+            {
+                _lastTargetGUID = Trinity::Containers::SelectRandomContainerElement(targets)->GetGUID();
+
+                return _lastTargetGUID;
+            }
+            return ObjectGuid::Empty;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (_targetTimer < diff)
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*me, DoSearchForTargets(_lastTargetGUID)))
+                    target->CastSpell(target, SPELL_TARGET_INDICATOR, true);
+
+                _targetTimer = 3000;
+            }
+            else
+                _targetTimer -= diff;
+        }
+
+    private:
+        uint32 _targetTimer;
+        ObjectGuid _lastTargetGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_torch_tossing_target_bunny_controllerAI(creature);
     }
 };
 
@@ -1422,7 +1484,6 @@ public:
         void Reset() override
         {
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
             _events.Reset();
             _damageTimes.clear();
@@ -1432,9 +1493,9 @@ public:
                 _events.ScheduleEvent(EVENT_TD_DESPAWN, 15000);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            if (!_EnterEvadeMode())
+            if (!_EnterEvadeMode(why))
                 return;
 
             Reset();
@@ -2130,7 +2191,7 @@ public:
                 // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
                 if (me->GetZoneId() == ZONE_MOONGLADE)
                 {
-                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f, false) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
+                    if (!me->FindNearestCreature(NPC_OMEN, 100.0f) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
                     {
                         switch (urand(0, 9))
                         {
@@ -2387,12 +2448,136 @@ class npc_stable_master : public CreatureScript
         }
 };
 
+enum TrainWrecker
+{
+    GO_TOY_TRAIN          = 193963,
+    SPELL_TOY_TRAIN_PULSE =  61551,
+    SPELL_WRECK_TRAIN     =  62943,
+    ACTION_WRECKED        =      1,
+    EVENT_DO_JUMP         =      1,
+    EVENT_DO_FACING       =      2,
+    EVENT_DO_WRECK        =      3,
+    EVENT_DO_DANCE        =      4,
+    MOVEID_CHASE          =      1,
+    MOVEID_JUMP           =      2
+};
+class npc_train_wrecker : public CreatureScript
+{
+    public:
+        npc_train_wrecker() : CreatureScript("npc_train_wrecker") { }
+
+        struct npc_train_wreckerAI : public NullCreatureAI
+        {
+            npc_train_wreckerAI(Creature* creature) : NullCreatureAI(creature), _isSearching(true), _nextAction(0), _timer(1 * IN_MILLISECONDS) { }
+
+            GameObject* VerifyTarget() const
+            {
+                if (GameObject* target = ObjectAccessor::GetGameObject(*me, _target))
+                    return target;
+                me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                me->DespawnOrUnsummon(3 * IN_MILLISECONDS);
+                return nullptr;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (_isSearching)
+                {
+                    if (diff < _timer)
+                        _timer -= diff;
+                    else
+                    {
+                        if (GameObject* target = me->FindNearestGameObject(GO_TOY_TRAIN, 15.0f))
+                        {
+                            _isSearching = false;
+                            _target = target->GetGUID();
+                            me->SetWalk(true);
+                            me->GetMotionMaster()->MovePoint(MOVEID_CHASE, target->GetNearPosition(3.0f, target->GetAngle(me)));
+                        }
+                        else
+                            _timer = 3 * IN_MILLISECONDS;
+                    }
+                }
+                else
+                {
+                    switch (_nextAction)
+                    {
+                        case EVENT_DO_JUMP:
+                            if (GameObject* target = VerifyTarget())
+                                me->GetMotionMaster()->MoveJump(*target, 5.0, 10.0, MOVEID_JUMP);
+                            _nextAction = 0;
+                            break;
+                        case EVENT_DO_FACING:
+                            if (GameObject* target = VerifyTarget())
+                            {
+                                me->SetFacingTo(target->GetOrientation());
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
+                                _timer = 1.5 * IN_MILLISECONDS;
+                                _nextAction = EVENT_DO_WRECK;
+                            }
+                            else
+                                _nextAction = 0;
+                            break;
+                        case EVENT_DO_WRECK:
+                            if (diff < _timer)
+                            {
+                                _timer -= diff;
+                                break;
+                            }
+                            if (GameObject* target = VerifyTarget())
+                            {
+                                me->CastSpell(target, SPELL_WRECK_TRAIN, false);
+                                target->AI()->DoAction(ACTION_WRECKED);
+                                _timer = 2 * IN_MILLISECONDS;
+                                _nextAction = EVENT_DO_DANCE;
+                            }
+                            else
+                                _nextAction = 0;
+                            break;
+                        case EVENT_DO_DANCE:
+                            if (diff < _timer)
+                            {
+                                _timer -= diff;
+                                break;
+                            }
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_DANCE);
+                            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+                            _nextAction = 0;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void MovementInform(uint32 /*type*/, uint32 id) override
+            {
+                if (id == MOVEID_CHASE)
+                    _nextAction = EVENT_DO_JUMP;
+                else if (id == MOVEID_JUMP)
+                    _nextAction = EVENT_DO_FACING;
+            }
+
+        private:
+            bool _isSearching;
+            uint8 _nextAction;
+            uint32 _timer;
+            ObjectGuid _target;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_train_wreckerAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_lunaclaw_spirit();
     new npc_chicken_cluck();
     new npc_dancing_flames();
+    new npc_torch_tossing_target_bunny_controller();
     new npc_doctor();
     new npc_injured_patient();
     new npc_garments_of_quests();
@@ -2410,4 +2595,5 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_stable_master();
+    new npc_train_wrecker();
 }

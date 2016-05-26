@@ -30,24 +30,20 @@
 class WorldSocket;
 
 /// Manages all sockets connected to peers and network threads
-class WorldSocketMgr : public SocketMgr<WorldSocket>
+class TC_GAME_API WorldSocketMgr : public SocketMgr<WorldSocket>
 {
     typedef SocketMgr<WorldSocket> BaseSocketMgr;
 
 public:
-    static WorldSocketMgr& Instance()
-    {
-        static WorldSocketMgr instance;
-        return instance;
-    }
+    static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port) override;
+    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int networkThreads) override;
 
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;
 
-    void OnSocketOpen(tcp::socket&& sock) override;
+    void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex) override;
 
 protected:
     WorldSocketMgr();

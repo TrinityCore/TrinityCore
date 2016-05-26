@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,8 +27,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "karazhan.h"
 
-#define MAX_ENCOUNTER      12
-
 /*
 0  - Attumen + Midnight (optional)
 1  - Moroes
@@ -43,6 +41,13 @@ EndScriptData */
 10 - Prince Malchezzar
 11 - Nightbane
 */
+
+const Position OptionalSpawn[] =
+{
+    { -10960.981445f, -1940.138428f, 46.178097f, 4.12f  }, // Hyakiss the Lurker
+    { -10945.769531f, -2040.153320f, 49.474438f, 0.077f }, // Shadikith the Glider
+    { -10899.903320f, -2085.573730f, 49.474449f, 1.38f  }  // Rokad the Ravager
+};
 
 class instance_karazhan : public InstanceMapScript
 {
@@ -59,150 +64,169 @@ public:
         instance_karazhan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+            SetBossNumber(EncounterCount);
 
             // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
-            m_uiOperaEvent = urand(1, 3);
-            m_uiOzDeathCount = 0;
-        }
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string strSaveData;
-
-        uint32 m_uiOperaEvent;
-        uint32 m_uiOzDeathCount;
-
-        ObjectGuid m_uiCurtainGUID;
-        ObjectGuid m_uiStageDoorLeftGUID;
-        ObjectGuid m_uiStageDoorRightGUID;
-        ObjectGuid m_uiKilrekGUID;
-        ObjectGuid m_uiTerestianGUID;
-        ObjectGuid m_uiMoroesGUID;
-        ObjectGuid m_uiLibraryDoor;                                     // Door at Shade of Aran
-        ObjectGuid m_uiMassiveDoor;                                     // Door at Netherspite
-        ObjectGuid m_uiSideEntranceDoor;                                // Side Entrance
-        ObjectGuid m_uiGamesmansDoor;                                   // Door before Chess
-        ObjectGuid m_uiGamesmansExitDoor;                               // Door after Chess
-        ObjectGuid m_uiNetherspaceDoor;                                // Door at Malchezaar
-        ObjectGuid MastersTerraceDoor[2];
-        ObjectGuid ImageGUID;
-        ObjectGuid DustCoveredChest;
-
-        bool IsEncounterInProgress() const override
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
+            OperaEvent = urand(EVENT_OZ, EVENT_RAJ);
+            OzDeathCount = 0;
+            OptionalBossCount = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
-                case 17229:   m_uiKilrekGUID = creature->GetGUID();      break;
-                case 15688:   m_uiTerestianGUID = creature->GetGUID();   break;
-                case 15687:   m_uiMoroesGUID = creature->GetGUID();      break;
+                case NPC_KILREK:
+                    KilrekGUID = creature->GetGUID();
+                    break;
+                case NPC_TERESTIAN_ILLHOOF:
+                    TerestianGUID = creature->GetGUID();
+                    break;
+                case NPC_MOROES:
+                    MoroesGUID = creature->GetGUID();
+                    break;
             }
         }
 
-        void SetData(uint32 type, uint32 uiData) override
+        void OnUnitDeath(Unit* unit) override
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            switch (creature->GetEntry())
+            {
+                case NPC_COLDMIST_WIDOW:
+                case NPC_COLDMIST_STALKER:
+                case NPC_SHADOWBAT:
+                case NPC_VAMPIRIC_SHADOWBAT:
+                case NPC_GREATER_SHADOWBAT:
+                case NPC_PHASE_HOUND:
+                case NPC_DREADBEAST:
+                case NPC_SHADOWBEAST:
+                    if (GetBossState(DATA_OPTIONAL_BOSS) == TO_BE_DECIDED)
+                    {
+                        ++OptionalBossCount;
+                        if (OptionalBossCount == OPTIONAL_BOSS_REQUIRED_DEATH_COUNT)
+                        {
+                            switch (urand(NPC_HYAKISS_THE_LURKER, NPC_ROKAD_THE_RAVAGER))
+                            {
+                                case NPC_HYAKISS_THE_LURKER:
+                                    instance->SummonCreature(NPC_HYAKISS_THE_LURKER, OptionalSpawn[0]);
+                                    break;
+                                case NPC_SHADIKITH_THE_GLIDER:
+                                    instance->SummonCreature(NPC_SHADIKITH_THE_GLIDER, OptionalSpawn[1]);
+                                    break;
+                                case NPC_ROKAD_THE_RAVAGER:
+                                    instance->SummonCreature(NPC_ROKAD_THE_RAVAGER, OptionalSpawn[2]);
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
-                case TYPE_ATTUMEN:              m_auiEncounter[0] = uiData; break;
-                case TYPE_MOROES:
-                    if (m_auiEncounter[1] == DONE)
-                        break;
-                    m_auiEncounter[1] = uiData;
-                    break;
-                case TYPE_MAIDEN:               m_auiEncounter[2] = uiData; break;
-                case TYPE_OPTIONAL_BOSS:        m_auiEncounter[3] = uiData; break;
-                case TYPE_OPERA:
-                    m_auiEncounter[4] = uiData;
-                    if (uiData == DONE)
-                        UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 16812, NULL);
-                    break;
-                case TYPE_CURATOR:              m_auiEncounter[5] = uiData; break;
-                case TYPE_ARAN:                 m_auiEncounter[6] = uiData; break;
-                case TYPE_TERESTIAN:            m_auiEncounter[7] = uiData; break;
-                case TYPE_NETHERSPITE:          m_auiEncounter[8] = uiData; break;
-                case TYPE_CHESS:
-                    if (uiData == DONE)
-                        DoRespawnGameObject(DustCoveredChest, DAY);
-                    m_auiEncounter[9]  = uiData;
-                    break;
-                case TYPE_MALCHEZZAR:           m_auiEncounter[10] = uiData; break;
-                case TYPE_NIGHTBANE:
-                    if (m_auiEncounter[11] != DONE)
-                        m_auiEncounter[11] = uiData;
-                    break;
                 case DATA_OPERA_OZ_DEATHCOUNT:
-                    if (uiData == SPECIAL)
-                        ++m_uiOzDeathCount;
-                    else if (uiData == IN_PROGRESS)
-                        m_uiOzDeathCount = 0;
+                    if (data == SPECIAL)
+                        ++OzDeathCount;
+                    else if (data == IN_PROGRESS)
+                        OzDeathCount = 0;
                     break;
-            }
-
-            if (uiData == DONE)
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
-                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' ' << m_auiEncounter[6] << ' '
-                    << m_auiEncounter[7] << ' ' << m_auiEncounter[8] << ' ' << m_auiEncounter[9] << ' ' << m_auiEncounter[10] << ' ' << m_auiEncounter[11];
-
-                strSaveData = saveStream.str();
-
-                SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
             }
         }
 
-         void SetGuidData(uint32 identifier, ObjectGuid data) override
+        bool SetBossState(uint32 type, EncounterState state) override
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
+            {
+                case DATA_OPERA_PERFORMANCE:
+                    if (state == DONE)
+                    {
+                        HandleGameObject(StageDoorLeftGUID, true);
+                        HandleGameObject(StageDoorRightGUID, true);
+                        if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
+                            sideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 16812, NULL);
+                    }
+                    break;
+                case DATA_CHESS:
+                    if (state == DONE)
+                        DoRespawnGameObject(DustCoveredChest, DAY);
+                    break;
+                default:
+                    break;
+            }
+
+            return true;
+        }
+
+         void SetGuidData(uint32 type, ObjectGuid data) override
          {
-             switch (identifier)
-             {
-             case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
-             }
+             if (type == DATA_IMAGE_OF_MEDIVH)
+                 ImageGUID = data;
          }
 
         void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
-                case 183932:   m_uiCurtainGUID          = go->GetGUID();         break;
-                case 184278:
-                    m_uiStageDoorLeftGUID = go->GetGUID();
-                    if (m_auiEncounter[4] == DONE)
+                case GO_STAGE_CURTAIN:
+                    CurtainGUID = go->GetGUID();
+                    break;
+                case GO_STAGE_DOOR_LEFT:
+                    StageDoorLeftGUID = go->GetGUID();
+                    if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
-                case 184279:
-                    m_uiStageDoorRightGUID = go->GetGUID();
-                    if (m_auiEncounter[4] == DONE)
+                case GO_STAGE_DOOR_RIGHT:
+                    StageDoorRightGUID = go->GetGUID();
+                    if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
-                case 184517:   m_uiLibraryDoor          = go->GetGUID();         break;
-                case 185521:   m_uiMassiveDoor          = go->GetGUID();         break;
-                case 184276:   m_uiGamesmansDoor        = go->GetGUID();         break;
-                case 184277:   m_uiGamesmansExitDoor    = go->GetGUID();         break;
-                case 185134:   m_uiNetherspaceDoor      = go->GetGUID();         break;
-                case 184274:    MastersTerraceDoor[0] = go->GetGUID();  break;
-                case 184280:    MastersTerraceDoor[1] = go->GetGUID();  break;
-                case 184275:
-                    m_uiSideEntranceDoor = go->GetGUID();
-                    if (m_auiEncounter[4] == DONE)
+                case GO_PRIVATE_LIBRARY_DOOR:
+                    LibraryDoor = go->GetGUID();
+                    break;
+                case GO_MASSIVE_DOOR:
+                    MassiveDoor = go->GetGUID();
+                    break;
+                case GO_GAMESMAN_HALL_DOOR:
+                    GamesmansDoor = go->GetGUID();
+                    break;
+                case GO_GAMESMAN_HALL_EXIT_DOOR:
+                    GamesmansExitDoor = go->GetGUID();
+                    break;
+                case GO_NETHERSPACE_DOOR:
+                    NetherspaceDoor = go->GetGUID();
+                    break;
+                case GO_MASTERS_TERRACE_DOOR:
+                    MastersTerraceDoor[0] = go->GetGUID();
+                    break;
+                case GO_MASTERS_TERRACE_DOOR2:
+                    MastersTerraceDoor[1] = go->GetGUID();
+                    break;
+                case GO_SIDE_ENTRANCE_DOOR:
+                    SideEntranceDoor = go->GetGUID();
+                    if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     else
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     break;
-                case 185119: DustCoveredChest = go->GetGUID(); break;
+                case GO_DUST_COVERED_CHEST:
+                    DustCoveredChest = go->GetGUID();
+                    break;
             }
 
-            switch (m_uiOperaEvent)
+            switch (OperaEvent)
             {
                 /// @todo Set Object visibilities for Opera based on performance
                 case EVENT_OZ:
@@ -216,77 +240,77 @@ public:
             }
         }
 
-        std::string GetSaveData() override
+        uint32 GetData(uint32 type) const override
         {
-            return strSaveData;
-        }
-
-        uint32 GetData(uint32 uiData) const override
-        {
-            switch (uiData)
+            switch (type)
             {
-                case TYPE_ATTUMEN:              return m_auiEncounter[0];
-                case TYPE_MOROES:               return m_auiEncounter[1];
-                case TYPE_MAIDEN:               return m_auiEncounter[2];
-                case TYPE_OPTIONAL_BOSS:        return m_auiEncounter[3];
-                case TYPE_OPERA:                return m_auiEncounter[4];
-                case TYPE_CURATOR:              return m_auiEncounter[5];
-                case TYPE_ARAN:                 return m_auiEncounter[6];
-                case TYPE_TERESTIAN:            return m_auiEncounter[7];
-                case TYPE_NETHERSPITE:          return m_auiEncounter[8];
-                case TYPE_CHESS:                return m_auiEncounter[9];
-                case TYPE_MALCHEZZAR:           return m_auiEncounter[10];
-                case TYPE_NIGHTBANE:            return m_auiEncounter[11];
-                case DATA_OPERA_PERFORMANCE:    return m_uiOperaEvent;
-                case DATA_OPERA_OZ_DEATHCOUNT:  return m_uiOzDeathCount;
+                case DATA_OPERA_PERFORMANCE:
+                    return OperaEvent;
+                case DATA_OPERA_OZ_DEATHCOUNT:
+                    return OzDeathCount;
             }
 
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 uiData) const override
+        ObjectGuid GetGuidData(uint32 type) const override
         {
-            switch (uiData)
+            switch (type)
             {
-                case DATA_KILREK:                   return m_uiKilrekGUID;
-                case DATA_TERESTIAN:                return m_uiTerestianGUID;
-                case DATA_MOROES:                   return m_uiMoroesGUID;
-                case DATA_GO_STAGEDOORLEFT:         return m_uiStageDoorLeftGUID;
-                case DATA_GO_STAGEDOORRIGHT:        return m_uiStageDoorRightGUID;
-                case DATA_GO_CURTAINS:              return m_uiCurtainGUID;
-                case DATA_GO_LIBRARY_DOOR:          return m_uiLibraryDoor;
-                case DATA_GO_MASSIVE_DOOR:          return m_uiMassiveDoor;
-                case DATA_GO_SIDE_ENTRANCE_DOOR:    return m_uiSideEntranceDoor;
-                case DATA_GO_GAME_DOOR:             return m_uiGamesmansDoor;
-                case DATA_GO_GAME_EXIT_DOOR:        return m_uiGamesmansExitDoor;
-                case DATA_GO_NETHER_DOOR:           return m_uiNetherspaceDoor;
-                case DATA_MASTERS_TERRACE_DOOR_1:   return MastersTerraceDoor[0];
-                case DATA_MASTERS_TERRACE_DOOR_2:   return MastersTerraceDoor[1];
-                case DATA_IMAGE_OF_MEDIVH:          return ImageGUID;
+                case DATA_KILREK:
+                    return KilrekGUID;
+                case DATA_TERESTIAN:
+                    return TerestianGUID;
+                case DATA_MOROES:
+                    return MoroesGUID;
+                case DATA_GO_STAGEDOORLEFT:
+                    return StageDoorLeftGUID;
+                case DATA_GO_STAGEDOORRIGHT:
+                    return StageDoorRightGUID;
+                case DATA_GO_CURTAINS:
+                    return CurtainGUID;
+                case DATA_GO_LIBRARY_DOOR:
+                    return LibraryDoor;
+                case DATA_GO_MASSIVE_DOOR:
+                    return MassiveDoor;
+                case DATA_GO_SIDE_ENTRANCE_DOOR:
+                    return SideEntranceDoor;
+                case DATA_GO_GAME_DOOR:
+                    return GamesmansDoor;
+                case DATA_GO_GAME_EXIT_DOOR:
+                    return GamesmansExitDoor;
+                case DATA_GO_NETHER_DOOR:
+                    return NetherspaceDoor;
+                case DATA_MASTERS_TERRACE_DOOR_1:
+                    return MastersTerraceDoor[0];
+                case DATA_MASTERS_TERRACE_DOOR_2:
+                    return MastersTerraceDoor[1];
+                case DATA_IMAGE_OF_MEDIVH:
+                    return ImageGUID;
             }
 
             return ObjectGuid::Empty;
         }
 
-        void Load(char const* chrIn) override
-        {
-            if (!chrIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(chrIn);
-            std::istringstream loadStream(chrIn);
-
-            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-                >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7]
-                >> m_auiEncounter[8] >> m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11];
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                    m_auiEncounter[i] = NOT_STARTED;
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
+    private:
+        uint32 OperaEvent;
+        uint32 OzDeathCount;
+        uint32 OptionalBossCount;
+        ObjectGuid CurtainGUID;
+        ObjectGuid StageDoorLeftGUID;
+        ObjectGuid StageDoorRightGUID;
+        ObjectGuid KilrekGUID;
+        ObjectGuid TerestianGUID;
+        ObjectGuid MoroesGUID;
+        ObjectGuid LibraryDoor;                 // Door at Shade of Aran
+        ObjectGuid MassiveDoor;                 // Door at Netherspite
+        ObjectGuid SideEntranceDoor;            // Side Entrance
+        ObjectGuid GamesmansDoor;               // Door before Chess
+        ObjectGuid GamesmansExitDoor;           // Door after Chess
+        ObjectGuid NetherspaceDoor;             // Door at Malchezaar
+        ObjectGuid MastersTerraceDoor[2];
+        ObjectGuid ImageGUID;
+        ObjectGuid DustCoveredChest;
     };
 };
 

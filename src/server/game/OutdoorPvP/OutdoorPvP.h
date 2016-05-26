@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,7 +84,7 @@ class Unit;
 struct GossipMenuItems;
 class OutdoorPvP;
 
-class OPvPCapturePoint
+class TC_GAME_API OPvPCapturePoint
 {
     public:
 
@@ -185,7 +185,7 @@ class OPvPCapturePoint
 };
 
 // base class for specific outdoor pvp handlers
-class OutdoorPvP : public ZoneScript
+class TC_GAME_API OutdoorPvP : public ZoneScript
 {
     friend class OutdoorPvPMgr;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,6 +77,12 @@ std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
         return guild->GetName();
 
     return "";
+}
+
+GuildMgr* GuildMgr::instance()
+{
+    static GuildMgr instance;
+    return &instance;
 }
 
 Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,10 +25,6 @@
 #include "MoveSpline.h"
 
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
-
-#ifdef MAP_BASED_RAND_GEN
-#define rand_norm() creature.rand_norm()
-#endif
 
 template<>
 void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)

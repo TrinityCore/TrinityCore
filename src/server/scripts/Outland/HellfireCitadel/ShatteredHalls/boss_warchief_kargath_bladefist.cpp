@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +109,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 removeAdds();
                 _Reset();
-                me->SetSpeed(MOVE_RUN, 2);
+                me->SetSpeedRate(MOVE_RUN, 2);
                 me->SetWalk(false);
 
                 Initialize();
@@ -231,7 +231,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                             {
                                 // stop bladedance
                                 InBlade = false;
-                                me->SetSpeed(MOVE_RUN, 2);
+                                me->SetSpeedRate(MOVE_RUN, 2);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 Blade_Dance_Timer = 30000;
                                 Wait_Timer = 0;
@@ -264,7 +264,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                             Wait_Timer = 1;
                             InBlade = true;
                             Blade_Dance_Timer = 0;
-                            me->SetSpeed(MOVE_RUN, 4);
+                            me->SetSpeedRate(MOVE_RUN, 4);
                             return;
                         }
                         else

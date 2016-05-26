@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 class ByteBuffer;
 
-struct Position
+struct TC_GAME_API Position
 {
     Position(float x = 0, float y = 0, float z = 0, float o = 0)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
@@ -216,11 +216,11 @@ public:
     }
 };
 
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 
 #endif // Trinity_game_Position_h__

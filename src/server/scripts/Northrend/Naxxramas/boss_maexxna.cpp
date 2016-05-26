@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,6 +73,8 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const
     {
+        if (target->GetTypeId() != TYPEID_PLAYER) // never web nonplayers (pets, guardians, etc.)
+            return false;
         if (_maexxna->GetVictim() == target) // never target tank
             return false;
         if (target->HasAura(SPELL_WEB_WRAP)) // never target targets that are already webbed
@@ -101,11 +103,11 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WRAP, 20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SPRAY, 40 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SHOCK, urandms(5, 10));
-            events.ScheduleEvent(EVENT_POISON, urandms(10, 15));
-            events.ScheduleEvent(EVENT_SUMMON, 30 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
+            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
+            events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
+            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
         }
 
         void Reset() override
@@ -116,7 +118,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             if (HealthBelowPct(30) && !me->HasAura(SPELL_FRENZY_HELPER))
@@ -153,28 +155,28 @@ public:
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_WRAP, 40000);
+                        events.Repeat(Seconds(40));
                         break;
                     }
                     case EVENT_SPRAY:
                         Talk(EMOTE_WEB_SPRAY);
                         DoCastAOE(SPELL_WEB_SPRAY);
-                        events.ScheduleEvent(EVENT_SPRAY, 40000);
+                        events.Repeat(Seconds(40));
                         break;
                     case EVENT_SHOCK:
                         DoCastAOE(SPELL_POISON_SHOCK);
-                        events.ScheduleEvent(EVENT_SHOCK, urandms(10, 20));
+                        events.Repeat(randtime(Seconds(10), Seconds(20)));
                         break;
                     case EVENT_POISON:
                         DoCastVictim(SPELL_NECROTIC_POISON);
-                        events.ScheduleEvent(EVENT_POISON, urandms(10, 20));
+                        events.Repeat(randtime(Seconds(10), Seconds(20)));
                         break;
                     case EVENT_SUMMON:
                         Talk(EMOTE_SPIDERS);
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
                             DoSummon(NPC_SPIDERLING, me, 4.0f, 5 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                        events.ScheduleEvent(EVENT_SUMMON, 40000);
+                        events.Repeat(Seconds(40));
                         break;
                 }
             }

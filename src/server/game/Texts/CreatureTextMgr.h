@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,18 +75,14 @@ typedef std::unordered_map<uint32, CreatureTextHolder> CreatureTextMap;     // a
 
 typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 
-class CreatureTextMgr
+class TC_GAME_API CreatureTextMgr
 {
     private:
         CreatureTextMgr() { }
         ~CreatureTextMgr() { }
 
     public:
-        static CreatureTextMgr* instance()
-        {
-            static CreatureTextMgr instance;
-            return &instance;
-        }
+        static CreatureTextMgr* instance();
 
         void LoadCreatureTexts();
         void LoadCreatureTextLocales();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -266,7 +266,7 @@ class WintergraspCapturePoint : public BfCapturePoint
  * WinterGrasp Battlefield   *
  * ######################### */
 
-class BattlefieldWG : public Battlefield
+class TC_GAME_API BattlefieldWG : public Battlefield
 {
     public:
         ~BattlefieldWG();
@@ -1098,7 +1098,7 @@ StaticWintergraspWorkshopInfo const WorkshopData[WG_MAX_WORKSHOP] =
 // ********************************************************************
 
 // Structure for different buildings that can be destroyed during battle
-struct BfWGGameObjectBuilding
+struct TC_GAME_API BfWGGameObjectBuilding
 {
 private:
     // WG object
@@ -1150,7 +1150,7 @@ public:
 };
 
 // Structure for the 6 workshop
-struct WintergraspWorkshop
+struct TC_GAME_API WintergraspWorkshop
 {
 private:
     BattlefieldWG* _wg;                             // Pointer to wintergrasp

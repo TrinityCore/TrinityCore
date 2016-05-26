@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,11 +83,56 @@
 #  define ATTR_NORETURN __attribute__((__noreturn__))
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
 #  define ATTR_DEPRECATED __attribute__((__deprecated__))
+#  define TRINITY_CONSTEXPR constexpr
 #else //COMPILER != COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
+#if _MSC_VER >= 1900
+#  define TRINITY_CONSTEXPR constexpr
+#else
+#  define TRINITY_CONSTEXPR
+#endif
 #endif //COMPILER == COMPILER_GNU
+
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#  if COMPILER == COMPILER_MICROSOFT
+#    define TC_API_EXPORT __declspec(dllexport)
+#    define TC_API_IMPORT __declspec(dllimport)
+#  elif COMPILER == COMPILER_GNU
+#    define TC_API_EXPORT __attribute__((visibility("default")))
+#    define TC_API_IMPORT
+#  else
+#    error compiler not supported!
+#  endif
+#else
+#  define TC_API_EXPORT
+#  define TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_COMMON
+#  define TC_COMMON_API TC_API_EXPORT
+#else
+#  define TC_COMMON_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_DATABASE
+#  define TC_DATABASE_API TC_API_EXPORT
+#else
+#  define TC_DATABASE_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_SHARED
+#  define TC_SHARED_API TC_API_EXPORT
+#else
+#  define TC_SHARED_API TC_API_IMPORT
+#endif
+
+#ifdef TRINITY_API_EXPORT_GAME
+#  define TC_GAME_API TC_API_EXPORT
+#else
+#  define TC_GAME_API TC_API_IMPORT
+#endif
 
 #define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)

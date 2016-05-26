@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -96,9 +96,9 @@ class OPvPCapturePointHP : public OPvPCapturePoint
     public:
         OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
-        void ChangeState();
+        void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPacket & data) override;
 
     private:
         OutdoorPvPHPTowerType m_TowerType;
@@ -109,18 +109,18 @@ class OutdoorPvPHP : public OutdoorPvP
     public:
         OutdoorPvPHP();
 
-        bool SetupOutdoorPvP();
+        bool SetupOutdoorPvP() override;
 
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
-        bool Update(uint32 diff);
+        bool Update(uint32 diff) override;
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPacket &data) override;
 
-        void SendRemoveWorldStates(Player* player);
+        void SendRemoveWorldStates(Player* player) override;
 
-        void HandleKillImpl(Player* player, Unit* killed);
+        void HandleKillImpl(Player* player, Unit* killed) override;
 
         uint32 GetAllianceTowersControlled() const;
         void SetAllianceTowersControlled(uint32 count);

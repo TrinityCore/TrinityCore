@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,12 @@ ArenaTeamMgr::~ArenaTeamMgr()
 {
     for (ArenaTeamContainer::iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
         delete itr->second;
+}
+
+ArenaTeamMgr* ArenaTeamMgr::instance()
+{
+    static ArenaTeamMgr instance;
+    return &instance;
 }
 
 // Arena teams collection

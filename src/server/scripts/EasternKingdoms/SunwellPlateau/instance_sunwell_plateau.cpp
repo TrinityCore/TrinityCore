@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,13 +31,13 @@
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_BARRIER,     DATA_FELMYST,  DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_MURUS_GATE_1,     DATA_MURU,     DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_MURUS_GATE_2,     DATA_MURU,     DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_BOSS_COLLISION_1, DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_BOSS_COLLISION_2, DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_FORCE_FIELD,      DATA_KALECGOS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { 0,                   0,             DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_FIRE_BARRIER,     DATA_FELMYST,  DOOR_TYPE_PASSAGE },
+    { GO_MURUS_GATE_1,     DATA_MURU,     DOOR_TYPE_ROOM },
+    { GO_MURUS_GATE_2,     DATA_MURU,     DOOR_TYPE_PASSAGE },
+    { GO_BOSS_COLLISION_1, DATA_KALECGOS, DOOR_TYPE_ROOM },
+    { GO_BOSS_COLLISION_2, DATA_KALECGOS, DOOR_TYPE_ROOM },
+    { GO_FORCE_FIELD,      DATA_KALECGOS, DOOR_TYPE_ROOM },
+    { 0,                   0,             DOOR_TYPE_ROOM } // END
 };
 
 class instance_sunwell_plateau : public InstanceMapScript

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "pit_of_saron.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "PlayerAI.h"
 
 enum Yells
 {
@@ -170,7 +171,7 @@ class boss_tyrannus : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 instance->SetBossState(DATA_TYRANNUS, FAIL);
                 if (Creature* rimefang = GetRimefang())
@@ -438,9 +439,10 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                oldAI = GetTarget()->GetAI();
-                oldAIState = GetTarget()->IsAIEnabled;
-                GetTarget()->SetAI(new player_overlord_brandAI(GetTarget()->ToPlayer(), GetCasterGUID()));
+                Player* pTarget = GetTarget()->ToPlayer();
+                oldAI = pTarget->AI();
+                oldAIState = pTarget->IsAIEnabled;
+                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
                 GetTarget()->IsAIEnabled = true;
             }
 
@@ -450,7 +452,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 GetTarget()->IsAIEnabled = oldAIState;
-                UnitAI* thisAI = GetTarget()->GetAI();
+                PlayerAI* thisAI = GetTarget()->ToPlayer()->AI();
                 GetTarget()->SetAI(oldAI);
                 delete thisAI;
             }
@@ -461,7 +463,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            UnitAI* oldAI;
+            PlayerAI* oldAI;
             bool oldAIState;
         };
 

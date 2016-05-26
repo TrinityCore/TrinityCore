@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,6 +58,10 @@ enum Enums
     SAY_FAREWELL                  = 5,
     SAY_ATTACKED                  = 11,
 
+    GOSSIP_OPTION_LET_EVENT_BEGIN = 201,
+    NPC_TEXT_NARALEX_SLEEPS_AGAIN = 698,
+    NPC_TEXT_FANGLORDS_ARE_DEAD   = 699,
+
     SPELL_MARK_OF_THE_WILD_RANK_2 = 5232,
     SPELL_SERPENTINE_CLEANSING    = 6270,
     SPELL_NARALEXS_AWAKENING      = 6271,
@@ -69,10 +73,6 @@ enum Enums
     NPC_NIGHTMARE_ECTOPLASM       = 5763,
     NPC_MUTANUS_THE_DEVOURER      = 3654,
 };
-
-#define GOSSIP_ID_START_1       698  //Naralex sleeps again!
-#define GOSSIP_ID_START_2       699  //The fanglords are dead!
-#define GOSSIP_ITEM_NARALEX     "Let the event begin!"
 
 class npc_disciple_of_naralex : public CreatureScript
 {
@@ -116,8 +116,8 @@ public:
             if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
                 (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
 
                 if (!instance->GetData(TYPE_NARALEX_YELLED))
                 {
@@ -127,7 +127,7 @@ public:
             }
             else
             {
-                player->SEND_GOSSIP_MENU(GOSSIP_ID_START_1, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_NARALEX_SLEEPS_AGAIN, creature->GetGUID());
             }
         }
         return true;

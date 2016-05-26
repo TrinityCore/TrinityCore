@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -396,7 +396,7 @@ class npc_eye_of_acherus : public CreatureScript
                             if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
                             {
                                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                                    me->SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
+                                    me->SetSpeedRate(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)));
                                 Talk(TALK_MOVE_START, owner);
                             }
                             me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
@@ -419,7 +419,7 @@ class npc_eye_of_acherus : public CreatureScript
                     {
                         owner->RemoveAura(SPELL_EYE_FLIGHT_BOOST);
                         for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                            me->SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
+                            me->SetSpeedRate(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)));
 
                         Talk(TALK_CONTROL, owner);
                     }
@@ -448,8 +448,6 @@ class npc_eye_of_acherus : public CreatureScript
 /*######
 ## npc_death_knight_initiate
 ######*/
-
-#define GOSSIP_ACCEPT_DUEL      "I challenge you, death knight!"
 
 enum Spells_DKI
 {
@@ -511,7 +509,7 @@ public:
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            player->ADD_GOSSIP_ITEM_DB(Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
@@ -705,7 +703,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
 
                 TargetGUID = who->GetGUID();
                 me->SetWalk(true);
-                me->SetSpeed(MOVE_RUN, 0.4f);
+                me->SetSpeedRate(MOVE_RUN, 0.4f);
                 me->GetMotionMaster()->MoveChase(who);
                 me->SetTarget(TargetGUID);
                 Intro = true;
@@ -1052,7 +1050,7 @@ class npc_scarlet_miner_cart : public CreatureScript
 
                     // Not 100% correct, but movement is smooth. Sometimes miner walks faster
                     // than normal, this speed is fast enough to keep up at those times.
-                    me->SetSpeed(MOVE_RUN, 1.25f);
+                    me->SetSpeedRate(MOVE_RUN, 1.25f);
 
                     me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
                 }

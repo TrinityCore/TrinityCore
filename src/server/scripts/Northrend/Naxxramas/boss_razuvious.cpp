@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,6 +104,9 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            for (ObjectGuid summonGuid : summons)
+                if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
+                    summon->RemoveCharmAuras();
             Talk(SAY_DEATH);
             DoCastAOE(SPELL_HOPELESS, true);
 
@@ -117,10 +120,10 @@ public:
             me->StopMoving();
             summons.DoZoneInCombat();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ATTACK, 7 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_STRIKE, 21 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SHOUT, 16 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_KNIFE, 10 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_ATTACK, Seconds(7));
+            events.ScheduleEvent(EVENT_STRIKE, Seconds(21));
+            events.ScheduleEvent(EVENT_SHOUT, Seconds(16));
+            events.ScheduleEvent(EVENT_KNIFE, Seconds(10));
         }
 
         void UpdateAI(uint32 diff) override
@@ -141,16 +144,16 @@ public:
                         break;
                     case EVENT_STRIKE:
                         DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                        events.ScheduleEvent(EVENT_STRIKE, 6 * IN_MILLISECONDS);
+                        events.Repeat(Seconds(6));
                         return;
                     case EVENT_SHOUT:
                         DoCastAOE(SPELL_DISRUPTING_SHOUT);
-                        events.ScheduleEvent(EVENT_SHOUT, 16 * IN_MILLISECONDS);
+                        events.Repeat(Seconds(16));
                         return;
                     case EVENT_KNIFE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
                             DoCast(target, SPELL_JAGGED_KNIFE);
-                        events.ScheduleEvent(EVENT_KNIFE, urandms(10,15));
+                        events.Repeat(randtime(Seconds(10), Seconds(15)));
                         return;
                 }
             }
@@ -174,7 +177,10 @@ class npc_dk_understudy : public CreatureScript
 
         struct npc_dk_understudyAI : public ScriptedAI
         {
-            npc_dk_understudyAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), bloodStrikeTimer(0) { }
+            npc_dk_understudyAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), bloodStrikeTimer(0)
+            {
+                creature->LoadEquipment(1);
+            }
 
             void EnterCombat(Unit* /*who*/) override
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,14 +24,10 @@ class Player;
 class ZoneScript;
 
 // class to handle player enter / leave / areatrigger / GO use events
-class BattlefieldMgr
+class TC_GAME_API BattlefieldMgr
 {
     public:
-        static BattlefieldMgr* instance()
-        {
-            static BattlefieldMgr instance;
-            return &instance;
-        }
+        static BattlefieldMgr* instance();
 
         // create battlefield events
         void InitBattlefield();

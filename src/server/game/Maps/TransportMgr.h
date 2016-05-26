@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,7 +82,7 @@ struct TransportTemplate
 typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
 typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;
 
-struct TransportAnimation
+struct TC_GAME_API TransportAnimation
 {
     TransportAnimation() : TotalTime(0) { }
 
@@ -96,16 +96,12 @@ struct TransportAnimation
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
-class TransportMgr
+class TC_GAME_API TransportMgr
 {
-        friend void LoadDBCStores(std::string const&);
+        friend TC_GAME_API void LoadDBCStores(std::string const&);
 
     public:
-        static TransportMgr* instance()
-        {
-            static TransportMgr instance;
-            return &instance;
-        }
+        static TransportMgr* instance();
 
         void Unload();
 

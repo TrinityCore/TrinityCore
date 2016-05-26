@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -167,7 +167,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                     events.ScheduleEvent(SPELL_MAGE_FIRE_BLAST, TIMER_MIRROR_IMAGE_FIRE_BLAST);
                 }
                 else
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
             }
 
             void Reset() override
@@ -178,6 +178,9 @@ class npc_pet_mage_mirror_image : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 Unit* owner = me->GetCharmerOrOwner();
+                if (!owner)
+                    return;
+
                 Unit* target = owner->getAttackerForHelper();
 
                 events.Update(diff);
@@ -190,9 +193,6 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!owner)
                     return;
 
                 // assign target if image doesnt have any or the target is not actual
@@ -233,7 +233,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
             }
 
             // Do not reload Creature templates on evade mode enter - prevent visual lost
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (me->IsInEvadeMode() || !me->IsAlive())
                     return;

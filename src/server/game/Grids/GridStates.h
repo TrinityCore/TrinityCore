@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,32 +24,32 @@
 
 class Map;
 
-class GridState
+class TC_GAME_API GridState
 {
     public:
         virtual ~GridState() { };
         virtual void Update(Map &, NGridType&, GridInfo &, uint32 t_diff) const = 0;
 };
 
-class InvalidState : public GridState
+class TC_GAME_API InvalidState : public GridState
 {
     public:
         void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
-class ActiveState : public GridState
+class TC_GAME_API ActiveState : public GridState
 {
     public:
         void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
-class IdleState : public GridState
+class TC_GAME_API IdleState : public GridState
 {
     public:
         void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;
 };
 
-class RemovalState : public GridState
+class TC_GAME_API RemovalState : public GridState
 {
     public:
         void Update(Map &, NGridType &, GridInfo &, uint32 t_diff) const override;

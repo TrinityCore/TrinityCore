@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,8 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
-#include "SpellInfo.h"
+#include "magisters_terrace.h"
+#include "EventMap.h"
 
 /*######
 ## npc_kalecgos
@@ -39,21 +40,22 @@ EndContentData */
 
 enum Spells
 {
-    SPELL_TRANSFORM_TO_KAEL     = 44670,
+    SPELL_KALECGOS_TRANSFORM    = 44670,
+    SPELL_TRANSFORM_VISUAL      = 24085,
+    SPELL_CAMERA_SHAKE          = 44762,
     SPELL_ORB_KILL_CREDIT       = 46307
 };
 
-enum Creatures
+enum MovementPoints
 {
-    NPC_KAEL                    = 24848 //human form entry
+    POINT_ID_PREPARE_LANDING    = 6
 };
 
-enum Misc
+enum EventIds
 {
-    POINT_ID_LAND               = 1
+    EVENT_KALECGOS_TRANSFORM         = 1,
+    EVENT_KALECGOS_LANDING           = 2
 };
-
-const float afKaelLandPoint[] = {225.045f, -276.236f, -5.434f};
 
 #define GOSSIP_ITEM_KAEL_1      "Who are you?"
 #define GOSSIP_ITEM_KAEL_2      "What can we do to assist you?"
@@ -61,8 +63,6 @@ const float afKaelLandPoint[] = {225.045f, -276.236f, -5.434f};
 #define GOSSIP_ITEM_KAEL_4      "You're not alone here?"
 #define GOSSIP_ITEM_KAEL_5      "What would Kil'jaeden want with a mortal woman?"
 
-// This is friendly keal that appear after used Orb.
-// If we assume DB handle summon, summon appear somewhere outside the platform where Orb is
 class npc_kalecgos : public CreatureScript
 {
 public:
@@ -115,52 +115,46 @@ public:
 
     struct npc_kalecgosAI : public ScriptedAI
     {
-        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature)
+        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void MovementInform(uint32 type, uint32 pointId) override
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            m_uiTransformTimer = 0;
-        }
-
-        uint32 m_uiTransformTimer;
-
-        void Reset() override
-        {
-            Initialize();
-
-            // we must assume he appear as dragon somewhere outside the platform of orb, and then move directly to here
-            if (me->GetEntry() != NPC_KAEL)
-                me->GetMotionMaster()->MovePoint(POINT_ID_LAND, afKaelLandPoint[0], afKaelLandPoint[1], afKaelLandPoint[2]);
-        }
-
-        void MovementInform(uint32 uiType, uint32 uiPointId) override
-        {
-            if (uiType != POINT_MOTION_TYPE)
+            if (type != WAYPOINT_MOTION_TYPE)
                 return;
 
-            if (uiPointId == POINT_ID_LAND)
-                m_uiTransformTimer = MINUTE*IN_MILLISECONDS;
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiTransformTimer)
+            if (pointId == POINT_ID_PREPARE_LANDING)
             {
-                if (m_uiTransformTimer <= uiDiff)
-                {
-                    DoCast(me, SPELL_ORB_KILL_CREDIT, true);
-
-                    // Transform and update entry, now ready for quest/read gossip
-                    DoCast(me, SPELL_TRANSFORM_TO_KAEL, false);
-                    me->UpdateEntry(NPC_KAEL);
-
-                    m_uiTransformTimer = 0;
-                } else m_uiTransformTimer -= uiDiff;
+                me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+                events.ScheduleEvent(EVENT_KALECGOS_LANDING, Seconds(2));
             }
         }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_KALECGOS_LANDING:
+                    DoCastAOE(SPELL_CAMERA_SHAKE);
+                    me->SetObjectScale(0.6f);
+                    events.ScheduleEvent(EVENT_KALECGOS_TRANSFORM, Seconds(1));
+                    break;
+                case EVENT_KALECGOS_TRANSFORM:
+                    DoCast(me, SPELL_ORB_KILL_CREDIT, true);
+                    DoCast(me, SPELL_TRANSFORM_VISUAL, false);
+                    DoCast(me, SPELL_KALECGOS_TRANSFORM, false);
+                    me->UpdateEntry(NPC_HUMAN_KALECGOS);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private:
+            EventMap events;
     };
 };
 

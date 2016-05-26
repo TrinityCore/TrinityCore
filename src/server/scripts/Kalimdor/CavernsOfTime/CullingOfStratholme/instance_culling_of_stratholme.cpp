@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,9 +43,9 @@ Position const GuardianOfTimePos = { 2321.489f, 1268.383f, 132.8507f, 0.418879f 
 
 DoorData const doorData[] =
 {
-    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_EXIT_GATE,       DATA_MAL_GANIS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,                  0,              DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_MALGANIS_GATE_2, DATA_MAL_GANIS, DOOR_TYPE_ROOM },
+    { GO_EXIT_GATE,       DATA_MAL_GANIS, DOOR_TYPE_PASSAGE },
+    { 0,                  0,              DOOR_TYPE_ROOM } // END
 };
 
 class instance_culling_of_stratholme : public InstanceMapScript

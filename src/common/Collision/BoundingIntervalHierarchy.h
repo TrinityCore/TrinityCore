@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,7 +67,7 @@ struct AABound
     Copyright (c) 2003-2007 Christopher Kulla
 */
 
-class BIH
+class TC_COMMON_API BIH
 {
     private:
         void init_empty()

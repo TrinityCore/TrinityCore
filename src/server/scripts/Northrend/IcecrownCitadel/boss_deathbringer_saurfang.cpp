@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -287,7 +287,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
@@ -332,9 +332,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                 ScriptedAI::AttackStart(victim);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
                 if (_introDone)
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
@@ -390,7 +390,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     if (target->GetTransport())
                     {
                         summon->DespawnOrUnsummon(1);
-                        EnterEvadeMode();
+                        EnterEvadeMode(EVADE_REASON_OTHER);
                         return;
                     }
 
@@ -420,7 +420,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 if (target->GetTransport())
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return;
                 }
 
@@ -598,7 +598,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (target->GetTransport())
                     return false;
 
-                return true;
+                return BossAI::CanAIAttack(target);
             }
 
             static uint32 const FightWonValue;

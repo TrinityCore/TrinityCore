@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -133,10 +133,10 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
 
         CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(entry);
         if (items)
-            for (size_t i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
                 data << (i < items->size() ? uint32((*items)[i]) : uint32(0));
         else
-            for (size_t i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
                 data << uint32(0);
 
         data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc

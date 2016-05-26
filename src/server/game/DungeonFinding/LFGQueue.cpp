@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,7 +119,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
     return o.str();
 }
 
-void LFGQueue::AddToQueue(ObjectGuid guid)
+void LFGQueue::AddToQueue(ObjectGuid guid, bool reAdd)
 {
     LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
     if (itQueue == QueueDataStore.end())
@@ -128,7 +128,10 @@ void LFGQueue::AddToQueue(ObjectGuid guid)
         return;
     }
 
-    AddToNewQueue(guid);
+    if (reAdd)
+        AddToFrontCurrentQueue(guid);
+    else
+        AddToNewQueue(guid);
 }
 
 void LFGQueue::RemoveFromQueue(ObjectGuid guid)
@@ -171,6 +174,11 @@ void LFGQueue::RemoveFromNewQueue(ObjectGuid guid)
 void LFGQueue::AddToCurrentQueue(ObjectGuid guid)
 {
     currentQueueStore.push_back(guid);
+}
+
+void LFGQueue::AddToFrontCurrentQueue(ObjectGuid guid)
+{
+    currentQueueStore.push_front(guid);
 }
 
 void LFGQueue::RemoveFromCurrentQueue(ObjectGuid guid)

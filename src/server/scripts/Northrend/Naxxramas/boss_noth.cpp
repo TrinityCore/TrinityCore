@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,7 +88,7 @@ public:
             events.SetPhase(PHASE_NONE);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             Reset(); // teleport back first
             _EnterEvadeMode();
@@ -131,25 +131,25 @@ public:
                 Reset();
             else
             {
-                uint8 secondsGround;
+                uint8 timeGround;
                 switch (balconyCount)
                 {
                     case 0:
-                        secondsGround =  90;
+                        timeGround =  90;
                         break;
                     case 1:
-                        secondsGround = 110;
+                        timeGround = 110;
                         break;
                     case 2:
                     default:
-                        secondsGround = 180;
+                        timeGround = 180;
                 }
-                events.ScheduleEvent(EVENT_GROUND_ATTACKABLE, 2 * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_BALCONY, secondsGround * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_CURSE, urand(10,25) * IN_MILLISECONDS, 0, PHASE_GROUND);
-                events.ScheduleEvent(EVENT_WARRIOR, urand(20,30) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_GROUND_ATTACKABLE, Seconds(2), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_BALCONY, Seconds(timeGround), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_CURSE, randtime(Seconds(10), Seconds(25)), 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_WARRIOR, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
                 if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                    events.ScheduleEvent(EVENT_BLINK, urand(20,30) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                    events.ScheduleEvent(EVENT_BLINK, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
             }
         }
 
@@ -205,7 +205,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !CheckInRoom())
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -220,7 +220,7 @@ public:
                     case EVENT_CURSE:
                     {
                         DoCastAOE(SPELL_CURSE);
-                        events.ScheduleEvent(EVENT_CURSE, urand(50, 70) * IN_MILLISECONDS, 0, PHASE_GROUND);
+                        events.Repeat(randtime(Seconds(50), Seconds(70)));
                         break;
                     }
                     case EVENT_WARRIOR:
@@ -229,7 +229,7 @@ public:
 
                         CastSummon(RAID_MODE(2, 3), 0, 0);
 
-                        events.ScheduleEvent(EVENT_WARRIOR, 40 * IN_MILLISECONDS, 0, PHASE_GROUND);
+                        events.Repeat(Seconds(40));
                         break;
                     case EVENT_BLINK:
                         DoCastAOE(SPELL_CRIPPLE, true);
@@ -237,7 +237,7 @@ public:
                         DoResetThreat();
                         justBlinked = true;
 
-                        events.ScheduleEvent(EVENT_BLINK, 40000, 0, PHASE_GROUND);
+                        events.Repeat(Seconds(40));
                         break;
                     case EVENT_BALCONY:
                         events.SetPhase(PHASE_BALCONY);
@@ -247,24 +247,24 @@ public:
                         me->StopMoving();
                         me->RemoveAllAuras();
 
-                        events.ScheduleEvent(EVENT_BALCONY_TELEPORT, 3 * IN_MILLISECONDS, 0, PHASE_BALCONY);
-                        events.ScheduleEvent(EVENT_WAVE, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS), 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_BALCONY_TELEPORT, Seconds(3), 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_WAVE, randtime(Seconds(5), Seconds(8)), 0, PHASE_BALCONY);
 
-                        uint8 secondsBalcony;
+                        uint8 timeBalcony;
                         switch (balconyCount)
                         {
                             case 0:
-                                secondsBalcony = 70;
+                                timeBalcony = 70;
                                 break;
                             case 1:
-                                secondsBalcony = 97;
+                                timeBalcony = 97;
                                 break;
                             case 2:
                             default:
-                                secondsBalcony = 120;
+                                timeBalcony = 120;
                                 break;
                         }
-                        events.ScheduleEvent(EVENT_GROUND, secondsBalcony * IN_MILLISECONDS, 0, PHASE_BALCONY);
+                        events.ScheduleEvent(EVENT_GROUND, Seconds(timeBalcony), 0, PHASE_BALCONY);
                         break;
                     case EVENT_BALCONY_TELEPORT:
                         Talk(EMOTE_TELEPORT_1);
@@ -287,7 +287,7 @@ public:
                                 CastSummon(0, RAID_MODE(5, 10), RAID_MODE(5, 10));
                                 break;
                         }
-                        events.ScheduleEvent(EVENT_WAVE, urand(30, 45) * IN_MILLISECONDS, 0, PHASE_BALCONY);
+                        events.Repeat(randtime(Seconds(30), Seconds(45)));
                         break;
                     case EVENT_GROUND:
                         ++balconyCount;

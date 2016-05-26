@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,9 +100,9 @@ class boss_faerlina : public CreatureScript
                 _EnterCombat();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
-                events.ScheduleEvent(EVENT_POISON, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_FIRE, urand(6 * IN_MILLISECONDS, 18 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_FRENZY, urand(60 * IN_MILLISECONDS, 80 * IN_MILLISECONDS));
+                events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
+                events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
+                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(Seconds(0), Seconds(20)));
             }
 
             void Reset() override
@@ -111,9 +111,9 @@ class boss_faerlina : public CreatureScript
                 _frenzyDispels = 0;
             }
 
-            void KilledUnit(Unit* /*victim*/) override
+            void KilledUnit(Unit* victim) override
             {
-                if (!urand(0, 2))
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -158,21 +158,21 @@ class boss_faerlina : public CreatureScript
                         case EVENT_POISON:
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                                 DoCastAOE(SPELL_POISON_BOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISON, urand(8000, 15000));
+                            events.Repeat(randtime(Seconds(8), Seconds(15)));
                             break;
                         case EVENT_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
+                            events.Repeat(randtime(Seconds(6), Seconds(18)));
                             break;
                         case EVENT_FRENZY:
                             if (Aura* widowsEmbrace = me->GetAura(SPELL_WIDOWS_EMBRACE_HELPER))
-                                events.ScheduleEvent(EVENT_FRENZY, widowsEmbrace->GetDuration()+1 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_FRENZY, Milliseconds(widowsEmbrace->GetDuration()+1));
                             else
                             {
                                 DoCast(SPELL_FRENZY);
                                 Talk(EMOTE_FRENZY);
-                                events.ScheduleEvent(EVENT_FRENZY, urand(60 * IN_MILLISECONDS, 80 * IN_MILLISECONDS));
+                                events.Repeat(Minutes(1) + randtime(Seconds(0), Seconds(20)));
                             }
                             break;
                     }

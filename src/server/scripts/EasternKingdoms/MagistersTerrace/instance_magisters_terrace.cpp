@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "EventMap.h"
 
 /*
 0  - Selin Fireheart
@@ -28,13 +30,15 @@
 
 DoorData const doorData[] =
 {
-    { GO_SELIN_DOOR,           DATA_SELIN,    DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_SELIN_ENCOUNTER_DOOR, DATA_SELIN,    DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { GO_VEXALLUS_DOOR,        DATA_VEXALLUS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_DELRISSA_DOOR,        DATA_DELRISSA, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_KAEL_DOOR,            DATA_KAELTHAS, DOOR_TYPE_ROOM,    BOUNDARY_NONE },
-    { 0,                       0,             DOOR_TYPE_ROOM,    BOUNDARY_NONE } // END
+    { GO_SELIN_DOOR,           DATA_SELIN,    DOOR_TYPE_PASSAGE },
+    { GO_SELIN_ENCOUNTER_DOOR, DATA_SELIN,    DOOR_TYPE_ROOM },
+    { GO_VEXALLUS_DOOR,        DATA_VEXALLUS, DOOR_TYPE_PASSAGE },
+    { GO_DELRISSA_DOOR,        DATA_DELRISSA, DOOR_TYPE_PASSAGE },
+    { GO_KAEL_DOOR,            DATA_KAELTHAS, DOOR_TYPE_ROOM },
+    { 0,                       0,             DOOR_TYPE_ROOM } // END
 };
+
+Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f };
 
 class instance_magisters_terrace : public InstanceMapScript
 {
@@ -93,6 +97,10 @@ class instance_magisters_terrace : public InstanceMapScript
                     case NPC_DELRISSA:
                         DelrissaGUID = creature->GetGUID();
                         break;
+                    case NPC_KALECGOS:
+                    case NPC_HUMAN_KALECGOS:
+                        KalecgosGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -139,6 +147,25 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
+            void ProcessEvent(WorldObject* obj, uint32 eventId) override
+            {
+                if (eventId == EVENT_SPAWN_KALECGOS)
+                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && Events.Empty())
+                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+            }
+
+            void Update(uint32 diff) override
+            {
+                Events.Update(diff);
+
+                if (Events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                    if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
+                    {
+                        kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
+                        kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
+                    }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -177,10 +204,12 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
+            EventMap Events;
             ObjectGuid SelinGUID;
             ObjectGuid DelrissaGUID;
             ObjectGuid KaelStatue[2];
             ObjectGuid EscapeOrbGUID;
+            ObjectGuid KalecgosGUID;
             uint32 DelrissaDeathCount;
         };
 

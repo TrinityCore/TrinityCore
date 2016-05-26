@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -236,10 +236,10 @@ void RBACData::AddPermissions(RBACPermissionContainer const& permsFrom, RBACPerm
         permsTo.insert(*itr);
 }
 
-void RBACData::RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo)
+void RBACData::RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove)
 {
-    for (RBACPermissionContainer::const_iterator itr = permsFrom.begin(); itr != permsFrom.end(); ++itr)
-        permsTo.erase(*itr);
+    for (RBACPermissionContainer::const_iterator itr = permsToRemove.begin(); itr != permsToRemove.end(); ++itr)
+        permsFrom.erase(*itr);
 }
 
 void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)

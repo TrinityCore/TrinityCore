@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,7 +53,7 @@
     | SUM, AVG | DECIMAL           |
     | COUNT    | BIGINT            |
 */
-class Field
+class TC_DATABASE_API Field
 {
     friend class ResultSet;
     friend class PreparedResultSet;
@@ -323,7 +323,7 @@ class Field
             data.value = NULL;
         }
 
-        static size_t SizeForType(MYSQL_FIELD* field)
+        static uint32 SizeForType(MYSQL_FIELD* field)
         {
             switch (field->type)
             {

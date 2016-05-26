@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -169,12 +169,12 @@ public:
             me->SetFullHealth(); //dunno why it does not resets health at evade..
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             bJustReset = true;
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-            ScriptedAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode(why);
         }
 
         void DoAction(int32 param) override
@@ -237,7 +237,7 @@ public:
                 {
                     if (me->GetDistance(CENTER_X, CENTER_Y, DRAGON_REALM_Z) >= 75)
                     {
-                        EnterEvadeMode();
+                        EnterEvadeMode(EVADE_REASON_BOUNDARY);
                         return;
                     }
                     if (HealthBelowPct(10) && !isEnraged)
@@ -261,7 +261,7 @@ public:
                         else
                         {
                             TC_LOG_ERROR("scripts", "Didn't find Shathrowar. Kalecgos event reseted.");
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             return;
                         }
                     }
@@ -423,7 +423,7 @@ public:
                     TalkTimer = 15000;
                     break;
                 case 3:
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 default:
                     break;

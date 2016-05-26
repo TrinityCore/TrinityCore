@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -143,19 +143,29 @@ public:
 
 enum ThrallWarchief
 {
-    QUEST_6566              = 6566,
+    GOSSIP_MENU_OPTION_ID_ALL   = 0,
 
-    SPELL_CHAIN_LIGHTNING   = 16033,
-    SPELL_SHOCK             = 16034
+    OPTION_PLEASE_SHARE_YOUR    = 3664,
+    OPTION_WHAT_DISCOVERIES     = 3665,
+    OPTION_USURPER              = 3666,
+    OPTION_WITH_ALL_DUE_RESPECT = 3667,
+    OPTION_I_I_DID_NOT_THINK_OF = 3668,
+    OPTION_I_LIVE_ONLY_TO_SERVE = 3669,
+    OPTION_OF_COURSE_WARCHIEF   = 3670,
+
+    GOSSIP_MEMBERS_OF_THE_HORDE = 4477,
+    GOSSIP_THE_SHATTERED_HAND   = 5733,
+    GOSSIP_IT_WOULD_APPEAR_AS   = 5734,
+    GOSSIP_THE_BROOD_MOTHER     = 5735,
+    GOSSIP_SO_MUCH_TO_LEARN     = 5736,
+    GOSSIP_I_DO_NOT_FAULT_YOU   = 5737,
+    GOSSIP_NOW_PAY_ATTENTION    = 5738,
+
+    QUEST_WHAT_THE_WIND_CARRIES = 6566,
+
+    SPELL_CHAIN_LIGHTNING       = 16033,
+    SPELL_SHOCK                 = 16034
 };
-
-#define GOSSIP_HTW "Please share your wisdom with me, Warchief."
-#define GOSSIP_STW1 "What discoveries?"
-#define GOSSIP_STW2 "Usurper?"
-#define GOSSIP_STW3 "With all due respect, Warchief - why not allow them to be destroyed? Does this not strengthen our position?"
-#define GOSSIP_STW4 "I... I did not think of it that way, Warchief."
-#define GOSSIP_STW5 "I live only to serve, Warchief! My life is empty and meaningless without your guidance."
-#define GOSSIP_STW6 "Of course, Warchief!"
 
 /// @todo verify abilities/timers
 class npc_thrall_warchief : public CreatureScript
@@ -169,32 +179,32 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(5733, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_WHAT_DISCOVERIES, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(GOSSIP_THE_SHATTERED_HAND, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                player->SEND_GOSSIP_MENU(5734, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_USURPER, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                player->SEND_GOSSIP_MENU(GOSSIP_IT_WOULD_APPEAR_AS, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                player->SEND_GOSSIP_MENU(5735, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_WITH_ALL_DUE_RESPECT, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                player->SEND_GOSSIP_MENU(GOSSIP_THE_BROOD_MOTHER, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(5736, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_I_I_DID_NOT_THINK_OF, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(GOSSIP_SO_MUCH_TO_LEARN, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
-                player->SEND_GOSSIP_MENU(5737, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_I_LIVE_ONLY_TO_SERVE, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                player->SEND_GOSSIP_MENU(GOSSIP_I_DO_NOT_FAULT_YOU, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
-                player->SEND_GOSSIP_MENU(5738, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(OPTION_OF_COURSE_WARCHIEF, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+                player->SEND_GOSSIP_MENU(GOSSIP_NOW_PAY_ATTENTION, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+7:
                 player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(QUEST_6566);
+                player->AreaExploredOrEventHappens(QUEST_WHAT_THE_WIND_CARRIES);
                 break;
         }
         return true;
@@ -205,10 +215,10 @@ public:
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HTW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (player->GetQuestStatus(QUEST_WHAT_THE_WIND_CARRIES) == QUEST_STATUS_INCOMPLETE)
+            player->ADD_GOSSIP_ITEM_DB(OPTION_PLEASE_SHARE_YOUR, GOSSIP_MENU_OPTION_ID_ALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(GOSSIP_MEMBERS_OF_THE_HORDE, creature->GetGUID());
         return true;
     }
 

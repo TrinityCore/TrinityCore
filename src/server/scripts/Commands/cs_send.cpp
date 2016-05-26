@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,7 +74,7 @@ public:
         std::string subject = msgSubject;
         std::string text    = msgText;
 
-        // from console show not existed sender
+        // from console, use non-existing sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         /// @todo Fix poor design
@@ -173,7 +173,7 @@ public:
             }
         }
 
-        // from console show not existed sender
+        // from console show nonexisting sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         // fill mail
@@ -185,7 +185,7 @@ public:
         {
             if (Item* item = Item::CreateItem(itr->first, itr->second, handler->GetSession() ? handler->GetSession()->GetPlayer() : 0))
             {
-                item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
+                item->SaveToDB(trans);              // Save to prevent being lost at next mail load. If send fails, the item will be deleted.
                 draft.AddItem(item);
             }
         }
@@ -233,7 +233,7 @@ public:
         std::string subject = msgSubject;
         std::string text    = msgText;
 
-        // from console show not existed sender
+        // from console show nonexisting sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -260,7 +260,7 @@ public:
         if (!msgStr)
             return false;
 
-        ///- Check that he is not logging out.
+        /// - Check if player is logging out.
         if (player->GetSession()->isLogingOut())
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);

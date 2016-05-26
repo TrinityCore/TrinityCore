@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ class Pool                                                  // for Pool of Pool 
 typedef std::set<ObjectGuid::LowType> ActivePoolObjects;
 typedef std::map<uint32, uint32> ActivePoolPools;
 
-class ActivePoolData
+class TC_GAME_API ActivePoolData
 {
     public:
         template<typename T>
@@ -66,7 +66,7 @@ class ActivePoolData
 };
 
 template <class T>
-class PoolGroup
+class TC_GAME_API PoolGroup
 {
     typedef std::vector<PoolObject> PoolObjectList;
     public:
@@ -101,18 +101,14 @@ typedef std::multimap<uint32, uint32> PooledQuestRelation;
 typedef std::pair<PooledQuestRelation::const_iterator, PooledQuestRelation::const_iterator> PooledQuestRelationBounds;
 typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> PooledQuestRelationBoundsNC;
 
-class PoolMgr
+class TC_GAME_API PoolMgr
 {
     private:
         PoolMgr();
         ~PoolMgr() { };
 
     public:
-        static PoolMgr* instance()
-        {
-            static PoolMgr instance;
-            return &instance;
-        }
+        static PoolMgr* instance();
 
         void LoadFromDB();
         void LoadQuestPools();

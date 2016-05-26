@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -408,10 +408,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << questTitle;
     data << questDetails;
     data << questObjectives;
-    data << uint8(activateAccept ? 1 : 0);                  // auto finish
+    data << uint8(activateAccept ? 1 : 0);                  // CGQuestInfo::m_autoLaunched
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());
-    data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
+    data << uint8(0);                                       // CGQuestInfo::m_startQuestCheat
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {

@@ -25,7 +25,8 @@ void LoadSet(string value, T &res)
 bool AhBotConfig::Initialize()
 {
     string error;
-    if (!config.LoadInitial("ahbot.conf", error))
+	vector<string> args;
+    if (!config.LoadInitial("ahbot.conf", args, error))
     {
         sLog->outMessage("ahbot", LOG_LEVEL_INFO, "AhBot is Disabled. Unable to open configuration file ahbot.conf");
         return false;

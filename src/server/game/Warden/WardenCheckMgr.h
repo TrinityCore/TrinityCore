@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,18 +48,14 @@ struct WardenCheckResult
     BigNumber Result;                                       // MEM_CHECK
 };
 
-class WardenCheckMgr
+class TC_GAME_API WardenCheckMgr
 {
     private:
         WardenCheckMgr();
         ~WardenCheckMgr();
 
     public:
-        static WardenCheckMgr* instance()
-        {
-            static WardenCheckMgr instance;
-            return &instance;
-        }
+        static WardenCheckMgr* instance();
 
         // We have a linear key without any gaps, so we use vector for fast access
         typedef std::vector<WardenCheck*> CheckContainer;

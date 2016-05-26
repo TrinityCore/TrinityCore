@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,7 +67,7 @@ private:
 
 // This class handle all Buyer method
 // (holder of AuctionBotConfig for each auction house type)
-class AuctionBotBuyer : public AuctionBotAgent
+class TC_GAME_API AuctionBotBuyer : public AuctionBotAgent
 {
 public:
     AuctionBotBuyer();

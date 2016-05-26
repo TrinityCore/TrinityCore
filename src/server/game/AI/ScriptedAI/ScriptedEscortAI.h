@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,7 +49,7 @@ enum eEscortState
     STATE_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
 };
 
-struct npc_escortAI : public ScriptedAI
+struct TC_GAME_API npc_escortAI : public ScriptedAI
 {
     public:
         explicit npc_escortAI(Creature* creature);
@@ -66,7 +66,7 @@ struct npc_escortAI : public ScriptedAI
 
         void ReturnToLastPoint();
 
-        void EnterEvadeMode() override;
+        void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
 
         void UpdateAI(uint32 diff) override;        // the "internal" update, calls UpdateEscortAI()
         virtual void UpdateEscortAI(uint32 diff);   // used when it's needed to add code in update (abilities, scripted events, etc)

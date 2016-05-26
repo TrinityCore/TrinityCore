@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,18 +20,14 @@
 
 #include "Group.h"
 
-class GroupMgr
+class TC_GAME_API GroupMgr
 {
 private:
     GroupMgr();
     ~GroupMgr();
 
 public:
-    static GroupMgr* instance()
-    {
-        static GroupMgr instance;
-        return &instance;
-    }
+    static GroupMgr* instance();
 
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
     typedef std::vector<Group*>      GroupDbContainer;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,12 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 4185, 11223, 434.
+SDComment: Quest support: 1640, 1447, 434.
 SDCategory: Stormwind City
 EndScriptData */
 
 /* ContentData
-npc_archmage_malin
 npc_bartleby
-npc_lady_katrana_prestor
 npc_tyrion
 npc_tyrion_spybot
 npc_marzon_silent_blade
@@ -40,50 +38,13 @@ EndContentData */
 #include "Player.h"
 
 /*######
-## npc_archmage_malin
-######*/
-
-#define GOSSIP_ITEM_MALIN "Can you send me to Theramore? I have an urgent message for Lady Jaina from Highlord Bolvar."
-
-class npc_archmage_malin : public CreatureScript
-{
-public:
-    npc_archmage_malin() : CreatureScript("npc_archmage_malin") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, 42711, true);
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MALIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
 ## npc_bartleby
 ######*/
 
 enum Bartleby
 {
-    FACTION_ENEMY       = 168,
-    QUEST_BEAT          = 1640
+    FACTION_ENEMY = 168,
+    QUEST_BEAT    = 1640
 };
 
 class npc_bartleby : public CreatureScript
@@ -148,71 +109,18 @@ public:
 };
 
 /*######
-## npc_lady_katrana_prestor
-######*/
-
-#define GOSSIP_ITEM_KAT_1 "Pardon the intrusion, Lady Prestor, but Highlord Bolvar suggested that I seek your advice."
-#define GOSSIP_ITEM_KAT_2 "My apologies, Lady Prestor."
-#define GOSSIP_ITEM_KAT_3 "Begging your pardon, Lady Prestor. That was not my intent."
-#define GOSSIP_ITEM_KAT_4 "Thank you for your time, Lady Prestor."
-
-class npc_lady_katrana_prestor : public CreatureScript
-{
-public:
-    npc_lady_katrana_prestor() : CreatureScript("npc_lady_katrana_prestor") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(2694, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(2695, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(2696, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(4185);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(4185) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(2693, creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
 ## npc_lord_gregor_lescovar
 ######*/
 
 enum LordGregorLescovar
 {
-    SAY_GUARD_2    = 0,
-    SAY_LESCOVAR_2 = 0,
-    SAY_LESCOVAR_3 = 1,
-    SAY_LESCOVAR_4 = 2,
-    SAY_MARZON_1   = 0,
-    SAY_MARZON_2   = 1,
-    SAY_TYRION_2   = 1,
+    SAY_GUARD_2         = 0,
+    SAY_LESCOVAR_2      = 0,
+    SAY_LESCOVAR_3      = 1,
+    SAY_LESCOVAR_4      = 2,
+    SAY_MARZON_1        = 0,
+    SAY_MARZON_2        = 1,
+    SAY_TYRION_2        = 1,
 
     NPC_STORMWIND_ROYAL = 1756,
     NPC_MARZON_BLADE    = 1755,
@@ -256,7 +164,7 @@ public:
             Initialize();
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             me->DisappearAndDie();
 
@@ -417,7 +325,7 @@ public:
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             me->DisappearAndDie();
 
@@ -650,9 +558,7 @@ public:
 
 void AddSC_stormwind_city()
 {
-    new npc_archmage_malin();
     new npc_bartleby();
-    new npc_lady_katrana_prestor();
     new npc_tyrion();
     new npc_tyrion_spybot();
     new npc_lord_gregor_lescovar();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,12 @@ AuctionHouseMgr::~AuctionHouseMgr()
 {
     for (ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
         delete itr->second;
+}
+
+AuctionHouseMgr* AuctionHouseMgr::instance()
+{
+    static AuctionHouseMgr instance;
+    return &instance;
 }
 
 AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
@@ -132,7 +138,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     else
     {
         bidderAccId = sObjectMgr->GetPlayerAccountIdByGUID(bidderGuid);
-        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realmID);
+        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realm.Id.Realm);
 
         if (logGmTrade && !sObjectMgr->GetPlayerNameByGUID(bidderGuid, bidderName))
             bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -581,6 +587,14 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
+    // Clear expired throttled players
+    for (PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.begin(); itr != GetAllThrottleMap.end();)
+    {
+        if (itr->second <= curTime)
+            itr = GetAllThrottleMap.erase(itr);
+        else
+            ++itr;
+    }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -656,12 +670,39 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
 void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player,
     std::wstring const& wsearchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
     uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
-    uint32& count, uint32& totalcount)
+    uint32& count, uint32& totalcount, bool getall)
 {
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     time_t curTime = sWorld->GetGameTime();
+
+    PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.find(player->GetGUID());
+    time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;
+
+    if (getall && throttleTime <= curTime)
+    {
+        for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+        {
+            AuctionEntry* Aentry = itr->second;
+            // Skip expired auctions
+            if (Aentry->expire_time < curTime)
+                continue;
+
+            Item* item = sAuctionMgr->GetAItem(Aentry->itemGUIDLow);
+            if (!item)
+                continue;
+
+            ++count;
+            ++totalcount;
+            Aentry->BuildAuctionInfo(data, item);
+
+            if (count >= MAX_GETALL_RETURN)
+                break;
+        }
+        GetAllThrottleMap[player->GetGUID()] = curTime + sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY);
+        return;
+    }
 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
@@ -752,16 +793,16 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (count < 50 && totalcount >= listfrom)
         {
             ++count;
-            Aentry->BuildAuctionInfo(data);
+            Aentry->BuildAuctionInfo(data, item);
         }
         ++totalcount;
     }
 }
 
 //this function inserts to WorldPacket auction's data
-bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
+bool AuctionEntry::BuildAuctionInfo(WorldPacket& data, Item* sourceItem) const
 {
-    Item* item = sAuctionMgr->GetAItem(itemGUIDLow);
+    Item* item = (sourceItem) ? sourceItem : sAuctionMgr->GetAItem(itemGUIDLow);
     if (!item)
     {
         TC_LOG_ERROR("misc", "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: %u", Id, itemGUIDLow);

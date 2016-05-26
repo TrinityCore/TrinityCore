@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -315,10 +315,10 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
                     break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 68)          // avoid crashes on next check
+                    if (result->GetFieldCount() <= 73)          // avoid crashes on next check
                         TC_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
 
-                    if (result->Fetch()[68].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                    if (result->Fetch()[73].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
@@ -549,11 +549,11 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 const char null[5] = "NULL";
-                if (!ChangeNth(line, 69, null))             // characters.deleteInfos_Account
+                if (!ChangeNth(line, 74, null))             // characters.deleteInfos_Account
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 70, null))             // characters.deleteInfos_Name
+                if (!ChangeNth(line, 75, null))             // characters.deleteInfos_Name
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 71, null))             // characters.deleteDate
+                if (!ChangeNth(line, 76, null))             // characters.deleteDate
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }

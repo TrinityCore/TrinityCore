@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ class BigNumber;
 
 #define SEED_KEY_SIZE 16
 
-class HmacHash
+class TC_COMMON_API HmacHash
 {
     public:
         HmacHash(uint32 len, uint8 *seed);

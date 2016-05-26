@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,7 +67,7 @@ class BfGraveyard;
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
-class BfCapturePoint
+class TC_GAME_API BfCapturePoint
 {
     public:
         BfCapturePoint(Battlefield* bf);
@@ -135,7 +135,7 @@ class BfCapturePoint
         ObjectGuid m_capturePointGUID;
 };
 
-class BfGraveyard
+class TC_GAME_API BfGraveyard
 {
     public:
         BfGraveyard(Battlefield* Bf);
@@ -182,7 +182,7 @@ class BfGraveyard
         Battlefield* m_Bf;
 };
 
-class Battlefield : public ZoneScript
+class TC_GAME_API Battlefield : public ZoneScript
 {
     friend class BattlefieldMgr;
 

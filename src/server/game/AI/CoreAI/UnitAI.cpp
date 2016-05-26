@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -259,36 +259,6 @@ void UnitAI::FillAISpellInfo()
     }
 }
 
-//Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply)
-{
-    me->IsAIEnabled = apply;
-}
-
-void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
-{
-  Creature* charmer = me->GetCharmer()->ToCreature();
-
-    //kill self if charm aura has infinite duration
-    if (charmer->IsInEvadeMode())
-    {
-        Unit::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
-        for (Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
-            {
-                charmer->Kill(me);
-                return;
-            }
-    }
-
-    if (!charmer->IsInCombat())
-        me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, me->GetFollowAngle());
-
-    Unit* target = me->GetVictim();
-    if (!target || !charmer->IsValidAttackTarget(target))
-        AttackStart(charmer->SelectNearestTargetInAttackDistance());
-}
-
 SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
     _caster(caster), _spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(spellId), caster))
 {
@@ -339,6 +309,9 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
 
     if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
         return false;
+
+    if (HostileReference* currentVictim = _source->getThreatManager().getCurrentVictim())
+        return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
 }

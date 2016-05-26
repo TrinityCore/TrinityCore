@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ enum ArenaWorldStates
     ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD    = 3601
 };
 
-class Arena : public Battleground
+class TC_GAME_API Arena : public Battleground
 {
     protected:
         Arena();

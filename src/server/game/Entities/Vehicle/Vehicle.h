@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +29,7 @@ struct VehicleEntry;
 class Unit;
 class VehicleJoinEvent;
 
-class Vehicle : public TransportBase
+class TC_GAME_API Vehicle : public TransportBase
 {
     protected:
         friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
@@ -118,7 +118,7 @@ class Vehicle : public TransportBase
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
 };
 
-class VehicleJoinEvent : public BasicEvent
+class TC_GAME_API VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@ NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(
 void PassiveAI::UpdateAI(uint32)
 {
     if (me->IsInCombat() && me->getAttackers().empty())
-        EnterEvadeMode();
+        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 }
 
 void PossessedAI::AttackStart(Unit* target)
@@ -58,17 +58,23 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
+void PossessedAI::OnCharmed(bool /*apply*/)
+{
+    me->NeedChangeAI = true;
+    me->IsAIEnabled = false;
+}
+
 void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);
 }
 
-void CritterAI::EnterEvadeMode()
+void CritterAI::EnterEvadeMode(EvadeReason why)
 {
     if (me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(false, UNIT_STATE_FLEEING);
-    CreatureAI::EnterEvadeMode();
+    CreatureAI::EnterEvadeMode(why);
 }
 
 void TriggerAI::IsSummonedBy(Unit* summoner)

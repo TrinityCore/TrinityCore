@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,8 +97,8 @@ public:
             _EnterCombat();
             Enraged = false;
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, 1 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(6));
 
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
@@ -167,17 +167,17 @@ public:
                         if (thirdThreatTarget)
                             me->getThreatManager().addThreat(thirdThreatTarget, HATEFUL_THREAT_AMT); // this will only ever be used in 25m
 
-                        events.ScheduleEvent(EVENT_HATEFUL, 1 * IN_MILLISECONDS);
+                        events.Repeat(Seconds(1));
                         break;
                     }
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
                         Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, 2 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SLIME, Seconds(2));
                         break;
                     case EVENT_SLIME:
-                        DoCastVictim(SPELL_SLIME_BOLT, true);
-                        events.ScheduleEvent(EVENT_SLIME, 2 * IN_MILLISECONDS);
+                        DoCastAOE(SPELL_SLIME_BOLT, true);
+                        events.Repeat(Seconds(2));
                         break;
                 }
             }

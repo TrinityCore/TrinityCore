@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1707,7 +1707,7 @@ enum Quest13291_13292_13239_13261Data
     NPC_SKYTALON       = 31583,
     NPC_DECOY          = 31578,
     // Spells
-    SPELL_RIDE         = 56687
+    SPELL_RIDE         = 59319
 };
 
 class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader

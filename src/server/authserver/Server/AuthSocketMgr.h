@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +21,6 @@
 #include "SocketMgr.h"
 #include "AuthSession.h"
 
-void OnSocketAccept(tcp::socket&& sock);
-
 class AuthSocketMgr : public SocketMgr<AuthSession>
 {
     typedef SocketMgr<AuthSession> BaseSocketMgr;
@@ -34,12 +32,12 @@ public:
         return instance;
     }
 
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port) override
+    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount = 1) override
     {
-        if (!BaseSocketMgr::StartNetwork(service, bindIp, port))
+        if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
             return false;
 
-        _acceptor->AsyncAcceptManaged(&OnSocketAccept);
+        _acceptor->AsyncAcceptWithCallback<&AuthSocketMgr::OnSocketAccept>();
         return true;
     }
 
@@ -48,14 +46,13 @@ protected:
     {
         return new NetworkThread<AuthSession>[1];
     }
+
+    static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
+    {
+        Instance().OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    }
 };
 
 #define sAuthSocketMgr AuthSocketMgr::Instance()
-
-void OnSocketAccept(tcp::socket&& sock)
-{
-    sAuthSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock));
-}
-
 
 #endif // AuthSocketMgr_h__

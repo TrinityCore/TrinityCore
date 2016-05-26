@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -240,11 +240,6 @@ class npc_sironas : public CreatureScript
 public:
     npc_sironas() : CreatureScript("npc_sironas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_sironasAI(creature);
-    }
-
     struct npc_sironasAI : public ScriptedAI
     {
         npc_sironasAI(Creature* creature) : ScriptedAI(creature) { }
@@ -343,6 +338,11 @@ public:
         GuidList _beamGuidList;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_sironasAI(creature);
+    }
 };
 
 /*######
@@ -353,11 +353,6 @@ class npc_demolitionist_legoso : public CreatureScript
 {
 public:
     npc_demolitionist_legoso() : CreatureScript("npc_demolitionist_legoso") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_demolitionist_legosoAI(creature);
-    }
 
     struct npc_demolitionist_legosoAI : public npc_escortAI
     {
@@ -812,6 +807,11 @@ public:
         GuidList _explosivesGuids;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_demolitionist_legosoAI(creature);
+    }
 };
 
 void AddSC_bloodmyst_isle()

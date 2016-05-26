@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -263,6 +263,28 @@ public:
 };
 
 //
+// Adt file min/max height chunk
+//
+class adt_MFBO
+{
+    union
+    {
+        uint32 fcc;
+        char   fcc_txt[4];
+    };
+public:
+    uint32 size;
+    struct plane
+    {
+        int16 coords[9];
+    };
+    plane max;
+    plane min;
+
+    bool prepareLoadedData();
+};
+
+//
 // Adt file header chunk
 //
 class adt_MHDR
@@ -274,12 +296,12 @@ class adt_MHDR
 public:
     uint32 size;
 
-    uint32 pad;
+    uint32 flags;
     uint32 offsMCIN;           // MCIN
-    uint32 offsTex;               // MTEX
-    uint32 offsModels;           // MMDX
-    uint32 offsModelsIds;       // MMID
-    uint32 offsMapObejcts;       // MWMO
+    uint32 offsTex;            // MTEX
+    uint32 offsModels;         // MMDX
+    uint32 offsModelsIds;      // MMID
+    uint32 offsMapObejcts;     // MWMO
     uint32 offsMapObejctsIds;  // MWID
     uint32 offsDoodsDef;       // MDDF
     uint32 offsObjectsDef;     // MODF
@@ -291,9 +313,22 @@ public:
     uint32 data4;
     uint32 data5;
     bool prepareLoadedData();
-    adt_MCIN *getMCIN(){ return (adt_MCIN *)((uint8 *)&pad+offsMCIN);}
-    adt_MH2O *getMH2O(){ return offsMH2O ? (adt_MH2O *)((uint8 *)&pad+offsMH2O) : 0;}
-
+    adt_MCIN* getMCIN()
+    {
+        return reinterpret_cast<adt_MCIN*>(reinterpret_cast<uint8*>(&flags) + offsMCIN);
+    }
+    adt_MH2O* getMH2O()
+    {
+        if (offsMH2O)
+            return reinterpret_cast<adt_MH2O*>(reinterpret_cast<uint8*>(&flags) + offsMH2O);
+        return nullptr;
+    }
+    adt_MFBO* getMFBO()
+    {
+        if (flags & 1 && offsMFBO)
+            return reinterpret_cast<adt_MFBO*>(reinterpret_cast<uint8*>(&flags) + offsMFBO);
+        return nullptr;
+    }
 };
 
 class ADT_file : public FileLoader{

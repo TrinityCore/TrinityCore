@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -674,6 +674,12 @@ public:
 
         void Initialize()
         {
+            // Hello, developer from the future! It's me again!
+            // This time, you're fixing Karazhan scripts. Awesome. These are a mess of hacks. An amalgamation of hacks, so to speak. Maybe even a Patchwerk thereof.
+            // Anyway, I digress.
+            // @todo This line below is obviously a hack. Duh. I'm just coming in here to hackfix the encounter to actually be completable.
+            // It needs a rewrite. Badly. Please, take good care of it.
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
             CycloneTimer = 30000;
             ChainLightningTimer = 10000;
         }
@@ -701,29 +707,18 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_CRONE_AGGRO);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_CRONE_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             if (CycloneTimer <= diff)
             {
@@ -908,13 +903,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1158,12 +1147,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_JULIANNE_DEATH02);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -1316,13 +1300,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_ROMULO_DEATH);
-
-            instance->SetData(TYPE_OPERA, DONE);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
-            instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
-
-            if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
-                pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            instance->SetBossState(DATA_OPERA_PERFORMANCE, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/) override

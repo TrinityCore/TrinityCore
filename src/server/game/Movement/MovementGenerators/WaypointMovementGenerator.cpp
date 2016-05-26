@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -213,7 +213,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
             creature->SetHomePosition(creature->GetPosition());
 
         if (creature->IsStopped())
-            Stop(STOP_TIME_FOR_PLAYER);
+            Stop(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
         else if (creature->movespline->Finalized())
         {
             OnArrived(creature);

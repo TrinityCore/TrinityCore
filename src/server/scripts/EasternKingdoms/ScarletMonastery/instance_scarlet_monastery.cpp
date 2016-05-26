@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +21,8 @@
 
 DoorData const doorData[] =
 {
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM, BOUNDARY_NONE },
-    { 0,                        0,                             DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
+    { 0,                        0,                             DOOR_TYPE_ROOM } // END
 };
 
 class instance_scarlet_monastery : public InstanceMapScript

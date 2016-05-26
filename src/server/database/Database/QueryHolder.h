@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include <future>
 
-class SQLQueryHolder
+class TC_DATABASE_API SQLQueryHolder
 {
     friend class SQLQueryHolderTask;
     private:
@@ -46,7 +46,7 @@ class SQLQueryHolder
 typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
 typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
 
-class SQLQueryHolderTask : public SQLOperation
+class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
 {
     private:
         SQLQueryHolder* m_holder;

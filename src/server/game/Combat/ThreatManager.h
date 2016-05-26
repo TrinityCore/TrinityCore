@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,14 +39,14 @@ class SpellInfo;
 //==============================================================
 // Class to calculate the real threat based
 
-struct ThreatCalcHelper
+struct TC_GAME_API ThreatCalcHelper
 {
     static float calcThreat(Unit* hatedUnit, Unit* hatingUnit, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
     static bool isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell = NULL);
 };
 
 //==============================================================
-class HostileReference : public Reference<Unit, ThreatManager>
+class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
 {
     public:
         HostileReference(Unit* refUnit, ThreatManager* threatManager, float threat);
@@ -141,7 +141,7 @@ class HostileReference : public Reference<Unit, ThreatManager>
 //==============================================================
 class ThreatManager;
 
-class ThreatContainer
+class TC_GAME_API ThreatContainer
 {
         friend class ThreatManager;
 
@@ -169,7 +169,7 @@ class ThreatContainer
 
         HostileReference* getMostHated() const
         {
-            return iThreatList.empty() ? NULL : iThreatList.front();
+            return iThreatList.empty() ? nullptr : iThreatList.front();
         }
 
         HostileReference* getReferenceByTarget(Unit* victim) const;
@@ -198,7 +198,7 @@ class ThreatContainer
 
 //=================================================
 
-class ThreatManager
+class TC_GAME_API ThreatManager
 {
     public:
         friend class HostileReference;

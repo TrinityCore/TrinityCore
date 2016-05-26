@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ enum BattlegroundQueueInvitationType
 };
 
 class Battleground;
-class BattlegroundQueue
+class TC_GAME_API BattlegroundQueue
 {
     public:
         BattlegroundQueue();
@@ -142,7 +142,7 @@ class BattlegroundQueue
     This class is used to invite player to BG again, when minute lasts from his first invitation
     it is capable to solve all possibilities
 */
-class BGQueueInviteEvent : public BasicEvent
+class TC_GAME_API BGQueueInviteEvent : public BasicEvent
 {
     public:
         BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
@@ -165,7 +165,7 @@ class BGQueueInviteEvent : public BasicEvent
     We must store removeInvite time in case player left queue and joined and is invited again
     We must store bgQueueTypeId, because battleground can be deleted already, when player entered it
 */
-class BGQueueRemoveEvent : public BasicEvent
+class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
 {
     public:
         BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)

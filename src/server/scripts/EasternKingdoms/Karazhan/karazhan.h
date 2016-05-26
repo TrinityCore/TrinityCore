@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,27 +21,26 @@
 
 #define DataHeader "KZ"
 
+uint32 const EncounterCount = 12;
+
 enum DataTypes
 {
-    TYPE_ATTUMEN                    = 1,
-    TYPE_MOROES                     = 2,
-    TYPE_MAIDEN                     = 3,
-    TYPE_OPTIONAL_BOSS              = 4,
-    TYPE_OPERA                      = 5,
-    TYPE_CURATOR                    = 6,
-    TYPE_ARAN                       = 7,
-    TYPE_TERESTIAN                  = 8,
-    TYPE_NETHERSPITE                = 9,
-    TYPE_CHESS                      = 10,
-    TYPE_MALCHEZZAR                 = 11,
-    TYPE_NIGHTBANE                  = 12,
+    DATA_ATTUMEN                    = 0,
+    DATA_MOROES                     = 1,
+    DATA_MAIDEN_OF_VIRTUE           = 2,
+    DATA_OPTIONAL_BOSS              = 3,
+    DATA_OPERA_PERFORMANCE          = 4,
+    DATA_CURATOR                    = 5,
+    DATA_ARAN                       = 6,
+    DATA_TERESTIAN                  = 7,
+    DATA_NETHERSPITE                = 8,
+    DATA_CHESS                      = 9,
+    DATA_MALCHEZZAR                 = 10,
+    DATA_NIGHTBANE                  = 11,
 
-    DATA_OPERA_PERFORMANCE          = 13,
     DATA_OPERA_OZ_DEATHCOUNT        = 14,
 
     DATA_KILREK                     = 15,
-    DATA_TERESTIAN                  = 16,
-    DATA_MOROES                     = 17,
     DATA_GO_CURTAINS                = 18,
     DATA_GO_STAGEDOORLEFT           = 19,
     DATA_GO_STAGEDOORRIGHT          = 20,
@@ -62,6 +61,47 @@ enum OperaEvents
     EVENT_OZ                        = 1,
     EVENT_HOOD                      = 2,
     EVENT_RAJ                       = 3
+};
+
+enum MiscCreatures
+{
+    NPC_HYAKISS_THE_LURKER          = 16179,
+    NPC_ROKAD_THE_RAVAGER           = 16181,
+    NPC_SHADIKITH_THE_GLIDER        = 16180,
+    NPC_TERESTIAN_ILLHOOF           = 15688,
+    NPC_MOROES                      = 15687,
+
+    // Trash
+    NPC_COLDMIST_WIDOW              = 16171,
+    NPC_COLDMIST_STALKER            = 16170,
+    NPC_SHADOWBAT                   = 16173,
+    NPC_VAMPIRIC_SHADOWBAT          = 16175,
+    NPC_GREATER_SHADOWBAT           = 16174,
+    NPC_PHASE_HOUND                 = 16178,
+    NPC_DREADBEAST                  = 16177,
+    NPC_SHADOWBEAST                 = 16176,
+    NPC_KILREK                      = 17229
+};
+
+enum GameObjectIds
+{
+    GO_STAGE_CURTAIN                = 183932,
+    GO_STAGE_DOOR_LEFT              = 184278,
+    GO_STAGE_DOOR_RIGHT             = 184279,
+    GO_PRIVATE_LIBRARY_DOOR         = 184517,
+    GO_MASSIVE_DOOR                 = 185521,
+    GO_GAMESMAN_HALL_DOOR           = 184276,
+    GO_GAMESMAN_HALL_EXIT_DOOR      = 184277,
+    GO_NETHERSPACE_DOOR             = 185134,
+    GO_MASTERS_TERRACE_DOOR         = 184274,
+    GO_MASTERS_TERRACE_DOOR2        = 184280,
+    GO_SIDE_ENTRANCE_DOOR           = 184275,
+    GO_DUST_COVERED_CHEST           = 185119
+};
+
+enum Misc
+{
+    OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };
 
 #endif

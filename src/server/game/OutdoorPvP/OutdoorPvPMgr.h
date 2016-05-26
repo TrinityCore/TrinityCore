@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,18 +35,14 @@ struct OutdoorPvPData
 };
 
 // class to handle player enter / leave / areatrigger / GO use events
-class OutdoorPvPMgr
+class TC_GAME_API OutdoorPvPMgr
 {
     private:
         OutdoorPvPMgr();
         ~OutdoorPvPMgr() { };
 
     public:
-        static OutdoorPvPMgr* instance()
-        {
-            static OutdoorPvPMgr instance;
-            return &instance;
-        }
+        static OutdoorPvPMgr* instance();
 
         // create outdoor pvp events
         void InitOutdoorPvP();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -694,6 +694,21 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
     uint8 toggleExtend;
     recvData >> mapId >> difficulty>> toggleExtend;
     TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: %u, Difficulty: %u, ToggleExtend: %s", mapId, difficulty, toggleExtend ? "On" : "Off");
+
+    if (Player* player = GetPlayer())
+    {
+        InstancePlayerBind* instanceBind = player->GetBoundInstance(mapId, Difficulty(difficulty), toggleExtend == 1); // include expired instances if we are toggling extend on
+        if (!instanceBind || !instanceBind->save || !instanceBind->perm)
+            return;
+
+        BindExtensionState newState;
+        if (!toggleExtend || instanceBind->extendState == EXTEND_STATE_EXPIRED)
+            newState = EXTEND_STATE_NORMAL;
+        else
+            newState = EXTEND_STATE_EXTENDED;
+
+        player->BindToInstance(instanceBind->save, true, newState, false);
+    }
 
     /*
     InstancePlayerBind* instanceBind = _player->GetBoundInstance(mapId, Difficulty(difficulty));

@@ -82,7 +82,7 @@ bool SayAction::Execute(Event event)
         uint32 areaId = bot->GetMap()->GetAreaId(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
         if (areaId)
         {
-            AreaTableEntry const* area = sAreaStore.LookupEntry(areaId);
+			AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
             if (area)
             {
                 replaceAll(text, "<subzone>", area->area_name[0]);

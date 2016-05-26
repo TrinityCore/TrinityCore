@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ typedef std::future<QueryResult> QueryResultFuture;
 typedef std::promise<QueryResult> QueryResultPromise;
 
 /*! Raw, ad-hoc query. */
-class BasicStatementTask : public SQLOperation
+class TC_DATABASE_API BasicStatementTask : public SQLOperation
 {
     public:
         BasicStatementTask(const char* sql, bool async = false);

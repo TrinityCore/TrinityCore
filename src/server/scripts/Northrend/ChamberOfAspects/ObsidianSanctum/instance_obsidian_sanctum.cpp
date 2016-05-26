@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,11 @@
 0 - Sartharion
 */
 
+BossBoundaryData const boundaries =
+{
+    { DATA_SARTHARION, new RectangleBoundary(3218.86f, 3275.69f, 484.68f, 572.4f) }
+};
+
 class instance_obsidian_sanctum : public InstanceMapScript
 {
 public:
@@ -33,6 +38,8 @@ public:
         instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadBossBoundaries(boundaries);
         }
 
         void OnCreatureCreate(Creature* creature) override

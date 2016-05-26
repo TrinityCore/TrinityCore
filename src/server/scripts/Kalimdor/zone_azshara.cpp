@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -404,7 +404,7 @@ public:
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetHover(true);
                     me->SetSwim(true);
-                    me->SetSpeed(MOVE_RUN, 0.85f, true);
+                    me->SetSpeedRate(MOVE_RUN, 0.85f);
                     me->GetMotionMaster()->MovementExpired();
                     me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                     Escape = true;

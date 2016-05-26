@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,20 +8,24 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources_Playerbot playerbot/*.cpp playerbot/*.h)
-file(GLOB_RECURSE sources_Ahbot ahbot/*.cpp ahbot/*.h)
-
-# Create plugins-libary
-
-if (USE_COREPCH)
-  set(plugins_STAT_PCH_HDR pch/pch.h)
-  set(plugins_STAT_PCH_SRC pch/pch.cpp)
-endif ()
+file(GLOB_RECURSE sources_ahbot ahbot/*.cpp ahbot/*.h)
+file(GLOB_RECURSE sources_playerbot playerbot/*.cpp playerbot/*.h)
+file(GLOB_RECURSE sources_pch pch/*.cpp pch/*.h)
 
 set(plugins_STAT_SRCS
-  ${sources_Playerbot}
-  ${sources_Ahbot}
+  ${plugins_STAT_SRCS}
+  ${sources_ahbot}
+  ${sources_playerbot}
+  ${sources_pch}
 )
+
+
+if (USE_COREPCH)
+  set(PRIVATE_PCH_HEADER pch/pch.h)
+  set(PRIVATE_PCH_SOURCE pch/pch.cpp)
+endif()
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 include_directories(
   ${CMAKE_BINARY_DIR}
@@ -122,7 +126,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Waypoints
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
   ${CMAKE_SOURCE_DIR}/src/server/game/Pools
-  ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/src/server/game/pch
   ${CMAKE_SOURCE_DIR}/src/server/game/Quests
   ${CMAKE_SOURCE_DIR}/src/server/game/Reputation
   ${CMAKE_SOURCE_DIR}/src/server/game/Scripting
@@ -138,7 +142,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden/Modules
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/src/server/scripts/pch
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
@@ -148,44 +152,53 @@ add_library(plugins STATIC
   ${plugins_STAT_PCH_SRC}
 )
 
-add_dependencies(plugins revision.h)
 
-if( WIN32 )
-  if ( MSVC )
-	add_custom_command(TARGET plugins
-      POST_BUILD
- 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-	add_custom_command(TARGET plugins
-      POST_BUILD
- 	  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-  elseif ( MINGW )
+# Do NOT add any extra include directory unless it does not create unneeded extra dependencies,
+# and specially, not add any dependency to neither of these: shared, game, scripts
+# This way we ensure that if either a PR does that without modifying this file,
+# a compile error will be generated, either this file will be modified so it
+# is detected more easily.
+# While it is OK to include files from other libs as long as they don't require
+# linkage (enums, defines...) it is discouraged to do so unless necessary, as it will pullute
+# include_directories leading to further unnoticed dependency aditions
+# Linker Depencency requirements: common
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/pch)
 
-	 add_custom_command(TARGET plugins
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}playerbot/aiplayerbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/
-    )
-	add_custom_command(TARGET plugins
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}ahbot/ahbot.conf.dist.in ${CMAKE_BINARY_DIR}/bin/
-    )
+target_include_directories(plugins
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+add_definitions(-DTRINITY_API_EXPORT_plugins)
+
+target_link_libraries(plugins
+  PUBLIC
+    common
+    mysql)
+
+set_target_properties(plugins
+    PROPERTIES
+      FOLDER
+        "server")
+
+if( BUILD_SHARED_LIBS )
+  if( UNIX )
+    install(TARGETS plugins
+      LIBRARY
+        DESTINATION lib)
+  elseif( WIN32 )
+    install(TARGETS plugins
+      RUNTIME
+        DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()
 
-if( UNIX )
-  install(TARGETS plugins DESTINATION bin)
-  install(FILES playerbot/aiplayerbot.conf.dist.in DESTINATION ${CONF_DIR})
-  install(FILES ahbot/ahbot.conf.dist.in DESTINATION ${CONF_DIR})
-elseif( WIN32 )
-  install(TARGETS plugins DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES playerbot/aiplayerbot.conf.dist.in DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES ahbot/ahbot.conf.dist.in DESTINATION "${CMAKE_INSTALL_PREFIX}")
-endif()
-
-
-
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(plugins ${plugins_STAT_PCH_HDR} ${plugins_STAT_PCH_SRC})
+  add_cxx_pch(plugins ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
 endif ()

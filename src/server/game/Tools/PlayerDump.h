@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,7 +62,7 @@ enum DumpReturn
     DUMP_CHARACTER_DELETED
 };
 
-class PlayerDump
+class TC_GAME_API PlayerDump
 {
     public:
         typedef std::set<ObjectGuid::LowType> DumpGuidSet;
@@ -72,7 +72,7 @@ class PlayerDump
         PlayerDump() { }
 };
 
-class PlayerDumpWriter : public PlayerDump
+class TC_GAME_API PlayerDumpWriter : public PlayerDump
 {
     public:
         PlayerDumpWriter() { }
@@ -90,7 +90,7 @@ class PlayerDumpWriter : public PlayerDump
         DumpGuidSet items;
 };
 
-class PlayerDumpReader : public PlayerDump
+class TC_GAME_API PlayerDumpReader : public PlayerDump
 {
     public:
         PlayerDumpReader() { }

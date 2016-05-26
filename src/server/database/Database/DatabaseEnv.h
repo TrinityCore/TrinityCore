@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,9 +38,11 @@
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
 
-extern WorldDatabaseWorkerPool WorldDatabase;
-extern CharacterDatabaseWorkerPool CharacterDatabase;
-extern LoginDatabaseWorkerPool LoginDatabase;
+/// Accessor to the world database
+TC_DATABASE_API extern WorldDatabaseWorkerPool WorldDatabase;
+/// Accessor to the character database
+TC_DATABASE_API extern CharacterDatabaseWorkerPool CharacterDatabase;
+/// Accessor to the realm/login database
+TC_DATABASE_API extern LoginDatabaseWorkerPool LoginDatabase;
 
 #endif
-

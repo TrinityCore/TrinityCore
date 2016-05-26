@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 #include "Duration.h"
 #include "Util.h"
 
-class EventMap
+class TC_COMMON_API EventMap
 {
     /**
     * Internal storage type.
@@ -122,7 +122,7 @@ public:
     */
     void ScheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
     {
-        ScheduleEvent(eventId, time.count(), group, phase);
+        ScheduleEvent(eventId, uint32(time.count()), group, phase);
     }
 
     /**
@@ -145,7 +145,7 @@ public:
     */
     void RescheduleEvent(uint32 eventId, Milliseconds const& time, uint32 group = 0, uint8 phase = 0)
     {
-        RescheduleEvent(eventId, time.count(), group, phase);
+        RescheduleEvent(eventId, uint32(time.count()), group, phase);
     }
 
     /**
@@ -169,7 +169,7 @@ public:
     */
     void Repeat(Milliseconds const& time)
     {
-        Repeat(time.count());
+        Repeat(uint32(time.count()));
     }
 
     /**
@@ -190,7 +190,7 @@ public:
     */
     void Repeat(Milliseconds const& minTime, Milliseconds const& maxTime)
     {
-        Repeat(minTime.count(), maxTime.count());
+        Repeat(uint32(minTime.count()), uint32(maxTime.count()));
     }
 
     /**
@@ -218,7 +218,7 @@ public:
     */
     void DelayEvents(Milliseconds const& delay)
     {
-        DelayEvents(delay.count());
+        DelayEvents(uint32(delay.count()));
     }
 
     /**
@@ -239,7 +239,7 @@ public:
     */
     void DelayEvents(Milliseconds const& delay, uint32 group)
     {
-        DelayEvents(delay.count(), group);
+        DelayEvents(uint32(delay.count()), group);
     }
 
     /**

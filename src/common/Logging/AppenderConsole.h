@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@ enum ColorTypes
 
 const uint8 MaxColors = uint8(WHITE) + 1;
 
-class AppenderConsole : public Appender
+class TC_COMMON_API AppenderConsole : public Appender
 {
     public:
         typedef std::integral_constant<AppenderType, APPENDER_CONSOLE>::type TypeIndex;

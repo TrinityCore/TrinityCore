@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,76 +42,56 @@ class WorldRunnable;
 class Transport;
 
 template <class T>
-class HashMapHolder
+class TC_GAME_API HashMapHolder
 {
-    public:
-        static_assert(std::is_same<Player, T>::value
-            || std::is_same<Transport, T>::value,
-            "Only Player and Transport can be registered in global HashMapHolder");
+    //Non instanceable only static
+    HashMapHolder() { }
 
-        typedef std::unordered_map<ObjectGuid, T*> MapType;
+public:
+    static_assert(std::is_same<Player, T>::value
+        || std::is_same<Transport, T>::value,
+        "Only Player and Transport can be registered in global HashMapHolder");
 
-        static void Insert(T* o)
-        {
-            boost::unique_lock<boost::shared_mutex> lock(_lock);
+    typedef std::unordered_map<ObjectGuid, T*> MapType;
 
-            _objectMap[o->GetGUID()] = o;
-        }
+    static void Insert(T* o);
 
-        static void Remove(T* o)
-        {
-            boost::unique_lock<boost::shared_mutex> lock(_lock);
+    static void Remove(T* o);
 
-            _objectMap.erase(o->GetGUID());
-        }
+    static T* Find(ObjectGuid guid);
 
-        static T* Find(ObjectGuid guid)
-        {
-            boost::shared_lock<boost::shared_mutex> lock(_lock);
+    static MapType& GetContainer();
 
-            typename MapType::iterator itr = _objectMap.find(guid);
-            return (itr != _objectMap.end()) ? itr->second : NULL;
-        }
-
-        static MapType& GetContainer() { return _objectMap; }
-
-        static boost::shared_mutex* GetLock() { return &_lock; }
-
-    private:
-        //Non instanceable only static
-        HashMapHolder() { }
-
-        static boost::shared_mutex _lock;
-        static MapType _objectMap;
+    static boost::shared_mutex* GetLock();
 };
 
 namespace ObjectAccessor
 {
     // these functions return objects only if in map of specified object
-    WorldObject* GetWorldObject(WorldObject const&, ObjectGuid const&);
-    Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
-    Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
-    GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
-    Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
-    DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
-    Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
-    Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
-    Pet* GetPet(WorldObject const&, ObjectGuid const& guid);
-    Player* GetPlayer(Map const*, ObjectGuid const& guid);
-    Player* GetPlayer(WorldObject const&, ObjectGuid const& guid);
-    Creature* GetCreatureOrPetOrVehicle(WorldObject const&, ObjectGuid const&);
+    TC_GAME_API WorldObject* GetWorldObject(WorldObject const&, ObjectGuid const&);
+    TC_GAME_API Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
+    TC_GAME_API Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
+    TC_GAME_API Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Pet* GetPet(WorldObject const&, ObjectGuid const& guid);
+    TC_GAME_API Player* GetPlayer(Map const*, ObjectGuid const& guid);
+    TC_GAME_API Player* GetPlayer(WorldObject const&, ObjectGuid const& guid);
+    TC_GAME_API Creature* GetCreatureOrPetOrVehicle(WorldObject const&, ObjectGuid const&);
 
     // these functions return objects if found in whole world
     // ACCESS LIKE THAT IS NOT THREAD SAFE
-    Player* FindPlayer(ObjectGuid const&);
-    Player* FindPlayerByName(std::string const& name);
+    TC_GAME_API Player* FindPlayer(ObjectGuid const&);
+    TC_GAME_API Player* FindPlayerByName(std::string const& name);
 
     // this returns Player even if he is not in world, for example teleporting
-    Player* FindConnectedPlayer(ObjectGuid const&);
-    Player* FindConnectedPlayerByName(std::string const& name);
+    TC_GAME_API Player* FindConnectedPlayer(ObjectGuid const&);
+    TC_GAME_API Player* FindConnectedPlayerByName(std::string const& name);
 
     // when using this, you must use the hashmapholder's lock
-    HashMapHolder<Player>::MapType const& GetPlayers();
+    TC_GAME_API HashMapHolder<Player>::MapType const& GetPlayers();
 
     template<class T>
     void AddObject(T* object)
@@ -125,7 +105,8 @@ namespace ObjectAccessor
         HashMapHolder<T>::Remove(object);
     }
 
-    void SaveAllPlayers();
+    TC_GAME_API void SaveAllPlayers();
 };
 
 #endif
+

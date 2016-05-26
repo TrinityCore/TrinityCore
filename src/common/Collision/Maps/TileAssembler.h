@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ namespace VMAP
     */
     //===============================================
 
-    class ModelPosition
+    class TC_COMMON_API ModelPosition
     {
         private:
             G3D::Matrix3 iRotation;
@@ -55,7 +55,7 @@ namespace VMAP
     typedef std::map<uint32, ModelSpawn> UniqueEntryMap;
     typedef std::multimap<uint32, uint32> TileMap;
 
-    struct MapSpawns
+    struct TC_COMMON_API MapSpawns
     {
         UniqueEntryMap UniqueEntries;
         TileMap TileEntries;
@@ -64,7 +64,7 @@ namespace VMAP
     typedef std::map<uint32, MapSpawns*> MapData;
     //===============================================
 
-    struct GroupModel_Raw
+    struct TC_COMMON_API GroupModel_Raw
     {
         uint32 mogpflags;
         uint32 GroupWMOID;
@@ -82,7 +82,7 @@ namespace VMAP
         bool Read(FILE* f);
     };
 
-    struct WorldModel_Raw
+    struct TC_COMMON_API WorldModel_Raw
     {
         uint32 RootWMOID;
         std::vector<GroupModel_Raw> groupsArray;
@@ -90,7 +90,7 @@ namespace VMAP
         bool Read(const char * path);
     };
 
-    class TileAssembler
+    class TC_COMMON_API TileAssembler
     {
         private:
             std::string iDestDir;

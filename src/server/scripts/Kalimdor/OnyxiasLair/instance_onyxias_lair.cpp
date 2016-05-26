@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,11 @@ EndScriptData */
 #include "onyxias_lair.h"
 #include "TemporarySummon.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_ONYXIA, new CircleBoundary(Position(-34.3697f, -212.3296f), 100.0) }
+};
+
 class instance_onyxias_lair : public InstanceMapScript
 {
 public:
@@ -47,6 +52,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadBossBoundaries(boundaries);
 
             onyxiaLiftoffTimer = 0;
             manyWhelpsCounter = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -179,7 +179,7 @@ class DelayedCastEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _trigger->CastSpell(_trigger, _spellId, false, NULL, NULL, _originalCaster);
             if (_despawnTime)
@@ -201,7 +201,7 @@ class AuraRemoveEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _trigger->RemoveAurasDueToSpell(_spellId);
             return true;
@@ -219,7 +219,7 @@ class ValithriaDespawner : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
             _creature->VisitNearbyGridObject(333.0f, worker);
@@ -556,6 +556,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 if (!me->IsInCombat())
                     return;
+
+                // @TODO check out of bounds on all encounter creatures, evade if matched
 
                 std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
                 if (threatList.empty())

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,18 +20,14 @@
 
 #include "Guild.h"
 
-class GuildMgr
+class TC_GAME_API GuildMgr
 {
 private:
     GuildMgr();
     ~GuildMgr();
 
 public:
-    static GuildMgr* instance()
-    {
-        static GuildMgr instance;
-        return &instance;
-    }
+    static GuildMgr* instance();
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
     Guild* GetGuildById(ObjectGuid::LowType guildId) const;

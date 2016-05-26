@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -143,12 +143,12 @@ public:
             if (me->IsAlive())
                 SpawnAdds();
 
-            instance->SetData(TYPE_MOROES, NOT_STARTED);
+            instance->SetBossState(DATA_MOROES, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            instance->SetData(TYPE_MOROES, IN_PROGRESS);
+            instance->SetBossState(DATA_MOROES, IN_PROGRESS);
 
             DoZoneInCombat();
         }
@@ -171,7 +171,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetData(TYPE_MOROES, DONE);
+            instance->SetBossState(DATA_MOROES, DONE);
 
             DeSpawnAdds();
 
@@ -257,12 +257,6 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!instance->GetData(TYPE_MOROES))
-            {
-                EnterEvadeMode();
-                return;
-            }
-
             if (!Enrage && HealthBelowPct(30))
             {
                 DoCast(me, SPELL_FRENZY);
@@ -347,7 +341,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void Reset() override
     {
-        instance->SetData(TYPE_MOROES, NOT_STARTED);
+        instance->SetBossState(DATA_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
@@ -373,7 +367,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void UpdateAI(uint32 /*diff*/) override
     {
-        if (!instance->GetData(TYPE_MOROES))
+        if (instance->GetBossState(DATA_MOROES) != IN_PROGRESS)
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();

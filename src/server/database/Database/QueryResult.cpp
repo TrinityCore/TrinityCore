@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,7 @@ m_length(NULL)
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
-        size_t size = Field::SizeForType(&field[i]);
+        uint32 size = Field::SizeForType(&field[i]);
         rowSize += size;
 
         m_rBind[i].buffer_type = field[i].type;

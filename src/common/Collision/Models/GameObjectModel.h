@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
-class GameObjectModelOwnerBase
+class TC_COMMON_API GameObjectModelOwnerBase
 {
 public:
     virtual bool IsSpawned() const { return false; }
@@ -47,7 +47,7 @@ public:
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
 };
 
-class GameObjectModel /*, public Intersectable*/
+class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
     GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
 public:
@@ -83,5 +83,7 @@ private:
     VMAP::WorldModel* iModel;
     std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
+
+TC_COMMON_API void LoadGameObjectModelList(std::string const& dataPath);
 
 #endif // _GAMEOBJECT_MODEL_H

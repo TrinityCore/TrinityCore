@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "Spell.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
@@ -50,6 +51,12 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
     m_scriptName = scriptname;
     m_scriptSpellId = spellId;
+
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+    // Acquire a strong reference to the binary code
+    // to keep it loaded until all spells are destroyed.
+    m_moduleReference = sScriptMgr->AcquireModuleReferenceOfScriptName(*scriptname);
+#endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 }
 
 std::string const* _SpellScript::_GetScriptName() const

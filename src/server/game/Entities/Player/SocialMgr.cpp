@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -194,6 +194,12 @@ bool PlayerSocial::HasIgnore(ObjectGuid::LowType ignore_guid)
 SocialMgr::SocialMgr() { }
 
 SocialMgr::~SocialMgr() { }
+
+SocialMgr* SocialMgr::instance()
+{
+    static SocialMgr instance;
+    return &instance;
+}
 
 void SocialMgr::GetFriendInfo(Player* player, ObjectGuid::LowType friendGUID, FriendInfo &friendInfo)
 {

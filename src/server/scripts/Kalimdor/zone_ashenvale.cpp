@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "SpellScript.h"
 
 /*####
 # npc_ruul_snowhoof
@@ -344,9 +345,42 @@ class go_naga_brazier : public GameObjectScript
         }
 };
 
+enum KingoftheFoulwealdMisc
+{
+    GO_BANNER = 178205
+};
+
+class spell_destroy_karangs_banner : public SpellScriptLoader
+{
+    public:
+        spell_destroy_karangs_banner() : SpellScriptLoader("spell_destroy_karangs_banner") { }
+
+        class spell_destroy_karangs_banner_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_destroy_karangs_banner_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (GameObject* banner = GetCaster()->FindNearestGameObject(GO_BANNER, GetSpellInfo()->GetMaxRange(true)))
+                    banner->Delete();
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_destroy_karangs_banner_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_destroy_karangs_banner_SpellScript();
+        }
+};
+
 void AddSC_ashenvale()
 {
     new npc_ruul_snowhoof();
     new npc_muglash();
     new go_naga_brazier();
+    new spell_destroy_karangs_banner();
 }

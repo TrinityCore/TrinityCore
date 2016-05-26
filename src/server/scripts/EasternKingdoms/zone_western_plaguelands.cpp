@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npcs_dithers_and_arbington
-npc_myranda_the_hag
 npc_the_scourge_cauldron
 npc_andorhal_tower
 EndContentData */
@@ -33,7 +32,6 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "WorldSession.h"
 
@@ -41,12 +39,23 @@ EndContentData */
 ## npcs_dithers_and_arbington
 ######*/
 
-#define GOSSIP_HDA1 "What does the Felstone Field Cauldron need?"
-#define GOSSIP_HDA2 "What does the Dalson's Tears Cauldron need?"
-#define GOSSIP_HDA3 "What does the Writhing Haunt Cauldron need?"
-#define GOSSIP_HDA4 "What does the Gahrron's Withering Cauldron need?"
-
-#define GOSSIP_SDA1 "Thanks, i need a Vitreous Focuser"
+enum DithersAndArbington
+{
+    GOSSIP_ITEM_ID_FELSTONE_FIELD   = 0,
+    GOSSIP_ITEM_ID_DALSON_S_TEARS   = 1,
+    GOSSIP_ITEM_ID_WRITHING_HAUNT   = 2,
+    GOSSIP_ITEM_ID_GAHRRON_S_WITH   = 3,
+    GOSSIP_MENU_ID_LETS_GET_TO_WORK = 3223,
+    GOSSIP_MENU_ID_VITREOUS_FOCUSER = 3229,
+    NPC_TEXT_OSSEOUS_AGITATORS      = 3980,
+    NPC_TEXT_SOMATIC_INTENSIFIERS_1 = 3981,
+    NPC_TEXT_SOMATIC_INTENSIFIERS_2 = 3982,
+    NPC_TEXT_ECTOPLASMIC_RESONATORS = 3983,
+    NPC_TEXT_LET_S_GET_TO_WORK      = 3985,
+    QUEST_MISSION_ACCOMPLISHED_H    = 5237,
+    QUEST_MISSION_ACCOMPLISHED_A    = 5238,
+    CREATE_ITEM_VITREOUS_FOCUSER    = 17529
+};
 
 class npcs_dithers_and_arbington : public CreatureScript
 {
@@ -62,24 +71,24 @@ public:
                 player->GetSession()->SendListInventory(creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(3980, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_OSSEOUS_AGITATORS, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(3981, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_SOMATIC_INTENSIFIERS_1, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(3982, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_SOMATIC_INTENSIFIERS_2, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                player->SEND_GOSSIP_MENU(3983, creature->GetGUID());
+                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                player->SEND_GOSSIP_MENU(NPC_TEXT_ECTOPLASMIC_RESONATORS, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 player->CLOSE_GOSSIP_MENU();
-                creature->CastSpell(player, 17529, false);
+                creature->CastSpell(player, CREATE_ITEM_VITREOUS_FOCUSER, false);
                 break;
         }
         return true;
@@ -93,62 +102,13 @@ public:
         if (creature->IsVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        if (player->GetQuestRewardStatus(5237) || player->GetQuestRewardStatus(5238))
+        if (player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_H) || player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_A))
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            player->SEND_GOSSIP_MENU(3985, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
-## npc_myranda_the_hag
-######*/
-
-enum Myranda
-{
-    QUEST_SUBTERFUGE        = 5862,
-    QUEST_IN_DREAMS         = 5944,
-    SPELL_SCARLET_ILLUSION  = 17961
-};
-
-#define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
-
-class npc_myranda_the_hag : public CreatureScript
-{
-public:
-    npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, SPELL_SCARLET_ILLUSION, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_SUBTERFUGE) == QUEST_STATUS_COMPLETE &&
-            player->GetQuestStatus(QUEST_IN_DREAMS) != QUEST_STATUS_COMPLETE &&
-            !player->HasAura(SPELL_SCARLET_ILLUSION))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ILLUSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(4773, creature->GetGUID());
-            return true;
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_FELSTONE_FIELD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_DALSON_S_TEARS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_WRITHING_HAUNT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_GAHRRON_S_WITH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_LET_S_GET_TO_WORK, creature->GetGUID());
         }
         else
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -185,7 +145,7 @@ public:
             me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             //override any database `spawntimesecs` to prevent duplicated summons
             uint32 rTime = me->GetRespawnDelay();
-            if (rTime<600)
+            if (rTime < 600)
                 me->SetRespawnDelay(600);
         }
 
@@ -264,7 +224,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who || who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -276,14 +235,9 @@ public:
     };
 };
 
-/*######
-##
-######*/
-
 void AddSC_western_plaguelands()
 {
     new npcs_dithers_and_arbington();
-    new npc_myranda_the_hag();
     new npc_the_scourge_cauldron();
     new npc_andorhal_tower();
 }

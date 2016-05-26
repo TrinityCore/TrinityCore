@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -249,7 +249,7 @@ public:
                     me->CastStop(SPELL_FOG_BREATH);
                     me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
                     me->StopMoving();
-                    me->SetSpeed(MOVE_RUN, 2.0f);
+                    me->SetSpeedRate(MOVE_RUN, 2.0f);
 
                     events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
                     events.ScheduleEvent(EVENT_CORROSION, urand(10000, 20000));
@@ -530,7 +530,7 @@ public:
         npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetSpeed(MOVE_RUN, 0.8f);
+            me->SetSpeedRate(MOVE_RUN, 0.8f);
         }
 
         void Reset() override { }

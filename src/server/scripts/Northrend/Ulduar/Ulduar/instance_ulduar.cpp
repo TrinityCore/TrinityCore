@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,26 +24,43 @@
 #include "WorldPacket.h"
 #include "ulduar.h"
 
+static BossBoundaryData const boundaries =
+{
+    { BOSS_LEVIATHAN, new RectangleBoundary(148.0f, 401.3f, -155.0f, 90.0f) },
+    { BOSS_IGNIS, new RectangleBoundary(495.0f, 680.0f, 90.0f, 400.0f) },
+    { BOSS_RAZORSCALE, new RectangleBoundary(370.0f, 810.0f, -542.0f, -55.0f) },
+    { BOSS_XT002, new RectangleBoundary(755.0f, 940.0f, -125.0f, 95.0f) },
+    { BOSS_ASSEMBLY_OF_IRON, new CircleBoundary(Position(1587.2f, 121.0f), 90.0) },
+    { BOSS_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
+    { BOSS_ALGALON, new ZRangeBoundary(410.0f, 440.0f) },
+    { BOSS_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
+    { BOSS_THORIM, new CircleBoundary(Position(2134.73f, -263.2f), 50.0) },
+    { BOSS_FREYA, new RectangleBoundary(2094.6f, 2520.0f, -250.0f, 200.0f) },
+    { BOSS_MIMIRON, new CircleBoundary(Position(2744.0f, 2569.0f), 70.0) },
+    { BOSS_VEZAX, new RectangleBoundary(1740.0f, 1930.0f, 31.0f, 228.0f) },
+    { BOSS_YOGG_SARON, new CircleBoundary(Position(1980.42f, -27.68f), 105.0) }
+};
+
 static DoorData const doorData[] =
 {
-    { GO_LEVIATHAN_DOOR,                BOSS_LEVIATHAN,         DOOR_TYPE_ROOM,         BOUNDARY_S      },
-    { GO_XT_002_DOOR,                   BOSS_XT002,             DOOR_TYPE_ROOM,         BOUNDARY_S      },
-    { GO_IRON_COUNCIL_DOOR,             BOSS_ASSEMBLY_OF_IRON,  DOOR_TYPE_ROOM,         BOUNDARY_N      },
-    { GO_ARCHIVUM_DOOR,                 BOSS_ASSEMBLY_OF_IRON,  DOOR_TYPE_PASSAGE,      BOUNDARY_S      },
-    { GO_HODIR_ENTRANCE,                BOSS_HODIR,             DOOR_TYPE_ROOM,         BOUNDARY_E      },
-    { GO_HODIR_DOOR,                    BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_NONE   },
-    { GO_HODIR_ICE_DOOR,                BOSS_HODIR,             DOOR_TYPE_PASSAGE,      BOUNDARY_W      },
-    { GO_MIMIRON_DOOR_1,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
-    { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_E      },
-    { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM,         BOUNDARY_S      },
-    { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE,      BOUNDARY_E      },
-    { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM,         BOUNDARY_S      },
-    { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM,         BOUNDARY_W      },
-    { GO_DOODAD_UL_UNIVERSEFLOOR_01,    BOSS_ALGALON,           DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
-    { GO_DOODAD_UL_UNIVERSEFLOOR_02,    BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
-    { GO_DOODAD_UL_UNIVERSEGLOBE01,     BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
-    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03,  BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
-    { 0,                                0,                      DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
+    { GO_LEVIATHAN_DOOR,                BOSS_LEVIATHAN,         DOOR_TYPE_ROOM },
+    { GO_XT_002_DOOR,                   BOSS_XT002,             DOOR_TYPE_ROOM },
+    { GO_IRON_COUNCIL_DOOR,             BOSS_ASSEMBLY_OF_IRON,  DOOR_TYPE_ROOM },
+    { GO_ARCHIVUM_DOOR,                 BOSS_ASSEMBLY_OF_IRON,  DOOR_TYPE_PASSAGE },
+    { GO_HODIR_ENTRANCE,                BOSS_HODIR,             DOOR_TYPE_ROOM },
+    { GO_HODIR_DOOR,                    BOSS_HODIR,             DOOR_TYPE_PASSAGE },
+    { GO_HODIR_ICE_DOOR,                BOSS_HODIR,             DOOR_TYPE_PASSAGE },
+    { GO_MIMIRON_DOOR_1,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
+    { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
+    { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
+    { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE },
+    { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM },
+    { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_01,    BOSS_ALGALON,           DOOR_TYPE_ROOM },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_02,    BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE },
+    { GO_DOODAD_UL_UNIVERSEGLOBE01,     BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE },
+    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03,  BOSS_ALGALON,           DOOR_TYPE_SPAWN_HOLE },
+    { 0,                                0,                      DOOR_TYPE_ROOM },
 };
 
 MinionData const minionData[] =
@@ -74,7 +91,7 @@ class instance_ulduar : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-
+                LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
                 LoadObjectData(creatureData, nullptr);
@@ -818,12 +835,9 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case DATA_COLOSSUS:
                         ColossusData = data;
-                        if (data == 2)
+                        if (data == 2 && GetBossState(BOSS_LEVIATHAN) == NOT_STARTED)
                         {
-                            if (Creature* Leviathan = instance->GetCreature(LeviathanGUID))
-                                Leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
-                            if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
-                                gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            _events.ScheduleEvent(EVENT_LEVIATHAN_BREAK_DOOR, 5 * IN_MILLISECONDS);
                             SaveToDB();
                         }
                         break;
@@ -1178,6 +1192,12 @@ class instance_ulduar : public InstanceMapScript
                                     }
                                 }
                             }
+                            break;
+                        case EVENT_LEVIATHAN_BREAK_DOOR:
+                            if (Creature* Leviathan = instance->GetCreature(LeviathanGUID))
+                                Leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
+                            if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
+                                gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             break;
                     }
                 }

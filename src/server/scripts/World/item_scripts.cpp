@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,18 +57,18 @@ public:
         //for special scripts
         switch (itemId)
         {
-           case 24538:
+            case 24538:
                 if (player->GetAreaId() != 3628)
                     disabled = true;
-                    break;
-           case 34489:
+                break;
+            case 34489:
                 if (player->GetZoneId() != 4080)
                     disabled = true;
-                    break;
-           case 34475:
-                if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                break;
+            case 34475:
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
                     Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
-                    break;
+                break;
         }
 
         // allow use in flight only

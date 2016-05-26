@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,7 +158,7 @@ struct InstanceGroupBind
 
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
-class Group
+class TC_GAME_API Group
 {
     public:
         struct MemberSlot
@@ -194,6 +194,7 @@ class Group
         bool   AddMember(Player* player);
         bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
         void   ChangeLeader(ObjectGuid guid);
+ static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void   SetLootMethod(LootMethod method);
         void   SetLooterGuid(ObjectGuid guid);
         void   SetMasterLooterGuid(ObjectGuid guid);

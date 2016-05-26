@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,8 +103,8 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                 // Fly Away
                 me->SetCanFly(true);
-                me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
-                me->SetSpeed(MOVE_RUN, 0.75f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 0.75f);
+                me->SetSpeedRate(MOVE_RUN, 0.75f);
                 float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
                 float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
                 float z = me->GetPositionZ() + 40;

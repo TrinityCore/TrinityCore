@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "BattlegroundScore.h"
 #include "SharedDefines.h"
 
-struct ArenaScore : public BattlegroundScore
+struct TC_GAME_API ArenaScore : public BattlegroundScore
 {
     friend class Arena;
 
@@ -56,7 +56,7 @@ struct ArenaScore : public BattlegroundScore
         uint8 TeamId; // BattlegroundTeamId
 };
 
-struct ArenaTeamScore
+struct TC_GAME_API ArenaTeamScore
 {
     friend class Arena;
     friend class Battleground;

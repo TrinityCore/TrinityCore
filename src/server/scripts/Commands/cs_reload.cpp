@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -251,7 +251,7 @@ public:
 
     static bool HandleReloadAllScriptsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->PSendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -393,7 +393,7 @@ public:
 
     static bool HandleReloadCommandCommand(ChatHandler* handler, const char* /*args*/)
     {
-        handler->SetLoadCommandTable(true);
+        ChatHandler::invalidateCommandTable();
         handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
         return true;
     }
@@ -893,7 +893,7 @@ public:
 
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -913,7 +913,7 @@ public:
 
     static bool HandleReloadWpScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -946,7 +946,7 @@ public:
 
     static bool HandleReloadSpellScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);

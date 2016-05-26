@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 
 // Note. All times are in milliseconds here.
 
-class BasicEvent
+class TC_COMMON_API BasicEvent
 {
     public:
         BasicEvent()
@@ -55,7 +55,7 @@ class BasicEvent
 
 typedef std::multimap<uint64, BasicEvent*> EventList;
 
-class EventProcessor
+class TC_COMMON_API EventProcessor
 {
     public:
         EventProcessor();

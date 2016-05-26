@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,18 +93,14 @@ class Player;
 class Creature;
 class Quest;
 
-class GameEventMgr
+class TC_GAME_API GameEventMgr
 {
     private:
         GameEventMgr();
         ~GameEventMgr() { }
 
     public:
-        static GameEventMgr* instance()
-        {
-            static GameEventMgr instance;
-            return &instance;
-        }
+        static GameEventMgr* instance();
 
         typedef std::set<uint16> ActiveEvents;
         typedef std::vector<GameEventData> GameEventDataMap;
@@ -186,8 +182,8 @@ class GameEventMgr
 
 #define sGameEventMgr GameEventMgr::instance()
 
-bool IsHolidayActive(HolidayIds id);
-bool IsEventActive(uint16 event_id);
+TC_GAME_API bool IsHolidayActive(HolidayIds id);
+TC_GAME_API bool IsEventActive(uint16 event_id);
 
 #endif
 

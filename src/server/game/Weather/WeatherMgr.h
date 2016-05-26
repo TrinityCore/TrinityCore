@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,15 +30,15 @@ class Player;
 
 namespace WeatherMgr
 {
-    void LoadWeatherData();
+    TC_GAME_API void LoadWeatherData();
 
-    Weather* FindWeather(uint32 id);
-    Weather* AddWeather(uint32 zone_id);
-    void RemoveWeather(uint32 zone_id);
+    TC_GAME_API Weather* FindWeather(uint32 id);
+    TC_GAME_API Weather* AddWeather(uint32 zone_id);
+    TC_GAME_API void RemoveWeather(uint32 zone_id);
 
-    void SendFineWeatherUpdateToPlayer(Player* player);
+    TC_GAME_API void SendFineWeatherUpdateToPlayer(Player* player);
 
-    void Update(uint32 diff);
+    TC_GAME_API void Update(uint32 diff);
 }
 
 #endif
