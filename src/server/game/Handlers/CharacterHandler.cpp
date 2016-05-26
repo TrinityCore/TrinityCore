@@ -1084,7 +1084,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         CharacterDatabase.Execute(stmtSpells);
 
         // Then reset all of the player's pet specualizations
-        PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
+        PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_SPECS_BY_OWNER);
         stmtSpec->setUInt64(0, pCurrChar->GetGUID().GetCounter());
         CharacterDatabase.Execute(stmtSpec);
     }
