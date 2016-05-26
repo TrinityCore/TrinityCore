@@ -3024,7 +3024,6 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
                 OldSummon->SetHealth(OldSummon->GetMaxHealth());
                 OldSummon->SetPower(OldSummon->getPowerType(),
                     OldSummon->GetMaxPower(OldSummon->getPowerType()));
-                OldSummon->GetSpellHistory()->ResetAllCooldowns();
             }
 
             if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
