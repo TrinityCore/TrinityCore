@@ -567,6 +567,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete _cinematicMgr;
 
     sWorld->DecreasePlayerCount();
 }
@@ -2418,11 +2419,11 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint32 npcflag
         return nullptr;
 
     // Deathstate checks
-    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return nullptr;
 
     // alive or spirit healer
-    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return nullptr;
 
     // appropriate npc type
@@ -4940,6 +4941,9 @@ void Player::DurabilityPointsLossAll(int32 points, bool inventory)
 
 void Player::DurabilityPointsLoss(Item* item, int32 points)
 {
+    if (HasAuraType(SPELL_AURA_PREVENT_DURABILITY_LOSS))
+        return;
+
     int32 pMaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
     int32 pOldDurability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
     int32 pNewDurability = pOldDurability - points;

@@ -193,7 +193,7 @@ void LoadM2Cameras(std::string const& dataPath)
     {
         if (CinematicCameraEntry const* dbcentry = sCinematicCameraStore.LookupEntry(i))
         {
-            std::string filenameWork = dataPath.c_str();
+            std::string filenameWork = dataPath;
             filenameWork.append(dbcentry->Model);
 
             // Replace slashes (always to forward slash, because boost!)
