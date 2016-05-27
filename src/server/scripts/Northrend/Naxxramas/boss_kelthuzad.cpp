@@ -309,7 +309,7 @@ public:
             _Reset();
 
             me->setFaction(35);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
 
             ResetPlayerScale();
             spawns.DespawnAll();
@@ -356,7 +356,7 @@ public:
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
             Talk(SAY_SUMMON_MINIONS);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
             events.SetPhase(PHASE_ONE);
@@ -426,7 +426,7 @@ public:
                             Talk(SAY_AGGRO);
                             Talk(EMOTE_PHASE_TWO);
                             spawns.DespawnAll();
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
 
                             DoStartMovement(me->GetVictim());

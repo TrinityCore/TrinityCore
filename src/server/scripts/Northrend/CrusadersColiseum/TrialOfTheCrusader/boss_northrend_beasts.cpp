@@ -646,7 +646,7 @@ struct boss_jormungarAI : public BossAI
         // if the worm was mobile before submerging, make him stationary now
         if (WasMobile)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             SetCombatMovement(false);
             me->SetDisplayId(ModelStationary);
             me->CastSpell(me, SPELL_GROUND_VISUAL_1, true);
@@ -658,7 +658,7 @@ struct boss_jormungarAI : public BossAI
         }
         else
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             SetCombatMovement(true);
             me->GetMotionMaster()->MoveChase(me->GetVictim());
             me->SetDisplayId(ModelMobile);
@@ -1023,7 +1023,7 @@ class boss_icehowl : public CreatureScript
                             me->SetTarget(_trampleTargetGUID);
                             _trampleCast = false;
                             SetCombatMovement(false);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveIdle();
                             events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
@@ -1107,7 +1107,7 @@ class boss_icehowl : public CreatureScript
                             Talk(EMOTE_TRAMPLE_FAIL);
                         }
                         _movementStarted = false;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                         SetCombatMovement(true);
                         me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->Clear();
