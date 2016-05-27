@@ -330,7 +330,7 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
             WorldPackets::Spells::SpellChargeEntry chargeEntry;
             chargeEntry.Category = p.first;
             chargeEntry.NextRecoveryTime = uint32(cooldownDuration.count());
-            chargeEntry.ConsumedCharges = p.second.size();
+            chargeEntry.ConsumedCharges = uint8(p.second.size());
             sendSpellCharges->Entries.push_back(chargeEntry);
         }
     }
@@ -359,6 +359,8 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
             if (categoryDuration.count() > 0)
                 petSpellCooldown.CategoryDuration = uint32(categoryDuration.count());
         }
+        else
+            petSpellCooldown.CategoryDuration = 0x80000000;
 
         petSpells->Cooldowns.push_back(petSpellCooldown);
     }
@@ -375,13 +377,12 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
             WorldPackets::Pet::PetSpellHistory petChargeEntry;
             petChargeEntry.CategoryID = p.first;
             petChargeEntry.RecoveryTime = uint32(cooldownDuration.count());
-            petChargeEntry.ConsumedCharges = p.second.size();
+            petChargeEntry.ConsumedCharges = int8(p.second.size());
 
             petSpells->SpellHistory.push_back(petChargeEntry);
         }
     }
 }
-
 
 void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spell* spell /*= nullptr*/, bool onHold /*= false*/)
 {
@@ -419,6 +420,18 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
             if (categoryCooldown > 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
                 modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, spell);
+        }
+
+        if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE, spellInfo))
+        {
+            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
+            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
+        }
+
+        if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN, spellInfo))
+        {
+            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
+            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
         }
 
         if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
@@ -734,7 +747,7 @@ void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
             setSpellCharges.Category = chargeCategoryEntry->ID;
             if (!itr->second.empty())
                 setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.front().RechargeEnd - Clock::now()).count());
-            setSpellCharges.ConsumedCharges = itr->second.size();
+            setSpellCharges.ConsumedCharges = uint8(itr->second.size());
             setSpellCharges.IsPet = player != _owner;
 
             player->SendDirectMessage(setSpellCharges.Write());
@@ -806,7 +819,7 @@ int32 SpellHistory::GetChargeRecoveryTime(SpellCategoryEntry const* chargeCatego
     int32 recoveryTime = chargeCategoryEntry->ChargeRecoveryTime;
     recoveryTime += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, chargeCategoryEntry->ID);
 
-    float recoveryTimeF = recoveryTime;
+    float recoveryTimeF = float(recoveryTime);
     recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryEntry->ID);
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
@@ -927,7 +940,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         for (auto const& c : _spellCooldowns)
         {
             Clock::time_point now = Clock::now();
-            uint32 cooldownDuration = c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0;
+            uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0);
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
             if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || c.second.OnHold)

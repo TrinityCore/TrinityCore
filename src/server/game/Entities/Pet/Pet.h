@@ -119,26 +119,24 @@ class TC_GAME_API Pet : public Guardian
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);
+        void learnSpells(std::vector<uint32> const& spellIds);
         void learnSpellHighRank(uint32 spellid);
         void InitLevelupSpellsForLevel();
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
+        void unlearnSpells(std::vector<uint32> const& spellIds, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
+        std::string GenerateActionBarData() const;
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;
 
         void InitPetCreateSpells();
 
-        bool resetTalents();
-        static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = nullptr);
-        void InitTalentForLevel();
-
-        uint8 GetMaxTalentPointsForLevel(uint8 level) const;
-        uint8 GetFreeTalentPoints() const { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
-        void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
-
-        uint32  m_usedTalentCount;
+        uint16 GetSpecialization() { return m_petSpecialization; }
+        void SetSpecialization(uint16 spec);
+        void LearnSpecializationSpells();
+        void RemoveSpecializationSpells(bool clearActionBar);
 
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag);
@@ -158,6 +156,8 @@ class TC_GAME_API Pet : public Guardian
         uint32  m_groupUpdateMask;
 
         DeclinedName *m_declinedname;
+
+        uint16 m_petSpecialization;
 
     private:
         void SaveToDB(uint32, uint32, uint32) override               // override of Creature::SaveToDB     - must not be called

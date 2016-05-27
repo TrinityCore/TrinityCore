@@ -1536,6 +1536,12 @@ enum Texts
     TEXT_SNIVVLE_RANDOM                 = 0
 };
 
+enum BG_AV_ExploitTeleportLocations
+{
+    AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3664,
+    AV_EXPLOIT_TELEPORT_LOCATION_HORDE = 3665
+};
+
 struct BG_AV_NodeInfo
 {
     BG_AV_States State;
@@ -1633,6 +1639,7 @@ class BattlegroundAV : public Battleground
         void EndBattleground(uint32 winner) override;
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;

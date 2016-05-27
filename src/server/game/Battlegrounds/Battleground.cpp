@@ -1076,6 +1076,12 @@ void Battleground::StartBattleground()
         TC_LOG_DEBUG("bg.arena", "Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
 }
 
+void Battleground::TeleportPlayerToExploitLocation(Player* player)
+{
+    if (WorldSafeLocsEntry const* loc = GetExploitTeleportLocation(Team(player->GetBGTeam())))
+        player->TeleportTo(loc->MapID, loc->Loc.X, loc->Loc.Y, loc->Loc.Z, loc->Facing);
+}
+
 void Battleground::AddPlayer(Player* player)
 {
     // remove afk from player

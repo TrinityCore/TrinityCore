@@ -20164,7 +20164,7 @@ void Player::PetSpellInitialize()
     WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = pet->GetGUID();
     petSpellsPacket._CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
-    //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
+    petSpellsPacket.Specialization = pet->GetSpecialization();
     petSpellsPacket.TimeLimit = pet->GetDuration();
     petSpellsPacket.ReactState = pet->GetReactState();
     petSpellsPacket.CommandState = charmInfo->GetCommandState();
@@ -25956,7 +25956,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         case SUMMON_PET:
             pet->InitPetCreateSpells();
-            pet->InitTalentForLevel();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             PetSpellInitialize();
             break;

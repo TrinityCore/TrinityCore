@@ -33,6 +33,7 @@
 enum ShamanSpells
 {
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_EARTH_SHOCK                    = 8042,
     SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT           = 118522,
     SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE          = 173183,
     SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY        = 173184,
@@ -44,6 +45,8 @@ enum ShamanSpells
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED            = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
+    SPELL_SHAMAN_FULMINATION                    = 88767,
+    SPELL_SHAMAN_FULMINATION_UI_INDICATOR       = 95774,
     SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM  = 55456,
     SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM_TRIGGERED = 119523,
     SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE          = 55533,
@@ -55,6 +58,10 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
+    SPELL_SHAMAN_ITEM_T18_ELEMENTAL_2P_BONUS    = 185880,
+    SPELL_SHAMAN_ITEM_T18_ELEMENTAL_4P_BONUS    = 185881,
+    SPELL_SHAMAN_ITEM_T18_GATHERING_VORTEX      = 189078,
+    SPELL_SHAMAN_ITEM_T18_LIGHTNING_VORTEX      = 189063,
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK   = 105792,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
@@ -396,14 +403,27 @@ class spell_sha_fulmination : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FULMINATION))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FULMINATION_UI_INDICATOR))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_IMPROVED_LIGHTNING_SHIELD))
+                    return false;
+                SpellInfo const* lightningShield = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD);
+                if (!lightningShield || !lightningShield->GetEffect(EFFECT_0) || !sSpellMgr->GetSpellInfo(lightningShield->GetEffect(EFFECT_0)->TriggerSpell))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_T18_ELEMENTAL_2P_BONUS))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_T18_ELEMENTAL_4P_BONUS))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_T18_LIGHTNING_VORTEX))
                     return false;
                 return true;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                // Lava Burst cannot trigger Fulmination without Improved Lightning Shield
+                // Lava Burst cannot add lightning shield stacks without Improved Lightning Shield
                 if ((eventInfo.GetSpellInfo()->SpellFamilyFlags[1] & 0x00001000) && !eventInfo.GetActor()->HasAura(SPELL_SHAMAN_IMPROVED_LIGHTNING_SHIELD))
                     return false;
 
@@ -412,10 +432,64 @@ class spell_sha_fulmination : public SpellScriptLoader
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                if (Aura* aura = eventInfo.GetActor()->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetActionTarget();
+                if (Aura* aura = caster->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
                 {
-                    aura->SetCharges(std::min<uint8>(aura->GetCharges() + 1, uint8(aurEff->GetAmount())));
-                    aura->RefreshDuration();
+                    // Earth Shock releases the charges
+                    if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 0x00100000)
+                    {
+                        uint32 stacks = aura->GetCharges();
+                        if (stacks > 1)
+                        {
+                            SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(aura->GetSpellEffectInfo(EFFECT_0)->TriggerSpell);
+                            SpellEffectInfo const* triggerEffect = triggerSpell->GetEffect(EFFECT_0);
+
+                            uint32 damage;
+                            damage = caster->SpellDamageBonusDone(target, triggerSpell, uint32(triggerEffect->CalcValue(caster)), SPELL_DIRECT_DAMAGE, triggerEffect, stacks - 1);
+                            damage = target->SpellDamageBonusTaken(caster, triggerSpell, damage, SPELL_DIRECT_DAMAGE, triggerEffect, stacks - 1);
+
+                            caster->CastCustomSpell(SPELL_SHAMAN_FULMINATION, SPELLVALUE_BASE_POINT0, int32(damage), target, TRIGGERED_FULL_MASK);
+                            caster->RemoveAurasDueToSpell(SPELL_SHAMAN_FULMINATION_UI_INDICATOR);
+
+                            if (AuraEffect const* t18_4p = caster->GetAuraEffect(SPELL_SHAMAN_ITEM_T18_ELEMENTAL_4P_BONUS, EFFECT_0))
+                            {
+                                if (Aura* gatheringVortex = caster->GetAura(SPELL_SHAMAN_ITEM_T18_GATHERING_VORTEX))
+                                {
+                                    if (gatheringVortex->GetStackAmount() + stacks >= uint32(t18_4p->GetAmount()))
+                                        caster->CastSpell(caster, SPELL_SHAMAN_ITEM_T18_LIGHTNING_VORTEX, TRIGGERED_FULL_MASK);
+
+                                    if (uint8 newStacks = uint8((gatheringVortex->GetStackAmount() + stacks) % t18_4p->GetAmount()))
+                                        gatheringVortex->SetStackAmount(newStacks);
+                                    else
+                                        gatheringVortex->Remove();
+                                }
+                                else
+                                    caster->CastCustomSpell(SPELL_SHAMAN_ITEM_T18_GATHERING_VORTEX, SPELLVALUE_AURA_STACK, stacks, caster, TRIGGERED_FULL_MASK);
+                            }
+
+                            if (AuraEffect const* t18_2p = caster->GetAuraEffect(SPELL_SHAMAN_ITEM_T18_ELEMENTAL_2P_BONUS, EFFECT_0))
+                            {
+                                if (roll_chance_i(t18_2p->GetAmount()))
+                                {
+                                    caster->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_EARTH_SHOCK, true);
+                                    return;
+                                }
+                            }
+
+                            aura->SetCharges(1);
+                            aura->SetUsingCharges(false);
+                        }
+                    }
+                    else
+                    {
+                        aura->SetCharges(std::min<uint8>(aura->GetCharges() + 1, uint8(aurEff->GetAmount())));
+                        aura->SetUsingCharges(false);
+                        aura->RefreshDuration();
+
+                        if (aura->GetCharges() == aurEff->GetAmount())
+                            caster->CastSpell(caster, SPELL_SHAMAN_FULMINATION_UI_INDICATOR, TRIGGERED_FULL_MASK);
+                    }
                 }
             }
 
@@ -761,6 +835,35 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
         {
             return new spell_sha_item_t10_elemental_2p_bonus_AuraScript();
         }
+};
+
+// 189063 - Lightning Vortex (proc 185881 Item - Shaman T18 Elemental 4P Bonus)
+class spell_sha_item_t18_elemental_4p_bonus : public SpellScriptLoader
+{
+public:
+    spell_sha_item_t18_elemental_4p_bonus() : SpellScriptLoader("spell_sha_item_t18_elemental_4p_bonus") { }
+
+    class spell_sha_item_t18_elemental_4p_bonus_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_item_t18_elemental_4p_bonus_AuraScript);
+
+        void DiminishHaste(AuraEffect const* aurEff)
+        {
+            PreventDefaultAction();
+            if (AuraEffect* hasteBuff = GetEffect(EFFECT_0))
+                hasteBuff->ChangeAmount(hasteBuff->GetAmount() - aurEff->GetAmount());
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_item_t18_elemental_4p_bonus_AuraScript::DiminishHaste, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_item_t18_elemental_4p_bonus_AuraScript();
+    }
 };
 
 // 60103 - Lava Lash
@@ -1122,6 +1225,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_lightning_shield_trigger();
     new spell_sha_item_mana_surge();
     new spell_sha_item_t10_elemental_2p_bonus();
+    new spell_sha_item_t18_elemental_4p_bonus();
     new spell_sha_lava_lash();
     new spell_sha_lava_lash_spread_flame_shock();
     new spell_sha_lava_surge();

@@ -493,11 +493,13 @@ void BattlegroundAV::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
 
 void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     switch (trigger)
     {
+        case 6633: // Horde Start
+        case 6632: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 95:
         case 2608:
             if (player->GetTeam() != ALLIANCE)
@@ -1122,6 +1124,11 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
             }
         }
     return pGraveyard;
+}
+
+WorldSafeLocsEntry const* BattlegroundAV::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE: AV_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundAV::SetupBattleground()
