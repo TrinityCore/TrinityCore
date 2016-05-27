@@ -1126,9 +1126,9 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
     return pGraveyard;
 }
 
-WorldSafeLocsEntry const* BattlegroundAV::GetExploitTeleportLocation(TeamId teamID)
+WorldSafeLocsEntry const* BattlegroundAV::GetExploitTeleportLocation(Team team)
 {
-    return sWorldSafeLocsStore.LookupEntry(teamID == TEAM_ALLIANCE ? AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE: AV_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE: AV_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundAV::SetupBattleground()

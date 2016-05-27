@@ -438,7 +438,7 @@ class TC_GAME_API Battleground
         // Death related
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual WorldSafeLocsEntry const* GetExploitTeleportLocation(TeamId /*teamID*/) { return nullptr; }
+        virtual WorldSafeLocsEntry const* GetExploitTeleportLocation(Team /*team*/) { return nullptr; }
         // GetExploitTeleportLocation(TeamId) must be implemented in the battleground subclass.
         void TeleportPlayerToExploitLocation(Player* player);
 

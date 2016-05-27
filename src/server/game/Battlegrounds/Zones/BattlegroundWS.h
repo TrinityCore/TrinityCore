@@ -228,7 +228,7 @@ class BattlegroundWS : public Battleground
         void Reset() override;
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
-        WorldSafeLocsEntry const* GetExploitTeleportLocation(TeamId teamID) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }

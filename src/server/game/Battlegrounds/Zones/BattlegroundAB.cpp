@@ -692,9 +692,9 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(TeamId teamID)
+WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)
 {
-    return sWorldSafeLocsStore.LookupEntry(teamID == TEAM_ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)

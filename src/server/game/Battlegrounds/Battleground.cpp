@@ -1078,7 +1078,7 @@ void Battleground::StartBattleground()
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
 {
-    if (WorldSafeLocsEntry const* loc = GetExploitTeleportLocation(player->GetTeamId()))
+    if (WorldSafeLocsEntry const* loc = GetExploitTeleportLocation(Team(player->GetBGTeam())))
         player->TeleportTo(loc->MapID, loc->Loc.X, loc->Loc.Y, loc->Loc.Z, loc->Facing);
 }
 

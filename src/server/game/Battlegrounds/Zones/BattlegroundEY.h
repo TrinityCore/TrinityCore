@@ -382,7 +382,7 @@ class BattlegroundEY : public Battleground
         void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
-        WorldSafeLocsEntry const* GetExploitTeleportLocation(TeamId teamID) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
         bool SetupBattleground() override;
         void Reset() override;
         void UpdateTeamScore(uint32 Team);

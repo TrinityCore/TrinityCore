@@ -885,9 +885,9 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-WorldSafeLocsEntry const * BattlegroundIC::GetExploitTeleportLocation(TeamId teamID)
+WorldSafeLocsEntry const * BattlegroundIC::GetExploitTeleportLocation(Team team)
 {
-    return sWorldSafeLocsStore.LookupEntry(teamID == TEAM_ALLIANCE ? IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : IC_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : IC_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundIC::IsAllNodesControlledByTeam(uint32 team) const

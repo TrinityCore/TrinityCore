@@ -1639,7 +1639,7 @@ class BattlegroundAV : public Battleground
         void EndBattleground(uint32 winner) override;
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
-        WorldSafeLocsEntry const* GetExploitTeleportLocation(TeamId teamID) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
