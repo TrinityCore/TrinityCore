@@ -3794,6 +3794,7 @@ uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_ME
 // CreatureFamily.dbc (6.0.2.18988)
 enum CreatureFamily
 {
+    CREATURE_FAMILY_NONE                = 0,
     CREATURE_FAMILY_WOLF                = 1,
     CREATURE_FAMILY_CAT                 = 2,
     CREATURE_FAMILY_SPIDER              = 3,
