@@ -468,6 +468,12 @@ enum BG_IC_MaxSpawns
     MAX_CAPTAIN_SPAWNS_PER_FACTION                      = 2,
 };
 
+enum BG_IC_ExploitTeleportLocations
+{
+    IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3986,
+    IC_EXPLOIT_TELEPORT_LOCATION_HORDE = 3983
+};
+
 const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS] =
 {
     {BG_IC_NPC_OVERLORD_AGMAR, NPC_OVERLORD_AGMAR, TEAM_HORDE, 1295.44f, -765.733f, 70.0541f, 0.0f}, //Overlord Agmar 1
@@ -940,6 +946,7 @@ class BattlegroundIC : public Battleground
         void DestroyGate(Player* player, GameObject* go) override;
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
