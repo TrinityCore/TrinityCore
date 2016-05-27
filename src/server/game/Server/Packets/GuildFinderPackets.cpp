@@ -92,8 +92,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::GuildFinder::LFGuildAppli
 
 WorldPacket const* WorldPackets::GuildFinder::LFGuildApplications::Write()
 {
-    _worldPacket << uint32(Application.size());
     _worldPacket << int32(NumRemaining);
+    _worldPacket << uint32(Application.size());
     for (LFGuildApplicationData const& application : Application)
         _worldPacket << application;
 
