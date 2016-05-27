@@ -855,7 +855,6 @@ enum SpellAttr13
 #define MAX_TALENT_GROUP            1
 #define MIN_TALENT_GROUPS           1
 #define MAX_TALENT_GROUPS           2
-#define MAX_GLYPH_SLOT_INDEX        6
 #define MIN_SPECIALIZATION_LEVEL    10
 #define MAX_SPECIALIZATIONS         4
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES

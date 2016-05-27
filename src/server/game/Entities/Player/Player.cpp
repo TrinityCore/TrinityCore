@@ -561,7 +561,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     // base stats and related field values
     InitStatsForLevel();
     InitTaxiNodesForLevel();
-    InitGlyphsForLevel();
     InitTalentForLevel();
     InitPrimaryProfessions();                               // to max set before any spell added
 
@@ -2448,7 +2447,6 @@ void Player::GiveLevel(uint8 level)
 
     InitTalentForLevel();
     InitTaxiNodesForLevel();
-    InitGlyphsForLevel();
 
     UpdateAllStats();
 
@@ -4018,10 +4016,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_EVENTLOG_BY_PLAYER);
-            stmt->setUInt64(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
@@ -16800,7 +16794,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // reset stats before loading any modifiers
     InitStatsForLevel();
-    InitGlyphsForLevel();
     InitTaxiNodesForLevel();
     InitRunes();
 
@@ -16869,9 +16862,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     LearnSpecializationSpells();
 
-    _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS), time_diff);
-    _LoadGlyphAuras();
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
@@ -17238,36 +17229,6 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
             }
         }
         while (auraResult->NextRow());
-    }
-}
-
-void Player::_LoadGlyphAuras()
-{
-    for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-    {
-        if (uint32 glyph = GetGlyph(GetActiveTalentGroup(), i))
-        {
-            if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-            {
-                if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(GetGlyphSlot(i)))
-                {
-                    if (gp->Type == gs->Type)
-                    {
-                        CastSpell(this, gp->SpellID, true);
-                        continue;
-                    }
-                    else
-                        TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has glyph with typeflags %u in slot with typeflags %u, removing.", GetName().c_str(), GetGUID().ToString().c_str(), gp->Type, gs->Type);
-                }
-                else
-                    TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has not existing glyph slot entry %u on index %u", GetName().c_str(), GetGUID().ToString().c_str(), GetGlyphSlot(i), i);
-            }
-            else
-                TC_LOG_ERROR("entities.player", "Player::_LoadGlyphAuras: Player '%s' (%s) has not existing glyph entry %u on index %u", GetName().c_str(), GetGUID().ToString().c_str(), glyph, i);
-
-            // On any error remove glyph
-            SetGlyph(i, 0);
-        }
     }
 }
 
@@ -18874,7 +18835,6 @@ void Player::SaveToDB(bool create /*=false*/)
     m_reputationMgr->SaveToDB(trans);
     _SaveEquipmentSets(trans);
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
-    _SaveGlyphs(trans);
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
@@ -24014,25 +23974,6 @@ uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8
     return cost;
 }
 
-void Player::InitGlyphsForLevel()
-{
-    //uint32 slotMask = 0;
-    //uint8 slot = 0;
-    //uint8 level = getLevel();
-    //for (GlyphSlotEntry const* gs : sDB2Manager.GetGlyphSlots())
-    //{
-    //    if (level >= ((gs->Tooltip + 1) * 25))
-    //        slotMask |= 1 << slot;
-
-    //    SetGlyphSlot(slot++, gs->ID);
-    //}
-}
-
-void Player::SetGlyph(uint8 slot, uint32 glyph)
-{
-    _talentMgr->GroupInfo[GetActiveTalentGroup()].Glyphs[slot] = glyph;
-}
-
 bool Player::isTotalImmune() const
 {
     AuraEffectList const& immune = GetAuraEffectsByType(SPELL_AURA_SCHOOL_IMMUNITY);
@@ -24840,9 +24781,6 @@ void Player::SendTalentsInfoData()
             groupInfoPkt.TalentIDs.push_back(uint16(itr->first));
         }
 
-        for (uint32 x = 0; x < MAX_GLYPH_SLOT_INDEX; ++x)
-            groupInfoPkt.GlyphIDs[x] = uint16(GetGlyph(i, x));
-
         packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 
@@ -25021,48 +24959,6 @@ void Player::SetMap(Map* map)
     m_mapRef.link(map, this);
 }
 
-void Player::_LoadGlyphs(PreparedQueryResult result)
-{
-    // SELECT group, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6, glyph7, glyph8, glyph9 FROM character_glyphs WHERE guid = '%u'
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint8 group = fields[0].GetUInt8();
-        if (group >= GetTalentGroupsCount())
-            continue;
-
-        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _talentMgr->GroupInfo[group].Glyphs[i] = fields[i + 1].GetUInt16();
-    }
-    while (result->NextRow());
-}
-
-void Player::_SaveGlyphs(SQLTransaction& trans) const
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    for (uint8 group = 0; group < GetTalentGroupsCount(); ++group)
-    {
-        uint8 index = 0;
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
-        stmt->setUInt64(index++, GetGUID().GetCounter());
-
-        stmt->setUInt8(index++, group);
-
-        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            stmt->setUInt16(index++, uint16(GetGlyph(group, i)));
-
-        trans->Append(stmt);
-    }
-}
-
 void Player::_LoadTalents(PreparedQueryResult result)
 {
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -25215,13 +25111,6 @@ void Player::ActivateTalentGroup(uint8 spec)
     // Remove spec specific spells
     RemoveSpecializationSpells();
 
-    // set glyphs
-    for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
-        // remove secondary glyph
-        if (uint32 oldglyph = GetGlyph(GetActiveTalentGroup(), slot))
-            if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
-                RemoveAurasDueToSpell(old_gp->SpellID);
-
     SetActiveTalentGroup(spec);
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecId(spec));
 
@@ -25254,19 +25143,6 @@ void Player::ActivateTalentGroup(uint8 spec)
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
                 if (uint32 mastery = specialization->MasterySpellID[i])
                     LearnSpell(mastery, false);
-
-    // set glyphs
-    for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
-    {
-        uint32 glyph = GetGlyph(GetActiveTalentGroup(), slot);
-
-        // apply primary glyph
-        if (glyph)
-            if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-                CastSpell(this, gp->SpellID, true);
-
-        SetGlyph(slot, glyph);
-    }
 
     InitTalentForLevel();
 

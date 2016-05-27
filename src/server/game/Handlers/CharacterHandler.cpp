@@ -199,10 +199,6 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BG_DATA, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GLYPHS);
-    stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GLYPHS, stmt);
-
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TALENTS, stmt);
@@ -1460,28 +1456,6 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     _player->UpdateCriteria(CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
     _player->SetStandState(UNIT_STAND_STATE_STAND);
-}
-
-void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
-{
-    uint32 slot;
-    recvData >> slot;
-
-    if (slot >= MAX_GLYPH_SLOT_INDEX)
-    {
-        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
-        return;
-    }
-
-    if (uint32 glyph = _player->GetGlyph(_player->GetActiveTalentGroup(), slot))
-    {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-        {
-            _player->RemoveAurasDueToSpell(gp->SpellID);
-            _player->SetGlyph(slot, 0);
-            _player->SendTalentsInfoData();
-        }
-    }
 }
 
 void WorldSession::HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet)

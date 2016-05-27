@@ -585,6 +585,11 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
+enum ItemSetFlags
+{
+    ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
+};
+
 enum ItemSpecStat
 {
     ITEM_SPEC_STAT_INTELLECT        = 0,

@@ -18,13 +18,13 @@
 #ifndef DB2_SPARSE_FILE_LOADER_H
 #define DB2_SPARSE_FILE_LOADER_H
 
-#include "Define.h"
+#include "DB2Meta.h"
 #include "Utilities/ByteConverter.h"
 #include "Implementation/HotfixDatabase.h"
 #include <unordered_map>
 #include <vector>
 
-class IndexTable
+class TC_SHARED_API IndexTable
 {
 public:
     virtual void Insert(uint32 index, char* data) const = 0;
@@ -54,24 +54,22 @@ private:
     std::unordered_map<uint32, T const*>& _indexTable;
 };
 
-class DB2SparseFileLoader
+class TC_SHARED_API DB2SparseFileLoader
 {
     public:
     DB2SparseFileLoader();
     ~DB2SparseFileLoader();
 
-    bool Load(const char *filename);
+    bool Load(char const* filename, DB2Meta const* meta);
 
     uint32 GetNumRows() const { return recordCount; }
     uint32 GetCols() const { return fieldCount; }
-    uint32 GetHash() const { return tableHash; }
-    uint32 GetBuild() const { return build; }
+    uint32 GetTableHash() const { return tableHash; }
+    uint32 GetLayoutHash() const { return layoutHash; }
     bool IsLoaded() const { return (data != NULL); }
-    char* AutoProduceData(const char* fmt, IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool);
-    char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
-    static uint32 GetFormatRecordSize(const char * format);
-    static uint32 GetFormatStringFieldCount(const char * format);
-    static uint32 GetFormatLocalizedStringFieldCount(const char * format);
+    char* AutoProduceData(IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool);
+    char* AutoProduceStrings(char* dataTable, uint32 locale);
+
 private:
 #pragma pack(push, 1)
     struct OffsetTableEntry
@@ -79,9 +77,15 @@ private:
         uint32 FileOffset;
         uint16 RecordSize;
     };
+    struct FieldEntry
+    {
+        uint16 UnusedBits;
+        uint16 Offset;
+    };
 #pragma pack(pop)
 
     char const* fileName;
+    DB2Meta const* meta;
 
     // WDB2 / WCH2 fields
     uint32 recordSize;
@@ -89,30 +93,31 @@ private:
     uint32 fieldCount;
     uint32 offsetsPos;
     uint32 tableHash;
-    uint32 build;
-    uint32 unk1;
+    uint32 layoutHash;
     uint32 minIndex;
     uint32 maxIndex;
     uint32 localeMask;
     uint32 copyIdSize;
     uint32 metaFlags;
+    FieldEntry* fields;
 
     uint32 dataStart;
     unsigned char* data;
     OffsetTableEntry* offsets;
 };
 
-class DB2SparseDatabaseLoader
+class TC_SHARED_API DB2SparseDatabaseLoader
 {
 public:
-    explicit DB2SparseDatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
+    DB2SparseDatabaseLoader(std::string const& storageName, DB2Meta const* meta) : _storageName(storageName), _meta(meta) { }
 
-    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, IndexTable const& indexTable, std::vector<char*>& stringPool);
-    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, IndexTable const& indexTable, std::vector<char*>& stringPool);
+    char* Load(HotfixDatabaseStatements preparedStatement, IndexTable const& indexTable, std::vector<char*>& stringPool);
+    void LoadStrings(HotfixDatabaseStatements preparedStatement, uint32 locale, IndexTable const& indexTable, std::vector<char*>& stringPool);
     static char* AddString(char const** holder, std::string const& value);
 
 private:
     std::string _storageName;
+    DB2Meta const* _meta;
 };
 
 #endif

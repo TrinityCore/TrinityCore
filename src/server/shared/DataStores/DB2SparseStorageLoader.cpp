@@ -23,14 +23,14 @@
 DB2SparseFileLoader::DB2SparseFileLoader()
 {
     fileName = nullptr;
+    meta = nullptr;
 
     recordCount = 0;
     fieldCount = 0;
     recordSize = 0;
     offsetsPos = 0;
     tableHash = 0;
-    build = 0;
-    unk1 = 0;
+    layoutHash = 0;
     minIndex = 0;
     maxIndex = 0;
     localeMask = 0;
@@ -39,9 +39,10 @@ DB2SparseFileLoader::DB2SparseFileLoader()
     dataStart = 0;
     data = nullptr;
     offsets = nullptr;
+    fields = nullptr;
 }
 
-bool DB2SparseFileLoader::Load(const char *filename)
+bool DB2SparseFileLoader::Load(const char *filename, DB2Meta const* meta)
 {
     if (data)
     {
@@ -54,6 +55,7 @@ bool DB2SparseFileLoader::Load(const char *filename)
         return false;
 
     fileName = filename;
+    this->meta = meta;
     uint32 header;
     if (fread(&header, 4, 1, f) != 1)                       // Signature
     {
@@ -63,10 +65,10 @@ bool DB2SparseFileLoader::Load(const char *filename)
 
     EndianConvert(header);
 
-    if (header != 0x34424457)
+    if (header != 0x35424457)
     {
         fclose(f);
-        return false;                                       //'WDB4'
+        return false;                                       //'WDB5'
     }
 
     if (fread(&recordCount, 4, 1, f) != 1)                  // Number of records
@@ -109,21 +111,13 @@ bool DB2SparseFileLoader::Load(const char *filename)
 
     EndianConvert(tableHash);
 
-    if (fread(&build, 4, 1, f) != 1)                        // Build
+    if (fread(&layoutHash, 4, 1, f) != 1)                   // Layout hash
     {
         fclose(f);
         return false;
     }
 
-    EndianConvert(build);
-
-    if (fread(&unk1, 4, 1, f) != 1)                         // Unknown WDB2
-    {
-        fclose(f);
-        return false;
-    }
-
-    EndianConvert(unk1);
+    EndianConvert(layoutHash);
 
     if (fread(&minIndex, 4, 1, f) != 1)                     // MinIndex WDB2
     {
@@ -165,6 +159,13 @@ bool DB2SparseFileLoader::Load(const char *filename)
 
     EndianConvert(metaFlags);
 
+    fields = new FieldEntry[fieldCount];
+    if (fread(fields, fieldCount * sizeof(FieldEntry), 1, f) != 1)
+    {
+        fclose(f);
+        return false;
+    }
+
     dataStart = ftell(f);
 
     data = new unsigned char[offsetsPos - dataStart];
@@ -190,69 +191,19 @@ DB2SparseFileLoader::~DB2SparseFileLoader()
 {
     delete[] data;
     delete[] offsets;
-}
-
-uint32 DB2SparseFileLoader::GetFormatRecordSize(const char * format)
-{
-    uint32 recordsize = 0;
-    for (uint32 x = 0; format[x]; ++x)
-    {
-        switch (format[x])
-        {
-            case FT_FLOAT:
-            case FT_INT:
-            case FT_SORT:
-                recordsize += 4;
-                break;
-            case FT_STRING:
-            case FT_STRING_NOT_LOCALIZED:
-                recordsize += sizeof(char*);
-                break;
-            case FT_BYTE:
-                recordsize += 1;
-                break;
-            case FT_LONG:
-                recordsize += 8;
-                break;
-            case FT_SHORT:
-                recordsize += 2;
-                break;
-        }
-    }
-
-    return recordsize;
-}
-
-uint32 DB2SparseFileLoader::GetFormatStringFieldCount(const char* format)
-{
-    uint32 stringfields = 0;
-    for (uint32 x = 0; format[x]; ++x)
-        if (format[x] == FT_STRING || format[x] == FT_STRING_NOT_LOCALIZED)
-            ++stringfields;
-
-    return stringfields;
-}
-
-uint32 DB2SparseFileLoader::GetFormatLocalizedStringFieldCount(char const* format)
-{
-    uint32 stringfields = 0;
-    for (uint32 x = 0; format[x]; ++x)
-        if (format[x] == FT_STRING)
-            ++stringfields;
-
-    return stringfields;
+    delete[] fields;
 }
 
 static char const* const nullStr = "";
 
-char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool)
+char* DB2SparseFileLoader::AutoProduceData(IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool)
 {
     typedef char* ptr;
-    if (strlen(format) != fieldCount + (format[0] == FT_SORT ? 1 : 0))
+    if (meta->FieldCount != fieldCount)
         return NULL;
 
     //get struct size and index pos
-    uint32 recordsize = GetFormatRecordSize(format);
+    uint32 recordsize = meta->GetRecordSize();
 
     uint32 offsetCount = maxIndex - minIndex + 1;
     uint32 records = 0;
@@ -269,12 +220,11 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
     char* dataTable = new char[records * recordsize];
 
     // we store flat holders pool as single memory block
-    std::size_t stringFields = GetFormatStringFieldCount(format);
-    std::size_t localizedStringFields = GetFormatLocalizedStringFieldCount(format);
+    std::size_t stringFields = meta->GetStringFieldCount(false);
+    std::size_t localizedStringFields = meta->GetStringFieldCount(true);
 
     // each string field at load have array of string for each locale
-    std::size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    std::size_t stringHoldersRecordPoolSize = localizedStringFields * stringHolderSize + (stringFields - localizedStringFields) * sizeof(char*);
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
     std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * records;
 
     char* stringHoldersPool = new char[stringHoldersPoolSize];
@@ -284,8 +234,8 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
     for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
         ((char const**)stringHoldersPool)[i] = nullStr;
 
-    char* stringTable = new char[expandedDataSize - records * ((recordsize - (format[0] == FT_SORT ? 4 : 0)) - stringFields * sizeof(char*))];
-    memset(stringTable, 0, expandedDataSize - records * ((recordsize - (format[0] == FT_SORT ? 4 : 0)) - stringFields * sizeof(char*)));
+    char* stringTable = new char[expandedDataSize - records * ((recordsize - (!meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, expandedDataSize - records * ((recordsize - (!meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     stringPool.push_back(stringTable);
     char* stringPtr = stringTable;
 
@@ -299,64 +249,113 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
         indexTable.Insert(y + minIndex, &dataTable[offset]);
         uint32 fieldOffset = 0;
         uint32 stringFieldOffset = 0;
-        for (uint32 x = 0; x < (fieldCount + (format[0] == FT_SORT ? 1 : 0)); x++)
+
+        if (!meta->HasIndexFieldInData())
         {
-            switch (format[x])
+            *((uint32*)(&dataTable[offset])) = y + minIndex;
+            offset += 4;
+        }
+
+        for (uint32 x = 0; x < fieldCount; ++x)
+        {
+            uint16 fieldBytes = 4 - fields[x].UnusedBits / 8;
+            for (uint32 z = 0; z < meta->ArraySizes[x]; ++z)
             {
-                case FT_FLOAT:
-                    *((float*)(&dataTable[offset])) = *reinterpret_cast<float*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    offset += 4;
-                    fieldOffset += 4;
-                    break;
-                case FT_IND:
-                case FT_INT:
-                    *((uint32*)(&dataTable[offset])) = *reinterpret_cast<uint32*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    offset += 4;
-                    fieldOffset += 4;
-                    break;
-                case FT_BYTE:
-                    *((uint8*)(&dataTable[offset])) = *reinterpret_cast<uint8*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    offset += 1;
-                    fieldOffset += 1;
-                    break;
-                case FT_LONG:
-                    *((uint64*)(&dataTable[offset])) = *reinterpret_cast<uint64*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    offset += 8;
-                    fieldOffset += 8;
-                    break;
-                case FT_SHORT:
-                    *((uint16*)(&dataTable[offset])) = *reinterpret_cast<uint16*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    offset += 2;
-                    fieldOffset += 2;
-                    break;
-                case FT_STRING:
+                switch (meta->Types[x])
                 {
-                    LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
-                    *slot = (LocalizedString*)(&stringHoldersPool[stringHoldersRecordPoolSize * recordNum + stringFieldOffset]);
-                    (*slot)->Str[locale] = stringPtr;
-                    strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    fieldOffset += strlen(stringPtr) + 1;
-                    stringPtr += strlen(stringPtr) + 1;
-                    stringFieldOffset += stringHolderSize;
-                    offset += sizeof(LocalizedString*);
-                    break;
+                    case FT_FLOAT:
+                    {
+                        float val = *reinterpret_cast<float*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        EndianConvert(val);
+                        *((float*)(&dataTable[offset])) = val;
+                        offset += 4;
+                        fieldOffset += 4;
+                        break;
+                    }
+                    case FT_INT:
+                    {
+                        ASSERT(fieldBytes && fieldBytes <= 4);
+                        uint32 val;
+                        switch (fieldBytes)
+                        {
+                            case 1:
+                                val = *reinterpret_cast<uint8*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                                break;
+                            case 2:
+                            {
+                                uint16 val16 = *reinterpret_cast<uint16*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                                EndianConvert(val16);
+                                val = val16;
+                                break;
+                            }
+                            case 3:
+                            {
+#pragma pack(push, 1)
+                                struct dbcint24 { uint8 v[3]; };
+#pragma pack(pop)
+                                dbcint24 i24v = *reinterpret_cast<dbcint24*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                                EndianConvert(i24v);
+                                val = uint32(i24v.v[0]) | (uint32(i24v.v[1]) << 8) | (uint32(i24v.v[2]) << 16);
+                                break;
+                            }
+                            case 4:
+                                val = *reinterpret_cast<uint32*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                                EndianConvert(val);
+                                break;
+                            default:
+                                break;
+                        }
+                        *((uint32*)(&dataTable[offset])) = val;
+                        offset += 4;
+                        fieldOffset += fieldBytes;
+                        break;
+                    }
+                    case FT_BYTE:
+                    {
+                        ASSERT(fieldBytes == 1);
+                        *((uint8*)(&dataTable[offset])) = *reinterpret_cast<uint8*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        offset += 1;
+                        fieldOffset += 1;
+                        break;
+                    }
+                    case FT_SHORT:
+                    {
+                        ASSERT(fieldBytes == 2);
+                        uint16 val = *reinterpret_cast<uint16*>(&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        EndianConvert(val);
+                        *((uint16*)(&dataTable[offset])) = val;
+                        offset += 2;
+                        fieldOffset += 2;
+                        break;
+                    }
+                    case FT_STRING:
+                    {
+                        LocalizedString** slot = (LocalizedString**)(&dataTable[offset]);
+                        *slot = (LocalizedString*)(&stringHoldersPool[stringHoldersRecordPoolSize * recordNum + stringFieldOffset]);
+                        (*slot)->Str[locale] = stringPtr;
+                        strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        fieldOffset += strlen(stringPtr) + 1;
+                        stringPtr += strlen(stringPtr) + 1;
+                        stringFieldOffset += sizeof(LocalizedString);
+                        offset += sizeof(LocalizedString*);
+                        break;
+                    }
+                    case FT_STRING_NOT_LOCALIZED:
+                    {
+                        char const*** slot = (char const***)(&dataTable[offset]);
+                        *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * recordNum + stringFieldOffset]);
+                        **slot = stringPtr;
+                        strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        fieldOffset += strlen(stringPtr) + 1;
+                        stringPtr += strlen(stringPtr) + 1;
+                        stringFieldOffset += sizeof(char*);
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    default:
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", meta->Types[x], fileName);
+                        break;
                 }
-                case FT_STRING_NOT_LOCALIZED:
-                {
-                    char const*** slot = (char const***)(&dataTable[offset]);
-                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * recordNum + stringFieldOffset]);
-                    **slot = stringPtr;
-                    strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    fieldOffset += strlen(stringPtr) + 1;
-                    stringPtr += strlen(stringPtr) + 1;
-                    ++stringFieldOffset;
-                    offset += sizeof(char*);
-                    break;
-                }
-                case FT_SORT:
-                    *((uint32*)(&dataTable[offset])) = y + minIndex;
-                    offset += 4;
-                    break;
             }
         }
 
@@ -366,9 +365,9 @@ char* DB2SparseFileLoader::AutoProduceData(const char* format, IndexTable const&
     return dataTable;
 }
 
-char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 locale)
+char* DB2SparseFileLoader::AutoProduceStrings(char* dataTable, uint32 locale)
 {
-    if (strlen(format) != fieldCount + (format[0] == FT_SORT ? 1 : 0))
+    if (meta->FieldCount != fieldCount)
         return nullptr;
 
     if (!(localeMask & (1 << locale)))
@@ -394,10 +393,10 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
         if (offsets[i].FileOffset && offsets[i].RecordSize)
             ++records;
 
-    uint32 recordsize = GetFormatRecordSize(format);
-    std::size_t stringFields = GetFormatLocalizedStringFieldCount(format);
-    char* stringTable = new char[offsetsPos - dataStart - records * (recordsize - stringFields * sizeof(char*))];
-    memset(stringTable, 0, offsetsPos - dataStart - records * (recordsize - stringFields * sizeof(char*)));
+    uint32 recordsize = meta->GetRecordSize();
+    std::size_t stringFields = meta->GetStringFieldCount(true);
+    char* stringTable = new char[offsetsPos - dataStart - records * ((recordsize - (!meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, offsetsPos - dataStart - records * ((recordsize - (!meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
 
     uint32 offset = 0;
@@ -407,44 +406,51 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
         if (!offsets[y].FileOffset || !offsets[y].RecordSize)
             continue;
 
+        if (!meta->HasIndexFieldInData())
+            offset += 4;
+
         uint32 fieldOffset = 0;
-        for (uint32 x = 0; x < fieldCount; x++)
+        for (uint32 x = 0; x < fieldCount; ++x)
         {
-            switch (format[x])
+            for (uint32 z = 0; z < meta->ArraySizes[x]; ++z)
             {
-                case FT_FLOAT:
-                case FT_IND:
-                case FT_INT:
-                    offset += 4;
-                    fieldOffset += 4;
-                    break;
-                case FT_BYTE:
-                    offset += 1;
-                    fieldOffset += 1;
-                    break;
-                case FT_LONG:
-                    offset += 8;
-                    fieldOffset += 8;
-                    break;
-                case FT_SHORT:
-                    offset += 2;
-                    fieldOffset += 2;
-                    break;
-                case FT_STRING:
+                switch (meta->Types[x])
                 {
-                    LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
-                    db2str->Str[locale] = stringPtr;
-                    strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
-                    fieldOffset += strlen(stringPtr) + 1;
-                    stringPtr += strlen(stringPtr) + 1;
-                    offset += sizeof(char*);
-                    break;
-                }
-                case FT_STRING_NOT_LOCALIZED:
-                {
-                    fieldOffset += strlen((char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]) + 1;
-                    offset += sizeof(char*);
-                    break;
+                    case FT_FLOAT:
+                        offset += 4;
+                        fieldOffset += 4;
+                        break;
+                    case FT_INT:
+                        offset += 4;
+                        fieldOffset += 4 - fields[x].UnusedBits / 8;
+                        break;
+                    case FT_BYTE:
+                        offset += 1;
+                        fieldOffset += 1;
+                        break;
+                    case FT_SHORT:
+                        offset += 2;
+                        fieldOffset += 2;
+                        break;
+                    case FT_STRING:
+                    {
+                        LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
+                        db2str->Str[locale] = stringPtr;
+                        strcpy(stringPtr, (char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]);
+                        fieldOffset += strlen(stringPtr) + 1;
+                        stringPtr += strlen(stringPtr) + 1;
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    case FT_STRING_NOT_LOCALIZED:
+                    {
+                        fieldOffset += strlen((char*)&data[offsets[y].FileOffset - dataStart + fieldOffset]) + 1;
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    default:
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", meta->Types[x], fileName);
+                        break;
                 }
             }
         }
@@ -453,27 +459,26 @@ char* DB2SparseFileLoader::AutoProduceStrings(const char* format, char* dataTabl
     return stringTable;
 }
 
-char* DB2SparseDatabaseLoader::Load(const char* format, HotfixDatabaseStatements preparedStatement, IndexTable const& indexTable, std::vector<char*>& stringPool)
+char* DB2SparseDatabaseLoader::Load(HotfixDatabaseStatements preparedStatement, IndexTable const& indexTable, std::vector<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(preparedStatement));
     if (!result)
         return nullptr;
 
-    uint32 const fieldCount = strlen(format);
-    if (fieldCount != result->GetFieldCount())
+    if (_meta->GetDbFieldCount() != result->GetFieldCount())
         return nullptr;
 
     // get struct size and index pos
-    uint32 recordSize = DB2SparseFileLoader::GetFormatRecordSize(format);
+    uint32 indexField = _meta->GetDbIndexField();
+    uint32 recordSize = _meta->GetRecordSize();
 
     // we store flat holders pool as single memory block
-    std::size_t stringFields = DB2SparseFileLoader::GetFormatStringFieldCount(format);
-    std::size_t localizedStringFields = DB2SparseFileLoader::GetFormatLocalizedStringFieldCount(format);
+    std::size_t stringFields = _meta->GetStringFieldCount(false);
+    std::size_t localizedStringFields = _meta->GetStringFieldCount(true);
 
     // each string field at load have array of string for each locale
-    std::size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    std::size_t stringHoldersRecordPoolSize = localizedStringFields * stringHolderSize + (stringFields - localizedStringFields) * sizeof(char*);
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
 
     char* stringHolders = nullptr;
     if (stringFields)
@@ -498,7 +503,7 @@ char* DB2SparseDatabaseLoader::Load(const char* format, HotfixDatabaseStatements
         uint32 offset = 0;
         uint32 stringFieldOffset = 0;
 
-        uint32 indexValue = fields[0].GetUInt32();
+        uint32 indexValue = fields[indexField].GetUInt32();
 
         // Attempt to overwrite existing data
         char* dataValue = indexTable.Get(indexValue);
@@ -508,60 +513,69 @@ char* DB2SparseDatabaseLoader::Load(const char* format, HotfixDatabaseStatements
             dataValue = &tempDataTable[newRecords++ * recordSize];
         }
 
-        for (uint32 f = 0; f < fieldCount; f++)
+        uint32 f = 0;
+        if (!_meta->HasIndexFieldInData())
         {
-            switch (format[f])
+            *((uint32*)(&dataValue[offset])) = indexValue;
+            offset += 4;
+            ++f;
+        }
+
+        for (uint32 x = 0; x < _meta->FieldCount; ++x)
+        {
+            for (uint32 z = 0; z < _meta->ArraySizes[x]; ++z)
             {
-                case FT_FLOAT:
-                    *((float*)(&dataValue[offset])) = fields[f].GetFloat();
-                    offset += 4;
-                    break;
-                case FT_IND:
-                case FT_INT:
-                case FT_SORT:
-                    *((int32*)(&dataValue[offset])) = fields[f].GetInt32();
-                    offset += 4;
-                    break;
-                case FT_BYTE:
-                    *((int8*)(&dataValue[offset])) = fields[f].GetInt8();
-                    offset += 1;
-                    break;
-                case FT_LONG:
-                    *((int64*)(&dataValue[offset])) = fields[f].GetInt64();
-                    offset += 8;
-                    break;
-                case FT_SHORT:
-                    *((int16*)(&dataValue[offset])) = fields[f].GetInt16();
-                    offset += 2;
-                    break;
-                case FT_STRING:
+                switch (_meta->Types[x])
                 {
-                    LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
-                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringFieldOffset]);
-                    ASSERT(*slot);
+                    case FT_FLOAT:
+                        *((float*)(&dataValue[offset])) = fields[f].GetFloat();
+                        offset += 4;
+                        break;
+                    case FT_INT:
+                        *((int32*)(&dataValue[offset])) = fields[f].GetInt32();
+                        offset += 4;
+                        break;
+                    case FT_BYTE:
+                        *((int8*)(&dataValue[offset])) = fields[f].GetInt8();
+                        offset += 1;
+                        break;
+                    case FT_SHORT:
+                        *((int16*)(&dataValue[offset])) = fields[f].GetInt16();
+                        offset += 2;
+                        break;
+                    case FT_STRING:
+                    {
+                        LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
+                        *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringFieldOffset]);
+                        ASSERT(*slot);
 
-                    // Value in database in main table field must be for enUS locale
-                    if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetString()))
-                        stringPool.push_back(str);
+                        // Value in database in main table field must be for enUS locale
+                        if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetString()))
+                            stringPool.push_back(str);
 
-                    stringFieldOffset += stringHolderSize;
-                    offset += sizeof(char*);
-                    break;
+                        stringFieldOffset += sizeof(LocalizedString);
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    case FT_STRING_NOT_LOCALIZED:
+                    {
+                        char const** slot = (char const**)(&dataValue[offset]);
+                        *slot = (char*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringFieldOffset]);
+                        ASSERT(*slot);
+
+                        // Value in database in main table field must be for enUS locale
+                        if (char* str = AddString(slot, fields[f].GetString()))
+                            stringPool.push_back(str);
+
+                        stringFieldOffset += sizeof(char*);
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    default:
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _meta->Types[x], _storageName.c_str());
+                        break;
                 }
-                case FT_STRING_NOT_LOCALIZED:
-                {
-                    char const** slot = (char const**)(&dataValue[offset]);
-                    *slot = (char*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringFieldOffset]);
-                    ASSERT(*slot);
-
-                    // Value in database in main table field must be for enUS locale
-                    if (char* str = AddString(slot, fields[f].GetString()))
-                        stringPool.push_back(str);
-
-                    ++stringFieldOffset;
-                    offset += sizeof(char*);
-                    break;
-                }
+                ++f;
             }
         }
 
@@ -590,7 +604,7 @@ char* DB2SparseDatabaseLoader::Load(const char* format, HotfixDatabaseStatements
     return dataTable;
 }
 
-void DB2SparseDatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, IndexTable const& indexTable, std::vector<char*>& stringPool)
+void DB2SparseDatabaseLoader::LoadStrings(HotfixDatabaseStatements preparedStatement, uint32 locale, IndexTable const& indexTable, std::vector<char*>& stringPool)
 {
     PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
     stmt->setString(0, localeNames[locale]);
@@ -598,13 +612,12 @@ void DB2SparseDatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStat
     if (!result)
         return;
 
-    size_t stringFields = DB2SparseFileLoader::GetFormatLocalizedStringFieldCount(format);
+    size_t stringFields = _meta->GetStringFieldCount(true);
     if (result->GetFieldCount() != stringFields + 1 /*ID*/)
         return;
 
-    uint32 const fieldCount = strlen(format);
-    uint32 recordSize = DB2SparseFileLoader::GetFormatRecordSize(format);
-    ASSERT(0 >= 0, "DB2Storage must be indexed to load localized strings");
+    uint32 fieldCount = _meta->FieldCount;
+    uint32 recordSize = _meta->GetRecordSize();
 
     do
     {
@@ -616,36 +629,40 @@ void DB2SparseDatabaseLoader::LoadStrings(const char* format, HotfixDatabaseStat
         // Attempt to overwrite existing data
         if (char* dataValue = indexTable.Get(indexValue))
         {
-            for (uint32 x = 0; x < fieldCount; x++)
-            {
-                switch (format[x])
-                {
-                    case FT_FLOAT:
-                    case FT_IND:
-                    case FT_INT:
-                    case FT_SORT:
-                        offset += 4;
-                        break;
-                    case FT_BYTE:
-                        offset += 1;
-                        break;
-                    case FT_LONG:
-                        offset += 8;
-                        break;
-                    case FT_SHORT:
-                        offset += 2;
-                        break;
-                    case FT_STRING:
-                    {
-                        // fill only not filled entries
-                        LocalizedString* db2str = *(LocalizedString**)(&dataValue[offset]);
-                        if (db2str->Str[locale] == nullStr)
-                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetString()))
-                                stringPool.push_back(str);
+            if (!_meta->HasIndexFieldInData())
+                offset += 4;
 
-                        ++stringFieldNumInRecord;
-                        offset += sizeof(char*);
-                        break;
+            for (uint32 x = 0; x < fieldCount; ++x)
+            {
+                for (uint32 z = 0; z < _meta->ArraySizes[x]; ++z)
+                {
+                    switch (_meta->Types[x])
+                    {
+                        case FT_FLOAT:
+                        case FT_INT:
+                            offset += 4;
+                            break;
+                        case FT_BYTE:
+                            offset += 1;
+                            break;
+                        case FT_SHORT:
+                            offset += 2;
+                            break;
+                        case FT_STRING:
+                        {
+                            // fill only not filled entries
+                            LocalizedString* db2str = *(LocalizedString**)(&dataValue[offset]);
+                            if (db2str->Str[locale] == nullStr)
+                                if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetString()))
+                                    stringPool.push_back(str);
+
+                            ++stringFieldNumInRecord;
+                            offset += sizeof(char*);
+                            break;
+                        }
+                        default:
+                            ASSERT(false, "Unknown format character '%c' found in %s meta", _meta->Types[x], _storageName.c_str());
+                            break;
                     }
                 }
             }

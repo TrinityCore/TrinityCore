@@ -956,7 +956,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
-    PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
@@ -1150,11 +1149,8 @@ struct TC_GAME_API PlayerTalentInfo
         for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
         {
             GroupInfo[i].Talents = new PlayerTalentMap();
-            memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
             GroupInfo[i].SpecId = 0;
         }
-
-        GlyphSlots.fill(0);
     }
 
     ~PlayerTalentInfo()
@@ -1166,7 +1162,6 @@ struct TC_GAME_API PlayerTalentInfo
     struct TalentGroupInfo
     {
         PlayerTalentMap* Talents;
-        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
         uint32 SpecId;
     } GroupInfo[MAX_TALENT_GROUPS];
 
@@ -1174,8 +1169,6 @@ struct TC_GAME_API PlayerTalentInfo
     time_t ResetTalentsTime;
     uint8 ActiveGroup;
     uint8 GroupsCount;
-
-    std::array<uint32, MAX_GLYPH_SLOT_INDEX> GlyphSlots;
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
@@ -1783,13 +1776,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Dual Spec
         void UpdateTalentGroupCount(uint8 count);
         void ActivateTalentGroup(uint8 group);
-
-        void InitGlyphsForLevel();
-        void SetGlyphSlot(uint8 slot, uint32 slottype) { _talentMgr->GlyphSlots[slot] = slottype; }
-
-        uint32 GetGlyphSlot(uint8 slot) const { return _talentMgr->GlyphSlots[slot]; }
-        void SetGlyph(uint8 slot, uint32 glyph);
-        uint32 GetGlyph(uint8 group, uint8 slot) const { return _talentMgr->GroupInfo[group].Glyphs[slot]; }
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->GroupInfo[spec].Talents; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->GroupInfo[spec].Talents; }
@@ -2524,7 +2510,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
-        void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
@@ -2547,7 +2532,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
-        void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
@@ -2571,7 +2555,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveSpells(SQLTransaction& trans);
         void _SaveEquipmentSets(SQLTransaction& trans);
         void _SaveBGData(SQLTransaction& trans);
-        void _SaveGlyphs(SQLTransaction& trans) const;
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans) const;
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
