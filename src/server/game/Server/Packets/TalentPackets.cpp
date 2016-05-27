@@ -27,8 +27,8 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
         _worldPacket << talentGroupInfo.SpecID;
         _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
 
-        for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _worldPacket << talentGroupInfo.GlyphIDs[i];
+        //for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
+        //    _worldPacket << talentGroupInfo.GlyphIDs[i];
 
         for (uint16 talentID : talentGroupInfo.TalentIDs)
             _worldPacket << talentID;

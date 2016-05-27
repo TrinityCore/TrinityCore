@@ -58,9 +58,6 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
             if (v.second != PLAYERSPELL_REMOVED)
                 inspectResult.Talents.push_back(v.first);
         }
-
-        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            inspectResult.Glyphs.push_back(player->GetGlyph(player->GetActiveTalentGroup(), i));
     }
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))

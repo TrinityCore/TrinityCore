@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DBCSFRM_H
-#define TRINITY_DBCSFRM_H
+#ifndef DB2Meta_h__
+#define DB2Meta_h__
 
-// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
-// n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
+#include "Define.h"
 
+struct DB2Meta
+{
+    DB2Meta(int32 indexField, uint32 fieldCount, char const* types, uint8 const* arraySizes);
 
-#endif
+    bool HasIndexFieldInData() const;
+
+    // Returns field index for data loaded in our structures (ID field is appended in the front if not present in db2 file data section)
+    uint32 GetIndexField() const;
+
+    // Returns size of final loaded structure
+    uint32 GetRecordSize() const;
+
+    uint32 GetDbIndexField() const;
+    uint32 GetDbFieldCount() const;
+
+    uint32 GetStringFieldCount(bool localizedOnly) const;
+
+    int32 IndexField;
+    uint32 FieldCount;
+    char const* Types;
+    uint8 const* ArraySizes;
+};
+
+#endif // DB2Meta_h__

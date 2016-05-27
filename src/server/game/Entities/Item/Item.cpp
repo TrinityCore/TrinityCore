@@ -49,6 +49,9 @@ void AddItemsSetItem(Player* player, Item* item)
     if (set->RequiredSkill && player->GetSkillValue(set->RequiredSkill) < set->RequiredSkillRank)
         return;
 
+    if (set->Flags & ITEM_SET_FLAG_LEGACY_INACTIVE)
+        return;
+
     ItemSetEffect* eff = NULL;
 
     for (size_t x = 0; x < player->ItemSetEff.size(); ++x)

@@ -164,10 +164,7 @@ enum DBCFormer
     FT_FLOAT = 'f',                                         // float
     FT_INT = 'i',                                           // uint32
     FT_BYTE = 'b',                                          // uint8
-    FT_LONG = 'l',                                          // uint64
-    FT_SHORT = 'h',                                         // uint16
-    FT_SORT = 'd',                                          // sorted by this field but not present in DB2 data block (calculated)
-    FT_IND = 'n'                                            // sorted by this field
+    FT_SHORT = 'h'                                          // uint16
 };
 
 #endif //TRINITY_DEFINE_H

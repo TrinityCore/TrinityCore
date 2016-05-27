@@ -78,7 +78,6 @@ TC_GAME_API extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLev
 TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
 TC_GAME_API extern DB2Storage<GemPropertiesEntry>                   sGemPropertiesStore;
 TC_GAME_API extern DB2Storage<GlyphPropertiesEntry>                 sGlyphPropertiesStore;
-TC_GAME_API extern DB2Storage<GlyphSlotEntry>                       sGlyphSlotStore;
 TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorBackgroundStore;
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;
 TC_GAME_API extern DB2Storage<GuildColorEmblemEntry>                sGuildColorEmblemStore;
@@ -189,7 +188,7 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 232
+#define TaxiMaskSize 234
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
@@ -219,7 +218,6 @@ class TC_GAME_API DB2Manager
 {
 public:
     DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry);
-    DEFINE_DB2_SET_COMPARATOR(GlyphSlotEntry);
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry);
 
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
@@ -229,7 +227,6 @@ public:
     typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
     typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
     typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
-    typedef std::set<GlyphSlotEntry const*, GlyphSlotEntryComparator> GlyphSlotContainer;
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
     typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
@@ -278,7 +275,6 @@ public:
     static char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
     EmotesTextSoundEntry const* GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const;
     std::vector<uint32> const* GetFactionTeamList(uint32 faction) const;
-    GlyphSlotContainer const& GetGlyphSlots() const { return _glyphSlots; }
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
@@ -328,7 +324,6 @@ private:
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
     EmotesTextSoundContainer _emoteTextSounds;
     FactionTeamContainer _factionTeams;
-    GlyphSlotContainer _glyphSlots;
     HeirloomItemsContainer _heirlooms;
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemBonusListContainer _itemBonusLists;
