@@ -1006,6 +1006,266 @@ public:
     }
 };
 
+class spell_monkey_wisdom_text : public SpellScriptLoader
+{
+public:
+    spell_monkey_wisdom_text() : SpellScriptLoader("spell_monkey_wisdom_text") { }
+
+    class spell_monkey_wisdom_text_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monkey_wisdom_text_SpellScript);
+
+        enum
+        {
+            TEXT_MONKEY_WISDOM   = 54073,
+            TEXT_MONKEY_WISDOM_2 = 54074,
+            TEXT_MONKEY_WISDOM_3 = 54075,
+            TEXT_MONKEY_WISDOM_4 = 54076,
+            TEXT_MONKEY_WISDOM_5 = 54077,
+            TEXT_MONKEY_WISDOM_6 = 54078,
+            TEXT_MONKEY_WISDOM_7 = 54079,
+            TEXT_MONKEY_WISDOM_8 = 54080
+        };
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_2) ||
+                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_3) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_4) ||
+                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_5) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_6) ||
+                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_7) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_8))
+                return false;
+            return true;
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            uint32 randomText = urand(0, 7);
+
+            GetCaster()->Talk(TEXT_MONKEY_WISDOM + randomText, CHAT_MSG_RAID_BOSS_WHISPER, 0.0f, GetHitPlayer());
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_monkey_wisdom_text_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monkey_wisdom_text_SpellScript();
+    }
+};
+
+enum ZhaorenEvents
+{
+    EVENT_LIGHTNING                 = 1,
+    EVENT_MOVE_CENTER               = 2,
+    EVENT_STUN                      = 3,
+    EVENT_SWEEP                     = 4,
+    EVENT_RESUME_WP                 = 5
+};
+
+enum ZhaorenSpells
+{
+    SPELL_LIGHTNING_POOL            = 126006,
+    SPELL_STUNNED_BY_FIREWORKS      = 125992,
+    SPELL_SERPENT_SWEEP             = 125990,
+    SPELL_FORCECAST_SUMMON_SHANG    = 128808,
+    SPELL_OVERPACKED_FIREWORK       = 104855
+};
+
+enum ZhaorenMisc
+{
+    ZHAOREN_PATH                    = 4517910,
+    NPC_JI_FIREPAW                  = 64505,
+    NPC_AYSA_CLOUDSINGER            = 64506,
+    NPC_DAFENG                      = 64532,
+    DATA_1                          = 1,
+    DATA_2                          = 2,
+    DATA_3                          = 3,
+    DATA_PHASE_OOC                  = 4,
+    DATA_DEATH                      = 5
+};
+
+class npc_zhaoren : public CreatureScript
+{
+public:
+    npc_zhaoren() : CreatureScript("npc_zhaoren") { }
+
+    struct npc_zhaorenAI : public ScriptedAI
+    {
+        npc_zhaorenAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetReactState(REACT_PASSIVE);
+            me->setActive(true);
+            Initialize();
+        }
+
+        Position const pos = { 723.163f, 4163.8f, 204.999f };
+
+        void Initialize()
+        {
+            phase = 0;
+            inCombat = false;
+            lightningPhase = true;
+            isInCenter = false;
+            sweepScheduled = false;
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            me->GetMotionMaster()->MovePath(ZHAOREN_PATH, true);
+            events.ScheduleEvent(EVENT_LIGHTNING, 5000);
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            if (spell->Id == SPELL_OVERPACKED_FIREWORK)
+            {
+                if (!inCombat)
+                {
+                    me->CombatStart(caster);
+                    inCombat = true;
+                }
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE && id == EVENT_MOVE_CENTER)
+            {
+                if (!isInCenter)
+                {
+                    events.ScheduleEvent(EVENT_STUN, 0);
+                    isInCenter = true;
+                }
+            }
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            me->CastSpell(me, SPELL_FORCECAST_SUMMON_SHANG, true);
+
+            if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, 100.0f, true))
+                creature->AI()->SetData(DATA_DEATH, DATA_DEATH);
+            if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER, 100.0f, true))
+                creature->AI()->SetData(DATA_DEATH, DATA_DEATH);
+            if (Creature* creature = me->FindNearestCreature(NPC_DAFENG, 100.0f, true))
+                creature->AI()->SetData(DATA_DEATH, DATA_DEATH);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            if (phase == 0 && HealthBelowPct(85))
+            {
+                phase++;
+                if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER, 100.0f, true))
+                    creature->AI()->SetData(DATA_1, DATA_1);
+            }
+
+            if (phase == 1 && HealthBelowPct(75))
+            {
+                phase++;
+                events.ScheduleEvent(EVENT_MOVE_CENTER, 0);
+            }
+
+            if (phase == 2 && HealthBelowPct(25))
+            {
+                phase++;
+                events.ScheduleEvent(EVENT_MOVE_CENTER, 0);
+            }
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_LIGHTNING:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
+                        {
+                            if (phase < 3 && lightningPhase)
+                            {
+                                DoCast(target, SPELL_LIGHTNING_POOL);
+                                events.ScheduleEvent(EVENT_LIGHTNING, 5000);
+                            }
+                            if (phase == 3 && lightningPhase)
+                            {
+                                DoCast(target, SPELL_LIGHTNING_POOL);
+                                events.ScheduleEvent(EVENT_LIGHTNING, 3500);
+                                if (!sweepScheduled)
+                                {
+                                    events.ScheduleEvent(EVENT_SWEEP, 15000);
+                                    sweepScheduled = true;
+                                }
+                            }
+                        }
+                        break;
+                    case EVENT_MOVE_CENTER:
+                        lightningPhase = false;
+                        me->GetMotionMaster()->MovePoint(EVENT_MOVE_CENTER, pos);
+                        break;
+                    case EVENT_STUN:
+                        DoCast(SPELL_STUNNED_BY_FIREWORKS);
+                        events.ScheduleEvent(EVENT_SWEEP, 12000);
+                        if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER, 100.0f, true))
+                        {
+                            if (phase == 2)
+                                creature->AI()->SetData(DATA_2, DATA_2);
+                            else if (phase == 3)
+                                creature->AI()->SetData(DATA_3, DATA_3);
+                        }
+                        if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, 100.0f, true))
+                            creature->AI()->SetData(DATA_1, DATA_1);
+                        break;
+                    case EVENT_SWEEP:
+                        DoCast(SPELL_SERPENT_SWEEP);
+                        if (phase == 3)
+                        {
+                            sweepScheduled = false;
+                            if (!lightningPhase)
+                                events.ScheduleEvent(EVENT_LIGHTNING, 3500);
+                            lightningPhase = true;
+                        }
+                        if (phase < 3)
+                        {
+                            if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER, 100.0f, true))
+                                creature->AI()->SetData(DATA_PHASE_OOC, DATA_PHASE_OOC);
+                            if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, 100.0f, true))
+                                creature->AI()->SetData(DATA_PHASE_OOC, DATA_PHASE_OOC);
+                            events.ScheduleEvent(EVENT_RESUME_WP, 5000);
+                        }
+                        break;
+                    case EVENT_RESUME_WP:
+                        lightningPhase = true;
+                        me->GetMotionMaster()->MovePath(ZHAOREN_PATH, true);
+                        isInCenter = false;
+                        events.ScheduleEvent(EVENT_LIGHTNING, 5000);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint8 phase;
+        bool inCombat;
+        bool lightningPhase;
+        bool isInCenter;
+        bool sweepScheduled;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_zhaorenAI(creature);
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -1028,4 +1288,6 @@ void AddSC_the_wandering_isle()
     new spell_aysa_congrats_timer();
     new spell_aysa_congrats_trigger_aura();
     new at_temple_of_five_dawns_summon_zhaoren();
+    new spell_monkey_wisdom_text();
+    new npc_zhaoren();
 }

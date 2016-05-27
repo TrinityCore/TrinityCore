@@ -3461,7 +3461,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 116191: // Summon Child 2
             case 108786: // Summon Stack of Reeds
             case 108827: // Summon Stack of Planks
+            case 108847: // Summon Stack of Blocks
+            case 108858: // Summon Tiger Stand
             case 104450: // Summon Ji Yuan
+            case 104571: // Summon Aysa
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
             case 114710: // Forcecast Summon Amberleaf Troublemaker
@@ -3474,6 +3477,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 102717: // Ride Vehicle
                 spellInfo->RecoveryTime = 0;
                 break;
+            case 108845: // Summon Jojo Ironbrow
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 120 seconds
             // End of The Wandering Isle Spells
             default:
                 break;
