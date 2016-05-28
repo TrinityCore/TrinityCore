@@ -16,5 +16,5 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- Acidmaw missing text
 DELETE FROM `creature_text` where entry = 35144 AND groupid = 1;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (35144,1,0,'You have been infected with a Paralytic Toxin!',42,0,100,0,0,0,36323,0,'Acidmaw - Special Attack');
