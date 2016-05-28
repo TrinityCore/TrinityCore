@@ -531,7 +531,7 @@ enum AuraType
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473, // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,
-    SPELL_AURA_475                                          = 475,
+    SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED        = 475,
     SPELL_AURA_476                                          = 476,
     SPELL_AURA_477                                          = 477,
     SPELL_AURA_478                                          = 478,

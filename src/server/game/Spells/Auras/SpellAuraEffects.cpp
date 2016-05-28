@@ -534,7 +534,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT implemented in Player::DurabilityPointLossForEquipSlot
     &AuraEffect::HandleNULL,                                      //474
-    &AuraEffect::HandleNULL,                                      //475
+    &AuraEffect::HandleAllowUsingGameobjectsWhileMounted,         //475 SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED
     &AuraEffect::HandleNULL,                                      //476
     &AuraEffect::HandleNULL,                                      //477
     &AuraEffect::HandleNULL,                                      //478
@@ -6673,4 +6673,18 @@ void AuraEffect::HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mod
         return;
 
     pet->SetSpecialization(sChrSpecializationByIndexStore[apply ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0][currSpec->OrderIndex]->ID);
+}
+
+void AuraEffect::HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    if (aurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (apply)
+        aurApp->GetTarget()->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
+    else if (!aurApp->GetTarget()->HasAuraType(SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED))
+        aurApp->GetTarget()->RemoveFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
 }
