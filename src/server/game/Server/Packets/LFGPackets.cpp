@@ -17,6 +17,12 @@
 
 #include "LFGPackets.h"
 
+void WorldPackets::LFG::DFGetSystemInfo::Read()
+{
+    _worldPacket >> Player;
+    _worldPacket >> PartyIndex;
+}
+
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket)
 {
     data >> ticket.RequesterGuid;

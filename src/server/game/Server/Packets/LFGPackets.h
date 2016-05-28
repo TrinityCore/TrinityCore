@@ -18,7 +18,9 @@
 #ifndef LFGPackets_h__
 #define LFGPackets_h__
 
+#include "Packet.h"
 #include "ObjectGuid.h"
+#include "WorldSession.h"
 
 namespace WorldPackets
 {
@@ -30,6 +32,17 @@ namespace WorldPackets
             int32 Id = 0;
             int32 Type = 0;
             uint32 Time = 0;
+        };
+
+        class DFGetSystemInfo final : public ClientPacket
+        {
+        public:
+            DFGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_SYSTEM_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            bool Player = 0;
         };
     }
 }

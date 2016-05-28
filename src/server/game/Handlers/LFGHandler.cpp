@@ -22,6 +22,7 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "LFGPackets.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, lfg::LfgLockMap const& lock)
 {
@@ -269,12 +270,11 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
-void WorldSession::HandleDFGetSystemInfo(WorldPacket& recvData)
+void WorldSession::HandleDFGetSystemInfo(WorldPackets::LFG::DFGetSystemInfo& systemInfo)
 {
-    bool forPlayer = recvData.ReadBit();
-    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_SYSTEM_INFO %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+    TC_LOG_DEBUG("lfg", "CMSG_DF_GET_SYSTEM_INFO %s for %s", GetPlayerInfo().c_str(), (systemInfo.Player ? "player" : "party"));
 
-    if (forPlayer)
+    if (systemInfo.Player)
         SendLfgPlayerLockInfo();
     else
         SendLfgPartyLockInfo();
