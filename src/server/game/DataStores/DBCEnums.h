@@ -44,6 +44,21 @@ enum BattlegroundBracketId                                  // bracketId for lev
 // must be max value in PvPDificulty slot+1
 #define MAX_BATTLEGROUND_BRACKETS  16
 
+#pragma pack(push, 1)
+struct DBCPosition2D
+{
+    float X;
+    float Y;
+};
+
+struct DBCPosition3D
+{
+    float X;
+    float Y;
+    float Z;
+};
+#pragma pack(pop)
+
 enum AreaTeams
 {
     AREATEAM_NONE  = 0,
