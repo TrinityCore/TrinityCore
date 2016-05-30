@@ -64,7 +64,6 @@ namespace WorldPackets
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
-            ByteBuffer AddonInfo;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
         };

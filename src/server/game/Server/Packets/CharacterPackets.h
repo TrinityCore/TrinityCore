@@ -138,6 +138,7 @@ namespace WorldPackets
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;
                 uint32 LastPlayedTime    = 0;
+                uint16 UnkLegion         = 0; // may be spec id
 
                 struct PetInfo
                 {
@@ -148,6 +149,7 @@ namespace WorldPackets
 
                 bool BoostInProgress = false; ///< @todo
                 int32 ProfessionIds[2];       ///< @todo
+                uint32 ClassTrialFlags      = 0;
 
                 struct VisualItemInfo
                 {
@@ -534,8 +536,6 @@ namespace WorldPackets
 
             uint8 ServerExpansionTier = 0;
             uint8 ServerExpansionLevel = 0;
-            time_t RaidOrigin = time_t(1135753200); // 28/12/2005 07:00:00
-            int32 ServerRegionID = 3;   // Cfg_Regions.dbc, EU
         };
 
         class SetActionBarToggles final : public ClientPacket
@@ -592,6 +592,7 @@ namespace WorldPackets
             uint32 NewFacialHair = 0;
             uint32 NewSkinColor = 0;
             uint32 NewFace = 0;
+            std::array<uint32, PLAYER_CUSTOM_DISPLAY_SIZE> NewCustomDisplay;
         };
 
         class BarberShopResultServer final : public ServerPacket
