@@ -135,6 +135,12 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     if (DisabledClassesMask)
         _worldPacket << uint32(*DisabledClassesMask);
 
+    for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
+    {
+        _worldPacket << int32(rule.Mask);
+        _worldPacket << uint8(rule.Race);
+    }
+
     for (CharacterInfo const& charInfo : Characters)
     {
         _worldPacket << charInfo.Guid;
@@ -171,6 +177,8 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         }
 
         _worldPacket << uint32(charInfo.LastPlayedTime);
+        _worldPacket << uint16(charInfo.UnkLegion);
+        _worldPacket << uint32(charInfo.ClassTrialFlags);
         _worldPacket.WriteBits(charInfo.Name.length(), 6);
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
@@ -178,12 +186,6 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket.FlushBits();
 
         _worldPacket.WriteString(charInfo.Name);
-    }
-
-    for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
-    {
-        _worldPacket << int32(rule.Mask);
-        _worldPacket << uint8(rule.Race);
     }
 
     return &_worldPacket;
@@ -408,8 +410,6 @@ WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 {
     _worldPacket << uint8(ServerExpansionLevel);
     _worldPacket << uint8(ServerExpansionTier);
-    _worldPacket << int32(ServerRegionID);
-    _worldPacket << uint32(RaidOrigin);
 
     return &_worldPacket;
 }
@@ -446,6 +446,8 @@ void WorldPackets::Character::AlterApperance::Read()
     _worldPacket >> NewFacialHair;
     _worldPacket >> NewSkinColor;
     _worldPacket >> NewFace;
+    for (std::size_t i = 0; i < NewCustomDisplay.size(); ++i)
+        _worldPacket >> NewCustomDisplay[i];
 }
 
 WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()

@@ -263,6 +263,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
+    charEnum.IsDemonHunterCreationAllowed = true;
     charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     _legitCharacters.clear();

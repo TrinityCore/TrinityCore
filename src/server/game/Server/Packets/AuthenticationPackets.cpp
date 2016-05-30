@@ -28,8 +28,9 @@ WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 
 void WorldPackets::Auth::AuthSession::Read()
 {
-    uint32 addonDataSize, realmJoinTicketSize;
+    uint32 realmJoinTicketSize;
 
+    _worldPacket >> DosResponse;
     _worldPacket >> Build;
     _worldPacket >> BuildType;
     _worldPacket >> RegionID;
@@ -37,22 +38,13 @@ void WorldPackets::Auth::AuthSession::Read()
     _worldPacket >> RealmID;
     _worldPacket.read(LocalChallenge.data(), LocalChallenge.size());
     _worldPacket.read(Digest.data(), Digest.size());
-    _worldPacket >> DosResponse;
-    _worldPacket >> addonDataSize;
-    if (addonDataSize)
-    {
-        AddonInfo.resize(std::min(addonDataSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
-        _worldPacket.read(AddonInfo.contents(), AddonInfo.size());
-    }
-
+    UseIPv6 = _worldPacket.ReadBit();
     _worldPacket >> realmJoinTicketSize;
     if (realmJoinTicketSize)
     {
         RealmJoinTicket.resize(std::min(realmJoinTicketSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
         _worldPacket.read(reinterpret_cast<uint8*>(&RealmJoinTicket[0]), RealmJoinTicket.size());
     }
-
-    UseIPv6 = _worldPacket.ReadBit();           // UseIPv6
 }
 
 WorldPackets::Auth::AuthResponse::AuthResponse()
@@ -80,6 +72,24 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
 
+        for (auto& race : *SuccessInfo->AvailableRaces)
+        {
+            _worldPacket << uint8(race.first); /// the current race
+            _worldPacket << uint8(race.second); /// the required Expansion
+        }
+
+        for (auto& klass : *SuccessInfo->AvailableClasses)
+        {
+            _worldPacket << uint8(klass.first); /// the current class
+            _worldPacket << uint8(klass.second); /// the required Expansion
+        }
+
+        _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
+        _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
+        _worldPacket.FlushBits();
+
         {
             _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
             _worldPacket << uint32(SuccessInfo->Billing.TimeRemain);
@@ -89,6 +99,12 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // not used anywhere in the client
             _worldPacket.FlushBits();
         }
+
+        if (SuccessInfo->NumPlayersHorde)
+            _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
+
+        if (SuccessInfo->NumPlayersAlliance)
+            _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
         for (auto& virtualRealm : SuccessInfo->VirtualRealms)
         {
@@ -101,18 +117,6 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 
             _worldPacket.WriteString(virtualRealm.RealmNameActual);
             _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
-        }
-
-        for (auto& race : *SuccessInfo->AvailableRaces)
-        {
-            _worldPacket << uint8(race.first); /// the current race
-            _worldPacket << uint8(race.second); /// the required Expansion
-        }
-
-        for (auto& klass : *SuccessInfo->AvailableClasses)
-        {
-            _worldPacket << uint8(klass.first); /// the current class
-            _worldPacket << uint8(klass.second); /// the required Expansion
         }
 
         for (auto& templat : SuccessInfo->Templates)
@@ -132,18 +136,6 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteString(templat.Name);
             _worldPacket.WriteString(templat.Description);
         }
-
-        _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
-        _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
-        _worldPacket.FlushBits();
-
-        if (SuccessInfo->NumPlayersHorde)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
-
-        if (SuccessInfo->NumPlayersAlliance)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
     }
 
     if (WaitInfo)
