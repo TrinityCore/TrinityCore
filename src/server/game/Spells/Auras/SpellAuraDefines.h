@@ -451,7 +451,7 @@ enum AuraType
     SPELL_AURA_391                                          = 391,
     SPELL_AURA_392                                          = 392,
     SPELL_AURA_393                                          = 393,
-    SPELL_AURA_394                                          = 394,
+    SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
     SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
     SPELL_AURA_396                                          = 396,
     SPELL_AURA_397                                          = 397,
@@ -526,7 +526,8 @@ enum AuraType
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466, // Affects bonus armor gain from all sources except base stats
     SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467, // Affects stat gain from all sources except base stats
     SPELL_AURA_468                                          = 468,
-    SPELL_AURA_469                                          = 469,
+    SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY     = 469,
+    SPELL_AURA_470                                          = 470,
     SPELL_AURA_471                                          = 471,
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473, // Prevents durability loss from dealing/taking damage
