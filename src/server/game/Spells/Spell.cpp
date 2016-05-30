@@ -1564,7 +1564,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex)
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_PROJECTILE_COLLISION))
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
@@ -2320,8 +2320,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
+    bool enablePvP = false; // need to check PvP state before spell effects, but act on it afterwards
+
     if (spellHitTarget)
     {
+        // if target is flagged for pvp also flag caster if a player
+        if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
+            enablePvP = true; // Decide on PvP flagging now, but act on it later.
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
         if (missInfo2 != SPELL_MISS_NONE)
         {
@@ -2474,8 +2479,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget, mask);
 
-        // if target is fallged for pvp also flag caster if a player
-        if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (enablePvP)
             m_caster->ToPlayer()->UpdatePvP(true);
 
         CallScriptAfterHitHandlers();
@@ -3223,6 +3227,10 @@ void Spell::cast(bool skipCheck)
         SetExecutedCurrently(false);
         return;
     }
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
+        if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, m_caster->GetPetGUID()))
+            pet->DespawnOrUnsummon();
 
     PrepareTriggersExecutedOnHit();
 
@@ -5291,7 +5299,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 switch (SummonProperties->Category)
                 {
                     case SUMMON_CATEGORY_PET:
-                        if (m_caster->GetPetGUID())
+                        if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && m_caster->GetPetGUID())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                     // intentional missing break, check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET
                     case SUMMON_CATEGORY_PUPPET:
@@ -5307,7 +5315,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (m_targets.GetUnitTarget()->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_BAD_TARGETS;
-                    if (m_targets.GetUnitTarget()->GetPetGUID())
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && m_targets.GetUnitTarget()->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
                 break;
@@ -5316,13 +5324,13 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (m_caster->GetPetGUID())                  //let warlock do a replacement summon
                 {
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass() == CLASS_WARLOCK)
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32752, true, NULL, NULL, pet->GetGUID());
                     }
-                    else
+                    else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
 
@@ -5449,7 +5457,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_CHARM
                     || m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_POSSESS)
                 {
-                    if (m_caster->GetPetGUID())
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && m_caster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
                     if (m_caster->GetCharmGUID())
