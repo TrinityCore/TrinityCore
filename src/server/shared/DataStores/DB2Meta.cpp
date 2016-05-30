@@ -17,8 +17,8 @@
 
 #include "DB2Meta.h"
 
-DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, char const* types, uint8 const* arraySizes)
-    : IndexField(indexField), FieldCount(fieldCount), Types(types), ArraySizes(arraySizes)
+DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes)
+    : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
 {
 }
 
