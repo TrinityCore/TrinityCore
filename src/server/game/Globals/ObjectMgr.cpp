@@ -6729,7 +6729,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                         TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u GoType: %u) have data0=%u but TaxiPath (Id: %u) not exist.",
                             entry, got.type, got.moTransport.taxiPathID, got.moTransport.taxiPathID);
                 }
-                if (uint32 transportMap = got.moTransport.mapID)
+                if (uint32 transportMap = got.moTransport.SpawnMap)
                     _transportMaps.insert(transportMap);
                 break;
             }
@@ -6772,7 +6772,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                 }
                 break;
             case GAMEOBJECT_TYPE_GARRISON_BUILDING:
-                if (uint32 transportMap = got.garrisonBuilding.mapID)
+                if (uint32 transportMap = got.garrisonBuilding.SpawnMap)
                     _transportMaps.insert(transportMap);
                 break;
         }
