@@ -50,6 +50,12 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
+    SPELL_WARLOCK_NETHER_PROTECTION_HOLY            = 54370,
+    SPELL_WARLOCK_NETHER_PROTECTION_FIRE            = 54371,
+    SPELL_WARLOCK_NETHER_PROTECTION_FROST           = 54372,
+    SPELL_WARLOCK_NETHER_PROTECTION_ARCANE          = 54373,
+    SPELL_WARLOCK_NETHER_PROTECTION_SHADOW          = 54374,
+    SPELL_WARLOCK_NETHER_PROTECTION_NATURE          = 54375,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
@@ -377,6 +383,8 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                             case CREATURE_FAMILY_IMP:
                                 targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -682,6 +690,95 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
+// -30299 - Nether Protection
+class spell_warl_nether_protection : public SpellScriptLoader
+{
+public:
+    spell_warl_nether_protection() : SpellScriptLoader("spell_warl_nether_protection") { }
+
+    class spell_warl_nether_protection_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_nether_protection_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_HOLY) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_FIRE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_FROST) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_ARCANE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_SHADOW) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_NETHER_PROTECTION_NATURE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetDamageInfo())
+            {
+                switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_HOLY:
+                    case SPELL_SCHOOL_FIRE:
+                    case SPELL_SCHOOL_NATURE:
+                    case SPELL_SCHOOL_FROST:
+                    case SPELL_SCHOOL_SHADOW:
+                    case SPELL_SCHOOL_ARCANE:
+                        return true;
+                    default:
+                        break;
+                }
+            }
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            uint32 triggerspell = 0;
+
+            switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+            {
+                case SPELL_SCHOOL_HOLY:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_HOLY;
+                    break;
+                case SPELL_SCHOOL_FIRE:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_FIRE;
+                    break;
+                case SPELL_SCHOOL_NATURE:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_NATURE;
+                    break;
+                case SPELL_SCHOOL_FROST:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_FROST;
+                    break;
+                case SPELL_SCHOOL_SHADOW:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_SHADOW;
+                    break;
+                case SPELL_SCHOOL_ARCANE:
+                    triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_ARCANE;
+                    break;
+                default:
+                    return;
+            }
+
+            if (Unit* target = eventInfo.GetActionTarget())
+                target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_warl_nether_protection_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_warl_nether_protection_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warl_nether_protection_AuraScript();
+    }
+};
+
 // 18541 - Ritual of Doom Effect
 class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
 {
@@ -917,6 +1014,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_life_tap();
+    new spell_warl_nether_protection();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
     new spell_warl_shadow_ward();

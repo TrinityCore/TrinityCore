@@ -178,7 +178,7 @@ void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPacket& recvPacket)
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, playerName, note, true);
+            guild->HandleSetMemberNote(this, playerName, note, false);
 }
 
 void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
@@ -192,7 +192,7 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, playerName, note, false);
+            guild->HandleSetMemberNote(this, playerName, note, true);
 }
 
 void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
