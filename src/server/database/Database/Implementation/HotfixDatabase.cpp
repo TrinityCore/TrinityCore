@@ -484,10 +484,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // LfgDungeons.db2
-    PrepareStatement(HOTFIX_SEL_LFG_DUNGEONS, "SELECT Name, Flags, TextureFilename, Description, MaxLevel, TargetLevelMax, MapID, RandomID, "
-        "ScenarioID, LastBossJournalEncounterID, BonusReputationAmount, MentorItemLevel, MinLevel, TargetLevel, TargetLevelMin, DifficultyID, Type, "
-        "Faction, Expansion, OrderIndex, GroupID, CountTank, CountHealer, CountDamage, MinCountTank, MinCountHealer, MinCountDamage, SubType, "
-        "MentorCharLevel, ID FROM lfg_dungeons ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_LFG_DUNGEONS, "SELECT Name, Flags, TextureFilename, Description, PlayerConditionID, MaxLevel, TargetLevelMax, MapID, "
+        "RandomID, ScenarioID, LastBossJournalEncounterID, BonusReputationAmount, MentorItemLevel, MinLevel, TargetLevel, TargetLevelMin, "
+        "DifficultyID, Type, Faction, Expansion, OrderIndex, GroupID, CountTank, CountHealer, CountDamage, MinCountTank, MinCountHealer, "
+        "MinCountDamage, SubType, MentorCharLevel, ID FROM lfg_dungeons ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LFG_DUNGEONS, "SELECT ID, Name_lang, Description_lang FROM lfg_dungeons_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // Light.db2
@@ -512,9 +512,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MAIL_TEMPLATE, "SELECT ID, Body_lang FROM mail_template_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // Map.db2
-    PrepareStatement(HOTFIX_SEL_MAP, "SELECT ID, Directory, Flags, MapType, MinimapIconScale, CorpsePosX, CorpsePosY, MapName, MapDescription0, "
-        "MapDescription1, AreaTableID, LoadingScreenID, CorpseMapID, TimeOfDayOverride, ParentMapID, CosmeticParentMapID, InstanceType, unk5, "
-        "ExpansionID, MaxPlayers, TimeOffset FROM map ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_MAP, "SELECT ID, Directory, Flags1, Flags2, MinimapIconScale, CorpsePosX, CorpsePosY, MapName, MapDescription0, "
+        "MapDescription1, AreaTableID, LoadingScreenID, CorpseMapID, TimeOfDayOverride, ParentMapID, CosmeticParentMapID, WindSettingsID, "
+        "InstanceType, unk5, ExpansionID, MaxPlayers, TimeOffset FROM map ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MAP, "SELECT ID, MapName_lang, MapDescription0_lang, MapDescription1_lang FROM map_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // MapDifficulty.db2
@@ -580,7 +580,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "MinFactionID2, MinFactionID3, SpellID1, SpellID2, SpellID3, SpellID4, ItemID1, ItemID2, ItemID3, ItemID4, ItemCount1, ItemCount2, "
         "ItemCount3, ItemCount4, LfgLogic, LfgValue1, LfgValue2, LfgValue3, LfgValue4, CurrencyLogic, CurrencyID1, CurrencyID2, CurrencyID3, "
         "CurrencyID4, QuestKillMonster1, QuestKillMonster2, QuestKillMonster3, QuestKillMonster4, QuestKillMonster5, QuestKillMonster6, PhaseGroupID, "
-        "MinAvgItemLevel, MaxAvgItemLevel, Unknown700_1, Unknown700_2 FROM player_condition ORDER BY ID DESC", CONNECTION_SYNCH);
+        "MinAvgItemLevel, MaxAvgItemLevel, Unknown7001, Unknown7002 FROM player_condition ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription_lang FROM player_condition_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // PowerDisplay.db2
@@ -871,7 +871,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // WorldMapTransforms.db2
     PrepareStatement(HOTFIX_SEL_WORLD_MAP_TRANSFORMS, "SELECT ID, RegionMinX, RegionMinY, RegionMinZ, RegionMaxX, RegionMaxY, RegionMaxZ, "
-        "RegionOffsetX, RegionOffsetY, RegionScale, MapID, NewMapID, NewDungeonMapID, NewAreaID, Flags FROM world_map_transforms ORDER BY ID DESC", CONNECTION_SYNCH);
+        "RegionOffsetX, RegionOffsetY, RegionScale, MapID, AreaID, NewMapID, NewDungeonMapID, NewAreaID, Flags FROM world_map_transforms"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // WorldSafeLocs.db2
     PrepareStatement(HOTFIX_SEL_WORLD_SAFE_LOCS, "SELECT ID, LocX, LocY, LocZ, Facing, AreaName, MapID FROM world_safe_locs ORDER BY ID DESC", CONNECTION_SYNCH);

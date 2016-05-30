@@ -188,7 +188,7 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 234
+#define TaxiMaskSize 235
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;

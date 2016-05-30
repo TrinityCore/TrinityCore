@@ -119,6 +119,12 @@ bool DB2SparseFileLoader::Load(const char *filename, DB2Meta const* meta)
 
     EndianConvert(layoutHash);
 
+    if (layoutHash != meta->LayoutHash)
+    {
+        fclose(f);
+        return false;
+    }
+
     if (fread(&minIndex, 4, 1, f) != 1)                     // MinIndex WDB2
     {
         fclose(f);

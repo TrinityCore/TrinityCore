@@ -228,7 +228,7 @@ struct BroadcastTextEntry
 
 struct CharSectionsEntry
 {
-    uint32 Id;
+    uint32 ID;
     uint32 TextureFileDataID[3];
     uint16 Flags;
     uint8 Race;
@@ -1452,6 +1452,7 @@ struct LfgDungeonsEntry
     uint32 Flags;
     char const* TextureFilename;
     LocalizedString* Description;
+    uint32 PlayerConditionID;
     uint16 MaxLevel;
     uint16 TargetLevelMax;
     int16 MapID;
@@ -1538,8 +1539,7 @@ struct MapEntry
 {
     uint32 ID;
     char* Directory;
-    uint32 Flags;
-    uint32 MapType;
+    uint32 Flags[2];
     float MinimapIconScale;
     DBCPosition2D CorpsePos;                                        // entrance coordinates in ghost mode  (in most cases = normal entrance)
     LocalizedString* MapName;
@@ -1551,6 +1551,7 @@ struct MapEntry
     uint16 TimeOfDayOverride;
     int16 ParentMapID;
     int16 CosmeticParentMapID;
+    uint16 WindSettingsID;
     uint8 InstanceType;
     uint8 unk5;
     uint8 ExpansionID;
@@ -1585,8 +1586,8 @@ struct MapEntry
         return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
     }
 
-    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
-    bool IsGarrison() const { return (Flags & MAP_FLAG_GARRISON) != 0; }
+    bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
 };
 
 struct MapDifficultyEntry
@@ -2660,6 +2661,7 @@ struct WorldMapTransformsEntry
     DBCPosition2D RegionOffset;
     float RegionScale;
     uint16 MapID;
+    uint16 AreaID;
     uint16 NewMapID;
     uint16 NewDungeonMapID;
     uint16 NewAreaID;

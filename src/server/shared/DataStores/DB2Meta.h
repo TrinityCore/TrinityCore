@@ -22,7 +22,7 @@
 
 struct DB2Meta
 {
-    DB2Meta(int32 indexField, uint32 fieldCount, char const* types, uint8 const* arraySizes);
+    DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes);
 
     bool HasIndexFieldInData() const;
 
@@ -39,6 +39,7 @@ struct DB2Meta
 
     int32 IndexField;
     uint32 FieldCount;
+    uint32 LayoutHash;
     char const* Types;
     uint8 const* ArraySizes;
 };

@@ -119,6 +119,12 @@ bool DB2FileLoader::Load(char const* filename, DB2Meta const* meta)
         return false;
     }
 
+    if (layoutHash != meta->LayoutHash)
+    {
+        fclose(f);
+        return false;
+    }
+
     EndianConvert(layoutHash);
 
     if (fread(&minIndex, 4, 1, f) != 1)                     // MinIndex WDB2
