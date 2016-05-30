@@ -31,9 +31,9 @@ namespace Trinity
     namespace Containers
     {
         template<class T>
-        void RandomResizeList(std::list<T> &list, uint32 size)
+        void RandomResizeList(std::list<T>& list, uint32 size)
         {
-            size_t list_size = list.size();
+            uint32 list_size = uint32(list.size());
 
             while (list_size > size)
             {
@@ -56,7 +56,7 @@ namespace Trinity
             if (size)
                 RandomResizeList(listCopy, size);
 
-            list = listCopy;
+            list = std::move(listCopy);
         }
 
         /*
@@ -68,7 +68,7 @@ namespace Trinity
         typename C::value_type const& SelectRandomContainerElement(C const& container)
         {
             typename C::const_iterator it = container.begin();
-            std::advance(it, urand(0, container.size() - 1));
+            std::advance(it, urand(0, uint32(container.size()) - 1));
             return *it;
         }
 
@@ -170,7 +170,6 @@ namespace Trinity
                     ++itr;
             }
         }
-
     }
     //! namespace Containers
 }
