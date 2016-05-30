@@ -259,6 +259,58 @@ class spell_ioc_launch : public SpellScriptLoader
         }
 };
 
+enum SeaforiumBombSpells
+{
+    SPELL_SEAFORIUM_BLAST       = 66676,
+    SPELL_HUGE_SEAFORIUM_BLAST  = 66672,
+    SPELL_A_BOMB_INABLE_CREDIT  = 68366,
+    SPELL_A_BOMB_INATION_CREDIT = 68367
+};
+
+class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
+{
+    public:
+        spell_ioc_seaforium_blast_credit() : SpellScriptLoader("spell_ioc_seaforium_blast_credit") { }
+
+        class spell_ioc_seaforium_blast_credit_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ioc_seaforium_blast_credit_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INABLE_CREDIT) || !sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INATION_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleAchievementCredit(SpellEffIndex /*effIndex*/)
+            {
+                uint32 _creditSpell = 0;
+                Unit* caster = GetOriginalCaster();
+                if (!caster)
+                    return;
+
+                if (GetSpellInfo()->Id == SPELL_SEAFORIUM_BLAST)
+                    _creditSpell = SPELL_A_BOMB_INABLE_CREDIT;
+                else if (GetSpellInfo()->Id == SPELL_HUGE_SEAFORIUM_BLAST)
+                    _creditSpell = SPELL_A_BOMB_INATION_CREDIT;
+
+                if (GetHitGObj() && GetHitGObj()->IsDestructibleBuilding())
+                    caster->CastSpell(caster, _creditSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_ioc_seaforium_blast_credit_SpellScript::HandleAchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ioc_seaforium_blast_credit_SpellScript();
+        }
+};
+
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
@@ -266,4 +318,5 @@ void AddSC_isle_of_conquest()
     new spell_ioc_gunship_portal();
     new spell_ioc_parachute_ic();
     new spell_ioc_launch();
+    new spell_ioc_seaforium_blast_credit();
 }

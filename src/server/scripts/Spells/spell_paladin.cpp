@@ -37,6 +37,7 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
+    SPELL_PALADIN_ILLUMINATION_ENERGIZE          = 20272,
 
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
@@ -871,6 +872,61 @@ class spell_pal_holy_shock : public SpellScriptLoader
         }
 };
 
+// -20210 - Illumination
+class spell_pal_illumination : public SpellScriptLoader
+{
+public:
+    spell_pal_illumination() : SpellScriptLoader("spell_pal_illumination") { }
+
+    class spell_pal_illumination_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_illumination_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_ILLUMINATION_ENERGIZE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            // this script is valid only for the Holy Shock procs of illumination
+            if (eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetSpellInfo())
+            {
+                if (eventInfo.GetHealInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x00010000)
+                {
+                    PreventDefaultAction();
+                    Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
+
+                    // proc comes from the Holy Shock heal, need to get mana cost of original spell
+                    uint32 originalspellid = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1, eventInfo.GetHealInfo()->GetSpellInfo()->GetRank());
+                    SpellInfo const* originalSpell = sSpellMgr->GetSpellInfo(originalspellid);
+                    if (originalSpell && aurEff->GetSpellInfo())
+                    {
+                        uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                        target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+                    }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pal_illumination_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pal_illumination_AuraScript();
+    }
+};
+
 // Maybe this is incorrect
 // These spells should always be cast on login, regardless of whether the player has the talent or not
 
@@ -1393,6 +1449,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();
+    new spell_pal_illumination();
     new spell_pal_improved_aura("spell_pal_improved_concentraction_aura", SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA);
     new spell_pal_improved_aura("spell_pal_improved_devotion_aura", SPELL_PALADIN_IMPROVED_DEVOTION_AURA);
     new spell_pal_improved_aura("spell_pal_sanctified_retribution", SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA);
