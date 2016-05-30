@@ -23939,15 +23939,25 @@ bool Player::CanCaptureTowerPoint() const
             IsAlive());                                     // live player
 }
 
-uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin /*= nullptr*/, BarberShopStyleEntry const* newFace /*= nullptr*/) const
+uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* newFace, std::array<BarberShopStyleEntry const*, PLAYER_CUSTOM_DISPLAY_SIZE> const& newCustomDisplay) const
 {
     uint8 hairstyle = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
     uint8 facialhair = GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
     uint8 skincolor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 face = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
+    std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> customDisplay;
+    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+        customDisplay[i] = GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i);
 
-    if ((hairstyle == newHairStyle->Data) && (haircolor == newHairColor) && (facialhair == newFacialHair->Data) && (!newSkin || (newSkin->Data == skincolor)) && (!newFace || (newFace->Data == face)))
+    if ((hairstyle == newHairStyle->Data) &&
+        (haircolor == newHairColor) &&
+        (facialhair == newFacialHair->Data) &&
+        (!newSkin || (newSkin->Data == skincolor)) &&
+        (!newFace || (newFace->Data == face)) &&
+        (!newCustomDisplay[0] || (newCustomDisplay[0]->Data == customDisplay[0])) &&
+        (!newCustomDisplay[1] || (newCustomDisplay[1]->Data == customDisplay[1])) &&
+        (!newCustomDisplay[2] || (newCustomDisplay[2]->Data == customDisplay[2])))
         return 0;
 
     GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(getLevel());
@@ -23970,6 +23980,10 @@ uint32 Player::GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8
 
     if (newFace && face != newFace->Data)
         cost += uint32(bsc->Cost * newFace->CostModifier);
+
+    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+        if (newCustomDisplay[i] && customDisplay[i] != newCustomDisplay[i]->Data)
+            cost += uint32(bsc->Cost * newCustomDisplay[i]->CostModifier);
 
     return cost;
 }
@@ -26065,65 +26079,128 @@ void Player::RemoveSocial()
     m_social = nullptr;
 }
 
-bool IsSectionFlagValid(CharSectionsEntry const* entry, uint8 class_, bool create)
+uint32 GetSelectionFromContext(uint32 context, uint32 playerClass)
 {
-    if (create && !(entry->Flags & SECTION_FLAG_PLAYER))
-        return false;
+    switch (context)
+    {
+        case 1:
+            if (playerClass == CLASS_DEATH_KNIGHT)
+                return 1;
+            if (playerClass == CLASS_DEMON_HUNTER)
+                return 3;
+            return 0;
+        case 2:
+            if (playerClass == CLASS_DEATH_KNIGHT)
+                return 5;
+            if (playerClass == CLASS_DEMON_HUNTER)
+                return 6;
+            return 4;
+        case 3:
+            return 7;
+        case 4:
+            if (playerClass == CLASS_DEATH_KNIGHT)
+                return 9;
+            if (playerClass == CLASS_DEMON_HUNTER)
+                return 10;
+            return 8;
+        default:
+            if (playerClass == CLASS_DEATH_KNIGHT)
+                return 1;
+            if (playerClass == CLASS_DEMON_HUNTER)
+                return 2;
+            return 0;
+    }
 
-    if (class_ != CLASS_DEATH_KNIGHT && (entry->Flags & SECTION_FLAG_DEATH_KNIGHT))
-        return false;
-
-    if (class_ != CLASS_DEMON_HUNTER && (entry->Flags & SECTION_FLAG_DEMON_HUNTER))
-        return false;
-
-    return true;
+    return 0;
 }
 
-bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create /*= false*/)
+bool ComponentFlagsMatch(CharSectionsEntry const* entry, uint32 selection)
 {
-    // Check skin color
-    // For Skin type is always 0
-    if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
-    {   // Skin Color defined as Face color, too, we check skin & face in one pass
-        if (CharSectionsEntry const* entry2 = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor))
-        {
-            if (!IsSectionFlagValid(entry, class_, create))
+    switch (selection)
+    {
+        case 0:
+            if (!(entry->Flags & 1))
                 return false;
-            if (!IsSectionFlagValid(entry2, class_, create))
+            return !(entry->Flags & 0x2C);
+        case 1:
+            if (!(entry->Flags & 1))
                 return false;
-        }
-        else
-            return false;
+            if (!(entry->Flags & 0x94))
+                return false;
+            return !(entry->Flags & 8);
+        case 2:
+            if (!(entry->Flags & 1))
+                return false;
+            if (!(entry->Flags & 0x70))
+                return false;
+            return !(entry->Flags & 8);
+        case 3:
+            if (!(entry->Flags & 1))
+                return false;
+            if (!(entry->Flags & 0x20))
+                return false;
+            return !(entry->Flags & 8);
+        case 4:
+        case 8:
+            if (!(entry->Flags & 3))
+                return false;
+            return !(entry->Flags & 0x2C);
+        case 5:
+        case 9:
+            if (!(entry->Flags & 3))
+                return false;
+            if (!(entry->Flags & 0x94))
+                return false;
+            return !(entry->Flags & 8);
+        case 6:
+        case 10:
+            if (!(entry->Flags & 3))
+                return false;
+            if (!(entry->Flags & 0x70))
+                return false;
+            return !(entry->Flags & 8);
+        case 7:
+            return true;
+        default:
+            break;
     }
-    else
+
+    return false;
+}
+
+bool IsSectionFlagValid(CharSectionsEntry const* entry, uint8 class_, bool create)
+{
+    if (create)
+        return ComponentFlagsMatch(entry, GetSelectionFromContext(0, class_));
+
+    return ComponentFlagsMatch(entry, GetSelectionFromContext(2, class_));
+}
+
+bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHairID, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create /*= false*/)
+{
+    CharSectionsEntry const* skin = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor);
+    if (!skin)
         return false;
 
-    // These combinations don't have an entry of Type SECTION_TYPE_FACIAL_HAIR, exclude them from that check
-    bool excludeCheck = (race == RACE_TAUREN) || (race == RACE_DRAENEI) || (gender == GENDER_FEMALE && race != RACE_NIGHTELF && race != RACE_UNDEAD_PLAYER);
+    if (!IsSectionFlagValid(skin, class_, create))
+        return false;
 
-    // Check Hair
-    if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor))
-    {
-        if (!IsSectionFlagValid(entry, class_, create))
-            return false;
+    CharSectionsEntry const* face = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACE, gender, faceID, skinColor);
+    if (!face)
+        return false;
 
-        if (!excludeCheck)
-        {
-            if (CharSectionsEntry const* entry2 = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHair, hairColor))
-            {
-                if (!IsSectionFlagValid(entry2, class_, create))
-                    return false;
-            }
-            else
-                return false;
-        }
-        else
-        {
-            // @TODO: Bound checking for facialHair ID (used clientside for markings, tauren beard, etc.)
-            // Not present in DBC
-        }
-    }
-    else
+    if (!IsSectionFlagValid(face, class_, create))
+        return false;
+
+    CharSectionsEntry const* hair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, hairID, hairColor);
+    if (!hair)
+        return false;
+
+    if (!IsSectionFlagValid(hair, class_, create))
+        return false;
+
+    CharSectionsEntry const* facialHair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_HAIR, gender, facialHairID, hairColor);
+    if (!facialHair)
         return false;
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)

@@ -1235,7 +1235,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetChatFlags() const;
         std::string autoReplyMsg;
 
-        uint32 GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin = nullptr, BarberShopStyleEntry const* newFace = nullptr) const;
+        uint32 GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* newFace, std::array<BarberShopStyleEntry const*, PLAYER_CUSTOM_DISPLAY_SIZE> const& newCustomDisplay) const;
 
         PlayerSocial* GetSocial() const { return m_social; }
         void RemoveSocial();

@@ -1408,13 +1408,25 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (bs_face && (bs_face->Type != 4 || bs_face->Race != _player->getRace() || bs_face->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
         return;
 
+    std::array<BarberShopStyleEntry const*, PLAYER_CUSTOM_DISPLAY_SIZE> customDisplayEntries;
+    std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> customDisplay;
+    for (std::size_t i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+    {
+        BarberShopStyleEntry const* bs_customDisplay = sBarberShopStyleStore.LookupEntry(packet.NewCustomDisplay[i]);
+        if (bs_customDisplay && (bs_customDisplay->Type != 5 + i || bs_customDisplay->Race != _player->getRace() || bs_customDisplay->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
+            return;
+
+        customDisplayEntries[i] = bs_customDisplay;
+        customDisplay[i] = bs_customDisplay->Data;
+    }
+
     if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
         bs_hair->Data,
         packet.NewHairColor,
         bs_face ? bs_face->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
         bs_facialHair->Data,
         bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID),
-        std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE>{0, 0, 0}))
+        customDisplay))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1430,7 +1442,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
         return;
     }
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face);
+    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face, customDisplayEntries);
 
     // 0 - ok
     // 1, 3 - not enough money
@@ -1495,7 +1507,7 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
     uint16 atLoginFlags = fields[4].GetUInt16();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyleID, customizeInfo->HairColorID, customizeInfo->FaceID,
-        customizeInfo->FacialHairStyleID, customizeInfo->SkinID, customizeInfo->CustomDisplay, true))
+        customizeInfo->FacialHairStyleID, customizeInfo->SkinID, customizeInfo->CustomDisplay))
     {
         SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
         return;

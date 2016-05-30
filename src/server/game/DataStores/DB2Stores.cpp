@@ -472,9 +472,50 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
 
+    std::unordered_map<uint32, std::set<std::pair<uint8, uint8>>> addedSections;
     for (CharSectionsEntry const* charSection : sCharSectionsStore)
-        if (charSection->Race && ((1 << (charSection->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
-            _charSections.insert({ charSection->GenType | (charSection->Gender << 8) | (charSection->Race << 16), charSection });
+    {
+        if (!charSection->Race || !((1 << (charSection->Race - 1)) & RACEMASK_ALL_PLAYABLE)) //ignore Nonplayable races
+            continue;
+
+        // Not all sections are used for low-res models but we need to get all sections for validation since its viewer dependent
+        uint8 baseSection = charSection->GenType;
+        switch (baseSection)
+        {
+            case SECTION_TYPE_SKIN_LOW_RES:
+            case SECTION_TYPE_FACE_LOW_RES:
+            case SECTION_TYPE_FACIAL_HAIR_LOW_RES:
+            case SECTION_TYPE_HAIR_LOW_RES:
+            case SECTION_TYPE_UNDERWEAR_LOW_RES:
+                baseSection = baseSection + SECTION_TYPE_SKIN;
+                break;
+            case SECTION_TYPE_SKIN:
+            case SECTION_TYPE_FACE:
+            case SECTION_TYPE_FACIAL_HAIR:
+            case SECTION_TYPE_HAIR:
+            case SECTION_TYPE_UNDERWEAR:
+                break;
+            case SECTION_TYPE_CUSTOM_DISPLAY_1_LOW_RES:
+            case SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES:
+            case SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES:
+                ++baseSection;
+                break;
+            case SECTION_TYPE_CUSTOM_DISPLAY_1:
+            case SECTION_TYPE_CUSTOM_DISPLAY_2:
+            case SECTION_TYPE_CUSTOM_DISPLAY_3:
+                break;
+            default:
+                break;
+        }
+
+        uint32 sectionKey = baseSection | (charSection->Gender << 8) | (charSection->Race << 16);
+        std::pair<uint8, uint8> sectionCombination{ charSection->Type, charSection->Color };
+        if (addedSections[sectionKey].count(sectionCombination))
+            continue;
+
+        addedSections[sectionKey].insert(sectionCombination);
+        _charSections.insert({ sectionKey, charSection });
+    }
 
     for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
         _charStartOutfits[outfit->RaceID | (outfit->ClassID << 8) | (outfit->GenderID << 16)] = outfit;
