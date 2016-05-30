@@ -321,6 +321,7 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_DISPLAY_POWER
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_HEALTH
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_HEALTH+1
     UF_FLAG_PUBLIC | UF_FLAG_URGENT_SELF_ONLY,              // UNIT_FIELD_POWER
     UF_FLAG_PUBLIC | UF_FLAG_URGENT_SELF_ONLY,              // UNIT_FIELD_POWER+1
     UF_FLAG_PUBLIC | UF_FLAG_URGENT_SELF_ONLY,              // UNIT_FIELD_POWER+2
@@ -328,6 +329,7 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC | UF_FLAG_URGENT_SELF_ONLY,              // UNIT_FIELD_POWER+4
     UF_FLAG_PUBLIC | UF_FLAG_URGENT_SELF_ONLY,              // UNIT_FIELD_POWER+5
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_MAXHEALTH
+    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_MAXHEALTH+1
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_MAXPOWER
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_MAXPOWER+1
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_MAXPOWER+2
