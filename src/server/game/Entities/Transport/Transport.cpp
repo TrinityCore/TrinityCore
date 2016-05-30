@@ -525,7 +525,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
 
 void Transport::LoadStaticPassengers()
 {
-    if (uint32 mapId = GetGOInfo()->moTransport.mapID)
+    if (uint32 mapId = GetGOInfo()->moTransport.SpawnMap)
     {
         CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetSpawnMode());
         CellGuidSet::const_iterator guidEnd;
