@@ -451,13 +451,22 @@ PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, Unit* target)
     // Find highest spell rank that we know
     uint32 knownRank, nextRank;
     if (me->HasSpell(spellId))
+    {
         // this will save us some lookups if the player has the highest rank (expected case)
-        nextRank = sSpellMgr->GetNextSpellInChain(knownRank = spellId);
+        knownRank = spellId;
+        nextRank = sSpellMgr->GetNextSpellInChain(spellId);
+    }
     else
-        knownRank = 0, nextRank = sSpellMgr->GetFirstSpellInChain(spellId);
+    {
+        knownRank = 0;
+        nextRank = sSpellMgr->GetFirstSpellInChain(spellId);
+    }
 
     while (nextRank && me->HasSpell(nextRank))
-        nextRank = sSpellMgr->GetNextSpellInChain(knownRank = nextRank);
+    {
+        knownRank = nextRank;
+        nextRank = sSpellMgr->GetNextSpellInChain(knownRank);
+    }
 
     if (!knownRank)
         return {};
