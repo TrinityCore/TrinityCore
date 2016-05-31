@@ -10024,20 +10024,20 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
     }
 
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    if (Player* playerMover = GetPlayerMover()) // unit controlled by a player.
     {
         // Send notification to self
         WorldPackets::Movement::MoveSetSpeed selfpacket(moveTypeToOpcode[mtype][1]);
         selfpacket.MoverGUID = GetGUID();
         selfpacket.SequenceIndex = m_movementCounter++;
         selfpacket.Speed = GetSpeed(mtype);
-        ToPlayer()->GetSession()->SendPacket(selfpacket.Write());
+        playerMover->GetSession()->SendPacket(selfpacket.Write());
 
         // Send notification to other players
         WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
         packet.movementInfo = &m_movementInfo;
         packet.Speed = GetSpeed(mtype);
-        SendMessageToSet(packet.Write(), false);
+        playerMover->SendMessageToSet(packet.Write(), false);
     }
     else
     {
@@ -11608,6 +11608,20 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
             break;
         }
     }
+}
+
+Unit* Unit::GetMover() const
+{
+    if (Player const* player = ToPlayer())
+        return player->m_mover;
+    return nullptr;
+}
+
+Player* Unit::GetPlayerMover() const
+{
+    if (Unit* mover = GetMover())
+        return mover->ToPlayer();
+    return nullptr;
 }
 
 bool Unit::isFrozen() const
