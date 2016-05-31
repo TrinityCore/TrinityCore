@@ -1,17 +1,19 @@
 /**
- @file Spline.h
+ \file G3D/Spline.h
 
- @author Morgan McGuire, http://graphics.cs.williams.edu
+ \author Morgan McGuire, http://graphics.cs.williams.edu
  */
 
-#ifndef G3D_SPLINE_H
-#define G3D_SPLINE_H
+#ifndef G3D_Spline_h
+#define G3D_Spline_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Vector4.h"
+#include "G3D/Any.h"
+#include "G3D/SplineExtrapolationMode.h"
 
 namespace G3D {
 
@@ -23,10 +25,12 @@ public:
         number of elements as Spline::control. */
     Array<float>            time;
 
-    /** If cyclic, then the control points will be assumed to wrap around.
-        If not cyclic, then the tangents at the ends of the spline
-        point to the final control points.*/
-    bool                    cyclic;
+    /** If CYCLIC, then the control points will be assumed to wrap around.
+        If LINEAR, then the tangents at the ends of the spline
+        point to the final control points. If CONSTANT, the end control 
+        points will be treated as multiple contol points (so the value remains constant at the ends)
+    */
+    SplineExtrapolationMode extrapolationMode;
 
     /** For a cyclic spline, this is the time elapsed between the last
         control point and the first. If less than or equal to zero this is
@@ -36,8 +40,13 @@ public:
          time[time.size() - 1] - time[time.size() - 2]) / 2.
     */
     float                   finalInterval;
+
+    SplineInterpolationMode interpolationMode;
     
-    SplineBase() : cyclic(true), finalInterval(-1) {}
+    SplineBase() : 
+        extrapolationMode(SplineExtrapolationMode::CYCLIC), 
+        finalInterval(-1), 
+        interpolationMode(SplineInterpolationMode::CUBIC) {}
 
     virtual ~SplineBase() {}
     
@@ -144,11 +153,7 @@ public:
             break;
 
         case 1:
-            if (time[0] == 0) {
-                append(1, c);
-            } else {
-                append(time[0], c);
-            }
+            append(time[0] + 1, c);
             break;
 
         default:
@@ -192,7 +197,7 @@ public:
         if (N == 0) {
             c = zero;
             t = 0;
-        } else if (cyclic) {
+        } else if (extrapolationMode == SplineExtrapolationMode::CYCLIC) {
             c = control[iWrap(i, N)];
 
             if (i < 0) {
@@ -222,9 +227,16 @@ public:
                 // Step away from control point 0
                 float dt = time[1] - time[0];
                 
-                // Extrapolate (note; i is negative)
-                c = control[1] * float(i) + control[0] * float(1 - i);
-                correct(c);
+                if (extrapolationMode == SplineExtrapolationMode::LINEAR) {
+                    // Extrapolate (note; i is negative)
+                    c = control[1] * float(i) + control[0] * float(1 - i);
+                    correct(c);
+                } else if (extrapolationMode == SplineExtrapolationMode::CLAMP){
+                    // Return the first, clamping
+                    c = control[0];
+                } else {
+                    alwaysAssertM(false, "Invalid extrapolation mode");
+                }
                 t = dt * i + time[0];
 
             } else {
@@ -239,9 +251,17 @@ public:
             if (N >= 2) {
                 float dt = time[N - 1] - time[N - 2];
 
+                if (extrapolationMode == SplineExtrapolationMode::LINEAR) {
+                    // Extrapolate (note; i is negative)
+                    c = control[N - 1] * float(i - N + 2) + control[N - 2] * -float(i - N + 1);
+                    correct(c);
+                } else if (extrapolationMode == SplineExtrapolationMode::CLAMP){
+                    // Return the last, clamping
+                    c = control.last();
+                } else {
+                    alwaysAssertM(false, "Invalid extrapolation mode");
+                }
                 // Extrapolate
-                c = control[N - 1] * float(i - N + 2) + control[N - 2] * -float(i - N + 1);
-                correct(c);
                 t = time[N - 1] + dt * (i - N + 1);
 
             } else {
@@ -279,8 +299,47 @@ protected:
     /** Normalize or otherwise adjust this interpolated Control. */
     virtual void correct(Control& A) const { (void)A; }
 
+    /** Does not invoke verifyDone() on the propertyTable because subclasses may have more properties */
+    virtual void init(AnyTableReader& propertyTable) {
+        propertyTable.getIfPresent("extrapolationMode", extrapolationMode);
+        propertyTable.getIfPresent("interpolationMode", interpolationMode);
+        propertyTable.getIfPresent("finalInterval", finalInterval);
+
+        const bool hasTime = propertyTable.getIfPresent("time", time);
+
+        if (propertyTable.getIfPresent("control", control)) {
+            if (! hasTime) {
+                // Assign unit times
+                time.resize(control.size());
+                for (int i = 0; i < time.size(); ++i) {
+                    time[i] = float(i);
+                }
+            } // if has time
+        } // if has control
+    } // init
+
 public:
-   
+
+    /** Accepts a table of properties, or any valid PhysicsFrame specification for a single control*/
+    explicit Spline(const Any& any) {
+        AnyTableReader propertyTable(any);
+        init(propertyTable);
+        propertyTable.verifyDone();
+    }
+
+    /** Note that invoking classes can call setName on the returned value instead of passing a name in. */
+    virtual Any toAny(const std::string& myName) const {
+        Any a(Any::TABLE, myName);
+    
+        a["extrapolationMode"] = extrapolationMode;
+        a["interpolationMode"] = interpolationMode;
+        a["control"] = Any(control);
+        a["time"] = Any(time);
+        a["finalInterval"] = finalInterval;
+
+        return a;
+    }
+
 
     /**
        Return the position at time s.  The spline is defined outside
@@ -313,6 +372,22 @@ public:
         Control p[4];
         float   t[4];
         getControls(i - 1, t, p, 4);
+
+        const Control& p0 = p[0];
+        const Control& p1 = p[1];
+        const Control& p2 = p[2];
+        const Control& p3 = p[3];
+
+        // Compute the weighted sum of the neighboring control points.
+        Control sum;
+
+        if (interpolationMode == SplineInterpolationMode::LINEAR) {
+            const float a = (s - t[1]) / (t[2] - t[1]);
+            sum = p1 * (1.0f - a) + p2 * a;
+            correct(sum);
+            return sum;
+        }
+
         float dt0 = t[1] - t[0];
         float dt1 = t[2] - t[1];
         float dt2 = t[3] - t[2];
@@ -325,13 +400,6 @@ public:
         // Compute the weights on each of the control points.
         const Vector4& weights = uvec * basis;
         
-        // Compute the weighted sum of the neighboring control points.
-        Control sum;
-
-        const Control& p0 = p[0];
-        const Control& p1 = p[1];
-        const Control& p2 = p[2];
-        const Control& p3 = p[3];
 
         // The factor of 1/2 from averaging two time intervals is 
         // already factored into the basis

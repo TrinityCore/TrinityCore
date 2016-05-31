@@ -1,14 +1,14 @@
 /**
- @file PhysicsFrame.h
+ \file PhysicsFrame.h
 
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2002-07-08
- @edited  2006-01-10
+ \created 2002-07-08
+ \edited  2011-05-10
 */
 
-#ifndef G3D_PHYSICSFRAME_H
-#define G3D_PHYSICSFRAME_H
+#ifndef G3D_PhysicsFrame_h
+#define G3D_PhysicsFrame_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -33,9 +33,9 @@ public:
     Quat    rotation;
 
     /**
-     Takes object space points to world space.
+     Origin of this reference frame in its parent's frame.
      */
-    Vector3 translation;
+    Point3 translation;
 
     /**
      Initializes to the identity frame.
@@ -51,6 +51,13 @@ public:
     PhysicsFrame(const Matrix3& rot) : rotation(rot), translation(Vector3::zero()) {}
     PhysicsFrame(const CoordinateFrame& coordinateFrame);
 
+    PhysicsFrame& operator=(const PhysicsFrame& p) {
+        rotation = p.rotation;
+        translation = p.translation;
+
+        return *this;
+    }
+
     /**
       - PhysicsFrame( [quat], [vec3] )
       - Vector3( ... )
@@ -58,6 +65,8 @@ public:
       - CFrame::from...( ... )
      */
     PhysicsFrame(const class Any& any);
+
+    Any toAny() const;
 
     /** Compose: create the transformation that is <I>other</I> followed by <I>this</I>.*/
     PhysicsFrame operator*(const PhysicsFrame& other) const;
@@ -100,6 +109,16 @@ public:
         translation += f.translation;
         return *this;
     }
+
+    bool operator==(const PhysicsFrame& other) const {
+        return (translation == other.translation) && 
+            ((rotation == other.rotation) || (rotation == -other.rotation));
+    }
+
+    bool operator!=(const PhysicsFrame& other) const {
+        return ! ((*this) == other);
+    }
+
 };
 
 typedef PhysicsFrame PFrame;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,38 +20,31 @@
 
 #include "Common.h"
 #include "Channel.h"
-#include <ace/Singleton.h>
 
-#include <map>
-#include <string>
+#define MAX_CHANNEL_NAME_STR 0x31
+#define MAX_CHANNEL_PASS_STR 31
 
-#include "World.h"
-
-class ChannelMgr
+class TC_GAME_API ChannelMgr
 {
     typedef std::map<std::wstring, Channel*> ChannelMap;
 
-    public:
-        ChannelMgr() : team(0)
-        { }
-
+    protected:
+        ChannelMgr() : _team(0) { }
         ~ChannelMgr();
 
-        static ChannelMgr * forTeam(uint32 team);
-        void setTeam(uint32 newTeam) { team = newTeam; }
+    public:
+        static ChannelMgr* ForTeam(uint32 team);
+        void SetTeam(uint32 newTeam) { _team = newTeam; }
 
-        Channel* GetJoinChannel(std::string const& name, uint32 channel_id);
-        Channel* GetChannel(std::string const& name, Player* p, bool pkt = true);
+        Channel* GetJoinChannel(std::string const& name, uint32 channelId);
+        Channel* GetChannel(std::string const& name, Player* player, bool notify = true);
         void LeftChannel(std::string const& name);
 
     private:
-        ChannelMap channels;
-        uint32 team;
+        ChannelMap _channels;
+        uint32 _team;
 
-        void MakeNotOnPacket(WorldPacket* data, std::string const& name);
+        static void SendNotOnChannelNotify(Player const* player, std::string const& name);
 };
-
-class AllianceChannelMgr : public ChannelMgr {};
-class HordeChannelMgr    : public ChannelMgr {};
 
 #endif

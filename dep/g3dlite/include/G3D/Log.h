@@ -14,7 +14,7 @@
 #include <string>
 #include "G3D/platform.h"
 
-#ifndef G3D_WIN32
+#ifndef G3D_WINDOWS
     #include <stdarg.h>
 #endif
 
@@ -57,9 +57,9 @@ private:
 
     static Log*             commonLog;
 
+public:
     int                     stripFromStackBottom;
 
-public:
 
     /**
      @param stripFromStackBottom Number of call stacks to strip from the

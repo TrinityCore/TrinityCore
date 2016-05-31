@@ -172,7 +172,7 @@ bool Triangle::intersect(const Ray& ray, float& distance, float baryCoord[3]) co
         // This is a new hit, closer than the previous one
         distance = t;
 
-        baryCoord[0] = 1.0 - u - v;
+        baryCoord[0] = 1.0f - u - v;
         baryCoord[1] = u;
         baryCoord[2] = v;
 

@@ -1,4 +1,5 @@
 #include "G3D/ThreadSet.h"
+#include "G3D/GThread.h"
 
 namespace G3D {
 
@@ -25,7 +26,7 @@ int ThreadSet::numStarted() const {
 }
     
     
-void ThreadSet::start(GThread::SpawnBehavior lastBehavior) const {
+void ThreadSet::start(SpawnBehavior lastBehavior) const {
     ThreadSet* me = const_cast<ThreadSet*>(this);
 
     Array<GThreadRef> unstarted;
@@ -38,20 +39,22 @@ void ThreadSet::start(GThread::SpawnBehavior lastBehavior) const {
     }
 
     int last = unstarted.size();
-    if (lastBehavior == GThread::USE_CURRENT_THREAD) {
+    if (lastBehavior == USE_CURRENT_THREAD) {
         // Save the last unstarted for the current thread
         --last;
     }
 
+    // Start all threads
     for (int i = 0; i < last; ++i) {
-        unstarted[i]->start(GThread::USE_NEW_THREAD);
+        unstarted[i]->start(USE_NEW_THREAD);
     }
 
     me->m_lock.unlock();
 
     // Start the last one on my thread
-    if ((unstarted.size() > 0) && (lastBehavior == GThread::USE_CURRENT_THREAD)) {
-        unstarted.last()->start(GThread::USE_CURRENT_THREAD);
+    if ((unstarted.size() > 0) && (lastBehavior == USE_CURRENT_THREAD)) {
+        unstarted.last()->start(USE_CURRENT_THREAD);
+        debugAssert(unstarted.last()->completed());
     }
 }
     
@@ -70,6 +73,7 @@ void ThreadSet::terminate() const {
 
 void ThreadSet::waitForCompletion() const {
     ThreadSet* me = const_cast<ThreadSet*>(this);
+
     me->m_lock.lock();
     for (int i = 0; i < m_thread.size(); ++i) {
         if (m_thread[i]->started()) {

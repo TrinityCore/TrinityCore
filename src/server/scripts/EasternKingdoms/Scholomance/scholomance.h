@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,8 @@
 #ifndef DEF_SCHOLOMANCE_H
 #define DEF_SCHOLOMANCE_H
 
+#define DataHeader "SC"
+
 uint32 const EncounterCount             = 8;
 
 enum DataTypes
@@ -34,7 +36,8 @@ enum DataTypes
 
 enum CreatureIds
 {
-    NPC_DARKMASTER_GANDLING             = 1853
+    NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_BONE_MINION                     = 16119
 };
 
 enum GameobjectIds

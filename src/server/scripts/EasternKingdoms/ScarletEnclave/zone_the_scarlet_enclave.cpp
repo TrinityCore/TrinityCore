@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,27 +39,37 @@ class npc_valkyr_battle_maiden : public CreatureScript
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_valkyr_battle_maidenAI (creature);
+        return new npc_valkyr_battle_maidenAI(creature);
     }
 
     struct npc_valkyr_battle_maidenAI : public PassiveAI
     {
-        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature) {}
+        npc_valkyr_battle_maidenAI(Creature* creature) : PassiveAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FlyBackTimer = 500;
+            phase = 0;
+            x = 0.f;
+            y = 0.f;
+            z = 0.f;
+        }
 
         uint32 FlyBackTimer;
         float x, y, z;
         uint32 phase;
 
-        void Reset()
+        void Reset() override
         {
             me->setActive(true);
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
-            FlyBackTimer = 500;
-            phase = 0;
 
             me->GetPosition(x, y, z);
             z += 4.0f;
@@ -69,15 +79,14 @@ public:
             me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (FlyBackTimer <= diff)
             {
                 Player* player = NULL;
-                if (me->isSummon())
+                if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        if (summoner->GetTypeId() == TYPEID_PLAYER)
-                            player = CAST_PLR(summoner);
+                        player = summoner->ToPlayer();
 
                 if (!player)
                     phase = 3;
@@ -100,11 +109,11 @@ public:
                         FlyBackTimer = 4500;
                         break;
                     case 2:
-                        if (!player->isRessurectRequested())
+                        if (!player->IsResurrectRequested())
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
                             DoCast(player, SPELL_REVIVE, true);
-                            Talk(WHISPER_REVIVE, player->GetGUID());
+                            Talk(WHISPER_REVIVE, player);
                         }
                         FlyBackTimer = 5000;
                         break;

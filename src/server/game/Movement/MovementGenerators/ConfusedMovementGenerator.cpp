@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,10 +17,8 @@
  */
 
 #include "Creature.h"
-#include "MapManager.h"
 #include "ConfusedMovementGenerator.h"
 #include "PathGenerator.h"
-#include "VMapFactory.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Player.h"
@@ -37,7 +35,7 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* unit)
     unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit->GetPosition(i_x, i_y, i_z);
 
-    if (!unit->isAlive() || unit->IsStopped())
+    if (!unit->IsAlive() || unit->IsStopped())
         return;
 
     unit->StopMoving();
@@ -49,7 +47,7 @@ void ConfusedMovementGenerator<T>::DoReset(T* unit)
 {
     i_nextMoveTime.Reset(0);
 
-    if (!unit->isAlive() || unit->IsStopped())
+    if (!unit->IsAlive() || unit->IsStopped())
         return;
 
     unit->StopMoving();
@@ -117,8 +115,8 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit)
 {
     unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit->ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
-    if (unit->getVictim())
-        unit->SetTarget(unit->getVictim()->GetGUID());
+    if (unit->GetVictim())
+        unit->SetTarget(unit->EnsureVictim()->GetGUID());
 }
 
 template void ConfusedMovementGenerator<Player>::DoInitialize(Player*);

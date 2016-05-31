@@ -26,32 +26,32 @@ class AABox;
  */
 class Capsule {
 private:
-	Vector3			p1;
-	Vector3			p2;
+    Vector3            p1;
+    Vector3            p2;
 
-	float			_radius;
+    float            _radius;
 public:
 
 
     /** Uninitialized */
     Capsule();
     Capsule(class BinaryInput& b);
-	Capsule(const Vector3& _p1, const Vector3& _p2, float _r);
-	void serialize(class BinaryOutput& b) const;
-	void deserialize(class BinaryInput& b);
-	
-	/** The line down the center of the capsule */
-	Line axis() const;
+    Capsule(const Vector3& _p1, const Vector3& _p2, float _r);
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
+    
+    /** The line down the center of the capsule */
+    Line axis() const;
 
-	inline float radius() const {
-		return _radius;
-	}
+    inline float radius() const {
+        return _radius;
+    }
 
-	/** Argument may be 0 or 1 */
-	inline Vector3 point(int i) const {
-		debugAssert(i == 0 || i == 1);
-		return (i == 0) ? p1 : p2;
-	}
+    /** Argument may be 0 or 1 */
+    inline Vector3 point(int i) const {
+        debugAssert(i == 0 || i == 1);
+        return (i == 0) ? p1 : p2;
+    }
 
     /** Distance between the sphere centers.  The total extent of the cylinder is 
         2r + h. */

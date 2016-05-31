@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 /*
-    TODO:
+    @todo
         Fix void zone damage
         If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
@@ -36,17 +36,14 @@
 enum Spells
 {
     SPELL_TYMPANIC_TANTRUM                      = 62776,
-    SPELL_SEARING_LIGHT_10                      = 63018,
-    SPELL_SEARING_LIGHT_25                      = 65121,
+    SPELL_SEARING_LIGHT                         = 63018,
 
     SPELL_SUMMON_LIFE_SPARK                     = 64210,
     SPELL_SUMMON_VOID_ZONE                      = 64203,
 
-    SPELL_GRAVITY_BOMB_10                       = 63024,
-    SPELL_GRAVITY_BOMB_25                       = 64234,
+    SPELL_GRAVITY_BOMB                          = 63024,
 
-    SPELL_HEARTBREAK_10                         = 65737,
-    SPELL_HEARTBREAK_25                         = 64193,
+    SPELL_HEARTBREAK                            = 65737,
 
     // Cast by 33337 at Heartbreak:
     SPELL_RECHARGE_PUMMELER                     = 62831,    // Summons 33344
@@ -66,12 +63,10 @@ enum Spells
     SPELL_SUBMERGE                              = 37751,
 
     //------------------VOID ZONE--------------------
-    SPELL_VOID_ZONE_10                          = 64203,
-    SPELL_VOID_ZONE_25                          = 64235,
+    SPELL_VOID_ZONE                             = 64203,
 
     // Life Spark
-    SPELL_STATIC_CHARGED_10                     = 64227,
-    SPELL_STATIC_CHARGED_25                     = 64236,
+    SPELL_STATIC_CHARGED                        = 64227,
     SPELL_SHOCK                                 = 64230,
 
     //----------------XT-002 HEART-------------------
@@ -192,7 +187,7 @@ class boss_xt002 : public CreatureScript
     public:
         boss_xt002() : CreatureScript("boss_xt002") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetUlduarAI<boss_xt002_AI>(creature);
         }
@@ -201,9 +196,21 @@ class boss_xt002 : public CreatureScript
         {
             boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
             {
+                Initialize();
+                _transferHealth = 0;
             }
 
-            void Reset()
+            void Initialize()
+            {
+                _healthRecovered = false;
+                _gravityBombCasualty = false;
+                _hardMode = false;
+
+                _phase = 1;
+                _heartExposed = 0;
+            }
+
+            void Reset() override
             {
                 _Reset();
 
@@ -211,20 +218,12 @@ class boss_xt002 : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
                 DoCast(me, SPELL_STAND);
 
-                _healthRecovered = false;
-                _gravityBombCasualty = false;
-                _hardMode = false;
+                Initialize();
 
-                _phase = 1;
-                _heartExposed = 0;
-
-                if (!instance)
-                    return;
-
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 _EnterCombat();
@@ -232,16 +231,13 @@ class boss_xt002 : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
-                //Tantrum is casted a bit slower the first time.
+                //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
 
-                if (!instance)
-                    return;
-
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -251,27 +247,27 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
                     ExposeHeart();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -285,13 +281,13 @@ class boss_xt002 : public CreatureScript
                     {
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
+                                DoCast(target, SPELL_SEARING_LIGHT);
 
                             events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
+                                DoCast(target, SPELL_GRAVITY_BOMB);
 
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
@@ -310,7 +306,7 @@ class boss_xt002 : public CreatureScript
                             break;
                         case EVENT_ENTER_HARD_MODE:
                             me->SetFullHealth();
-                            DoCast(me, RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25), true);
+                            DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                             _hardMode = true;
                             SetPhaseOne();
@@ -322,7 +318,7 @@ class boss_xt002 : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
             {
                 if (apply && who->GetEntry() == NPC_XS013_SCRAPBOT)
                 {
@@ -335,7 +331,7 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -350,7 +346,7 @@ class boss_xt002 : public CreatureScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
@@ -401,8 +397,9 @@ class boss_xt002 : public CreatureScript
                 Talk(SAY_HEART_CLOSED);
                 Talk(EMOTE_HEART_CLOSED);
 
-                DoCast(me, SPELL_STAND);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
+                DoCast(me, SPELL_STAND);
 
                 _phase = 1;
 
@@ -446,24 +443,24 @@ class boss_xt002 : public CreatureScript
  *
  *///----------------------------------------------------
 
-class mob_xt002_heart : public CreatureScript
+class npc_xt002_heart : public CreatureScript
 {
     public:
-        mob_xt002_heart() : CreatureScript("mob_xt002_heart") { }
+        npc_xt002_heart() : CreatureScript("npc_xt002_heart") { }
 
-        struct mob_xt002_heartAI : public ScriptedAI
+        struct npc_xt002_heartAI : public ScriptedAI
         {
-            mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
+            npc_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 const /*diff*/) { }
+            void UpdateAI(uint32 /*diff*/) override { }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? me->GetCreature(*me, _instance->GetData64(BOSS_XT002)) : NULL;
+                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)) : NULL;
                 if (!xt002 || !xt002->AI())
                     return;
 
@@ -475,9 +472,9 @@ class mob_xt002_heart : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_xt002_heartAI(creature);
+            return GetInstanceAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -486,38 +483,44 @@ class mob_xt002_heart : public CreatureScript
  *        XS-013 SCRAPBOT
  *
  *///----------------------------------------------------
-class mob_scrapbot : public CreatureScript
+class npc_scrapbot : public CreatureScript
 {
     public:
-        mob_scrapbot() : CreatureScript("mob_scrapbot") { }
+        npc_scrapbot() : CreatureScript("npc_scrapbot") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_scrapbotAI(creature);
+            return GetInstanceAI<npc_scrapbotAI>(creature);
         }
 
-        struct mob_scrapbotAI : public ScriptedAI
+        struct npc_scrapbotAI : public ScriptedAI
         {
-            mob_scrapbotAI(Creature* creature) : ScriptedAI(creature)
+            npc_scrapbotAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = me->GetInstanceScript();
             }
 
-            void Reset()
+            void Initialize()
+            {
+                _rangeCheckTimer = 500;
+            }
+
+            void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
 
-                _rangeCheckTimer = 500;
+                Initialize();
 
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -543,47 +546,52 @@ class mob_scrapbot : public CreatureScript
  *        XM-024 PUMMELLER
  *
  *///----------------------------------------------------
-class mob_pummeller : public CreatureScript
+class npc_pummeller : public CreatureScript
 {
     public:
-        mob_pummeller() : CreatureScript("mob_pummeller") { }
+        npc_pummeller() : CreatureScript("npc_pummeller") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_pummellerAI(creature);
+            return GetInstanceAI<npc_pummellerAI>(creature);
         }
 
-        struct mob_pummellerAI : public ScriptedAI
+        struct npc_pummellerAI : public ScriptedAI
         {
-            mob_pummellerAI(Creature* creature) : ScriptedAI(creature)
+            npc_pummellerAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset()
+            void Initialize()
             {
                 _arcingSmashTimer = TIMER_ARCING_SMASH;
                 _trampleTimer = TIMER_TRAMPLE;
                 _uppercutTimer = TIMER_UPPERCUT;
+            }
 
-                if (Creature* xt002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+            void Reset() override
+            {
+                Initialize();
+
+                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                 {
-                    Position pos;
-                    xt002->GetPosition(&pos);
+                    Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                if (me->IsWithinMeleeRange(me->getVictim()))
+                if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     if (_arcingSmashTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_ARCING_SMASH);
+                        DoCastVictim(SPELL_ARCING_SMASH);
                         _arcingSmashTimer = TIMER_ARCING_SMASH;
                     }
                     else
@@ -591,7 +599,7 @@ class mob_pummeller : public CreatureScript
 
                     if (_trampleTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_TRAMPLE);
+                        DoCastVictim(SPELL_TRAMPLE);
                         _trampleTimer = TIMER_TRAMPLE;
                     }
                     else
@@ -599,7 +607,7 @@ class mob_pummeller : public CreatureScript
 
                     if (_uppercutTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_UPPERCUT);
+                        DoCastVictim(SPELL_UPPERCUT);
                         _uppercutTimer = TIMER_UPPERCUT;
                     }
                     else
@@ -629,7 +637,7 @@ class BoomEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             // This hack is here because we suspect our implementation of spell effect execution on targets
             // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,
@@ -645,26 +653,32 @@ class BoomEvent : public BasicEvent
         Creature* _me;
 };
 
-class mob_boombot : public CreatureScript
+class npc_boombot : public CreatureScript
 {
     public:
-        mob_boombot() : CreatureScript("mob_boombot") { }
+        npc_boombot() : CreatureScript("npc_boombot") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_boombotAI(creature);
+            return GetInstanceAI<npc_boombotAI>(creature);
         }
 
-        struct mob_boombotAI : public ScriptedAI
+        struct npc_boombotAI : public ScriptedAI
         {
-            mob_boombotAI(Creature* creature) : ScriptedAI(creature)
+            npc_boombotAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 _instance = creature->GetInstanceScript();
             }
 
-            void Reset()
+            void Initialize()
             {
                 _boomed = false;
+            }
+
+            void Reset() override
+            {
+                Initialize();
 
                 DoCast(SPELL_AURA_BOOMBOT); // For achievement
 
@@ -674,20 +688,20 @@ class mob_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
-                // Todo: proper waypoints?
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
+                /// @todo proper waypoints?
+                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage) override
             {
                 if (damage >= (me->GetHealth() - me->GetMaxHealth() * 0.5f) && !_boomed)
                 {
                     _boomed = true; // Prevent recursive calls
 
-                    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
-                    data << uint64(me->GetGUID());
-                    data << uint64(me->GetGUID());
+                    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
+                    data << me->GetGUID();
+                    data << me->GetGUID();
                     data << uint32(SPELL_BOOM);
                     me->SendMessageToSet(&data, false);
 
@@ -704,7 +718,7 @@ class mob_boombot : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -724,38 +738,44 @@ class mob_boombot : public CreatureScript
  *        LIFE SPARK
  *
  *///----------------------------------------------------
-class mob_life_spark : public CreatureScript
+class npc_life_spark : public CreatureScript
 {
     public:
-        mob_life_spark() : CreatureScript("mob_life_spark") { }
+        npc_life_spark() : CreatureScript("npc_life_spark") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_life_sparkAI(creature);
+            return new npc_life_sparkAI(creature);
         }
 
-        struct mob_life_sparkAI : public ScriptedAI
+        struct npc_life_sparkAI : public ScriptedAI
         {
-            mob_life_sparkAI(Creature* creature) : ScriptedAI(creature)
+            npc_life_sparkAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
             }
 
-            void Reset()
+            void Initialize()
             {
-                DoCast(me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
                 _shockTimer = 0; // first one is immediate.
             }
 
-            void UpdateAI(const uint32 diff)
+            void Reset() override
+            {
+                DoCast(me, SPELL_STATIC_CHARGED);
+                Initialize();
+            }
+
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
 
                 if (_shockTimer <= diff)
                 {
-                    if (me->IsWithinMeleeRange(me->getVictim()))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
-                        DoCast(me->getVictim(), SPELL_SHOCK);
+                        DoCastVictim(SPELL_SHOCK);
                         _shockTimer = TIMER_SHOCK;
                     }
                 }
@@ -776,7 +796,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_LIFE_SPARK))
                     return false;
@@ -791,13 +811,13 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
                             player->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_xt002_searing_light_spawn_life_spark_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_xt002_searing_light_spawn_life_spark_AuraScript();
         }
@@ -812,7 +832,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_xt002_gravity_bomb_aura_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VOID_ZONE))
                     return false;
@@ -842,14 +862,14 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                         xt002->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_xt002_gravity_bomb_aura_AuraScript::OnPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_xt002_gravity_bomb_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_xt002_gravity_bomb_aura_AuraScript();
         }
@@ -875,13 +895,13 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
                         caster->GetAI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_xt002_gravity_bomb_damage_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_gravity_bomb_damage_SpellScript();
         }
@@ -896,7 +916,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_xt002_heart_overload_periodic_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ENERGY_ORB))
                     return false;
@@ -919,7 +939,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 {
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
+                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
                             caster->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
 
@@ -932,7 +952,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                             }
                         }
                     }
@@ -942,13 +962,13 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_xt002_heart_overload_periodic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_heart_overload_periodic_SpellScript();
         }
@@ -973,7 +993,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
                 SetHitDamage(GetHitUnit()->CountPctFromMaxHealth(GetHitDamage()));
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_xt002_tympanic_tantrum_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -981,7 +1001,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_tympanic_tantrum_SpellScript();
         }
@@ -1006,46 +1026,15 @@ class spell_xt002_submerged : public SpellScriptLoader
                 target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_xt002_submerged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_xt002_submerged_SpellScript();
-        }
-};
-
-class spell_xt002_stand : public SpellScriptLoader
-{
-    public:
-        spell_xt002_stand() : SpellScriptLoader("spell_xt002_stand") { }
-
-        class spell_xt002_stand_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_xt002_stand_SpellScript);
-
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* target = GetHitCreature();
-                if (!target)
-                    return;
-
-                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_xt002_stand_SpellScript();
         }
 };
 
@@ -1054,7 +1043,7 @@ class achievement_nerf_engineering : public AchievementCriteriaScript
     public:
         achievement_nerf_engineering() : AchievementCriteriaScript("achievement_nerf_engineering") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;
@@ -1068,12 +1057,12 @@ class achievement_heartbreaker : public AchievementCriteriaScript
     public:
         achievement_heartbreaker() : AchievementCriteriaScript("achievement_heartbreaker") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;
 
-            return target->GetAI()->GetData(DATA_HARD_MODE);
+            return target->GetAI()->GetData(DATA_HARD_MODE) != 0;
         }
 };
 
@@ -1082,7 +1071,7 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
     public:
         achievement_nerf_gravity_bombs() : AchievementCriteriaScript("achievement_nerf_gravity_bombs") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target || !target->GetAI())
                 return false;
@@ -1093,12 +1082,12 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
 
 void AddSC_boss_xt002()
 {
-    new mob_xt002_heart();
-    new mob_scrapbot();
-    new mob_pummeller();
-    new mob_boombot();
+    new npc_xt002_heart();
+    new npc_scrapbot();
+    new npc_pummeller();
+    new npc_boombot();
 
-    new mob_life_spark();
+    new npc_life_spark();
     new boss_xt002();
 
     new spell_xt002_searing_light_spawn_life_spark();
@@ -1107,7 +1096,6 @@ void AddSC_boss_xt002()
     new spell_xt002_heart_overload_periodic();
     new spell_xt002_tympanic_tantrum();
     new spell_xt002_submerged();
-    new spell_xt002_stand();
 
     new achievement_nerf_engineering();
     new achievement_heartbreaker();

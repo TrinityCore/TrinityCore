@@ -13,13 +13,23 @@ disable certain log statements while allowing others to print unhindered.
 This capability assumes that the loggers are categorized according to some
 developer-chosen criteria.
 
-Loggers follow hierarchy, if a logger is not defined a root logger will be used
+Loggers are named entitites. Logger names are case-sensitive and they follow
+the hierarchical naming rule:
+
+    A Logger is said to be an ancestor of another logger if its name followed
+    by a dot is a prefix of the descendant logger name. A logger is salid to be
+    a parent of a child logger if there are no ancestors between itself and the
+    descendant logger.
+
+For example, the logger named "entities.player" is a parent of the logger named
+"entities.player.character". Similarly, "entities" is a parent of "entities.player"
+and an ancestor of "entities.player.character".
 
 Loggers may be assigned levels. The set of possible levels are TRACE, DEBUG,
 INFO, WARN, ERROR AND FATAL, or be disabled using level DISABLED.
 
 By definition the printing method determines the level of a logging request.
-For example, sLog->outInfo(...) is a logging request of level INFO.
+For example, TC_LOG_INFO(...) is a logging request of level INFO.
 
 A logging request is said to be enabled if its level is higher than or equal to
 the level of its logger. Otherwise, the request is said to be disabled. A logger
@@ -28,9 +38,9 @@ without an assigned level will inherit one from the hierarchy
 Example
 Logger Name        Assigned Level      Inherited Level
 root               Proot               Proot
-Network            None                Proot
+server             None                Proot
 
-As Network is not defined, it uses the root logger and it's log level.
+As "server" is not defined, it uses the root logger and it's log level.
 TRACE < DEBUG < INFO < WARN < ERROR < FATAL.
 
 
@@ -50,12 +60,15 @@ logger
 
 CONFIGURATION
 
-System will read "Loggers" and "Appenders" to know the list of loggers and
-appenders to read from config file. Both are a list of elements separated
-by space.
+System will read all config elements with prefix "Logger." and "Appender."
+and configure the logging system. If "root" can not be properly configured the core
+will remove all loggers and appenders and create a default set:
+- Logger "root" with log level Error
+- Logger "server" with log level Info
+- Appender "Console" to log to console
 
-Once we have the list of appenders to read, system will try to configure a new
-appender from its config line. Appender config line follows the format:
+
+Appender config line follows the format:
 
     Type,LogLevel,Flags,optional1,optional2
 
@@ -131,53 +144,9 @@ legal but redundant.
 Once we have the list of loggers to read, system will try to configure a new
 logger from its config line. Logger config line follows the format:
 
-    Type,LogLevel,AppenderList
+    LogLevel,AppenderList
 
 Its a list of elements separated by comma where each element has its own meaning
-    Type: Type of the logger (
-        0 - Default. Each type that has no config will
-            rely on this one. Core will create this logger
-            (disabled) if it's not configured
-        1 - Units that doesn't fit in other categories
-        2 - Pets
-        3 - Vehicles
-        4 - C++ AI, instance scripts, etc.
-        5 - DB AI, such as SAI, EAI, CreatureAI
-        6 - DB map scripts
-        7 - Network input/output,
-            such as packet handlers and netcode logs
-        8 - Spellsystem and aurasystem
-        9 - Achievement system
-       10 - Condition system
-       11 - Pool system
-       12 - Auction house
-       13 - Arena's and battlegrounds
-       14 - Outdoor PVP
-       15 - Chat system
-       16 - LFG system
-       17 - Maps, instances (not scripts),
-            grids, cells, visibility, etc.
-       18 - Player that doesn't fit in other categories.
-       19 - Player loading from DB
-            (Player::_LoadXXX functions)
-       20 - Items
-       21 - Player skills (do not confuse with spells)
-       22 - Player chat logs
-       23 - loot
-       24 - guilds
-       25 - transports
-       26 - SQL. DB errors
-       27 - GM Commands
-       28 - Remote Access Commands
-       29 - Warden
-       30 - Authserver
-       31 - Worldserver
-       32 - Game Events
-       33 - Calendar
-       34 - Character (Exclusive to login, logout, create, rename and delete)
-       35 - Arenas
-       36 - SQL Driver
-       37 - SQL Dev
     LogLevel
         0 - (Disabled)
         1 - (Trace)
@@ -197,14 +166,12 @@ Log errors to console and a file called server.log that only contain
 logs for this server run. File should prefix timestamp, type and log level to
 the messages. Console should prefix type and log level.
 
-    Appenders=Console Server
-    Loggers=Root
     Appender.Console=1,5,6
     Appender.Server=2,5,7,Server.log,w
-    Logger.Root=0,5,Console Server
+    Logger.root=5,Console Server
 
 Lets trace how system will log two different messages:
-    1) sLog->outError(LOG_FILTER_GUILD, "Guild 1 created");
+    1) TC_LOG_ERROR(LOG_FILTER_GUILD, "Guild 1 created");
     System will try to find logger of type GUILD, as no logger is configured
     for GUILD it will use Root logger. As message Log Level is equal or higher
     than the Log level of logger the message is sent to the Appenders
@@ -212,7 +179,7 @@ Lets trace how system will log two different messages:
     Console will write: "ERROR [GUILD     ] Guild 1 created"
     Server will write to file "2012-08-15 ERROR [GUILD     ] Guild 1 created"
 
-    2) sLog->outInfo(LOG_FILTER_CHARACTER, "Player Name Logged in");
+    2) TC_LOG_INFO(LOG_FILTER_CHARACTER, "Player Name Logged in");
     System will try to find logger of type CHARACTER, as no logger is
     configured for CHARACTER it will use Root logger. As message Log Level is
     not equal or higher than the Log level of logger the message its discarted.
@@ -222,16 +189,14 @@ EXAMPLE 2
 Same example that above, but now i want to see all messages of level INFO on
 file and server file should add timestamp on creation.
 
-    Appenders=Console Server
-    Loggers=Root
     Appender.Console=1,5,6
     Appender.Server=2,4,15,Server.log
-    Logger.Root=0,4,Console Server
+    Logger.root=4,Console Server
 
 Lets trace how system will log two different messages:
-    1) sLog->outError(LOG_FILTER_GUILD, "Guild 1 created");
+    1) TC_LOG_ERROR(LOG_FILTER_GUILD, "Guild 1 created");
     Performs exactly as example 1.
-    2) sLog->outInfo(LOG_FILTER_CHARACTER, "Player Name Logged in");
+    2) TC_LOG_INFO(LOG_FILTER_CHARACTER, "Player Name Logged in");
     System will try to find logger of type CHARACTER, as no logger is
     configured for CHARACTER it will use Root logger. As message Log Level is
     equal or higher than the Log level of logger the message is sent to the
@@ -248,13 +213,11 @@ and also some CHARACTER events to some point. Also im checking some Waypoints
 so i want SQLDEV to be logged to file without prefixes. All other messages
 should only be logged to console, GUILD to TRACE and CHARACTER to INFO
 
-    Appenders=Console SQLDev
-    Loggers=Guild Characters SQLDev
     Appender.Console=1,1
     Appender.SQLDev=2,2,0,SQLDev.log
-    Logger.Guild=24,1,Console
-    Logger.Characters=34,3,Console
-    Logger.SQLDev=37,3,SQLDev
+    Logger.guild=1,Console
+    Logger.entities.player.character=3,Console
+    Logger.sql.dev=3,SQLDev
 
 With this config, any message logger with a Log type different to GUILD,
 CHARACTER or SQLDEV will be ignored, as we didn't define a logger Root and
@@ -262,13 +225,3 @@ system created a default Root disabled. Appender Console, log level should be
 defined to allow all possible messages of its loggers, in this case GUILD uses
 TRACE (1), so Appender should allow it. Logger Characters will limit it's own
 messages to INFO (3)
-
---- SOME EXTRA COMMENTS ---
-why this system is better than previous one?
-- Can be extended: Anyone can easily create new appenders to log to new
- systems as syslog or IRC, having all code related to that system in particular
- files
-- It's asyncronous: Uses threads to write messages, so core performance wont be
- affected by IO operations
-- Lets us select "What to log" and "Where to log" on the fly. You can log to a
- dozen of files without having to change a single line of code

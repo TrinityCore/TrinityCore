@@ -1,0 +1,1 @@
+UPDATE `command` SET `help` = 'Syntax: .additemset #itemsetid\n\nAdd items from itemset of id #itemsetid to your or selected character inventory. Will add by one example each item from itemset.\n\nIf the itemset has multiple levels it adds one of each item level.' WHERE `name` = 'additemset';

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,9 +23,7 @@
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader() : fieldsOffset(NULL), data(NULL), stringTable(NULL)
-{
-}
+DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
 
 bool DBCFileLoader::Load(const char* filename, const char* fmt)
 {
@@ -92,8 +90,10 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
     for (uint32 i = 1; i < fieldCount; ++i)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
-        if (fmt[i - 1] == 'b' || fmt[i - 1] == 'X')         // byte fields
+        if (fmt[i - 1] == FT_BYTE || fmt[i - 1] == FT_NA_BYTE)  // byte fields
             fieldsOffset[i] += sizeof(uint8);
+        else if (fmt[i - 1] == FT_LONG)
+            fieldsOffset[i] += sizeof(uint64);
         else                                                // 4 byte fields (int32/float/strings)
             fieldsOffset[i] += sizeof(uint32);
     }
@@ -114,11 +114,9 @@ bool DBCFileLoader::Load(const char* filename, const char* fmt)
 
 DBCFileLoader::~DBCFileLoader()
 {
-    if (data)
-        delete [] data;
+    delete[] data;
 
-    if (fieldsOffset)
-        delete [] fieldsOffset;
+    delete[] fieldsOffset;
 }
 
 DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
@@ -154,11 +152,11 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
             case FT_BYTE:
                 recordsize += sizeof(uint8);
                 break;
+            case FT_LONG:
+                recordsize += sizeof(uint64);
+                break;
             case FT_NA:
             case FT_NA_BYTE:
-                break;
-            case FT_LOGIC:
-                ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                 break;
             default:
                 ASSERT(false && "Unknown field format character in DBCfmt.h");
@@ -247,12 +245,13 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     *((uint8*)(&dataTable[offset])) = getRecord(y).getUInt8(x);
                     offset += sizeof(uint8);
                     break;
+                case FT_LONG:
+                    *((uint64*)(&dataTable[offset])) = getRecord(y).getUInt64(x);
+                    offset += sizeof(uint64);
+                    break;
                 case FT_STRING:
                     *((char**)(&dataTable[offset])) = NULL;   // will replace non-empty or "" strings in AutoProduceStrings
                     offset += sizeof(char*);
-                    break;
-                case FT_LOGIC:
-                    ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                     break;
                 case FT_NA:
                 case FT_NA_BYTE:
@@ -296,6 +295,9 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                 case FT_BYTE:
                     offset += sizeof(uint8);
                     break;
+                case FT_LONG:
+                    offset += sizeof(uint64);
+                    break;
                 case FT_STRING:
                 {
                     // fill only not filled entries
@@ -308,9 +310,6 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                     offset += sizeof(char*);
                     break;
                  }
-                 case FT_LOGIC:
-                     ASSERT(false && "Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
-                     break;
                  case FT_NA:
                  case FT_NA_BYTE:
                  case FT_SORT:

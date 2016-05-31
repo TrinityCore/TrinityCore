@@ -150,9 +150,13 @@ __m128i const &c, __m128i const &d, __m128i const &mask) {
     return z2;
 }
 
+namespace boost {
+    template <typename T> class thread_specific_ptr;
+}
+
 // Class for SFMT generator
 class SFMTRand {                              // Encapsulate random number generator
-    friend class ACE_TSS<SFMTRand>;
+    friend class boost::thread_specific_ptr<SFMTRand>;
 
 public:
     SFMTRand()
@@ -169,7 +173,8 @@ public:
         uint32_t statesize = SFMT_N*4;      // Size of state vector
 
         // Fill state vector with random numbers from seed
-        ((uint32_t*)state)[0] = y;
+        uint32_t* s = (uint32_t*)&state;
+        s[0] = y;
         const uint32_t factor = 1812433253U;// Multiplication factor
 
         for (i = 1; i < statesize; i++) {
@@ -243,6 +248,47 @@ public:
         y = ((uint32_t*)state)[ix++];
         return y;
     }
+
+    void* operator new(size_t size, std::nothrow_t const&)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+        void operator delete(void* ptr, std::nothrow_t const&)
+    {
+        _mm_free(ptr);
+    }
+
+    void* operator new(size_t size)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+        void operator delete(void* ptr)
+    {
+        _mm_free(ptr);
+    }
+
+    void* operator new[](size_t size, std::nothrow_t const&)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+        void operator delete[](void* ptr, std::nothrow_t const&)
+    {
+        _mm_free(ptr);
+    }
+
+        void* operator new[](size_t size)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+        void operator delete[](void* ptr)
+    {
+        _mm_free(ptr);
+    }
+
 private:
     void Init2()                                   // Various initializations and period certification
     {
@@ -305,46 +351,6 @@ private:
             r2 = r;
         }
         ix = 0;
-    }
-
-    void* operator new(size_t size, std::nothrow_t const&)
-    {
-        return _mm_malloc(size, 16);
-    }
-
-    void operator delete(void* ptr, std::nothrow_t const&)
-    {
-        _mm_free(ptr);
-    }
-
-    void* operator new(size_t size)
-    {
-        return _mm_malloc(size, 16);
-    }
-
-    void operator delete(void* ptr)
-    {
-        _mm_free(ptr);
-    }
-
-    void* operator new[](size_t size, std::nothrow_t const&)
-    {
-        return _mm_malloc(size, 16);
-    }
-
-    void operator delete[](void* ptr, std::nothrow_t const&)
-    {
-        _mm_free(ptr);
-    }
-
-    void* operator new[](size_t size)
-    {
-        return _mm_malloc(size, 16);
-    }
-
-    void operator delete[](void* ptr)
-    {
-        _mm_free(ptr);
     }
 
     __m128i  mask;                                // AND mask

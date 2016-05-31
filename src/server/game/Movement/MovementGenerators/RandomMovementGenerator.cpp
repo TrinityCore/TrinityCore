@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,7 @@
  */
 
 #include "Creature.h"
-#include "MapManager.h"
 #include "RandomMovementGenerator.h"
-#include "ObjectAccessor.h"
 #include "Map.h"
 #include "Util.h"
 #include "CreatureGroups.h"
@@ -56,12 +54,12 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     Trinity::NormalizeMapCoord(destX);
     Trinity::NormalizeMapCoord(destY);
 
-    travelDistZ = distanceX*distanceX + distanceY*distanceY;
+    travelDistZ = range;                                    // sin^2+cos^2=1, so travelDistZ=range^2; no need for sqrt below
 
     if (is_air_ok)                                          // 3D system above ground and above water (flying mode)
     {
         // Limit height change
-        const float distanceZ = float(rand_norm()) * sqrtf(travelDistZ)/2.0f;
+        const float distanceZ = float(rand_norm()) * travelDistZ/2.0f;
         destZ = respZ + distanceZ;
         float levelZ = map->GetWaterOrGroundLevel(destX, destY, destZ-2.0f);
 
@@ -73,24 +71,24 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     else                                                    // 2D only
     {
         // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
-        travelDistZ = travelDistZ >= 100.0f ? 10.0f : sqrtf(travelDistZ);
+        travelDistZ = travelDistZ >= 10.0f ? 10.0f : travelDistZ;
 
         // The fastest way to get an accurate result 90% of the time.
         // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
         destZ = map->GetHeight(creature->GetPhaseMask(), destX, destY, respZ+travelDistZ-2.0f, false);
 
-        if (fabs(destZ - respZ) > travelDistZ)              // Map check
+        if (std::fabs(destZ - respZ) > travelDistZ)              // Map check
         {
             // Vmap Horizontal or above
             destZ = map->GetHeight(creature->GetPhaseMask(), destX, destY, respZ - 2.0f, true);
 
-            if (fabs(destZ - respZ) > travelDistZ)
+            if (std::fabs(destZ - respZ) > travelDistZ)
             {
                 // Vmap Higher
                 destZ = map->GetHeight(creature->GetPhaseMask(), destX, destY, respZ+travelDistZ-2.0f, true);
 
                 // let's forget this bad coords where a z cannot be find and retry at next tick
-                if (fabs(destZ - respZ) > travelDistZ)
+                if (std::fabs(destZ - respZ) > travelDistZ)
                     return;
             }
         }
@@ -99,7 +97,12 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     if (is_air_ok)
         i_nextMoveTime.Reset(0);
     else
-        i_nextMoveTime.Reset(urand(500, 10000));
+    {
+        if (roll_chance_i(50))
+            i_nextMoveTime.Reset(urand(5000, 10000));
+        else
+            i_nextMoveTime.Reset(urand(50, 400));
+    }
 
     creature->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
@@ -116,7 +119,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
 template<>
 void RandomMovementGenerator<Creature>::DoInitialize(Creature* creature)
 {
-    if (!creature->isAlive())
+    if (!creature->IsAlive())
         return;
 
     if (!wander_distance)
