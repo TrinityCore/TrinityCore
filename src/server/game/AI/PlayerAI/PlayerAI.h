@@ -40,7 +40,8 @@ class TC_GAME_API PlayerAI : public UnitAI
     protected:
         struct TargetedSpell : public std::pair<Spell*, Unit*>
         {
-            using std::pair<Spell*, Unit*>::pair;
+            TargetedSpell() : pair<Spell*, Unit*>() { }
+            TargetedSpell(Spell* first, Unit* second) : pair<Spell*, Unit*>(first, second) { }
             explicit operator bool() { return !!first; }
         };
         typedef std::pair<TargetedSpell, uint32> PossibleSpell;
