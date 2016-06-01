@@ -614,14 +614,13 @@ void GameObject::Update(uint32 diff)
 
             //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on spell
             //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
-            if (GetSpellId() || GetOwnerGUID())
+            if ((GetSpellId() || GetOwnerGUID()) && m_respawnTime > 0)
             {
-                SetRespawnTime(0);
-                Delete();
+                UpdateObjectVisibility();
+                SetLootState(GO_READY);
                 return;
             }
-
-            SetLootState(GO_READY);
+            else Delete();
 
             //burning flags in some battlegrounds, if you find better condition, just add it
             if (GetGOInfo()->IsDespawnAtAction() || GetGoAnimProgress() > 0)
