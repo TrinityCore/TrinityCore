@@ -34,7 +34,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         return false;
 
     Field* fields = garrison->Fetch();
-    _siteLevel = sGarrSiteLevelStore.LookupEntry(_siteLevel->ID);
+    _siteLevel = sGarrSiteLevelStore.LookupEntry(fields[0].GetUInt32());
     _followerActivationsRemainingToday = fields[1].GetUInt32();
     if (!_siteLevel)
         return false;
