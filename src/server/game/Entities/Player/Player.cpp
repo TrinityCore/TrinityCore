@@ -16266,18 +16266,18 @@ bool Player::IsLoading() const
 
 bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 {
-    //        0     1        2     3     4      5       6      7   8      9     10    11         12         13           14              15              16
-    //"SELECT guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, customDisplay1, customDisplay2, customDisplay3, "
-    // 17         18         19           20          21          22          23   24           25        26         27         28         29          30
-    //"bankSlots, restState, playerFlags, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, "
-    // 31                 32                 33                 34          35       36       37       38       39         40           41            42        43    44
-    //"is_logout_resting, resettalents_cost, resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, "
-    // 45                 46         47                 48          49          50              51           52              53
-    //"death_expire_time, taxi_path, dungeonDifficulty, totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    // 54      55      56      57      58      59      60      61           62         63          64          65             66
-    //"health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, lootSpecId, exploredZones, equipmentCache, "
-    // 67           68          69               70              71
-    //"knownTitles, actionBars, grantableLevels, raidDifficulty, legacyRaidDifficulty FROM characters WHERE guid = '%u'", guid);
+    //        0     1        2     3     4      5       6      7   8      9     10    11         12         13           14              15              16              17         18         19
+    //"SELECT guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, customDisplay1, customDisplay2, customDisplay3, bankSlots, restState, playerFlags, "
+    // 20          21          22          23   24           25        26         27         28         29          30           31                 32
+    //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
+    // 33                 34          35       36       37       38       39         40           41            42        43    44      45                 46         47
+    //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
+    // 48          49          50              51           52              53
+    //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
+    // 54      55      56      57      58      59      60      61           62                 63                 64          65             66              67           68          69               70              71
+    //"health, power1, power2, power3, power4, power5, power6, instance_id, talentGroupsCount, activeTalentGroup, lootSpecId, exploredZones, equipmentCache, knownTitles, actionBars, grantableLevels, raidDifficulty, legacyRaidDifficulty "
+    //
+    //"FROM characters WHERE guid = ?", CONNECTION_ASYNC);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
@@ -16418,7 +16418,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // init saved position, and fix it later if problematic
     ObjectGuid::LowType transLowGUID = fields[39].GetUInt64();
 
-    Relocate(fields[20].GetFloat(), fields[24].GetFloat(), fields[22].GetFloat(), fields[24].GetFloat());
+    Relocate(fields[20].GetFloat(), fields[21].GetFloat(), fields[22].GetFloat(), fields[24].GetFloat());
 
     uint32 mapId = fields[23].GetUInt16();
     uint32 instanceId = fields[61].GetUInt32();
@@ -16527,7 +16527,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
         if (transport)
         {
-            float x = fields[38].GetFloat(), y = fields[36].GetFloat(), z = fields[37].GetFloat(), o = fields[38].GetFloat();
+            float x = fields[35].GetFloat(), y = fields[36].GetFloat(), z = fields[37].GetFloat(), o = fields[38].GetFloat();
             m_movementInfo.transport.pos.Relocate(x, y, z, o);
             transport->CalculatePassengerPosition(x, y, z, &o);
 
