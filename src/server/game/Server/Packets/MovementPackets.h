@@ -248,6 +248,7 @@ namespace WorldPackets
         struct MovementForce
         {
             ObjectGuid ID;
+            G3D::Vector3 Origin;
             G3D::Vector3 Direction;
             G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
@@ -273,6 +274,28 @@ namespace WorldPackets
             Optional<float> FlightBackSpeed;
             Optional<float> RunBackSpeed;
             Optional<float> PitchRate;
+        };
+
+        class MoveUpdateApplyMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateApplyMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_APPLY_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            MovementForce Force;
+        };
+
+        class MoveUpdateRemoveMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateRemoveMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_REMOVE_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            ObjectGuid TriggerGUID;
         };
 
         class MoveTeleportAck final : public ClientPacket
