@@ -277,10 +277,10 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
     else
         data << G3D::Vector3::zero();
 
-    data.WriteBit(!moveSpline.Finalized());
+    bool hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.splineIsFacingOnly);
     data.FlushBits();
 
-    if (!moveSpline.Finalized())                                                // MovementSplineMove
+    if (hasSplineMove)                                                          // MovementSplineMove
     {
         ::Movement::MoveSplineFlag const& splineFlags = moveSpline.splineflags;
 
@@ -348,8 +348,6 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         //    data << uint32();
         //}
     }
-    else
-        data.FlushBits();
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)

@@ -63,7 +63,7 @@ namespace Movement
         bool Validate(Unit* unit) const;
 
     private:
-        bool _checkPathBounds() const;
+        bool _checkPathLengths() const;
     };
 }
 
