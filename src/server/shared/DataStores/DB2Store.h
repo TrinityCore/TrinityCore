@@ -84,33 +84,23 @@ protected:
                         buffer << *(uint8*)entry;
                         entry += 1;
                         break;
+                    case FT_SHORT:
+                        buffer << *(uint16*)entry;
+                        entry += 2;
+                        break;
                     case FT_STRING:
                     {
                         LocalizedString* locStr = *(LocalizedString**)entry;
                         if (locStr->Str[locale][0] == '\0')
                             locale = 0;
 
-                        char const* str = locStr->Str[locale];
-                        std::size_t len = strlen(str);
-                        buffer << uint16(len ? len + 1 : 0);
-                        if (len)
-                        {
-                            buffer.append(str, len);
-                            buffer << uint8(0);
-                        }
+                        buffer << locStr->Str[locale];
                         entry += sizeof(LocalizedString*);
                         break;
                     }
                     case FT_STRING_NOT_LOCALIZED:
                     {
-                        char const* str = *(char const**)entry;
-                        std::size_t len = strlen(str);
-                        buffer << uint16(len ? len + 1 : 0);
-                        if (len)
-                        {
-                            buffer.append(str, len);
-                            buffer << uint8(0);
-                        }
+                        buffer << *(char const**)entry;
                         entry += sizeof(char const*);
                         break;
                     }
