@@ -15161,6 +15161,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     SendQuestUpdate(quest_id);
 
+    SendQuestGiverStatusMultiple();
+
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 }
@@ -16817,6 +16819,36 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
     questUpdateAddPvpCredit.QuestID = quest->GetQuestId();
     questUpdateAddPvpCredit.Count = newCount;
     GetSession()->SendPacket(questUpdateAddPvpCredit.Write());
+}
+
+void Player::SendQuestGiverStatusMultiple()
+{
+    WorldPackets::Quest::QuestGiverStatusMultiple response;
+
+    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    {
+        if (itr->IsAnyTypeCreature())
+        {
+            // need also pet quests case support
+            Creature* questgiver = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
+            if (!questgiver || questgiver->IsHostileTo(this))
+                continue;
+            if (!questgiver->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+                continue;
+
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
+        }
+        else if (itr->IsGameObject())
+        {
+            GameObject* questgiver = GetMap()->GetGameObject(*itr);
+            if (!questgiver || questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
+                continue;
+
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
+        }
+    }
+
+    GetSession()->SendPacket(response.Write());
 }
 
 bool Player::HasPvPForcingQuest() const
