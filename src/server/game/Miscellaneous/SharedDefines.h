@@ -1213,7 +1213,7 @@ enum SpellEffectName
     SPELL_EFFECT_203                                = 203,
     SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY           = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
-    SPELL_EFFECT_206                                = 206,
+    SPELL_EFFECT_ALTER_ITEM                         = 206, // NYI
     SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // Starts one of the "progress bar" quests
     SPELL_EFFECT_208                                = 208,
     SPELL_EFFECT_209                                = 209,
