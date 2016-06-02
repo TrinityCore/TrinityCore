@@ -89,7 +89,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data >> movementInfo.pitch;
     data >> movementInfo.splineElevation;
 
-    uint32 removeMovementForcesCount;
+    uint32 removeMovementForcesCount = 0;
     data >> removeMovementForcesCount;
 
     uint32 int168;
@@ -228,7 +228,11 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
         data.appendPackXYZ(pos.x, pos.y, pos.z);
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
+    data.WriteBit(0); // New Legion bit
     data.FlushBits();
+
+    if (movementSpline.SplineFilter)
+        data << *movementSpline.SplineFilter;
 
     switch (movementSpline.Face)
     {
@@ -244,8 +248,12 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
             break;
     }
 
-    if (movementSpline.SplineFilter)
-        data << *movementSpline.SplineFilter;
+    // New legion block, controlled by new bit above
+    // if (false)
+    // {
+    //     data << ObjectGuid::Empty;
+    //     data << 0 << 0 << 0;
+    // }
 
     return data;
 }
@@ -254,16 +262,12 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
 {
     data << movementMonsterSpline.ID;
     data << movementMonsterSpline.Destination;
-    data << movementMonsterSpline.Move;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
 
     // Unk bits. 0 if monster is moving, 1 or 2 if stopped
-    if (movementMonsterSpline.Move.Flags)
-        data.WriteBits(0, 2);
-    else
-        data.WriteBits(2, 2);
+    data.WriteBits(movementMonsterSpline.Move.Flags ? 0 : 2, 2);
 
-    data.FlushBits();
+    data << movementMonsterSpline.Move;
 
     return data;
 }
@@ -521,13 +525,11 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << SequenceIndex;
     _worldPacket << Pos.PositionXYZStream();
     _worldPacket << Facing;
+    _worldPacket << uint8(0); //! New in 7.x (gets written into movement queue node)
 
-    _worldPacket.WriteBit(TransportGUID.is_initialized());
     _worldPacket.WriteBit(Vehicle.is_initialized());
+    _worldPacket.WriteBit(TransportGUID.is_initialized());
     _worldPacket.FlushBits();
-
-    if (TransportGUID)
-        _worldPacket << *TransportGUID;
 
     if (Vehicle)
     {
@@ -536,6 +538,9 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
         _worldPacket.WriteBit(Vehicle->VehicleExitTeleport);
         _worldPacket.FlushBits();
     }
+
+    if (TransportGUID)
+        _worldPacket << *TransportGUID;
 
     return &_worldPacket;
 }
@@ -548,6 +553,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     for (WorldPackets::Movement::MovementForce const& force : MovementForces)
     {
         _worldPacket << force.ID;
+        _worldPacket << force.Origin;
         _worldPacket << force.Direction;
         _worldPacket << force.TransportPosition;
         _worldPacket << force.TransportID;
@@ -671,6 +677,22 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
     _worldPacket << *movementInfo;
     _worldPacket << float(Height);
     _worldPacket << float(Scale);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << TriggerGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << Force;
 
     return &_worldPacket;
 }
