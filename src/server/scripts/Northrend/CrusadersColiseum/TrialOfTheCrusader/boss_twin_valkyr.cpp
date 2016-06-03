@@ -802,7 +802,7 @@ class spell_valkyr_essences : public SpellScriptLoader
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if (pAura = owner->GetAura(poweringUp))
+                                        if ((pAura = owner->GetAura(poweringUp)))
                                             pAura->ModStackAmount(stacksCount);
                                     }
                                 }
@@ -827,7 +827,7 @@ class spell_valkyr_essences : public SpellScriptLoader
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if (pAura = owner->GetAura(poweringUp))
+                                        if ((pAura = owner->GetAura(poweringUp)))
                                             pAura->ModStackAmount(stacksCount);
                                     }
                                 }
