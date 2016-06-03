@@ -923,7 +923,7 @@ public:
                 return false;
 
             if (Player* caster = handler->GetSession()->GetPlayer())
-                Spell::SendCastResult(caster, spellInfo, 0, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                Spell::SendCastResult(caster, spellInfo, ObjectGuid::Empty, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
 
             return false;
         }
