@@ -772,7 +772,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_BLIND, TARGET_VICTIM, 2);
             VerifyAndPushSpellCast(spells, SPELL_CLOAK_OF_SHADOWS, TARGET_NONE, 2);
 
-            uint32 builder, finisher;
+            uint32 builder = 0, finisher = 0;
             switch (GetSpec())
             {
                 case TALENT_SPEC_ROGUE_ASSASSINATION:
