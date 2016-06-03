@@ -317,6 +317,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
+    &Spell::EffectNULL,                                     //252 SPELL_EFFECT_252
+    &Spell::EffectNULL,                                     //253 SPELL_EFFECT_253
+    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_254
+    &Spell::EffectNULL,                                     //255 SPELL_EFFECT_255
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
