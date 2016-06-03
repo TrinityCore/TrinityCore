@@ -215,7 +215,7 @@ public:
         uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
 
         WorldPackets::Spells::CastFailed castFailed(SMSG_CAST_FAILED);
-        castFailed.CastID = 0;
+        castFailed.CastID = ObjectGuid::Empty;
         castFailed.SpellID = 133;
         castFailed.Reason = failNum;
         castFailed.FailedArg1 = failArg1;
