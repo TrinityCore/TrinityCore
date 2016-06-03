@@ -186,7 +186,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
-            int32 Health = 0;
+            int64 Health = 0;
         };
 
         class ThreatClear final : public ServerPacket

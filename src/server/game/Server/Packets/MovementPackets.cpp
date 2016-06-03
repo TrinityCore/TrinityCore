@@ -516,6 +516,10 @@ WorldPacket const* WorldPackets::Movement::NewWorld::Write()
     _worldPacket << MapID;
     _worldPacket << Pos.PositionXYZOStream();
     _worldPacket << Reason;
+    // New in 7.x - Does something movement-related (velocities ???)
+    _worldPacket << float(0.0f);
+    _worldPacket << float(0.0f);
+    _worldPacket << float(0.0f);
     return &_worldPacket;
 }
 
@@ -692,7 +696,14 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *movementInfo;
-    _worldPacket << Force;
+    _worldPacket << Force.ID;
+    _worldPacket << Force.Origin;
+    _worldPacket << Force.Direction;
+    _worldPacket << Force.TransportPosition;
+    _worldPacket << Force.TransportID;
+    _worldPacket << Force.Magnitude;
+    _worldPacket.WriteBits(Force.Type, 2);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
