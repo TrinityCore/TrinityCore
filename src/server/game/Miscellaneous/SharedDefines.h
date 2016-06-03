@@ -1263,7 +1263,11 @@ enum SpellEffectName
     SPELL_EFFECT_249                                = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
-    TOTAL_SPELL_EFFECTS                             = 252,
+    SPELL_EFFECT_252                                = 252,
+    SPELL_EFFECT_253                                = 253,
+    SPELL_EFFECT_254                                = 254,
+    SPELL_EFFECT_255                                = 255,
+    TOTAL_SPELL_EFFECTS                             = 256,
 };
 
 enum SpellCastResult // 21355
@@ -2017,6 +2021,7 @@ enum Targets
     TARGET_UNK_145                     = 145,
     TARGET_UNK_146                     = 146,
     TARGET_UNK_147                     = 147,
+    TARGET_UNK_148                     = 148,
     TOTAL_SPELL_TARGETS
 };
 
