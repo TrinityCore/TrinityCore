@@ -354,7 +354,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
 {
     data << spellCastData.CasterGUID;
     data << spellCastData.CasterUnit;
-    data << uint8(spellCastData.CastID);
+    data << spellCastData.CastID;
     data << int32(spellCastData.SpellID);
     data << uint32(spellCastData.SpellXSpellVisualID);
     data << uint32(spellCastData.CastFlags);
@@ -431,7 +431,7 @@ WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
 WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 {
     _worldPacket << CasterUnit;
-    _worldPacket << uint8(CastID);
+    _worldPacket << CastID;
     _worldPacket << int32(SpellID);
     _worldPacket << uint32(SpelXSpellVisualID);
     _worldPacket << uint16(Reason);
@@ -442,7 +442,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
 {
     _worldPacket << CasterUnit;
-    _worldPacket << uint8(CastID);
+    _worldPacket << CastID;
     _worldPacket << uint32(SpellID);
     _worldPacket << uint8(Reason);
 
@@ -451,11 +451,12 @@ WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
 
 WorldPacket const* WorldPackets::Spells::CastFailed::Write()
 {
+    _worldPacket << CastID;
     _worldPacket << int32(SpellID);
+    _worldPacket << int32(SpellXSpellVisualID);
     _worldPacket << int32(Reason);
     _worldPacket << int32(FailedArg1);
     _worldPacket << int32(FailedArg2);
-    _worldPacket << uint8(CastID);
 
     return &_worldPacket;
 }
@@ -800,7 +801,7 @@ void WorldPackets::Spells::MissileTrajectoryCollision::Read()
 WorldPacket const* WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write()
 {
     _worldPacket << Caster;
-    _worldPacket << uint8(CastID);
+    _worldPacket << CastID;
     _worldPacket << CollisionPos;
 
     return &_worldPacket;

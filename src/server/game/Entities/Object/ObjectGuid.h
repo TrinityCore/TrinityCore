@@ -106,6 +106,7 @@ enum class HighGuid
     BattlePet        = 44,
     CommerceObj      = 45,
     ClientSession    = 46,
+    Cast             = 47,
 
     Count,
 };
@@ -180,6 +181,7 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::CallForHelp)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AIResource)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILock)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILockTicket)
+GUID_TRAIT_MAP_SPECIFIC(HighGuid::Cast) // Guessed
 
 class ObjectGuid;
 class PackedGuid;
@@ -259,6 +261,7 @@ class TC_GAME_API ObjectGuid
         bool IsGuild()             const { return GetHigh() == HighGuid::Guild; }
         bool IsSceneObject()       const { return GetHigh() == HighGuid::SceneObject; }
         bool IsConversation()      const { return GetHigh() == HighGuid::Conversation; }
+        bool IsCast()              const { return GetHigh() == HighGuid::Cast; }
 
         static TypeID GetTypeId(HighGuid high)
         {

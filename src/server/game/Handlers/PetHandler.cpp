@@ -380,7 +380,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             else
             {
                 if (pet->isPossessed() || pet->IsVehicle()) /// @todo: confirm this check
-                    Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
+                    Spell::SendCastResult(GetPlayer(), spellInfo, ObjectGuid::Create<HighGuid::Cast>(GetPlayer()->GetMapId(), 0, 0), result);
                 else
                     spell->SendPetCastResult(result);
 

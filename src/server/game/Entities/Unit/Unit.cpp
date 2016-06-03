@@ -3308,7 +3308,7 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
         {
             Unit* caster = aura->GetCaster();
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), 1, SPELL_FAILED_AURA_BOUNCED);
+                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), ObjectGuid::Create<HighGuid::Cast>(GetMapId(), 0, 1), SPELL_FAILED_AURA_BOUNCED);
         }
 
         aura->Remove();
@@ -9595,23 +9595,23 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
     return true;
 }
 
-int32 Unit::ModifyHealth(int32 dVal)
+int64 Unit::ModifyHealth(int64 dVal)
 {
-    int32 gain = 0;
+    int64 gain = 0;
 
     if (dVal == 0)
         return 0;
 
-    int32 curHealth = (int32)GetHealth();
+    int64 curHealth = (int64)GetHealth();
 
-    int32 val = dVal + curHealth;
+    int64 val = dVal + curHealth;
     if (val <= 0)
     {
         SetHealth(0);
         return -curHealth;
     }
 
-    int32 maxHealth = (int32)GetMaxHealth();
+    int64 maxHealth = (int64)GetMaxHealth();
 
     if (val < maxHealth)
     {
@@ -9632,28 +9632,27 @@ int32 Unit::ModifyHealth(int32 dVal)
 
         if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
             player->GetSession()->SendPacket(packet.Write());
-
     }
 
     return gain;
 }
 
-int32 Unit::GetHealthGain(int32 dVal)
+int64 Unit::GetHealthGain(int64 dVal)
 {
-    int32 gain = 0;
+    int64 gain = 0;
 
     if (dVal == 0)
         return 0;
 
-    int32 curHealth = (int32)GetHealth();
+    int64 curHealth = (int64)GetHealth();
 
-    int32 val = dVal + curHealth;
+    int64 val = dVal + curHealth;
     if (val <= 0)
     {
         return -curHealth;
     }
 
-    int32 maxHealth = (int32)GetMaxHealth();
+    int64 maxHealth = (int64)GetMaxHealth();
 
     if (val < maxHealth)
         gain = dVal;
@@ -10918,7 +10917,7 @@ void Unit::SetLevel(uint8 lvl)
     }
 }
 
-void Unit::SetHealth(uint32 val)
+void Unit::SetHealth(uint64 val)
 {
     if (getDeathState() == JUST_DIED)
         val = 0;
@@ -10926,12 +10925,12 @@ void Unit::SetHealth(uint32 val)
         val = 1;
     else
     {
-        uint32 maxHealth = GetMaxHealth();
+        uint64 maxHealth = GetMaxHealth();
         if (maxHealth < val)
             val = maxHealth;
     }
 
-    SetUInt32Value(UNIT_FIELD_HEALTH, val);
+    SetUInt64Value(UNIT_FIELD_HEALTH, val);
 
     // group update
     if (Player* player = ToPlayer())
@@ -10946,13 +10945,13 @@ void Unit::SetHealth(uint32 val)
     }
 }
 
-void Unit::SetMaxHealth(uint32 val)
+void Unit::SetMaxHealth(uint64 val)
 {
     if (!val)
         val = 1;
 
-    uint32 health = GetHealth();
-    SetUInt32Value(UNIT_FIELD_MAXHEALTH, val);
+    uint64 health = GetHealth();
+    SetUInt64Value(UNIT_FIELD_MAXHEALTH, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)

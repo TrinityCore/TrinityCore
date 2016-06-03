@@ -246,7 +246,7 @@ namespace WorldPackets
 
         struct SpellCastRequest
         {
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             int32 SpellID = 0;
             uint32 SpellXSpellVisualID = 0;
             uint8 SendCastFlags = 0;
@@ -340,7 +340,7 @@ namespace WorldPackets
         {
             ObjectGuid CasterGUID;
             ObjectGuid CasterUnit;
-            uint8 CastID        = 0;
+            ObjectGuid CastID;
             int32 SpellID       = 0;
             uint32 SpellXSpellVisualID = 0;
             uint32 CastFlags    = 0;
@@ -403,7 +403,7 @@ namespace WorldPackets
             uint32 SpellID  = 0;
             uint32 SpelXSpellVisualID = 0;
             uint16 Reason   = 0;
-            uint8 CastID    = 0;
+            ObjectGuid CastID;
         };
 
         class SpellFailedOther final : public ServerPacket
@@ -416,7 +416,7 @@ namespace WorldPackets
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
             uint8 Reason    = 0;
-            uint8 CastID    = 0;
+            ObjectGuid CastID;
         };
 
         class TC_GAME_API CastFailed final : public ServerPacket
@@ -426,11 +426,12 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Reason        = 0;
-            int32 FailedArg1    = -1;
-            int32 FailedArg2    = -1;
-            int32 SpellID       = 0;
-            uint8 CastID        = 0;
+            ObjectGuid CastID;
+            int32 Reason              = 0;
+            int32 SpellXSpellVisualID = 0;
+            int32 FailedArg1          = -1;
+            int32 FailedArg2          = -1;
+            int32 SpellID             = 0;
         };
 
         struct SpellModifierData
@@ -659,7 +660,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SpellID = 0;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
         };
 
         class OpenItem final : public ClientPacket
@@ -818,7 +819,7 @@ namespace WorldPackets
 
             ObjectGuid Target;
             int32 SpellID = 0;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             G3D::Vector3 CollisionPos;
         };
 
@@ -830,7 +831,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Caster;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             G3D::Vector3 CollisionPos;
         };
 
