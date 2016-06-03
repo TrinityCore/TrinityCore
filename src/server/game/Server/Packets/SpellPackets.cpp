@@ -56,8 +56,12 @@ WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
 
     _worldPacket.WriteBit(InitialLogin);
     _worldPacket << uint32(KnownSpells.size());
+    _worldPacket << uint32(FavoriteSpells.size());
 
     for (uint32 spellId : KnownSpells)
+        _worldPacket << uint32(spellId);
+
+    for (uint32 spellId : FavoriteSpells)
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;

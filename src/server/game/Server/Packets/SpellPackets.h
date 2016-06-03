@@ -120,6 +120,7 @@ namespace WorldPackets
 
             bool InitialLogin = false;
             std::vector<uint32> KnownSpells;
+            std::vector<uint32> FavoriteSpells;         // tradeskill recipes
         };
 
         class UpdateActionButtons final : public ServerPacket
