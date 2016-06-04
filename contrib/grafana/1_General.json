@@ -23,7 +23,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": null,
+          "datasource": "Influx",
           "editable": true,
           "error": false,
           "format": "none",
@@ -108,7 +108,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": null,
+          "datasource": "Influx",
           "editable": true,
           "error": false,
           "format": "none",
@@ -197,7 +197,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": null,
+          "datasource": "Influx",
           "editable": true,
           "error": false,
           "format": "none",
@@ -281,7 +281,7 @@
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "datasource": null,
+          "datasource": "Influx",
           "editable": true,
           "error": false,
           "format": "none",
@@ -847,7 +847,7 @@
           "text": "Trinity",
           "value": "Trinity"
         },
-        "datasource": null,
+        "datasource": "Influx",
         "includeAll": false,
         "multi": false,
         "multiFormat": "regex values",
