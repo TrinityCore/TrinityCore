@@ -51,6 +51,7 @@
 #include "BattlePetMgr.h"
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
+#include "Metric.h"
 
 #include <zlib.h>
 
@@ -456,6 +457,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             break;
     }
 
+    TC_METRIC_VALUE("processed_packets", processedPackets);
+
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
     if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
@@ -613,6 +616,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
+
+        TC_METRIC_EVENT("player_events", "Logout", _player->GetName());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
