@@ -55,7 +55,7 @@ bool DBUpdaterUtil::CheckExecutable()
             }
         }
 
-        TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
+        TC_LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
             absolute(exe).generic_string().c_str());
 
         return false;
@@ -178,7 +178,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     // Path of temp file
     static Path const temp("create_table.sql");
 
-    // Create temporary query to use external mysql cli
+    // Create temporary query to use external MySQL CLi
     std::ofstream file(temp.generic_string());
     if (!file.is_open())
     {
@@ -197,7 +197,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     }
     catch (UpdateException&)
     {
-        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Has the user `CREATE` priviliges?", pool.GetConnectionInfo()->database.c_str());
+        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
         boost::filesystem::remove(temp);
         return false;
     }
@@ -280,7 +280,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
         {
             case LOCATION_REPOSITORY:
             {
-                TC_LOG_ERROR("sql.updates", ">> Base file \"%s\" is missing, try to clone the source again.",
+                TC_LOG_ERROR("sql.updates", ">> Base file \"%s\" is missing. Try fixing it by cloning the source again.",
                     base.generic_string().c_str());
 
                 break;
@@ -288,7 +288,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             case LOCATION_DOWNLOAD:
             {
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
-                    " and place it in your server directory.", base.filename().generic_string().c_str());
+                    " and place it in your worldserver directory.", base.filename().generic_string().c_str());
                 break;
             }
         }
@@ -355,7 +355,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     if (!std::isdigit(port_or_socket[0]))
     {
-        // We can't check here if host == "." because is named localhost if socket option is enabled
+        // We can't check if host == "." here, because it is named localhost if socket option is enabled
         args.push_back("-P0");
         args.push_back("--protocol=SOCKET");
         args.push_back("-S" + port_or_socket);
@@ -383,7 +383,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (ret != EXIT_SUCCESS)
     {
         TC_LOG_FATAL("sql.updates", "Applying of file \'%s\' to database \'%s\' failed!" \
-            " If you are an user pull the latest revision from the repository. If you are a developer fix your sql query.",
+            " If you are a user, pull the latest revision from the repository. If you are a developer, fix your sql query.",
             path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
 
         throw UpdateException("update failed");
