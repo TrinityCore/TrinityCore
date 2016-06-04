@@ -616,7 +616,6 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    CleanupExecuteLogList();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -645,7 +644,6 @@ Spell::~Spell()
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
 
     delete m_spellValue;
-    CleanupExecuteLogList();
 }
 
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
@@ -4178,45 +4176,33 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
 void Spell::SendSpellExecuteLog()
 {
     WorldPackets::CombatLog::SpellExecuteLog spellExecuteLog;
-
     spellExecuteLog.Caster = m_caster->GetGUID();
     spellExecuteLog.SpellID = m_spellInfo->Id;
 
-    if (_powerDrainTargets->empty() && _extraAttacksTargets->empty() &&
-        _durabilityDamageTargets->empty() && _genericVictimTargets->empty() &&
-        _tradeSkillTargets->empty() && _feedPetTargets->empty())
-        return;
-
     for (SpellEffectInfo const* effect : GetEffects())
     {
-        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect spellLogEffect;
         if (!effect)
             continue;
 
+        if (_powerDrainTargets[effect->EffectIndex].empty() && _extraAttacksTargets[effect->EffectIndex].empty() &&
+            _durabilityDamageTargets[effect->EffectIndex].empty() && _genericVictimTargets[effect->EffectIndex].empty() &&
+            _tradeSkillTargets[effect->EffectIndex].empty() && _feedPetTargets[effect->EffectIndex].empty())
+            continue;
+
+        spellExecuteLog.Effects.emplace_back();
+
+        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect& spellLogEffect = spellExecuteLog.Effects.back();
         spellLogEffect.Effect = effect->Effect;
-
-        for (SpellLogEffectPowerDrainParams const& powerDrainParam : _powerDrainTargets[effect->EffectIndex])
-            spellLogEffect.PowerDrainTargets.push_back(powerDrainParam);
-
-        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : _extraAttacksTargets[effect->EffectIndex])
-            spellLogEffect.ExtraAttacksTargets.push_back(extraAttacksTarget);
-
-        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : _durabilityDamageTargets[effect->EffectIndex])
-            spellLogEffect.DurabilityDamageTargets.push_back(durabilityDamageTarget);
-
-        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : _genericVictimTargets[effect->EffectIndex])
-            spellLogEffect.GenericVictimTargets.push_back(genericVictimTarget);
-
-        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : _tradeSkillTargets[effect->EffectIndex])
-            spellLogEffect.TradeSkillTargets.push_back(tradeSkillTarget);
-
-        for (SpellLogEffectFeedPetParams const& feedPetTarget : _feedPetTargets[effect->EffectIndex])
-            spellLogEffect.FeedPetTargets.push_back(feedPetTarget);
-
-        spellExecuteLog.Effects.push_back(spellLogEffect);
+        spellLogEffect.PowerDrainTargets = std::move(_powerDrainTargets[effect->EffectIndex]);
+        spellLogEffect.ExtraAttacksTargets = std::move(_extraAttacksTargets[effect->EffectIndex]);
+        spellLogEffect.DurabilityDamageTargets = std::move(_durabilityDamageTargets[effect->EffectIndex]);
+        spellLogEffect.GenericVictimTargets = std::move(_genericVictimTargets[effect->EffectIndex]);
+        spellLogEffect.TradeSkillTargets = std::move(_tradeSkillTargets[effect->EffectIndex]);
+        spellLogEffect.FeedPetTargets = std::move(_feedPetTargets[effect->EffectIndex]);
     }
 
-    m_caster->SendCombatLogMessage(&spellExecuteLog);
+    if (!spellExecuteLog.Effects.empty())
+        m_caster->SendCombatLogMessage(&spellExecuteLog);
 }
 
 void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude)
@@ -4307,16 +4293,6 @@ void Spell::ExecuteLogEffectResurrect(uint8 effect, Unit* target)
     spellLogEffectGenericVictimParams.Victim = target->GetGUID();
 
     _genericVictimTargets[effect].push_back(spellLogEffectGenericVictimParams);
-}
-
-void Spell::CleanupExecuteLogList()
-{
-    _durabilityDamageTargets->clear();
-    _extraAttacksTargets->clear();
-    _feedPetTargets->clear();
-    _genericVictimTargets->clear();
-    _powerDrainTargets->clear();
-    _tradeSkillTargets->clear();
 }
 
 void Spell::SendInterrupted(uint8 result)
