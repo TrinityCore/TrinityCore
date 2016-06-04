@@ -51,7 +51,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
         return 0;
     }
 
-    Tokenizer columnDefs(headers, '\t');
+    Tokenizer columnDefs(headers, '\t', 0, false);
 
     ASSERT(columnDefs.size() - 1 == sizeof(T) / sizeof(float),
         "GameTable '%s' has different count of columns " SZFMTD " than expected by size of C++ structure (" SZFMTD ").",
@@ -63,12 +63,13 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
-        if (line.empty())
+        Tokenizer values(line, '\t', columnDefs.size(), false);
+        if (values.size() == 0)
             break;
 
-        Tokenizer values(line, '\t', columnDefs.size());
-        ASSERT(values.size() == columnDefs.size());
+        ASSERT(values.size() == columnDefs.size(), SZFMTD " == " SZFMTD, values.size(), columnDefs.size());
 
+        // as of 21796 blizz doesnt seem to care about id column and just puts in whatever there
         ASSERT(strtol(values[0], nullptr, 10) == data.size(),
             "Unexpected row identifier %u at row " SZFMTD " (expected " SZFMTD ")",
             strtol(values[0], nullptr, 10), data.size(), data.size());
