@@ -178,7 +178,7 @@ class boss_ignis : public CreatureScript
                 {
                     summon->setFaction(16);
                     summon->SetReactState(REACT_AGGRESSIVE);
-                    summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                    summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_IMMUNE_TO_PC);
                 }
 
                 summon->AI()->AttackStart(me->GetVictim());
