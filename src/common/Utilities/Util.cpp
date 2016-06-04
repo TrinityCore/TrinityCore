@@ -30,7 +30,7 @@
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
+Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.c_str(), src.length() + 1);
@@ -45,9 +45,10 @@ Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserv
     {
         if (*posnew == sep)
         {
-            m_storage.push_back(posold);
-            posold = posnew + 1;
+            if (keepEmptyStrings || posold != posnew)
+                m_storage.push_back(posold);
 
+            posold = posnew + 1;
             *posnew = '\0';
         }
         else if (*posnew == '\0')
