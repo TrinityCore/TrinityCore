@@ -528,6 +528,7 @@ class boss_the_lich_king : public CreatureScript
             void SetupEncounter()
             {
                 _Reset();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
