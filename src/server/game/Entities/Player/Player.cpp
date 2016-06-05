@@ -7790,8 +7790,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             }
 
             Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
+
+            WorldPackets::Spells::SpellPrepare spellPrepare;
+            spellPrepare.ClientCastID = castCount;
+            spellPrepare.ServerCastID = spell->m_castId;
+            SendDirectMessage(spellPrepare.Write());
+
             spell->m_CastItem = item;
-            spell->m_cast_count = castCount; //set count of casts
             spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
             spell->prepare(&targets);
             return;
@@ -7815,8 +7820,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         }
 
         Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
+
+        WorldPackets::Spells::SpellPrepare spellPrepare;
+        spellPrepare.ClientCastID = castCount;
+        spellPrepare.ServerCastID = spell->m_castId;
+        SendDirectMessage(spellPrepare.Write());
+
         spell->m_CastItem = item;
-        spell->m_cast_count = castCount;                   // set count of casts
         spell->m_misc.Raw.Data[0] = misc[0];
         spell->m_misc.Raw.Data[1] = misc[1];
         spell->prepare(&targets);
@@ -7843,8 +7853,13 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             }
 
             Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
+
+            WorldPackets::Spells::SpellPrepare spellPrepare;
+            spellPrepare.ClientCastID = castCount;
+            spellPrepare.ServerCastID = spell->m_castId;
+            SendDirectMessage(spellPrepare.Write());
+
             spell->m_CastItem = item;
-            spell->m_cast_count = castCount;                // set count of casts
             spell->m_misc.Raw.Data[0] = misc[0];
             spell->m_misc.Raw.Data[1] = misc[1];
             spell->prepare(&targets);
@@ -17214,7 +17229,8 @@ void Player::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effe
                 remainCharges = 0;
 
             AuraLoadEffectInfo& info = effectInfo[key];
-            if (Aura* aura = Aura::TryCreate(spellInfo, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, castItemLevel))
+            ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
+            if (Aura* aura = Aura::TryCreate(spellInfo, castId, key.EffectMask, this, nullptr, info.BaseAmounts.data(), nullptr, casterGuid, castItemLevel))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -24123,8 +24139,27 @@ void Runes::SetRuneState(uint8 index, bool set /*= true*/)
 void Player::ResyncRunes() const
 {
     WorldPackets::Spells::ResyncRunes data(MAX_RUNES);
+    data.Runes.Start = 0;
+    data.Runes.Count = GetRunesState();
+
     for (uint32 i = 0; i < MAX_RUNES; ++i)
-        data.Runes.push_back(uint8(255 - (GetRuneCooldown(i) * 51)));
+        data.Runes.Cooldowns.push_back(uint8(255 - (GetRuneCooldown(i) * 51)));
+
+    // calculate mask of recharging runes
+    uint32 regeneratedRunes = 0;
+    uint32 regenIndex = 0;
+    while (regeneratedRunes < MAX_RECHARGING_RUNES && !m_runes->CooldownOrder.empty())
+    {
+        uint8 runeToRegen = m_runes->CooldownOrder[regenIndex++];
+        uint32 runeCooldown = GetRuneCooldown(runeToRegen);
+        if (runeCooldown > m_regenTimer)
+        {
+            data.Runes.Start |= 1 << runeToRegen;
+            ++regenIndex;
+        }
+
+        ++regeneratedRunes;
+    }
 
     GetSession()->SendPacket(data.Write());
 }

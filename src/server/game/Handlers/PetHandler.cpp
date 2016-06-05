@@ -380,7 +380,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             else
             {
                 if (pet->isPossessed() || pet->IsVehicle()) /// @todo: confirm this check
-                    Spell::SendCastResult(GetPlayer(), spellInfo, ObjectGuid::Create<HighGuid::Cast>(GetPlayer()->GetMapId(), 0, 0), result);
+                    Spell::SendCastResult(GetPlayer(), spellInfo, spell->m_SpellVisual, spell->m_castId, result);
                 else
                     spell->SendPetCastResult(result);
 
@@ -677,7 +677,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
-    spell->m_cast_count = petCastSpell.Cast.CastID;
     spell->m_misc.Raw.Data[0] = petCastSpell.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = petCastSpell.Cast.Misc[1];
     spell->m_targets = targets;
@@ -697,6 +696,11 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
                     pet->SendPetAIReaction(petCastSpell.PetGUID);
             }
         }
+
+        WorldPackets::Spells::SpellPrepare spellPrepare;
+        spellPrepare.ClientCastID = petCastSpell.Cast.CastID;
+        spellPrepare.ServerCastID = spell->m_castId;
+        SendPacket(spellPrepare.Write());
 
         spell->prepare(&targets);
     }
