@@ -7581,7 +7581,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (!i->second->GetRemoveMode() && !i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
             duel->opponent->RemoveAura(i);
         else
             ++i;
@@ -7591,7 +7591,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (!i->second->GetRemoveMode() && !i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
             RemoveAura(i);
         else
             ++i;
