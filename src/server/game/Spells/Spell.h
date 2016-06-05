@@ -109,6 +109,17 @@ enum SpellCastFlagsEx
     CAST_FLAG_EX_UNKNOWN_20      = 0x80000
 };
 
+enum SpellCastSource : uint8
+{
+    SPELL_CAST_SOURCE_PLAYER = 2,
+    SPELL_CAST_SOURCE_NORMAL = 3,
+    SPELL_CAST_SOURCE_ITEM = 4,
+    SPELL_CAST_SOURCE_PASSIVE = 7,
+    SPELL_CAST_SOURCE_PET = 9,
+    SPELL_CAST_SOURCE_AURA = 13,
+    SPELL_CAST_SOURCE_SPELL = 16,
+};
+
 enum SpellRangeFlag
 {
     SPELL_RANGE_DEFAULT             = 0,
@@ -522,7 +533,7 @@ class TC_GAME_API Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, OpcodeServer opcode = SMSG_CAST_FAILED, uint32* misc = nullptr);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* misc = nullptr);
         void SendCastResult(SpellCastResult result);
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
@@ -539,7 +550,6 @@ class TC_GAME_API Spell
         void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj);
         void ExecuteLogEffectResurrect(uint8 effIndex, Unit* target);
-        void CleanupExecuteLogList();
         void SendInterrupted(uint8 result);
         void SendChannelUpdate(uint32 time);
         void SendChannelStart(uint32 duration);
@@ -553,7 +563,8 @@ class TC_GAME_API Spell
         ObjectGuid m_castItemGUID;
         uint32 m_castItemEntry;
         int32 m_castItemLevel;
-        ObjectGuid m_cast_count;
+        ObjectGuid m_castId;
+        ObjectGuid m_originalCastId;
         uint32 m_castFlagsEx;
         union
         {

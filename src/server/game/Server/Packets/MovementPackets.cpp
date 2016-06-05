@@ -89,11 +89,11 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data >> movementInfo.pitch;
     data >> movementInfo.splineElevation;
 
-    uint32 removeMovementForcesCount = 0;
+    uint32 removeMovementForcesCount;
     data >> removeMovementForcesCount;
 
-    uint32 int168;
-    data >> int168;
+    uint32 moveIndex;
+    data >> moveIndex;
 
     for (uint32 i = 0; i < removeMovementForcesCount; ++i)
     {

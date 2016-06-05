@@ -1575,6 +1575,7 @@ enum OpcodeServer : uint32
     SMSG_SPELL_NON_MELEE_DAMAGE_LOG                   = 0x2C31,
     SMSG_SPELL_OR_DAMAGE_IMMUNE                       = 0x2C2E,
     SMSG_SPELL_PERIODIC_AURA_LOG                      = 0x2C1B,
+    SMSG_SPELL_PREPARE                                = 0x2C38,
     SMSG_SPELL_START                                  = 0x2C3A,
     SMSG_SPELL_UPDATE_CHAIN_TARGETS                   = 0x2C33,
     SMSG_SPIRIT_HEALER_CONFIRM                        = 0x2750,

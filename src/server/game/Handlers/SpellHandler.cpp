@@ -300,7 +300,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
-    spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
+
+    WorldPackets::Spells::SpellPrepare spellPrepare;
+    spellPrepare.ClientCastID = cast.Cast.CastID;
+    spellPrepare.ServerCastID = spell->m_castId;
+    SendPacket(spellPrepare.Write());
+
     spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
     spell->prepare(&targets);
@@ -509,6 +514,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
         mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
         mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+            mirrorImageComponentedData.CustomDisplay[i] = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i);
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);
@@ -530,7 +537,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         };
 
         // Display items in visible slots
-        for (auto const& slot : itemSlots)
+        for (EquipmentSlots slot : itemSlots)
         {
             uint32 itemDisplayId;
             if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||

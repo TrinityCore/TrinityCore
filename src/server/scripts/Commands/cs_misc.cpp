@@ -286,7 +286,10 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+        {
+            ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, target->GetMapId(), spellId, target->GetMap()->GenerateLowGuid<HighGuid::Cast>());
+            Aura::TryRefreshStackOrCreate(spellInfo, castId, MAX_EFFECT_MASK, target, target);
+        }
 
         return true;
     }
@@ -918,12 +921,18 @@ public:
 
         if (player->IsInFlight() || player->IsInCombat())
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(7355);
+#define SPELL_UNSTUCK_ID 7355
+#define SPELL_UNSTUCK_VISUAL 2683
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_UNSTUCK_ID);
             if (!spellInfo)
                 return false;
 
             if (Player* caster = handler->GetSession()->GetPlayer())
-                Spell::SendCastResult(caster, spellInfo, ObjectGuid::Empty, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+            {
+                ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), SPELL_UNSTUCK_ID, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
+                Spell::SendCastResult(caster, spellInfo, SPELL_UNSTUCK_VISUAL, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+            }
 
             return false;
         }

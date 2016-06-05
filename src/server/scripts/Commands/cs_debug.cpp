@@ -214,7 +214,7 @@ public:
         char* fail2 = strtok(NULL, " ");
         uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
 
-        WorldPackets::Spells::CastFailed castFailed(SMSG_CAST_FAILED);
+        WorldPackets::Spells::CastFailed castFailed;
         castFailed.CastID = ObjectGuid::Empty;
         castFailed.SpellID = 133;
         castFailed.Reason = failNum;

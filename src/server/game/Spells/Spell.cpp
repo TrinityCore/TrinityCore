@@ -589,7 +589,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     m_procVictim = 0;
     m_procEx = 0;
     focusObject = NULL;
-    m_cast_count = ObjectGuid::Empty;
+    m_castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, m_caster->GetMapId(), m_spellInfo->Id, m_caster->GetMap()->GenerateLowGuid<HighGuid::Cast>());
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual = m_spellInfo->GetSpellXSpellVisualId(caster->GetMap()->GetDifficultyID());
     m_preCastSpell = 0;
@@ -616,7 +616,6 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    CleanupExecuteLogList();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -645,7 +644,6 @@ Spell::~Spell()
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
 
     delete m_spellValue;
-    CleanupExecuteLogList();
 }
 
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
@@ -2619,7 +2617,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_originalCaster)
         {
             bool refresh = false;
-            m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
+            m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, m_castId, effectMask, unit,
                 m_originalCaster, (aurSpellInfo == m_spellInfo) ? m_spellValue->EffectBasePoints : basePoints,
                 m_CastItem, ObjectGuid::Empty, &refresh, m_castItemLevel);
             if (m_spellAura)
@@ -2925,7 +2923,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCast(false, true, true) && !m_cast_count.IsEmpty())
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCast(false, true, true) && !m_castId.IsEmpty())
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -3716,39 +3714,10 @@ void Spell::finish(bool ok)
         m_caster->AttackStop();
 }
 
-void Spell::SendCastResult(SpellCastResult result)
+template<class T>
+inline void FillSpellCastFailedArgs(T& packet, ObjectGuid castId, SpellInfo const* spellInfo, SpellCastResult result, SpellCustomErrors customError, uint32* misc, Player* caster)
 {
-    if (result == SPELL_CAST_OK)
-        return;
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
-        return;
-
-    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError, SMSG_CAST_FAILED, m_misc.Raw.Data);
-}
-
-void Spell::SendPetCastResult(SpellCastResult result)
-{
-    if (result == SPELL_CAST_OK)
-        return;
-
-    Unit* owner = m_caster->GetCharmerOrOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    SendCastResult(owner->ToPlayer(), m_spellInfo, m_cast_count, result, SPELL_CUSTOM_ERROR_NONE, SMSG_PET_CAST_FAILED, m_misc.Raw.Data);
-}
-
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, OpcodeServer opcode /*= SMSG_CAST_FAILED*/, uint32* misc /*= nullptr*/)
-{
-    if (result == SPELL_CAST_OK)
-        return;
-
-    WorldPackets::Spells::CastFailed packet(opcode);
-    packet.CastID = cast_count;
+    packet.CastID = castId;
     packet.SpellID = spellInfo->Id;
     packet.Reason = result;
 
@@ -3864,7 +3833,47 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, ObjectGui
         default:
             break;
     }
+}
 
+void Spell::SendCastResult(SpellCastResult result)
+{
+    if (result == SPELL_CAST_OK)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
+        return;
+
+    WorldPackets::Spells::CastFailed castFailed;
+    castFailed.SpellXSpellVisualID = m_SpellVisual;
+    FillSpellCastFailedArgs(castFailed, m_castId, m_spellInfo, result, m_customError, m_misc.Raw.Data, m_caster->ToPlayer());
+    m_caster->ToPlayer()->SendDirectMessage(castFailed.Write());
+}
+
+void Spell::SendPetCastResult(SpellCastResult result)
+{
+    if (result == SPELL_CAST_OK)
+        return;
+
+    Unit* owner = m_caster->GetCharmerOrOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    WorldPackets::Spells::PetCastFailed petCastFailed;
+    FillSpellCastFailedArgs(petCastFailed, m_castId, m_spellInfo, result, SPELL_CUSTOM_ERROR_NONE, m_misc.Raw.Data, owner->ToPlayer());
+    owner->ToPlayer()->SendDirectMessage(petCastFailed.Write());
+}
+
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, uint32* misc /*= nullptr*/)
+{
+    if (result == SPELL_CAST_OK)
+        return;
+
+    WorldPackets::Spells::CastFailed packet;
+    packet.SpellXSpellVisualID = spellVisual;
+    FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, misc, caster);
     caster->GetSession()->SendPacket(packet.Write());
 }
 
@@ -3904,7 +3913,8 @@ void Spell::SendSpellStart()
         castData.CasterGUID = m_caster->GetGUID();
 
     castData.CasterUnit = m_caster->GetGUID();
-    castData.CastID = m_cast_count; // pending spell cast?
+    castData.CastID = m_castId;
+    castData.OriginalCastID = m_originalCastId;
     castData.SpellID = m_spellInfo->Id;
     castData.SpellXSpellVisualID = m_SpellVisual;
     castData.CastFlags = castFlags;
@@ -4019,7 +4029,8 @@ void Spell::SendSpellGo()
         castData.CasterGUID = m_caster->GetGUID();
 
     castData.CasterUnit = m_caster->GetGUID();
-    castData.CastID = m_cast_count; // pending spell cast?
+    castData.CastID = m_castId;
+    castData.OriginalCastID = m_originalCastId;
     castData.SpellID = m_spellInfo->Id;
     castData.SpellXSpellVisualID = m_SpellVisual;
     castData.CastFlags = castFlags;
@@ -4180,41 +4191,30 @@ void Spell::SendSpellExecuteLog()
     spellExecuteLog.Caster = m_caster->GetGUID();
     spellExecuteLog.SpellID = m_spellInfo->Id;
 
-    if (_powerDrainTargets->empty() && _extraAttacksTargets->empty() &&
-        _durabilityDamageTargets->empty() && _genericVictimTargets->empty() &&
-        _tradeSkillTargets->empty() && _feedPetTargets->empty())
-        return;
-
     for (SpellEffectInfo const* effect : GetEffects())
     {
         WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect spellLogEffect;
         if (!effect)
             continue;
 
+        if (_powerDrainTargets[effect->EffectIndex].empty() && _extraAttacksTargets[effect->EffectIndex].empty() &&
+            _durabilityDamageTargets[effect->EffectIndex].empty() && _genericVictimTargets[effect->EffectIndex].empty() &&
+            _tradeSkillTargets[effect->EffectIndex].empty() && _feedPetTargets[effect->EffectIndex].empty())
+            continue;
+
         spellLogEffect.Effect = effect->Effect;
-
-        for (SpellLogEffectPowerDrainParams const& powerDrainParam : _powerDrainTargets[effect->EffectIndex])
-            spellLogEffect.PowerDrainTargets.push_back(powerDrainParam);
-
-        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : _extraAttacksTargets[effect->EffectIndex])
-            spellLogEffect.ExtraAttacksTargets.push_back(extraAttacksTarget);
-
-        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : _durabilityDamageTargets[effect->EffectIndex])
-            spellLogEffect.DurabilityDamageTargets.push_back(durabilityDamageTarget);
-
-        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : _genericVictimTargets[effect->EffectIndex])
-            spellLogEffect.GenericVictimTargets.push_back(genericVictimTarget);
-
-        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : _tradeSkillTargets[effect->EffectIndex])
-            spellLogEffect.TradeSkillTargets.push_back(tradeSkillTarget);
-
-        for (SpellLogEffectFeedPetParams const& feedPetTarget : _feedPetTargets[effect->EffectIndex])
-            spellLogEffect.FeedPetTargets.push_back(feedPetTarget);
+        spellLogEffect.PowerDrainTargets = std::move(_powerDrainTargets[effect->EffectIndex]);
+        spellLogEffect.ExtraAttacksTargets = std::move(_extraAttacksTargets[effect->EffectIndex]);
+        spellLogEffect.DurabilityDamageTargets = std::move(_durabilityDamageTargets[effect->EffectIndex]);
+        spellLogEffect.GenericVictimTargets = std::move(_genericVictimTargets[effect->EffectIndex]);
+        spellLogEffect.TradeSkillTargets = std::move(_tradeSkillTargets[effect->EffectIndex]);
+        spellLogEffect.FeedPetTargets = std::move(_feedPetTargets[effect->EffectIndex]);
 
         spellExecuteLog.Effects.push_back(spellLogEffect);
     }
 
-    m_caster->SendCombatLogMessage(&spellExecuteLog);
+    if (!spellExecuteLog.Effects.empty())
+        m_caster->SendCombatLogMessage(&spellExecuteLog);
 }
 
 void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude)
@@ -4307,21 +4307,11 @@ void Spell::ExecuteLogEffectResurrect(uint8 effect, Unit* target)
     _genericVictimTargets[effect].push_back(spellLogEffectGenericVictimParams);
 }
 
-void Spell::CleanupExecuteLogList()
-{
-    _durabilityDamageTargets->clear();
-    _extraAttacksTargets->clear();
-    _feedPetTargets->clear();
-    _genericVictimTargets->clear();
-    _powerDrainTargets->clear();
-    _tradeSkillTargets->clear();
-}
-
 void Spell::SendInterrupted(uint8 result)
 {
     WorldPackets::Spells::SpellFailure failurePacket;
     failurePacket.CasterUnit = m_caster->GetGUID();
-    failurePacket.CastID = m_cast_count;
+    failurePacket.CastID = m_castId;
     failurePacket.SpellID = m_spellInfo->Id;
     failurePacket.SpelXSpellVisualID = m_SpellVisual;
     failurePacket.Reason = result;
@@ -4329,7 +4319,7 @@ void Spell::SendInterrupted(uint8 result)
 
     WorldPackets::Spells::SpellFailedOther failedPacket;
     failedPacket.CasterUnit = m_caster->GetGUID();
-    failedPacket.CastID = m_cast_count;
+    failedPacket.CastID = m_castId;
     failedPacket.SpellID = m_spellInfo->Id;
     failedPacket.Reason = result;
     m_caster->SendMessageToSet(failedPacket.Write(), true);

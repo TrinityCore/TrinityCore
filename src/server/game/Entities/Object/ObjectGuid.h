@@ -181,7 +181,7 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::CallForHelp)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AIResource)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILock)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILockTicket)
-GUID_TRAIT_MAP_SPECIFIC(HighGuid::Cast) // Guessed
+GUID_TRAIT_MAP_SPECIFIC(HighGuid::Cast)
 
 class ObjectGuid;
 class PackedGuid;
@@ -208,6 +208,9 @@ class TC_GAME_API ObjectGuid
 
         template<HighGuid type>
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
+
+        template<HighGuid type>
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
 
