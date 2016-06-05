@@ -43,11 +43,11 @@ Location MoveSpline::ComputePosition() const
     else if (splineflags.falling)
         computeFallElevation(c.z);
 
-    if (splineflags.done && splineflags.isFacing())
+    if (splineflags.done && facing.type != MONSTER_MOVE_NORMAL)
     {
-        if (splineflags.final_angle)
+        if (facing.type == MONSTER_MOVE_FACING_ANGLE)
             c.orientation = facing.angle;
-        else if (splineflags.final_point)
+        else if (facing.type == MONSTER_MOVE_FACING_SPOT)
             c.orientation = std::atan2(facing.f.y - c.y, facing.f.x - c.x);
         //nothing to do for MoveSplineFlag::Final_Target flag
     }
@@ -165,7 +165,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
-    splineIsFacingOnly = args.path.size() == 2 && args.flags & MoveSplineFlag::Mask_Final_Facing && ((args.path[1] - args.path[0]).length() < 0.1f);
+    splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 
     // Check if its a stop spline
     if (args.flags.done)
@@ -178,7 +178,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation))
+    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::Unknown6))
     {
         effect_start_time = Duration() * args.time_perc;
         if (args.flags.parabolic && effect_start_time < Duration())
@@ -217,7 +217,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 // check path lengths - why are we even starting such short movement?
 bool MoveSplineInitArgs::_checkPathLengths() const
 {
-    if (path.size() > 2 || !(flags & MoveSplineFlag::Mask_Final_Facing))
+    if (path.size() > 2 || facing.type == MONSTER_MOVE_NORMAL)
         for (uint32 i = 0; i < path.size() - 1; ++i)
             if ((path[i + 1] - path[i]).length() < 0.1f)
                 return false;
@@ -274,11 +274,11 @@ std::string MoveSpline::ToString() const
     str << "MoveSpline" << std::endl;
     str << "spline Id: " << GetId() << std::endl;
     str << "flags: " << splineflags.ToString() << std::endl;
-    if (splineflags.final_angle)
+    if (facing.type == MONSTER_MOVE_FACING_ANGLE)
         str << "facing  angle: " << facing.angle;
-    else if (splineflags.final_target)
+    else if (facing.type == MONSTER_MOVE_FACING_TARGET)
         str << "facing target: " << facing.target.ToString();
-    else if (splineflags.final_point)
+    else if (facing.type == MONSTER_MOVE_FACING_SPOT)
         str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z;
     str << std::endl;
     str << "time passed: " << time_passed << std::endl;

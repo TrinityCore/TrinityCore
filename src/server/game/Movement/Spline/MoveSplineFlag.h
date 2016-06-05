@@ -56,20 +56,19 @@ namespace Movement
             Unknown5            = 0x01000000,           // NOT VERIFIED
             Animation           = 0x02000000,           // Plays animation after some time passed
             Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
-            Final_Point         = 0x08000000,
-            Final_Target        = 0x10000000,
-            Final_Angle         = 0x20000000,
-            Unknown6            = 0x40000000,           // NOT VERIFIED
-            Unknown7            = 0x80000000,           // NOT VERIFIED
+            Unknown6            = 0x08000000,           // NOT VERIFIED
+            Unknown7            = 0x10000000,           // NOT VERIFIED
+            Unknown8            = 0x20000000,           // NOT VERIFIED
+            Unknown9            = 0x40000000,           // NOT VERIFIED
+            Unknown10           = 0x80000000,           // NOT VERIFIED
 
             // Masks
-            Mask_Final_Facing   = Final_Point | Final_Target | Final_Angle,
             // animation ids stored here, see AnimType enum, used with Animation flag
             Mask_Animations     = 0x7,
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
-            Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
+            Mask_No_Monster_Move = Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9|Unknown10
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -83,7 +82,6 @@ namespace Movement
 
         bool isSmooth() const { return (raw() & Catmullrom) != 0; }
         bool isLinear() const { return !isSmooth(); }
-        bool isFacing() const { return (raw() & Mask_Final_Facing) != 0; }
 
         uint8 getAnimationId() const { return animId; }
         bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }
@@ -102,9 +100,6 @@ namespace Movement
         void EnableFlying() { raw() = (raw() & ~(Falling)) | Flying; }
         void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation | Flying)) | Falling; }
         void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom; }
-        void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
-        void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
-        void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
 
@@ -133,11 +128,11 @@ namespace Movement
         bool unknown5            : 1;
         bool animation           : 1;
         bool parabolic           : 1;
-        bool final_point         : 1;
-        bool final_target        : 1;
-        bool final_angle         : 1;
         bool unknown6            : 1;
         bool unknown7            : 1;
+        bool unknown8            : 1;
+        bool unknown9            : 1;
+        bool unknown10           : 1;
     };
 #pragma pack(pop)
 }

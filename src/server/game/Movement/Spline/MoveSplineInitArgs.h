@@ -35,7 +35,9 @@ namespace Movement
         ObjectGuid target;
         float angle;
 
-        FacingInfo() : angle(0.0f) { }
+        MonsterMoveType type;
+
+        FacingInfo() : angle(0.0f), type(MONSTER_MOVE_NORMAL) { }
     };
 
     struct MoveSplineInitArgs
