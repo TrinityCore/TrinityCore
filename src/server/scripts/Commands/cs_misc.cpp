@@ -895,12 +895,15 @@ public:
 
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
+#define SPELL_UNSTUCK_ID 7355
+#define SPELL_UNSTUCK_VISUAL 2683
+
         // No args required for players
         if (handler->GetSession() && !handler->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())
-                player->CastSpell(player, 7355, false);
+                player->CastSpell(player, SPELL_UNSTUCK_ID, false);
             return true;
         }
 
@@ -921,9 +924,6 @@ public:
 
         if (player->IsInFlight() || player->IsInCombat())
         {
-#define SPELL_UNSTUCK_ID 7355
-#define SPELL_UNSTUCK_VISUAL 2683
-
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_UNSTUCK_ID);
             if (!spellInfo)
                 return false;

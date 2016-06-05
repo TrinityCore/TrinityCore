@@ -186,8 +186,8 @@ void WorldPackets::Movement::ClientPlayerMovement::Read()
 
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey)
 {
-    data << monsterSplineFilterKey.Idx;
-    data << monsterSplineFilterKey.Speed;
+    data << int16(monsterSplineFilterKey.Idx);
+    data << uint16(monsterSplineFilterKey.Speed);
 
     return data;
 }
@@ -195,10 +195,10 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFi
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilter const& monsterSplineFilter)
 {
     data << uint32(monsterSplineFilter.FilterKeys.size());
-    data << monsterSplineFilter.BaseSpeed;
-    data << monsterSplineFilter.StartOffset;
-    data << monsterSplineFilter.DistToPrevFilterKey;
-    data << monsterSplineFilter.AddedToStart;
+    data << float(monsterSplineFilter.BaseSpeed);
+    data << int16(monsterSplineFilter.StartOffset);
+    data << float(monsterSplineFilter.DistToPrevFilterKey);
+    data << int16(monsterSplineFilter.AddedToStart);
     for (WorldPackets::Movement::MonsterSplineFilterKey const& filterKey : monsterSplineFilter.FilterKeys)
         data << filterKey;
     data.WriteBits(monsterSplineFilter.FilterFlags, 2);
@@ -207,28 +207,38 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFi
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineSpellEffectExtraData const& spellEffectExtraData)
+{
+    data << spellEffectExtraData.field_1;
+    data << uint32(spellEffectExtraData.field_2);
+    data << uint32(spellEffectExtraData.field_3);
+    data << uint32(spellEffectExtraData.field_4);
+
+    return data;
+}
+
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
-    data << movementSpline.Flags;
-    data << movementSpline.AnimTier;
-    data << movementSpline.TierTransStartTime;
-    data << movementSpline.Elapsed;
-    data << movementSpline.MoveTime;
-    data << movementSpline.JumpGravity;
-    data << movementSpline.SpecialTime;
-    data << int32(movementSpline.Points.size());
-    data << movementSpline.Mode;
-    data << movementSpline.VehicleExitVoluntary;
+    data << uint32(movementSpline.Flags);
+    data << uint8(movementSpline.AnimTier);
+    data << uint32(movementSpline.TierTransStartTime);
+    data << int32(movementSpline.Elapsed);
+    data << uint32(movementSpline.MoveTime);
+    data << float(movementSpline.JumpGravity);
+    data << uint32(movementSpline.SpecialTime);
+    data << uint32(movementSpline.Points.size());
+    data << uint8(movementSpline.Mode);
+    data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
-    data << movementSpline.VehicleSeat;
-    data << int32(movementSpline.PackedDeltas.size());
+    data << int8(movementSpline.VehicleSeat);
+    data << uint32(movementSpline.PackedDeltas.size());
     for (G3D::Vector3 const& pos : movementSpline.Points)
         data << pos;
     for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
         data.appendPackXYZ(pos.x, pos.y, pos.z);
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
-    data.WriteBit(0); // New Legion bit
+    data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -240,20 +250,16 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
             data << movementSpline.FaceSpot;
             break;
         case ::Movement::MONSTER_MOVE_FACING_TARGET:
-            data << movementSpline.FaceDirection;
+            data << float(movementSpline.FaceDirection);
             data << movementSpline.FaceGUID;
             break;
         case ::Movement::MONSTER_MOVE_FACING_ANGLE:
-            data << movementSpline.FaceDirection;
+            data << float(movementSpline.FaceDirection);
             break;
     }
 
-    // New legion block, controlled by new bit above
-    // if (false)
-    // {
-    //     data << ObjectGuid::Empty;
-    //     data << 0 << 0 << 0;
-    // }
+    if (movementSpline.SpellEffectExtraData)
+        data << *movementSpline.SpellEffectExtraData;
 
     return data;
 }
@@ -263,9 +269,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
     data << movementMonsterSpline.ID;
     data << movementMonsterSpline.Destination;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
-
-    // Unk bits. 0 if monster is moving, 1 or 2 if stopped
-    data.WriteBits(movementMonsterSpline.Move.Flags ? 0 : 2, 2);
+    data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
 
     data << movementMonsterSpline.Move;
 
@@ -296,20 +300,12 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << uint32(moveSpline.getPath().size());
         data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
 
-        uint8 face = ::Movement::MONSTER_MOVE_NORMAL;
-        if (splineFlags.final_angle)
-            face = ::Movement::MONSTER_MOVE_FACING_ANGLE;
-        else if (splineFlags.final_target)
-            face = ::Movement::MONSTER_MOVE_FACING_TARGET;
-        else if (splineFlags.final_point)
-            face = ::Movement::MONSTER_MOVE_FACING_SPOT;
-
-        data.WriteBits(face, 2);                                                // Face
+        data.WriteBits(moveSpline.facing.type, 2);                              // Face
         bool HasJumpGravity = data.WriteBit(moveSpline.splineflags & (::Movement::MoveSplineFlag::Parabolic | ::Movement::MoveSplineFlag::Animation));                 // HasJumpGravity
         bool HasSpecialTime = data.WriteBit((moveSpline.splineflags & ::Movement::MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
-        data.WriteBit(0);                                                       // Unknown_1
+        data.WriteBit(0);                                                       // HasSpellEffectExtraData
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -325,7 +321,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         //    data.FlushBits();
         //}
 
-        switch (face)
+        switch (moveSpline.facing.type)
         {
             case ::Movement::MONSTER_MOVE_FACING_SPOT:
                 data << moveSpline.facing.f;        // FaceSpot
@@ -344,7 +340,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
 
-        //if (Unknown_1)
+        //if (HasSpellEffectExtraData)
         //{
         //    data << ObjectGuid();
         //    data << uint32();
@@ -362,25 +358,10 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     ::Movement::MoveSplineFlag splineFlags = moveSpline.splineflags;
     splineFlags.enter_cycle = moveSpline.isCyclic();
     movementSpline.Flags = uint32(splineFlags & uint32(~::Movement::MoveSplineFlag::Mask_No_Monster_Move));
-
-    switch (moveSpline.splineflags & ::Movement::MoveSplineFlag::Mask_Final_Facing)
-    {
-        case ::Movement::MoveSplineFlag::Final_Point:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_SPOT;
-            movementSpline.FaceSpot = moveSpline.facing.f;
-            break;
-        case ::Movement::MoveSplineFlag::Final_Target:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_TARGET;
-            movementSpline.FaceGUID = moveSpline.facing.target;
-            break;
-        case ::Movement::MoveSplineFlag::Final_Angle:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_ANGLE;
-            movementSpline.FaceDirection = moveSpline.facing.angle;
-            break;
-        default:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_NORMAL;
-            break;
-    }
+    movementSpline.Face = moveSpline.facing.type;
+    movementSpline.FaceDirection = moveSpline.facing.angle;
+    movementSpline.FaceGUID = moveSpline.facing.target;
+    movementSpline.FaceSpot = moveSpline.facing.f;
 
     if (splineFlags.animation)
     {
@@ -395,6 +376,9 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.JumpGravity = moveSpline.vertical_acceleration;
         movementSpline.SpecialTime = moveSpline.effect_start_time;
     }
+
+    if (splineFlags.unknown6)
+        movementSpline.SpecialTime = moveSpline.effect_start_time;
 
     ::Movement::Spline<int32> const& spline = moveSpline.spline;
     std::vector<G3D::Vector3> const& array = spline.getPoints();
@@ -506,6 +490,7 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
 {
     _worldPacket << uint32(MapID);
     _worldPacket << uint8(Arg);
+    _worldPacket << int32(MapDifficultyXConditionID);
     _worldPacket.WriteBits(TransfertAbort, 5);
     _worldPacket.FlushBits();
     return &_worldPacket;
@@ -513,22 +498,19 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
 
 WorldPacket const* WorldPackets::Movement::NewWorld::Write()
 {
-    _worldPacket << MapID;
+    _worldPacket << int32(MapID);
     _worldPacket << Pos.PositionXYZOStream();
-    _worldPacket << Reason;
-    // New in 7.x - Does something movement-related (velocities ???)
-    _worldPacket << float(0.0f);
-    _worldPacket << float(0.0f);
-    _worldPacket << float(0.0f);
+    _worldPacket << uint32(Reason);
+    _worldPacket << MovementOffset.PositionXYZStream();
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 {
     _worldPacket << MoverGUID;
-    _worldPacket << SequenceIndex;
+    _worldPacket << uint32(SequenceIndex);
     _worldPacket << Pos.PositionXYZStream();
-    _worldPacket << Facing;
+    _worldPacket << float(Facing);
     _worldPacket << uint8(0); //! New in 7.x (gets written into movement queue node)
 
     _worldPacket.WriteBit(Vehicle.is_initialized());
@@ -537,7 +519,7 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 
     if (Vehicle)
     {
-        _worldPacket << Vehicle->VehicleSeatIndex;
+        _worldPacket << uint8(Vehicle->VehicleSeatIndex);
         _worldPacket.WriteBit(Vehicle->VehicleExitVoluntary);
         _worldPacket.WriteBit(Vehicle->VehicleExitTeleport);
         _worldPacket.FlushBits();
@@ -748,6 +730,7 @@ WorldPacket const* WorldPackets::Movement::SummonRequest::Write()
     _worldPacket << SummonerGUID;
     _worldPacket << uint32(SummonerVirtualRealmAddress);
     _worldPacket << int32(AreaID);
+    _worldPacket << uint8(Reason);
     _worldPacket.WriteBit(SkipStartingArea);
     _worldPacket.FlushBits();
 
