@@ -57,7 +57,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
         // Limit height change
         const float distanceZ = float(rand_norm()) * travelDistZ/2.0f;
         destZ = respZ + distanceZ;
-        float levelZ = map->GetWaterOrGroundLevel(destX, destY, destZ-2.0f);
+        float levelZ = map->GetWaterOrGroundLevel(creature->GetPhaseMask(), destX, destY, destZ-2.5f);
 
         // Problem here, we must fly above the ground and water, not under. Let's try on next tick
         if (levelZ >= destZ)
