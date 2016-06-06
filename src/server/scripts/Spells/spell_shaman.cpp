@@ -442,7 +442,7 @@ class spell_sha_fulmination : public SpellScriptLoader
                         uint32 stacks = aura->GetCharges();
                         if (stacks > 1)
                         {
-                            SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(aura->GetSpellEffectInfo(EFFECT_0)->TriggerSpell);
+                            SpellInfo const* triggerSpell = sSpellMgr->AssertSpellInfo(aura->GetSpellEffectInfo(EFFECT_0)->TriggerSpell);
                             SpellEffectInfo const* triggerEffect = triggerSpell->GetEffect(EFFECT_0);
 
                             uint32 damage;
