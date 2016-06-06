@@ -2820,6 +2820,9 @@ inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 i
 float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
 {
     float ppm = ProcBasePPM;
+    if (!caster)
+        return ppm;
+
     for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
     {
         switch (mod->Type)
