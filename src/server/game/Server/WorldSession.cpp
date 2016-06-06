@@ -118,6 +118,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _battlenetAccountId(battlenetAccountId),
     m_expansion(expansion),
     _os(os),
+    _battlenetRequestToken(0),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),

@@ -163,8 +163,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             int32 PetNumber = 0;
             std::string NewName;
-            bool HasDeclinedNames = false;
-            DeclinedName DeclinedNames;
+            Optional<DeclinedName> DeclinedNames;
         };
 
         class PetNameInvalid final : public ServerPacket
