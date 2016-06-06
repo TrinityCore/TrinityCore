@@ -99,19 +99,19 @@ WorldPacket const* WorldPackets::Pet::PetNameInvalid::Write()
 
     _worldPacket << uint8(RenameData.NewName.length());
 
-    _worldPacket.WriteBit(RenameData.HasDeclinedNames);
+    _worldPacket.WriteBit(RenameData.DeclinedNames.is_initialized());
     _worldPacket.FlushBits();
 
-    if (RenameData.HasDeclinedNames)
+    if (RenameData.DeclinedNames)
     {
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
         {
-            _worldPacket.WriteBits(RenameData.DeclinedNames.name[i].length(), 7);
+            _worldPacket.WriteBits(RenameData.DeclinedNames->name[i].length(), 7);
             _worldPacket.FlushBits();
         }
 
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-            _worldPacket << RenameData.DeclinedNames.name[i];
+            _worldPacket << RenameData.DeclinedNames->name[i];
     }
 
     _worldPacket.WriteString(RenameData.NewName);
@@ -126,15 +126,15 @@ void WorldPackets::Pet::PetRename::Read()
     int8 nameLen = 0;
     _worldPacket >> nameLen;
 
-    RenameData.HasDeclinedNames = _worldPacket.ReadBit();
-    if (RenameData.HasDeclinedNames)
+    if (_worldPacket.ReadBit())
     {
+        RenameData.DeclinedNames = boost::in_place();
         int32 count[MAX_DECLINED_NAME_CASES];
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             count[i] = _worldPacket.ReadBits(7);
 
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-            RenameData.DeclinedNames.name[i] = _worldPacket.ReadString(count[i]);
+            RenameData.DeclinedNames->name[i] = _worldPacket.ReadString(count[i]);
     }
 
     RenameData.NewName = _worldPacket.ReadString(nameLen);

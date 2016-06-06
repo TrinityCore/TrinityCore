@@ -76,8 +76,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Token;
-            bool Allow;
+            uint32 Token = 0;
+            bool Allow = false;
             ByteBuffer Ticket;
         };
 
