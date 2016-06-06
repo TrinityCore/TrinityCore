@@ -11406,10 +11406,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         if (enemy)
         {
             if (IsAIEnabled)
-            {
                 creature->AI()->EnterCombat(enemy);
-                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // unit has engaged in combat, remove immunity so players can fight back
-            }
+
             if (creature->GetFormation())
                 creature->GetFormation()->MemberAttackStart(creature, enemy);
         }
@@ -11455,9 +11453,6 @@ void Unit::ClearInCombat()
     // Player's state will be cleared in Player::UpdateContestedPvP
     if (Creature* creature = ToCreature())
     {
-        if (creature->GetCreatureTemplate() && creature->GetCreatureTemplate()->unit_flags & UNIT_FLAG_IMMUNE_TO_PC)
-            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // set immunity state to the one from db on evade
-
         ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
         if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(UNIT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
@@ -11671,8 +11666,11 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         && (!ToCreature() || !(ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)))
         return false;
 
+    // Controlled player case, we can assist creatures (reaction already checked above, our faction == charmer faction)
+    if (GetTypeId() == TYPEID_PLAYER && IsCharmed() && GetCharmerGUID().IsCreature())
+        return true;
     // PvP case
-    if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
+    else if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
     {
         Player const* targetPlayerOwner = target->GetAffectingPlayer();
         if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
@@ -13299,6 +13297,7 @@ void Unit::UpdateCharmAI()
                 if (!newAI) // otherwise, we default to the generic one
                     newAI = new SimpleCharmedPlayerAI(ToPlayer());
                 i_AI = newAI;
+                newAI->OnCharmed(true);
             }
             else
             {
@@ -15592,7 +15591,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         {
             // change AI to charmed AI on next Update tick
             NeedChangeAI = true;
-            IsAIEnabled = false;
+            if (IsAIEnabled)
+            {
+                IsAIEnabled = false;
+                player->AI()->OnCharmed(true);
+            }
         }
         player->SetClientControl(this, false);
     }
