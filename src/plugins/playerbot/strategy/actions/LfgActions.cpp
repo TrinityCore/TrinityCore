@@ -192,15 +192,16 @@ bool LfgAcceptAction::Execute(Event event)
     uint32 id = AI_VALUE(uint32, "lfg proposal");
     if (id)
     {
+        if (urand(0, 1 + 10 / sPlayerbotAIConfig.randomChangeMultiplier))
+            return false;
+
         if (bot->IsInCombat() || bot->isDead() || bot->IsFalling())
         {
-            sLFGMgr->LeaveLfg(bot->GetGUID());
-            return false;
+            sLFGMgr->UpdateProposal(id, bot->GetGUID(), false);
+            return true;
         }
 
         ai->ChangeStrategy("-grind", BOT_STATE_NON_COMBAT);
-        if (urand(0, 1 + 10 / sPlayerbotAIConfig.randomChangeMultiplier))
-            return false;
 
         if (sRandomPlayerbotMgr.IsRandomBot(bot) && !bot->GetGroup())
             ai->ChangeStrategy("-grind", BOT_STATE_NON_COMBAT);
