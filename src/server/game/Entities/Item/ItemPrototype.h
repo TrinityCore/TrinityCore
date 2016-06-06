@@ -664,25 +664,7 @@ struct ItemTemplate
     uint32 FlagsCu;
 
     // helpers
-    bool CanChangeEquipStateInCombat() const
-    {
-        switch (InventoryType)
-        {
-            case INVTYPE_RELIC:
-            case INVTYPE_SHIELD:
-            case INVTYPE_HOLDABLE:
-                return true;
-        }
-
-        switch (Class)
-        {
-            case ITEM_CLASS_WEAPON:
-            case ITEM_CLASS_PROJECTILE:
-                return true;
-        }
-
-        return false;
-    }
+    bool CanChangeEquipStateInCombat() const;
 
     bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
@@ -691,51 +673,13 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    float getDPS() const
-    {
-        if (Delay == 0)
-            return 0;
-        float temp = 0;
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-            temp+=Damage[i].DamageMin + Damage[i].DamageMax;
-        return temp*500/Delay;
-    }
+    float getDPS() const;
 
-    int32 getFeralBonus(int32 extraDPS = 0) const
-    {
-        // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-        if (Class == ITEM_CLASS_WEAPON && (1<<SubClass)&0x02A5F3)
-        {
-            int32 bonus = int32((extraDPS + getDPS())*14.0f) - 767;
-            if (bonus < 0)
-                return 0;
-            return bonus;
-        }
-        return 0;
-    }
+    int32 getFeralBonus(int32 extraDPS = 0) const;
 
-    float GetItemLevelIncludingQuality() const
-    {
-        float itemLevel = (float)ItemLevel;
-        switch (Quality)
-        {
-            case ITEM_QUALITY_POOR:
-            case ITEM_QUALITY_NORMAL:
-            case ITEM_QUALITY_UNCOMMON:
-            case ITEM_QUALITY_ARTIFACT:
-            case ITEM_QUALITY_HEIRLOOM:
-                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
-                break;
-            case ITEM_QUALITY_RARE:
-                itemLevel -= 13;
-                break;
-            case ITEM_QUALITY_EPIC:
-            case ITEM_QUALITY_LEGENDARY:
-            default:
-                break;
-        }
-        return std::max<float>(0.f, itemLevel);
-    }
+    float GetItemLevelIncludingQuality() const;
+
+    uint32 GetSkill() const;
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }

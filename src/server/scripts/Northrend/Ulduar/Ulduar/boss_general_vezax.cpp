@@ -380,7 +380,6 @@ class npc_saronite_vapors : public CreatureScript
             {
                 Talk(EMOTE_VAPORS);
                 instance = me->GetInstanceScript();
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -416,7 +415,7 @@ class npc_saronite_vapors : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();

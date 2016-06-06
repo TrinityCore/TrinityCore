@@ -213,7 +213,6 @@ class npc_tournament_training_dummy : public CreatureScript
             void Reset() override
             {
                 me->SetControlled(true, UNIT_STATE_STUNNED);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 Initialize();
 
                 // Cast Defend spells to max stack size
@@ -231,9 +230,9 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                if (!_EnterEvadeMode())
+                if (!_EnterEvadeMode(why))
                     return;
 
                 Reset();
@@ -304,7 +303,7 @@ class npc_tournament_training_dummy : public CreatureScript
                     case EVENT_DUMMY_RESET:
                         if (UpdateVictim())
                         {
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             events.ScheduleEvent(EVENT_DUMMY_RESET, 10000);
                         }
                         break;
@@ -713,7 +712,7 @@ enum BorrowedTechnologyAndVolatility
     SPELL_PING_BUNNY       = 59375,
     SPELL_IMMOLATION       = 54690,
     SPELL_EXPLOSION        = 59335,
-    SPELL_RIDE             = 56687,
+    SPELL_RIDE             = 59319,
 
     // Points
     POINT_GRAB_DECOY       = 1,

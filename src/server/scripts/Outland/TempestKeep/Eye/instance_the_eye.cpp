@@ -36,9 +36,9 @@ EndScriptData */
 
 DoorData const doorData[] =
 {
-    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SW   },
-    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM, BOUNDARY_SE   },
-    {                    0,             0, DOOR_TYPE_ROOM, BOUNDARY_NONE } // END
+    { GO_ARCANE_DOOR_LEFT,  DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SW  */ },
+    { GO_ARCANE_DOOR_RIGHT, DATA_KAELTHAS, DOOR_TYPE_ROOM/*, BOUNDARY_SE  */ },
+    {                    0,             0, DOOR_TYPE_ROOM } // END
 };
 
 ObjectData const gameObjectData[] =

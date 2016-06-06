@@ -21,12 +21,14 @@
 
 #include "Creature.h"
 #include "UnitAI.h"
+#include "AreaBoundary.h"
 #include "Common.h"
 
 class WorldObject;
 class Unit;
 class Creature;
 class Player;
+class PlayerAI;
 class SpellInfo;
 
 #define TIME_INTERVAL_LOOK   5000
@@ -63,7 +65,8 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
-class CreatureAI : public UnitAI
+typedef std::set<AreaBoundary const*> CreatureBoundary;
+class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:
         Creature* const me;
@@ -77,10 +80,21 @@ class CreatureAI : public UnitAI
         Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
+        bool CheckBoundary(Position const* who = nullptr) const;
+        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; me->DoImmediateBoundaryCheck(); }
     public:
+        enum EvadeReason
+        {
+            EVADE_REASON_NO_HOSTILES,       // the creature's threat list is empty
+            EVADE_REASON_BOUNDARY,          // the creature has moved outside its evade boundary
+            EVADE_REASON_NO_PATH,           // the creature was unable to reach its target for over 5 seconds
+            EVADE_REASON_SEQUENCE_BREAK,    // this is a boss and the pre-requisite encounters for engaging it are not defeated yet
+            EVADE_REASON_OTHER
+        };
+
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
 
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false) { }
+        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false) { }
 
         virtual ~CreatureAI() { }
 
@@ -96,9 +110,9 @@ class CreatureAI : public UnitAI
         virtual bool CanRespawn() { return true; }
 
         // Called for reaction at stopping attack at no attackers or targets
-        virtual void EnterEvadeMode();
+        virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
+        // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
         virtual void EnterCombat(Unit* /*victim*/) { }
 
         // Called when the creature is killed
@@ -124,8 +138,8 @@ class CreatureAI : public UnitAI
         virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
 
-        // Called when creature is spawned or respawned (for reseting variables)
-        virtual void JustRespawned() { Reset(); }
+        // Called when creature is spawned or respawned
+        virtual void JustRespawned() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
@@ -135,7 +149,7 @@ class CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 
-        void DoZoneInCombat(Creature* creature = NULL, float maxRangeToNearestTarget = 50.0f);
+        void DoZoneInCombat(Creature* creature = nullptr, float maxRangeToNearestTarget = 250.0f);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
@@ -174,10 +188,22 @@ class CreatureAI : public UnitAI
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
 
+        // Called when a player is charmed by the creature
+        // If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
+        // Object destruction is handled by Unit::RemoveCharmedBy
+        virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
+
+        // intended for encounter design/debugging. do not use for other purposes. expensive.
+        int32 VisualizeBoundary(uint32 duration, Unit* owner=nullptr, bool fill=false) const;
+        virtual bool CheckInRoom();
+        CreatureBoundary const* GetBoundary() const { return _boundary; }
+
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
 
-        bool _EnterEvadeMode();
+        bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
+
+        CreatureBoundary const* _boundary;
 
     private:
         bool m_MoveInLineOfSight_locked;

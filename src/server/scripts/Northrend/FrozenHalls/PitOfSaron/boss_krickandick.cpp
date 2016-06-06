@@ -166,10 +166,10 @@ class boss_ick : public CreatureScript
                 events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 me->GetMotionMaster()->Clear();
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -203,7 +203,7 @@ class boss_ick : public CreatureScript
 
                 if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -418,7 +418,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_6:
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT)))
                             {
-                                tyrannus->SetSpeed(MOVE_FLIGHT, 3.5f, true);
+                                tyrannus->SetSpeedRate(MOVE_FLIGHT, 3.5f);
                                 tyrannus->GetMotionMaster()->MovePoint(1, outroPos[4]);
                                 _tyrannusGUID = tyrannus->GetGUID();
                             }

@@ -34,9 +34,9 @@ EndScriptData */
 
 DoorData const doorData[] =
 {
-    { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    { 0,                               0,               DOOR_TYPE_ROOM,    BOUNDARY_NONE }
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
+    { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
+    { 0,                               0,               DOOR_TYPE_ROOM }
 };
 
 class instance_shattered_halls : public InstanceMapScript

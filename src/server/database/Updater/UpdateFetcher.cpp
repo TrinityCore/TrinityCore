@@ -18,6 +18,7 @@
 #include "UpdateFetcher.h"
 #include "Log.h"
 #include "Util.h"
+#include "SHA1.h"
 
 #include <fstream>
 #include <chrono>
@@ -25,7 +26,6 @@
 #include <sstream>
 #include <exception>
 #include <unordered_map>
-#include <openssl/sha.h>
 
 using namespace boost::filesystem;
 
@@ -137,24 +137,33 @@ UpdateFetcher::AppliedFileStorage UpdateFetcher::ReceiveAppliedFiles() const
     return map;
 }
 
-UpdateFetcher::SQLUpdate UpdateFetcher::ReadSQLUpdate(boost::filesystem::path const& file) const
+std::string UpdateFetcher::ReadSQLUpdate(boost::filesystem::path const& file) const
 {
     std::ifstream in(file.c_str());
-    WPFatal(in.is_open(), "Could not read an update file.");
+    if (!in.is_open())
+    {
+        TC_LOG_FATAL("sql.updates", "Failed to open the sql update \"%s\" for reading! "
+                     "Stopping the server to keep the database integrity, "
+                     "try to identify and solve the issue or disabled the database updater.",
+                     file.generic_string().c_str());
 
-    auto const start_pos = in.tellg();
-    in.ignore(std::numeric_limits<std::streamsize>::max());
-    auto const char_count = in.gcount();
-    in.seekg(start_pos);
+        throw UpdateException("Opening the sql update failed!");
+    }
 
-    SQLUpdate const update(new std::string(char_count, char{}));
+    auto update = [&in]  {
+        std::ostringstream ss;
+        ss << in.rdbuf();
+        return ss.str();
+    }();
 
-    in.read(&(*update)[0], update->size());
     in.close();
     return update;
 }
 
-UpdateResult UpdateFetcher::Update(bool const redundancyChecks, bool const allowRehash, bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const
+UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
+                                   bool const allowRehash,
+                                   bool const archivedRedundancy,
+                                   int32 const cleanDeadReferencesMaxCount) const
 {
     LocaleFileStorage const available = GetFileList();
     AppliedFileStorage applied = ReceiveAppliedFiles();
@@ -200,11 +209,8 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks, bool const allow
             }
         }
 
-        // Read update from file
-        SQLUpdate const update = ReadSQLUpdate(availableQuery.first);
-
-        // Calculate hash
-        std::string const hash = CalculateHash(update);
+        // Calculate a Sha1 hash based on query content.
+        std::string const hash = CalculateSHA1Hash(ReadSQLUpdate(availableQuery.first));
 
         UpdateMode mode = MODE_APPLY;
 
@@ -327,15 +333,6 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks, bool const allow
     return UpdateResult(importedUpdates, countRecentUpdates, countArchivedUpdates);
 }
 
-std::string UpdateFetcher::CalculateHash(SQLUpdate const& query) const
-{
-    // Calculate a Sha1 hash based on query content.
-    unsigned char digest[SHA_DIGEST_LENGTH];
-    SHA1((unsigned char*)query->c_str(), query->length(), (unsigned char*)&digest);
-
-    return ByteArrayToHexStr(digest, SHA_DIGEST_LENGTH);
-}
-
 uint32 UpdateFetcher::Apply(Path const& path) const
 {
     using Time = std::chrono::high_resolution_clock;
@@ -347,7 +344,7 @@ uint32 UpdateFetcher::Apply(Path const& path) const
     _applyFile(path);
 
     // Return time the query took to apply
-    return std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count();
+    return uint32(std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count());
 }
 
 void UpdateFetcher::UpdateEntry(AppliedFileEntry const& entry, uint32 const speed) const

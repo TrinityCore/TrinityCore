@@ -488,9 +488,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received MSG_RANDOM_ROLL");
-
-    uint32 minimum, maximum, roll;
+    uint32 minimum, maximum;
     recvData >> minimum;
     recvData >> maximum;
 
@@ -499,20 +497,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
         return;
     /********************/
 
-    // everything's fine, do it
-    roll = urand(minimum, maximum);
-
-    //TC_LOG_DEBUG("ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
-
-    WorldPacket data(MSG_RANDOM_ROLL, 4+4+4+8);
-    data << uint32(minimum);
-    data << uint32(maximum);
-    data << uint32(roll);
-    data << uint64(GetPlayer()->GetGUID());
-    if (GetPlayer()->GetGroup())
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
-    else
-        SendPacket(&data);
+    GetPlayer()->DoRandomRoll(minimum, maximum);
 }
 
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)

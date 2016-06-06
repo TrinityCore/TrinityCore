@@ -348,10 +348,10 @@ public:
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
                 uint32 locale = handler->GetSessionDbcLocale();
 
-                AreaTableEntry const* area = GetAreaEntryByAreaID(p->GetAreaId());
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
                     if (zone)
                         zoneName = zone->area_name[locale];
                 }

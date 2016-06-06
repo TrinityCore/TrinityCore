@@ -42,7 +42,9 @@ enum CreatureIds
 {
     NPC_SELIN               = 24723,
     NPC_DELRISSA            = 24560,
-    NPC_FEL_CRYSTAL         = 24722
+    NPC_FEL_CRYSTAL         = 24722,
+    NPC_KALECGOS            = 24844,
+    NPC_HUMAN_KALECGOS      = 24848
 };
 
 enum GameObjectIds
@@ -55,6 +57,21 @@ enum GameObjectIds
     GO_KAEL_STATUE_1        = 188165,
     GO_KAEL_STATUE_2        = 188166,
     GO_ESCAPE_ORB           = 188173
+};
+
+enum InstanceEventIds
+{
+    EVENT_SPAWN_KALECGOS    = 16547
+};
+
+enum InstanceText
+{
+    SAY_KALECGOS_SPAWN      = 0
+};
+
+enum MovementData
+{
+    PATH_KALECGOS_FLIGHT    = 248440
 };
 
 #endif

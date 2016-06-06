@@ -29,6 +29,26 @@
 #include "Pet.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
+#include "ScriptReloadMgr.h"
+#include "ScriptMgr.h"
+
+BossBoundaryData::~BossBoundaryData()
+{
+    for (const_iterator it = begin(); it != end(); ++it)
+        delete it->Boundary;
+}
+
+InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0)
+{
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+    uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
+    auto const scriptname = sObjectMgr->GetScriptName(scriptId);
+    ASSERT(!scriptname.empty());
+   // Acquire a strong reference from the script module
+   // to keep it loaded until this object is destroyed.
+    module_reference = sScriptMgr->AcquireModuleReferenceOfScriptName(scriptname);
+#endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+}
 
 void InstanceScript::SaveToDB()
 {
@@ -96,6 +116,13 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
             headers.push_back(header);
 }
 
+void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
+{
+    for (BossBoundaryEntry const& entry : data)
+        if (entry.BossId < bosses.size())
+            bosses[entry.BossId].boundary.insert(entry.Boundary);
+}
+
 void InstanceScript::LoadMinionData(const MinionData* data)
 {
     while (data->entry)
@@ -113,7 +140,7 @@ void InstanceScript::LoadDoorData(const DoorData* data)
     while (data->entry)
     {
         if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
+            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
 
         ++data;
     }
@@ -236,28 +263,6 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         if (add)
         {
             data.bossInfo->door[data.type].insert(door->GetGUID());
-            switch (data.boundary)
-            {
-                default:
-                case BOUNDARY_NONE:
-                    break;
-                case BOUNDARY_N:
-                case BOUNDARY_S:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX();
-                    break;
-                case BOUNDARY_E:
-                case BOUNDARY_W:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionY();
-                    break;
-                case BOUNDARY_NW:
-                case BOUNDARY_SE:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() + door->GetPositionY();
-                    break;
-                case BOUNDARY_NE:
-                case BOUNDARY_SW:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() - door->GetPositionY();
-                    break;
-            }
         }
         else
             data.bossInfo->door[data.type].erase(door->GetGUID());

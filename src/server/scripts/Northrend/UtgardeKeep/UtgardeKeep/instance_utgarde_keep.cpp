@@ -21,9 +21,9 @@
 
 DoorData const doorData[] =
 {
-    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
-    { 0,                        0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE } // END
+    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    DOOR_TYPE_PASSAGE },
+    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    DOOR_TYPE_PASSAGE },
+    { 0,                        0,              DOOR_TYPE_ROOM } // END
 };
 
 MinionData const minionData[] =

@@ -36,7 +36,16 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
+    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+        return;
+
     if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+    {
+        owner->ToCreature()->SetCannotReachTarget(true);
+        return;
+    }
+
+    if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))
         return;
 
     float x, y, z;
@@ -45,6 +54,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     {
         if (!i_offset)
         {
+            if (i_target->IsWithinDistInMap(owner, CONTACT_DISTANCE))
+                return;
+
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
         }
@@ -96,8 +108,10 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     bool result = i_path->CalculatePath(x, y, z, forceDest);
     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
     {
-        // Cant reach target
+        // can't reach target
         i_recalculateTravel = true;
+        if (owner->GetTypeId() == TYPEID_UNIT)
+            owner->ToCreature()->SetCannotReachTarget(true);
         return;
     }
 
@@ -105,6 +119,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     i_targetReached = false;
     i_recalculateTravel = false;
     owner->AddUnitState(UNIT_STATE_CHASE);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->SetCannotReachTarget(false);
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
@@ -133,7 +149,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING))
+    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
     {
         if (!owner->IsStopped())
             owner->StopMoving();
@@ -195,6 +211,8 @@ void ChaseMovementGenerator<T>::_reachTarget(T* owner)
 {
     if (owner->IsWithinMeleeRange(this->i_target.getTarget()))
         owner->Attack(this->i_target.getTarget(), true);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->SetCannotReachTarget(false);
 }
 
 template<>
@@ -262,9 +280,9 @@ void FollowMovementGenerator<Creature>::_updateSpeed(Creature* owner)
     if (!owner->IsPet() || !owner->IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
         return;
 
-    owner->UpdateSpeed(MOVE_RUN, true);
-    owner->UpdateSpeed(MOVE_WALK, true);
-    owner->UpdateSpeed(MOVE_SWIM, true);
+    owner->UpdateSpeed(MOVE_RUN);
+    owner->UpdateSpeed(MOVE_WALK);
+    owner->UpdateSpeed(MOVE_SWIM);
 }
 
 template<>

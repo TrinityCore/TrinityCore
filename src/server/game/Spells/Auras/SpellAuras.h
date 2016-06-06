@@ -39,7 +39,7 @@ class ChargeDropEvent;
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
 
-class AuraApplication
+class TC_GAME_API AuraApplication
 {
     friend void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask);
     friend void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
@@ -82,7 +82,7 @@ class AuraApplication
         void ClientUpdate(bool remove = false);
 };
 
-class Aura
+class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
     public:
@@ -203,12 +203,12 @@ class Aura
         // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
         // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
         // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
-        bool IsProcOnCooldown() const;
-        void AddProcCooldown(uint32 msec);
+        bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
+        void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
-        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo);
-        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
+        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
+        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
@@ -269,11 +269,13 @@ class Aura
 
         ChargeDropEvent* m_dropEvent;
 
+        std::chrono::steady_clock::time_point m_procCooldown;
+
     private:
         Unit::AuraApplicationList m_removedApplications;
 };
 
-class UnitAura : public Aura
+class TC_GAME_API UnitAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
     protected:
@@ -294,7 +296,7 @@ class UnitAura : public Aura
         DiminishingGroup m_AuraDRGroup:8;               // Diminishing
 };
 
-class DynObjAura : public Aura
+class TC_GAME_API DynObjAura : public Aura
 {
     friend Aura* Aura::Create(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
     protected:
@@ -305,12 +307,12 @@ class DynObjAura : public Aura
         void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
 };
 
-class ChargeDropEvent : public BasicEvent
+class TC_GAME_API ChargeDropEvent : public BasicEvent
 {
     friend class Aura;
     protected:
         ChargeDropEvent(Aura* base, AuraRemoveMode mode) : _base(base), _mode(mode) { }
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/);
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
 
     private:
         Aura* _base;

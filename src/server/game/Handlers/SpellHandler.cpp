@@ -268,11 +268,8 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_USE Message [%s]", guid.ToString().c_str());
 
-    if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+    if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
     {
-        if (!obj->IsWithinDistInMap(GetPlayer(), obj->GetInteractionDistance()))
-            return;
-
         // ignore for remote control state
         if (GetPlayer()->m_mover != GetPlayer())
             if (!(GetPlayer()->IsOnVehicle(GetPlayer()->m_mover) || GetPlayer()->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
@@ -293,17 +290,13 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     if (_player->m_mover != _player)
         return;
 
-    GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
-    if (!go)
-        return;
+    if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
+    {
+        if (go->AI()->GossipHello(_player))
+            return;
 
-    if (!go->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
-        return;
-
-    if (go->AI()->GossipHello(_player))
-        return;
-
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+        _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+    }
 }
 
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
@@ -601,11 +594,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = creator->ToPlayer();
-        data << uint8(player->GetByteValue(PLAYER_BYTES, 0));   // skin
-        data << uint8(player->GetByteValue(PLAYER_BYTES, 1));   // face
-        data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
-        data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
-        data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
+        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID));
+        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID));
+        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID));
+        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID));
+        data << uint8(player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));
         data << uint32(player->GetGuildId());                   // unk
 
         static EquipmentSlots const itemSlots[] =

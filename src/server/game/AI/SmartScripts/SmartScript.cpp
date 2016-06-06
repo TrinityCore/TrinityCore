@@ -489,7 +489,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             // unless target is outside spell range, out of mana, or LOS.
 
                             bool _allowMove = false;
-                            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(e.action.cast.spell);
+                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
                             int32 mana = me->GetPower(POWER_MANA);
 
                             if (me->GetDistance(*itr) > spellInfo->GetMaxRange(true) ||
@@ -1037,10 +1037,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         target->DespawnOrUnsummon(e.action.forceDespawn.delay);
                 }
                 else if (GameObject* goTarget = (*itr)->ToGameObject())
-                {
-                    if (IsSmartGO(goTarget))
-                        goTarget->SetRespawnTime(e.action.forceDespawn.delay + 1);
-                }
+                    goTarget->SetRespawnTime(e.action.forceDespawn.delay + 1);
             }
 
             delete targets;
@@ -1483,10 +1480,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (TransportBase* trans = me->GetDirectTransport())
                         trans->CalculatePassengerPosition(dest.x, dest.y, dest.z);
 
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest.x, dest.y, dest.z);
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest.x, dest.y, dest.z, e.action.MoveToPos.disablePathfinding == 0);
             }
             else
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -1998,7 +1995,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = (*itr)->ToCreature())
                 {
                     creature->GetMotionMaster()->Clear();
-                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, 0.0f, (float)e.action.jump.speedxy, (float)e.action.jump.speedz); // @todo add optional jump orientation support?
                 }
             }
             /// @todo Resume path when reached jump location
@@ -2303,6 +2300,46 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 delete targets;
             }
+            break;
+        }
+        case SMART_ACTION_RANDOM_SOUND:
+        {
+            std::vector<uint32> sounds;
+            std::copy_if(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(),
+                std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
+
+            bool onlySelf = e.action.randomSound.onlySelf != 0;
+
+            if (ObjectList* targets = GetTargets(e, unit))
+            {
+                for (WorldObject* const obj : *targets)
+                {
+                    if (IsUnit(obj))
+                    {
+                        uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                        obj->PlayDirectSound(sound, onlySelf ? obj->ToPlayer() : nullptr);
+                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %s",
+                            obj->GetName().c_str(), obj->GetGUID().ToString().c_str(), sound, onlySelf ? "true" : "false");
+                    }
+                }
+
+                delete targets;
+                break;
+            }
+        }
+        case SMART_ACTION_SET_CORPSE_DELAY:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
+            }
+
+            delete targets;
             break;
         }
         default:
@@ -3199,29 +3236,28 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me)
                 return;
 
-            WorldObject* creature = NULL;
+            Creature* creature = nullptr;
 
             if (e.event.distance.guid != 0)
             {
                 creature = FindCreatureNear(me, e.event.distance.guid);
-
                 if (!creature)
                     return;
 
-                if (!me->IsInRange(creature, 0, (float)e.event.distance.dist))
+                if (!me->IsInRange(creature, 0, static_cast<float>(e.event.distance.dist)))
                     return;
             }
             else if (e.event.distance.entry != 0)
             {
                 std::list<Creature*> list;
-                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+                me->GetCreatureListWithEntryInGrid(list, e.event.distance.entry, static_cast<float>(e.event.distance.dist));
 
                 if (!list.empty())
                     creature = list.front();
             }
 
             if (creature)
-                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, creature);
 
             break;
         }
@@ -3230,29 +3266,28 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me)
                 return;
 
-            WorldObject* gameobject = NULL;
+            GameObject* gameobject = nullptr;
 
             if (e.event.distance.guid != 0)
             {
                 gameobject = FindGameObjectNear(me, e.event.distance.guid);
-
                 if (!gameobject)
                     return;
 
-                if (!me->IsInRange(gameobject, 0, (float)e.event.distance.dist))
+                if (!me->IsInRange(gameobject, 0, static_cast<float>(e.event.distance.dist)))
                     return;
             }
             else if (e.event.distance.entry != 0)
             {
                 std::list<GameObject*> list;
-                me->GetGameObjectListWithEntryInGrid(list, e.event.distance.entry, (float)e.event.distance.dist);
+                me->GetGameObjectListWithEntryInGrid(list, e.event.distance.entry, static_cast<float>(e.event.distance.dist));
 
                 if (!list.empty())
                     gameobject = list.front();
             }
 
             if (gameobject)
-                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat);
+                ProcessTimedAction(e, e.event.distance.repeat, e.event.distance.repeat, nullptr, 0, 0, false, nullptr, gameobject);
 
             break;
         }

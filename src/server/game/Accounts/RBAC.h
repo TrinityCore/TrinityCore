@@ -540,7 +540,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE        = 642,
     RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS                   = 643,
     RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE           = 644,
-    RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE             = 645,
+    RBAC_PERM_COMMAND_RELOAD_GRAVEYARD_ZONE                  = 645,
     RBAC_PERM_COMMAND_RELOAD_GAME_TELE                       = 646,
     RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER           = 647,
     RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE  = 648,
@@ -670,8 +670,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 6.x
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 6.x
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
     RBAC_PERM_COMMAND_AHBOT                                  = 778,
     RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
@@ -696,6 +696,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_MODIFY_XP                              = 798,
     // 799 - 834 6.x only
     RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
+    RBAC_PERM_COMMAND_DEBUG_BOUNDARY                         = 836,
+    RBAC_PERM_COMMAND_NPC_EVADE                              = 837,
+    RBAC_PERM_COMMAND_PET_LEVEL                              = 838,
+    RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
+    RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -713,7 +718,7 @@ enum RBACCommandResult
 
 typedef std::set<uint32> RBACPermissionContainer;
 
-class RBACPermission
+class TC_GAME_API RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
@@ -748,7 +753,7 @@ class RBACPermission
  * - Granted permissions: through linked permissions and directly assigned
  * - Denied permissions: through linked permissions and directly assigned
  */
-class RBACData
+class TC_GAME_API RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
@@ -937,8 +942,8 @@ class RBACData
         /// Adds a list of permissions to another list
         void AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
 
-        /// Removes a list of permissions to another list
-        void RemovePermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo);
+        /// Removes a list of permissions from another list
+        void RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove);
 
         /**
          * @name ExpandPermissions

@@ -38,7 +38,7 @@ T* EnsureAI(U* ai)
 
 class InstanceScript;
 
-class SummonList
+class TC_GAME_API SummonList
 {
 public:
     typedef GuidList StorageType;
@@ -114,7 +114,7 @@ public:
         }
     }
 
-    void DoZoneInCombat(uint32 entry = 0);
+    void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
 
@@ -123,7 +123,7 @@ private:
     StorageType storage_;
 };
 
-class EntryCheckPredicate
+class TC_GAME_API EntryCheckPredicate
 {
     public:
         EntryCheckPredicate(uint32 entry) : _entry(entry) { }
@@ -133,13 +133,13 @@ class EntryCheckPredicate
         uint32 _entry;
 };
 
-class DummyEntryCheckPredicate
+class TC_GAME_API DummyEntryCheckPredicate
 {
     public:
         bool operator()(ObjectGuid) { return true; }
 };
 
-struct ScriptedAI : public CreatureAI
+struct TC_GAME_API ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* creature);
     virtual ~ScriptedAI() { }
@@ -263,8 +263,6 @@ struct ScriptedAI : public CreatureAI
     void SetCombatMovement(bool allowMovement);
     bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
-    bool EnterEvadeIfOutOfCombatArea(uint32 const diff);
-
     // return true for heroic mode. i.e.
     //   - for dungeon in mode 10-heroic,
     //   - for raid in mode 10-Heroic
@@ -332,19 +330,17 @@ struct ScriptedAI : public CreatureAI
 
     private:
         Difficulty _difficulty;
-        uint32 _evadeCheckCooldown;
         bool _isCombatMovementAllowed;
         bool _isHeroic;
 };
 
-class BossAI : public ScriptedAI
+class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
         BossAI(Creature* creature, uint32 bossId);
         virtual ~BossAI() { }
 
         InstanceScript* const instance;
-        BossBoundaryMap const* GetBoundary() const { return _boundary; }
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
@@ -364,22 +360,15 @@ class BossAI : public ScriptedAI
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
+        bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
+
     protected:
         void _Reset();
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
+        void _DespawnAtEvade(uint32 delayToRespawn = 30,  Creature* who = nullptr);
 
-        virtual bool CheckInRoom()
-        {
-            if (CheckBoundary(me))
-                return true;
-
-            EnterEvadeMode();
-            return false;
-        }
-
-        bool CheckBoundary(Unit* who);
         void TeleportCheaters();
 
         EventMap events;
@@ -387,11 +376,10 @@ class BossAI : public ScriptedAI
         TaskScheduler scheduler;
 
     private:
-        BossBoundaryMap const* const _boundary;
         uint32 const _bossId;
 };
 
-class WorldBossAI : public ScriptedAI
+class TC_GAME_API WorldBossAI : public ScriptedAI
 {
     public:
         WorldBossAI(Creature* creature);
@@ -422,10 +410,10 @@ class WorldBossAI : public ScriptedAI
 };
 
 // SD2 grid searchers.
-Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
-GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange);
-void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
-void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange);
+TC_GAME_API Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
+TC_GAME_API GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange);
+TC_GAME_API void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
+TC_GAME_API void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
+TC_GAME_API void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange);
 
 #endif // SCRIPTEDCREATURE_H_

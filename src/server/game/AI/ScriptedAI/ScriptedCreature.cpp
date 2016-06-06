@@ -23,6 +23,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "ObjectMgr.h"
+#include "AreaBoundary.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -31,7 +32,7 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } extern* SpellSummary;
 
-void SummonList::DoZoneInCombat(uint32 entry)
+void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
 {
     for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
     {
@@ -40,7 +41,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
         if (summon && summon->IsAIEnabled
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat();
+            summon->AI()->DoZoneInCombat(nullptr, maxRangeToNearestTarget);
         }
     }
 }
@@ -98,7 +99,6 @@ bool SummonList::HasEntry(uint32 entry) const
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
-    _evadeCheckCooldown(2500),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
@@ -183,22 +183,22 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 {
     //No target so we can't cast
     if (!target)
-        return NULL;
+        return nullptr;
 
     //Silenced so we can't cast
     if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
-        return NULL;
+        return nullptr;
 
     //Using the extended script system we first create a list of viable spells
-    SpellInfo const* apSpell[CREATURE_MAX_SPELLS];
-    memset(apSpell, 0, CREATURE_MAX_SPELLS * sizeof(SpellInfo*));
+    SpellInfo const* apSpell[MAX_CREATURE_SPELLS];
+    memset(apSpell, 0, MAX_CREATURE_SPELLS * sizeof(SpellInfo*));
 
     uint32 spellCount = 0;
 
-    SpellInfo const* tempSpell = NULL;
+    SpellInfo const* tempSpell = nullptr;
 
     //Check if each spell is viable(set it to null if not)
-    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
+    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; i++)
     {
         tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i]);
 
@@ -251,7 +251,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
     //We got our usable spells so now lets randomly pick one
     if (!spellCount)
-        return NULL;
+        return nullptr;
 
     return apSpell[urand(0, spellCount - 1)];
 }
@@ -327,7 +327,7 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 {
-    Unit* unit = NULL;
+    Unit* unit = nullptr;
     Trinity::MostHPMissingInRange u_check(me, range, minHPDiff);
     Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
     me->VisitNearbyObject(range, searcher);
@@ -357,7 +357,7 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 u
 
 Player* ScriptedAI::GetPlayerAtMinimumRange(float minimumRange)
 {
-    Player* player = NULL;
+    Player* player = nullptr;
 
     CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(pair);
@@ -405,7 +405,7 @@ enum NPCs
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
 // It is assumed the information is found elswehere and can be handled by the core. So far no luck finding such information/way to extract it.
-bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
+/*bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 {
     if (_evadeCheckCooldown <= diff)
         _evadeCheckCooldown = 2500;
@@ -449,15 +449,16 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     EnterEvadeMode();
     return true;
-}
+}*/
 
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
     summons(creature),
-    _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
     _bossId(bossId)
 {
+    if (instance)
+        SetBoundary(instance->GetBossBoundary(bossId));
     scheduler.SetValidator([this]
     {
         return !me->HasUnitState(UNIT_STATE_CASTING);
@@ -494,7 +495,7 @@ void BossAI::_EnterCombat()
         // bosses do not respawn, check only on enter combat
         if (!instance->CheckRequiredBosses(_bossId))
         {
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);
@@ -516,55 +517,6 @@ void BossAI::TeleportCheaters()
         if (Unit* target = (*itr)->getTarget())
             if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
                 target->NearTeleportTo(x, y, z, 0);
-}
-
-bool BossAI::CheckBoundary(Unit* who)
-{
-    if (!GetBoundary() || !who)
-        return true;
-
-    for (BossBoundaryMap::const_iterator itr = GetBoundary()->begin(); itr != GetBoundary()->end(); ++itr)
-    {
-        switch (itr->first)
-        {
-            case BOUNDARY_N:
-                if (who->GetPositionX() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_S:
-                if (who->GetPositionX() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_E:
-                if (who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_W:
-                if (who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_NW:
-                if (who->GetPositionX() + who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_SE:
-                if (who->GetPositionX() + who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_NE:
-                if (who->GetPositionX() - who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_SW:
-                if (who->GetPositionX() - who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            default:
-                break;
-        }
-    }
-
-    return true;
 }
 
 void BossAI::JustSummoned(Creature* summon)
@@ -593,6 +545,39 @@ void BossAI::UpdateAI(uint32 diff)
         ExecuteEvent(eventId);
 
     DoMeleeAttackIfReady();
+}
+
+void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
+{
+    if (delayToRespawn < 2)
+    {
+        TC_LOG_ERROR("scripts", "_DespawnAtEvade called with delay of %u seconds, defaulting to 2.", delayToRespawn);
+        delayToRespawn = 2;
+    }
+
+    if (!who)
+        who = me;
+
+    if (TempSummon* whoSummon = who->ToTempSummon())
+    {
+        TC_LOG_WARN("scripts", "_DespawnAtEvade called on a temporary summon.");
+        whoSummon->UnSummon();
+        return;
+    }
+
+    uint32 corpseDelay = who->GetCorpseDelay();
+    uint32 respawnDelay = who->GetRespawnDelay();
+
+    who->SetCorpseDelay(1);
+    who->SetRespawnDelay(delayToRespawn - 1);
+
+    who->DespawnOrUnsummon();
+
+    who->SetCorpseDelay(corpseDelay);
+    who->SetRespawnDelay(respawnDelay);
+
+    if (instance && who == me)
+        instance->SetBossState(_bossId, FAIL);
 }
 
 // WorldBossAI - for non-instanced bosses

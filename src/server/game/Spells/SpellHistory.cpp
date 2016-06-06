@@ -182,13 +182,13 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Sp
     StartCooldown(spellInfo, itemID, spell);
 }
 
-bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
+bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
     if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
         if (IsSchoolLocked(spellInfo->GetSchoolMask()))
             return false;
 
-    if (HasCooldown(spellInfo->Id, itemId))
+    if (HasCooldown(spellInfo->Id, itemId, ignoreCategoryCooldown))
         return false;
 
     return true;
@@ -373,7 +373,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
             player->SendDirectMessage(&data);
 
             if (startCooldown)
-                StartCooldown(sSpellMgr->EnsureSpellInfo(categoryItr->second->SpellId), itemId, spell);
+                StartCooldown(sSpellMgr->AssertSpellInfo(categoryItr->second->SpellId), itemId, spell);
         }
 
         WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
@@ -465,10 +465,13 @@ void SpellHistory::ResetAllCooldowns()
     _spellCooldowns.clear();
 }
 
-bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/) const
+bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
     if (_spellCooldowns.count(spellInfo->Id) != 0)
         return true;
+
+    if (ignoreCategoryCooldown)
+        return false;
 
     uint32 category = 0;
     GetCooldownDurations(spellInfo, itemId, nullptr, &category, nullptr);
@@ -478,9 +481,9 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     return _categoryCooldowns.count(category) != 0;
 }
 
-bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/) const
+bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
-    return HasCooldown(sSpellMgr->EnsureSpellInfo(spellId), itemId);
+    return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
 }
 
 uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
@@ -530,7 +533,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else
     {
         Creature* creatureOwner = _owner->ToCreature();
-        for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
             if (creatureOwner->m_spells[i])
                 knownSpells.insert(creatureOwner->m_spells[i]);
     }
@@ -539,7 +542,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     WorldPacket spellCooldowns;
     for (uint32 spellId : knownSpells)
     {
-        SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(spellId);
         if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
@@ -685,7 +688,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         // add all profession CDs created while in duel (if any)
         for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
         {
-            SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
 
             if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
                 spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)

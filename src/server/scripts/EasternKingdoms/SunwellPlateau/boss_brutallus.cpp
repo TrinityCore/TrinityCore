@@ -136,10 +136,10 @@ public:
             me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
             if (!Intro)
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
         }
 
         void StartIntro()

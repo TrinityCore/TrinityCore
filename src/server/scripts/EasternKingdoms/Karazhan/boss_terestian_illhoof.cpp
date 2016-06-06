@@ -61,7 +61,6 @@ enum Creatures
     NPC_DEMONCHAINS             = 17248,
     NPC_FIENDISHIMP             = 17267,
     NPC_PORTAL                  = 17265,
-    NPC_KILREK                  = 17229
 };
 
 
@@ -316,7 +315,7 @@ public:
 
             Initialize();
 
-            instance->SetData(TYPE_TERESTIAN, NOT_STARTED);
+            instance->SetBossState(DATA_TERESTIAN, NOT_STARTED);
 
             me->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
 
@@ -371,7 +370,7 @@ public:
 
             Talk(SAY_DEATH);
 
-            instance->SetData(TYPE_TERESTIAN, DONE);
+            instance->SetBossState(DATA_TERESTIAN, DONE);
         }
 
         void UpdateAI(uint32 diff) override

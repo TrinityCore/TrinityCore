@@ -640,7 +640,7 @@ class GameObjectModel;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
+class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
 {
     public:
         explicit GameObject();
@@ -849,8 +849,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void UpdateModelPosition();
 
-    protected:
+        void AIM_Destroy();
         bool AIM_Initialize();
+
+    protected:
         GameObjectModel* CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
         uint32      m_spellId;

@@ -173,7 +173,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
@@ -244,9 +244,11 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                _EnterEvadeMode();
+                if (!_EnterEvadeMode(why))
+                    return;
+
                 CleanAuras();
                 if (_killMinchar)
                 {
@@ -257,6 +259,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
                 else
                 {
+                    me->AddUnitState(UNIT_STATE_EVADE);
                     me->GetMotionMaster()->MoveTargetedHome();
                     Reset();
                 }
@@ -333,7 +336,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -806,7 +809,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
             // this is an additional effect to be executed
             void PeriodicTick(AuraEffect const* aurEff)
             {
-                SpellInfo const* damageSpell = sSpellMgr->EnsureSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
+                SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = damageSpell->Effects[EFFECT_0].CalcValue();
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);

@@ -267,7 +267,7 @@ class boss_xt002 : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckInRoom())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -637,7 +637,7 @@ class BoomEvent : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             // This hack is here because we suspect our implementation of spell effect execution on targets
             // is done in the wrong order. We suspect that EFFECT_0 needs to be applied on all targets,

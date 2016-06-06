@@ -1269,7 +1269,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (_despawn)
                     return;
@@ -1335,7 +1335,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 }
                 else if (me->getThreatManager().getThreatList().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return false;
                 }
 
@@ -1438,7 +1438,7 @@ struct npc_gauntlet_trash : public ScriptedAI
         _events.Reset();
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (_instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
             _instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
@@ -1546,10 +1546,10 @@ class npc_phantom_mage : public CreatureScript
         {
             npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature) { }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 if (!me->HasAura(AURA_HALLUCINATION))
-                    npc_gauntlet_trash::EnterEvadeMode();
+                    npc_gauntlet_trash::EnterEvadeMode(why);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -1626,10 +1626,10 @@ class npc_phantom_hallucination : public CreatureScript
                 DoZoneInCombat(me, 150.0f);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
                 if (me->GetOwner() && !me->GetOwner()->HasAura(AURA_HALLUCINATION))
-                    npc_phantom_mage::npc_phantom_mageAI::EnterEvadeMode();
+                    npc_phantom_mage::npc_phantom_mageAI::EnterEvadeMode(why);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1921,6 +1921,7 @@ class npc_frostsworn_general : public CreatureScript
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
                     {
+                        reflection->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         target->CastSpell(reflection, SPELL_CLONE, true);
                         target->CastSpell(reflection, SPELL_GHOST_VISUAL, true);
                         reflection->AI()->AttackStart(target);
@@ -2155,6 +2156,7 @@ struct npc_escape_event_trash : public ScriptedAI
         DoZoneInCombat(me, 0.0f);
         if (Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
         {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetInCombatWith(leader);
             leader->SetInCombatWith(me);
             me->AddThreat(leader, 0.0f);
@@ -2580,7 +2582,7 @@ class npc_quel_delar_sword : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                me->SetSpeed(MOVE_FLIGHT, 4.5f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 4.5f);
                 DoCast(SPELL_WHIRLWIND_VISUAL);
                 if (_intro)
                     _events.ScheduleEvent(EVENT_QUEL_DELAR_INIT, 0);

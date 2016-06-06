@@ -572,7 +572,7 @@ struct gunship_npc_AI : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode() override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (!me->IsAlive() || !me->IsInCombat())
             return;
@@ -621,7 +621,7 @@ protected:
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
         {
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
         }
 
@@ -634,7 +634,7 @@ protected:
         }
         else if (me->getThreatManager().isThreatListEmpty())
         {
-            EnterEvadeMode();
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
         }
 
@@ -875,7 +875,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (!me->IsAlive())
                     return;
@@ -1143,7 +1143,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 10000));
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 if (!me->IsAlive())
                     return;
@@ -1721,9 +1721,9 @@ class npc_gunship_mage : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterEvadeMode() override
+            void EnterEvadeMode(EvadeReason why) override
             {
-                ScriptedAI::EnterEvadeMode();
+                ScriptedAI::EnterEvadeMode(why);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -1843,7 +1843,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                SpellInfo const* damageInfo = sSpellMgr->EnsureSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
+                SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
                 GetTarget()->CastCustomSpell(SPELL_ROCKET_PACK_DAMAGE, SPELLVALUE_BASE_POINT0, 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()), NULL, TRIGGERED_FULL_MASK);
                 GetTarget()->CastSpell(NULL, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }
@@ -2461,6 +2461,33 @@ class spell_igb_teleport_players_on_victory : public SpellScriptLoader
         }
 };
 
+// 71201 - Battle Experience - proc should never happen, handled in script
+class spell_igb_battle_experience_check : public SpellScriptLoader
+{
+public:
+    spell_igb_battle_experience_check() : SpellScriptLoader("spell_igb_battle_experience_check") { }
+
+    class spell_igb_battle_experience_check_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_igb_battle_experience_check_AuraScript);
+
+        bool CheckProc(ProcEventInfo& /*eventInfo*/)
+        {
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_igb_battle_experience_check_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_igb_battle_experience_check_AuraScript();
+    }
+};
+
 class achievement_im_on_a_boat : public AchievementCriteriaScript
 {
     public:
@@ -2500,5 +2527,6 @@ void AddSC_boss_icecrown_gunship_battle()
     new spell_igb_gunship_fall_teleport();
     new spell_igb_check_for_players();
     new spell_igb_teleport_players_on_victory();
+    new spell_igb_battle_experience_check();
     new achievement_im_on_a_boat();
 }

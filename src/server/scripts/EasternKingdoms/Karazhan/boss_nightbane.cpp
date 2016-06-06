@@ -138,15 +138,15 @@ public:
         {
             Initialize();
 
-            me->SetSpeed(MOVE_RUN, 2.0f);
+            me->SetSpeedRate(MOVE_RUN, 2.0f);
             me->SetDisableGravity(true);
             me->SetWalk(false);
             me->setActive(true);
 
-            if (instance->GetData(TYPE_NIGHTBANE) == DONE || instance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+            if (instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
                 me->DisappearAndDie();
             else
-                instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
+                instance->SetBossState(DATA_NIGHTBANE, NOT_STARTED);
 
             HandleTerraceDoors(true);
 
@@ -165,10 +165,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
+            instance->SetBossState(DATA_NIGHTBANE, IN_PROGRESS);
 
             HandleTerraceDoors(false);
-           Talk(YELL_AGGRO);
+            Talk(YELL_AGGRO);
         }
 
         void AttackStart(Unit* who) override
@@ -179,7 +179,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(TYPE_NIGHTBANE, DONE);
+            instance->SetBossState(DATA_NIGHTBANE, DONE);
 
             HandleTerraceDoors(true);
         }

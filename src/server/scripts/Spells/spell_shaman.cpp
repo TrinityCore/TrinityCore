@@ -48,14 +48,17 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 64694,
+    SPELL_SHAMAN_LIGHTNING_SHIELD_R1            = 26364,
     SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE     = 52032,
     SPELL_SHAMAN_MANA_TIDE_TOTEM                = 39609,
+    SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
     SPELL_SHAMAN_TOTEM_EARTHBIND_TOTEM          = 6474,
     SPELL_SHAMAN_TOTEM_EARTHEN_POWER            = 59566,
-    SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042
+    SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL      = 52042,
+    SPELL_SHAMAN_TOTEMIC_MASTERY                = 38437
 };
 
 enum ShamanSpellIcons
@@ -670,7 +673,7 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
-// 23551 - Lightning Shield
+// 23551 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield : public SpellScriptLoader
 {
     public:
@@ -705,7 +708,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
         }
 };
 
-// 23552 - Lightning Shield
+// 23552 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 {
     public:
@@ -717,7 +720,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
                     return false;
                 return true;
             }
@@ -752,7 +755,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
                     return false;
                 return true;
             }
@@ -864,6 +867,51 @@ class spell_sha_lava_lash : public SpellScriptLoader
         }
 };
 
+// -324 - Lightning Shield
+class spell_sha_lightning_shield : public SpellScriptLoader
+{
+public:
+    spell_sha_lightning_shield() : SpellScriptLoader("spell_sha_lightning_shield") { }
+
+    class spell_sha_lightning_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_lightning_shield_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_R1))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetActionTarget())
+                return true;
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LIGHTNING_SHIELD_R1, aurEff->GetSpellInfo()->GetRank());
+
+            eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), triggerSpell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_sha_lightning_shield_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_sha_lightning_shield_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_lightning_shield_AuraScript();
+    }
+};
+
 // 52031, 52033, 52034, 52035, 52036, 58778, 58779, 58780 - Mana Spring Totem
 class spell_sha_mana_spring_totem : public SpellScriptLoader
 {
@@ -923,6 +971,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Unit* unitTarget = GetHitUnit())
                     {
                         if (unitTarget->getPowerType() == POWER_MANA)
@@ -937,6 +986,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                             caster->CastCustomSpell(unitTarget, SPELL_SHAMAN_MANA_TIDE_TOTEM, &effBasePoints0, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
                         }
                     }
+                }
             }
 
             void Register() override
@@ -949,6 +999,56 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         {
             return new spell_sha_mana_tide_totem_SpellScript();
         }
+};
+
+// -30881 - Nature's Guardian
+class spell_sha_nature_guardian : public SpellScriptLoader
+{
+public:
+    spell_sha_nature_guardian() : SpellScriptLoader("spell_sha_nature_guardian") { }
+
+    class spell_sha_nature_guardian_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_nature_guardian_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_NATURE_GUARDIAN))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            int32 healthpct = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // %s2 - the 30% threshold for health
+
+            if (Unit* target = eventInfo.GetActionTarget())
+            {
+                if (target->HealthBelowPctDamaged(healthpct, eventInfo.GetDamageInfo()->GetDamage()))
+                {
+
+                    uint32 bp = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+                    target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+
+                    // Threat reduction is around 10% confirmed in retail and from wiki
+                    Unit* attacker = eventInfo.GetActor();
+                    if (attacker->IsAlive())
+                        attacker->getThreatManager().modifyThreatPercent(target, -10);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_sha_nature_guardian_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_nature_guardian_AuraScript();
+    }
 };
 
 // 6495 - Sentry Totem
@@ -1025,6 +1125,46 @@ class spell_sha_thunderstorm : public SpellScriptLoader
         }
 };
 
+// 38443 - Totemic Mastery (Tier 6 - 2P)
+class spell_sha_totemic_mastery : public SpellScriptLoader
+{
+public:
+    spell_sha_totemic_mastery() : SpellScriptLoader("spell_sha_totemic_mastery") { }
+
+    class spell_sha_totemic_mastery_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_totemic_mastery_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEMIC_MASTERY))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(AuraEffect const* /*aurEff*/)
+        {
+            Unit* target = GetTarget();
+            for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+                if (!target->m_SummonSlot[i])
+                    return;
+
+            target->CastSpell(target, SPELL_SHAMAN_TOTEMIC_MASTERY, true);
+            PreventDefaultAction();
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_totemic_mastery_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_sha_totemic_mastery_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening_proc();
@@ -1044,8 +1184,11 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_mana_surge();
     new spell_sha_item_t10_elemental_2p_bonus();
     new spell_sha_lava_lash();
+    new spell_sha_lightning_shield();
     new spell_sha_mana_spring_totem();
     new spell_sha_mana_tide_totem();
+    new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
     new spell_sha_thunderstorm();
+    new spell_sha_totemic_mastery();
 }

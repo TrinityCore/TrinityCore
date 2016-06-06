@@ -317,14 +317,12 @@ class boss_professor_putricide : public CreatureScript
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
-                        summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_VOLATILE_OOZE:
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
                         summon->CastSpell(summon, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, true);
-                        summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_CHOKING_GAS_BOMB:
@@ -371,21 +369,21 @@ class boss_professor_putricide : public CreatureScript
                 {
                     case POINT_FESTERGUT:
                         instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS); // needed here for delayed gate close
-                        me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                         DoAction(ACTION_FESTERGUT_GAS);
                         if (Creature* festergut = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FESTERGUT)))
                             festergut->CastSpell(festergut, SPELL_GASEOUS_BLIGHT_LARGE, false, NULL, NULL, festergut->GetGUID());
                         break;
                     case POINT_ROTFACE:
                         instance->SetBossState(DATA_ROTFACE, IN_PROGRESS);   // needed here for delayed gate close
-                        me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                         DoAction(ACTION_ROTFACE_OOZE);
                         events.ScheduleEvent(EVENT_ROTFACE_OOZE_FLOOD, 25000, 0, PHASE_ROTFACE);
                         break;
                     case POINT_TABLE:
                         // stop attack
                         me->GetMotionMaster()->MoveIdle();
-                        me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                         if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_PUTRICIDE_TABLE)))
                             me->SetFacingToObject(table);
                         // operating on new phase already
@@ -420,7 +418,7 @@ class boss_professor_putricide : public CreatureScript
                 {
                     case ACTION_FESTERGUT_COMBAT:
                         SetPhase(PHASE_FESTERGUT);
-                        me->SetSpeed(MOVE_RUN, _baseSpeed*2.0f, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                         me->GetMotionMaster()->MovePoint(POINT_FESTERGUT, festergutWatchPos);
                         me->SetReactState(REACT_PASSIVE);
                         DoZoneInCombat(me);
@@ -437,7 +435,7 @@ class boss_professor_putricide : public CreatureScript
                     case ACTION_ROTFACE_COMBAT:
                     {
                         SetPhase(PHASE_ROTFACE);
-                        me->SetSpeed(MOVE_RUN, _baseSpeed*2.0f, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                         me->GetMotionMaster()->MovePoint(POINT_ROTFACE, rotfaceWatchPos);
                         me->SetReactState(REACT_PASSIVE);
                         _oozeFloodStage = 0;
@@ -479,7 +477,7 @@ class boss_professor_putricide : public CreatureScript
                         events.ScheduleEvent(EVENT_ROTFACE_DIES, 4500, 0, PHASE_ROTFACE);
                         break;
                     case ACTION_CHANGE_PHASE:
-                        me->SetSpeed(MOVE_RUN, _baseSpeed*2.0f, true);
+                        me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                         events.DelayEvents(30000);
                         me->AttackStop();
                         if (!IsHeroic())
@@ -564,7 +562,7 @@ class boss_professor_putricide : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()) || !CheckInRoom())
+                if (!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -778,7 +776,7 @@ class npc_volatile_ooze : public CreatureScript
             {
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastSpell(me, SPELL_VOLATILE_OOZE_ADHESIVE, false);
             }
@@ -802,7 +800,7 @@ class npc_gas_cloud : public CreatureScript
                 _newTargetSelectTimer = 0;
             }
 
-            void CastMainSpell()
+            void CastMainSpell() override
             {
                 me->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_AURA_STACK, 10, me, false);
             }
@@ -1259,7 +1257,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(triggerSpell);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell);
                 spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, caster);
 
                 int32 damage = spell->Effects[EFFECT_0].CalcValue(caster);

@@ -8,15 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# We require CMake >= 3.0
+cmake_minimum_required(VERSION 3.0)
+
 # Set projectname (must be done AFTER setting configurationtypes)
 project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
-cmake_minimum_required(VERSION 2.8.9)
 cmake_policy(SET CMP0005 OLD)
 if(POLICY CMP0043)
   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
-endif(POLICY CMP0043)
+endif()
+
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
+endif()
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -38,6 +44,7 @@ endif()
 
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
+include(ConfigureScripts)
 
 # set default buildoptions and print them
 include(cmake/options.cmake)
@@ -51,22 +58,10 @@ endif()
 include(CheckPlatform)
 
 include(GroupSources)
-
-# basic packagesearching and setup (further support will be needed, this is a preliminary release!)
-set(OPENSSL_EXPECTED_VERSION 1.0.0)
+include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(OpenSSL REQUIRED)
-find_package(Threads REQUIRED)
 find_package(MySQL)
-
-include(ConfigureBoost)
-
-if( UNIX )
-  find_package(Readline)
-  find_package(ZLIB)
-  find_package(BZip2)
-endif()
 
 if(NOT WITHOUT_GIT)
   find_package(Git)

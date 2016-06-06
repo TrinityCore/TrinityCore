@@ -50,19 +50,9 @@ class boss_maiden_of_virtue : public CreatureScript
 public:
     boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_maiden_of_virtueAI(creature);
-    }
-
     struct boss_maiden_of_virtueAI : public BossAI
     {
-        boss_maiden_of_virtueAI(Creature* creature) : BossAI(creature, TYPE_MAIDEN) { }
-
-        void Reset() override
-        {
-            _Reset();
-        }
+        boss_maiden_of_virtueAI(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_VIRTUE) { }
 
         void KilledUnit(Unit* /*Victim*/) override
         {
@@ -132,6 +122,11 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new boss_maiden_of_virtueAI(creature);
+    }
 };
 
 void AddSC_boss_maiden_of_virtue()

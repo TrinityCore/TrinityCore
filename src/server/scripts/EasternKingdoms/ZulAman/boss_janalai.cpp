@@ -424,8 +424,6 @@ class boss_janalai : public CreatureScript
                     } else HatcherTimer -= diff;
                 }
 
-                EnterEvadeIfOutOfCombatArea(diff);
-
                 DoMeleeAttackIfReady();
 
                 if (FireBreathTimer <= diff)

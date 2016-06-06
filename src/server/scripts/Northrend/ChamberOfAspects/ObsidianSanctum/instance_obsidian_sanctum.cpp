@@ -23,6 +23,11 @@
 0 - Sartharion
 */
 
+BossBoundaryData const boundaries =
+{
+    { DATA_SARTHARION, new RectangleBoundary(3218.86f, 3275.69f, 484.68f, 572.4f) }
+};
+
 class instance_obsidian_sanctum : public InstanceMapScript
 {
 public:
@@ -33,6 +38,8 @@ public:
         instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+            LoadBossBoundaries(boundaries);
         }
 
         void OnCreatureCreate(Creature* creature) override

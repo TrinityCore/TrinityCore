@@ -43,6 +43,16 @@ struct WayPoint
     float z;
 };
 
+enum eSmartAI
+{
+    SMART_EVENT_PARAM_COUNT = 4,
+    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_SUMMON_COUNTER = 0xFFFFFF,
+    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
+    SMART_RANDOM_POINT = 0xFFFFFE,
+    SMART_ESCORT_TARGETS = 0xFFFFFF
+};
+
 enum SMART_EVENT_PHASE
 {
     SMART_EVENT_PHASE_ALWAYS  = 0,
@@ -494,7 +504,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_ORIENTATION                    = 66,     //
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
-    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, xyz
+    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding
     SMART_ACTION_RESPAWN_TARGET                     = 70,     //
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
@@ -540,8 +550,10 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
     SMART_ACTION_RISE_UP                            = 114,    // distance
+    SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
+    SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
 
-    SMART_ACTION_END                                = 115
+    SMART_ACTION_END                                = 117
 };
 
 struct SmartAction
@@ -946,6 +958,7 @@ struct SmartAction
         {
             uint32 pointId;
             uint32 transport;
+            uint32 disablePathfinding;
         } MoveToPos;
 
         struct
@@ -1016,6 +1029,17 @@ struct SmartAction
             uint32 wp5;
             uint32 wp6;
         } closestWaypointFromList;
+
+        struct
+        {
+            std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
+            uint32 onlySelf;
+        } randomSound;
+
+        struct
+        {
+            uint32 timer;
+        } corpseDelay;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
@@ -1178,16 +1202,6 @@ struct SmartTarget
             uint32 param3;
         } raw;
     };
-};
-
-enum eSmartAI
-{
-    SMART_EVENT_PARAM_COUNT     = 4,
-    SMART_ACTION_PARAM_COUNT    = 6,
-    SMART_SUMMON_COUNTER        = 0xFFFFFF,
-    SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
-    SMART_RANDOM_POINT          = 0xFFFFFE,
-    SMART_ESCORT_TARGETS        = 0xFFFFFF
 };
 
 enum SmartScriptType
@@ -1427,18 +1441,14 @@ public:
 };
 typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
 
-class SmartWaypointMgr
+class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
         ~SmartWaypointMgr();
 
     public:
-        static SmartWaypointMgr* instance()
-        {
-            static SmartWaypointMgr instance;
-            return &instance;
-        }
+        static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
@@ -1463,18 +1473,14 @@ typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 typedef std::map<uint32 /*entry*/, std::pair<uint32 /*spellId*/, SpellEffIndex /*effIndex*/> > CacheSpellContainer;
 typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::const_iterator> CacheSpellContainerBounds;
 
-class SmartAIMgr
+class TC_GAME_API SmartAIMgr
 {
     private:
         SmartAIMgr() { }
         ~SmartAIMgr() { }
 
     public:
-        static SmartAIMgr* instance()
-        {
-            static SmartAIMgr instance;
-            return &instance;
-        }
+        static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();
 

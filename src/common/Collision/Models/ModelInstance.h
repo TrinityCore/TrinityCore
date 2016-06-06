@@ -39,7 +39,7 @@ namespace VMAP
         MOD_HAS_BOUND = 1<<2
     };
 
-    class ModelSpawn
+    class TC_COMMON_API ModelSpawn
     {
         public:
             //mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
@@ -60,7 +60,7 @@ namespace VMAP
             static bool writeToFile(FILE* rw, const ModelSpawn &spawn);
     };
 
-    class ModelInstance: public ModelSpawn
+    class TC_COMMON_API ModelInstance: public ModelSpawn
     {
         public:
             ModelInstance(): iInvScale(0.0f), iModel(nullptr) { }

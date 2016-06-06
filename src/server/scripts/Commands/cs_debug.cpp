@@ -34,6 +34,7 @@ EndScriptData */
 #include "Transport.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "M2Stores.h"
 
 #include <fstream>
 
@@ -93,6 +94,8 @@ public:
             { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "" },
             { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "" },
             { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "" },
+            { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
+            { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -120,6 +123,23 @@ public:
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        // Dump camera locations
+        if (CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id))
+        {
+            std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->cinematicCamera);
+            if (itr != sFlyByCameraStore.end())
+            {
+                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->cinematicCamera);
+                uint32 count = 1 ;
+                for (FlyByCamera cam : itr->second)
+                {
+                    handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                    count++;
+                }
+                handler->PSendSysMessage("%u waypoints dumped", itr->second.size());
+            }
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(id);
@@ -828,7 +848,7 @@ public:
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
                 ++count;
-                handler->PSendSysMessage("   %u.   %s   (guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->getThreat());
+                handler->PSendSysMessage("   %u.   %s   (current guid %u, DB guid %u)  - threat %f", count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), unit->GetTypeId() == TYPEID_UNIT ? unit->ToCreature()->GetSpawnId() : 0, ref->getThreat());
             }
             ref = ref->next();
         }
@@ -1043,7 +1063,8 @@ public:
             return false;
 
         uint32 animId = atoi((char*)args);
-        handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
+        if (Unit* unit = handler->getSelectedUnit())
+            unit->HandleEmoteCommand(animId);
         return true;
     }
 
@@ -1407,11 +1428,61 @@ public:
             map = player->GetMap();
 
         handler->PSendSysMessage("Loading all cells (mapId: %u). Current next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
-        for (uint32 cellX = 0; cellX < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellX++)
-            for (uint32 cellY = 0; cellY < TOTAL_NUMBER_OF_CELLS_PER_MAP; cellY++)
-                map->LoadGrid((cellX + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL, (cellY + 0.5f - CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL);
-
+        map->LoadAllCells();
         handler->PSendSysMessage("Cells loaded (mapId: %u) After load - Next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
+        return true;
+    }
+
+    static bool HandleDebugBoundaryCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+        Creature* target = handler->getSelectedCreature();
+        if (!target || !target->IsAIEnabled || !target->AI())
+        {
+            return false;
+        }
+
+        char* fill_str = args ? strtok((char*)args, " ") : nullptr;
+        char* duration_str = args ? strtok(nullptr, " ") : nullptr;
+
+        int duration = duration_str ? atoi(duration_str) : -1;
+        if (duration <= 0 || duration >= 30 * MINUTE) // arbitary upper limit
+            duration = 3 * MINUTE;
+
+        bool doFill = fill_str ? (stricmp(fill_str, "FILL") == 0) : false;
+
+        int32 errMsg = target->AI()->VisualizeBoundary(duration, player, doFill);
+        if (errMsg > 0)
+            handler->PSendSysMessage(errMsg);
+
+        return true;
+    }
+
+    static bool HandleDebugRaidResetCommand(ChatHandler* /*handler*/, char const* args)
+    {
+        char* map_str = args ? strtok((char*)args, " ") : nullptr;
+        char* difficulty_str = args ? strtok(nullptr, " ") : nullptr;
+
+        int32 map = map_str ? atoi(map_str) : -1;
+        if (map <= 0)
+            return false;
+        MapEntry const* mEntry = sMapStore.LookupEntry(map);
+        if (!mEntry || !mEntry->IsRaid())
+            return false;
+        int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
+        if (difficulty >= MAX_RAID_DIFFICULTY || difficulty < -1)
+            return false;
+
+        if (difficulty == -1)
+            for (uint8 diff = 0; diff < MAX_RAID_DIFFICULTY; ++diff)
+            {
+                if (GetMapDifficultyData(mEntry->MapID, Difficulty(diff)))
+                    sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(diff));
+            }
+        else
+            sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(difficulty));
         return true;
     }
 };

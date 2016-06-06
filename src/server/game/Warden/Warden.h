@@ -92,7 +92,7 @@ struct ClientWardenModule
 
 class WorldSession;
 
-class Warden
+class TC_GAME_API Warden
 {
     friend class WardenWin;
     friend class WardenMac;

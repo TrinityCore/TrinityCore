@@ -1443,17 +1443,17 @@ void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string
     _BroadcastEvent(GE_BANK_TAB_UPDATED, ObjectGuid::Empty, aux, name.c_str(), icon.c_str());
 }
 
-void Guild::HandleSetMemberNote(WorldSession* session, std::string const& name, std::string const& note, bool isPublic)
+void Guild::HandleSetMemberNote(WorldSession* session, std::string const& name, std::string const& note, bool officer)
 {
     // Player must have rights to set public/officer note
-    if (!_HasRankRight(session->GetPlayer(), isPublic ? GR_RIGHT_EPNOTE : GR_RIGHT_EOFFNOTE))
+    if (!_HasRankRight(session->GetPlayer(), officer ? GR_RIGHT_EOFFNOTE : GR_RIGHT_EPNOTE))
         SendCommandResult(session, GUILD_COMMAND_PUBLIC_NOTE, ERR_GUILD_PERMISSIONS);
     else if (Member* member = GetMember(name))
     {
-        if (isPublic)
-            member->SetPublicNote(note);
-        else
+        if (officer)
             member->SetOfficerNote(note);
+        else
+            member->SetPublicNote(note);
 
         HandleRoster(session);
     }

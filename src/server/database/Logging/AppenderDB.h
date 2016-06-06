@@ -20,7 +20,7 @@
 
 #include "Appender.h"
 
-class AppenderDB: public Appender
+class TC_DATABASE_API AppenderDB: public Appender
 {
     public:
         typedef std::integral_constant<AppenderType, APPENDER_DB>::type TypeIndex;

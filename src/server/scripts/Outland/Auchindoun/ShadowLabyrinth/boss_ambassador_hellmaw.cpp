@@ -143,7 +143,7 @@ class boss_ambassador_hellmaw : public CreatureScript
 
                 if (me->HasAura(SPELL_BANISH))
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return;
                 }
 

@@ -704,7 +704,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
         if (_itr->itemid != itemID)
             continue;
 
-        _itr->canSave = true;
+        _itr->canSave = false;
         break;
     }
 }
@@ -1580,8 +1580,8 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sAreaStore.GetNumRows(); ++i)
-        if (AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(i))
+    for (uint32 i = 1; i < sAreaTableStore.GetNumRows(); ++i)
+        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i))
             if (lootIdSet.find(areaEntry->ID) != lootIdSet.end())
                 lootIdSet.erase(areaEntry->ID);
 
@@ -1870,4 +1870,21 @@ void LoadLootTemplates_Reference()
     LootTemplates_Reference.ReportUnusedIds(lootIdSet);
 
     TC_LOG_INFO("server.loading", ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void LoadLootTables()
+{
+    LoadLootTemplates_Creature();
+    LoadLootTemplates_Fishing();
+    LoadLootTemplates_Gameobject();
+    LoadLootTemplates_Item();
+    LoadLootTemplates_Mail();
+    LoadLootTemplates_Milling();
+    LoadLootTemplates_Pickpocketing();
+    LoadLootTemplates_Skinning();
+    LoadLootTemplates_Disenchant();
+    LoadLootTemplates_Prospecting();
+    LoadLootTemplates_Spell();
+
+    LoadLootTemplates_Reference();
 }

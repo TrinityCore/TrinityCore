@@ -21,28 +21,31 @@
 
 #include "Define.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <cmath>
-#include <errno.h>
-#include <signal.h>
-#include <assert.h>
-
-#include <set>
-#include <unordered_set>
-#include <list>
-#include <string>
-#include <map>
-#include <unordered_map>
-#include <queue>
-#include <sstream>
 #include <algorithm>
-#include <memory>
-#include <vector>
 #include <array>
+#include <exception>
+#include <list>
+#include <map>
+#include <memory>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <cerrno>
+#include <csignal>
+
+#include <boost/optional.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include <boost/functional/hash.hpp>
 
 #include "Debugging/Errors.h"
@@ -130,9 +133,9 @@ enum LocaleConstant
 #define MAX_LOCALES 8
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
-extern char const* localeNames[TOTAL_LOCALES];
+TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
-LocaleConstant GetLocaleByName(const std::string& name);
+TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
@@ -150,6 +153,10 @@ typedef std::vector<std::string> StringVector;
 #endif
 
 #define MAX_QUERY_LEN 32*1024
+
+//! Optional helper class to wrap optional values within.
+template <typename T>
+using Optional = boost::optional<T>;
 
 namespace Trinity
 {
