@@ -151,11 +151,11 @@ class TC_GAME_API UnitAI
                 return nullptr;
 
             std::list<Unit*> targetList;
-            HostileReference* currentVictim = me->getThreatManager().getCurrentVictim();
+            Unit* currentVictim = me->getThreatManager().getCurrentVictim()->getTarget();
 
             // Current victim always goes first
             if (predicate(currentVictim))
-                targetList.push_back(currentVictim->getTarget());
+                targetList.push_back(currentVictim);
 
             for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 if ((*itr)->getTarget() != currentVictim && predicate((*itr)->getTarget()))
