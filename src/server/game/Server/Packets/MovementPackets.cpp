@@ -511,7 +511,7 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     _worldPacket << uint32(SequenceIndex);
     _worldPacket << Pos.PositionXYZStream();
     _worldPacket << float(Facing);
-    _worldPacket << uint8(0); //! New in 7.x (gets written into movement queue node)
+    _worldPacket << uint8(PreloadWorld);
 
     _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.WriteBit(TransportGUID.is_initialized());
