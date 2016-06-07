@@ -140,12 +140,14 @@ namespace WorldPackets
             {
                 uint32 ID = 0;
                 uint32 NextPageID = 0;
+                int32 PlayerConditionID = 0;
+                uint8 Flags = 0;
                 std::string Text;
             };
 
-            bool Allow = false;
-            PageTextInfo Info;
             uint32 PageTextID = 0;
+            bool Allow = false;
+            std::vector<PageTextInfo> Pages;
         };
 
         class QueryNPCText final : public ClientPacket
@@ -236,12 +238,6 @@ namespace WorldPackets
             float Size = 0.0f;
             std::vector<int32> QuestItems;
             uint32 Expansion = 0;
-
-            size_t GetDataSize() const
-            {
-                //                                         [1..3] always empty '\0'                     '\0'                          '\0'                     '\0'                                 QuestItems counter
-                return sizeof(Type) + sizeof(DisplayID) + (Name->size() + (4 * 1)) + (IconName.size() + 1) + (CastBarCaption.size() + 1) + (UnkString.size() + 1) + sizeof(Data) + sizeof(Size) + sizeof(uint8) + (QuestItems.size() * sizeof(int32)) + sizeof(Expansion);
-            }
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -261,7 +257,9 @@ namespace WorldPackets
         public:
             QueryCorpseLocationFromClient(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            ObjectGuid Player;
         };
 
         class CorpseLocation final : public ServerPacket
@@ -271,6 +269,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            ObjectGuid Player;
             ObjectGuid Transport;
             G3D::Vector3 Position;
             int32 ActualMapID = 0;
@@ -285,6 +284,7 @@ namespace WorldPackets
 
             void Read() override;
 
+            ObjectGuid Player;
             ObjectGuid Transport;
         };
 
@@ -295,6 +295,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            ObjectGuid Player;
             G3D::Vector3 Position;
             float Facing = 0.0f;
         };
@@ -315,7 +316,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             time_t CurrentTime = time_t(0);
-            int32 TimeOutRequest = 0;
         };
 
         class QuestPOIQuery final : public ClientPacket

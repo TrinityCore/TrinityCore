@@ -299,6 +299,7 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    creature->m_movementInfo.transport.seat = -1;
     CalculatePassengerPosition(x, y, z, &o);
     creature->Relocate(x, y, z, o);
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
@@ -355,6 +356,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    go->m_movementInfo.transport.seat = -1;
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
     go->RelocateStationaryPosition(x, y, z, o);

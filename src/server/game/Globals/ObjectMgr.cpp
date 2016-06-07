@@ -5125,8 +5125,8 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1     2
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
+    //                                               0   1     2           3                  4
+    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID, PlayerConditionID, Flags FROM page_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -5143,21 +5143,17 @@ void ObjectMgr::LoadPageTexts()
         PageText& pageText = _pageTextStore[id];
         pageText.Text       = fields[1].GetString();
         pageText.NextPageID = fields[2].GetUInt32();
+        pageText.PlayerConditionID = fields[3].GetInt32();
+        pageText.Flags = fields[4].GetUInt8();
 
         ++count;
     }
     while (result->NextRow());
 
     for (PageTextContainer::const_iterator itr = _pageTextStore.begin(); itr != _pageTextStore.end(); ++itr)
-    {
         if (itr->second.NextPageID)
-        {
-            PageTextContainer::const_iterator itr2 = _pageTextStore.find(itr->second.NextPageID);
-            if (itr2 == _pageTextStore.end())
+            if (_pageTextStore.find(itr->second.NextPageID) == _pageTextStore.end())
                 TC_LOG_ERROR("sql.sql", "Page text (ID: %u) has non-existing `NextPageID` (%u)", itr->first, itr->second.NextPageID);
-
-        }
-    }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u page texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

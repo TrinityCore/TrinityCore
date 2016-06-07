@@ -1031,6 +1031,9 @@ bool GameObject::IsNeverVisible() const
     if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS && GetGOInfo()->spellFocus.serverOnly == 1)
         return true;
 
+    if (!GetUInt32Value(GAMEOBJECT_DISPLAYID))
+        return true;
+
     return false;
 }
 
