@@ -7210,6 +7210,13 @@ void Player::DuelComplete(DuelCompleteType type)
     if (!duel)
         return;
 
+    // Check if DuelComplete() has been called already up in the stack and in that case don't do anything else here
+    if (duel->isCompleted || ASSERT_NOTNULL(duel->opponent->duel)->isCompleted)
+        return;
+
+    duel->isCompleted = true;
+    duel->opponent->duel->isCompleted = true;
+
     TC_LOG_DEBUG("entities.unit", "Player::DuelComplete: Player '%s' (%s), Opponent: '%s' (%s)",
         GetName().c_str(), GetGUID().ToString().c_str(), duel->opponent->GetName().c_str(), duel->opponent->GetGUID().ToString().c_str());
 
@@ -12323,7 +12330,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
         if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->Flags & ITEM_PROTO_FLAG_OPENABLE)
+            if (pTmp->Flags & ITEM_PROTO_FLAG_HAS_LOOT)
                 pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
         if (IsInWorld() && update)

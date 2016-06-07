@@ -34,6 +34,7 @@
 #    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
+#    METRIC SETTINGS
 #
 ###################################################################################################
 
@@ -3697,6 +3698,45 @@ PacketSpoof.BanMode = 0
 #
 
 PacketSpoof.BanDuration = 86400
+
+#
+###################################################################################################
+
+###################################################################################################
+# METRIC SETTINGS
+#
+# These settings control the statistics sent to the metric database (currently InfluxDB)
+#
+#    Metric.Enable
+#        Description: Enables statistics sent to the metric database.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Metric.Enable = 0
+
+#
+#    Metric.Interval
+#        Description: Interval between every batch of data sent in seconds
+#        Default:     10 seconds
+#
+
+Metric.Interval = 10
+
+#
+#    Metric.ConnectionInfo
+#        Description: Connection settings for metric database (currently InfluxDB).
+#        Example:     "hostname;port;database"
+#        Default:     "127.0.0.1;8086;worldserver"
+
+Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
+
+#
+#    Metric.OverallStatusInterval
+#        Description: Interval between every gathering of overall worldserver status data in seconds
+#        Default:     1 second
+#
+
+Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
