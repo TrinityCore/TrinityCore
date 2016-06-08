@@ -443,11 +443,11 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
          totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
 
     uint32 depositremain = totaldeposit;
-    for (auto itr = thisAH->begin(); itr != thisAH->end(); ++itr)
+    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
     {
-        AuctionEntry* AH = (*itr);
+        AuctionEntry* AH = (*itrAH);
 
-        if (next(itr) == thisAH->end())
+        if (next(itrAH) == thisAH->end())
             AH->deposit = depositremain;
         else
         {
