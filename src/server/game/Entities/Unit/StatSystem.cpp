@@ -561,6 +561,17 @@ void Player::UpdateMastery()
     }
 }
 
+void Player::UpdateMultistrike()
+{
+    float value = 0.0f;
+    // Increase from SPELL_AURA_MULTISTRIKE aura
+    value += GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE);
+    // Increase from rating
+    value += GetRatingBonusValue(CR_MULTISTRIKE);
+
+    SetStatFloatValue(PLAYER_MULTISTRIKE, value);
+}
+
 const float m_diminishing_k[MAX_CLASSES] =
 {
     0.9560f,  // Warrior

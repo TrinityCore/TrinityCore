@@ -856,3 +856,15 @@ WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::SpellMultistrikeEffect::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << TargetGUID;
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(SpellXSpellVisualID);
+    _worldPacket << int32(ProcCount);
+    _worldPacket << int32(ProcNum);
+
+    return &_worldPacket;
+}
