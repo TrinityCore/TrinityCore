@@ -2368,7 +2368,7 @@ inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
     return result;
 }
 
-bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry const* condition)
+bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
     if (condition->MinLevel && player->getLevel() < condition->MinLevel)
         return false;
@@ -2489,7 +2489,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
     if (condition->PartyStatus)
     {
-        Group* group = player->GetGroup();
+        Group const* group = player->GetGroup();
         switch (condition->PartyStatus)
         {
             case 1:
