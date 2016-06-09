@@ -36,7 +36,6 @@ npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
-npc_locksmith            75%    list of keys needs to be confirmed
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
 EndContentData */
@@ -1756,149 +1755,6 @@ public:
 };
 
 /*######
-## npc_locksmith
-######*/
-
-enum LockSmith
-{
-    QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ = 10704,
-    QUEST_DARK_IRON_LEGACY                = 3802,
-    QUEST_THE_KEY_TO_SCHOLOMANCE_A        = 5505,
-    QUEST_THE_KEY_TO_SCHOLOMANCE_H        = 5511,
-    QUEST_HOTTER_THAN_HELL_A              = 10758,
-    QUEST_HOTTER_THAN_HELL_H              = 10764,
-    QUEST_RETURN_TO_KHAGDAR               = 9837,
-    QUEST_CONTAINMENT                     = 13159,
-    QUEST_ETERNAL_VIGILANCE               = 11011,
-    QUEST_KEY_TO_THE_FOCUSING_IRIS        = 13372,
-    QUEST_HC_KEY_TO_THE_FOCUSING_IRIS     = 13375,
-
-    ITEM_ARCATRAZ_KEY                     = 31084,
-    ITEM_SHADOWFORGE_KEY                  = 11000,
-    ITEM_SKELETON_KEY                     = 13704,
-    ITEM_SHATTERED_HALLS_KEY              = 28395,
-    ITEM_THE_MASTERS_KEY                  = 24490,
-    ITEM_VIOLET_HOLD_KEY                  = 42482,
-    ITEM_ESSENCE_INFUSED_MOONSTONE        = 32449,
-    ITEM_KEY_TO_THE_FOCUSING_IRIS         = 44582,
-    ITEM_HC_KEY_TO_THE_FOCUSING_IRIS      = 44581,
-
-    SPELL_ARCATRAZ_KEY                    = 54881,
-    SPELL_SHADOWFORGE_KEY                 = 54882,
-    SPELL_SKELETON_KEY                    = 54883,
-    SPELL_SHATTERED_HALLS_KEY             = 54884,
-    SPELL_THE_MASTERS_KEY                 = 54885,
-    SPELL_VIOLET_HOLD_KEY                 = 67253,
-    SPELL_ESSENCE_INFUSED_MOONSTONE       = 40173,
-};
-
-#define GOSSIP_LOST_ARCATRAZ_KEY                "I've lost my key to the Arcatraz."
-#define GOSSIP_LOST_SHADOWFORGE_KEY             "I've lost my key to the Blackrock Depths."
-#define GOSSIP_LOST_SKELETON_KEY                "I've lost my key to the Scholomance."
-#define GOSSIP_LOST_SHATTERED_HALLS_KEY         "I've lost my key to the Shattered Halls."
-#define GOSSIP_LOST_THE_MASTERS_KEY             "I've lost my key to the Karazhan."
-#define GOSSIP_LOST_VIOLET_HOLD_KEY             "I've lost my key to the Violet Hold."
-#define GOSSIP_LOST_ESSENCE_INFUSED_MOONSTONE   "I've lost my Essence-Infused Moonstone."
-#define GOSSIP_LOST_KEY_TO_THE_FOCUSING_IRIS    "I've lost my Key to the Focusing Iris."
-#define GOSSIP_LOST_HC_KEY_TO_THE_FOCUSING_IRIS "I've lost my Heroic Key to the Focusing Iris."
-
-class npc_locksmith : public CreatureScript
-{
-public:
-    npc_locksmith() : CreatureScript("npc_locksmith") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        // Arcatraz Key
-        if (player->GetQuestRewardStatus(QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ) && !player->HasItemCount(ITEM_ARCATRAZ_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_ARCATRAZ_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        // Shadowforge Key
-        if (player->GetQuestRewardStatus(QUEST_DARK_IRON_LEGACY) && !player->HasItemCount(ITEM_SHADOWFORGE_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SHADOWFORGE_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-        // Skeleton Key
-        if ((player->GetQuestRewardStatus(QUEST_THE_KEY_TO_SCHOLOMANCE_A) || player->GetQuestRewardStatus(QUEST_THE_KEY_TO_SCHOLOMANCE_H)) &&
-            !player->HasItemCount(ITEM_SKELETON_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SKELETON_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-        // Shatered Halls Key
-        if ((player->GetQuestRewardStatus(QUEST_HOTTER_THAN_HELL_A) || player->GetQuestRewardStatus(QUEST_HOTTER_THAN_HELL_H)) &&
-            !player->HasItemCount(ITEM_SHATTERED_HALLS_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SHATTERED_HALLS_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
-        // Master's Key
-        if (player->GetQuestRewardStatus(QUEST_RETURN_TO_KHAGDAR) && !player->HasItemCount(ITEM_THE_MASTERS_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_THE_MASTERS_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-
-        // Violet Hold Key
-        if (player->GetQuestRewardStatus(QUEST_CONTAINMENT) && !player->HasItemCount(ITEM_VIOLET_HOLD_KEY, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_VIOLET_HOLD_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-
-        // Essence-Infused Moonstone
-        if (player->GetQuestRewardStatus(QUEST_ETERNAL_VIGILANCE) && !player->HasItemCount(ITEM_ESSENCE_INFUSED_MOONSTONE, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_ESSENCE_INFUSED_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-
-        // Key to the Focusing Iris
-        if (player->GetQuestRewardStatus(QUEST_KEY_TO_THE_FOCUSING_IRIS) && !player->HasItemCount(ITEM_KEY_TO_THE_FOCUSING_IRIS, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_KEY_TO_THE_FOCUSING_IRIS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-
-        // Heroic Key to the Focusing Iris
-        if (player->GetQuestRewardStatus(QUEST_HC_KEY_TO_THE_FOCUSING_IRIS) && !player->HasItemCount(ITEM_HC_KEY_TO_THE_FOCUSING_IRIS, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_HC_KEY_TO_THE_FOCUSING_IRIS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_ARCATRAZ_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_SHADOWFORGE_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_SKELETON_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_SHATTERED_HALLS_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_THE_MASTERS_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_VIOLET_HOLD_KEY, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                player->CLOSE_GOSSIP_MENU();
-                player->CastSpell(player, SPELL_ESSENCE_INFUSED_MOONSTONE, false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 8:
-                player->CLOSE_GOSSIP_MENU();
-                player->AddItem(ITEM_KEY_TO_THE_FOCUSING_IRIS, 1);
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 9:
-                player->CLOSE_GOSSIP_MENU();
-                player->AddItem(ITEM_HC_KEY_TO_THE_FOCUSING_IRIS, 1);
-                break;
-        }
-        return true;
-    }
-};
-
-/*######
 ## npc_experience
 ######*/
 
@@ -2602,7 +2458,6 @@ void AddSC_npcs_special()
     new npc_training_dummy();
     new npc_wormhole();
     new npc_pet_trainer();
-    new npc_locksmith();
     new npc_experience();
     new npc_firework();
     new npc_spring_rabbit();
