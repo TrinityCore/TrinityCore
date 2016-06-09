@@ -497,10 +497,10 @@ enum AuraType
     SPELL_AURA_437                                          = 437,
     SPELL_AURA_438                                          = 438,
     SPELL_AURA_439                                          = 439,
-    SPELL_AURA_440                                          = 440,
-    SPELL_AURA_441                                          = 441,
-    SPELL_AURA_442                                          = 442,
-    SPELL_AURA_443                                          = 443,
+    SPELL_AURA_MOD_MULTISTRIKE_DAMAGE                       = 440,  // NYI
+    SPELL_AURA_MOD_MULTISTRIKE_CHANCE                       = 441,  // NYI
+    SPELL_AURA_MOD_READINESS                                = 442,  // NYI
+    SPELL_AURA_MOD_LEECH                                    = 443,  // NYI
     SPELL_AURA_444                                          = 444,
     SPELL_AURA_445                                          = 445,
     SPELL_AURA_446                                          = 446,
@@ -508,7 +508,7 @@ enum AuraType
     SPELL_AURA_448                                          = 448,
     SPELL_AURA_449                                          = 449,
     SPELL_AURA_450                                          = 450,
-    SPELL_AURA_OVERRIDE_PET_SPECS                           = 451, // NYI
+    SPELL_AURA_OVERRIDE_PET_SPECS                           = 451,
     SPELL_AURA_452                                          = 452,
     SPELL_AURA_CHARGE_RECOVERY_MOD                          = 453,
     SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER                   = 454,
@@ -528,7 +528,7 @@ enum AuraType
     SPELL_AURA_468                                          = 468,
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY     = 469,
     SPELL_AURA_470                                          = 470,
-    SPELL_AURA_471                                          = 471,
+    SPELL_AURA_MOD_VERSATILITY                              = 471,  // NYI
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473, // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,
