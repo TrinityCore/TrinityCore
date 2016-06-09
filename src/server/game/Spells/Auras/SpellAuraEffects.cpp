@@ -499,10 +499,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //437
     &AuraEffect::HandleNULL,                                      //438
     &AuraEffect::HandleNULL,                                      //439
-    &AuraEffect::HandleNULL,                                      //440
-    &AuraEffect::HandleNULL,                                      //441
-    &AuraEffect::HandleNULL,                                      //442
-    &AuraEffect::HandleNULL,                                      //443
+    &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_MOD_MULTISTRIKE_DAMAGE
+    &AuraEffect::HandleNULL,                                      //441 SPELL_AURA_MOD_MULTISTRIKE_CHANCE
+    &AuraEffect::HandleNULL,                                      //442 SPELL_AURA_MOD_READINESS
+    &AuraEffect::HandleNULL,                                      //443 SPELL_AURA_MOD_LEECH
     &AuraEffect::HandleNULL,                                      //444
     &AuraEffect::HandleNULL,                                      //445
     &AuraEffect::HandleNULL,                                      //446
@@ -530,7 +530,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleShowConfirmationPrompt,                    //469 SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY
     &AuraEffect::HandleNULL,                                      //470
-    &AuraEffect::HandleNULL,                                      //471
+    &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT implemented in Player::DurabilityPointLossForEquipSlot
     &AuraEffect::HandleNULL,                                      //474
