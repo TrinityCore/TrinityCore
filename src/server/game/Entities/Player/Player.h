@@ -1136,42 +1136,38 @@ struct ResurrectionData
     uint32 Aura;
 };
 
+enum TalentLearnResult
+{
+    TALENT_LEARN_OK                                     = 0,
+    TALENT_FAILED_UNKNOWN                               = 1,
+    TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE    = 2,
+    TALENT_FAILED_NO_PRIMARY_TREE_SELECTED              = 3,
+    TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW                = 4,
+    TALENT_FAILED_AFFECTING_COMBAT                      = 5,
+    TALENT_FAILED_CANT_REMOVE_TALENT                    = 6,
+    TALENT_FAILED_CANT_DO_THAT_CHALLENGE_MODE_ACTIVE    = 7,
+    TALENT_FAILED_REST_AREA                             = 8
+};
+
 static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
 static uint32 const DHTalentRowLevels[MAX_TALENT_TIERS] = { 99, 100, 102, 104, 106, 108, 110 };
 
 struct TC_GAME_API PlayerTalentInfo
 {
-    PlayerTalentInfo() :
-        ResetTalentsCost(0), ResetTalentsTime(0),
-        ActiveGroup(0), GroupsCount(1)
+    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), PrimarySpecialization(0), ActiveGroup(0)
     {
-        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-        {
-            GroupInfo[i].Talents = new PlayerTalentMap();
-            GroupInfo[i].SpecId = 0;
-        }
     }
 
-    ~PlayerTalentInfo()
-    {
-        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-            delete GroupInfo[i].Talents;
-    }
-
-    struct TalentGroupInfo
-    {
-        PlayerTalentMap* Talents;
-        uint32 SpecId;
-    } GroupInfo[MAX_TALENT_GROUPS];
-
+    PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
+    uint32 PrimarySpecialization;
     uint8 ActiveGroup;
-    uint8 GroupsCount;
 
 private:
-    PlayerTalentInfo(PlayerTalentInfo const&);
+    PlayerTalentInfo(PlayerTalentInfo const&) = delete;
+    PlayerTalentInfo& operator=(PlayerTalentInfo const&) = delete;
 };
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
@@ -1753,32 +1749,28 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         time_t GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint32 GetSpecId(uint8 group) const { return _talentMgr->GroupInfo[group].SpecId; }
-        void SetSpecId(uint8 group, uint32 tree) { _talentMgr->GroupInfo[group].SpecId = tree; }
+        uint32 GetPrimarySpecialization() const { return _talentMgr->PrimarySpecialization; }
+        void SetPrimarySpecialization(uint32 spec) { _talentMgr->PrimarySpecialization = spec; }
         uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
-        uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
-        void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
         uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
-        bool LearnTalent(uint32 talentId);
+        TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         void RemoveTalent(TalentEntry const* talent);
         uint32 CalculateTalentsTiers() const;
-        void LearnTalentSpecialization(uint32 talentSpec);
         void ResetTalentSpecialization();
 
         // Dual Spec
-        void UpdateTalentGroupCount(uint8 count);
-        void ActivateTalentGroup(uint8 group);
+        void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->GroupInfo[spec].Talents; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->GroupInfo[spec].Talents; }
+        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_talentMgr->Talents[spec]; }
+        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_talentMgr->Talents[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }

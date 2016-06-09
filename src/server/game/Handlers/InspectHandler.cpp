@@ -69,7 +69,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     }
 
     inspectResult.InspecteeGUID = inspect.Target;
-    inspectResult.SpecializationID = player->GetSpecId(player->GetActiveTalentGroup());
+    inspectResult.SpecializationID = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
 
     SendPacket(inspectResult.Write());
 }

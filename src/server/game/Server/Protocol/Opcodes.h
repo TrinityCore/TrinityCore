@@ -736,7 +736,6 @@ enum OpcodeClient : uint32
     CMSG_BF_MGR_ENTRY_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_EXIT_REQUEST                    = 0xBADD,
-    CMSG_SET_SPECIALIZATION                           = 0xBADD,
 };
 
 enum OpcodeServer : uint32
@@ -1174,8 +1173,8 @@ enum OpcodeServer : uint32
     SMSG_ITEM_TIME_UPDATE                             = 0x2793,
     SMSG_KICK_REASON                                  = 0x2821,
     SMSG_LEARNED_SPELLS                               = 0x2C4C,
-    SMSG_LEARN_PVP_TALENT_FAILED                      = 0x25E7,
-    SMSG_LEARN_TALENT_FAILED                          = 0x25E6,
+    SMSG_LEARN_PVP_TALENTS_FAILED                     = 0x25E7,
+    SMSG_LEARN_TALENTS_FAILED                         = 0x25E6,
     SMSG_LEVEL_UPDATE                                 = 0x2587,
     SMSG_LEVEL_UP_INFO                                = 0x271C,
     SMSG_LFG_BOOT_PLAYER                              = 0x2A36,

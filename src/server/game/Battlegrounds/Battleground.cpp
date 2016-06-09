@@ -1089,7 +1089,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetSpecId(player->GetActiveTalentGroup());
+    bp.ActiveSpec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
 
     // Add to list/maps
     m_Players[player->GetGUID()] = bp;
