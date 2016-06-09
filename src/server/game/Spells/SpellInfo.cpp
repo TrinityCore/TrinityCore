@@ -2843,7 +2843,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             case SPELL_PPM_MOD_SPEC:
             {
                 if (Player* plrCaster = caster->ToPlayer())
-                    if (plrCaster->GetSpecId(plrCaster->GetActiveTalentGroup()) == mod->Param)
+                    if (plrCaster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == mod->Param)
                         ppm *= 1.0f + mod->Coeff;
                 break;
             }

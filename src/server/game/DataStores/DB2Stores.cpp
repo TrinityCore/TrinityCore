@@ -711,8 +711,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (TalentEntry const* talentInfo : sTalentStore)
     {
         ASSERT(talentInfo->ClassID < MAX_CLASSES);
-        ASSERT(talentInfo->TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", MAX_TALENT_TIERS);
-        ASSERT(talentInfo->ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", MAX_TALENT_COLUMNS);
+        ASSERT(talentInfo->TierID < MAX_TALENT_TIERS, "MAX_TALENT_TIERS must be at least %u", talentInfo->TierID);
+        ASSERT(talentInfo->ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex);
 
         _talentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
     }
