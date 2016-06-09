@@ -38,5 +38,5 @@ script:
   - cd bin
   - make -j 8 -k && make install
   - cd check_install/bin
-  - ./bnetserver --version
+  - ./authserver --version
   - ./worldserver --version
