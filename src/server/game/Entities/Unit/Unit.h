@@ -1678,6 +1678,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);
         bool SetCollision(bool disable);
+        bool SetCanTransitionBetweenSwimAndFly(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);

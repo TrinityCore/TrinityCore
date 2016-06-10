@@ -25789,14 +25789,6 @@ void Player::DeleteGarrison()
     }
 }
 
-void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
-{
-    WorldPackets::Movement::MoveSetFlag packet(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY);
-    packet.MoverGUID = GetGUID();
-    packet.SequenceIndex = m_movementCounter++;
-    SendMessageToSet(packet.Write(), true);
-}
-
 void Player::SendMovementSetCollisionHeight(float height)
 {
     WorldPackets::Movement::MoveSetCollisionHeight setCollisionHeight;
