@@ -1518,6 +1518,7 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
                 // Disable glow vision
                 case 108150: // Fire Crash Invis
                 case 108887: // Ox Cart Invisibility
+                case 105002: // Summon Hot Air Balloon
                     break;
                 default:
                     target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
