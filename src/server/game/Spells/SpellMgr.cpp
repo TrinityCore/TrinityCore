@@ -3479,6 +3479,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 108845: // Summon Jojo Ironbrow
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 120 seconds
+                break;
             // End of The Wandering Isle Spells
             default:
                 break;

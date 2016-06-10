@@ -1266,6 +1266,34 @@ public:
     }
 };
 
+class spell_master_shang_final_escort_say : public SpellScriptLoader
+{
+public:
+    spell_master_shang_final_escort_say() : SpellScriptLoader("spell_master_shang_final_escort_say") { }
+
+    class spell_master_shang_final_escort_say_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_master_shang_final_escort_say_AuraScript);
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->FindNearestCreature(55672, 70.0f, true))
+                    creature->AI()->Talk(0, target);
+        }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_master_shang_final_escort_say_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_master_shang_final_escort_say_AuraScript();
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -1290,4 +1318,5 @@ void AddSC_the_wandering_isle()
     new at_temple_of_five_dawns_summon_zhaoren();
     new spell_monkey_wisdom_text();
     new npc_zhaoren();
+    new spell_master_shang_final_escort_say();
 }
