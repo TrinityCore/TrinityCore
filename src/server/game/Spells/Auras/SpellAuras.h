@@ -115,6 +115,7 @@ class TC_GAME_API Aura
 
         virtual void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
+        bool CheckImplicitTarget(Unit const* caster, WorldObject const* target) const;
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
         void ApplyForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, true);}

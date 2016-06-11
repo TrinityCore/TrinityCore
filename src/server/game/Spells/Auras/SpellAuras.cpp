@@ -614,6 +614,49 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
     }
 }
 
+bool Aura::CheckImplicitTarget(Unit const* caster, WorldObject const* target) const
+{
+    // the following checks are partially taken from Spell::CheckTarget
+    // execution happens in the FillTargetsMap functions
+    const SpellInfo* spellInfo = GetSpellInfo();
+
+    if (spellInfo->HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && caster == target)
+        return false;
+
+    if (Unit const* unitTarget = target->ToUnit())
+    {
+        // Can only target players
+        if (spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && !unitTarget->ToPlayer())
+            return false;
+
+        // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
+        if (unitTarget != caster && (caster->IsControlledByPlayer() || !spellInfo->IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (!unitTarget->ToPlayer()->IsVisible())
+                return false;
+
+            if (unitTarget->ToPlayer()->IsGameMaster())
+                return false;
+        }
+
+        // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
+        if (spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
+            return false;
+
+        if (!spellInfo->IsAllowingDeadTarget() && !unitTarget->IsAlive())
+            return false;
+
+        if (spellInfo->HasAttribute(SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !unitTarget->CanFreeMove())
+            return false;
+
+        // not allow casting on flying player
+        if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
+            return false;
+    }
+
+    return true;
+}
+
 // targets have to be registered and not have effect applied yet to use this function
 void Aura::_ApplyEffectForTargets(uint8 effIndex)
 {
@@ -2471,7 +2514,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster)
 
         for (UnitList::iterator itr = targetList.begin(); itr!= targetList.end();++itr)
         {
-            if (GetSpellInfo()->CheckTarget(caster, *itr, true) != SPELL_CAST_OK)
+            if (!CheckImplicitTarget(caster,*itr))
                 continue;
 
             std::map<Unit*, uint8>::iterator existing = targets.find(*itr);
@@ -2527,7 +2570,7 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* /*caster*
 
         for (UnitList::iterator itr = targetList.begin(); itr!= targetList.end();++itr)
         {
-            if (GetSpellInfo()->CheckTarget(dynObjOwnerCaster, *itr, true) != SPELL_CAST_OK)
+            if (CheckImplicitTarget(dynObjOwnerCaster, *itr))
                 continue;
 
             std::map<Unit*, uint8>::iterator existing = targets.find(*itr);
