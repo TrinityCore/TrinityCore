@@ -23,13 +23,14 @@ ZmqContext::ZmqContext() : _inproc(nullptr)
 
 ZmqContext::~ZmqContext()
 {
-    delete _inproc;
 }
 
 zmqpp::socket* ZmqContext::CreateNewSocket(zmqpp::socket_type type)
 {
     std::unique_lock<std::mutex> lock(_mutex);
-    return new zmqpp::socket(_context, type);
+    zmqpp::socket* socket = new zmqpp::socket(_context, type);
+    socket->set(zmqpp::socket_option::linger, 0);
+    return socket;
 }
 
 void ZmqContext::Initialize()
@@ -49,4 +50,6 @@ zmqpp::socket* ZmqContext::CreateInprocSubscriber()
 void ZmqContext::Close()
 {
     _inproc->send("internalmq.kill");
+    delete _inproc;
+    _inproc = nullptr;
 }

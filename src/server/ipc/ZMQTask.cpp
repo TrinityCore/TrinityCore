@@ -44,6 +44,7 @@ void ZMQTask::Start()
 void ZMQTask::End()
 {
     _thread->join();
+    _poller->remove(*_inproc);
     _inproc->close();
     HandleClose();
 }
