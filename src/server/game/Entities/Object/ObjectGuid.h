@@ -159,7 +159,6 @@ GUID_TRAIT_GLOBAL(HighGuid::CommerceObj)
 GUID_TRAIT_GLOBAL(HighGuid::ClientSession)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Player)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Item)       // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
-GUID_TRAIT_REALM_SPECIFIC(HighGuid::Transport)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Guild)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::WorldTransaction)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Conversation)
@@ -180,6 +179,19 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::CallForHelp)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AIResource)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILock)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILockTicket)
+
+// Special case
+// Global transports are loaded from `transports` table, RealmSpecific part is used for them.
+// after worldserver finishes loading, no more global transports can be created, only the ones existing within instances that never change maps
+// here is where MapSpecific comes into play - each map takes over the responsibility to generate transport guids
+// on top of this, regular elevators (GAMEOBJECT_TYPE_TRANSPORT) must also use Transport highguid type, otherwise client will reject seeing other players on them
+template<>
+struct ObjectGuidTraits<HighGuid::Transport>
+{
+    static bool const Global = false;
+    static bool const RealmSpecific = true;
+    static bool const MapSpecific = true;
+};
 
 class ObjectGuid;
 class PackedGuid;
@@ -205,7 +217,7 @@ class TC_GAME_API ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::RealmSpecific, ObjectGuid>::type Create(LowType counter) { return RealmSpecific(type, counter); }
 
         template<HighGuid type>
-        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
 

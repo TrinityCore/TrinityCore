@@ -255,6 +255,8 @@ i_scriptLock(false), _defaultLight(GetDefaultMapLight(id))
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
 
+    GetGuidSequenceGenerator<HighGuid::Transport>().Set(sObjectMgr->GetGenerator<HighGuid::Transport>().GetNextAfterMaxUsed());
+
     sScriptMgr->OnCreateMap(this);
 }
 
