@@ -4228,6 +4228,34 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
         }
 };
 
+// 169869 - Transformation Sickness
+class spell_gen_decimatus_transformation_sickness : public SpellScriptLoader
+{
+public:
+    spell_gen_decimatus_transformation_sickness() : SpellScriptLoader("spell_gen_decimatus_transformation_sickness") { }
+
+    class spell_gen_decimatus_transformation_sickness_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_decimatus_transformation_sickness_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                caster->SetHealth(caster->CountPctFromMaxHealth(10));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_decimatus_transformation_sickness_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_decimatus_transformation_sickness_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4318,4 +4346,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
     new spell_gen_clear_debuffs();
+    new spell_gen_decimatus_transformation_sickness();
 }
