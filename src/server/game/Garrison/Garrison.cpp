@@ -713,8 +713,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
 
     Position const& pos = PacketInfo.PlotPos;
     GameObject* building = new GameObject();
-    if (!building->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, 0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-        0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
+    if (!building->Create(entry, map, 0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
     {
         delete building;
         return nullptr;
@@ -726,7 +725,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         {
             Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
             GameObject* finalizer = new GameObject();
-            if (finalizer->Create(map->GenerateLowGuid<HighGuid::GameObject>(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 0, pos2.GetPositionX(), pos2.GetPositionY(),
+            if (finalizer->Create(finalizeInfo->FactionInfo[faction].GameObjectId, map, 0, pos2.GetPositionX(), pos2.GetPositionY(),
                 pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
             {
                 // set some spell id to make the object delete itself after use
