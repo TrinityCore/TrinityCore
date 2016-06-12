@@ -298,6 +298,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                 sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
 
+            if (charInfo.Class == CLASS_DEMON_HUNTER)
+                charEnum.HasDemonHunterOnRealm = true;
+
             charEnum.Characters.emplace_back(charInfo);
         }
         while (result->NextRow());
