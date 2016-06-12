@@ -1409,6 +1409,7 @@ enum OpcodeServer : uint32
     SMSG_PRINT_NOTIFICATION                           = 0x25DE,
     SMSG_PROC_RESIST                                  = 0x279B,
     SMSG_PROPOSE_LEVEL_GRANT                          = 0x270D,
+    SMSG_PUSH_SPELL_TO_ACTION_BAR                     = 0x2C50,
     SMSG_PVP_CREDIT                                   = 0x2713,
     SMSG_PVP_LOG_DATA                                 = 0x25B1,
     SMSG_PVP_OPTIONS_ENABLED                          = 0x25B4,
