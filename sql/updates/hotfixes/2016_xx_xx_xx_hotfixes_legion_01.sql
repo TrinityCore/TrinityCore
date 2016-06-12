@@ -259,11 +259,11 @@ ALTER TABLE `cinematic_sequences`
 ALTER TABLE `creature_display_info`
   MODIFY `ExtendedDisplayInfoID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `ID`,
   MODIFY `CreatureModelScale` float NOT NULL DEFAULT '0' AFTER `ExtendedDisplayInfoID`,
-  MODIFY `Unknown620` float NOT NULL DEFAULT '0' AFTER `CreatureModelScale`,
+  MODIFY `PlayerModelScale` float NOT NULL DEFAULT '0' AFTER `CreatureModelScale`,
   DROP `TextureVariation1`,
   DROP `TextureVariation2`,
   DROP `TextureVariation3`,
-  MODIFY `PortraitTextureName` text AFTER `Unknown620`,
+  MODIFY `PortraitTextureName` text AFTER `PlayerModelScale`,
   MODIFY `PortraitCreatureDisplayInfoID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `PortraitTextureName`,
   MODIFY `CreatureGeosetData` int(10) unsigned NOT NULL DEFAULT '0' AFTER `PortraitCreatureDisplayInfoID`,
   MODIFY `StateSpellVisualKitID` int(10) unsigned NOT NULL DEFAULT '0' AFTER `CreatureGeosetData`,
@@ -281,7 +281,7 @@ ALTER TABLE `creature_display_info`
   ADD `Unk700` tinyint(4) NOT NULL DEFAULT '0' AFTER `Gender`;
 
 ALTER TABLE `creature_display_info`
-  ADD `TextureVariation1` int(10) unsigned NOT NULL DEFAULT '0' AFTER `Unknown620`,
+  ADD `TextureVariation1` int(10) unsigned NOT NULL DEFAULT '0' AFTER `PlayerModelScale`,
   ADD `TextureVariation2` int(10) unsigned NOT NULL DEFAULT '0' AFTER `TextureVariation1`,
   ADD `TextureVariation3` int(10) unsigned NOT NULL DEFAULT '0' AFTER `TextureVariation2`;
 
@@ -2118,7 +2118,7 @@ ALTER TABLE `spell_power_difficulty` DROP PRIMARY KEY;
 ALTER TABLE `spell_power_difficulty`
   MODIFY `DifficultyID` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `SpellPowerID`,
   MODIFY `PowerIndex` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER `DifficultyID`;
-ALTER TABLE `spell_power_difficulty` ADD PRIMARY KEY (`ID`);
+ALTER TABLE `spell_power_difficulty` ADD PRIMARY KEY (`SpellPowerID`);
 
 --
 -- Table structure for table `spell_procs_per_minute`
