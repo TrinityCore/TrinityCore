@@ -898,19 +898,19 @@ public:
             // this script is valid only for the Holy Shock procs of illumination
             if (eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetSpellInfo())
             {
-                if (eventInfo.GetHealInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x00010000)
-                {
-                    PreventDefaultAction();
-                    Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
+                SpellInfo const* originalSpell = nullptr;
 
-                    // proc comes from the Holy Shock heal, need to get mana cost of original spell
-                    uint32 originalspellid = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1, eventInfo.GetHealInfo()->GetSpellInfo()->GetRank());
-                    SpellInfo const* originalSpell = sSpellMgr->GetSpellInfo(originalspellid);
-                    if (originalSpell && aurEff->GetSpellInfo())
-                    {
-                        uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
-                        target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
-                    }
+                // if proc comes from the Holy Shock heal, need to get mana cost of original spell - else it's the original heal itself
+                if (eventInfo.GetHealInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x00010000)
+                    originalSpell = sSpellMgr->GetSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1, eventInfo.GetHealInfo()->GetSpellInfo()->GetRank()));
+                else
+                    originalSpell = eventInfo.GetHealInfo()->GetSpellInfo();
+
+                if (originalSpell && aurEff->GetSpellInfo())
+                {
+                    Unit* target = eventInfo.GetActor(); // Paladin is the target of the energize
+                    uint32 bp = CalculatePct(originalSpell->CalcPowerCost(target, originalSpell->GetSchoolMask()), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                    target->CastCustomSpell(SPELL_PALADIN_ILLUMINATION_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
                 }
             }
         }
