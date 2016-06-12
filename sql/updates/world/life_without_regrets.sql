@@ -39,16 +39,16 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = @NPC_SYLVANA
 UPDATE `creature_template` SET `unit_flags` = 768 WHERE `entry` = @NPC_JAINA;
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` = @NPC_SYLVANAS;
-INSERT INTO `smart_scripts` VALUES
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@NPC_SYLVANAS, 0, 0, 0, 25, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Sylvanas - on reset - set byte kneel'),
 (@NPC_SYLVANAS, 0, 1, 0, 34, 0, 100, 0, 8, 2, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Sylvanas - on movement inform - set byte kneel');
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 5279;
-INSERT INTO `areatrigger_scripts` VALUES
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (5279, "areatrigger_orgrimmar_herald_of_war");
 
 DELETE FROM `creature_text` WHERE `entry` IN (@NPC_GRYSHKA, @NPC_OLVIA, @NPC_FELIKA, @NPC_THUNG, @NPC_SANA, @NPC_KAJA, @NPC_OVERLORD_RUNTHAK, @NPC_THRALL, @NPC_SYLVANAS, @NPC_JAINA);
-INSERT INTO `creature_text` VALUES
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (@NPC_GRYSHKA, 0, 0, "When can we reopen our shops? I'm losing gold here!", 12, 0, 100, 0, 0, 0, 32237, 0, "inkeeper gryshka - herald of war"),
 (@NPC_GRYSHKA, 1, 0, "This is an outrage!", 12, 0, 100, 0, 0, 0, 32238, 0, "inkeeper gryshka - herald of war"),
 
@@ -88,7 +88,7 @@ INSERT INTO `creature_text` VALUES
 (@NPC_JAINA, 4, 0, "Farewell, Warchief. I pray that the next time we meet it will be as allies.", 12, 0, 100, 0, 0, 16133, 32299, 0, "Jaina - herald of war");
 
 DELETE FROM `gameobject` WHERE `id` IN (@OG_PORTAL, @HORDE_BUILDING5, @HORDE_BUILDING4, @HORDE_BUILDING2, @HORDE_BUILDING3, @UCPORTAL);
-INSERT INTO `gameobject` VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID, @OG_PORTAL, 571, 3537, 4129, 1, 1, 2830.01, 6179.37, 84.66, 4.16, 0, 0, 0.715875, -0.698228, 120, 100, 1, 0),
 (@OGUID + 1, @HORDE_BUILDING5, 1, 14, 14, 1, 64, 1339.00, -4413.98, 27.25, 2.29, 0, 0, 0, 0, 600, 0, 1, 0),
 (@OGUID + 2, @HORDE_BUILDING5, 1, 1637, 1637, 1, 64, 1508.90, -4429.49, 21.95, 6.13, 0, 0, 0, 0, 600, 0, 1, 0),
@@ -104,7 +104,7 @@ INSERT INTO `gameobject` VALUES
 (@OGUID + 12, @UCPORTAL, 1, 1637, 1637, 1, 64, 1931.545288, -4149.240723, 40.600616, 1.804645, 0, 0, 0, 0, 600, 0, 1, 0);
 
 DELETE FROM `creature` WHERE `GUID` BETWEEN @CGUID AND @CGUID + 68;
-INSERT INTO `creature` VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID, @REFUGEE1, 1, 14, 14, 1, 64, 0, 0, 1313.62, -4504.06, 22.9198, 1.60753, 300, 0, 0, 1, 0, 2, 0, 0, 0, 0),
 (@CGUID + 1, @REFUGEE1, 1, 14, 14, 1, 64, 0, 0, 1317.69, -4499.57, 25.0943, 1.60753, 300, 0, 0, 1, 0, 2, 0, 0, 0, 0),
 (@CGUID + 2, @REFUGEE2, 1, 14, 14, 1, 64, 0, 0, 1310.69, -4504.17, 22.2043, 1.60753, 300, 0, 0, 1, 0, 2, 0, 0, 0, 0),
@@ -189,7 +189,7 @@ INSERT INTO `creature` VALUES
 
 -- pathing is pure guess, there is no sniff of this event. Seen lots of videos and everybody ignores those fuckers ;[
 DELETE FROM `waypoint_data` WHERE `id` IN ((@CGUID + 37) * 10, (@CGUID + 38) * 10, (@CGUID + 39) * 10, @CGUID * 10, (@CGUID + 2) * 10, (@CGUID + 1) * 10, (@CGUID + 51) * 10, (@CGUID + 49) * 10, (@CGUID + 48) * 10, (@CGUID + 50) * 10, (@CGUID + 65) * 10, (@CGUID + 40) * 10);
-INSERT INTO `waypoint_data` VALUES
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 ((@CGUID + 37) * 10, 1, 1636.727661, -4419.891113, 15.754716, 3.374689, 0, 0, 0, 100, 0),
 ((@CGUID + 37) * 10, 2, 1597.315430, -4436.729004, 6.685284, 3.547476, 0, 0, 0, 100, 0),
 ((@CGUID + 37) * 10, 3, 1532.198364, -4418.569824, 12.707468, 2.803703, 0, 0, 0, 100, 0),
@@ -305,7 +305,7 @@ INSERT INTO `waypoint_data` VALUES
 ((@CGUID + 40) * 10, 2, 1916.156494, -4127.158691, 43.197136, 3.186971, 0, 0, 0, 100, 0);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID + 4, @CGUID + 6, @CGUID + 8, @CGUID + 10, @CGUID + 11 , @CGUID + 12, @CGUID + 14, @CGUID + 18, @CGUID + 19, @CGUID + 21, @CGUID + 22, @CGUID + 23, @CGUID + 25, @CGUID + 27, @CGUID + 29, @CGUID + 32, @CGUID + 5, @CGUID + 7, @CGUID + 9, @CGUID + 13, @CGUID + 15, @CGUID + 16, @CGUID + 17, @CGUID + 20, @CGUID + 24, @CGUID + 26, @CGUID + 28, @CGUID + 30, @CGUID + 31, @CGUID + 35, @CGUID + 33, @CGUID + 34, @CGUID + 3);
-INSERT INTO `creature_addon` VALUES
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 -- sitting
 (@CGUID + 4, 0, 0, 1, 0, 0, ""),
 (@CGUID + 6, 0, 0, 1, 0, 0, ""),
@@ -345,7 +345,7 @@ INSERT INTO `creature_addon` VALUES
 
 -- pathing and mounts
 DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID + 37, @CGUID + 38, @CGUID + 39, @CGUID, @CGUID + 2, @CGUID + 1, @CGUID + 51, @CGUID + 48, @CGUID + 49, @CGUID + 50);
-INSERT INTO `creature_addon` VALUES
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (@CGUID + 37, (@CGUID + 37) * 10, 0, 0, 0, 0, ""),
 (@CGUID + 38, (@CGUID + 38) * 10, 0, 0, 0, 0, ""),
 (@CGUID + 39, (@CGUID + 39) * 10, 0, 0, 0, 0, ""),
@@ -358,13 +358,13 @@ INSERT INTO `creature_addon` VALUES
 (@CGUID + 49, (@CGUID + 49) * 10, 29260, 0, 0, 0, "");
 
 DELETE FROM `gameobject_addon` WHERE `guid` IN (@OGUID, @OGUID + 11, @OGUID + 12);
-INSERT INTO `gameobject_addon` VALUES
+INSERT INTO `gameobject_addon` (`guid`, `invisibilityType`, `invisibilityValue`) VALUES
 (@OGUID, 7, 1000),
 (@OGUID + 11, 7, 1000),
 (@OGUID + 12, 7, 1000);
 
 DELETE FROM `spell_area` WHERE `spell` IN (60943, 59062);
-INSERT INTO `spell_area` VALUES
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
 (60943, 4129, 13257, 13257, 0, 690, 2, 1, 2, 2),
 (59062, 14, 13257, 13267, 0, 690, 2, 1, 66, 11),
 (59062, 1637, 13257, 13267, 0, 690, 2, 1, 66, 11),
@@ -374,12 +374,12 @@ INSERT INTO `spell_area` VALUES
 (59062, 1497, 13257, 13267, 0, 690, 2, 1, 64, 11); -- undercity
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (@OG_TELEPORTSPELL, @UCTELEPORTSPELL);
-INSERT INTO `spell_script_names` VALUES
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (@OG_TELEPORTSPELL, 'spell_59064_59439_portals'),
 (@UCTELEPORTSPELL, 'spell_59064_59439_portals');
 
 -- Its not sniff verified, if anyone got any info about it, you're more than welcome to correct it
 DELETE FROM `spell_target_position` WHERE `ID` IN (58419, 59448);
-INSERT INTO `spell_target_position` VALUES
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
 (58419, 0, 1, 1336.34, -4374.32, 26.19, 0.09, 0),
 (59448, 0, 0, 1962.69, 235.92, 39.77, 3.09, 0);
