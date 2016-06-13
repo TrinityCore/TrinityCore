@@ -1123,22 +1123,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_MOVE_FORWARD:
+        case SMART_ACTION_MOVE_OFFSET:
         {
-            if (!me)
-                break;
+            if (ObjectList* targets = GetTargets(e, unit))
+            {
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
+                    if (!IsCreature(*itr))
+                        continue;
 
-            float x, y, z;
-            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, (float)e.action.moveRandom.distance);
-            me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
-            break;
-        }
-        case SMART_ACTION_RISE_UP:
-        {
-            if (!me)
-                break;
+                    Position pos = (*itr)->GetPosition();
+                    Position offset = { e.target.x, e.target.y, e.target.z, 0.0f };
+                    pos.RelocateOffset(offset);
 
-            me->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + (float)e.action.moveRandom.distance);
+                    (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                }
+
+                delete targets;
+            }
+
             break;
         }
         case SMART_ACTION_SET_VISIBILITY:
@@ -2406,7 +2409,7 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
                 AddEvent(SMART_EVENT_DATA_SET, 0, 0, 0, 0, 0, SMART_ACTION_SET_RUN, e.action.installTtemplate.param3, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
                 AddEvent(SMART_EVENT_DATA_SET, 0, 0, 0, 0, 0, SMART_ACTION_SET_EVENT_PHASE, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
 
-                AddEvent(SMART_EVENT_UPDATE, SMART_EVENT_FLAG_NOT_REPEATABLE, 1000, 1000, 0, 0, SMART_ACTION_MOVE_FORWARD, e.action.installTtemplate.param4, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 1);
+                AddEvent(SMART_EVENT_UPDATE, SMART_EVENT_FLAG_NOT_REPEATABLE, 1000, 1000, 0, 0, SMART_ACTION_MOVE_OFFSET, 0, 0, 0, 0, 0, 0, SMART_TARGET_SELF, e.action.installTtemplate.param4, 0, 0, 1);
                  //phase 1: give quest credit on movepoint reached
                 AddEvent(SMART_EVENT_MOVEMENTINFORM, 0, POINT_MOTION_TYPE, SMART_RANDOM_POINT, 0, 0, SMART_ACTION_SET_DATA, 0, 0, 0, 0, 0, 0, SMART_TARGET_STORED, 1, 0, 0, 1);
                 //phase 1: despawn after time on movepoint reached
