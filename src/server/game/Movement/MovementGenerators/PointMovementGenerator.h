@@ -26,8 +26,10 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
+        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f, 
+            uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty) : id(_id),
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false),
+            _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -47,6 +49,8 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         float speed;
         bool m_generatePath;
         bool i_recalculateSpeed;
+        uint32 _arrivalSpellId;
+        ObjectGuid _arrivalSpellTargetGuid;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
