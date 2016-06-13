@@ -389,7 +389,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
-    ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HighGuid::Transport>().Generate();
+    ObjectGuid::LowType guidLow = guid ? guid : ASSERT_NOTNULL(map)->GenerateLowGuid<HighGuid::Transport>();
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;

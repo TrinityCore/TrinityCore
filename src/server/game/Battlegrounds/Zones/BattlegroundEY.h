@@ -248,6 +248,12 @@ enum BG_EY_Objectives
     EY_OBJECTIVE_CAPTURE_FLAG   = 183
 };
 
+enum BG_EY_ExploitTeleportLocations
+{
+    EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3773,
+    EY_EXPLOIT_TELEPORT_LOCATION_HORDE = 3772
+};
+
 struct BattlegroundEYPointIconsStruct
 {
     BattlegroundEYPointIconsStruct(uint32 _WorldStateControlIndex, uint32 _WorldStateAllianceControlledIndex, uint32 _WorldStateHordeControlledIndex)
@@ -376,6 +382,7 @@ class BattlegroundEY : public Battleground
         void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
         bool SetupBattleground() override;
         void Reset() override;
         void UpdateTeamScore(uint32 Team);

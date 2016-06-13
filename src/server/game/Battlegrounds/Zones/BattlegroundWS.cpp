@@ -650,13 +650,15 @@ void BattlegroundWS::UpdateTeamScore(uint32 team)
 
 void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch (trigger)
     {
+        case 8965: // Horde Start
+        case 8966: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 3686:                                          // Alliance elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground::Update().
             //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
             break;
@@ -849,6 +851,11 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
         else
             return sWorldSafeLocsStore.LookupEntry(WS_GRAVEYARD_FLAGROOM_HORDE);
     }
+}
+
+WorldSafeLocsEntry const* BattlegroundWS::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? WS_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : WS_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
