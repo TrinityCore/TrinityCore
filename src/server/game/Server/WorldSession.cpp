@@ -336,10 +336,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (IsConnectionIdle())
         m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
 
-    if (updater.ProcessUnsafe())
-        while (_player && _player->IsBeingTeleportedSeamlessly())
-            HandleMoveWorldportAckOpcode();
-
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;

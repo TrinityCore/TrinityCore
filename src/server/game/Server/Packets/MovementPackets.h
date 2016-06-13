@@ -461,6 +461,38 @@ namespace WorldPackets
             int32 AreaID = 0;
             bool SkipStartingArea = false;
         };
+
+        class SuspendToken final : public ServerPacket
+        {
+        public:
+            SuspendToken() : ServerPacket(SMSG_SUSPEND_TOKEN, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 1;
+            uint32 Reason = 1;
+        };
+
+        class SuspendTokenResponse final : public ClientPacket
+        {
+        public:
+            SuspendTokenResponse(WorldPacket&& packet) : ClientPacket(CMSG_SUSPEND_TOKEN_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SequenceIndex = 0;
+        };
+
+        class ResumeToken final : public ServerPacket
+        {
+        public:
+            ResumeToken() : ServerPacket(SMSG_RESUME_TOKEN, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SequenceIndex = 1;
+            uint32 Reason = 1;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);
