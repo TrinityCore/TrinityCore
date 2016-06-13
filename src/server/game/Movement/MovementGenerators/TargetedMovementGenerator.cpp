@@ -172,7 +172,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
         float allowed_dist = 0.0f;
 
-        if ((owner->GetTypeId() == TYPEID_UNIT && owner->IsPet()) && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
+        if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
             allowed_dist = 1.0f; // pet following owner
         else
             allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
