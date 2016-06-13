@@ -35,7 +35,7 @@ struct soap_plugin;
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _stopped(false), _port(0) { }
+    LoginRESTService() : _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
 
     static LoginRESTService& Instance();
 

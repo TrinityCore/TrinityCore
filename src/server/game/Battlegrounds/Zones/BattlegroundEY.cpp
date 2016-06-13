@@ -406,14 +406,16 @@ void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team
 
 void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     if (!player->IsAlive())                                  //hack code, must be removed later
         return;
 
     switch (trigger)
     {
+        case 4530: // Horde Start
+        case 4531: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case TR_BLOOD_ELF_POINT:
             if (m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BLOOD_ELF] == player->GetTeam())
                 if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
@@ -438,8 +440,6 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 4515:
         case 4517:
         case 4519:
-        case 4530:
-        case 4531:
         case 4568:
         case 4569:
         case 4570:
@@ -948,6 +948,11 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
     }
 
     return nearestEntry;
+}
+
+WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EY_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundEY::IsAllNodesControlledByTeam(uint32 team) const

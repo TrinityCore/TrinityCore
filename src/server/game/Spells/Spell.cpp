@@ -4187,13 +4187,11 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
 void Spell::SendSpellExecuteLog()
 {
     WorldPackets::CombatLog::SpellExecuteLog spellExecuteLog;
-
     spellExecuteLog.Caster = m_caster->GetGUID();
     spellExecuteLog.SpellID = m_spellInfo->Id;
 
     for (SpellEffectInfo const* effect : GetEffects())
     {
-        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect spellLogEffect;
         if (!effect)
             continue;
 
@@ -4202,6 +4200,9 @@ void Spell::SendSpellExecuteLog()
             _tradeSkillTargets[effect->EffectIndex].empty() && _feedPetTargets[effect->EffectIndex].empty())
             continue;
 
+        spellExecuteLog.Effects.emplace_back();
+
+        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect& spellLogEffect = spellExecuteLog.Effects.back();
         spellLogEffect.Effect = effect->Effect;
         spellLogEffect.PowerDrainTargets = std::move(_powerDrainTargets[effect->EffectIndex]);
         spellLogEffect.ExtraAttacksTargets = std::move(_extraAttacksTargets[effect->EffectIndex]);
@@ -4209,8 +4210,6 @@ void Spell::SendSpellExecuteLog()
         spellLogEffect.GenericVictimTargets = std::move(_genericVictimTargets[effect->EffectIndex]);
         spellLogEffect.TradeSkillTargets = std::move(_tradeSkillTargets[effect->EffectIndex]);
         spellLogEffect.FeedPetTargets = std::move(_feedPetTargets[effect->EffectIndex]);
-
-        spellExecuteLog.Effects.push_back(spellLogEffect);
     }
 
     if (!spellExecuteLog.Effects.empty())
@@ -7346,7 +7345,7 @@ bool Spell::HasGlobalCooldown() const
 void Spell::TriggerGlobalCooldown()
 {
     int32 gcd = m_spellInfo->StartRecoveryTime;
-    if (!gcd)
+    if (!gcd || !m_spellInfo->StartRecoveryCategory)
         return;
 
     // Only players or controlled units have global cooldown
@@ -7366,12 +7365,17 @@ void Spell::TriggerGlobalCooldown()
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, gcd, this);
 
+        bool isMeleeOrRangedSpell = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE ||
+            m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED ||
+            m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) ||
+            m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY);
+
         // Apply haste rating
-        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-        if (gcd < MIN_GCD)
-            gcd = MIN_GCD;
-        else if (gcd > MAX_GCD)
-            gcd = MAX_GCD;
+        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell) || m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE, m_spellInfo)))
+            gcd = std::min<int32>(std::max<int32>(int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_HASTE)), MIN_GCD), MAX_GCD);
+
+        if (gcd > MIN_GCD && m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN, m_spellInfo))
+            gcd = std::min<int32>(std::max<int32>(int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN)), MIN_GCD), MAX_GCD);
     }
 
     m_caster->GetSpellHistory()->AddGlobalCooldown(m_spellInfo, gcd);

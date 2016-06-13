@@ -1220,7 +1220,7 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
-    if (m_timeSyncTimer > 0)
+    if (m_timeSyncTimer > 0 && !IsBeingTeleportedFar())
     {
         if (p_time >= m_timeSyncTimer)
             SendTimeSync();
@@ -1635,18 +1635,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
-                if (mEntry->IsDungeon())
-                {
-                    WorldPackets::Instance::UpdateLastInstance updateLastInstance;
-                    updateLastInstance.MapID = mapid;
-                    SendDirectMessage(updateLastInstance.Write());
-                }
-
-                WorldPackets::Movement::NewWorld packet;
-                packet.MapID = mapid;
-                packet.Pos = static_cast<Position>(m_teleport_dest);
-                packet.Reason = !(options & TELE_TO_SEAMLESS) ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
-                SendDirectMessage(packet.Write());
+                WorldPackets::Movement::SuspendToken suspendToken;
+                suspendToken.SequenceIndex = m_movementCounter; // not incrementing
+                suspendToken.Reason = options & TELE_TO_SEAMLESS ? 2 : 1;
+                SendDirectMessage(suspendToken.Write());
             }
 
             // move packet sent by client always after far teleport
@@ -20140,7 +20132,7 @@ void Player::PetSpellInitialize()
     WorldPackets::Pet::PetSpells petSpellsPacket;
     petSpellsPacket.PetGUID = pet->GetGUID();
     petSpellsPacket._CreatureFamily = pet->GetCreatureTemplate()->family;         // creature family (required for pet talents)
-    //petSpellsPacket.Specialization = pet->GetSpecialization(); NYI
+    petSpellsPacket.Specialization = pet->GetSpecialization();
     petSpellsPacket.TimeLimit = pet->GetDuration();
     petSpellsPacket.ReactState = pet->GetReactState();
     petSpellsPacket.CommandState = charmInfo->GetCommandState();
@@ -21968,7 +21960,7 @@ void Player::UpdateTriggerVisibility()
             creature->BuildValuesUpdateBlockForPlayer(&udata, this);
             creature->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
         }
-        else if (itr->IsGameObject())
+        else if (itr->IsAnyTypeGameObject())
         {
             GameObject* go = GetMap()->GetGameObject(*itr);
             if (!go)
@@ -22186,6 +22178,14 @@ void Player::SetGroup(Group* group, int8 subgroup)
 
 void Player::SendInitialPacketsBeforeAddToMap()
 {
+    if (!(m_teleport_options & TELE_TO_SEAMLESS))
+    {
+        m_movementCounter = 0;
+        ResetTimeSync();
+    }
+
+    SendTimeSync();
+
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
@@ -22274,9 +22274,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
-
-    ResetTimeSync();
-    SendTimeSync();
 
     GetSession()->SendLoadCUFProfiles();
 
@@ -25581,14 +25578,6 @@ void Player::DeleteGarrison()
     }
 }
 
-void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
-{
-    WorldPackets::Movement::MoveSetFlag packet(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY);
-    packet.MoverGUID = GetGUID();
-    packet.SequenceIndex = m_movementCounter++;
-    SendMessageToSet(packet.Write(), true);
-}
-
 void Player::SendMovementSetCollisionHeight(float height)
 {
     WorldPackets::Movement::MoveSetCollisionHeight setCollisionHeight;
@@ -25746,7 +25735,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         case SUMMON_PET:
             pet->InitPetCreateSpells();
-            pet->InitTalentForLevel();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             PetSpellInitialize();
             break;

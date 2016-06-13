@@ -242,7 +242,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         SmartScript* GetScript() { return &mScript; }
         static int Permissible(const GameObject* g);
 
-        bool GossipHello(Player* player) override;
+        bool GossipHello(Player* player, bool isUse) override;
         bool GossipSelect(Player* player, uint32 sender, uint32 action) override;
         bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;
         bool QuestAccept(Player* player, Quest const* quest) override;

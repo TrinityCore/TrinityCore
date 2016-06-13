@@ -51,6 +51,7 @@
 #include "BattlePetMgr.h"
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
+#include "Metric.h"
 
 #include <zlib.h>
 
@@ -117,6 +118,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _battlenetAccountId(battlenetAccountId),
     m_expansion(expansion),
     _os(os),
+    _battlenetRequestToken(0),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -334,10 +336,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (IsConnectionIdle())
         m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
 
-    if (updater.ProcessUnsafe())
-        while (_player && _player->IsBeingTeleportedSeamlessly())
-            HandleMoveWorldportAckOpcode();
-
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;
@@ -455,6 +453,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
             break;
     }
+
+    TC_METRIC_VALUE("processed_packets", processedPackets);
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
@@ -613,6 +613,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
+
+        TC_METRIC_EVENT("player_events", "Logout", _player->GetName());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out

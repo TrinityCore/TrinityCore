@@ -163,8 +163,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             int32 PetNumber = 0;
             std::string NewName;
-            bool HasDeclinedNames = false;
-            DeclinedName DeclinedNames;
+            Optional<DeclinedName> DeclinedNames;
         };
 
         class PetNameInvalid final : public ServerPacket
@@ -224,6 +223,16 @@ namespace WorldPackets
 
             ObjectGuid PetGUID;
             int32 SpellID = 0;
+        };
+
+        class SetPetSpecialization final : public ServerPacket
+        {
+        public:
+            SetPetSpecialization() : ServerPacket(SMSG_SET_PET_SPECIALIZATION, 2) { }
+
+            WorldPacket const* Write() override;
+
+            uint16 SpecID = 0;
         };
 
     }

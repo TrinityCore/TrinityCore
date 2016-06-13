@@ -231,11 +231,13 @@ void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint3
 
 void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     switch (trigger)
     {
+        case 6635: // Horde Start
+        case 6634: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeam() != ALLIANCE)
                 player->GetSession()->SendNotification("Only The Alliance can use that portal");
@@ -688,6 +690,11 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
         good_entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[teamIndex+5]);
 
     return good_entry;
+}
+
+WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
