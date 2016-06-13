@@ -49,6 +49,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
+    _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
 
     _worldPacket.FlushBits();
 
@@ -70,6 +71,13 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Delay);
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
+    }
+
+    if (RaceClassExpansionLevels)
+    {
+        _worldPacket << uint32(RaceClassExpansionLevels->size());
+        if (!RaceClassExpansionLevels->empty())
+            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
     }
 
     return &_worldPacket;

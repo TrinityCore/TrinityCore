@@ -135,10 +135,12 @@ namespace WorldPackets
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
                 uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
+                uint32 Flags4            = 0;
                 bool FirstLogin      = false;
                 uint8 unkWod61x          = 0;
                 uint32 LastPlayedTime    = 0;
-                uint16 UnkLegion         = 0; // may be spec id
+                uint16 SpecID            = 0;
+                uint32 Unknown703;
 
                 struct PetInfo
                 {
@@ -149,7 +151,6 @@ namespace WorldPackets
 
                 bool BoostInProgress = false; ///< @todo
                 int32 ProfessionIds[2];       ///< @todo
-                uint32 ClassTrialFlags      = 0;
 
                 struct VisualItemInfo
                 {

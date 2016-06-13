@@ -209,6 +209,14 @@ namespace WorldPackets
             ConnectToSerial Serial = ConnectToSerial::None;
             uint8 Con = 0;
         };
+
+        class EnableEncryption final : public ServerPacket
+        {
+        public:
+            EnableEncryption() : ServerPacket(SMSG_ENABLE_ENCRYPTION, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

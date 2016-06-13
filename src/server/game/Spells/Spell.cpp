@@ -7330,7 +7330,7 @@ void Spell::PrepareTriggersExecutedOnHit()
 // Global cooldowns management
 enum GCDLimits
 {
-    MIN_GCD = 1000,
+    MIN_GCD = 750,
     MAX_GCD = 1500
 };
 

@@ -326,7 +326,6 @@ struct ChrRacesEntry
     uint16 CinematicSequenceID;
     uint16 UAMaleCreatureSoundDataID;
     uint16 UAFemaleCreatureSoundDataID;
-    uint16 Unk;
     uint8 BaseLanguage;
     uint8 CreatureType;
     uint8 TeamID;
@@ -339,6 +338,7 @@ struct ChrRacesEntry
     uint8 CharComponentTexLayoutHiResID;
     uint32 HighResMaleDisplayID;
     uint32 HighResFemaleDisplayID;
+    uint32 Unk[3];
 };
 
 #define MAX_MASTERY_SPELLS 2
@@ -2294,9 +2294,9 @@ struct SpellScalingEntry
     uint32 ID;
     uint32 SpellID;
     uint16 ScalesFromItemLevel;
-    uint8 MinScalingLevel;
-    uint8 MaxScalingLevel;
     int32 ScalingClass;
+    uint32 MinScalingLevel;
+    uint32 MaxScalingLevel;
 };
 
 struct SpellShapeshiftEntry

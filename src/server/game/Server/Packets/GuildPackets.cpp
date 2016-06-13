@@ -69,13 +69,12 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
     _worldPacket.AppendPackedTime(CreateDate);
     _worldPacket << GuildFlags;
     _worldPacket << uint32(MemberData.size());
+    _worldPacket.WriteBits(WelcomeText.length(), 10);
+    _worldPacket.WriteBits(InfoText.length(), 11);
+    _worldPacket.FlushBits();
 
     for (GuildRosterMemberData const& member : MemberData)
         _worldPacket << member;
-
-    _worldPacket.WriteBits(WelcomeText.length(), 10);
-    _worldPacket.WriteBits(InfoText.length(), 10);
-    _worldPacket.FlushBits();
 
     _worldPacket.WriteString(WelcomeText);
     _worldPacket.WriteString(InfoText);
