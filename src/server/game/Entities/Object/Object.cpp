@@ -340,7 +340,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool NoBirthAnim = false;
     bool EnablePortals = false;
     bool PlayHoverAnim = false;
-    bool IsSuppressingGreetings = false;
     bool HasMovementUpdate = (flags & UPDATEFLAG_LIVING) != 0;
     bool HasMovementTransport = (flags & UPDATEFLAG_TRANSPORT_POSITION) != 0;
     bool Stationary = (flags & UPDATEFLAG_STATIONARY_POSITION) != 0;
@@ -363,7 +362,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
     data->WriteBit(PlayHoverAnim);
-    data->WriteBit(IsSuppressingGreetings);
     data->WriteBit(HasMovementUpdate);
     data->WriteBit(HasMovementTransport);
     data->WriteBit(Stationary);

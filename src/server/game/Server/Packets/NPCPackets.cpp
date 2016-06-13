@@ -142,15 +142,6 @@ WorldPacket const* WorldPackets::NPC::PlayerTabardVendorActivate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::NPC::SuppressNPCGreetings::Write()
-{
-    _worldPacket << UnitGUID;
-    _worldPacket.WriteBit(SuppressNPCGreeting);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
 {
     _worldPacket.WriteBits(Flags, 14);

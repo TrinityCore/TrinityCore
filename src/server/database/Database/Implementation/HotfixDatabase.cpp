@@ -96,7 +96,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, MaleText_lang, FemaleText_lang FROM broadcast_text_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // CharSections.db2
-    PrepareStatement(HOTFIX_SEL_CHAR_SECTIONS, "SELECT Id, TextureFileDataID1, TextureFileDataID2, TextureFileDataID3, Flags, Race, Gender, GenType, "
+    PrepareStatement(HOTFIX_SEL_CHAR_SECTIONS, "SELECT ID, TextureFileDataID1, TextureFileDataID2, TextureFileDataID3, Flags, Race, Gender, GenType, "
         "Type, Color FROM char_sections ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CharStartOutfit.db2
@@ -126,9 +126,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FacialHairCustomization2, HairCustomization, CreateScreenFileDataID, SelectScreenFileDataID, MaleCustomizeOffset1, MaleCustomizeOffset2, "
         "MaleCustomizeOffset3, FemaleCustomizeOffset1, FemaleCustomizeOffset2, FemaleCustomizeOffset3, LowResScreenFileDataID, FactionID, "
         "ExplorationSoundID, MaleDisplayID, FemaleDisplayID, ResSicknessSpellID, SplashSoundID, CinematicSequenceID, UAMaleCreatureSoundDataID, "
-        "UAFemaleCreatureSoundDataID, Unk, BaseLanguage, CreatureType, TeamID, RaceRelated, UnalteredVisualRaceID, CharComponentTextureLayoutID, "
-        "DefaultClassID, NeutralRaceID, ItemAppearanceFrameRaceID, CharComponentTexLayoutHiResID, HighResMaleDisplayID, HighResFemaleDisplayID"
-        " FROM chr_races ORDER BY ID DESC", CONNECTION_SYNCH);
+        "UAFemaleCreatureSoundDataID, BaseLanguage, CreatureType, TeamID, RaceRelated, UnalteredVisualRaceID, CharComponentTextureLayoutID, "
+        "DefaultClassID, NeutralRaceID, ItemAppearanceFrameRaceID, CharComponentTexLayoutHiResID, HighResMaleDisplayID, HighResFemaleDisplayID, Unk1, "
+        "Unk2, Unk3 FROM chr_races ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_RACES, "SELECT ID, Name_lang, NameFemale_lang, NameMale_lang FROM chr_races_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ChrSpecialization.db2
@@ -766,7 +766,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellScaling.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_SCALING, "SELECT ID, SpellID, ScalesFromItemLevel, MinScalingLevel, MaxScalingLevel, ScalingClass"
+    PrepareStatement(HOTFIX_SEL_SPELL_SCALING, "SELECT ID, SpellID, ScalesFromItemLevel, ScalingClass, MinScalingLevel, MaxScalingLevel"
         " FROM spell_scaling ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellShapeshift.db2

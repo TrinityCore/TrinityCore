@@ -85,6 +85,8 @@ namespace WorldPackets
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
+
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket

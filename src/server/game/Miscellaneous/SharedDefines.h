@@ -935,6 +935,18 @@ enum CharacterCustomizeFlags
     CHAR_CUSTOMIZE_FLAG_RACE            = 0x00100000  // name, gender, race, etc...
 };
 
+enum CharacterFlags3 : uint32
+{
+    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_VAS_TRANSACTION      = 0x00100000,
+    CHARACTER_FLAG_3_LOCKED_BY_REVOKED_CHARACTER_UPGRADE    = 0x80000000,
+};
+
+enum CharacterFlags4 : uint32
+{
+    CHARACTER_FLAG_4_TRIAL_BOOST        = 0x00000080,
+    CHARACTER_FLAG_4_TRIAL_BOOST_LOCKED = 0x00040000,
+};
+
 enum CharacterSlot
 {
     SLOT_HEAD                          = 0,

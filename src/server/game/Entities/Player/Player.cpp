@@ -2548,6 +2548,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_TIME_RATE, 1.0f);
 
     // reset size before reapply auras
     SetObjectScale(1.0f);

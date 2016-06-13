@@ -88,6 +88,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
         CustomizationFlag = CHAR_CUSTOMIZE_FLAG_RACE;
 
     Flags3 = 0;
+    Flags4 = 0;
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
     // show pet at selection character in character list only for non-ghost character
@@ -177,8 +178,9 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         }
 
         _worldPacket << uint32(charInfo.LastPlayedTime);
-        _worldPacket << uint16(charInfo.UnkLegion);
-        _worldPacket << uint32(charInfo.ClassTrialFlags);
+        _worldPacket << uint16(charInfo.SpecID);
+        _worldPacket << uint32(charInfo.Unknown703);
+        _worldPacket << uint32(charInfo.Flags4);
         _worldPacket.WriteBits(charInfo.Name.length(), 6);
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
