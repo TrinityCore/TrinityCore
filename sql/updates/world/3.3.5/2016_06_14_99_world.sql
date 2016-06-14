@@ -29,3 +29,11 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,8371,0,0,0,2,0,30659,1,0,1,0,'','Kagrosh - Show gossip option 0 if player does not have item 30659 in inventory'),
 (15,8371,0,0,0,9,0,10601,0,0,0,0,'','Kagrosh - Show gossip option 0 if player has accepted quest 10601');
+
+
+-- Migrate NPC off of cpp script
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 23489;
+-- Create conditions for Hurlunk
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 8754;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,8754,0,0,0,5,0,1015,128,0,0,0,'','Drake Dealer Hurlunk - Show gossip option 0 if player is exalted with faction 1015');
