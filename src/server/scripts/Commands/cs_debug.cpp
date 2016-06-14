@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
+#include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "Cell.h"
@@ -39,6 +40,7 @@ EndScriptData */
 #include "ScenePackets.h"
 
 #include <fstream>
+#include <limits>
 
 class debug_commandscript : public CommandScript
 {
@@ -99,7 +101,8 @@ public:
             { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "",},
             { "phase",         rbac::RBAC_PERM_COMMAND_DEBUG_PHASE,         false, &HandleDebugPhaseCommand,            "" },
             { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
-            { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" }
+            { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
+            { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1545,6 +1548,53 @@ public:
             }
         else
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
+        return true;
+    }
+
+    static bool HandleDebugNearGraveyard(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        const WorldSafeLocsEntry* nearestLoc = nullptr;
+
+        if (stricmp(args, "linked"))
+        {
+            if (Battleground* bg = player->GetBattleground())
+                nearestLoc = bg->GetClosestGraveYard(player);
+            else
+            {
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
+                    nearestLoc = bf->GetClosestGraveYard(player);
+                else
+                    nearestLoc = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+            }
+        }
+        else
+        {
+            float x = player->GetPositionX();
+            float y = player->GetPositionY();
+            float z = player->GetPositionZ();
+            float distNearest = std::numeric_limits<float>::max();
+
+            for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
+            {
+                const WorldSafeLocsEntry* loc = sWorldSafeLocsStore.LookupEntry(i);
+                if (loc && loc->map_id == player->GetMapId())
+                {
+                    float dist = (loc->x - x) * (loc->x - x) + (loc->y - y) * (loc->y - y) + (loc->z - z) * (loc->z - z);
+                    if (dist < distNearest)
+                    {
+                        distNearest = dist;
+                        nearestLoc = loc;
+                    }
+                }
+            }
+        }
+
+        if (nearestLoc)
+            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->x, nearestLoc->y, nearestLoc->z);
+        else
+            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
+
         return true;
     }
 };
