@@ -6932,6 +6932,53 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, victim);
         }
+		else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())
+			{
+			uint8 k_level = getLevel();
+			uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
+			uint8 v_level = victim->getLevel();
+			
+				if (v_level <= k_grey)
+				return false;
+			
+			uint32 victim_title = 0;
+			victim_guid = ObjectGuid::Empty;
+			
+			honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
+			
+				           // count the number of playerkills in one day
+			ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
+					       // and those in a lifetime
+			ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS, victim->getClass());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, victim);
+			}
+		else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_ELITE) && victim->ToCreature()->isElite())
+			{
+			uint8 k_level = getLevel();
+			uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
+			uint8 v_level = victim->getLevel();
+			
+				if (v_level <= k_grey)
+				return false;
+			
+			uint32 victim_title = 0;
+			victim_guid = ObjectGuid::Empty;
+			honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
+			            // count the number of playerkills in one day
+			ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
+			
+			            // and those in a lifetime
+			ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS, victim->getClass());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
+			UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, victim);
+			}
         else
         {
             if (!victim->ToCreature()->IsRacialLeader())

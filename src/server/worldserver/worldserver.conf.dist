@@ -3771,4 +3771,22 @@ Custom.AdaptiveLevel = 1
 DoubleXP.Enable = 1
 
 #
+#    Custom.GainHonorOnGuardKill
+#        Description: Set it to 1 to gain honor when you kill a guard.
+#                     Note that not all city guards will give you honor. It seems only capital and big city guards are flagged
+#                     as so in the database.
+#        Default : 0 (No honor when you kill a guard)
+#
+
+Custom.GainHonorOnGuardKill = 1
+
+#
+# Custom.GainHonorOnEliteKill
+# Set it to 1 to gain honor when you kill an elite mob (this does not apply on rare mob, unless he is also elite).
+# Default : 0 (No honor when you kill an elite mob)
+#
+
+Custom.GainHonorOnEliteKill = 0
+
+#
 ###################################################################################################
