@@ -56,7 +56,7 @@ enum RogueSpells
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
-    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
     SPELL_ROGUE_TALENT_DFA_PREJUMP                  = 178236, // Executed with Base talent
     SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD               = 163786, // Applied with Base talent
     SPELL_ROGUE_TALENT_DFA                          = 152150, // Base talent
