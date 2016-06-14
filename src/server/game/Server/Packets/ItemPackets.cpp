@@ -165,7 +165,7 @@ WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData)
 {
-    data << itemBonusInstanceData.Context;
+    data << uint8(itemBonusInstanceData.Context);
     data << uint32(itemBonusInstanceData.BonusListIDs.size());
     for (uint32 bonusID : itemBonusInstanceData.BonusListIDs)
         data << bonusID;
@@ -173,20 +173,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Item::ItemBonusInstanceData>& itemBonusInstanceData)
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData)
 {
     uint32 bonusListIdSize;
 
-    itemBonusInstanceData = boost::in_place();
-
-    data >> itemBonusInstanceData->Context;
+    data >> itemBonusInstanceData.Context;
     data >> bonusListIdSize;
 
     for (uint32 i = 0u; i < bonusListIdSize; ++i)
     {
         uint32 bonusId;
         data >> bonusId;
-        itemBonusInstanceData->BonusListIDs.push_back(bonusId);
+        itemBonusInstanceData.BonusListIDs.push_back(bonusId);
     }
 
     return data;
@@ -221,15 +219,31 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
     bool const hasModifications = data.ReadBit();
 
     if (hasItemBonus)
-        data >> itemInstance.ItemBonus;
+    {
+        itemInstance.ItemBonus = boost::in_place();
+        data >> *itemInstance.ItemBonus;
+    }
 
     if (hasModifications)
     {
-        WorldPackets::CompactArray<int32> modifications;
-        data >> modifications;
-        itemInstance.Modifications = std::move(modifications);
+        itemInstance.Modifications = boost::in_place();
+        data >> *itemInstance.Modifications;
     }
 
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData const& itemGemInstanceData)
+{
+    data << uint8(itemGemInstanceData.Slot);
+    data << itemGemInstanceData.Item;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData& itemGemInstanceData)
+{
+    data >> itemGemInstanceData.Slot;
+    data >> itemGemInstanceData.Item;
     return data;
 }
 

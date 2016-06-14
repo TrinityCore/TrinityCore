@@ -96,6 +96,24 @@ struct TC_GAME_API AuctionEntry
 
 };
 
+struct AuctionSearchFilters
+{
+    enum FilterType : uint32
+    {
+        FILTER_SKIP_CLASS = 0,
+        FILTER_SKIP_SUBCLASS = 0xFFFFFFFF,
+        FILTER_SKIP_INVTYPE = 0xFFFFFFFF
+    };
+
+    struct SubclassFilter
+    {
+        uint32 SubclassMask = FILTER_SKIP_CLASS;
+        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes;
+    };
+
+    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes;
+};
+
 //this class is used as auctionhouse instance
 class TC_GAME_API AuctionHouseObject
 {
@@ -140,8 +158,7 @@ class TC_GAME_API AuctionHouseObject
     void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player, uint32& totalcount);
     void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player, uint32& totalcount);
     void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
-        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
-        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32& totalcount);
+        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, bool usable, Optional<AuctionSearchFilters> const& filters, uint32 quality);
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& auctionReplicateResult, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);
 

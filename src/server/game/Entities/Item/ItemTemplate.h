@@ -653,6 +653,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH
 };
 
+#define MAX_ITEM_SUBCLASS_TOTAL 21
+
 #define MIN_ITEM_LEVEL 1
 #define MAX_ITEM_LEVEL 1000
 

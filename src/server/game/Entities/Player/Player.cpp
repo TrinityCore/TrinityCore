@@ -17262,7 +17262,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[24].GetUInt64()) : ObjectGuid::Empty;
+                ObjectGuid bagGuid = fields[24].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[24].GetUInt64()) : ObjectGuid::Empty;
                 uint8 slot = fields[25].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
@@ -17591,7 +17591,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[21].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[21].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[24].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[24].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);

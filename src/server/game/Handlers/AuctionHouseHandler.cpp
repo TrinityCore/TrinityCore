@@ -616,10 +616,8 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s), searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u",
-        packet.Auctioneer.ToString().c_str(), packet.Name.c_str(), packet.MinLevel, packet.MaxLevel , packet.InvType, packet.ItemClass, packet.ItemSubclass, packet.Quality, packet.OnlyUsable);
-
-    WorldPackets::AuctionHouse::AuctionListItemsResult result;
+    TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s), searchedname: %s, levelmin: %u, levelmax: %u, quality: %u, usable: %u",
+        packet.Auctioneer.ToString().c_str(), packet.Name.c_str(), packet.MinLevel, packet.MaxLevel , packet.Quality, packet.OnlyUsable);
 
     // converting string that we try to find to lower case
     std::wstring wsearchedname;
@@ -628,9 +626,29 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
 
     wstrToLower(wsearchedname);
 
-    auctionHouse->BuildListAuctionItems(result, _player,
-        wsearchedname, packet.Offset, packet.MinLevel, packet.MaxLevel, packet.OnlyUsable,
-        packet.InvType, packet.ItemClass, packet.ItemSubclass, packet.Quality, result.TotalCount);
+    Optional<AuctionSearchFilters> filters;
+
+    WorldPackets::AuctionHouse::AuctionListItemsResult result;
+    if (packet.ClassFilters.empty())
+    {
+        filters = boost::in_place();
+
+        for (auto const& classFilter : packet.ClassFilters)
+        {
+            if (!classFilter.SubClassFilters.empty())
+            {
+                for (auto const& subClassFilter : classFilter.SubClassFilters)
+                {
+                    filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                    filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                }
+            }
+            else
+                filters->Classes[classFilter.ItemClass].SubclassMask = AuctionSearchFilters::FILTER_SKIP_SUBCLASS;
+        }
+    }
+
+    auctionHouse->BuildListAuctionItems(result, _player, wsearchedname, packet.Offset, packet.MinLevel, packet.MaxLevel, packet.OnlyUsable, filters, packet.Quality);
 
     result.DesiredDelay = sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
     result.OnlyUsable = packet.OnlyUsable;
