@@ -18,10 +18,12 @@
 // This is where scripts' loading functions should be declared:
 +// Announce Login
 void AddSC_announce_login();
+void AddSC_LearnSpellsOnLevelUp();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
 	AddSC_announce_login();
+	AddSC_LearnSpellsOnLevelUp();
 }
