@@ -453,7 +453,7 @@ enum AuraType
     SPELL_AURA_393                                          = 393,
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
     SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
-    SPELL_AURA_396                                          = 396,
+    SPELL_AURA_PROC_ON_POWER_AMOUNT_2                       = 396,  // missing MicValueB handling, probably OnAmountReach ascending/descending or spell/stack add/remove
     SPELL_AURA_397                                          = 397,
     SPELL_AURA_398                                          = 398,
     SPELL_AURA_399                                          = 399,

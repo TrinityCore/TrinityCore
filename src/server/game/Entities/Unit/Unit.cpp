@@ -11657,6 +11657,7 @@ bool InitTriggerAuraData()
         isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
@@ -11981,6 +11982,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
                     {
                         triggeredByAura->HandleProcTriggerSpellOnPowerAmountAuraProc(aurApp, eventInfo);
                         takeCharges = true;
