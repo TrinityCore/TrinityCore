@@ -24761,11 +24761,13 @@ void Player::SendTalentsInfoData()
         if (!spec)
             continue;
 
+        PlayerTalentMap* talents = GetTalentMap(i);
+
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
         groupInfoPkt.SpecID = spec->ID;
-        groupInfoPkt.TalentIDs.reserve(GetTalentMap(i)->size());
+        groupInfoPkt.TalentIDs.reserve(talents->size());
 
-        for (PlayerTalentMap::const_iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end(); ++itr)
+        for (PlayerTalentMap::const_iterator itr = talents->begin(); itr != talents->end(); ++itr)
         {
             if (itr->second == PLAYERSPELL_REMOVED)
                 continue;
@@ -24989,7 +24991,7 @@ void Player::_SaveTalents(SQLTransaction& trans)
     trans->Append(stmt);
 
     PlayerTalentMap* talents;
-    for (uint8 group = 0; group < MAX_TALENT_GROUPS; ++group)
+    for (uint8 group = 0; group < MAX_SPECIALIZATIONS; ++group)
     {
         talents = GetTalentMap(group);
         for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
