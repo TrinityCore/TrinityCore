@@ -64,7 +64,7 @@ enum RogueSpells
     SPELL_ROGUE_TALENT_DFA_JUMP_DUMMY               = 156527, // Triggered by Jump
     SPELL_ROGUE_TALENT_DFA_DUMMY                    = 178070, // Casted after Jump
     SPELL_ROGUE_ENVENOM                             = 32645,
-    SPELL_ROGUE_EVISCERATE                          = 2098,
+    SPELL_ROGUE_EVISCERATE                          = 2098
 };
 
 enum RogueSpellIcons
@@ -120,15 +120,12 @@ public:
         void HandleAfterHit()
         {
             if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
-            {
                 if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
                     script->SetCpSpent(GetCaster()->ToPlayer()->GetComboPoints());
-            }
+
             if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA))
-            {
                 if (spell_rog_death_from_above_AuraScript* script = dynamic_cast<spell_rog_death_from_above_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above")))
                     script->SetTarget(GetExplTargetUnit()->GetGUID());
-            }
         }
 
         void Register() override
@@ -207,9 +204,7 @@ public:
                 {
                     caster->CastSpell(caster, SPELL_ROGUE_TALENT_DFA_JUMP_DUMMY);
                     if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
-                    {
                         if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
-                        {
                             if (Player* player = caster->ToPlayer())
                             {
                                 player->AddComboPoints(script->GetCpSpent());
@@ -218,8 +213,6 @@ public:
                                 else
                                     caster->CastSpell(target, SPELL_ROGUE_EVISCERATE, TRIGGERED_IGNORE_GCD);
                             }
-                        }
-                    }
                 }
             }
         }
@@ -256,11 +249,7 @@ public:
             if (Unit* target = GetExplTargetUnit())
             {
                 ObjectGuid const& targetGuid = target->GetGUID();
-                float x, y, z;
-                x = target->GetPositionX();
-                y = target->GetPositionY();
-                z = target->GetPositionZ();
-                GetCaster()->GetMotionMaster()->MoveCharge(x, y, z, 60.0f, EVENT_CHARGE, false, SPELL_ROGUE_TALENT_DFA_DUMMY, targetGuid);
+                GetCaster()->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 60.0f, EVENT_CHARGE, false, SPELL_ROGUE_TALENT_DFA_DUMMY, targetGuid);
             }
         }
 
@@ -296,15 +285,7 @@ public:
         void HandleCast()
         {
             if (Unit* caster = GetCaster())
-            {
-                float casterX = caster->GetPositionX();
-                float casterY = caster->GetPositionY();
-                // float x = -std::cos(caster->GetRelativeAngle(casterX, casterY)) + caster->GetPositionX();
-                // float y = std::sin(caster->GetRelativeAngle(casterX, casterY)) + caster->GetPositionY();
-                float z = caster->GetPositionZ() + 8.0f;
-
-                caster->GetMotionMaster()->MoveJump(casterX, casterY, z, caster->GetOrientation(), 9.0f, 9.0f);
-            }
+                caster->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 8.0f, caster->GetOrientation(), 9.0f, 9.0f);
         }
 
         void Register() override
