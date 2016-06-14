@@ -303,7 +303,7 @@ public:
                 // float y = std::sin(caster->GetRelativeAngle(casterX, casterY)) + caster->GetPositionY();
                 float z = caster->GetPositionZ() + 8.0f;
 
-                caster->GetMotionMaster()->MoveJump(casterX, casterY, z, 9.0f, 9.0f);
+                caster->GetMotionMaster()->MoveJump(casterX, casterY, z, caster->GetOrientation(), 9.0f, 9.0f);
             }
         }
 
