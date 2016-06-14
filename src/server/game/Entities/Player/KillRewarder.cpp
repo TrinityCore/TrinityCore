@@ -92,7 +92,7 @@ inline void KillRewarder::_InitGroupData()
             if (Player* member = itr->GetSource())
                 if (member->IsAlive() && member->IsAtGroupRewardDistance(_victim))
                 {
-                    const uint8 lvl = member->getLevel();
+					const uint8 lvl = member->getAdaptiveLevel();
                     // 2.1. _count - number of alive group members within reward distance;
                     ++_count;
                     // 2.2. _sumLevel - sum of levels of alive group members within reward distance;

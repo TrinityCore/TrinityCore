@@ -35,6 +35,7 @@
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#	 PATCHES SETTINGS
 #
 ###################################################################################################
 
@@ -3737,6 +3738,27 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#PATCHES SETTINGS
+#
+#    Custom.AdaptiveLevel
+#        Description: When player enter an area, it's level is capped.
+#		              Only the stats are capped. The level displayed is still the same, 
+#                     so equipment is still compatible and the player doesn't lose its talents.
+#                     What is impacted :
+#                     - Visibiliy of low-level quests
+#                     - Quest XP reward
+#                     - Discovery XP reward
+#                     - Creatures aggro
+#
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)    
+
+Custom.AdaptiveLevel = 1
 
 #
 ###################################################################################################
