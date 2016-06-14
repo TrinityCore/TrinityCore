@@ -3761,4 +3761,14 @@ Metric.OverallStatusInterval = 1
 Custom.AdaptiveLevel = 1
 
 #
+#    Double XP Weekend
+#        Description: Enables or disables the Double XP Weekend Script
+#
+#    DoubleXP.Enable
+#        Default:     1 (enabled)
+#                     0 (disabled)
+
+DoubleXP.Enable = 1
+
+#
 ###################################################################################################
