@@ -2287,6 +2287,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (!caster)
         return;
 
+    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER before checking the miss conditions
+    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
+        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
+
     SpellMissInfo missInfo = target->missCondition;
 
     // Need init unitTarget by default unit (can changed in code on reflect)
@@ -2750,10 +2754,6 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
                 unit->CastSpell(unit, *i, true, nullptr, nullptr, m_caster->GetGUID());
         }
     }
-
-    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER and eventually cast the interrupt spell if the target is a non-player
-    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
-        m_caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
 }
 
 void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
