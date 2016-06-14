@@ -73,11 +73,10 @@ enum RogueSpellIcons
 };
 
 // 163786 - Death from above
-#define DFA_DmgModScriptName "spell_rog_death_from_above_dmg_aura"
 class spell_rog_death_from_above_dmg_aura : public SpellScriptLoader
 {
 public:
-    spell_rog_death_from_above_dmg_aura() : SpellScriptLoader(DFA_DmgModScriptName) { }
+    spell_rog_death_from_above_dmg_aura() : SpellScriptLoader("spell_rog_death_from_above_dmg_aura") { }
 
     class spell_rog_death_from_above_dmg_aura_AuraScript : public AuraScript
     {
@@ -109,11 +108,10 @@ public:
 };
 
 // 152150 - Death from above
-#define DFAScriptName "spell_rog_death_from_above"
 class spell_rog_death_from_above : public SpellScriptLoader
 {
 public:
-    spell_rog_death_from_above() : SpellScriptLoader(DFAScriptName) { }
+    spell_rog_death_from_above() : SpellScriptLoader("spell_rog_death_from_above") { }
 
     class spell_rog_death_from_above_SpellScript : public SpellScript
     {
@@ -123,12 +121,12 @@ public:
         {
             if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
             {
-                if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName(DFA_DmgModScriptName)))
+                if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
                     script->SetCpSpent(GetCaster()->ToPlayer()->GetComboPoints());
             }
             if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA))
             {
-                if (spell_rog_death_from_above_AuraScript* script = dynamic_cast<spell_rog_death_from_above_AuraScript*>(aura->GetScriptByName(DFAScriptName)))
+                if (spell_rog_death_from_above_AuraScript* script = dynamic_cast<spell_rog_death_from_above_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above")))
                     script->SetTarget(GetExplTargetUnit()->GetGUID());
             }
         }
@@ -210,7 +208,7 @@ public:
                     caster->CastSpell(caster, SPELL_ROGUE_TALENT_DFA_JUMP_DUMMY);
                     if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
                     {
-                        if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName(DFA_DmgModScriptName)))
+                        if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
                         {
                             if (Player* player = caster->ToPlayer())
                             {
@@ -248,7 +246,7 @@ public:
     {
         PrepareSpellScript(spell_rog_death_from_above_jump_target_SpellScript);
         
-        void HandleLaunch(SpellEffIndex effIndex)
+        void HandleLaunch(SpellEffIndex /*effIndex*/)
         {
             PreventHitEffect(EFFECT_1);
         }
