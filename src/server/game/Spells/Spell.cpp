@@ -2287,10 +2287,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (!caster)
         return;
 
-    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER before checking the miss conditions
-    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
-        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
-
     SpellMissInfo missInfo = target->missCondition;
 
     // Need init unitTarget by default unit (can changed in code on reflect)
@@ -2470,6 +2466,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (!unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);
     }
+
+    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
+    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
+        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
 
     if (spellHitTarget)
     {
