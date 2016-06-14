@@ -2364,6 +2364,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // if target is flagged for pvp also flag caster if a player
         if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
             enablePvP = true; // Decide on PvP flagging now, but act on it later.
+
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
 
         if (missInfo2 != SPELL_MISS_NONE)
@@ -2503,6 +2504,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (!unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);
     }
+
+    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
+    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
+        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
 
     if (spellHitTarget)
     {
