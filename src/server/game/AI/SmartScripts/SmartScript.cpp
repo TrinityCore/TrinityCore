@@ -1133,10 +1133,24 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         continue;
 
                     Position pos = (*itr)->GetPosition();
-                    Position offset = { e.target.x, e.target.y, e.target.z, 0.0f };
-                    pos.RelocateOffset(offset);
 
-                    (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                    if (e.action.offsetMovement.movement)
+                    {
+                        // Use normal WoW axis-based movement
+                        Position offset = { e.target.x, e.target.y, e.target.z, 0.0f };
+                        pos.RelocateOffset(offset);
+                        (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, pos);
+                    }
+                    else
+                    {
+                        // Use forward/backward/left/right cartesian plane movement
+                        float x, y, z, o;
+                        o = pos.GetOrientation();
+                        x = pos.GetPositionX() + (cos(o - (M_PI / 2))*e.target.x) + (cosf(o)*e.target.y);
+                        y = pos.GetPositionY() + (sin(o - (M_PI / 2))*e.target.x) + (sinf(o)*e.target.y);
+                        z = pos.GetPositionZ() + e.target.z;
+                        (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
+                    }
                 }
 
                 delete targets;
@@ -2409,7 +2423,7 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
                 AddEvent(SMART_EVENT_DATA_SET, 0, 0, 0, 0, 0, SMART_ACTION_SET_RUN, e.action.installTtemplate.param3, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
                 AddEvent(SMART_EVENT_DATA_SET, 0, 0, 0, 0, 0, SMART_ACTION_SET_EVENT_PHASE, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
 
-                AddEvent(SMART_EVENT_UPDATE, SMART_EVENT_FLAG_NOT_REPEATABLE, 1000, 1000, 0, 0, SMART_ACTION_MOVE_OFFSET, 0, 0, 0, 0, 0, 0, SMART_TARGET_SELF, e.action.installTtemplate.param4, 0, 0, 1);
+                AddEvent(SMART_EVENT_UPDATE, SMART_EVENT_FLAG_NOT_REPEATABLE, 1000, 1000, 0, 0, SMART_ACTION_MOVE_OFFSET, 0, 0, 0, 0, 0, 0, SMART_TARGET_SELF, 0, e.action.installTtemplate.param4, 0, 1);
                  //phase 1: give quest credit on movepoint reached
                 AddEvent(SMART_EVENT_MOVEMENTINFORM, 0, POINT_MOTION_TYPE, SMART_RANDOM_POINT, 0, 0, SMART_ACTION_SET_DATA, 0, 0, 0, 0, 0, 0, SMART_TARGET_STORED, 1, 0, 0, 1);
                 //phase 1: despawn after time on movepoint reached
