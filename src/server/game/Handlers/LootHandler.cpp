@@ -384,6 +384,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
+extern void SetRandomEnchantVisual(Player* player, Item* item);
 void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
     uint8 slotid;
@@ -477,6 +478,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
 
+	SetRandomEnchantVisual(target, newitem);
     // mark as looted
     item.count = 0;
     item.is_looted = true;

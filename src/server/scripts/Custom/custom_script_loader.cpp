@@ -21,6 +21,7 @@ void AddSC_LearnSpellsOnLevelUp();
 void AddSC_XpWeekend();
 void AddSC_PvP_System();
 void AddSC_VAS_AutoBalance();
+void AddSC_item_enchant_visuals();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -31,4 +32,5 @@ void AddCustomScripts()
 	AddSC_XpWeekend();
 	AddSC_PvP_System();
 	AddSC_VAS_AutoBalance();
+	AddSC_item_enchant_visuals();
 }
