@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -29,7 +29,6 @@ npc_infernal_attacker
 npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
-npcs_flanis_swiftwing_and_kagrosh
 npc_karynaku
 npc_earthmender_wilda
 npc_torloth_the_magnificent
@@ -592,57 +591,6 @@ public:
     {
         if (creature->IsVendor() && player->GetReputationRank(1015) == REP_EXALTED)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
-## npc_flanis_swiftwing_and_kagrosh
-######*/
-
-#define GOSSIP_HSK1 "Take Flanis's Pack"
-#define GOSSIP_HSK2 "Take Kagrosh's Pack"
-
-class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
-{
-public:
-    npcs_flanis_swiftwing_and_kagrosh() : CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, NULL);
-            if (msg == EQUIP_ERR_OK)
-            {
-                player->StoreNewItem(dest, 30658, true);
-                player->PlayerTalkClass->ClearMenus();
-            }
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
-        {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, NULL);
-            if (msg == EQUIP_ERR_OK)
-            {
-                player->StoreNewItem(dest, 30659, true);
-                player->PlayerTalkClass->ClearMenus();
-            }
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(10583) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(30658, 1, true))
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HSK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        if (player->GetQuestStatus(10601) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(30659, 1, true))
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HSK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
 
@@ -1704,7 +1652,6 @@ void AddSC_shadowmoon_valley()
     new npc_enslaved_netherwing_drake();
     new npc_dragonmaw_peon();
     new npc_drake_dealer_hurlunk();
-    new npcs_flanis_swiftwing_and_kagrosh();
     new npc_karynaku();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
