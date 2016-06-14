@@ -53,6 +53,12 @@ namespace WorldPackets
             bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
+        struct ItemGemInstanceData
+        {
+            uint8 Slot;
+            ItemInstance Item;
+        };
+
         class BuyBackItem final : public ClientPacket
         {
         public:
@@ -533,5 +539,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData const& itemGemInstanceData);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData& itemGemInstanceData);
 
 #endif // ItemPackets_h__

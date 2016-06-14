@@ -59,6 +59,7 @@ namespace WorldPackets
             uint32 EndTime = 0;
             ObjectGuid Bidder;
             uint64 BidAmount = 0;
+            std::vector<Item::ItemGemInstanceData> Gems;
         };
 
         struct AuctionOwnerNotification
@@ -254,25 +255,37 @@ namespace WorldPackets
         public:
             struct Sort
             {
-                uint8 UnkByte1 = 0;
-                uint8 UnkByte2 = 0;
+                uint8 Type = 0;
+                uint8 Direction = 0;
+            };
+
+            struct ClassFilter
+            {
+                struct SubClassFilter
+                {
+                    int32 ItemSubclass;
+                    uint32 InvTypeMask;
+                };
+
+                int32 ItemClass;
+                Array<SubClassFilter, 31> SubClassFilters;
             };
 
             AuctionListItems(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_LIST_ITEMS, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Auctioneer;
-            uint8 SortCount = 0;
-            uint8 MaxLevel = 100;
             uint32 Offset = 0;
-            int32 ItemClass = 0;
+            ObjectGuid Auctioneer;
             uint8 MinLevel = 1;
-            int32 InvType = 0;
+            uint8 MaxLevel = 100;
             int32 Quality = 0;
-            int32 ItemSubclass = 0;
-            bool ExactMatch = true;
+            uint8 SortCount = 0;
+            Array<uint8> KnownPets;
+            int8 MaxPetLevel;
             std::string Name;
+            Array<ClassFilter, 7> ClassFilters;
+            bool ExactMatch = true;
             bool OnlyUsable = false;
             std::vector<Sort> DataSort;
         };
