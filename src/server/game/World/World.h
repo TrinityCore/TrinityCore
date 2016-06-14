@@ -193,6 +193,9 @@ enum WorldFloatConfigs
     CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS,
     CONFIG_THREAT_RADIUS,
     CONFIG_CHANCE_OF_GM_SURVEY,
+	VAS_Config_xPlayer,
+	VAS_Min_D_Mod,
+	VAS_Min_HP_Mod,
     CONFIG_STATS_LIMITS_DODGE,
     CONFIG_STATS_LIMITS_PARRY,
     CONFIG_STATS_LIMITS_BLOCK,
@@ -343,6 +346,9 @@ enum WorldIntConfigs
     CONFIG_WARDEN_CLIENT_BAN_DURATION,
     CONFIG_WARDEN_NUM_MEM_CHECKS,
     CONFIG_WARDEN_NUM_OTHER_CHECKS,
+	VAS_VasDebug,
+	VAS_AutoInstance,
+	VAS_PlayerChangeNotify,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
     CONFIG_WINTERGRASP_PLR_MIN_LVL,
@@ -624,6 +630,14 @@ class TC_GAME_API World
         /// Get the path where data (dbc, maps) are stored on disk
         std::string const& GetDataPath() const { return m_dataPath; }
 
+		/// Return the Mob IDs to be Autobalanced
+		std::string GetVAS40() const { return VAS_AutoBalance_40_Name; }
+		std::string GetVAS25() const { return VAS_AutoBalance_25_Name; }
+		std::string GetVAS20() const { return VAS_AutoBalance_20_Name; }
+		std::string GetVAS10() const { return VAS_AutoBalance_10_Name; }
+		std::string GetVAS5() const { return VAS_AutoBalance_5_Name; }
+		std::string GetVAS2() const { return VAS_AutoBalance_2_Name; }
+
         /// When server started?
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
@@ -798,6 +812,14 @@ class TC_GAME_API World
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
+
+		std::string VAS_AutoBalance_40_Name;
+		std::string VAS_AutoBalance_25_Name;
+		std::string VAS_AutoBalance_20_Name;
+		std::string VAS_AutoBalance_10_Name;
+		std::string VAS_AutoBalance_5_Name;
+		std::string VAS_AutoBalance_2_Name;
+		std::string VAS_color;
 
         uint32 m_CleaningFlags;
 
