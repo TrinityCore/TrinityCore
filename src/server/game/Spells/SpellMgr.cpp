@@ -3338,6 +3338,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 47476: // Deathknight - Strangulate
+            case 15487: // Priest - Silence
+            case 5211:  // Druid - Bash  - R1
+            case 6798:  // Druid - Bash  - R2
+            case 8983:  // Druid - Bash  - R3
+                spellInfo->AttributesEx7 |= SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
