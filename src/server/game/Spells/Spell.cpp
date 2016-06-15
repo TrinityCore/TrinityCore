@@ -4739,6 +4739,8 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
+            else if (m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))  // Shadowform, Tricks of the Trade, Misdirection
+                return SPELL_FAILED_FIZZLE;
             else
                 return SPELL_FAILED_NOT_READY;
         }
@@ -4752,7 +4754,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
-        return SPELL_FAILED_NOT_READY;
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))   // Shadowform, Tricks of the Trade, Misdirection
+            return SPELL_FAILED_FIZZLE;
+        else
+            return SPELL_FAILED_NOT_READY;
+    }
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->GetTypeId() == TYPEID_PLAYER)
