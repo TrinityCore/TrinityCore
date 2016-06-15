@@ -3704,6 +3704,169 @@ PacketSpoof.BanDuration = 86400
 ###################################################################################################
 
 ###################################################################################################
+# METRIC SETTINGS
+#
+# These settings control the statistics sent to the metric database (currently InfluxDB)
+#
+#    Metric.Enable
+#        Description: Enables statistics sent to the metric database.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Metric.Enable = 0
+
+#
+#    Metric.Interval
+#        Description: Interval between every batch of data sent in seconds
+#        Default:     10 seconds
+#
+
+Metric.Interval = 10
+
+#
+#    Metric.ConnectionInfo
+#        Description: Connection settings for metric database (currently InfluxDB).
+#        Example:     "hostname;port;database"
+#        Default:     "127.0.0.1;8086;worldserver"
+
+Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
+
+#
+#    Metric.OverallStatusInterval
+#        Description: Interval between every gathering of overall worldserver status data in seconds
+#        Default:     1 second
+#
+
+Metric.OverallStatusInterval = 1
+
+#
+###################################################################################################
+
+
+####################
+# PATCHES SETTINGS #
+####################
+
+
+###################################################################################################
+#
+#    Custom.AdaptiveLevel
+#        Description: When player enter an area, it's level is capped.
+#		              Only the stats are capped. The level displayed is still the same, 
+#                     so equipment is still compatible and the player doesn't lose its talents.
+#                     What is impacted :
+#                     - Visibiliy of low-level quests
+#                     - Quest XP reward
+#                     - Discovery XP reward
+#                     - Creatures aggro
+#
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)    
+
+Custom.AdaptiveLevel = 1
+
+#
+#    Double XP Weekend
+#        Description: Enables or disables the Double XP Weekend Script
+#
+#    DoubleXP.Enable
+#        Default:     1 (enabled)
+#                     0 (disabled)
+
+DoubleXP.Enable = 1
+
+###################################################################################################
+#
+#    Custom.GainHonorOnGuardKill
+#        Description: Set it to 1 to gain honor when you kill a guard.
+#                     Note that not all city guards will give you honor. It seems only capital and big city guards are flagged
+#                     as so in the database.
+#        Default : 0 (No honor when you kill a guard)
+#
+
+Custom.GainHonorOnGuardKill = 1
+
+#
+# Custom.GainHonorOnEliteKill
+# Set it to 1 to gain honor when you kill an elite mob (this does not apply on rare mob, unless he is also elite).
+# Default : 0 (No honor when you kill an elite mob)
+#
+
+Custom.GainHonorOnEliteKill = 0
+
+###################################################################################################
+#
+# VAS AUTOBALANCE OPTIONS
+#
+#     VAS.AutoBalance.XPlayer
+#        Set Server to level of solo mode.
+#        Set to 0 to Disable VAS-SOLO Mod.
+#        Example: VAS.AutoBalance.XPlayer = 1 will set everything for a 1 player game.
+#        Default:     1
+
+VAS.AutoBalance.XPlayer = 1
+
+#
+#     VAS.AutoBalance.AutoInstance
+#        Set instances to Auto chance XPlayer depending on players in it.
+#        Default:     1 (1 = ON, 0 = OFF)
+
+VAS.AutoBalance.AutoInstance = 1
+
+#
+#     VAS.AutoBalance.Debug
+#        0 = None
+#        1 = Errors Only
+#        2 = Errors and Basic Information
+#        3 = All VAS Info
+#        Default:     1
+
+VAS.AutoBalance.Debug = 2
+
+#
+#     VAS.AutoBalance.PlayerChangeNotify
+#        Set Auto Notifications to all players in Instance that player count has changed.
+#        Default:     1 (1 = ON, 0 = OFF)
+
+VAS.AutoBalance.PlayerChangeNotify = 1
+
+#
+#     VAS.AutoBalance.Color
+#        In Game Color for mod information in chat window.
+#        Default:     cffFF8000 (Orange)
+
+VAS.AutoBalance.Color = cffFF8000
+
+#
+#     Min.HP.Mod
+#        Minimum Modifier setting for Health Modification
+#        Default:     0.20
+
+Min.HP.Mod = 0.20
+
+#
+#     Min.D.Mod
+#        Minimum Modifier setting for Damage Modification
+#        Default:     0.10
+
+Min.D.Mod = 0.10
+
+#
+#     VAS.AutoBalance.XX.Name
+#        Sets MobIDs for the group they belong to.
+#        All 5 Man Mobs should go in VAS.AutoBalance.5.Name
+#        All 10 Man Mobs should go in VAS.AutoBalance.10.Name etc.
+
+VAS.AutoBalance.40.Name = "11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
+VAS.AutoBalance.25.Name = "22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
+VAS.AutoBalance.10.Name = "15689,15550,16152,17521,17225,16028,29324,31099"
+VAS.AutoBalance.5.Name = "15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
+VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,24555,25541,24553,25550,24554,24552,25564,15931,29373"
+
+#
+###################################################################################################
+
+###################################################################################################
 #    Transmogrification config
 ###################################################################################################
 #
@@ -3905,163 +4068,6 @@ Transmogrification.SetNpcText = 50001
 
 Transmogrification.SetCostModifier = 3.0
 Transmogrification.SetCopperCost = 0
-
-#
-###################################################################################################
-
-###################################################################################################
-# METRIC SETTINGS
-#
-# These settings control the statistics sent to the metric database (currently InfluxDB)
-#
-#    Metric.Enable
-#        Description: Enables statistics sent to the metric database.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-Metric.Enable = 0
-
-#
-#    Metric.Interval
-#        Description: Interval between every batch of data sent in seconds
-#        Default:     10 seconds
-#
-
-Metric.Interval = 10
-
-#
-#    Metric.ConnectionInfo
-#        Description: Connection settings for metric database (currently InfluxDB).
-#        Example:     "hostname;port;database"
-#        Default:     "127.0.0.1;8086;worldserver"
-
-Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
-
-#
-#    Metric.OverallStatusInterval
-#        Description: Interval between every gathering of overall worldserver status data in seconds
-#        Default:     1 second
-#
-
-Metric.OverallStatusInterval = 1
-
-#
-###################################################################################################
-
-###################################################################################################
-#PATCHES SETTINGS
-#
-#    Custom.AdaptiveLevel
-#        Description: When player enter an area, it's level is capped.
-#		              Only the stats are capped. The level displayed is still the same, 
-#                     so equipment is still compatible and the player doesn't lose its talents.
-#                     What is impacted :
-#                     - Visibiliy of low-level quests
-#                     - Quest XP reward
-#                     - Discovery XP reward
-#                     - Creatures aggro
-#
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)    
-
-Custom.AdaptiveLevel = 1
-
-#
-#    Double XP Weekend
-#        Description: Enables or disables the Double XP Weekend Script
-#
-#    DoubleXP.Enable
-#        Default:     1 (enabled)
-#                     0 (disabled)
-
-DoubleXP.Enable = 1
-
-#
-#    Custom.GainHonorOnGuardKill
-#        Description: Set it to 1 to gain honor when you kill a guard.
-#                     Note that not all city guards will give you honor. It seems only capital and big city guards are flagged
-#                     as so in the database.
-#        Default : 0 (No honor when you kill a guard)
-#
-
-Custom.GainHonorOnGuardKill = 1
-
-#
-# Custom.GainHonorOnEliteKill
-# Set it to 1 to gain honor when you kill an elite mob (this does not apply on rare mob, unless he is also elite).
-# Default : 0 (No honor when you kill an elite mob)
-#
-
-Custom.GainHonorOnEliteKill = 0
-
-#
-#
-# VAS AUTOBALANCE OPTIONS
-#
-#     VAS.AutoBalance.XPlayer
-#        Set Server to level of solo mode.
-#        Set to 0 to Disable VAS-SOLO Mod.
-#        Example: VAS.AutoBalance.XPlayer = 1 will set everything for a 1 player game.
-#        Default:     1
-
-VAS.AutoBalance.XPlayer = 1
-
-#
-#     VAS.AutoBalance.AutoInstance
-#        Set instances to Auto chance XPlayer depending on players in it.
-#        Default:     1 (1 = ON, 0 = OFF)
-
-VAS.AutoBalance.AutoInstance = 1
-
-#
-#     VAS.AutoBalance.Debug
-#        0 = None
-#        1 = Errors Only
-#        2 = Errors and Basic Information
-#        3 = All VAS Info
-#        Default:     1
-
-VAS.AutoBalance.Debug = 2
-
-#
-#     VAS.AutoBalance.PlayerChangeNotify
-#        Set Auto Notifications to all players in Instance that player count has changed.
-#        Default:     1 (1 = ON, 0 = OFF)
-
-VAS.AutoBalance.PlayerChangeNotify = 1
-
-#
-#     VAS.AutoBalance.Color
-#        In Game Color for mod information in chat window.
-#        Default:     cffFF8000 (Orange)
-
-VAS.AutoBalance.Color = cffFF8000
-
-#
-#     Min.HP.Mod
-#        Minimum Modifier setting for Health Modification
-#        Default:     0.20
-
-Min.HP.Mod = 0.20
-
-#
-#     Min.D.Mod
-#        Minimum Modifier setting for Damage Modification
-#        Default:     0.10
-
-Min.D.Mod = 0.10
-
-#
-#     VAS.AutoBalance.XX.Name
-#        Sets MobIDs for the group they belong to.
-#        All 5 Man Mobs should go in VAS.AutoBalance.5.Name
-#        All 10 Man Mobs should go in VAS.AutoBalance.10.Name etc.
-
-VAS.AutoBalance.40.Name = "11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
-VAS.AutoBalance.25.Name = "22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
-VAS.AutoBalance.10.Name = "15689,15550,16152,17521,17225,16028,29324,31099"
-VAS.AutoBalance.5.Name = "15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
-VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,24555,25541,24553,25550,24554,24552,25564,15931,29373"
 
 #
 ###################################################################################################
