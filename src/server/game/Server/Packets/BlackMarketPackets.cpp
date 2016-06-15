@@ -70,13 +70,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BlackMarket::BlackMarketI
 {
     data << int32(blackMarketItem.MarketID);
     data << int32(blackMarketItem.SellerNPC);
-    data << blackMarketItem.Item;
     data << int32(blackMarketItem.Quantity);
     data << uint64(blackMarketItem.MinBid);
     data << uint64(blackMarketItem.MinIncrement);
     data << uint64(blackMarketItem.CurrentBid);
     data << int32(blackMarketItem.SecondsRemaining);
     data << int32(blackMarketItem.NumBids);
+    data << blackMarketItem.Item;
     data.WriteBit(blackMarketItem.HighBid);
     data.FlushBits();
 
@@ -101,7 +101,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BlackMarket::BlackMarketI
 
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketRequestItemsResult::Write()
 {
-    _worldPacket << uint32(LastUpdateID);
+    _worldPacket << int32(LastUpdateID);
     _worldPacket << uint32(Items.size());
 
     for (BlackMarketItem const& item : Items)
@@ -121,8 +121,8 @@ void WorldPackets::BlackMarket::BlackMarketBidOnItem::Read()
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketBidOnItemResult::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << Item;
     _worldPacket << int32(Result);
+    _worldPacket << Item;
 
     return &_worldPacket;
 }
@@ -130,8 +130,8 @@ WorldPacket const* WorldPackets::BlackMarket::BlackMarketBidOnItemResult::Write(
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketOutbid::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << Item;
     _worldPacket << int32(RandomPropertiesID);
+    _worldPacket << Item;
 
     return &_worldPacket;
 }
@@ -139,8 +139,8 @@ WorldPacket const* WorldPackets::BlackMarket::BlackMarketOutbid::Write()
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketWon::Write()
 {
     _worldPacket << int32(MarketID);
-    _worldPacket << Item;
     _worldPacket << int32(RandomPropertiesID);
+    _worldPacket << Item;
 
     return &_worldPacket;
 }
