@@ -569,37 +569,6 @@ public:
     };
 };
 
-/*######
-# npc_karynaku
-####*/
-
-enum Karynaku
-{
-    QUEST_ALLY_OF_NETHER    = 10870,
-    QUEST_ZUHULED_THE_WACK  = 10866,
-
-    NPC_ZUHULED_THE_WACKED  = 11980,
-
-    TAXI_PATH_ID            = 649,
-};
-
-class npc_karynaku : public CreatureScript
-{
-    public:
-        npc_karynaku() : CreatureScript("npc_karynaku") { }
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
-                player->ActivateTaxiPathTo(TAXI_PATH_ID);
-
-            if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
-                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
-
-            return true;
-        }
-};
-
 /*####
 # npc_earthmender_wilda
 ####*/

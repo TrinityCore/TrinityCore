@@ -36,3 +36,13 @@ UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 23489;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 8754;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,8754,0,0,0,5,0,1015,128,0,0,0,'','Drake Dealer Hurlunk - Show gossip option 0 if player is exalted with faction 1015');
+
+
+-- Migrate NPC off of cpp script
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 22112;
+
+-- Table smart_scripts
+DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 22112);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(22112, 0, 0, 0, 19, 0, 100, 0, 10866, 0, 0, 0, 12, 11980, 1, 300000, 0, 0, 0, 8, 0, 0, 0, -4204.94, 316.397, 122.508, 1.309, 'Karynaku - On Quest Accepted - Summon Creature \'Zuluhed the Whacked\''),
+(22112, 0, 1, 0, 19, 0, 100, 0, 10870, 0, 0, 0, 52, 649, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Karynaku - On Quest Accepted - Activate Taxi Path 649');
