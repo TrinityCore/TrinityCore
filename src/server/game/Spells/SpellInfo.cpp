@@ -1257,22 +1257,6 @@ bool SpellInfo::IsQuestTame() const
     return effect0 && effect1 && effect0->Effect == SPELL_EFFECT_THREAT && effect1->Effect == SPELL_EFFECT_APPLY_AURA && effect1->ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
-bool SpellInfo::IsProfessionOrRiding(uint32 difficulty) const
-{
-    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    for (SpellEffectInfo const* effect : effects)
-    {
-        if ((effect && effect->Effect == SPELL_EFFECT_SKILL))
-        {
-            uint32 skill = effect->MiscValue;
-
-            if (IsProfessionOrRidingSkill(skill))
-                return true;
-        }
-    }
-    return false;
-}
-
 bool SpellInfo::IsProfession(uint32 difficulty) const
 {
     SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
@@ -1308,23 +1292,6 @@ bool SpellInfo::IsPrimaryProfession(uint32 difficulty) const
 bool SpellInfo::IsPrimaryProfessionFirstRank(uint32 difficulty) const
 {
     return IsPrimaryProfession(difficulty) && GetRank() == 1;
-}
-
-bool SpellInfo::IsAbilityLearnedWithProfession() const
-{
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-    {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            continue;
-
-        if (pAbility->MinSkillLineRank > 0)
-            return true;
-    }
-
-    return false;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -1423,12 +1390,6 @@ bool SpellInfo::IsAutocastable() const
 bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
-        return false;
-
-    if (IsProfessionOrRiding())
-        return false;
-
-    if (IsAbilityLearnedWithProfession())
         return false;
 
     // All stance spells. if any better way, change it.
