@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10804, 10854, 10458, 10481, 10480, 10781, 10451.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -28,8 +28,6 @@ npc_invis_infernal_caster
 npc_infernal_attacker
 npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
-npc_drake_dealer_hurlunk
-npc_karynaku
 npc_earthmender_wilda
 npc_torloth_the_magnificent
 npc_illidari_spawn
@@ -1591,8 +1589,6 @@ void AddSC_shadowmoon_valley()
     new npc_mature_netherwing_drake();
     new npc_enslaved_netherwing_drake();
     new npc_dragonmaw_peon();
-    new npc_drake_dealer_hurlunk();
-    new npc_karynaku();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
     new go_crystal_prison();
