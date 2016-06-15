@@ -209,7 +209,7 @@ public:
             Initialize();
 
             Summons.DespawnAll();
-            me->SetSpeed(MOVE_FLIGHT, 3.0f);
+            me->SetSpeedRate(MOVE_FLIGHT, 3.0f);
             if ((ObjectAccessor::GetCreature(*me, m_uiGraufGUID) == NULL) && !me->IsMounted())
                  me->SummonCreature(NPC_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             instance->SetBossState(DATA_SKADI_THE_RUTHLESS, NOT_STARTED);

@@ -143,11 +143,7 @@ enum Spells
     SPELL_RING_OF_BLUE_FLAMES                   = 45825  //Cast this spell when the go is activated
 };
 
-/*** Error messages ***/
-#define ERROR_KJ_NOT_SUMMONED "TSCR ERROR: Unable to summon Kil'Jaeden for some reason"
-
 /*** Others ***/
-#define FLOOR_Z         28.050388f
 #define SHIELD_ORB_Z    45.000f
 
 enum Phase

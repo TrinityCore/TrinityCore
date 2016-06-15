@@ -1152,7 +1152,7 @@ bool Guardian::UpdateStats(Stats stat)
 
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     AddPct(mod, spellInfo->Effects[EFFECT_0].CalcValue());
                 }
             }
@@ -1321,7 +1321,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
-                    SpellInfo const* sProto = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* sProto = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, sProto->Effects[1].CalcValue());
                 }
             }

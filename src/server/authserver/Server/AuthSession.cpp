@@ -820,41 +820,6 @@ bool AuthSession::HandleReconnectProof()
     }
 }
 
-tcp::endpoint const GetAddressForClient(Realm const& realm, ip::address const& clientAddr)
-{
-    ip::address realmIp;
-
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that authserver is located on
-            // has all realms available in his local network
-            realmIp = realm.LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()) ==
-            (realm.LocalAddress.to_v4().to_ulong() & realm.LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = realm.LocalAddress;
-        }
-        else
-            realmIp = realm.ExternalAddress;
-    }
-
-    tcp::endpoint endpoint(realmIp, realm.Port);
-
-    // Return external IP
-    return endpoint;
-}
-
 bool AuthSession::HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
@@ -924,7 +889,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
             pkt << uint8(lock);                             // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << name;
-        pkt << boost::lexical_cast<std::string>(GetAddressForClient(realm, GetRemoteIpAddress()));
+        pkt << boost::lexical_cast<std::string>(realm.GetAddressForClient(GetRemoteIpAddress()));
         pkt << float(realm.PopulationLevel);
         pkt << uint8(characterCounts[realm.Id.Realm]);
         pkt << uint8(realm.Timezone);                       // realm category

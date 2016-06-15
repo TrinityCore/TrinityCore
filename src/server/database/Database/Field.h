@@ -323,7 +323,7 @@ class TC_DATABASE_API Field
             data.value = NULL;
         }
 
-        static size_t SizeForType(MYSQL_FIELD* field)
+        static uint32 SizeForType(MYSQL_FIELD* field)
         {
             switch (field->type)
             {

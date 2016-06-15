@@ -22,8 +22,8 @@ endif()
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(database
-  ${PRIVATE_SOURCES}
   ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES}
 )
 
 # Do NOT add any extra include directory unless it does not create unneeded extra dependencies,
@@ -52,7 +52,6 @@ add_definitions(-DTRINITY_API_EXPORT_DATABASE)
 target_link_libraries(database
   PUBLIC
     common
-    process
     mysql)
 
 set_target_properties(database

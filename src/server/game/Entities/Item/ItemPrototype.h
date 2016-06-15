@@ -107,20 +107,20 @@ enum ItemBondingType
 
 enum ItemProtoFlags
 {
-    ITEM_PROTO_FLAG_UNK1                        = 0x00000001, // ?
+    ITEM_PROTO_FLAG_NO_PICKUP                   = 0x00000001, // ?
     ITEM_PROTO_FLAG_CONJURED                    = 0x00000002, // Conjured item
-    ITEM_PROTO_FLAG_OPENABLE                    = 0x00000004, // Item can be right clicked to open for loot
+    ITEM_PROTO_FLAG_HAS_LOOT                    = 0x00000004, // Item can be right clicked to open for loot
     ITEM_PROTO_FLAG_HEROIC                      = 0x00000008, // Makes green "Heroic" text appear on item
     ITEM_PROTO_FLAG_DEPRECATED                  = 0x00000010, // Cannot equip or use
     ITEM_PROTO_FLAG_INDESTRUCTIBLE              = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
-    ITEM_PROTO_FLAG_UNK2                        = 0x00000040, // ?
+    ITEM_PROTO_FLAG_PLAYER_CAST                 = 0x00000040, // Item's spells are castable by players
     ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN           = 0x00000080, // No default 30 seconds cooldown when equipped
-    ITEM_PROTO_FLAG_UNK3                        = 0x00000100, // ?
-    ITEM_PROTO_FLAG_WRAPPER                     = 0x00000200, // Item can wrap other items
-    ITEM_PROTO_FLAG_UNK4                        = 0x00000400, // ?
-    ITEM_PROTO_FLAG_PARTY_LOOT                  = 0x00000800, // Looting this item does not remove it from available loot
+    ITEM_PROTO_FLAG_INT_BONUS_INSTEAD           = 0x00000100, // ?
+    ITEM_PROTO_FLAG_IS_WRAPPER                  = 0x00000200, // Item can wrap other items
+    ITEM_PROTO_FLAG_USES_RESOURCES              = 0x00000400, // ?
+    ITEM_PROTO_FLAG_MULTI_DROP                  = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_PROTO_FLAG_REFUNDABLE                  = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
-    ITEM_PROTO_FLAG_CHARTER                     = 0x00002000, // Item is guild or arena charter
+    ITEM_PROTO_FLAG_PETITION                    = 0x00002000, // Item is guild or arena charter
     ITEM_PROTO_FLAG_UNK5                        = 0x00004000, // Only readable items have this (but not all)
     ITEM_PROTO_FLAG_UNK6                        = 0x00008000, // ?
     ITEM_PROTO_FLAG_UNK7                        = 0x00010000, // ?
@@ -664,25 +664,7 @@ struct ItemTemplate
     uint32 FlagsCu;
 
     // helpers
-    bool CanChangeEquipStateInCombat() const
-    {
-        switch (InventoryType)
-        {
-            case INVTYPE_RELIC:
-            case INVTYPE_SHIELD:
-            case INVTYPE_HOLDABLE:
-                return true;
-        }
-
-        switch (Class)
-        {
-            case ITEM_CLASS_WEAPON:
-            case ITEM_CLASS_PROJECTILE:
-                return true;
-        }
-
-        return false;
-    }
+    bool CanChangeEquipStateInCombat() const;
 
     bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
@@ -691,51 +673,13 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    float getDPS() const
-    {
-        if (Delay == 0)
-            return 0;
-        float temp = 0;
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-            temp+=Damage[i].DamageMin + Damage[i].DamageMax;
-        return temp*500/Delay;
-    }
+    float getDPS() const;
 
-    int32 getFeralBonus(int32 extraDPS = 0) const
-    {
-        // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-        if (Class == ITEM_CLASS_WEAPON && (1<<SubClass)&0x02A5F3)
-        {
-            int32 bonus = int32((extraDPS + getDPS())*14.0f) - 767;
-            if (bonus < 0)
-                return 0;
-            return bonus;
-        }
-        return 0;
-    }
+    int32 getFeralBonus(int32 extraDPS = 0) const;
 
-    float GetItemLevelIncludingQuality() const
-    {
-        float itemLevel = (float)ItemLevel;
-        switch (Quality)
-        {
-            case ITEM_QUALITY_POOR:
-            case ITEM_QUALITY_NORMAL:
-            case ITEM_QUALITY_UNCOMMON:
-            case ITEM_QUALITY_ARTIFACT:
-            case ITEM_QUALITY_HEIRLOOM:
-                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
-                break;
-            case ITEM_QUALITY_RARE:
-                itemLevel -= 13;
-                break;
-            case ITEM_QUALITY_EPIC:
-            case ITEM_QUALITY_LEGENDARY:
-            default:
-                break;
-        }
-        return std::max<float>(0.f, itemLevel);
-    }
+    float GetItemLevelIncludingQuality() const;
+
+    uint32 GetSkill() const;
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }

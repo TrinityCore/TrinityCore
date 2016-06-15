@@ -540,7 +540,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE        = 642,
     RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS                   = 643,
     RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE           = 644,
-    RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE             = 645,
+    RBAC_PERM_COMMAND_RELOAD_GRAVEYARD_ZONE                  = 645,
     RBAC_PERM_COMMAND_RELOAD_GAME_TELE                       = 646,
     RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER           = 647,
     RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE  = 648,
@@ -697,18 +697,24 @@ enum RBACPermissions
     // 799 - 834 6.x only
     RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
     RBAC_PERM_COMMAND_DEBUG_BOUNDARY                         = 836,
-	
+    RBAC_PERM_COMMAND_NPC_EVADE                              = 837,
+    RBAC_PERM_COMMAND_PET_LEVEL                              = 838,
+    RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
+    RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
+    RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
+
+    // custom permissions 1000+
+    RBAC_PERM_COMMAND_GUILD_LINFO                            = 1000,
+    RBAC_PERM_COMMAND_GUILD_SET_LEVEL                        = 1001,
+    RBAC_PERM_COMMAND_GUILD_GIVE_XP                          = 1002,
+    // Prepatch by LordPsyan
+		
 	//Arena Spectator
     RBAC_PERM_COMMAND_SPECTATE                               = 1003,
     RBAC_PERM_COMMAND_SPECTATE_PLAYER                        = 1004,
     RBAC_PERM_COMMAND_SPECTATE_VIEW                          = 1005,
     RBAC_PERM_COMMAND_SPECTATE_RESET                         = 1006,
     RBAC_PERM_COMMAND_SPECTATE_LEAVE                         = 1007,
-    // custom permissions 1000+
-    // Prepatch by LordPsyan
-    RBAC_PERM_COMMAND_GUILD_LINFO                            = 1000,
-    RBAC_PERM_COMMAND_GUILD_SET_LEVEL                        = 1001,
-    RBAC_PERM_COMMAND_GUILD_GIVE_XP                          = 1002,
     // 02
     // 03
     // 04

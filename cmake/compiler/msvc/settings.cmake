@@ -31,12 +31,18 @@ else()
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+# msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
+if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+  add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+else()
+  # while all make-like generators do (nmake, ninja)
+  add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
+endif()
 
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 
-if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR WITH_DYNAMIC_LINKING)
+if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR BUILD_SHARED_LIBS)
   # Enable extended object support
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
   message(STATUS "MSVC: Enabled increased number of sections in object files")
@@ -74,7 +80,7 @@ if(NOT WITH_WARNINGS)
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
-if (WITH_DYNAMIC_LINKING)
+if (BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
   # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251 /wd4275")

@@ -113,7 +113,7 @@ public:
 
             Initialize();
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
             if (!me->IsVisible())
                 me->SetVisible(true);
@@ -152,7 +152,7 @@ public:
 
                 me->AttackStop();
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
@@ -174,7 +174,7 @@ public:
                 {
                     if (pSpark->IsAlive())
                     {
-                        pSpark->SetSpeed(MOVE_RUN, 2.0f);
+                        pSpark->SetSpeedRate(MOVE_RUN, 2.0f);
                         pSpark->GetMotionMaster()->Clear();
                         pSpark->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
@@ -236,7 +236,7 @@ public:
                     else if (lSparkList.empty())
                     {
                         me->SetVisible(true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);
 
@@ -355,7 +355,7 @@ public:
                     {
                         Position pos = ionar->GetPosition();
 
-                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->SetSpeedRate(MOVE_RUN, 2.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }

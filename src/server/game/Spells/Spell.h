@@ -218,6 +218,8 @@ enum SpellEffectHandleMode
 
 typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
 
+static const uint32 SPELL_INTERRUPT_NONPLAYER = 32747;
+
 class TC_GAME_API Spell
 {
     friend void Unit::SetCurrentCastSpell(Spell* pSpell);
@@ -693,14 +695,6 @@ class TC_GAME_API Spell
         PathGenerator m_preGeneratedPath;
 
         ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
-
-#ifdef MAP_BASED_RAND_GEN
-        int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }
-        int32 rand32()                          { return m_caster->GetMap()->mtRand.randInt(); }
-        double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
-        double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
-#endif
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;

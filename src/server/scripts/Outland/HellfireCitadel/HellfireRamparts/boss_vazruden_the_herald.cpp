@@ -372,7 +372,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 if (summon->GetEntry() == NPC_NAZAN)
                 {
                     summon->SetDisableGravity(true);
-                    summon->SetSpeed(MOVE_FLIGHT, 2.5f);
+                    summon->SetSpeedRate(MOVE_FLIGHT, 2.5f);
                     if (victim)
                         AttackStartNoMove(victim);
                 }

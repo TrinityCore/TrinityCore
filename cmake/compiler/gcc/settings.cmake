@@ -1,7 +1,7 @@
 # Set build-directive (used in core to tell which buildtype we used)
 add_definitions(-D_BUILD_DIRECTIVE='"${CMAKE_BUILD_TYPE}"')
 
-set(GCC_EXPECTED_VERSION 4.7.2)
+set(GCC_EXPECTED_VERSION 4.9.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
   message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
@@ -35,7 +35,7 @@ if( WITH_COREDEBUG )
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
 
-if (WITH_DYNAMIC_LINKING)
+if (BUILD_SHARED_LIBS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
 

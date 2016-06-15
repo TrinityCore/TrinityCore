@@ -121,8 +121,14 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email);
-        switch (result)
+        if (strchr(accountName, '@'))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_USE_BNET_COMMANDS);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        switch (sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
