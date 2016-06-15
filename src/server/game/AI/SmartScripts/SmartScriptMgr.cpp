@@ -20,6 +20,7 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
 #include "SpellMgr.h"
 #include "Cell.h"
 #include "GameEventMgr.h"
@@ -1161,14 +1162,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (e.action.setInstanceData.type > 1)
             {
-                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u uses invalid data type %u (value range 0-1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.type);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid data type %u (value range 0-1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.type);
                 return false;
             }
             else if (e.action.setInstanceData.type == 1)
             {
                 if (e.action.setInstanceData.data > TO_BE_DECIDED)
                 {
-                    TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u uses invalid boss state %u (value range 0-5), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.data);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid boss state %u (value range 0-5), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.data);
                     return false;
                 }
             }
