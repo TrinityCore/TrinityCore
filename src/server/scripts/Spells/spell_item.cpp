@@ -4345,6 +4345,124 @@ class spell_item_taunt_flag_targeting : public SpellScriptLoader
         }
 };
 
+// 13180 - Gnomish Mind Control Cap
+enum MindControlCap
+{
+    ROLL_CHANCE_DULLARD             = 32,
+    ROLL_CHANCE_NO_BACKFIRE         = 95,
+    SPELL_GNOMISH_MIND_CONTROL_CAP  = 13181,
+    SPELL_DULLARD                   = 67809     // joschiwald: "I'm not sure if both items use both spells"
+};
+
+class spell_item_mind_control_cap : public SpellScriptLoader
+{
+    public:
+        spell_item_mind_control_cap() : SpellScriptLoader("spell_item_mind_control_cap") { }
+
+        class spell_item_mind_control_cap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mind_control_cap_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_MIND_CONTROL_CAP) || !sSpellMgr->GetSpellInfo(SPELL_DULLARD))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
+                        caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, true, GetCastItem());
+                    else
+                        target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_mind_control_cap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_mind_control_cap_SpellScript();
+        }
+};
+
+// 8344 - Universal Remote (Gnomish Universal Remote)
+enum UniversalRemote
+{
+    SPELL_CONTROL_MACHINE       = 8345,
+    SPELL_MOBILITY_MALFUNCTION  = 8346,
+    SPELL_TARGET_LOCK           = 8347
+};
+
+static std::unordered_map<uint32 /*spellId*/, double /*probability*/> const UniversalRemoteActions =
+{
+    { SPELL_CONTROL_MACHINE,      60.0 },
+    { SPELL_MOBILITY_MALFUNCTION, 25.0 },
+    { SPELL_TARGET_LOCK,          15.0 }
+};
+
+class spell_item_universal_remote : public SpellScriptLoader
+{
+    public:
+        spell_item_universal_remote() : SpellScriptLoader("spell_item_universal_remote") { }
+
+        class spell_item_universal_remote_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_universal_remote_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (auto const& action : UniversalRemoteActions)
+                    if (!sSpellMgr->GetSpellInfo(action.first))
+                        return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                auto itr = Trinity::Containers::SelectRandomWeightedContainerElement(UniversalRemoteActions, [](std::unordered_map<uint32, double>::value_type const& v) -> double
+                {
+                    return v.second;
+                });
+
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, itr->first, true, GetCastItem());
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_universal_remote_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_universal_remote_SpellScript();
+        }
+};
+
 enum ZandalarianCharms
 {
     SPELL_UNSTABLE_POWER_AURA_STACK     = 24659,
@@ -4517,6 +4635,8 @@ void AddSC_item_spell_scripts()
     new spell_item_charm_witch_doctor();
     new spell_item_mana_drain();
     new spell_item_taunt_flag_targeting();
+    new spell_item_mind_control_cap();
+    new spell_item_universal_remote();
 
     new spell_item_zandalarian_charm("spell_item_unstable_power", SPELL_UNSTABLE_POWER_AURA_STACK);
     new spell_item_zandalarian_charm("spell_item_restless_strength", SPELL_RESTLESS_STRENGTH_AURA_STACK);
