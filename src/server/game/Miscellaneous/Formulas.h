@@ -168,7 +168,7 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                gain = BaseGain(player->getAdaptiveLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                gain = BaseGain(player->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
 
                 if (gain && creature)
                 {

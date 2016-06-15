@@ -29,7 +29,6 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Unit.h"
-#include "World.h"
 #include "Transmogrification.h"
 #include "TradeData.h"
 #include "CinematicMgr.h"
@@ -2312,17 +2311,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
-		uint8 getLevel() const { return m_realLevel; }
-		uint8 getRealLevel() const { return m_realLevel; }
-		uint8 getAdaptiveLevel() const
-			{
-			if (sWorld->getBoolConfig(CONFIG_ADAPTIVE_LEVEL))
-				return m_adaptiveLevel;
-			else
-				return m_realLevel;
-			}
-		void GiveAdaptiveLevel(uint8 level);
-		
         TransmogMapType transmogMap; // transmogMap[iGUID] = entry
 #ifdef PRESETS
         PresetMapType presetMap; // presetMap[presetId] = presetData
@@ -2651,8 +2639,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
-
-		uint8 m_realLevel, m_adaptiveLevel;
 
         // variables to save health and mana before duel and restore them after duel
         uint32 healthBeforeDuel;
