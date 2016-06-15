@@ -666,6 +666,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
     // all item positions resolved
 
+    if (ChrSpecializationEntry const* defaultSpec = sChrSpecializationStore.LookupEntry(cEntry->DefaultSpec))
+    {
+        SetActiveTalentGroup(defaultSpec->OrderIndex);
+        SetPrimarySpecialization(defaultSpec->ID);
+    }
+
     return true;
 }
 
@@ -16727,10 +16733,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     SetTalentResetCost(fields[32].GetUInt32());
     SetTalentResetTime(time_t(fields[33].GetUInt32()));
-    SetPrimarySpecialization(fields[34].GetUInt32());
-    ChrSpecializationEntry const* primarySpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization());
-    if (!primarySpec || primarySpec->ClassID != getClass())
-        SetPrimarySpecialization(0);
 
     m_taxi.LoadTaxiMask(fields[25].GetString());                // must be before InitTaxiNodesForLevel
 
@@ -16813,29 +16815,19 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SKILLS));
     UpdateSkillsForLevel(); //update skills after load, to make sure they are correctly update at player load
 
+    SetPrimarySpecialization(fields[34].GetUInt32());
     SetActiveTalentGroup(fields[62].GetUInt8());
+    ChrSpecializationEntry const* primarySpec = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization());
+    if (!primarySpec || primarySpec->ClassID != getClass() || GetActiveTalentGroup() >= MAX_SPECIALIZATIONS)
+        ResetTalentSpecialization();
 
     uint32 lootSpecId = fields[63].GetUInt32();
     if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(lootSpecId))
         if (chrSpec->ClassID == getClass())
             SetLootSpecId(lootSpecId);
 
-    // sanity check
-    if (GetActiveTalentGroup() >= MAX_SPECIALIZATIONS)
-    {
-        TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player %s (%s) has invalid invalid ActiveSpec = %u.",
-            GetName().c_str(), GetGUID().ToString().c_str(), GetActiveTalentGroup());
-        SetActiveTalentGroup(0);
-    }
-
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(getClass(), GetActiveTalentGroup()))
-    {
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, spec->ID);
-        if (!GetPrimarySpecialization())
-            SetPrimarySpecialization(spec->ID);
-    }
-    else
-        ResetTalentSpecialization();
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
@@ -24665,11 +24657,6 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
 
 void Player::ResetTalentSpecialization()
 {
-    if (!GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
-        return;
-
-    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, 0);
-
     // Reset only talents that have different spells for each spec
     uint32 class_ = getClass();
     for (uint32 t = 0; t < MAX_TALENT_TIERS; ++t)
@@ -24679,6 +24666,14 @@ void Player::ResetTalentSpecialization()
                     RemoveTalent(talent);
 
     RemoveSpecializationSpells();
+
+    ChrSpecializationEntry const* defaultSpec = sChrSpecializationStore.LookupEntry(sChrClassesStore.AssertEntry(getClass())->DefaultSpec);
+    SetPrimarySpecialization(defaultSpec->ID);
+    SetActiveTalentGroup(defaultSpec->OrderIndex);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, defaultSpec->ID);
+
+    LearnSpecializationSpells();
+
     SendTalentsInfoData();
     UpdateItemSetAuras(false);
 }
