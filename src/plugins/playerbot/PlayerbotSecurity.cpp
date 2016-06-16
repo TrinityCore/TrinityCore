@@ -57,8 +57,8 @@ PlayerbotSecurityLevel PlayerbotSecurity::LevelFor(Player* from, DenyReason* rea
         {
             if (!bot->GetGuildId() || bot->GetGuildId() != from->GetGuildId())
             {
-                if (reason) *reason = PLAYERBOT_DENY_FAR;
-                return PLAYERBOT_SECURITY_TALK;
+				/*if (reason) *reason = PLAYERBOT_DENY_FAR;
+                return PLAYERBOT_SECURITY_TALK;*/
             }
         }
 
@@ -66,8 +66,8 @@ PlayerbotSecurityLevel PlayerbotSecurity::LevelFor(Player* from, DenyReason* rea
         int fromGS = (int)bot->GetPlayerbotAI()->GetEquipGearScore(from, false, false);
         if (botGS && bot->getLevel() > 15 && (100 * (botGS - fromGS) / botGS) >= 20)
         {
-            if (reason) *reason = PLAYERBOT_DENY_GEARSCORE;
-            return PLAYERBOT_SECURITY_TALK;
+			/*if (reason) *reason = PLAYERBOT_DENY_GEARSCORE;
+            return PLAYERBOT_SECURITY_TALK;*/
         }
 
         if (bot->isDead())
