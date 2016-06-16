@@ -117,16 +117,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& unknown)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData)
 {
-    data.WriteBits(unknown.Type, 3);
-    data << int16(unknown.PlayerLevelDelta);
-    data << uint8(unknown.TargetLevel);
-    data << uint8(unknown.Expansion);
-    data << uint8(unknown.Class);
-    data << uint8(unknown.TargetMinScalingLevel);
-    data << uint8(unknown.TargetMaxScalingLevel);
-    data << int8(unknown.TargetScalingLevelDelta);
+    data.WriteBits(sandboxScalingData.Type, 3);
+    data << int16(sandboxScalingData.PlayerLevelDelta);
+    data << uint8(sandboxScalingData.TargetLevel);
+    data << uint8(sandboxScalingData.Expansion);
+    data << uint8(sandboxScalingData.Class);
+    data << uint8(sandboxScalingData.TargetMinScalingLevel);
+    data << uint8(sandboxScalingData.TargetMaxScalingLevel);
+    data << int8(sandboxScalingData.TargetScalingLevelDelta);
     return data;
 }
 

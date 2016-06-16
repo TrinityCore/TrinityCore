@@ -82,18 +82,20 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Absorbed = 0;
-            int32 ShieldBlock = 0;
             ObjectGuid Me;
-            int32 SpellID = 0;
-            int32 Resisted = 0;
-            bool Periodic = 0.0f;
-            uint8 SchoolMask = 0;
             ObjectGuid CasterGUID;
+            ObjectGuid CastID;
+            int32 SpellID = 0;
             int32 Damage = 0;
-            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
-            int32 Flags = 0;
             int32 Overkill = 0;
+            uint8 SchoolMask = 0;
+            int32 ShieldBlock = 0;
+            int32 Resisted = 0;
+            bool Periodic = false;
+            int32 Absorbed = 0;
+            int32 Flags = 0;
+            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
+            Optional<Spells::SandboxScalingData> SandboxScaling;
         };
 
         class EnvironmentalDamageLog final : public CombatLogServerPacket
@@ -148,9 +150,9 @@ namespace WorldPackets
             int32 OverHeal      = 0;
             int32 Absorbed      = 0;
             bool Crit           = false;
-            bool Multistrike    = false;
             Optional<float> CritRollMade;
             Optional<float> CritRollNeeded;
+            Optional<Spells::SandboxScalingData> SandboxScaling;
         };
 
         class SpellPeriodicAuraLog final : public CombatLogServerPacket
@@ -171,8 +173,8 @@ namespace WorldPackets
                 int32 AbsorbedOrAmplitude = 0;
                 int32 Resisted            = 0;
                 bool Crit                 = false;
-                bool Multistrike          = false;
                 Optional<PeriodicalAuraLogEffectDebugInfo> DebugInfo;
+                Optional<Spells::SandboxScalingData> SandboxScaling;
             };
 
             SpellPeriodicAuraLog() : CombatLogServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1) { }
@@ -328,7 +330,7 @@ namespace WorldPackets
 
         struct UnkAttackerState
         {
-            int32 State1 = 0;
+            uint32 State1 = 0;
             float State2 = 0.0f;
             float State3 = 0.0f;
             float State4 = 0.0f;
@@ -339,7 +341,7 @@ namespace WorldPackets
             float State9 = 0.0f;
             float State10 = 0.0f;
             float State11 = 0.0f;
-            int32 State12 = 0;
+            uint32 State12 = 0;
         };
 
         class AttackerStateUpdate final : public CombatLogServerPacket
@@ -356,12 +358,13 @@ namespace WorldPackets
             int32 OverDamage = -1; // (damage - health) or -1 if unit is still alive
             Optional<SubDamage> SubDmg;
             uint8 VictimState = 0;
-            int32 AttackerState = -1;
-            int32 MeleeSpellID = 0;
+            uint32 AttackerState = 0;
+            uint32 MeleeSpellID = 0;
             int32 BlockAmount = 0;
             int32 RageGained = 0;
             UnkAttackerState UnkState;
             float Unk = 0.0f;
+            Spells::SandboxScalingData SandboxScaling;
         };
     }
 }
