@@ -206,8 +206,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Target;
+            int32 OriginalHonor = 0;
             int32 Honor = 0;
+            ObjectGuid Target;
             int32 Rank = 0;
         };
 

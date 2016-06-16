@@ -6311,6 +6311,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [0, 20+] HK: <>
     WorldPackets::Combat::PvPCredit data;
     data.Honor = honor;
+    data.OriginalHonor = honor;
     data.Target = victim_guid;
     data.Rank = victim_rank;
 
