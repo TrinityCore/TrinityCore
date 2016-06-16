@@ -35,6 +35,7 @@
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    PATCHES SETTINGS
 #
 ###################################################################################################
 
@@ -70,7 +71,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "Data"
 
 #
 #    LogsDir
@@ -79,7 +80,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "Logs"
 
 #
 #    LoginDatabaseInfo
@@ -96,9 +97,9 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3310;root;123456;login"
+WorldDatabaseInfo     = "127.0.0.1;3310;root;123456;world2"
+CharacterDatabaseInfo = "127.0.0.1;3310;root;123456;characters"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -325,7 +326,7 @@ MapUpdateInterval = 100
 #        Description: Time (in milliseconds) for weather update interval.
 #        Default:     600000 - (10 min)
 
-ChangeWeatherInterval = 600000
+ChangeWeatherInterval = 1800000
 
 #
 #    PlayerSaveInterval
@@ -363,7 +364,7 @@ DisconnectToleranceInterval = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-mmap.enablePathFinding = 0
+mmap.enablePathFinding = 1
 
 #
 #    vmap.enableLOS
@@ -451,7 +452,7 @@ AddonChannel = 1
 #        Description: Number of threads to update maps.
 #        Default:     1
 
-MapUpdate.Threads = 1
+MapUpdate.Threads = 4
 
 #
 #    CleanCharacterDB
@@ -459,7 +460,7 @@ MapUpdate.Threads = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enable)
 
-CleanCharacterDB = 0
+CleanCharacterDB = 1
 
 #
 #    PersistentCharacterCleanFlags
@@ -931,7 +932,7 @@ Instance.IgnoreLevel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Instance.IgnoreRaid = 0
+Instance.IgnoreRaid = 1
 
 #
 #    Instance.ResetTimeHour
@@ -1230,7 +1231,7 @@ BirthdayTime = 1222964635
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 0
 
 #
 #    Updates.AutoSetup
@@ -3025,8 +3026,8 @@ Calculate.Gameoject.Zone.Area.Data = 0
 #        Default: 0 - (Blizzlike)
 #
 
-NoGrayAggro.Above = 0
-NoGrayAggro.Below = 0
+NoGrayAggro.Above = 1
+NoGrayAggro.Below = 1
 
 #
 ###################################################################################################
@@ -3047,7 +3048,7 @@ AuctionHouseBot.Update.Interval = 20
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Seller.Enabled = 0
+AuctionHouseBot.Seller.Enabled = 1
 
 #
 #    AuctionHouseBot.Alliance.Items.Amount.Ratio
@@ -3434,7 +3435,7 @@ AuctionHouseBot.Class.RandomStackRatio.Glyph = 0
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Buyer.Enabled = 0
+AuctionHouseBot.Buyer.Enabled = 1
 
 #
 #    AuctionHouseBot.Buyer.FACTION.Enabled
@@ -3442,9 +3443,9 @@ AuctionHouseBot.Buyer.Enabled = 0
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Buyer.Alliance.Enabled = 0
-AuctionHouseBot.Buyer.Horde.Enabled = 0
-AuctionHouseBot.Buyer.Neutral.Enabled = 0
+AuctionHouseBot.Buyer.Alliance.Enabled = 1
+AuctionHouseBot.Buyer.Horde.Enabled = 1
+AuctionHouseBot.Buyer.Neutral.Enabled = 1
 
 #    AuctionHouseBot.Buyer.ChanceFactor
 #       Description: k value in the formula used for the chance to buy an item "100^(1 + (1 - (AuctionBid / ItemPrice)) / k)"
@@ -3741,11 +3742,9 @@ Metric.OverallStatusInterval = 1
 #
 ###################################################################################################
 
-
 ####################
 # PATCHES SETTINGS #
 ####################
-
 
 ###################################################################################################
 #
@@ -3757,6 +3756,9 @@ Metric.OverallStatusInterval = 1
 #                     0 (disabled)
 
 DoubleXP.Enable = 1
+
+#
+###################################################################################################
 
 ###################################################################################################
 #
@@ -3776,6 +3778,9 @@ Custom.GainHonorOnGuardKill = 1
 #
 
 Custom.GainHonorOnEliteKill = 0
+
+#
+###################################################################################################
 
 ###################################################################################################
 #
@@ -3825,7 +3830,7 @@ VAS.AutoBalance.Color = cffFF8000
 #        Minimum Modifier setting for Health Modification
 #        Default:     0.20
 
-Min.HP.Mod = 0.20
+Min.HP.Mod = 0.10
 
 #
 #     Min.D.Mod
