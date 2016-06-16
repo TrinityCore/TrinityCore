@@ -515,9 +515,9 @@ enum AuraType
     SPELL_AURA_455                                          = 455,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,
-    SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY                = 458, // NYI
-    SPELL_AURA_459                                          = 459,
-    SPELL_AURA_460                                          = 460,
+    SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY                = 458,  // NYI
+    SPELL_AURA_IGNORE_MOVEMENT_FORCES                       = 459,  // NYI
+    SPELL_AURA_RESET_COOLDOWNS_ON_DUEL_START                = 460,  // NYI
     SPELL_AURA_461                                          = 461,
     SPELL_AURA_462                                          = 462,
     SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING       = 463, // NYI
