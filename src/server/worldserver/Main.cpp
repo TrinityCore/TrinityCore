@@ -58,7 +58,7 @@ using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_CORE_CONFIG
-    #define _TRINITY_CORE_CONFIG  "worldserver.conf"
+    #define _TRINITY_CORE_CONFIG  "Settings/world.conf"
 #endif
 
 #define WORLD_SLEEP_CONST 50

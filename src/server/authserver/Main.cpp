@@ -46,7 +46,7 @@ using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "authserver.conf"
+# define _TRINITY_REALM_CONFIG  "Settings/login.conf"
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
