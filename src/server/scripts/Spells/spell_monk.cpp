@@ -32,8 +32,14 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD = 117953,
-    SPELL_MONK_PROVOKE = 118635,
+    SPELL_MONK_PROVOKE = 116189,
+    SPELL_MONK_PROVOKE_OX = 118635,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE = 154436
+};
+
+enum Creatures
+{
+    BLACK_OX_STATUE = 61146
 };
 
 // 117952 - Crackling Jade Lightning
@@ -128,9 +134,8 @@ public:
 // Provoke - 115546
 class spell_monk_provoke : public SpellScriptLoader
 {
-    public:
-    spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke")
-    { }
+public:
+    spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke") { }
 
     class spell_monk_provoke_SpellScript : public SpellScript
     {
@@ -151,9 +156,15 @@ class spell_monk_provoke : public SpellScriptLoader
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
-                if (caster->getClass() == CLASS_MONK && caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = GetHitUnit())
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    if(target->GetEntry() == BLACK_OX_STATUE)
+                        caster->CastSpell(target, SPELL_MONK_PROVOKE_OX, true);
+                    else
                         caster->CastSpell(target, SPELL_MONK_PROVOKE, true);
+                }
+            }
         }
 
         void Register()
