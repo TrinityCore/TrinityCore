@@ -22,9 +22,10 @@
 enum Spells
 {
     // Commander Rimok
-    SPELL_VISCOUS_FLUID_SUMMON      = 107078,
-    SPELL_VISCOUS_FLUID_DMG_UP      = 107091,
-    SPELL_VISCOUS_FLUID_DMG_DOWN    = 107122,
+    SPELL_VISCOUS_FLUID_SUMMON      = 107077, // Effect: Summon (Viscos Fluid Stalker)
+    SPELL_VISCOUS_FLUID_APPLY_AURA  = 107078, // Effect: Apply Aura: Periodically trigger spell
+    SPELL_VISCOUS_FLUID_DMG_UP      = 107091, // Effect: Apply Aura: Mod Damage Done (Value: +10%  +20%)
+    SPELL_VISCOUS_FLUID_DMG_DOWN    = 107122, // Effect: Apply Aura: Mod Damage Done (Value: -10%  -20%)
     SPELL_FRENZIED_ASSAULT          = 107120,
 
     // Add Generator
@@ -107,7 +108,7 @@ class boss_commander_rimok : public CreatureScript
                         events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(10000, 15000));
                         break;
                     case EVENT_VISCOUS_FLUID:
-                        me->CastSpell(me, 107077, true);
+                        DoCast(me, SPELL_VISCOUS_FLUID_SUMMON, true);
                         events.ScheduleEvent(EVENT_VISCOUS_FLUID, urand(5000, 10000));
                         break;
                 }
@@ -254,7 +255,7 @@ class npc_add_generator : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_PERIODIC_SPAWN_SABOTEUR);
                         break;
                     case SPECIAL: // Only one must spawn saboteurs
-                        me->CastSpell(me, SPELL_PERIODIC_SPAWN_SABOTEUR, true);
+                        DoCast(me, SPELL_PERIODIC_SPAWN_SABOTEUR, true);
                         break;
                     case IN_PROGRESS:
                         me->CastSpell(me, SPELL_PERIODIC_SPAWN_SWARMER, true);

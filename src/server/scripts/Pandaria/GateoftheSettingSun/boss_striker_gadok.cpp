@@ -208,13 +208,22 @@ class boss_striker_gadok : public CreatureScript
 
                 switch (id)
                 {
-                    case POINT_NORTH_START:   case POINT_SOUTH_START:   case POINT_WEST_START:   case POINT_EAST_START:
-                    case POINT_NORTH_END:     case POINT_SOUTH_END:     case POINT_WEST_END:     case POINT_EAST_END:
-                    case POINT_NORTH_OUTSIDE: case POINT_SOUTH_OUTSIDE: case POINT_WEST_OUTSIDE: case POINT_EAST_OUTSIDE:
-                        DoStrafingEvent();
-                        break;
-                    default:
-                        break;
+                case POINT_NORTH_START:
+                case POINT_SOUTH_START:
+                case POINT_WEST_START:
+                case POINT_EAST_START:
+                case POINT_NORTH_END:
+                case POINT_SOUTH_END:
+                case POINT_WEST_END:
+                case POINT_EAST_END:
+                case POINT_NORTH_OUTSIDE:
+                case POINT_SOUTH_OUTSIDE:
+                case POINT_WEST_OUTSIDE:
+                case POINT_EAST_OUTSIDE:
+                    DoStrafingEvent();
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -241,11 +250,16 @@ class boss_striker_gadok : public CreatureScript
                 // In videos, Gadok follow the opposite direction of clockwise, to confirm
                 switch (move)
                 {
-                    case MOV_NORTH_SOUTH:   return MOV_WEST_EAST;
-                    case MOV_SOUTH_NORTH:   return MOV_EAST_WEST;
-                    case MOV_WEST_EAST:     return MOV_NORTH_SOUTH;
-                    case MOV_EAST_WEST:     return MOV_SOUTH_NORTH;
-                    default:                break;
+                    case MOV_NORTH_SOUTH:
+                        return MOV_WEST_EAST;
+                    case MOV_SOUTH_NORTH:
+                        return MOV_EAST_WEST;
+                    case MOV_WEST_EAST:
+                        return MOV_NORTH_SOUTH;
+                    case MOV_EAST_WEST:
+                        return MOV_SOUTH_NORTH;
+                    default:
+                        break;
                 }
 
                 return MOV_NORTH_SOUTH;
