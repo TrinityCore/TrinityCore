@@ -30,10 +30,16 @@ enum MonkSpells
 {
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC = 123333,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE = 154436,
-
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD = 117953,
+    SPELL_MONK_PROVOKE = 116189,
+    SPELL_MONK_PROVOKE_OX = 118635,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE = 154436
+};
+
+enum Creatures
+{
+    BLACK_OX_STATUE = 61146
 };
 
 // 117952 - Crackling Jade Lightning
@@ -125,8 +131,60 @@ public:
     }
 };
 
+// Provoke - 115546
+class spell_monk_provoke : public SpellScriptLoader
+{
+public:
+    spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke") { }
+
+    class spell_monk_provoke_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_provoke_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            Unit* target = GetExplTargetUnit();
+            if (!target)
+                return SPELL_FAILED_NO_VALID_TARGETS;
+            else if (target->GetTypeId() == TYPEID_PLAYER)
+                return SPELL_FAILED_BAD_TARGETS;
+            else if (!target->IsWithinLOSInMap(GetCaster()))
+                return SPELL_FAILED_LINE_OF_SIGHT;
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    if(target->GetEntry() == BLACK_OX_STATUE){
+                        caster->CastSpell(target, SPELL_MONK_PROVOKE_OX, true);
+                        target->CastSpell(caster, SPELL_MONK_PROVOKE_OX, true);
+                    }else{
+                        caster->CastSpell(target, SPELL_MONK_PROVOKE, true);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_monk_provoke_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_provoke_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_provoke_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_knockback_proc_aura();
+    new spell_monk_provoke();
 }
