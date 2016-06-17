@@ -54,6 +54,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Metric.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1077,7 +1078,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // reset for all pets before pet loading
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        Pet::resetTalentsForAllPetsOf(pCurrChar);
+    {
+        // Delete all of the player's pet spells
+        PreparedStatement* stmtSpells = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
+        stmtSpells->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpells);
+
+        // Then reset all of the player's pet specualizations
+        PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_SPECS_BY_OWNER);
+        stmtSpec->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpec);
+    }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
@@ -1133,9 +1144,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     m_playerLoading.Clear();
 
     // Handle Login-Achievements (should be handled after loading)
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
+    _player->UpdateCriteria(CRITERIA_TYPE_ON_LOGIN, 1);
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
+
+    TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
     delete holder;
 }
@@ -1460,7 +1473,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
 
     _player->ModifyMoney(-int64(cost));                     // it isn't free
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+    _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
     _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->Data));
     _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(packet.NewHairColor));
@@ -1470,7 +1483,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (bs_face)
         _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, uint8(bs_face->Data));
 
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    _player->UpdateCriteria(CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
     _player->SetStandState(UNIT_STAND_STATE_STAND);
 }
@@ -2051,8 +2064,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
-                stmt->setUInt16(0, uint16(newTeamId == TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
-                stmt->setUInt16(1, uint16(newTeamId == TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
+                stmt->setUInt32(0, uint16(newTeamId == TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
+                stmt->setUInt32(1, uint16(newTeamId == TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
                 stmt->setUInt64(2, lowGuid);
                 trans->Append(stmt);
             }
@@ -2197,8 +2210,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                     uint32 title_alliance = it->first;
                     uint32 title_horde = it->second;
 
-                    CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
-                    CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                    CharTitlesEntry const* atitleInfo = sCharTitlesStore.AssertEntry(title_alliance);
+                    CharTitlesEntry const* htitleInfo = sCharTitlesStore.AssertEntry(title_horde);
                     // new team
                     if (newTeamId == TEAM_ALLIANCE)
                     {

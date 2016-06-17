@@ -157,7 +157,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 /*diff*/)
         for (Player::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
             if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
-                me->Kill(me);
+                me->KillSelf();
                 return;
             }
     }

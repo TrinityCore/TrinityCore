@@ -42,9 +42,11 @@ enum RogueSpells
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
-    SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
-    SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
-    SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
+    SPELL_ROGUE_SANCTUARY                           = 98877,
+    SPELL_ROGUE_STEALTH                             = 1784,
+    SPELL_ROGUE_STEALTH_STEALTH_AURA                = 158185,
+    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA             = 158188,
+    SPELL_ROGUE_VANISH_AURA                         = 11327,
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
@@ -53,7 +55,8 @@ enum RogueSpells
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
 };
 
 enum RogueSpellIcons
@@ -492,43 +495,6 @@ class spell_rog_master_of_subtlety : public SpellScriptLoader
         }
 };
 
-// 58428 - Overkill
-class spell_rog_overkill : public SpellScriptLoader
-{
-    public:
-        spell_rog_overkill() : SpellScriptLoader("spell_rog_overkill") { }
-
-        class spell_rog_overkill_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_overkill_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                Unit* target = GetTarget();
-
-                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                    target->RemoveAurasDueToSpell(SPELL_ROGUE_OVERKILL_POWER_REGEN);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_overkill_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_overkill_AuraScript();
-        }
-};
-
 // 14185 - Preparation
 class spell_rog_preparation : public SpellScriptLoader
 {
@@ -739,9 +705,9 @@ class spell_rog_stealth : public SpellScriptLoader
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT) ||
                     !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_PERIODIC))
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_SANCTUARY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_STEALTH_AURA) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA))
                     return false;
                 return true;
             }
@@ -752,14 +718,11 @@ class spell_rog_stealth : public SpellScriptLoader
 
                 // Master of Subtlety
                 if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
-                {
-                    int32 basepoints0 = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, &basepoints0, NULL, NULL, true);
-                }
+                    target->CastCustomSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
 
-                // Overkill
-                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
-                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_POWER_REGEN, true);
+                target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
+                target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
+                target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -770,21 +733,102 @@ class spell_rog_stealth : public SpellScriptLoader
                 if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
                     target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
 
-                // Overkill
-                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
-                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_PERIODIC, true);
+                target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
+                target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
             }
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_stealth_AuraScript();
+        }
+};
+
+// 1856 - Vanish
+class spell_rog_vanish : public SpellScriptLoader
+{
+    public:
+        spell_rog_vanish() : SpellScriptLoader("spell_rog_vanish") { }
+
+        class spell_rog_vanish_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_vanish_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_VANISH_AURA) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA))
+                    return false;
+                return true;
+            }
+
+            void OnLaunchTarget(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* target = GetHitUnit();
+
+                target->RemoveMovementImpairingAuras();
+                target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (target->HasAura(SPELL_ROGUE_VANISH_AURA))
+                    return;
+
+                target->CastSpell(target, SPELL_ROGUE_VANISH_AURA, TRIGGERED_FULL_MASK);
+                target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_rog_vanish_SpellScript::OnLaunchTarget, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_vanish_SpellScript();
+        }
+};
+
+// 11327 - Vanish
+class spell_rog_vanish_aura : public SpellScriptLoader
+{
+    public:
+        spell_rog_vanish_aura() : SpellScriptLoader("spell_rog_vanish_aura") { }
+
+        class spell_rog_vanish_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_vanish_aura_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_STEALTH, TRIGGERED_FULL_MASK);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_aura_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_vanish_aura_AuraScript();
         }
 };
 
@@ -944,6 +988,68 @@ public:
     }
 };
 
+// 2098 - Eviscerate
+class spell_rog_eviscerate : public SpellScriptLoader
+{
+public:
+    spell_rog_eviscerate() : SpellScriptLoader("spell_rog_eviscerate") { }
+
+    class spell_rog_eviscerate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_eviscerate_SpellScript);
+
+        void CalculateDamage(SpellEffIndex /*effIndex*/)
+        {
+            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.559f);
+            if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+                damagePerCombo += t5->GetAmount();
+
+            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_eviscerate_SpellScript();
+    }
+};
+
+// 32645 - Envenom
+class spell_rog_envenom : public SpellScriptLoader
+{
+public:
+    spell_rog_envenom() : SpellScriptLoader("spell_rog_envenom") { }
+
+    class spell_rog_envenom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_envenom_SpellScript);
+
+        void CalculateDamage(SpellEffIndex /*effIndex*/)
+        {
+            int32 damagePerCombo = int32(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.417f);
+            if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+                damagePerCombo += t5->GetAmount();
+
+            SetEffectValue(GetEffectValue() + damagePerCombo * GetCaster()->GetPower(POWER_COMBO_POINTS));
+        }
+
+        void Register() override
+        {
+            OnEffectLaunchTarget += SpellEffectFn(spell_rog_envenom_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_envenom_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -953,14 +1059,17 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
     new spell_rog_master_of_subtlety();
-    new spell_rog_overkill();
     new spell_rog_preparation();
     new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();
     new spell_rog_stealth();
+    new spell_rog_vanish();
+    new spell_rog_vanish_aura();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
     new spell_rog_honor_among_thieves();
+    new spell_rog_eviscerate();
+    new spell_rog_envenom();
 }

@@ -286,7 +286,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             if (instance->GetBossState(BOSS_HORSEMEN) == DONE)
                 return;
             instance->SetBossState(BOSS_HORSEMEN, DONE);
-            //instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ENCOUNTER_CREDIT);
+            //instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ENCOUNTER_CREDIT);
             DoCastAOE(SPELL_ENCOUNTER_CREDIT, true);
         }
 

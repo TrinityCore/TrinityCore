@@ -302,7 +302,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float val2 = 0.0f;
     float level = float(getLevel());
 
-    ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
+    ChrClassesEntry const* entry = sChrClassesStore.AssertEntry(getClass());
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;

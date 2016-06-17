@@ -253,7 +253,7 @@ class TC_GAME_API Battleground
 
         /* achievement req. */
         virtual bool IsAllNodesControlledByTeam(uint32 /*team*/) const { return false; }
-        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         virtual bool CheckAchievementCriteriaMeet(uint32 /*criteriaId*/, Player const* /*player*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
         /* Battleground */
@@ -437,6 +437,10 @@ class TC_GAME_API Battleground
 
         // Death related
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+
+        virtual WorldSafeLocsEntry const* GetExploitTeleportLocation(Team /*team*/) { return nullptr; }
+        // GetExploitTeleportLocation(TeamId) must be implemented in the battleground subclass.
+        void TeleportPlayerToExploitLocation(Player* player);
 
         virtual void AddPlayer(Player* player);                // must be implemented in BG subclass
 

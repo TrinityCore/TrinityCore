@@ -119,7 +119,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT " BnetAccountInfo ", " BnetGameAccountInfo
         " FROM battlenet_accounts ba LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account a ON ba.id = a.battlenet_account"
-        " LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID = -1 WHERE ba.email = ? AND ba.sha_pass_hash = ?", CONNECTION_SYNCH);
+        " LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID = -1 WHERE ba.email = ? AND ba.sha_pass_hash = ? ORDER BY a.id", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID, "SELECT rc.acctid, rc.numchars, r.id, r.Region, r.Battlegroup FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_ASYNC);

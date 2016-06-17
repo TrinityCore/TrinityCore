@@ -616,7 +616,6 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    CleanupExecuteLogList();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_destTargets[i] = SpellDestination(*m_caster);
@@ -645,7 +644,6 @@ Spell::~Spell()
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
 
     delete m_spellValue;
-    CleanupExecuteLogList();
 }
 
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
@@ -2527,15 +2525,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
     if (Player* player = unit->ToPlayer())
     {
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id, 0, 0, m_caster);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id, 0, 0, m_caster);
+        player->UpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
     }
 
     if (Player* player = m_caster->ToPlayer())
     {
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER, m_spellInfo->Id);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2, m_spellInfo->Id, 0, 0, unit);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_CASTER, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL2, m_spellInfo->Id, 0, 0, unit);
     }
 
     if (m_caster != unit)
@@ -3270,11 +3268,11 @@ void Spell::cast(bool skipCheck)
     {
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM) && m_CastItem)
         {
-            player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_ITEM, m_CastItem->GetEntry());
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM, m_CastItem->GetEntry());
+            player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_ITEM, m_CastItem->GetEntry());
+            player->UpdateCriteria(CRITERIA_TYPE_USE_ITEM, m_CastItem->GetEntry());
         }
 
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
+        player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
     }
 
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
@@ -4178,45 +4176,33 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
 void Spell::SendSpellExecuteLog()
 {
     WorldPackets::CombatLog::SpellExecuteLog spellExecuteLog;
-
     spellExecuteLog.Caster = m_caster->GetGUID();
     spellExecuteLog.SpellID = m_spellInfo->Id;
 
-    if (_powerDrainTargets->empty() && _extraAttacksTargets->empty() &&
-        _durabilityDamageTargets->empty() && _genericVictimTargets->empty() &&
-        _tradeSkillTargets->empty() && _feedPetTargets->empty())
-        return;
-
     for (SpellEffectInfo const* effect : GetEffects())
     {
-        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect spellLogEffect;
         if (!effect)
             continue;
 
+        if (_powerDrainTargets[effect->EffectIndex].empty() && _extraAttacksTargets[effect->EffectIndex].empty() &&
+            _durabilityDamageTargets[effect->EffectIndex].empty() && _genericVictimTargets[effect->EffectIndex].empty() &&
+            _tradeSkillTargets[effect->EffectIndex].empty() && _feedPetTargets[effect->EffectIndex].empty())
+            continue;
+
+        spellExecuteLog.Effects.emplace_back();
+
+        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect& spellLogEffect = spellExecuteLog.Effects.back();
         spellLogEffect.Effect = effect->Effect;
-
-        for (SpellLogEffectPowerDrainParams const& powerDrainParam : _powerDrainTargets[effect->EffectIndex])
-            spellLogEffect.PowerDrainTargets.push_back(powerDrainParam);
-
-        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : _extraAttacksTargets[effect->EffectIndex])
-            spellLogEffect.ExtraAttacksTargets.push_back(extraAttacksTarget);
-
-        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : _durabilityDamageTargets[effect->EffectIndex])
-            spellLogEffect.DurabilityDamageTargets.push_back(durabilityDamageTarget);
-
-        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : _genericVictimTargets[effect->EffectIndex])
-            spellLogEffect.GenericVictimTargets.push_back(genericVictimTarget);
-
-        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : _tradeSkillTargets[effect->EffectIndex])
-            spellLogEffect.TradeSkillTargets.push_back(tradeSkillTarget);
-
-        for (SpellLogEffectFeedPetParams const& feedPetTarget : _feedPetTargets[effect->EffectIndex])
-            spellLogEffect.FeedPetTargets.push_back(feedPetTarget);
-
-        spellExecuteLog.Effects.push_back(spellLogEffect);
+        spellLogEffect.PowerDrainTargets = std::move(_powerDrainTargets[effect->EffectIndex]);
+        spellLogEffect.ExtraAttacksTargets = std::move(_extraAttacksTargets[effect->EffectIndex]);
+        spellLogEffect.DurabilityDamageTargets = std::move(_durabilityDamageTargets[effect->EffectIndex]);
+        spellLogEffect.GenericVictimTargets = std::move(_genericVictimTargets[effect->EffectIndex]);
+        spellLogEffect.TradeSkillTargets = std::move(_tradeSkillTargets[effect->EffectIndex]);
+        spellLogEffect.FeedPetTargets = std::move(_feedPetTargets[effect->EffectIndex]);
     }
 
-    m_caster->SendCombatLogMessage(&spellExecuteLog);
+    if (!spellExecuteLog.Effects.empty())
+        m_caster->SendCombatLogMessage(&spellExecuteLog);
 }
 
 void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude)
@@ -4307,16 +4293,6 @@ void Spell::ExecuteLogEffectResurrect(uint8 effect, Unit* target)
     spellLogEffectGenericVictimParams.Victim = target->GetGUID();
 
     _genericVictimTargets[effect].push_back(spellLogEffectGenericVictimParams);
-}
-
-void Spell::CleanupExecuteLogList()
-{
-    _durabilityDamageTargets->clear();
-    _extraAttacksTargets->clear();
-    _feedPetTargets->clear();
-    _genericVictimTargets->clear();
-    _powerDrainTargets->clear();
-    _tradeSkillTargets->clear();
 }
 
 void Spell::SendInterrupted(uint8 result)
@@ -4612,6 +4588,11 @@ void Spell::TakeRunePower(bool didHit)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
 
+    bool convertUsedRunes = false;
+    for (AuraEffect const* convertConsumedRuneAuras : m_caster->GetAuraEffectsByType(SPELL_AURA_CONVERT_CONSUMED_RUNE))
+        if (convertConsumedRuneAuras->IsAffectingSpell(m_spellInfo))
+            convertUsedRunes = true;
+
     // Let's say we use a skill that requires a Frost rune. This is the order:
     // - Frost rune
     // - Death rune, originally a Frost rune
@@ -4624,6 +4605,8 @@ void Spell::TakeRunePower(bool didHit)
             player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN), true);
             player->SetLastUsedRune(rune);
             runeCost[rune]--;
+            if (convertUsedRunes)
+                player->ConvertRune(i, RUNE_DEATH);
         }
     }
 
@@ -4643,7 +4626,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -4665,7 +4648,7 @@ void Spell::TakeRunePower(bool didHit)
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (didHit && !convertUsedRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -5243,13 +5226,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_CHARGE:
             {
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                {
-                    // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
-                    if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
-                        m_caster->RemoveMovementImpairingAuras();
-                }
-
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
 
@@ -5440,6 +5416,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
                 if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
+
+                if (target->HasSummonPending())
+                    return SPELL_FAILED_SUMMON_PENDING;
 
                 // check if our map is dungeon
                 MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
@@ -7447,7 +7426,7 @@ bool Spell::HasGlobalCooldown() const
 void Spell::TriggerGlobalCooldown()
 {
     int32 gcd = m_spellInfo->StartRecoveryTime;
-    if (!gcd)
+    if (!gcd || !m_spellInfo->StartRecoveryCategory)
         return;
 
     // Only players or controlled units have global cooldown
@@ -7467,12 +7446,17 @@ void Spell::TriggerGlobalCooldown()
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, gcd, this);
 
+        bool isMeleeOrRangedSpell = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE ||
+            m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED ||
+            m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) ||
+            m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY);
+
         // Apply haste rating
-        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-        if (gcd < MIN_GCD)
-            gcd = MIN_GCD;
-        else if (gcd > MAX_GCD)
-            gcd = MAX_GCD;
+        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell) || m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE, m_spellInfo)))
+            gcd = std::min<int32>(std::max<int32>(int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_HASTE)), MIN_GCD), MAX_GCD);
+
+        if (gcd > MIN_GCD && m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN, m_spellInfo))
+            gcd = std::min<int32>(std::max<int32>(int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN)), MIN_GCD), MAX_GCD);
     }
 
     m_caster->GetSpellHistory()->AddGlobalCooldown(m_spellInfo, gcd);

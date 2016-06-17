@@ -2385,7 +2385,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;
@@ -2809,16 +2809,16 @@ bool WorldObject::HasInPhaseList(uint32 phase)
 
 // Updates Area based phases, does not remove phases from auras
 // Phases from gm commands are not taken into calculations, they can be lost!!
-void WorldObject::UpdateAreaPhase()
+void WorldObject::UpdateAreaAndZonePhase()
 {
     bool updateNeeded = false;
-    PhaseInfo const& phases = sObjectMgr->GetAreaPhases();
+    PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
     for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
     {
-        uint32 areaId = itr->first;
+        uint32 areaOrZoneId = itr->first;
         for (PhaseInfoStruct const& phase : itr->second)
         {
-            if (areaId == GetAreaId())
+            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
             {
                 if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                 {

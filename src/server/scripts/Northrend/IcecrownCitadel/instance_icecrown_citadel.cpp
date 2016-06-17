@@ -400,7 +400,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return entry;
             }
 
-            uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) override
+            uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) override
             {
                 switch (entry)
                 {

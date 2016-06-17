@@ -63,6 +63,7 @@
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
+#include "Metric.h"
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
 #include "TransportMgr.h"
@@ -437,6 +438,7 @@ void World::LoadConfigSettings(bool reload)
             return;
         }
         sLog->LoadFromConfig();
+        sMetric->LoadFromConfigs();
     }
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
@@ -1183,6 +1185,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     m_int_configs[CONFIG_CREATURE_PICKPOCKET_REFILL] = sConfigMgr->GetIntDefault("Creature.PickPocketRefillDelay", 10 * MINUTE);
+    m_int_configs[CONFIG_CREATURE_STOP_FOR_PLAYER] = sConfigMgr->GetIntDefault("Creature.MovingStopTimeForPlayer", 3 * MINUTE * IN_MILLISECONDS);
 
     if (int32 clientCacheId = sConfigMgr->GetIntDefault("ClientCacheVersion", 0))
     {
@@ -1815,14 +1818,14 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading skill tier info...");
     sObjectMgr->LoadSkillTiers();
 
+    TC_LOG_INFO("server.loading", "Loading Criteria Modifier trees...");
+    sCriteriaMgr->LoadCriteriaModifiersTree();
+    TC_LOG_INFO("server.loading", "Loading Criteria Lists...");
+    sCriteriaMgr->LoadCriteriaList();
+    TC_LOG_INFO("server.loading", "Loading Criteria Data...");
+    sCriteriaMgr->LoadCriteriaData();
     TC_LOG_INFO("server.loading", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Modifier trees...");
-    sAchievementMgr->LoadAchievementCriteriaModifiersTree();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Lists...");
-    sAchievementMgr->LoadAchievementCriteriaList();
-    TC_LOG_INFO("server.loading", "Loading Achievement Criteria Data...");
-    sAchievementMgr->LoadAchievementCriteriaData();
     TC_LOG_INFO("server.loading", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
     TC_LOG_INFO("server.loading", "Loading Achievement Reward Locales...");
@@ -2127,6 +2130,8 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
+    TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
+
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
 }
@@ -2429,6 +2434,10 @@ void World::Update(uint32 diff)
     ProcessCliCommands();
 
     sScriptMgr->OnWorldUpdate(diff);
+
+    // Stats logger update
+    sMetric->Update();
+    TC_METRIC_VALUE("update_time_diff", diff);
 }
 
 void World::ForceGameEventUpdate()

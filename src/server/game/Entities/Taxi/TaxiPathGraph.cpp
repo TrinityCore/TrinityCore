@@ -185,8 +185,9 @@ uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const
     if (!(To->Flags & requireFlag))
         return std::numeric_limits<uint16>::max();
 
-    //if (To->ConditionID && !player->MeetsCondition(To->ConditionID))
-    //    return std::numeric_limits<uint16>::max();
+    if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
+        if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
+            return std::numeric_limits<uint16>::max();
 
     return Distance;
 }

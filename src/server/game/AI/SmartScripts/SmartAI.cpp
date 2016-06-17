@@ -413,7 +413,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     if (!me->IsAlive() || me->IsInEvadeMode())
         return;
 
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
+    me->RemoveAurasOnEvade();
 
     me->AddUnitState(UNIT_STATE_EVADE);
     me->DeleteThreatList();
@@ -840,7 +840,7 @@ void SmartGameObjectAI::Reset()
 }
 
 // Called when a player opens a gossip dialog with the gameobject.
-bool SmartGameObjectAI::GossipHello(Player* player)
+bool SmartGameObjectAI::GossipHello(Player* player, bool /*isUse*/)
 {
     TC_LOG_DEBUG("scripts.ai", "SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0, 0, false, NULL, go);

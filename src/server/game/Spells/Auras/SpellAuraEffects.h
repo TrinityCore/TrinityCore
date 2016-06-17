@@ -174,7 +174,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraUntrackable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  skills & talents
-        void HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -305,6 +304,9 @@ class TC_GAME_API AuraEffect
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleShowConfirmationPrompt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;

@@ -216,7 +216,7 @@ void BattlegroundAB::StartingEventOpenDoors()
     DoorOpen(BG_AB_OBJECT_GATE_H);
 
     // Achievement: Let's Get This Done
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
+    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
 }
 
 void BattlegroundAB::AddPlayer(Player* player)
@@ -231,11 +231,13 @@ void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint3
 
 void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     switch (trigger)
     {
+        case 6635: // Horde Start
+        case 6634: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeam() != ALLIANCE)
                 player->GetSession()->SendNotification("Only The Alliance can use that portal");
@@ -690,6 +692,11 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
+WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
+}
+
 bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
     if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
@@ -698,10 +705,10 @@ bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_BASES_ASSAULTED:
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE);
             break;
         case SCORE_BASES_DEFENDED:
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE);
             break;
         default:
             break;

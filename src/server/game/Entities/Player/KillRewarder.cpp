@@ -151,9 +151,9 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
     }
     if (xp)
     {
-        // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        for (auto const& aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT))
-            AddPct(xp, aura->GetAmount());
+        // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT and SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE).
+        xp *= player->GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_PCT);
+        xp *= player->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_XP_FROM_CREATURE_TYPE, int32(_victim->GetCreatureType()));
 
         // 4.2.3. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);
@@ -177,7 +177,7 @@ inline void KillRewarder::_RewardKillCredit(Player* player)
         if (Creature* target = _victim->ToCreature())
         {
             player->KilledMonster(target->GetCreatureTemplate(), target->GetGUID());
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
+            player->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE_TYPE, target->GetCreatureType(), 1, 0, target);
         }
 }
 
@@ -240,7 +240,7 @@ void KillRewarder::_RewardGroup()
                     if (member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
-                        member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
+                        member->UpdateCriteria(CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
                     }
                 }
             }
@@ -277,7 +277,7 @@ void KillRewarder::Reward()
 
         if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+                guild->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
     }
 
 }

@@ -213,7 +213,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
             creature->SetHomePosition(creature->GetPosition());
 
         if (creature->IsStopped())
-            Stop(STOP_TIME_FOR_PLAYER);
+            Stop(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
         else if (creature->movespline->Finalized())
         {
             OnArrived(creature);
@@ -370,7 +370,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 player->m_taxi.NextTaxiDestination();
                 if (!_pointsForPathSwitch.empty())
                 {
-                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, _pointsForPathSwitch.front().Cost);
+                    player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, _pointsForPathSwitch.front().Cost);
                     player->ModifyMoney(-_pointsForPathSwitch.front().Cost);
                 }
             }

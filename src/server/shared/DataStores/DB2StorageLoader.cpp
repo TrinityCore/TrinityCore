@@ -353,8 +353,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     std::size_t localizedStringFields = GetFormatLocalizedStringFieldCount(format);
 
     // each string field at load have array of string for each locale
-    std::size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    std::size_t stringHoldersRecordPoolSize = localizedStringFields * stringHolderSize + (stringFields - localizedStringFields) * sizeof(char*);
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
     std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * recordCount;
 
     char* stringHoldersPool = new char[stringHoldersPoolSize];
@@ -392,9 +391,9 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     char const*** slot = (char const***)(&dataTable[offset]);
                     *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
                     if (format[x] == FT_STRING)
-                        stringFieldOffset += stringHolderSize;
+                        stringFieldOffset += sizeof(LocalizedString);
                     else
-                        ++stringFieldOffset;
+                        stringFieldOffset += sizeof(char*);
 
                     offset += sizeof(char*);
                     break;
@@ -497,19 +496,19 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
     uint32 recordSize = DB2FileLoader::GetFormatRecordSize(format, &indexField);
 
     // we store flat holders pool as single memory block
-    size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
+    std::size_t stringFields = DB2FileLoader::GetFormatStringFieldCount(format);
+    std::size_t localizedStringFields = DB2FileLoader::GetFormatLocalizedStringFieldCount(format);
 
     // each string field at load have array of string for each locale
-    size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-    size_t stringHoldersRecordPoolSize = stringFields * stringHolderSize;
+    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
 
     if (stringFields)
     {
-        size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
+        std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
         stringHolders = new char[stringHoldersPoolSize];
 
         // DB2 strings expected to have at least empty string
-        for (size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
+        for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
             ((char const**)stringHolders)[i] = nullStr;
     }
     else
@@ -545,7 +544,7 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
     {
         Field* fields = result->Fetch();
         uint32 offset = 0;
-        uint32 stringFieldNumInRecord = 0;
+        uint32 stringFieldOffset = 0;
 
         uint32 indexValue;
         if (indexField >= 0)
@@ -585,28 +584,28 @@ char* DB2DatabaseLoader::Load(const char* format, HotfixDatabaseStatements prepa
                 case FT_STRING:
                 {
                     LocalizedString** slot = (LocalizedString**)(&dataValue[offset]);
-                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
+                    *slot = (LocalizedString*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringFieldOffset]);
                     ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
                     if (char* str = AddString(&(*slot)->Str[LOCALE_enUS], fields[f].GetString()))
                         stringPool.push_back(str);
 
-                    ++stringFieldNumInRecord;
+                    stringFieldOffset += sizeof(LocalizedString);
                     offset += sizeof(char*);
                     break;
                 }
                 case FT_STRING_NOT_LOCALIZED:
                 {
                     char const** slot = (char const**)(&dataValue[offset]);
-                    *slot = (char*)(&stringHolders[stringHoldersRecordPoolSize * rec + stringHolderSize * stringFieldNumInRecord]);
+                    *slot = (char*)(&stringHolders[stringHoldersRecordPoolSize * rec + sizeof(LocalizedString) * stringFieldOffset]);
                     ASSERT(*slot);
 
                     // Value in database in main table field must be for enUS locale
                     if (char* str = AddString(slot, fields[f].GetString()))
                         stringPool.push_back(str);
 
-                    ++stringFieldNumInRecord;
+                    stringFieldOffset += sizeof(char*);
                     offset += sizeof(char*);
                     break;
                 }

@@ -113,8 +113,10 @@ DB2Storage<SpellDurationEntry>                  sSpellDurationStore("SpellDurati
 DB2Storage<SpellItemEnchantmentConditionEntry>  sSpellItemEnchantmentConditionStore("SpellItemEnchantmentCondition.db2", SpellItemEnchantmentConditionFormat, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION);
 DB2Storage<SpellLearnSpellEntry>                sSpellLearnSpellStore("SpellLearnSpell.db2", SpellLearnSpellFormat, HOTFIX_SEL_SPELL_LEARN_SPELL);
 DB2Storage<SpellMiscEntry>                      sSpellMiscStore("SpellMisc.db2", SpellMiscFormat, HOTFIX_SEL_SPELL_MISC);
-DB2Storage<SpellPowerDifficultyEntry>           sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyFormat, HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
 DB2Storage<SpellPowerEntry>                     sSpellPowerStore("SpellPower.db2", SpellPowerFormat, HOTFIX_SEL_SPELL_POWER);
+DB2Storage<SpellPowerDifficultyEntry>           sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyFormat, HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
+DB2Storage<SpellProcsPerMinuteEntry>            sSpellProcsPerMinuteStore("SpellProcsPerMinute.db2", SpellProcsPerMinuteFormat, HOTFIX_SEL_SPELL_PROCS_PER_MINUTE);
+DB2Storage<SpellProcsPerMinuteModEntry>         sSpellProcsPerMinuteModStore("SpellProcsPerMinuteMod.db2", SpellProcsPerMinuteModFormat, HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD);
 DB2Storage<SpellRadiusEntry>                    sSpellRadiusStore("SpellRadius.db2", SpellRadiusFormat, HOTFIX_SEL_SPELL_RADIUS);
 DB2Storage<SpellRangeEntry>                     sSpellRangeStore("SpellRange.db2", SpellRangeFormat, HOTFIX_SEL_SPELL_RANGE);
 DB2Storage<SpellReagentsEntry>                  sSpellReagentsStore("SpellReagents.db2", SpellReagentsFormat, HOTFIX_SEL_SPELL_REAGENTS);
@@ -293,8 +295,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sSpellItemEnchantmentConditionStore);
     LOAD_DB2(sSpellLearnSpellStore);
     LOAD_DB2(sSpellMiscStore);
-    LOAD_DB2(sSpellPowerDifficultyStore);
     LOAD_DB2(sSpellPowerStore);
+    LOAD_DB2(sSpellPowerDifficultyStore);
+    LOAD_DB2(sSpellProcsPerMinuteStore);
+    LOAD_DB2(sSpellProcsPerMinuteModStore);
     LOAD_DB2(sSpellRadiusStore);
     LOAD_DB2(sSpellRangeStore);
     LOAD_DB2(sSpellReagentsStore);
@@ -442,6 +446,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             powers[power->PowerIndex] = power;
         }
     }
+
+    for (SpellProcsPerMinuteModEntry const* ppmMod : sSpellProcsPerMinuteModStore)
+        _spellProcsPerMinuteMods[ppmMod->SpellProcsPerMinuteID].push_back(ppmMod);
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
         sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
@@ -851,6 +858,15 @@ std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, D
     }
 
     return powers;
+}
+
+std::vector<SpellProcsPerMinuteModEntry const*> DB2Manager::GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const
+{
+    auto itr = _spellProcsPerMinuteMods.find(spellprocsPerMinuteId);
+    if (itr != _spellProcsPerMinuteMods.end())
+        return itr->second;
+
+    return std::vector<SpellProcsPerMinuteModEntry const*>();
 }
 
 bool DB2Manager::IsToyItem(uint32 toy) const

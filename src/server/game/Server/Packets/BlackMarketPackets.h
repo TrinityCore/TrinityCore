@@ -122,7 +122,7 @@ namespace WorldPackets
 
             int32 MarketID = 0;
             Item::ItemInstance Item;
-            int32 RandomPropertiesID;
+            int32 RandomPropertiesID = 0;
         };
 
         class BlackMarketWon final : public ServerPacket
@@ -134,7 +134,7 @@ namespace WorldPackets
 
             int32 MarketID = 0;
             Item::ItemInstance Item;
-            int32 RandomPropertiesID;
+            int32 RandomPropertiesID = 0;
         };
     }
 }

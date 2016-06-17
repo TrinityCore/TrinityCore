@@ -322,13 +322,11 @@ void Map::ScriptsProcess()
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
                 case HighGuid::GameObject:
+                case HighGuid::Transport:
                     source = GetGameObject(step.sourceGUID);
                     break;
                 case HighGuid::Corpse:
                     source = GetCorpse(step.sourceGUID);
-                    break;
-                case HighGuid::Transport:
-                    source = GetTransport(step.sourceGUID);
                     break;
                 default:
                     TC_LOG_ERROR("scripts", "%s source with unsupported high guid %s.",
@@ -353,13 +351,11 @@ void Map::ScriptsProcess()
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
                 case HighGuid::GameObject:
+                case HighGuid::Transport:
                     target = GetGameObject(step.targetGUID);
                     break;
                 case HighGuid::Corpse:
                     target = GetCorpse(step.targetGUID);
-                    break;
-                case HighGuid::Transport:
-                    target = GetTransport(step.targetGUID);
                     break;
                 default:
                     TC_LOG_ERROR("scripts", "%s target with unsupported high guid %s.",

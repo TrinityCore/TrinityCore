@@ -274,7 +274,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
     player->ModifyMoney(-reqmoney);
-    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
+    player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
 

@@ -437,7 +437,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
 
                 uint32 money = pProto->GetSellPrice() * packet.Amount;
                 _player->ModifyMoney(money);
-                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
@@ -481,7 +481,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-            _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
+            _player->UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
             _player->StoreItem(dest, pItem, true);
         }
         else

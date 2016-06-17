@@ -126,9 +126,9 @@ class TC_GAME_API MapManager
         template<typename Worker>
         void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
 
-        uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
-        uint32 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
-        uint32 DecreaseScheduledScriptCount(size_t count) { return _scheduledScripts -= count; }
+        void IncreaseScheduledScriptsCount() { ++_scheduledScripts; }
+        void DecreaseScheduledScriptCount() { --_scheduledScripts; }
+        void DecreaseScheduledScriptCount(std::size_t count) { _scheduledScripts -= count; }
         bool IsScriptScheduled() const { return _scheduledScripts > 0; }
 
     private:
@@ -157,7 +157,7 @@ class TC_GAME_API MapManager
         MapUpdater m_updater;
 
         // atomic op counter for active scripts amount
-        std::atomic<uint32> _scheduledScripts;
+        std::atomic<std::size_t> _scheduledScripts;
 };
 
 template<typename Worker>

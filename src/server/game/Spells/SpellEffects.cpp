@@ -241,7 +241,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectNULL,                                     //174 SPELL_EFFECT_APPLY_AURA_ON_PET
     &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
-    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_SANCTUARY_2
+    &Spell::EffectSanctuary,                                //176 SPELL_EFFECT_SANCTUARY_2
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
@@ -271,7 +271,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectNULL,                                     //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
-    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206
+    &Spell::EffectNULL,                                     //206 SPELL_EFFECT_ALTER_ITEM
     &Spell::EffectNULL,                                     //207 SPELL_EFFECT_LAUNCH_QUEST_TASK
     &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
     &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
@@ -503,57 +503,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_ROGUE:
-            {
-                // Envenom
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x00000008)
-                {
-                    if (Player* player = m_caster->ToPlayer())
-                    {
-                        // consume from stack dozes not more that have combo-points
-                        if (uint32 combo = player->GetComboPoints())
-                        {
-                            // Lookup for Deadly poison (only attacker applied)
-                            if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00010000, 0, 0), m_caster->GetGUID()))
-                            {
-                                // count consumed deadly poison doses at target
-                                uint32 spellId = aurEff->GetId();
-
-                                uint32 doses = aurEff->GetBase()->GetStackAmount();
-                                if (doses > combo)
-                                    doses = combo;
-
-                                for (uint32 i = 0; i < doses; ++i)
-                                    unitTarget->RemoveAuraFromStack(spellId, m_caster->GetGUID());
-
-                                damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
-                            }
-
-                            // Eviscerate and Envenom Bonus Damage (item set effect)
-                            if (m_caster->HasAura(37169))
-                                damage += combo * 40;
-                        }
-                    }
-                }
-                // Eviscerate
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00020000)
-                {
-                    if (Player* player = m_caster->ToPlayer())
-                    {
-                        if (uint32 combo = player->GetComboPoints())
-                        {
-                            float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                            damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
-
-                            // Eviscerate and Envenom Bonus Damage (item set effect)
-                            if (m_caster->HasAura(37169))
-                                damage += combo*40;
-                        }
-                    }
-                }
-                break;
-            }
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Blood Boil - bonus for diseased targets
@@ -669,18 +618,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
             {
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                // If this spell is given to an NPC, it must handle the rest using its own AI
-                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                // See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784))
-                    return;
-
-                // Reset cooldown on stealth if needed
-                unitTarget->GetSpellHistory()->ResetCooldown(1784);
-                unitTarget->CastSpell(unitTarget, 1784, true);
                 return;
             }
             // Demonic Empowerment -- succubus
@@ -1784,7 +1721,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (sScriptMgr->OnGossipHello(player, gameObjTarget))
             return;
 
-        if (gameObjTarget->AI()->GossipHello(player))
+        if (gameObjTarget->AI()->GossipHello(player, true))
             return;
 
         switch (gameObjTarget->GetGoType())
@@ -2274,7 +2211,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
                 if (entry->SummonSpellID == spellToLearn)
                 {
                     battlePetMgr->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
-                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+                    player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
                     break;
                 }
             }
@@ -2787,8 +2724,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     // caster have pet now
     m_caster->SetMinion(pet, true);
 
-    pet->InitTalentForLevel();
-
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
@@ -3229,8 +3164,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     Map* map = target->GetMap();
 
-    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id, map,
-        m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -3256,8 +3190,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject;
-        if (linkedGO->Create(map->GenerateLowGuid<HighGuid::GameObject>(), linkedEntry, map,
-            m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+        if (linkedGO->Create(linkedEntry, map, m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
             linkedGO->CopyPhaseFrom(m_caster);
 
@@ -3850,8 +3783,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     uint32 gameobject_id = effectInfo->MiscValue;
 
     Map* map = m_caster->GetMap();
-    if (!pGameObj->Create(map->GenerateLowGuid<HighGuid::GameObject>(), gameobject_id,
-        map, 0,
+    if (!pGameObj->Create(gameobject_id, map, 0,
         m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2,
         m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2,
         m_caster->GetPositionZ(),
@@ -3961,20 +3893,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // Evil Twin (ignore player summon, but hide this for summoner)
-    if (unitTarget->HasAura(23445))
-        return;
-
-    float x, y, z;
-    m_caster->GetPosition(x, y, z);
-
-    unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
-
-    WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
-    data << m_caster->GetGUID();                            // summoner guid
-    data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    unitTarget->ToPlayer()->SendSummonRequestFrom(m_caster);
 }
 
 void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
@@ -4232,8 +4151,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), go_id, map,
-        0, x, y, z, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+    if (!go->Create(go_id, map, 0, x, y, z, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete go;
         return;
@@ -4891,8 +4809,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     GameObject* pGameObj = new GameObject;
 
-    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap,
-        0, fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+    if (!pGameObj->Create(name_id, cMap, 0, fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -4959,8 +4876,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject;
-        if (linkedGO->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), linkedEntry, cMap,
-            0, fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+        if (linkedGO->Create(linkedEntry, cMap, 0, fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
             linkedGO->CopyPhaseFrom(m_caster);
 
@@ -5340,8 +5256,6 @@ void Spell::EffectCreateTamedPet(SpellEffIndex /*effIndex*/)
 
     // unitTarget has pet now
     unitTarget->SetMinion(pet, true);
-
-    pet->InitTalentForLevel();
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
@@ -6003,7 +5917,7 @@ void Spell::EffectUpdatePlayerPhase(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->UpdateAreaPhase();
+    unitTarget->UpdateAreaAndZonePhase();
 }
 
 void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)

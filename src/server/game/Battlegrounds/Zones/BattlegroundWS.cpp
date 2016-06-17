@@ -245,7 +245,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
 
     // players joining later are not eligibles
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
+    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -504,7 +504,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         UpdateFlagState(HORDE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 1);
         player->CastSpell(player, BG_WS_SPELL_SILVERWING_FLAG, true);
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
         if (_flagState[1] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }
@@ -523,7 +523,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         UpdateFlagState(ALLIANCE, BG_WS_FLAG_STATE_ON_PLAYER);
         UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 1);
         player->CastSpell(player, BG_WS_SPELL_WARSONG_FLAG, true);
-        player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
+        player->StartCriteriaTimer(CRITERIA_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
         if (_flagState[0] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
     }
@@ -650,13 +650,15 @@ void BattlegroundWS::UpdateTeamScore(uint32 team)
 
 void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch (trigger)
     {
+        case 8965: // Horde Start
+        case 8966: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 3686:                                          // Alliance elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground::Update().
             //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
             break;
@@ -817,10 +819,10 @@ bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_CAPTURE_FLAG);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_CAPTURE_FLAG);
             break;
         case SCORE_FLAG_RETURNS:                            // flags returned
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_RETURN_FLAG);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_RETURN_FLAG);
             break;
         default:
             break;
@@ -849,6 +851,11 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
         else
             return sWorldSafeLocsStore.LookupEntry(WS_GRAVEYARD_FLAGROOM_HORDE);
     }
+}
+
+WorldSafeLocsEntry const* BattlegroundWS::GetExploitTeleportLocation(Team team)
+{
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? WS_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : WS_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

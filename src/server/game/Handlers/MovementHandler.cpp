@@ -31,6 +31,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "InstancePackets.h"
 #include "MovementPackets.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
@@ -94,6 +95,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
+
+    WorldPackets::Movement::ResumeToken resumeToken;
+    resumeToken.SequenceIndex = _player->m_movementCounter;
+    resumeToken.Reason = seamlessTeleport ? 2 : 1;
+    SendPacket(resumeToken.Write());
 
     if (!seamlessTeleport)
         GetPlayer()->SendInitialPacketsBeforeAddToMap();
@@ -214,6 +220,30 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->ProcessDelayedOperations();
 }
 
+void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& /*suspendTokenResponse*/)
+{
+    if (!_player->IsBeingTeleportedFar())
+        return;
+
+    WorldLocation const& loc = GetPlayer()->GetTeleportDest();
+
+    if (sMapStore.AssertEntry(loc.GetMapId())->IsDungeon())
+    {
+        WorldPackets::Instance::UpdateLastInstance updateLastInstance;
+        updateLastInstance.MapID = loc.GetMapId();
+        SendPacket(updateLastInstance.Write());
+    }
+
+    WorldPackets::Movement::NewWorld packet;
+    packet.MapID = loc.GetMapId();
+    packet.Pos.Relocate(loc);
+    packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    SendPacket(packet.Write());
+
+    if (_player->IsBeingTeleportedSeamlessly())
+        HandleMoveWorldportAckOpcode();
+}
+
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: %s, Sequence: %u, Time: %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime);
@@ -330,7 +360,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.transport.guid.Clear();
+                movementInfo.transport.Reset();
         }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave

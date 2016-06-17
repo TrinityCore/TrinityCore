@@ -514,7 +514,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 *variance = valueVariance;
         }
 
-        basePoints = int32(value);
+        basePoints = int32(round(value));
 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
@@ -528,7 +528,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
-            level -= int32(_spellInfo->SpellLevel);
+            if (!_spellInfo->IsPassive())
+                level -= int32(_spellInfo->SpellLevel);
             basePoints += int32(level * basePointsPerLevel);
         }
 
@@ -637,10 +638,10 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 
 float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = ChainAmplitude;
+    float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+    return multiplierPercent / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
@@ -927,7 +928,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 203 SPELL_EFFECT_203
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 206 SPELL_EFFECT_206
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 206 SPELL_EFFECT_ALTER_IETM
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 207 SPELL_EFFECT_LAUNCH_QUEST_TASK
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 208 SPELL_EFFECT_208
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 209 SPELL_EFFECT_209
@@ -994,7 +995,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
     }
 
     SpellName = spellEntry->Name_lang;
-    Rank = nullptr;
     RuneCostID = spellEntry->RuneCostID;
     SpellDifficultyId = 0;
     SpellScalingId = spellEntry->ScalingID;
@@ -1053,9 +1053,14 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntryMap const& ef
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
+    SpellProcsPerMinuteEntry const* _ppm = _options ? sSpellProcsPerMinuteStore.LookupEntry(_options->SpellProcsPerMinuteID) : nullptr;
     ProcFlags = _options ? _options->ProcTypeMask : 0;
     ProcChance = _options ? _options->ProcChance : 0;
     ProcCharges = _options ? _options->ProcCharges : 0;
+    ProcCooldown = _options ? _options->ProcCategoryRecovery : 0;
+    ProcBasePPM = _ppm ? _ppm->BaseProcRate : 0.0f;
+    if (_options)
+        ProcPPMMods = sDB2Manager.GetSpellProcsPerMinuteMods(_options->SpellProcsPerMinuteID);
     StackAmount = _options ? _options->CumulativeAura : 0;
 
     // SpellAuraRestrictionsEntry
@@ -1252,22 +1257,6 @@ bool SpellInfo::IsQuestTame() const
     return effect0 && effect1 && effect0->Effect == SPELL_EFFECT_THREAT && effect1->Effect == SPELL_EFFECT_APPLY_AURA && effect1->ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
-bool SpellInfo::IsProfessionOrRiding(uint32 difficulty) const
-{
-    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    for (SpellEffectInfo const* effect : effects)
-    {
-        if ((effect && effect->Effect == SPELL_EFFECT_SKILL))
-        {
-            uint32 skill = effect->MiscValue;
-
-            if (IsProfessionOrRidingSkill(skill))
-                return true;
-        }
-    }
-    return false;
-}
-
 bool SpellInfo::IsProfession(uint32 difficulty) const
 {
     SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
@@ -1303,23 +1292,6 @@ bool SpellInfo::IsPrimaryProfession(uint32 difficulty) const
 bool SpellInfo::IsPrimaryProfessionFirstRank(uint32 difficulty) const
 {
     return IsPrimaryProfession(difficulty) && GetRank() == 1;
-}
-
-bool SpellInfo::IsAbilityLearnedWithProfession() const
-{
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-    {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            continue;
-
-        if (pAbility->MinSkillLineRank > 0)
-            return true;
-    }
-
-    return false;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -1418,12 +1390,6 @@ bool SpellInfo::IsAutocastable() const
 bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
-        return false;
-
-    if (IsProfessionOrRiding())
-        return false;
-
-    if (IsAbilityLearnedWithProfession())
         return false;
 
     // All stance spells. if any better way, change it.
@@ -2747,6 +2713,129 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
     return costs;
 }
 
+inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    float haste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+    float rangedHaste = caster->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
+    float spellHaste = caster->GetFloatValue(UNIT_MOD_CAST_HASTE);
+    float regenHaste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return (1.0f / haste - 1.0f) * mod->Coeff;
+        case 2:
+            return (1.0f / rangedHaste - 1.0f) * mod->Coeff;
+        case 3:
+            return (1.0f / spellHaste - 1.0f) * mod->Coeff;
+        case 4:
+            return (1.0f / regenHaste - 1.0f) * mod->Coeff;
+        case 5:
+            return (1.0f / std::min(std::min(std::min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod->Coeff;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return 0.0f;
+
+    float crit = caster->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return crit * mod->Coeff * 0.01f;
+        case 2:
+            return rangedCrit * mod->Coeff * 0.01f;
+        case 3:
+            return spellCrit * mod->Coeff * 0.01f;
+        case 4:
+            return std::min(std::min(crit, rangedCrit), spellCrit) * mod->Coeff * 0.01f;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 itemLevel)
+{
+    if (uint32(itemLevel) == mod->Param)
+        return 0.0f;
+
+    float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    if (itemLevelPoints == basePoints)
+        return 0.0f;
+
+    return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
+}
+
+float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
+{
+    float ppm = ProcBasePPM;
+    if (!caster)
+        return ppm;
+
+    for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
+    {
+        switch (mod->Type)
+        {
+            case SPELL_PPM_MOD_HASTE:
+            {
+                ppm *= 1.0f + CalcPPMHasteMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CRIT:
+            {
+                ppm *= 1.0f + CalcPPMCritMod(mod, caster);
+                break;
+            }
+            case SPELL_PPM_MOD_CLASS:
+            {
+                if (caster->getClassMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_SPEC:
+            {
+                if (Player* plrCaster = caster->ToPlayer())
+                    if (plrCaster->GetSpecId(plrCaster->GetActiveTalentGroup()) == mod->Param)
+                        ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_RACE:
+            {
+                if (caster->getRaceMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_ITEM_LEVEL:
+            {
+                ppm *= 1.0f + CalcPPMItemLevelMod(mod, itemLevel);
+                break;
+            }
+            case SPELL_PPM_MOD_BATTLEGROUND:
+            {
+                if (caster->GetMap()->IsBattlegroundOrArena())
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    return ppm;
+}
+
 bool SpellInfo::IsRanked() const
 {
     return ChainEntry != NULL;
@@ -2765,18 +2854,21 @@ SpellInfo const* SpellInfo::GetFirstRankSpell() const
         return this;
     return ChainEntry->first;
 }
+
 SpellInfo const* SpellInfo::GetLastRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->last;
 }
+
 SpellInfo const* SpellInfo::GetNextRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->next;
 }
+
 SpellInfo const* SpellInfo::GetPrevRankSpell() const
 {
     if (!ChainEntry)
