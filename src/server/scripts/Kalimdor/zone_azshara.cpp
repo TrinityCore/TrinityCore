@@ -404,7 +404,7 @@ public:
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetHover(true);
                     me->SetSwim(true);
-                    me->SetSpeed(MOVE_RUN, 0.85f, true);
+                    me->SetSpeedRate(MOVE_RUN, 0.85f);
                     me->GetMotionMaster()->MovementExpired();
                     me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
                     Escape = true;

@@ -81,7 +81,7 @@ class UnitBaseEvent
 
 //==============================================================
 
-class ThreatRefStatusChangeEvent : public UnitBaseEvent
+class TC_GAME_API ThreatRefStatusChangeEvent : public UnitBaseEvent
 {
     private:
         HostileReference* iHostileReference;

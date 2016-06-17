@@ -22,7 +22,7 @@
  */
 
 #include "Player.h"
-#include "UnitAI.h"
+#include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -30,6 +30,13 @@
 
 enum DeathKnightSpells
 {
+    SPELL_DK_ACCLIMATION_HOLY                   = 50490,
+    SPELL_DK_ACCLIMATION_FIRE                   = 50362,
+    SPELL_DK_ACCLIMATION_FROST                  = 50485,
+    SPELL_DK_ACCLIMATION_ARCANE                 = 50486,
+    SPELL_DK_ACCLIMATION_SHADOW                 = 50489,
+    SPELL_DK_ACCLIMATION_NATURE                 = 50488,
+    SPELL_DK_ADVANTAGE_T10_4P_MELEE             = 70657,
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
@@ -51,6 +58,7 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
     SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1        = 50391,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL       = 50475,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
@@ -65,8 +73,6 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_RAISE_ALLY_INITIAL                 = 61999,
-    SPELL_DK_RAISE_ALLY                         = 46619,
     SPELL_DK_GHOUL_THRASH                       = 47480
 };
 
@@ -78,6 +84,141 @@ enum DeathKnightSpellIcons
 enum Misc
 {
     NPC_DK_GHOUL                                = 26125
+};
+
+// -49200 - Acclimation
+class spell_dk_acclimation : public SpellScriptLoader
+{
+public:
+    spell_dk_acclimation() : SpellScriptLoader("spell_dk_acclimation") { }
+
+    class spell_dk_acclimation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_acclimation_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_HOLY) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_FIRE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_FROST) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_NATURE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_SHADOW) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DK_ACCLIMATION_ARCANE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetDamageInfo())
+            {
+                switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_HOLY:
+                    case SPELL_SCHOOL_FIRE:
+                    case SPELL_SCHOOL_NATURE:
+                    case SPELL_SCHOOL_FROST:
+                    case SPELL_SCHOOL_SHADOW:
+                    case SPELL_SCHOOL_ARCANE:
+                        return true;
+                    default:
+                        break;
+                }
+            }
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            uint32 triggerspell = 0;
+
+            switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+            {
+                case SPELL_SCHOOL_HOLY:
+                    triggerspell = SPELL_DK_ACCLIMATION_HOLY;
+                    break;
+                case SPELL_SCHOOL_FIRE:
+                    triggerspell = SPELL_DK_ACCLIMATION_FIRE;
+                    break;
+                case SPELL_SCHOOL_NATURE:
+                    triggerspell = SPELL_DK_ACCLIMATION_NATURE;
+                    break;
+                case SPELL_SCHOOL_FROST:
+                    triggerspell = SPELL_DK_ACCLIMATION_FROST;
+                    break;
+                case SPELL_SCHOOL_SHADOW:
+                    triggerspell = SPELL_DK_ACCLIMATION_SHADOW;
+                    break;
+                case SPELL_SCHOOL_ARCANE:
+                    triggerspell = SPELL_DK_ACCLIMATION_ARCANE;
+                    break;
+                default:
+                    return;
+            }
+
+            if (Unit* target = eventInfo.GetActionTarget())
+                target->CastSpell(target, triggerspell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_acclimation_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dk_acclimation_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_acclimation_AuraScript();
+    }
+};
+
+// 70656 - Advantage (T10 4P Melee Bonus)
+class spell_dk_advantage_t10_4p : public SpellScriptLoader
+{
+public:
+    spell_dk_advantage_t10_4p() : SpellScriptLoader("spell_dk_advantage_t10_4p") { }
+
+    class spell_dk_advantage_t10_4p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_advantage_t10_4p_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_ADVANTAGE_T10_4P_MELEE))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (Unit* caster = eventInfo.GetActor())
+            {
+                if (caster->GetTypeId() != TYPEID_PLAYER || caster->getClass() != CLASS_DEATH_KNIGHT)
+                    return false;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    if (caster->ToPlayer()->GetRuneCooldown(i) == 0)
+                        return false;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_advantage_t10_4p_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_advantage_t10_4p_AuraScript();
+    }
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -228,7 +369,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                SpellInfo const* talentSpell = sSpellMgr->EnsureSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
+                SpellInfo const* talentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
                 if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
@@ -919,6 +1060,52 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
         {
             return new spell_dk_improved_blood_presence_AuraScript();
         }
+};
+
+// 63611 - Improved Blood Presence Triggered
+class spell_dk_improved_blood_presence_triggered : public SpellScriptLoader
+{
+public:
+    spell_dk_improved_blood_presence_triggered() : SpellScriptLoader("spell_dk_improved_blood_presence_triggered") { }
+
+    class spell_dk_improved_blood_presence_triggered_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_improved_blood_presence_triggered_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER)
+                return true;
+
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL, SPELLVALUE_BASE_POINT0, CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()),
+                    eventInfo.GetActor(), true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_improved_blood_presence_triggered_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_dk_improved_blood_presence_triggered_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_improved_blood_presence_triggered_AuraScript();
+    }
 };
 
 // -50384 - Improved Frost Presence
@@ -1636,7 +1823,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
             {
                 // min pct of hp is stored in effect 0 of talent spell
                 uint8 rank = GetSpellInfo()->GetRank();
-                SpellInfo const* talentProto = sSpellMgr->EnsureSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
+                SpellInfo const* talentProto = sSpellMgr->AssertSpellInfo(sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
 
                 int32 remainingHp = int32(GetTarget()->GetHealth() - dmgInfo.GetDamage());
                 int32 minHp = int32(GetTarget()->CountPctFromMaxHealth(talentProto->Effects[EFFECT_0].CalcValue(GetCaster())));
@@ -1733,36 +1920,39 @@ public:
     {
         PrepareSpellScript(spell_dk_raise_ally_initial_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY_INITIAL))
+            if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_0].CalcValue())))
                 return false;
             return true;
         }
 
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
         SpellCastResult CheckCast()
         {
-            // Raise Ally cannot be casted on alive players
             Unit* target = GetExplTargetUnit();
             if (!target)
                 return SPELL_FAILED_NO_VALID_TARGETS;
             if (target->IsAlive())
                 return SPELL_FAILED_TARGET_NOT_DEAD;
-            if (Player* playerCaster = GetCaster()->ToPlayer())
-                if (playerCaster->InArena())
-                    return SPELL_FAILED_NOT_IN_ARENA;
             if (target->IsGhouled())
                 return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
             return SPELL_CAST_OK;
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Player* caster = GetCaster()->ToPlayer();
-            Player* target = GetHitPlayer();
-            if (caster && target)
-                caster->SendGhoulResurrectRequest(target);
+            if (Player* target = GetHitPlayer())
+            {
+                if (target->IsResurrectRequested()) // already have one active request
+                    return;
+                target->SetResurrectRequestData(GetCaster(), 0, 0, uint32(GetEffectValue()));
+                GetSpell()->SendResurrectRequest(target);
+            }
         }
 
         void Register() override
@@ -1785,12 +1975,8 @@ class player_ghoulAI : public PlayerAI
 
         void UpdateAI(uint32 /*diff*/) override
         {
-            if (Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID))
-            {
-                if (!ghoul->IsAlive())
-                    me->RemoveAura(SPELL_DK_RAISE_ALLY);
-            }
-            else
+            Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID);
+            if (!ghoul || !ghoul->IsAlive())
                 me->RemoveAura(SPELL_DK_RAISE_ALLY);
         }
 
@@ -1799,28 +1985,25 @@ class player_ghoulAI : public PlayerAI
 };
 
 // 46619 - Raise Ally
+#define DkRaiseAllyScriptName "spell_dk_raise_ally"
 class spell_dk_raise_ally : public SpellScriptLoader
 {
 public:
-    spell_dk_raise_ally() : SpellScriptLoader("spell_dk_raise_ally") { }
+    spell_dk_raise_ally() : SpellScriptLoader(DkRaiseAllyScriptName) { }
 
     class spell_dk_raise_ally_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_dk_raise_ally_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Load() override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
-                return false;
-            return true;
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
 
         void SendText()
         {
-            Player* caster = GetCaster()->ToPlayer();
-            Unit* original = GetOriginalCaster();
-            if (caster && original)
-                original->Whisper(TEXT_RISE_ALLY, caster, true);
+            if (Unit* original = GetOriginalCaster())
+                original->Whisper(TEXT_RISE_ALLY, GetCaster()->ToPlayer(), true);
         }
 
         void HandleSummon(SpellEffIndex effIndex)
@@ -1839,9 +2022,8 @@ public:
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(829);
 
             uint32 duration = uint32(GetSpellInfo()->GetDuration());
-            Position pos = caster->GetPosition();
 
-            TempSummon* summon = originalCaster->GetMap()->SummonCreature(entry, pos, properties, duration, originalCaster, GetSpellInfo()->Id);
+            TempSummon* summon = originalCaster->GetMap()->SummonCreature(entry, *GetHitDest(), properties, duration, originalCaster, GetSpellInfo()->Id);
             if (!summon)
                 return;
 
@@ -1868,15 +2050,25 @@ public:
             // SMSG_POWER_UPDATE is sent
             summon->SetMaxPower(POWER_ENERGY, 100);
 
-            if (Player* player = GetCaster()->ToPlayer())
-                player->SetGhoulResurrectGhoulGUID(summon->GetGUID());
+            _ghoulGuid = summon->GetGUID();
+        }
+
+        void SetGhoul(SpellEffIndex /*effIndex*/)
+        {
+            if (Aura* aura = GetHitAura())
+                if (spell_dk_raise_ally_AuraScript* script = dynamic_cast<spell_dk_raise_ally_AuraScript*>(aura->GetScriptByName(DkRaiseAllyScriptName)))
+                    script->SetGhoulGuid(_ghoulGuid);
         }
 
         void Register() override
         {
             AfterHit += SpellHitFn(spell_dk_raise_ally_SpellScript::SendText);
             OnEffectHit += SpellEffectFn(spell_dk_raise_ally_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_raise_ally_SpellScript::SetGhoul, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
         }
+
+    private:
+        ObjectGuid _ghoulGuid;
     };
 
     SpellScript* GetSpellScript() const override
@@ -1895,45 +2087,45 @@ public:
             oldAIState = false;
         }
 
-    private:
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        void SetGhoulGuid(ObjectGuid guid)
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RAISE_ALLY))
-                return false;
-            return true;
+            ghoulGuid = guid;
+        }
+
+    private:
+        bool Load() override
+        {
+            return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
-            if (!player || player->GetGhoulResurrectGhoulGUID().IsEmpty())
+            if (ghoulGuid.IsEmpty())
                 return;
 
-            oldAI = player->GetAI();
+            oldAI = player->AI();
             oldAIState = player->IsAIEnabled;
-            player->SetAI(new player_ghoulAI(player, player->GetGhoulResurrectGhoulGUID()));
+            player->SetAI(new player_ghoulAI(player, ghoulGuid));
             player->IsAIEnabled = true;
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
-            if (!player)
-                return;
 
             player->IsAIEnabled = oldAIState;
-            UnitAI* thisAI = player->GetAI();
+            PlayerAI* thisAI = player->AI();
             player->SetAI(oldAI);
             delete thisAI;
 
             // Dismiss ghoul if necessary
-            if (Creature* ghoul = ObjectAccessor::GetCreature(*player, player->GetGhoulResurrectGhoulGUID()))
+            if (Creature* ghoul = ObjectAccessor::GetCreature(*player, ghoulGuid))
             {
-                ghoul->RemoveCharmedBy(nullptr);
+                ghoul->RemoveCharmedBy(player);
                 ghoul->DespawnOrUnsummon(1000);
             }
 
-            player->SetGhoulResurrectGhoulGUID(ObjectGuid::Empty);
             player->RemoveAura(SPELL_GHOUL_FRENZY);
         }
 
@@ -1943,7 +2135,8 @@ public:
             AfterEffectRemove += AuraEffectRemoveFn(spell_dk_raise_ally_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
 
-        UnitAI* oldAI;
+        ObjectGuid ghoulGuid;
+        PlayerAI* oldAI;
         bool oldAIState;
     };
 
@@ -1965,7 +2158,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_GHOUL_THRASH))
+            if (!sSpellMgr->GetSpellInfo(SPELL_GHOUL_FRENZY))
                 return false;
             return true;
         }
@@ -2002,6 +2195,8 @@ public:
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_acclimation();
+    new spell_dk_advantage_t10_4p();
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
@@ -2018,6 +2213,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_ghoul_explode();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
+    new spell_dk_improved_blood_presence_triggered();
     new spell_dk_improved_frost_presence();
     new spell_dk_improved_unholy_presence();
     new spell_dk_pestilence();

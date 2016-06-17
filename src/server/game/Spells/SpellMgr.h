@@ -266,7 +266,7 @@ enum ProcFlagsHit
     PROC_HIT_REFLECT             = 0x0000800,
     PROC_HIT_INTERRUPT           = 0x0001000, // (not used atm)
     PROC_HIT_FULL_BLOCK          = 0x0002000,
-    PROC_HIT_MASK_ALL            = 0x2FFF
+    PROC_HIT_MASK_ALL            = 0x0002FFF
 };
 
 enum ProcAttributes
@@ -290,18 +290,18 @@ typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
 
 struct SpellProcEntry
 {
-    uint32      schoolMask;                                 // if nonzero - bitmask for matching proc condition based on spell's school
-    uint32      spellFamilyName;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
-    flag96      spellFamilyMask;                            // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
-    uint32      typeMask;                                   // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
-    uint32      spellTypeMask;                              // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
-    uint32      spellPhaseMask;                             // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
-    uint32      hitMask;                                    // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-    uint32      attributesMask;                             // bitmask, see ProcAttributes
-    float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
-    float       chance;                                     // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if perMinuteRate set
-    uint32      cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
-    uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
+    uint32 SchoolMask;      // if nonzero - bitmask for matching proc condition based on spell's school
+    uint32 SpellFamilyName; // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
+    flag96 SpellFamilyMask; // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
+    uint32 ProcFlags;       // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
+    uint32 SpellTypeMask;   // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
+    uint32 SpellPhaseMask;  // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
+    uint32 HitMask;         // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32 AttributesMask;  // bitmask, see ProcAttributes
+    float ProcsPerMinute;   // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    float Chance;           // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if ProcsPerMinute set
+    Milliseconds Cooldown;  // if nonzero - cooldown in secs for aura proc, applied to aura
+    uint32 Charges;         // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
 typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
@@ -441,7 +441,7 @@ enum EffectRadiusIndex
 };
 
 // Spell pet auras
-class PetAura
+class TC_GAME_API PetAura
 {
     private:
         typedef std::unordered_map<uint32, uint32> PetAuraMap;
@@ -488,7 +488,7 @@ class PetAura
 };
 typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
-struct SpellArea
+struct TC_GAME_API SpellArea
 {
     uint32 spellId;
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
@@ -593,13 +593,13 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
-DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
-DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+TC_GAME_API DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
+TC_GAME_API DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
+TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
+TC_GAME_API int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
+TC_GAME_API bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
-class SpellMgr
+class TC_GAME_API SpellMgr
 {
     // Constructors
     private:
@@ -608,11 +608,7 @@ class SpellMgr
 
     // Accessors (const or static functions)
     public:
-        static SpellMgr* instance()
-        {
-            static SpellMgr instance;
-            return &instance;
-        }
+        static SpellMgr* instance();
 
         // Spell correctness for client using
         static bool IsSpellValid(SpellInfo const* spellInfo, Player* player = NULL, bool msg = true);
@@ -696,7 +692,7 @@ class SpellMgr
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         // Use this only with 100% valid spellIds
-        SpellInfo const* EnsureSpellInfo(uint32 spellId) const
+        SpellInfo const* AssertSpellInfo(uint32 spellId) const
         {
             ASSERT(spellId < GetSpellInfoStoreSize());
             SpellInfo const* spellInfo = mSpellInfoMap[spellId];

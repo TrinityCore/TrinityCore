@@ -203,7 +203,7 @@ enum ItemUpdateState
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
-class Item : public Object
+class TC_GAME_API Item : public Object
 {
     public:
         static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);

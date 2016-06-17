@@ -90,7 +90,7 @@ class ZoneScript;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
-class Object
+class TC_GAME_API Object
 {
     public:
         virtual ~Object();
@@ -160,6 +160,7 @@ class Object
         void RemoveByteFlag(uint16 index, uint8 offset, uint8 newFlag);
         void ToggleByteFlag(uint16 index, uint8 offset, uint8 flag);
         bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const;
+        void ApplyModByteFlag(uint16 index, uint8 offset, uint8 flag, bool apply);
 
         void SetFlag64(uint16 index, uint64 newFlag);
         void RemoveFlag64(uint16 index, uint64 oldFlag);
@@ -397,7 +398,7 @@ enum MapObjectCellMoveState
     MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
 };
 
-class MapObject
+class TC_GAME_API MapObject
 {
         friend class Map; //map for moving creatures
         friend class ObjectGridLoader; //grid loader for loading creatures
@@ -422,7 +423,7 @@ class MapObject
         }
 };
 
-class WorldObject : public Object, public WorldLocation
+class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
         explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
@@ -487,6 +488,8 @@ class WorldObject : public Object, public WorldLocation
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinLOS(float x, float y, float z) const;
         bool IsWithinLOSInMap(WorldObject const* obj) const;
+        Position GetHitSpherePointFor(Position const& dest) const;
+        void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
@@ -549,12 +552,17 @@ class WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
         void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
+        virtual void UpdateObjectVisibilityOnCreate()
+        {
+            UpdateObjectVisibility(true);
+        }
+
         void BuildUpdate(UpdateDataMapType&) override;
 
         void AddToObjectUpdate() override;
@@ -577,14 +585,6 @@ class WorldObject : public Object, public WorldLocation
         template<class NOTIFIER> void VisitNearbyObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyGridObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyWorldObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
-
-#ifdef MAP_BASED_RAND_GEN
-        int32 irand(int32 min, int32 max) const     { return int32 (GetMap()->mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max) const  { return GetMap()->mtRand.randInt(max - min) + min;}
-        int32 rand32() const                        { return GetMap()->mtRand.randInt();}
-        double rand_norm() const                    { return GetMap()->mtRand.randExc();}
-        double rand_chance() const                  { return GetMap()->mtRand.randExc(100.0);}
-#endif
 
         uint32  LastUsedScriptID;
 

@@ -91,7 +91,7 @@ public:
             { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesDisenchantCommand,    "" },
             { "event_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS,                    true,  &HandleReloadEventScriptsCommand,               "" },
             { "fishing_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE,            true,  &HandleReloadLootTemplatesFishingCommand,       "" },
-            { "game_graveyard_zone",           rbac::RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE,              true,  &HandleReloadGameGraveyardZoneCommand,          "" },
+            { "graveyard_zone",                rbac::RBAC_PERM_COMMAND_RELOAD_GRAVEYARD_ZONE,                   true,  &HandleReloadGameGraveyardZoneCommand,          "" },
             { "game_tele",                     rbac::RBAC_PERM_COMMAND_RELOAD_GAME_TELE,                        true,  &HandleReloadGameTeleCommand,                   "" },
             { "gameobject_questender",         rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER,            true,  &HandleReloadGOQuestEnderCommand,               "" },
             { "gameobject_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE,   true,  &HandleReloadLootTemplatesGameobjectCommand,    "" },
@@ -251,7 +251,7 @@ public:
 
     static bool HandleReloadAllScriptsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->PSendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -393,7 +393,7 @@ public:
 
     static bool HandleReloadCommandCommand(ChatHandler* handler, const char* /*args*/)
     {
-        handler->SetLoadCommandTable(true);
+        ChatHandler::invalidateCommandTable();
         handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
         return true;
     }
@@ -893,7 +893,7 @@ public:
 
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -913,7 +913,7 @@ public:
 
     static bool HandleReloadWpScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);
@@ -946,7 +946,7 @@ public:
 
     static bool HandleReloadSpellScriptsCommand(ChatHandler* handler, const char* args)
     {
-        if (sScriptMgr->IsScriptScheduled())
+        if (sMapMgr->IsScriptScheduled())
         {
             handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
             handler->SetSentErrorMessage(true);

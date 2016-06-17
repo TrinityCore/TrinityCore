@@ -43,12 +43,11 @@ enum Encounter
 
 enum Data
 {
-    DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
-    DATA_SAPPHIRON_BIRTH,
     DATA_HAD_ANUBREKHAN_GREET,
     DATA_HAD_FAERLINA_GREET,
     DATA_HAD_THADDIUS_GREET,
+    DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
     DATA_ABOMINATION_KILLED,
@@ -69,10 +68,12 @@ enum Data64
     DATA_LADY,
     DATA_BARON,
     DATA_SIR,
+    DATA_GLUTH,
     DATA_THADDIUS,
     DATA_HEIGAN,
     DATA_FEUGEN,
     DATA_STALAGG,
+    DATA_SAPPHIRON,
     DATA_KELTHUZAD,
     DATA_KELTHUZAD_PORTAL01,
     DATA_KELTHUZAD_PORTAL02,
@@ -92,6 +93,7 @@ enum CreaturesIds
     NPC_LADY                    = 16065,
     NPC_BARON                   = 30549,
     NPC_SIR                     = 16063,
+    NPC_GLUTH                   = 15932,
     NPC_HEIGAN                  = 15936,
     NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
@@ -105,7 +107,8 @@ enum CreaturesIds
     NPC_DK_UNDERSTUDY           = 16803,
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
-    NPC_OLD_WORLD_TRIGGER       = 15384
+    NPC_OLD_WORLD_TRIGGER       = 15384,
+    NPC_FROGGER                 = 16027
 };
 
 enum GameObjectsIds
@@ -158,12 +161,6 @@ enum GameObjectsIds
     GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
-enum SpellIds
-{
-    SPELL_ERUPTION              = 29371,
-    SPELL_SLIME                 = 28801
-};
-
 enum InstanceEvents
 {
     // Dialogue that happens after Gothik's death.
@@ -176,12 +173,11 @@ enum InstanceEvents
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ2,
     EVENT_DIALOGUE_GOTHIK_RIVENDARE2,
 
-    // Thaddius AI requesting timed encounter (re-)spawn
-    EVENT_THADDIUS_BEGIN_RESET,
-    EVENT_THADDIUS_RESET,
-
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
+
+    // Periodic Frogger summon
+    EVENT_SUMMON_FROGGER_WAVE,
 
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,

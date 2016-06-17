@@ -12,6 +12,7 @@
 #    SERVER LOGGING
 #    SERVER SETTINGS
 #    UPDATE SETTINGS
+#    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
@@ -33,6 +34,7 @@
 #    AUCTION HOUSE BOT BUYER CONFIG
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
+#    METRIC SETTINGS
 #
 ###################################################################################################
 
@@ -161,6 +163,45 @@ BindIP = "0.0.0.0"
 ThreadPool = 2
 
 #
+#    CMakeCommand
+#        Description: The path to your CMake binary.
+#                     If the path is left empty, the built-in CMAKE_COMMAND is used.
+#        Example:     "C:/Program Files (x86)/CMake/bin/cmake.exe"
+#                     "/usr/bin/cmake"
+#        Default:     ""
+
+CMakeCommand  = ""
+
+#
+#    BuildDirectory
+#        Description: The path to your build directory.
+#                     If the path is left empty, the built-in CMAKE_BINARY_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+BuildDirectory  = ""
+
+#
+#    SourceDirectory
+#        Description: The path to your TrinityCore source directory.
+#                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+SourceDirectory  = ""
+
+#
+#    MySQLExecutable
+#        Description: The path to your mysql cli binary.
+#                     If the path is left empty, built-in path from cmake is used.
+#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "mysql.exe"
+#                     "/usr/bin/mysql"
+#        Default:     ""
+
+MySQLExecutable = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -231,6 +272,25 @@ MaxOverspeedPings = 2
 GridUnload = 1
 
 #
+#    BaseMapLoadAllGrids
+#        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
+#                     This will take around 5GB of ram upon server load, and will take some time
+#                     to initially load the server.
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in all base maps upon load)
+
+BaseMapLoadAllGrids = 0
+
+#
+#    InstanceMapLoadAllGrids
+#        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
+#                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
+#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#                     1 - (Preload all grids in the instance upon load)
+
+InstanceMapLoadAllGrids = 0
+
+#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
@@ -289,6 +349,13 @@ PlayerSave.Stats.MinLevel = 0
 #                     0 - (Disabled, Save on every player save)
 
 PlayerSave.Stats.SaveOnlyOnLogout = 1
+
+#
+#    DisconnectToleranceInterval
+#        Description: Tolerance (in seconds) for disconnected players before reentering the queue.
+#        Default: 0 (disabled)
+
+DisconnectToleranceInterval = 0
 
 #
 #    mmap.enablePathFinding
@@ -404,6 +471,24 @@ CleanCharacterDB = 0
 #        Default:     0  - (All cleanup methods will be disabled after the next cleanup)
 
 PersistentCharacterCleanFlags = 0
+
+#
+#    Auction.GetAllScanDelay
+#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#                     The value is only held in memory so a server restart will clear it.
+#                     Setting this to zero, will disable GetAll functions completely.
+#        Default:     900 - (GetAll scan limited to once every 15mins per player character)
+
+Auction.GetAllScanDelay = 900
+
+#
+#    Auction.SearchDelay
+#        Description: Sets the minimum time in milliseconds (seconds x 1000), that the client must wait between
+#                     auction search operations. This can be increased if somehow Auction House activity is causing
+#                     too much load.
+#        Default:     300 - (Time delay between auction searches set to 0.3secs)
+
+Auction.SearchDelay = 300
 
 #
 ###################################################################################################
@@ -641,7 +726,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     2    - (Disabled, Paladin)
 #                     4    - (Disabled, Hunter)
 #                     8    - (Disabled, Rogue)
-#                     16   - (Disabled, Undead)
+#                     16   - (Disabled, Priest)
 #                     32   - (Disabled, Death Knight)
 #                     64   - (Disabled, Shaman)
 #                     128  - (Disabled, Mage)
@@ -1043,9 +1128,8 @@ BeepAtStart = 1
 
 #
 #    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
+#        Description: Message of the Day, displayed at login. Use '@' for a newline.
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
 Motd = "Welcome to a Trinity Core server."
@@ -1149,26 +1233,6 @@ BirthdayTime = 1222964635
 Updates.EnableDatabases = 7
 
 #
-#    Updates.SourcePath
-#        Description: The path to your TrinityCore source directory.
-#                     If the path is left empty, built-in CMAKE_SOURCE_DIR is used.
-#        Example:     "../TrinityCore"
-#        Default:     ""
-
-Updates.SourcePath  = ""
-
-#
-#    Updates.MySqlCLIPath
-#        Description: The path to your mysql cli binary.
-#                     If the path is left empty, built-in path from cmake is used.
-#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
-#                     "mysql.exe"
-#                     "/usr/bin/mysql"
-#        Default:     ""
-
-Updates.MySqlCLIPath = ""
-
-#
 #    Updates.AutoSetup
 #        Description: Auto populate empty databases.
 #        Default:     1 - (Enabled)
@@ -1213,6 +1277,78 @@ Updates.AllowRehash = 1
 #                    -1 - (Enabled - unlimited)
 
 Updates.CleanDeadRefMaxCount = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+# HOTSWAP SETTINGS
+#
+#    HotSwap.Enabled (Requires compilation with DYNAMIC_LINKING=1)
+#        Description: Enables dynamic script hotswapping.
+#                     Reloads scripts on changes.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.Enabled = 1
+
+#
+#    HotSwap.ScriptDir
+#        Description: Directory containing the script shared libraries (.dll/.so).
+#        Example:     "/usr/local/scripts"
+#        Default:     "scripts"
+
+HotSwap.ScriptDir = "scripts"
+
+#    HotSwap.EnableReCompiler
+#        Description: Enables the dynamic script recompiler.
+#                     Watches your script source directories and recompiles the
+#                     script modules on changes.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableReCompiler = 1
+
+#    HotSwap.EnableEarlyTermination
+#        Description: Terminate the build of a module when an associated
+#                     source file was changed meanwhile.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableEarlyTermination = 1
+
+#    HotSwap.EnableBuildFileRecreation
+#        Description: Recreate build files when sources to a module
+#                     were added or removed.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableBuildFileRecreation = 1
+
+#
+#    HotSwap.EnableInstall
+#        Description: Enables cmake install after automatic builds have finished
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableInstall = 1
+
+#
+#    HotSwap.EnablePrefixCorrection
+#        Description: Allows the core to automatic set the CMAKE_INSTALL_PREFIX
+#                     to it's current location in the filesystem.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnablePrefixCorrection = 1
+
+#    HotSwap.ReCompilerBuildType
+#        Description: Defines the build type of the builds invoked by the recompiler.
+#        Default:     "" - Built-in build type of the module is used.
+#                     "Release" - Release builds only
+#                     "Debug" - Debug builds only
+
+HotSwap.ReCompilerBuildType = ""
 
 #
 ###################################################################################################
@@ -1336,10 +1472,11 @@ AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
-#        Description: Allow inspecting characters from the opposing faction.
-#                     Doesn't affect characters in gamemaster mode.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Description: Allow/disallow inspecting other characters' talents.
+#                     Doesn't affect game master accounts.
+#                     2 - (Enabled for all characters)
+#        Default:     1 - (Enabled for characters of the same faction)
+#                     0 - (Talent inspecting is disabled)
 
 TalentsInspecting = 1
 
@@ -1520,6 +1657,14 @@ ListenRange.TextEmote = 40
 #        Default:     300
 
 ListenRange.Yell = 300
+
+#
+#    Creature.MovingStopTimeForPlayer
+#        Description: Time (in milliseconds) during which creature will not move after
+#                     interaction with player.
+#        Default: 180000
+
+Creature.MovingStopTimeForPlayer = 180000
 
 #
 ###################################################################################################
@@ -1731,6 +1876,13 @@ GM.LowerSecurity = 0
 #                     0  - (Disabled)
 
 GM.TicketSystem.ChanceOfGMSurvey = 50
+
+#
+#    GM.ForceShutdownThreshold
+#        Description: Minimum shutdown time in seconds before 'force' is required if other players are connected.
+#        Default:     30
+
+GM.ForceShutdownThreshold = 30
 
 #
 ###################################################################################################
@@ -2241,16 +2393,16 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-BattleGround.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 300000
 
 #
-#    BattleGround.PremadeGroupWaitForMatch
+#    Battleground.PremadeGroupWaitForMatch
 #        Description: Time (in milliseconds) a pre-made group has to wait for matching group of the
 #                     other faction.
 #        Default:     1800000 - (Enabled, 30 minutes)
 #                     0       - (Disabled, Not recommended)
 
-BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.PremadeGroupWaitForMatch = 1800000
 
 #
 #    Battleground.GiveXPForKills
@@ -2933,6 +3085,27 @@ AuctionHouseBot.MinTime = 1
 AuctionHouseBot.MaxTime = 72
 
 #
+#    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
+#       Description: Include items without a sell or buy price.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Class.Consumable.Allow.Zero = 0
+AuctionHouseBot.Class.Container.Allow.Zero = 0
+AuctionHouseBot.Class.Weapon.Allow.Zero = 0
+AuctionHouseBot.Class.Gem.Allow.Zero = 0
+AuctionHouseBot.Class.Armor.Allow.Zero = 0
+AuctionHouseBot.Class.Reagent.Allow.Zero = 0
+AuctionHouseBot.Class.Projectile.Allow.Zero = 0
+AuctionHouseBot.Class.TradeGood.Allow.Zero = 0
+AuctionHouseBot.Class.Recipe.Allow.Zero = 0
+AuctionHouseBot.Class.Quiver.Allow.Zero = 0
+AuctionHouseBot.Class.Quest.Allow.Zero = 0
+AuctionHouseBot.Class.Key.Allow.Zero = 0
+AuctionHouseBot.Class.Misc.Allow.Zero = 0
+AuctionHouseBot.Class.Glyph.Allow.Zero = 0
+
+#
 #    AuctionHouseBot.Items.Vendor
 #       Description: Include items that can be bought from vendors.
 #       Default:     0 - (Disabled)
@@ -3040,6 +3213,27 @@ AuctionHouseBot.Items.Orange.Price.Ratio = 100
 AuctionHouseBot.Items.Yellow.Price.Ratio = 100
 
 #
+#    AuctionHouseBot.Class.CLASS.Price.Ratio
+#       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
+#       Default:   100 - (No change)
+
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
+
+#
 #    AuctionHouseBot.Items.ItemLevel.*
 #       Description: Prevent seller from listing items below/above this item level
 #       Default:     0 - (Disabled)
@@ -3090,7 +3284,7 @@ AuctionHouseBot.Items.Amount.Yellow = 0
 #                    Armor: 8
 #                    Reagent: 1
 #                    Projectile: 2
-#                    TradeGod: 10
+#                    TradeGood: 10
 #                    Generic: 1
 #                    Recipe: 6
 #                    Quiver: 1
@@ -3403,8 +3597,10 @@ Appender.DBErrors=2,2,0,DBErrors.log
 Logger.root=5,Console Server
 Logger.server=3,Console Server
 Logger.commands.gm=3,Console GM
+Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
+Logger.mmaps=3,Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
@@ -3502,6 +3698,45 @@ PacketSpoof.BanMode = 0
 #
 
 PacketSpoof.BanDuration = 86400
+
+#
+###################################################################################################
+
+###################################################################################################
+# METRIC SETTINGS
+#
+# These settings control the statistics sent to the metric database (currently InfluxDB)
+#
+#    Metric.Enable
+#        Description: Enables statistics sent to the metric database.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Metric.Enable = 0
+
+#
+#    Metric.Interval
+#        Description: Interval between every batch of data sent in seconds
+#        Default:     10 seconds
+#
+
+Metric.Interval = 10
+
+#
+#    Metric.ConnectionInfo
+#        Description: Connection settings for metric database (currently InfluxDB).
+#        Example:     "hostname;port;database"
+#        Default:     "127.0.0.1;8086;worldserver"
+
+Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
+
+#
+#    Metric.OverallStatusInterval
+#        Description: Interval between every gathering of overall worldserver status data in seconds
+#        Default:     1 second
+#
+
+Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################

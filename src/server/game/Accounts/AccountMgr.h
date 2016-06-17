@@ -21,7 +21,7 @@
 
 #include "RBAC.h"
 
-enum AccountOpResult
+enum class AccountOpResult : uint8
 {
     AOR_OK,
     AOR_NAME_TOO_LONG,
@@ -39,6 +39,7 @@ enum PasswordChangeSecurity
     PW_RBAC
 };
 
+#define MAX_PASS_STR 16
 #define MAX_ACCOUNT_STR 16
 #define MAX_EMAIL_STR 64
 
@@ -48,20 +49,16 @@ typedef std::map<uint32, rbac::RBACPermission*> RBACPermissionsContainer;
 typedef std::map<uint8, rbac::RBACPermissionContainer> RBACDefaultPermissionsContainer;
 }
 
-class AccountMgr
+class TC_GAME_API AccountMgr
 {
     private:
         AccountMgr();
         ~AccountMgr();
 
     public:
-        static AccountMgr* instance()
-        {
-            static AccountMgr instance;
-            return &instance;
-        }
+        static AccountMgr* instance();
 
-        AccountOpResult CreateAccount(std::string username, std::string password, std::string email);
+        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "");
         static AccountOpResult DeleteAccount(uint32 accountId);
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
@@ -78,7 +75,6 @@ class AccountMgr
         static uint32 GetCharactersCount(uint32 accountId);
 
         static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
-        static bool normalizeString(std::string& utf8String);
         static bool IsPlayerAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);
         static bool IsConsoleAccount(uint32 gmlevel);

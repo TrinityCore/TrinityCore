@@ -430,6 +430,61 @@ class spell_gen_bandage : public SpellScriptLoader
         }
 };
 
+// Blood Reserve - 64568
+enum BloodReserve
+{
+    SPELL_GEN_BLOOD_RESERVE_AURA = 64568,
+    SPELL_GEN_BLOOD_RESERVE_HEAL = 64569
+};
+
+class spell_gen_blood_reserve : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_reserve() : SpellScriptLoader("spell_gen_blood_reserve") { }
+
+        class spell_gen_blood_reserve_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_reserve_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_BLOOD_RESERVE_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+                    if (Unit* caster = eventInfo.GetActionTarget())
+                        if (caster->HealthBelowPctDamaged(35, dmgInfo->GetDamage()))
+                            return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActionTarget();
+                caster->CastCustomSpell(SPELL_GEN_BLOOD_RESERVE_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->RemoveAura(SPELL_GEN_BLOOD_RESERVE_AURA);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_blood_reserve_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_blood_reserve_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_blood_reserve_AuraScript();
+        }
+};
+
 enum Bonked
 {
     SPELL_BONKED            = 62991,
@@ -1245,7 +1300,7 @@ class spell_gen_defend : public SpellScriptLoader
 
             void Register() override
             {
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 // Defend spells cast by NPCs (add visuals)
                 if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
@@ -1930,10 +1985,7 @@ class spell_gen_mount : public SpellScriptLoader
                     if (map == 530 || (map == 571 && target->HasSpell(SPELL_COLD_WEATHER_FLYING)))
                         canFly = true;
 
-                    float x, y, z;
-                    target->GetPosition(x, y, z);
-                    uint32 areaFlag = target->GetBaseMap()->GetAreaFlag(x, y, z);
-                    AreaTableEntry const* area = sAreaStore.LookupEntry(areaFlag);
+                    AreaTableEntry const* area = sAreaTableStore.LookupEntry(target->GetAreaId());
                     if (!area || (canFly && (area->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
@@ -2088,7 +2140,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         }
 
                         // If target isn't a training dummy there's a chance of failing the charge
-                        if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && roll_chance_f(12.5f))
+                        if (!target->IsCharmedOwnedByPlayerOrPlayer() && roll_chance_f(12.5f))
                             spellId = SPELL_CHARGE_MISS_EFFECT;
 
                         if (Unit* vehicle = GetCaster()->GetVehicleBase())
@@ -2151,7 +2203,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
 
             void Register() override
             {
-                SpellInfo const* spell = sSpellMgr->EnsureSpellInfo(m_scriptSpellId);
+                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
                 if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
                     OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
@@ -4158,6 +4210,40 @@ public:
     }
 };
 
+// 34098 - ClearAllDebuffs
+class spell_gen_clear_debuffs : public SpellScriptLoader
+{
+    public:
+        spell_gen_clear_debuffs() : SpellScriptLoader("spell_gen_clear_debuffs") { }
+
+        class spell_gen_clear_debuffs_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_clear_debuffs_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    target->RemoveOwnedAuras([](Aura const* aura)
+                    {
+                        SpellInfo const* spellInfo = aura->GetSpellInfo();
+                        return !spellInfo->IsPositive() && !spellInfo->IsPassive();
+                    });
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_clear_debuffs_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_clear_debuffs_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4168,6 +4254,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_service_uniform();
     new spell_gen_av_drekthar_presence();
     new spell_gen_bandage();
+    new spell_gen_blood_reserve();
     new spell_gen_bonked();
     new spell_gen_break_shield("spell_gen_break_shield");
     new spell_gen_break_shield("spell_gen_tournament_counterattack");
@@ -4244,4 +4331,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_stand();
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
+    new spell_gen_clear_debuffs();
 }

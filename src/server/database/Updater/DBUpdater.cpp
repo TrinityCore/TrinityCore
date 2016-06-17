@@ -21,57 +21,41 @@
 #include "UpdateFetcher.h"
 #include "DatabaseLoader.h"
 #include "Config.h"
+#include "BuiltInConfig.h"
+#include "StartProcess.h"
 
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
-#include <boost/process.hpp>
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/system/system_error.hpp>
 
-using namespace boost::process;
-using namespace boost::process::initializers;
-using namespace boost::iostreams;
-
-std::string DBUpdaterUtil::GetMySqlCli()
+std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
     if (!corrected_path().empty())
         return corrected_path();
     else
-    {
-        std::string const entry = sConfigMgr->GetStringDefault("Updates.MySqlCLIPath", "");
-        if (!entry.empty())
-            return entry;
-        else
-            return GitRevision::GetMySQLExecutable();
-    }
+        return BuiltInConfig::GetMySQLExecutable();
 }
 
 bool DBUpdaterUtil::CheckExecutable()
 {
-    boost::filesystem::path exe(GetMySqlCli());
+    boost::filesystem::path exe(GetCorrectedMySQLExecutable());
     if (!exists(exe))
     {
         exe.clear();
 
-        try
+        if (auto path = Trinity::SearchExecutableInPath("mysql"))
         {
-            exe = search_path("mysql");
-        }
-        catch (std::runtime_error&)
-        {
+            exe = std::move(*path);
+
+            if (!exe.empty() && exists(exe))
+            {
+                // Correct the path to the cli
+                corrected_path() = absolute(exe).generic_string();
+                return true;
+            }
         }
 
-        if (!exe.empty() && exists(exe))
-        {
-            // Correct the path to the cli
-            corrected_path() = absolute(exe).generic_string();
-            return true;
-        }
-
-        TC_LOG_FATAL("sql.updates", "Didn't find executeable mysql binary at \'%s\' or in path, correct the path in the *.conf (\"Updates.MySqlCLIPath\").",
+        TC_LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
             absolute(exe).generic_string().c_str());
 
         return false;
@@ -83,16 +67,6 @@ std::string& DBUpdaterUtil::corrected_path()
 {
     static std::string path;
     return path;
-}
-
-template<class T>
-std::string DBUpdater<T>::GetSourceDirectory()
-{
-    std::string const entry = sConfigMgr->GetStringDefault("Updates.SourcePath", "");
-    if (!entry.empty())
-        return entry;
-    else
-        return GitRevision::GetSourceDirectory();
 }
 
 // Auth Database
@@ -111,7 +85,8 @@ std::string DBUpdater<LoginDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<LoginDatabaseConnection>::GetBaseFile()
 {
-    return DBUpdater<LoginDatabaseConnection>::GetSourceDirectory() + "/sql/base/auth_database.sql";
+    return BuiltInConfig::GetSourceDirectory() +
+        "/sql/base/auth_database.sql";
 }
 
 template<>
@@ -169,7 +144,8 @@ std::string DBUpdater<CharacterDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetBaseFile()
 {
-    return DBUpdater<CharacterDatabaseConnection>::GetSourceDirectory() + "/sql/base/characters_database.sql";
+    return BuiltInConfig::GetSourceDirectory() +
+        "/sql/base/characters_database.sql";
 }
 
 template<>
@@ -202,7 +178,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     // Path of temp file
     static Path const temp("create_table.sql");
 
-    // Create temporary query to use external mysql cli
+    // Create temporary query to use external MySQL CLi
     std::ofstream file(temp.generic_string());
     if (!file.is_open())
     {
@@ -221,7 +197,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     }
     catch (UpdateException&)
     {
-        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Has the user `CREATE` priviliges?", pool.GetConnectionInfo()->database.c_str());
+        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
         boost::filesystem::remove(temp);
         return false;
     }
@@ -239,7 +215,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
 
     TC_LOG_INFO("sql.updates", "Updating %s database...", DBUpdater<T>::GetTableName().c_str());
 
-    Path const sourceDirectory(GetSourceDirectory());
+    Path const sourceDirectory(BuiltInConfig::GetSourceDirectory());
 
     if (!is_directory(sourceDirectory))
     {
@@ -304,7 +280,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
         {
             case LOCATION_REPOSITORY:
             {
-                TC_LOG_ERROR("sql.updates", ">> Base file \"%s\" is missing, try to clone the source again.",
+                TC_LOG_ERROR("sql.updates", ">> Base file \"%s\" is missing. Try fixing it by cloning the source again.",
                     base.generic_string().c_str());
 
                 break;
@@ -312,7 +288,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             case LOCATION_DOWNLOAD:
             {
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
-                    " and place it in your server directory.", base.filename().generic_string().c_str());
+                    " and place it in your worldserver directory.", base.filename().generic_string().c_str());
                 break;
             }
         }
@@ -379,7 +355,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     if (!std::isdigit(port_or_socket[0]))
     {
-        // We can't check here if host == "." because is named localhost if socket option is enabled
+        // We can't check if host == "." here, because it is named localhost if socket option is enabled
         args.push_back("-P0");
         args.push_back("--protocol=SOCKET");
         args.push_back("-S" + port_or_socket);
@@ -400,55 +376,20 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (!database.empty())
         args.push_back(database);
 
-    // ToDo: use the existing query in memory as virtual file if possible
-    file_descriptor_source source(path);
-
-    uint32 ret;
-    try
-    {
-        boost::process::pipe outPipe = create_pipe();
-        boost::process::pipe errPipe = create_pipe();
-
-        child c = execute(run_exe(
-                    boost::filesystem::absolute(DBUpdaterUtil::GetMySqlCli()).generic_string()),
-                    set_args(args), bind_stdin(source), throw_on_error(),
-                    bind_stdout(file_descriptor_sink(outPipe.sink, close_handle)),
-                    bind_stderr(file_descriptor_sink(errPipe.sink, close_handle)));
-
-        file_descriptor_source mysqlOutfd(outPipe.source, close_handle);
-        file_descriptor_source mysqlErrfd(errPipe.source, close_handle);
-
-        stream<file_descriptor_source> mysqlOutStream(mysqlOutfd);
-        stream<file_descriptor_source> mysqlErrStream(mysqlErrfd);
-
-        std::stringstream out;
-        std::stringstream err;
-
-        copy(mysqlOutStream, out);
-        copy(mysqlErrStream, err);
-
-        TC_LOG_INFO("sql.updates", "%s", out.str().c_str());
-        TC_LOG_ERROR("sql.updates", "%s", err.str().c_str());
-
-        ret = wait_for_exit(c);
-    }
-    catch (boost::system::system_error&)
-    {
-        ret = EXIT_FAILURE;
-    }
-
-    source.close();
+    // Invokes a mysql process which doesn't leak credentials to logs
+    int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
+                                 "sql.updates", path.generic_string(), true);
 
     if (ret != EXIT_SUCCESS)
     {
         TC_LOG_FATAL("sql.updates", "Applying of file \'%s\' to database \'%s\' failed!" \
-            " If you are an user pull the latest revision from the repository. If you are a developer fix your sql query.",
+            " If you are a user, pull the latest revision from the repository. If you are a developer, fix your sql query.",
             path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
 
         throw UpdateException("update failed");
     }
 }
 
-template class DBUpdater<LoginDatabaseConnection>;
-template class DBUpdater<WorldDatabaseConnection>;
-template class DBUpdater<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DBUpdater<LoginDatabaseConnection>;
+template class TC_DATABASE_API DBUpdater<WorldDatabaseConnection>;
+template class TC_DATABASE_API DBUpdater<CharacterDatabaseConnection>;

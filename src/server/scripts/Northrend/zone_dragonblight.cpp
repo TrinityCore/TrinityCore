@@ -360,7 +360,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 uint8    talkWing;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_commander_eligor_dawnbringerAI(creature);
         }
@@ -695,7 +695,7 @@ class npc_torturer_lecraft : public CreatureScript
                 ObjectGuid _playerGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_torturer_lecraftAI(creature);
         }

@@ -66,7 +66,6 @@ public:
         npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (who->GetEntry() == NPC_SMEED && me->IsWithinDistInMap(who, 10.0f) && !me->HasAura(SPELL_KODO_KOMBO_GOSSIP))
             {
@@ -90,7 +89,7 @@ public:
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
                     me->DeleteThreatList();
-                    me->SetSpeed(MOVE_RUN, 0.6f, true);
+                    me->SetSpeedRate(MOVE_RUN, 0.6f);
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
                 }
@@ -226,37 +225,9 @@ public:
     }
 };
 
-/*######
-## go_demon_portal
-######*/
-
-enum DemonPortal
-{
-    NPC_DEMON_GUARDIAN          = 11937,
-    QUEST_PORTAL_OF_THE_LEGION  = 5581
-};
-
-class go_demon_portal : public GameObjectScript
-{
-    public:
-        go_demon_portal() : GameObjectScript("go_demon_portal") { }
-
-        bool OnGossipHello(Player* player, GameObject* go) override
-        {
-            if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION) == QUEST_STATUS_INCOMPLETE && !go->FindNearestCreature(NPC_DEMON_GUARDIAN, 5.0f, true))
-            {
-                if (Creature* guardian = player->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-                    guardian->AI()->AttackStart(player);
-            }
-
-            return true;
-        }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
     new go_iruxos();
     new npc_dalinda();
-    new go_demon_portal();
 }

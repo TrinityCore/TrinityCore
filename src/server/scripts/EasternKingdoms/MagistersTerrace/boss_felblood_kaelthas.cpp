@@ -405,7 +405,7 @@ public:
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                     if (Orb && target)
                                     {
-                                        Orb->SetSpeed(MOVE_RUN, 0.5f);
+                                        Orb->SetSpeedRate(MOVE_RUN, 0.5f);
                                         Orb->AddThreat(target, 1000000.0f);
                                         Orb->AI()->AttackStart(target);
                                     }

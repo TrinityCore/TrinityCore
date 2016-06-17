@@ -1,5 +1,4 @@
 #include "GitRevision.h"
-#include "CompilerDefs.h"
 #include "revision_data.h"
 
 char const* GitRevision::GetHash()
@@ -15,6 +14,16 @@ char const* GitRevision::GetDate()
 char const* GitRevision::GetBranch()
 {
     return _BRANCH;
+}
+
+char const* GitRevision::GetCMakeCommand()
+{
+    return _CMAKE_COMMAND;
+}
+
+char const* GitRevision::GetBuildDirectory()
+{
+    return _BUILD_DIRECTORY;
 }
 
 char const* GitRevision::GetSourceDirectory()
@@ -65,14 +74,4 @@ char const* GitRevision::GetFileVersionStr()
 char const* GitRevision::GetProductVersionStr()
 {
     return VER_PRODUCTVERSION_STR;
-}
-
-char const* GitRevision::GetCompilerCFlags()
-{
-    return COMPILER_C_FLAGS;
-}
-
-char const* GitRevision::GetCompilerCXXFlags()
-{
-    return COMPILER_CXX_FLAGS;
 }

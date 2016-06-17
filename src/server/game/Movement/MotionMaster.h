@@ -79,7 +79,7 @@ enum RotateDirection
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
-class MotionMaster //: private std::stack<MovementGenerator *>
+class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
         //typedef std::stack<MovementGenerator *> Impl;
@@ -173,6 +173,12 @@ class MotionMaster //: private std::stack<MovementGenerator *>
             { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
 
+        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
+            Only works in 2D.
+            This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
+        */
+        void MoveCloserAndStop(uint32 id, Unit* target, float distance);
+
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
@@ -181,9 +187,11 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP)
-            { MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speedXY, speedZ, id); }
-        void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id = EVENT_JUMP);
+        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false)
+        {
+            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation);
+        }
+        void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
         void MoveFall(uint32 id = 0);

@@ -23,7 +23,7 @@
 #include "WorldPacket.h"
 #include "ruby_sanctum.h"
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0, 100.0) },
     { DATA_HALION, new CircleBoundary(Position(3156.037f, 533.2656f), 48.5) }

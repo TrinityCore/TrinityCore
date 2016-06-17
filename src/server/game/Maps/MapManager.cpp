@@ -38,10 +38,10 @@
 #include "AchievementMgr.h"
 
 MapManager::MapManager()
+    : _nextInstanceId(0), _scheduledScripts(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
-    _nextInstanceId = 0;
 }
 
 MapManager::~MapManager() { }
@@ -60,6 +60,12 @@ void MapManager::InitializeVisibilityDistanceInfo()
 {
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         (*iter).second->InitVisibilityDistance();
+}
+
+MapManager* MapManager::instance()
+{
+    static MapManager instance;
+    return &instance;
 }
 
 Map* MapManager::CreateBaseMap(uint32 id)

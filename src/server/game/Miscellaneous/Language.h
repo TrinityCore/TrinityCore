@@ -112,7 +112,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
     LANG_PVPSTATS                       = 80,
     LANG_PVPSTATS_DISABLED              = 81,
-    // Free 82 - 95
+    LANG_COMMAND_NEARGRAVEYARD          = 82,
+    LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
+    // Free 84 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -208,7 +210,9 @@ enum TrinityStrings
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
     LANG_GRID_POSITION                  = 178,
-    // Room for more level 1              179-199 not used
+    // 179-185 used in 6.x branch
+    LANG_TRANSPORT_POSITION             = 186,
+    // Room for more level 1              187-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -885,7 +889,9 @@ enum TrinityStrings
     LANG_CHARACTER_DELETED_LIST_LINE_CHAT = 1026,
     LANG_SQLDRIVER_QUERY_LOGGING_ENABLED  = 1027,
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
-    // Room for more level 4              1029-1099 not used
+    LANG_ACCOUNT_INVALID_BNET_NAME      = 1029, // 6.x ONLY
+    LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030, // 6.x enum value name but different text in DB
+    // Room for more level 4              1031-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
@@ -1059,7 +1065,7 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_PERMA_FROZEN_PLAYER    = 5006,
-    LANG_INSTANCE_RAID_GROUP_ONLY       = 5007,
+    //                                  = 5007, unused
     LANG_INSTANCE_CLOSED                = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,
@@ -1208,6 +1214,8 @@ enum TrinityStrings
     LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
     LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
     LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
-    LANG_INSTANCE_BIND_MISMATCH                   = 11014
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014,
+    LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
+    LANG_SELECT_PLAYER_OR_PET                     = 11016,
 };
 #endif

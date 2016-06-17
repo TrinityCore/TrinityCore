@@ -36,6 +36,7 @@
 #include "MMapFactory.h"
 #include "DisableMgr.h"
 #include "SpellHistory.h"
+#include "Transport.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -198,8 +199,8 @@ public:
         uint32 mapId = object->GetMapId();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-        AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zoneId);
-        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaId);
+        AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
+        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
         float zoneX = object->GetPositionX();
         float zoneY = object->GetPositionY();
@@ -237,6 +238,10 @@ public:
             areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
+        if (Transport* transport = object->GetTransport())
+            handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
+                transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
+                transport->GetEntry(), transport->GetName().c_str());
         handler->PSendSysMessage(LANG_GRID_POSITION,
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
             zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
@@ -791,7 +796,7 @@ public:
             target->CleanupAfterTaxiFlight();
         }
 
-        target->TeleportTo(target->m_recallMap, target->m_recallX, target->m_recallY, target->m_recallZ, target->m_recallO);
+        target->Recall();
         return true;
     }
 
@@ -961,7 +966,7 @@ public:
 
         uint32 zoneId = player->GetZoneId();
 
-        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(zoneId);
+        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         if (!areaEntry || areaEntry->zone !=0)
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
@@ -1052,17 +1057,23 @@ public:
             return false;
         }
 
-        int32 area = GetAreaFlagByAreaID(atoi((char*)args));
-        int32 offset = area / 32;
-
-        if (area<0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
+        AreaTableEntry const* area = sAreaTableStore.LookupEntry(atoi(args));
+        if (!area)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint32 val = uint32((1 << (area % 32)));
+        int32 offset = area->exploreFlag / 32;
+        if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 val = uint32((1 << (area->exploreFlag % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
 
@@ -1083,17 +1094,23 @@ public:
             return false;
         }
 
-        int32 area = GetAreaFlagByAreaID(atoi((char*)args));
-        int32 offset = area / 32;
-
-        if (area < 0 || offset >= PLAYER_EXPLORED_ZONES_SIZE)
+        AreaTableEntry const* area = sAreaTableStore.LookupEntry(atoi(args));
+        if (!area)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        uint32 val = uint32((1 << (area % 32)));
+        int32 offset = area->exploreFlag / 32;
+        if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 val = uint32((1 << (area->exploreFlag % 32)));
         uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
         playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
 
@@ -1576,7 +1593,7 @@ public:
 
         // Query the prepared statement for login data
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt->setInt32(0, int32(realmID));
+        stmt->setInt32(0, int32(realm.Id.Realm));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -1737,12 +1754,12 @@ public:
 
         // Position data
         MapEntry const* map = sMapStore.LookupEntry(mapId);
-        AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
+        AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
             areaName = area->area_name[locale];
 
-            AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+            AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
             if (zone)
                 zoneName = zone->area_name[locale];
         }
@@ -1952,7 +1969,7 @@ public:
             return false;
 
         std::string accountName = nameStr;
-        if (!AccountMgr::normalizeString(accountName))
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);

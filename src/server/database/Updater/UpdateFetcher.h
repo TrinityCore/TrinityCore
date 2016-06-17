@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-class UpdateFetcher
+class TC_DATABASE_API UpdateFetcher
 {
     typedef boost::filesystem::path Path;
 
@@ -103,16 +103,15 @@ private:
     typedef std::unordered_map<std::string, std::string> HashToFileNameStorage;
     typedef std::unordered_map<std::string, AppliedFileEntry> AppliedFileStorage;
     typedef std::vector<UpdateFetcher::DirectoryEntry> DirectoryStorage;
-    typedef std::shared_ptr<std::string> SQLUpdate;
 
     LocaleFileStorage GetFileList() const;
-    void FillFileListRecursively(Path const& path, LocaleFileStorage& storage, State const state, uint32 const depth) const;
+    void FillFileListRecursively(Path const& path, LocaleFileStorage& storage,
+        State const state, uint32 const depth) const;
 
     DirectoryStorage ReceiveIncludedDirectories() const;
     AppliedFileStorage ReceiveAppliedFiles() const;
 
-    SQLUpdate ReadSQLUpdate(Path const& file) const;
-    std::string CalculateHash(SQLUpdate const& query) const;
+    std::string ReadSQLUpdate(Path const& file) const;
 
     uint32 Apply(Path const& path) const;
 

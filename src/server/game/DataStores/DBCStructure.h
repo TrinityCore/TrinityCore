@@ -509,7 +509,7 @@ struct AreaTableEntry
     uint32  ID;                                             // 0
     uint32  mapid;                                          // 1
     uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3, main index
+    uint32  exploreFlag;                                    // 3
     uint32  flags;                                          // 4, unknown value but 312 for all cities
                                                             // 5-9 unused
     int32   area_level;                                     // 10
@@ -725,24 +725,20 @@ struct ChrRacesEntry
     uint32      expansion;                                  // 68 (0 - original race, 1 - tbc addon, ...)
 };
 
-/* not used
 struct CinematicCameraEntry
 {
-    uint32      id;                                         // 0 index
-    char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
-    float       start_x;                                    // 3
-    float       start_y;                                    // 4
-    float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?
+    uint32 ID;                                              // 0
+    char const* Model;                                      // 1    Model filename (translate .mdx to .m2)
+    uint32 SoundID;                                         // 2    Sound ID       (voiceover for cinematic)
+    DBCPosition3D Origin;                                   // 3-5  Position in map used for basis for M2 co-ordinates
+    float OriginFacing;                                     // 6    Orientation in map used for basis for M2 co-ordinates
 };
-*/
 
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
     //uint32      unk1;                                     // 1 always 0
-    //uint32      cinematicCamera;                          // 2 id in CinematicCamera.dbc
+    uint32      cinematicCamera;                            // 2 id in CinematicCamera.dbc
                                                             // 3-9 always 0
 };
 
@@ -924,6 +920,15 @@ struct EmotesTextEntry
 {
     uint32  Id;
     uint32  textid;
+};
+
+struct EmotesTextSoundEntry
+{
+    uint32 Id;                                              // 0
+    uint32 EmotesTextId;                                    // 1
+    uint32 RaceId;                                          // 2
+    uint32 SexId;                                           // 3, 0 male / 1 female
+    uint32 SoundId;                                         // 4
 };
 
 struct FactionEntry

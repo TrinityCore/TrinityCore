@@ -469,7 +469,7 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_PHASE_RANGE                 = 31,     // PhaseMin, PhaseMax
     SMART_ACTION_RESET_GOBJECT                      = 32,     //
     SMART_ACTION_CALL_KILLEDMONSTER                 = 33,     // CreatureId,
-    SMART_ACTION_SET_INST_DATA                      = 34,     // Field, Data
+    SMART_ACTION_SET_INST_DATA                      = 34,     // Field, Data, Type (0 = SetData, 1 = SetBossState)
     SMART_ACTION_SET_INST_DATA64                    = 35,     // Field,
     SMART_ACTION_UPDATE_TEMPLATE                    = 36,     // Entry
     SMART_ACTION_DIE                                = 37,     // No Params
@@ -504,7 +504,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_ORIENTATION                    = 66,     //
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
-    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, xyz
+    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding
     SMART_ACTION_RESPAWN_TARGET                     = 70,     //
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
@@ -551,8 +551,9 @@ enum SMART_ACTION
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
     SMART_ACTION_RISE_UP                            = 114,    // distance
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
+    SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
 
-    SMART_ACTION_END                                = 116
+    SMART_ACTION_END                                = 117
 };
 
 struct SmartAction
@@ -715,6 +716,7 @@ struct SmartAction
         {
             uint32 field;
             uint32 data;
+            uint32 type;
         } setInstanceData;
 
         struct
@@ -957,6 +959,7 @@ struct SmartAction
         {
             uint32 pointId;
             uint32 transport;
+            uint32 disablePathfinding;
         } MoveToPos;
 
         struct
@@ -1033,6 +1036,11 @@ struct SmartAction
             std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
             uint32 onlySelf;
         } randomSound;
+
+        struct
+        {
+            uint32 timer;
+        } corpseDelay;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
@@ -1434,18 +1442,14 @@ public:
 };
 typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
 
-class SmartWaypointMgr
+class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
         ~SmartWaypointMgr();
 
     public:
-        static SmartWaypointMgr* instance()
-        {
-            static SmartWaypointMgr instance;
-            return &instance;
-        }
+        static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
@@ -1470,18 +1474,14 @@ typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 typedef std::map<uint32 /*entry*/, std::pair<uint32 /*spellId*/, SpellEffIndex /*effIndex*/> > CacheSpellContainer;
 typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::const_iterator> CacheSpellContainerBounds;
 
-class SmartAIMgr
+class TC_GAME_API SmartAIMgr
 {
     private:
         SmartAIMgr() { }
         ~SmartAIMgr() { }
 
     public:
-        static SmartAIMgr* instance()
-        {
-            static SmartAIMgr instance;
-            return &instance;
-        }
+        static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();
 

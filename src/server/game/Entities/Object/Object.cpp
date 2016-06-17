@@ -221,7 +221,10 @@ void Object::SendUpdateToPlayer(Player* player)
     UpdateData upd;
     WorldPacket packet;
 
-    BuildCreateUpdateBlockForPlayer(&upd, player);
+    if (player->HaveAtClient(this))
+        BuildValuesUpdateBlockForPlayer(&upd, player);
+    else
+        BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
     player->GetSession()->SendPacket(&packet);
 }
@@ -925,6 +928,11 @@ bool Object::HasByteFlag(uint16 index, uint8 offset, uint8 flag) const
     return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
 }
 
+void Object::ApplyModByteFlag(uint16 index, uint8 offset, uint8 flag, bool apply)
+{
+    if (apply) SetByteFlag(index, offset, flag); else RemoveByteFlag(index, offset, flag);
+}
+
 void Object::SetFlag64(uint16 index, uint64 newFlag)
 {
     uint64 oldval = GetUInt64Value(index);
@@ -1146,9 +1154,13 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
-    float ox, oy, oz;
-    obj->GetPosition(ox, oy, oz);
-    return IsWithinLOS(ox, oy, oz);
+    float x, y, z;
+    if (obj->GetTypeId() == TYPEID_PLAYER)
+        obj->GetPosition(x, y, z);
+    else
+        obj->GetHitSpherePointFor(GetPosition(), x, y, z);
+
+    return IsWithinLOS(x, y, z);
 }
 
 float WorldObject::GetDistance(const WorldObject* obj) const
@@ -1232,9 +1244,34 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
-        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.f, ox, oy, oz+2.f, GetPhaseMask());
+    {
+        float x, y, z;
+        if (GetTypeId() == TYPEID_PLAYER)
+            GetPosition(x, y, z);
+        else
+            GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
+
+        return GetMap()->isInLineOfSight(x, y, z + 2.0f, ox, oy, oz + 2.0f, GetPhaseMask());
+    }
 
     return true;
+}
+
+Position WorldObject::GetHitSpherePointFor(Position const& dest) const
+{
+    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ());
+    G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
+    G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * GetObjectSize();
+
+    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAngle(contactPoint.x, contactPoint.y));
+}
+
+void WorldObject::GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const
+{
+    Position pos = GetHitSpherePointFor(dest);
+    x = pos.GetPositionX();
+    y = pos.GetPositionY();
+    z = pos.GetPositionZ();
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
@@ -1408,7 +1445,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
                 float max_z = canSwim
-                    ? GetMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
+                    ? GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
                     : ((ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true)));
                 if (max_z > INVALID_HEIGHT)
                 {
@@ -1432,7 +1469,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             if (!ToPlayer()->CanFly())
             {
                 float ground_z = z;
-                float max_z = GetMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
+                float max_z = GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
@@ -1462,9 +1499,20 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 float WorldObject::GetGridActivationRange() const
 {
     if (ToPlayer())
+    {
+        if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
+            return DEFAULT_VISIBILITY_INSTANCE;
         return GetMap()->GetVisibilityRange();
+    }
     else if (ToCreature())
         return ToCreature()->m_SightDistance;
+    else if (ToDynObject())
+    {
+        if (isActiveObject())
+            return GetMap()->GetVisibilityRange();
+        else
+            return 0.0f;
+    }
     else
         return 0.0f;
 }
@@ -1485,6 +1533,8 @@ float WorldObject::GetSightRange(const WorldObject* target) const
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
+            else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
+                return DEFAULT_VISIBILITY_INSTANCE;
             else
                 return GetMap()->GetVisibilityRange();
         }
@@ -1492,6 +1542,11 @@ float WorldObject::GetSightRange(const WorldObject* target) const
             return ToCreature()->m_SightDistance;
         else
             return SIGHT_RANGE_UNIT;
+    }
+
+    if (ToDynObject() && isActiveObject())
+    {
+        return GetMap()->GetVisibilityRange();
     }
 
     return 0.0f;
@@ -1878,7 +1933,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     AddToMap(summon->ToCreature());
     summon->InitSummon();
 
-    //ObjectAccessor::UpdateObjectVisibility(summon);
+    // call MoveInLineOfSight for nearby creatures
+    Trinity::AIRelocationNotifier notifier(*summon);
+    summon->VisitNearbyObject(GetVisibilityRange(), notifier);
 
     return summon;
 }
@@ -2010,7 +2067,10 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)
+    {
+        TC_LOG_WARN("scripts", "%s (%s) tried to summon non-existing summon group %u.", GetName().c_str(), GetGUID().ToString().c_str(), group);
         return;
+    }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
         if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))

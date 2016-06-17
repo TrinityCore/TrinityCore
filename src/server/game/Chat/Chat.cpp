@@ -32,18 +32,19 @@
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 
-bool ChatHandler::load_command_table = true;
+// Lazy loading of the command table cache from commands and the
+// ScriptMgr should be thread safe since the player commands,
+// cli commands and ScriptMgr updates are all dispatched one after
+// one inside the world update loop.
+static Optional<std::vector<ChatCommand>> commandTableCache;
 
 std::vector<ChatCommand> const& ChatHandler::getCommandTable()
 {
-    static std::vector<ChatCommand> commandTableCache;
-
-    if (LoadCommandTable())
+    if (!commandTableCache)
     {
-        SetLoadCommandTable(false);
-
-        std::vector<ChatCommand> cmds = sScriptMgr->GetChatCommands();
-        commandTableCache.swap(cmds);
+        // We need to initialize this at top since SetDataForCommandInTable
+        // calls getCommandTable() recursively.
+        commandTableCache = sScriptMgr->GetChatCommands();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_COMMANDS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -54,13 +55,18 @@ std::vector<ChatCommand> const& ChatHandler::getCommandTable()
                 Field* fields = result->Fetch();
                 std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+                SetDataForCommandInTable(*commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
             }
             while (result->NextRow());
         }
     }
 
-    return commandTableCache;
+    return *commandTableCache;
+}
+
+void ChatHandler::invalidateCommandTable()
+{
+    commandTableCache.reset();
 }
 
 char const* ChatHandler::GetTrinityString(uint32 entry) const
@@ -108,7 +114,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = AccountMgr::GetSecurity(target_account, realmID);
+        target_sec = AccountMgr::GetSecurity(target_account, realm.Id.Realm);
     else
         return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
@@ -296,11 +302,11 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                 uint32 areaId = player->GetAreaId();
                 std::string areaName = "Unknown";
                 std::string zoneName = "Unknown";
-                if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+                if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
                 {
                     int locale = GetSessionDbcLocale();
                     areaName = area->area_name[locale];
-                    if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+                    if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone))
                         zoneName = zone->area_name[locale];
                 }
 
@@ -360,7 +366,7 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
         // expected subcommand by full name DB content
         else if (*text)
         {
-            TC_LOG_ERROR("sql.sql", "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains an unexpected subcommand '%s' in command '%s', skipped.", text, fullcommand.c_str());
             return false;
         }
 
@@ -376,9 +382,9 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
     if (!cmd.empty())
     {
         if (&table == &getCommandTable())
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains a non-existing command '%s', skipped.", cmd.c_str());
         else
-            TC_LOG_ERROR("sql.sql", "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR("sql.sql", "Table `command` contains a non-existing subcommand '%s' in command '%s', skipped.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;
@@ -486,7 +492,7 @@ bool ChatHandler::ShowHelpForSubCommands(std::vector<ChatCommand> const& table, 
     std::string list;
     for (uint32 i = 0; i < table.size(); ++i)
     {
-        // must be available (ignore handler existence for show command with possible available subcommands)
+        // must be available (ignore handler existence to show command with possible available subcommands)
         if (!isAvailable(table[i]))
             continue;
 
@@ -525,7 +531,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
     {
         for (uint32 i = 0; i < table.size(); ++i)
         {
-            // must be available (ignore handler existence for show command with possible available subcommands)
+            // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(table[i]))
                 continue;
 
@@ -555,7 +561,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
     {
         for (uint32 i = 0; i < table.size(); ++i)
         {
-            // must be available (ignore handler existence for show command with possible available subcommands)
+            // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(table[i]))
                 continue;
 
@@ -1100,7 +1106,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             *player_name = pl ? pl->GetName() : "";
     }
 
-    // some from req. data must be provided (note: name is empty if player not exist)
+    // some from req. data must be provided (note: name is empty if player does not exist)
     if ((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
