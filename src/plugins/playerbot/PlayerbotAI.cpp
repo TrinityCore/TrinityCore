@@ -502,14 +502,17 @@ void PlayerbotAI::DoSpecificAction(string name)
         case ACTION_RESULT_OK:
             out << name << ": done";
             TellMaster(out);
+            PlaySound(TEXT_EMOTE_NOD);
             return;
         case ACTION_RESULT_IMPOSSIBLE:
             out << name << ": impossible";
             TellMaster(out);
+            PlaySound(TEXT_EMOTE_NO);
             return;
         case ACTION_RESULT_USELESS:
             out << name << ": useless";
             TellMaster(out);
+            PlaySound(TEXT_EMOTE_NO);
             return;
         case ACTION_RESULT_FAILED:
             out << name << ": failed";
@@ -520,6 +523,17 @@ void PlayerbotAI::DoSpecificAction(string name)
     ostringstream out;
     out << name << ": unknown action";
     TellMaster(out);
+}
+
+bool PlayerbotAI::PlaySound(uint32 emote)
+{
+    if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(emote, bot->getRace(), bot->getGender()))
+    {
+        bot->PlayDistanceSound(soundEntry->SoundId);
+        return true;
+    }
+
+    return false;
 }
 
 bool PlayerbotAI::ContainsStrategy(StrategyType type)

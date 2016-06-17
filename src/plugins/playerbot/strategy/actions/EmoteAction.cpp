@@ -22,12 +22,7 @@ bool EmoteAction::Execute(Event event)
 
     if (!param.empty() && textEmotes.find(param) != emotes.end())
     {
-        if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(textEmotes[param], bot->getRace(), bot->getGender()))
-        {
-            bot->PlayDistanceSound(soundEntry->SoundId);
-            return true;
-        }
-        return false;
+        return ai->PlaySound(textEmotes[param]);
     }
     else if (param.empty() || emotes.find(param) == emotes.end())
     {
