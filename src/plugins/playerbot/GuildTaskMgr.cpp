@@ -95,7 +95,7 @@ void GuildTaskMgr::Update(Player* player, Player* guildMaster)
         }
         else
         {
-            sLog->outMessage("gtask", LOG_LEVEL_ERROR, "%s / %s: error sending advertisement",
+            sLog->outMessage("gtask", LOG_LEVEL_DEBUG, "%s / %s: error sending advertisement",
                     guildMaster->GetGuild()->GetName().c_str(), player->GetName().c_str());
         }
     }
