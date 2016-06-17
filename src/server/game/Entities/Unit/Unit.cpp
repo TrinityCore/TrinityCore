@@ -6254,10 +6254,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         switch (GetShapeshiftForm())
                         {
                             case FORM_NONE:     trigger_spell_id = 37344; break;
-                            case FORM_CAT:      trigger_spell_id = 37341; break;
-                            case FORM_BEAR:     trigger_spell_id = 37340; break;
-                            case FORM_TREE:     trigger_spell_id = 37342; break;
-                            case FORM_MOONKIN:  trigger_spell_id = 37343; break;
+                            case FORM_CAT_FORM:      trigger_spell_id = 37341; break;
+                            case FORM_BEAR_FORM:     trigger_spell_id = 37340; break;
+                            case FORM_TREE_OF_LIFE:     trigger_spell_id = 37342; break;
+                            case FORM_MOONKIN_FORM:  trigger_spell_id = 37343; break;
                             default:
                                 return false;
                         }
@@ -6268,8 +6268,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     {
                         switch (GetShapeshiftForm())
                         {
-                            case FORM_CAT:      trigger_spell_id = 67355; break;
-                            case FORM_BEAR:     trigger_spell_id = 67354; break;
+                            case FORM_CAT_FORM:      trigger_spell_id = 67355; break;
+                            case FORM_BEAR_FORM:     trigger_spell_id = 67354; break;
                             default:
                                 return false;
                         }
@@ -10732,7 +10732,7 @@ void Unit::SetShapeshiftForm(ShapeshiftForm form)
 bool Unit::IsInFeralForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form == FORM_CAT || form == FORM_BEAR;
+    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM;
 }
 
 bool Unit::IsInDisallowedMountForm() const
@@ -13181,7 +13181,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 // restore for use at real death
                 victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
-                // FORM_SPIRITOFREDEMPTION and related auras
+                // FORM_SPIRIT_OF_REDEMPTION and related auras
                 victim->CastSpell(victim, 27827, true, NULL, aurEff);
                 spiritOfRedemption = true;
                 break;
@@ -14269,7 +14269,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     {
         switch (form)
         {
-            case FORM_CAT:
+            case FORM_CAT_FORM:
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
@@ -14417,7 +14417,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 892;
                 else
                     return 8571;
-            case FORM_BEAR:
+            case FORM_BEAR_FORM:
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
@@ -14565,17 +14565,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 2281;
                 else
                     return 2289;
-            case FORM_FLIGHT:
+            case FORM_FLIGHT_FORM:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
                     return 20857;
                 return 20872;
-            case FORM_FLIGHT_EPIC:
+            case FORM_FLIGHT_FORM_EPIC:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
                     return (getRace() == RACE_WORGEN ? 37729 : 21243);
                 if (getRace() == RACE_TROLL)
                     return 37730;
                 return 21244;
-            case FORM_MOONKIN:
+            case FORM_MOONKIN_FORM:
                 switch (getRace())
                 {
                     case RACE_NIGHTELF:
@@ -14590,7 +14590,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         break;
                 }
                 break;
-            case FORM_GHOSTWOLF:
+            case FORM_GHOST_WOLF:
                 if (HasAura(58135)) //! Glyph of Arctic Wolf
                     return 27312;
             default:

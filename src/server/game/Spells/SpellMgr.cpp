@@ -3422,7 +3422,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
                 break;
             case 5420: // Tree of Life (Passive)
-                spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
+                spellInfo->Stances = UI64LIT(1) << (FORM_TREE_OF_LIFE - 1);
                 break;
             case 49376: // Feral Charge (Cat Form)
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
