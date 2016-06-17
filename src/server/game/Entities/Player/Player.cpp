@@ -20888,13 +20888,13 @@ void Player::InitDataForForm(bool reapplyMods)
     switch (form)
     {
         case FORM_GHOUL:
-        case FORM_CAT:
+        case FORM_CAT_FORM:
         {
             if (getPowerType() != POWER_ENERGY)
                 setPowerType(POWER_ENERGY);
             break;
         }
-        case FORM_BEAR:
+        case FORM_BEAR_FORM:
         {
             if (getPowerType() != POWER_RAGE)
                 setPowerType(POWER_RAGE);

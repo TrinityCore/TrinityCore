@@ -417,12 +417,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         if (Item* weapon = GetWeaponForAttack(BASE_ATTACK, true))
             weaponSpeed =  weapon->GetTemplate()->GetDelay() / 1000;
 
-        if (GetShapeshiftForm() == FORM_CAT)
+        if (GetShapeshiftForm() == FORM_CAT_FORM)
         {
             weaponMinDamage = weaponMinDamage / weaponSpeed;
             weaponMaxDamage = weaponMaxDamage / weaponSpeed;
         }
-        else if (GetShapeshiftForm() == FORM_BEAR)
+        else if (GetShapeshiftForm() == FORM_BEAR_FORM)
         {
             weaponMinDamage = weaponMinDamage / weaponSpeed + weaponMinDamage / 2.5;
             weaponMaxDamage = weaponMinDamage / weaponSpeed + weaponMaxDamage / 2.5;
