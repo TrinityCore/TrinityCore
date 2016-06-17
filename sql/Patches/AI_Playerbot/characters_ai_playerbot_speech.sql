@@ -18,9 +18,9 @@ CREATE TABLE `ai_playerbot_speech_probability` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `ai_playerbot_speech_probability` VALUES
-(NULL, 'taunt', 10),
-(NULL, 'aoe', 20),
-(NULL, 'loot', 5);
+(NULL, 'taunt', 30),
+(NULL, 'aoe', 75),
+(NULL, 'loot', 20);
 
 INSERT INTO `ai_playerbot_speech` VALUES
 (NULL, 'taunt', 'I have puppies under my armor!', 'say'),
