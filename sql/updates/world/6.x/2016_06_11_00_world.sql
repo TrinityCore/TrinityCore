@@ -16,3 +16,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
  DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_decimatus_transformation_sickness';
  INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
  (169869,'spell_gen_decimatus_transformation_sickness');
+
+-- spell_gen_azgalor_rain_of_fire_hellfire_citadel
+ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_azgalor_rain_of_fire_hellfire_citadel';
+ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+ (189549,'spell_gen_azgalor_rain_of_fire_hellfire_citadel');
+
+-- spell_gen_mark_of_kazrogal_hellfire
+ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_mark_of_kazrogal_hellfire';
+ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+ (189512,'spell_gen_mark_of_kazrogal_hellfire');
+
+-- spell_gen_anetheron_summon_towering_infernal
+ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_anetheron_summon_towering_infernal';
+ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+ (189491,'spell_gen_anetheron_summon_towering_infernal');
