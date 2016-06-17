@@ -159,10 +159,12 @@ public:
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if(target->GetEntry() == BLACK_OX_STATUE)
+                    if(target->GetEntry() == BLACK_OX_STATUE){
                         caster->CastSpell(target, SPELL_MONK_PROVOKE_OX, true);
-                    else
+                        target->CastSpell(caster, SPELL_MONK_PROVOKE_OX, true);
+                    }else{
                         caster->CastSpell(target, SPELL_MONK_PROVOKE, true);
+                    }
                 }
             }
         }
