@@ -129,19 +129,36 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_KIPTILAK:          kiptilakGuid    = creature->GetGUID();                  return;
-                case NPC_GADOK:             gadokGuid       = creature->GetGUID();                  return;
-                case NPC_RIMOK:             rimokGuid       = creature->GetGUID();                  return;
-                case NPC_RAIGONN:           raigonnGuid     = creature->GetGUID();                  return;
-                case NPC_KRITHUK_BOMBARDER: bombarderGuids.push_back(creature->GetGUID());          return;
-                case NPC_BOMB_STALKER:      bombStalkerGuids.push_back(creature->GetGUID());        return;
-                case NPC_ADD_GENERATOR:     rimokAddGenetarorsGUIDs.push_back(creature->GetGUID()); return;
-                case NPC_ARTILLERY:         artilleryGUIDs.push_back(creature->GetGUID());          return;
-                default:                                                                            return;
+            case NPC_KIPTILAK:
+                kiptilakGuid = creature->GetGUID();
+                return;
+            case NPC_GADOK:
+                gadokGuid = creature->GetGUID();
+                return;
+            case NPC_RIMOK:
+                rimokGuid = creature->GetGUID();
+                return;
+            case NPC_RAIGONN:
+                raigonnGuid = creature->GetGUID();
+                return;
+            case NPC_KRITHUK_BOMBARDER:
+                bombarderGuids.push_back(creature->GetGUID());
+                return;
+            case NPC_BOMB_STALKER:
+                bombStalkerGuids.push_back(creature->GetGUID());
+                return;
+            case NPC_ADD_GENERATOR:
+                rimokAddGenetarorsGUIDs.push_back(creature->GetGUID());
+                return;
+            case NPC_ARTILLERY:
+                artilleryGUIDs.push_back(creature->GetGUID());
+                return;
+            default:
+                return;
             }
         }
 
-        virtual void OnCreatureRemove(Creature* creature)
+        void OnCreatureRemove(Creature* creature)
         {
             switch (creature->GetEntry())
             {
@@ -340,8 +357,11 @@ public:
         {
             switch (type)
             {
-                case NPC_WEAK_SPOT:     raigonWeakGuid = GetObjectGuid(value);     break;
-                default:                                            break;
+            case NPC_WEAK_SPOT:
+                raigonWeakGuid = GetObjectGuid(value);
+                break;
+            default:
+                break;
             }
         }
 
@@ -349,13 +369,20 @@ public:
         {
             switch (type)
             {
-                case NPC_KIPTILAK:              return kiptilakGuid.GetEntry();
-                case NPC_GADOK:                 return gadokGuid.GetEntry();
-                case NPC_RIMOK:                 return rimokGuid.GetEntry();
-                case NPC_RAIGONN:               return raigonnGuid.GetEntry();
-                case NPC_WEAK_SPOT:             return raigonWeakGuid.GetEntry();
-                case DATA_RANDOM_BOMBARDER:     return Trinity::Containers::SelectRandomContainerElement(bombarderGuids).GetEntry();
-                case DATA_RANDOM_BOMB_STALKER:  return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids).GetEntry();
+            case NPC_KIPTILAK:
+                return kiptilakGuid.GetEntry();
+            case NPC_GADOK:
+                return gadokGuid.GetEntry();
+            case NPC_RIMOK:
+                return rimokGuid.GetEntry();
+            case NPC_RAIGONN:
+                return raigonnGuid.GetEntry();
+            case NPC_WEAK_SPOT:
+                return raigonWeakGuid.GetEntry();
+            case DATA_RANDOM_BOMBARDER:
+                return Trinity::Containers::SelectRandomContainerElement(bombarderGuids).GetEntry();
+            case DATA_RANDOM_BOMB_STALKER:
+                return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids).GetEntry();
             }
 
             return 0;
