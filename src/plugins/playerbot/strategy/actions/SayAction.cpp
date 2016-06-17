@@ -62,7 +62,7 @@ bool SayAction::Execute(Event event)
     time_t lastSaid = AI_VALUE2(time_t, "last said", qualifier);
     ai->GetAiObjectContext()->GetValue<time_t>("last said", qualifier)->Set(time(0) + urand(1, 60));
 
-    uint32 probability = probabilityTable[name];
+    uint32 probability = probabilityTable[qualifier];
     if (!probability) probability = 100;
     if (urand(0, 100) >= probability) return false;
 
