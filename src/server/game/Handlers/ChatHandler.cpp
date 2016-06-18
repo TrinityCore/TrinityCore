@@ -324,7 +324,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 #ifdef ELUNA
             if (!sEluna->OnChat(GetPlayer(), type, lang, msg, receiver))
                 return;
-
+#endif
             // Playerbot mod: handle whispered command to bot
             if (receiver->GetPlayerbotAI() && lang != LANG_ADDON)
             {
