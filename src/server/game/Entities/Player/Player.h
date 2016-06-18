@@ -808,24 +808,33 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSetInfo
 {
+    enum EquipmentSetType : int32
+    {
+        EQUIPMENT = 0,
+        TRANSMOG = 1
+    };
+
     /// Data sent in EquipmentSet related packets
     struct EquipmentSetData
     {
+        EquipmentSetType Type = EQUIPMENT;
         uint64 Guid       = 0; ///< Set Identifier
         uint32 SetID      = 0; ///< Index
         uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
         std::string SetName;
         std::string SetIcon;
-        ObjectGuid Pieces[EQUIPMENT_SLOT_END];
+        std::array<ObjectGuid, EQUIPMENT_SLOT_END> Pieces;
+        std::array<int32, EQUIPMENT_SLOT_END> Appearances;  ///< ItemModifiedAppearanceID
+        std::array<int32, 2> Enchants;  ///< SpellItemEnchantmentID
     } Data;
 
     /// Server-side data
     EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
 };
 
-#define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
+#define MAX_EQUIPMENT_SET_INDEX 20                          // client limit
 
-typedef std::map<uint32, EquipmentSetInfo> EquipmentSetContainer;
+typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
 struct ItemPosCount
 {
@@ -955,6 +964,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
@@ -2139,7 +2149,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
-        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
+        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
         void DeleteEquipmentSet(uint64 id);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
@@ -2519,6 +2529,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
+        void _LoadTransmogOutfits(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
