@@ -24,7 +24,7 @@ public:
 	}
 
 	void OnLogin(Player *player, bool firstLogin) override {
-		ChatHandler(player->GetSession()).SendSysMessage("Welcome to World of Solocraft");
+		ChatHandler(player->GetSession()).SendSysMessage("Solocraft mode activated in raids");
 	}
 
 	void OnMapChanged(Player *player) override {
