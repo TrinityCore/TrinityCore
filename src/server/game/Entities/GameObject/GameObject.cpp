@@ -32,6 +32,9 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
@@ -149,6 +152,10 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+
+#ifdef ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
     }
 }
 
@@ -157,6 +164,9 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+#ifdef ELUNA
+        sEluna->OnRemoveFromWorld(this);
+#endif
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 

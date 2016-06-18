@@ -71,6 +71,7 @@ target_link_libraries(common
     openssl
     valgrind
     threads
+    lualib
     jemalloc
   PRIVATE
     process)

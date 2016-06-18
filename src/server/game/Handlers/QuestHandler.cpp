@@ -30,6 +30,9 @@
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {
@@ -428,6 +431,10 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             _player->RemoveActiveQuest(questId);
             _player->RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
+
+#ifdef ELUNA
+            sEluna->OnQuestAbandon(_player, questId);
+#endif
 
             TC_LOG_INFO("network", "Player %u abandoned quest %u", _player->GetGUID().GetCounter(), questId);
 
