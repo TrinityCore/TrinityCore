@@ -102,6 +102,7 @@ TC_GAME_API extern DB2Storage<ItemEffectEntry>                      sItemEffectS
 TC_GAME_API extern DB2Storage<ItemEntry>                            sItemStore;
 TC_GAME_API extern DB2Storage<ItemExtendedCostEntry>                sItemExtendedCostStore;
 TC_GAME_API extern DB2Storage<ItemLimitCategoryEntry>               sItemLimitCategoryStore;
+TC_GAME_API extern DB2Storage<ItemModifiedAppearanceEntry>          sItemModifiedAppearanceStore;
 TC_GAME_API extern DB2Storage<ItemPriceBaseEntry>                   sItemPriceBaseStore;
 TC_GAME_API extern DB2Storage<ItemRandomPropertiesEntry>            sItemRandomPropertiesStore;
 TC_GAME_API extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomSuffixStore;

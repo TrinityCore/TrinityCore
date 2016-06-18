@@ -192,6 +192,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFITS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CUF_PROFILES);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, stmt);
@@ -1623,29 +1627,53 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
     if (saveEquipmentSet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
 
+    if (saveEquipmentSet.Set.Type > EquipmentSetInfo::TRANSMOG)
+        return;
+
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         if (!(saveEquipmentSet.Set.IgnoreMask & (1 << i)))
         {
-            ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
+            if (saveEquipmentSet.Set.Type == EquipmentSetInfo::EQUIPMENT)
+            {
+                saveEquipmentSet.Set.Appearances[i] = 0;
 
-            Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
 
-            /// cheating check 1 (item equipped but sent empty guid)
-            if (!item && !itemGuid.IsEmpty())
-                return;
+                Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-            /// cheating check 2 (sent guid does not match equipped item)
-            if (item && item->GetGUID() != itemGuid)
-                return;
+                /// cheating check 1 (item equipped but sent empty guid)
+                if (!item && !itemGuid.IsEmpty())
+                    return;
+
+                /// cheating check 2 (sent guid does not match equipped item)
+                if (item && item->GetGUID() != itemGuid)
+                    return;
+            }
+            else
+            {
+                saveEquipmentSet.Set.Pieces[i].Clear();
+                if (saveEquipmentSet.Set.Appearances[i] && !sItemModifiedAppearanceStore.LookupEntry(saveEquipmentSet.Set.Appearances[i]))
+                    return;
+
+                // TODO: validata whether appearance is known
+            }
         }
         else
+        {
             saveEquipmentSet.Set.Pieces[i].Clear();
+            saveEquipmentSet.Set.Appearances[i] = 0;
+        }
     }
 
     saveEquipmentSet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
+    if (saveEquipmentSet.Set.Type == EquipmentSetInfo::EQUIPMENT)
+    {
+        saveEquipmentSet.Set.Enchants[0] = 0;
+        saveEquipmentSet.Set.Enchants[1] = 0;
+    }
 
-    _player->SetEquipmentSet(std::move(saveEquipmentSet.Set));
+    _player->SetEquipmentSet(saveEquipmentSet.Set);
 }
 
 void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& deleteEquipmentSet)
