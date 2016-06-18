@@ -86,7 +86,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 {
     int tab = GetPlayerSpecTab(player);
 
-    engine->addStrategies("attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+    engine->addStrategies("attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", "move random", NULL);
 
     switch (player->getClass())
     {
@@ -196,7 +196,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
                 nonCombatEngine->addStrategy("bmana");
             break;
     }
-    nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
+    nonCombatEngine->addStrategies("nc", "attack weak", "food", "move random", "follow", "chat",
             "default", "quest", "loot", "gather", "duel", "emote", "lfg", NULL);
 
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
