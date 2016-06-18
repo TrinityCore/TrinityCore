@@ -310,9 +310,9 @@ struct ArtifactAppearanceSetMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sshhbbbi";
-        static uint8 const arraySizes[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(7, 8, 0x144B4DF1, types, arraySizes);
+        static char const* types = "sshhbbbbi";
+        static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(8, 9, 0xB11A5708, types, arraySizes);
         return &instance;
     }
 };
@@ -2895,9 +2895,9 @@ struct ItemRandomSuffixMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sshh";
-        static uint8 const arraySizes[4] = { 1, 1, 5, 5 };
-        static DB2Meta instance(-1, 4, 0x451B7E5A, types, arraySizes);
+        static char const* types = "shh";
+        static uint8 const arraySizes[3] = { 1, 5, 5 };
+        static DB2Meta instance(-1, 3, 0x20CC67CD, types, arraySizes);
         return &instance;
     }
 };
