@@ -1414,6 +1414,7 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
             case ITEM_SUBCLASS_WEAPON_AXE:
             case ITEM_SUBCLASS_WEAPON_MACE:
             case ITEM_SUBCLASS_WEAPON_SWORD:
+            case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
                 return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
             case ITEM_SUBCLASS_WEAPON_DAGGER:
                 return ItemTransmogrificationWeaponCategory::DAGGER;
@@ -1477,10 +1478,8 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets:
     if (source->GetClass() != target->GetClass())
         return false;
 
-    if (source->GetInventoryType() == INVTYPE_TABARD ||
-        source->GetInventoryType() == INVTYPE_BAG ||
+    if (source->GetInventoryType() == INVTYPE_BAG ||
         source->GetInventoryType() == INVTYPE_RELIC ||
-        source->GetInventoryType() == INVTYPE_BODY ||
         source->GetInventoryType() == INVTYPE_FINGER ||
         source->GetInventoryType() == INVTYPE_TRINKET ||
         source->GetInventoryType() == INVTYPE_AMMO ||

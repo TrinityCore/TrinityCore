@@ -19,7 +19,7 @@
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-// Auto generated for version 7, 0, 3, 21796
+// Auto generated for version 7, 0, 3, 21963
 
 enum ObjectFields
 {
@@ -113,9 +113,9 @@ enum UnitFields
     UNIT_FIELD_SCALING_LEVEL_DELTA                         = OBJECT_END + 0x050, // Size: 1, Flags: PUBLIC
     UNIT_FIELD_FACTIONTEMPLATE                             = OBJECT_END + 0x051, // Size: 1, Flags: PUBLIC
     UNIT_VIRTUAL_ITEM_SLOT_ID                              = OBJECT_END + 0x052, // Size: 6, Flags: PUBLIC
-    UNIT_FIELD_FLAGS                                       = OBJECT_END + 0x058, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_FLAGS_2                                     = OBJECT_END + 0x059, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_FLAGS_3                                     = OBJECT_END + 0x05A, // Size: 1, Flags: PUBLIC
+    UNIT_FIELD_FLAGS                                       = OBJECT_END + 0x058, // Size: 1, Flags: PUBLIC, URGENT
+    UNIT_FIELD_FLAGS_2                                     = OBJECT_END + 0x059, // Size: 1, Flags: PUBLIC, URGENT
+    UNIT_FIELD_FLAGS_3                                     = OBJECT_END + 0x05A, // Size: 1, Flags: PUBLIC, URGENT
     UNIT_FIELD_AURASTATE                                   = OBJECT_END + 0x05B, // Size: 1, Flags: PUBLIC
     UNIT_FIELD_BASEATTACKTIME                              = OBJECT_END + 0x05C, // Size: 2, Flags: PUBLIC
     UNIT_FIELD_RANGEDATTACKTIME                            = OBJECT_END + 0x05E, // Size: 1, Flags: PRIVATE

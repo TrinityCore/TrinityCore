@@ -177,12 +177,12 @@ LanguageDesc lang_description[LANGUAGES_COUNT] =
     { LANG_KALIMAG,       817, SKILL_LANG_OLD_TONGUE   },
     { LANG_GNOMISH,      7340, SKILL_LANG_GNOMISH      },
     { LANG_TROLL,        7341, SKILL_LANG_TROLL        },
-    { LANG_GUTTERSPEAK, 17737, SKILL_LANG_GUTTERSPEAK  },
+    { LANG_GUTTERSPEAK, 17737, SKILL_LANG_FORSAKEN     },
     { LANG_DRAENEI,     29932, SKILL_LANG_DRAENEI      },
     { LANG_ZOMBIE,          0, 0                       },
     { LANG_GNOMISH_BINARY,  0, 0                       },
     { LANG_GOBLIN_BINARY,   0, 0                       },
-    { LANG_WORGEN,      69270, SKILL_LANG_WORGEN       },
+    { LANG_WORGEN,      69270, SKILL_LANG_GILNEAN      },
     { LANG_GOBLIN,      69269, SKILL_LANG_GOBLIN       },
     { LANG_PANDAREN_NEUTRAL,  108127, SKILL_LANG_PANDAREN_NEUTRAL  },
     { LANG_PANDAREN_ALLIANCE, 108130, SKILL_LANG_PANDAREN_ALLIANCE },
@@ -2323,26 +2323,26 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const qualityMultipliers[MAX_ITEM_QUALITY] =
     {
-        1.0f, 1.0f, 1.0f, 1.17f, 1.37f, 1.68f, 0.0f, 0.0f
+        0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
     };
 
     static float const armorMultipliers[MAX_INVTYPE] =
     {
         0.00f, // INVTYPE_NON_EQUIP
-        0.59f, // INVTYPE_HEAD
+        0.60f, // INVTYPE_HEAD
         0.00f, // INVTYPE_NECK
-        0.59f, // INVTYPE_SHOULDERS
+        0.60f, // INVTYPE_SHOULDERS
         0.00f, // INVTYPE_BODY
         1.00f, // INVTYPE_CHEST
-        0.35f, // INVTYPE_WAIST
-        0.75f, // INVTYPE_LEGS
-        0.49f, // INVTYPE_FEET
-        0.35f, // INVTYPE_WRISTS
-        0.35f, // INVTYPE_HANDS
+        0.33f, // INVTYPE_WAIST
+        0.72f, // INVTYPE_LEGS
+        0.48f, // INVTYPE_FEET
+        0.33f, // INVTYPE_WRISTS
+        0.33f, // INVTYPE_HANDS
         0.00f, // INVTYPE_FINGER
         0.00f, // INVTYPE_TRINKET
         0.00f, // INVTYPE_WEAPON
-        1.00f, // INVTYPE_SHIELD
+        0.72f, // INVTYPE_SHIELD
         0.00f, // INVTYPE_RANGED
         0.00f, // INVTYPE_CLOAK
         0.00f, // INVTYPE_2HWEAPON
@@ -2361,27 +2361,27 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
 
     static float const weaponMultipliers[MAX_ITEM_SUBCLASS_WEAPON] =
     {
-        0.89f, // ITEM_SUBCLASS_WEAPON_AXE
-        1.03f, // ITEM_SUBCLASS_WEAPON_AXE2
-        0.77f, // ITEM_SUBCLASS_WEAPON_BOW
-        0.77f, // ITEM_SUBCLASS_WEAPON_GUN
-        0.89f, // ITEM_SUBCLASS_WEAPON_MACE
-        1.03f, // ITEM_SUBCLASS_WEAPON_MACE2
-        1.03f, // ITEM_SUBCLASS_WEAPON_POLEARM
-        0.89f, // ITEM_SUBCLASS_WEAPON_SWORD
-        1.03f, // ITEM_SUBCLASS_WEAPON_SWORD2
-        0.00f, // ITEM_SUBCLASS_WEAPON_Obsolete
-        1.03f, // ITEM_SUBCLASS_WEAPON_STAFF
+        0.91f, // ITEM_SUBCLASS_WEAPON_AXE
+        1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_BOW
+        1.00f, // ITEM_SUBCLASS_WEAPON_GUN
+        0.91f, // ITEM_SUBCLASS_WEAPON_MACE
+        1.00f, // ITEM_SUBCLASS_WEAPON_MACE2
+        1.00f, // ITEM_SUBCLASS_WEAPON_POLEARM
+        0.91f, // ITEM_SUBCLASS_WEAPON_SWORD
+        1.00f, // ITEM_SUBCLASS_WEAPON_SWORD2
+        1.00f, // ITEM_SUBCLASS_WEAPON_WARGLAIVES
+        1.00f, // ITEM_SUBCLASS_WEAPON_STAFF
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC
         0.00f, // ITEM_SUBCLASS_WEAPON_EXOTIC2
-        0.64f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
+        0.66f, // ITEM_SUBCLASS_WEAPON_FIST_WEAPON
         0.00f, // ITEM_SUBCLASS_WEAPON_MISCELLANEOUS
-        0.64f, // ITEM_SUBCLASS_WEAPON_DAGGER
-        0.64f, // ITEM_SUBCLASS_WEAPON_THROWN
+        0.66f, // ITEM_SUBCLASS_WEAPON_DAGGER
+        0.00f, // ITEM_SUBCLASS_WEAPON_THROWN
         0.00f, // ITEM_SUBCLASS_WEAPON_SPEAR
-        0.77f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
-        0.64f, // ITEM_SUBCLASS_WEAPON_WAND
-        0.64f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
+        1.00f, // ITEM_SUBCLASS_WEAPON_CROSSBOW
+        0.66f, // ITEM_SUBCLASS_WEAPON_WAND
+        0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
     };
 
     float levelPenalty = 1.0f;
@@ -2393,10 +2393,10 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
         if (inventoryType > INVTYPE_ROBE)
             return 0;
 
-        return 5 * uint32(23.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty + 0.5f);
+        return 5 * uint32(round(25.0f * qualityMultipliers[quality] * armorMultipliers[inventoryType] * levelPenalty));
     }
 
-    return 5 * uint32(17.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty + 0.5f);
+    return 5 * uint32(round(18.0f * qualityMultipliers[quality] * weaponMultipliers[itemSubClass] * levelPenalty));
 };
 
 void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
@@ -2482,6 +2482,9 @@ struct ItemSpecStats
                 case ITEM_SUBCLASS_WEAPON_SWORD2:
                     AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
                     break;
+                case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
+                    AddStat(ITEM_SPEC_STAT_WARGLAIVES);
+                    break;
                 case ITEM_SUBCLASS_WEAPON_STAFF:
                     AddStat(ITEM_SPEC_STAT_STAFF);
                     break;
@@ -2536,6 +2539,34 @@ struct ItemSpecStats
                     break;
             }
         }
+        else if (item->Class == ITEM_CLASS_GEM)
+        {
+            if (GemPropertiesEntry const* gem = sGemPropertiesStore.LookupEntry(sparse->GemProperties))
+            {
+                if (gem->Type & SOCKET_COLOR_RELIC_IRON)
+                    AddStat(ITEM_SPEC_STAT_RELIC_IRON);
+                if (gem->Type & SOCKET_COLOR_RELIC_BLOOD)
+                    AddStat(ITEM_SPEC_STAT_RELIC_BLOOD);
+                if (gem->Type & SOCKET_COLOR_RELIC_SHADOW)
+                    AddStat(ITEM_SPEC_STAT_RELIC_SHADOW);
+                if (gem->Type & SOCKET_COLOR_RELIC_FEL)
+                    AddStat(ITEM_SPEC_STAT_RELIC_FEL);
+                if (gem->Type & SOCKET_COLOR_RELIC_ARCANE)
+                    AddStat(ITEM_SPEC_STAT_RELIC_ARCANE);
+                if (gem->Type & SOCKET_COLOR_RELIC_FROST)
+                    AddStat(ITEM_SPEC_STAT_RELIC_FROST);
+                if (gem->Type & SOCKET_COLOR_RELIC_FIRE)
+                    AddStat(ITEM_SPEC_STAT_RELIC_FIRE);
+                if (gem->Type & SOCKET_COLOR_RELIC_WATER)
+                    AddStat(ITEM_SPEC_STAT_RELIC_WATER);
+                if (gem->Type & SOCKET_COLOR_RELIC_LIFE)
+                    AddStat(ITEM_SPEC_STAT_RELIC_LIFE);
+                if (gem->Type & SOCKET_COLOR_RELIC_WIND)
+                    AddStat(ITEM_SPEC_STAT_RELIC_WIND);
+                if (gem->Type & SOCKET_COLOR_RELIC_HOLY)
+                    AddStat(ITEM_SPEC_STAT_RELIC_HOLY);
+            }
+        }
         else
             ItemType = 0;
 
@@ -2569,9 +2600,6 @@ struct ItemSpecStats
             case ITEM_MOD_INTELLECT:
                 AddStat(ITEM_SPEC_STAT_INTELLECT);
                 break;
-            case ITEM_MOD_SPIRIT:
-                AddStat(ITEM_SPEC_STAT_SPIRIT);
-                break;
             case ITEM_MOD_DODGE_RATING:
                 AddStat(ITEM_SPEC_STAT_DODGE);
                 break;
@@ -2584,9 +2612,6 @@ struct ItemSpecStats
             case ITEM_MOD_CRIT_RATING:
                 AddStat(ITEM_SPEC_STAT_CRIT);
                 break;
-            case ITEM_MOD_HASTE_MELEE_RATING:
-            case ITEM_MOD_HASTE_RANGED_RATING:
-            case ITEM_MOD_HASTE_SPELL_RATING:
             case ITEM_MOD_HASTE_RATING:
                 AddStat(ITEM_SPEC_STAT_HASTE);
                 break;
@@ -7881,7 +7906,7 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
     if (sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
         return SKILL_RANGE_RANK;
 
-    if (rcEntry->SkillID == SKILL_RUNEFORGING || rcEntry->SkillID == SKILL_RUNEFORGING_2)
+    if (rcEntry->SkillID == SKILL_RUNEFORGING)
         return SKILL_RANGE_MONO;
 
     switch (skill->CategoryID)

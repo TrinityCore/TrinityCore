@@ -360,9 +360,9 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PUBLIC,                                         // UNIT_VIRTUAL_ITEM_SLOT_ID+3
     UF_FLAG_PUBLIC,                                         // UNIT_VIRTUAL_ITEM_SLOT_ID+4
     UF_FLAG_PUBLIC,                                         // UNIT_VIRTUAL_ITEM_SLOT_ID+5
-    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_FLAGS
-    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_FLAGS_2
-    UF_FLAG_PUBLIC,                                         // UNIT_FIELD_FLAGS_3
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_FIELD_FLAGS
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_FIELD_FLAGS_2
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_FIELD_FLAGS_3
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_AURASTATE
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BASEATTACKTIME
     UF_FLAG_PUBLIC,                                         // UNIT_FIELD_BASEATTACKTIME+1

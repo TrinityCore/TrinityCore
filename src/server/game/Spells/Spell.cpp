@@ -5251,17 +5251,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 SpellCastResult res = CanOpenLock(effect->EffectIndex, lockId, skillId, reqSkillValue, skillValue);
                 if (res != SPELL_CAST_OK)
                     return res;
-
-                // chance for fail at orange mining/herb/LockPicking gathering attempt
-                // second check prevent fail at rechecks
-                if (skillId != SKILL_NONE && (!m_selfContainer || ((*m_selfContainer) != this)))
-                {
-                    bool canFailAtMax = skillId != SKILL_HERBALISM && skillId != SKILL_MINING;
-
-                    // chance for failure in orange gather / lockpick (gathering skill can't fail at maxskill)
-                    if ((canFailAtMax || skillValue < sWorld->GetConfigMaxSkillValue()) && reqSkillValue > irand(skillValue - 25, skillValue + 37))
-                        return SPELL_FAILED_TRY_AGAIN;
-                }
                 break;
             }
             case SPELL_EFFECT_RESURRECT_PET:
@@ -6948,13 +6937,16 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                 skillId = SkillByLockType(LockType(lockInfo->Index[j]));
 
-                if (skillId != SKILL_NONE)
+                if (skillId != SKILL_NONE || lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
                 {
                     reqSkillValue = lockInfo->Skill[j];
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
-                    skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
-                        0 : m_caster->ToPlayer()->GetSkillValue(skillId);
+                    skillValue = 0;
+                    if (!m_CastItem && m_caster->GetTypeId() == TYPEID_PLAYER)
+                        skillValue = m_caster->ToPlayer()->GetSkillValue(skillId);
+                    else if (lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
+                        skillValue = m_caster->getLevel() * 5;
 
                     // skill bonus provided by casting spell (mostly item spells)
                     // add the effect base points modifier from the spell cast (cheat lock / skeleton key etc.)

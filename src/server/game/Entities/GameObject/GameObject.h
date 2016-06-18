@@ -166,6 +166,7 @@ struct GameObjectTemplate
             uint32 conditionID1;                            // 15 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 playerCast;                              // 16 playerCast, enum { false, true, }; Default: false
             uint32 SummonerTriggered;                       // 17 Summoner Triggered, enum { false, true, }; Default: false
+            uint32 requireLOS;                              // 18 require LOS, enum { false, true, }; Default: false
         } trap;
         // 7 GAMEOBJECT_TYPE_CHAIR
         struct

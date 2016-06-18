@@ -1315,7 +1315,6 @@ struct ItemRandomSuffixEntry
 {
     uint32 ID;
     LocalizedString* Name;
-    LocalizedString* InternalName;
     uint16 Enchantment[MAX_ITEM_RANDOM_PROPERTIES];
     uint16 AllocationPct[MAX_ITEM_RANDOM_PROPERTIES];
 };

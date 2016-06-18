@@ -628,8 +628,20 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_HASTE            = 25,
     ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
     ITEM_SPEC_STAT_CLOAK            = 27,
+    ITEM_SPEC_STAT_WARGLAIVES       = 28,
+    ITEM_SPEC_STAT_RELIC_IRON       = 29,
+    ITEM_SPEC_STAT_RELIC_BLOOD      = 30,
+    ITEM_SPEC_STAT_RELIC_SHADOW     = 31,
+    ITEM_SPEC_STAT_RELIC_FEL        = 32,
+    ITEM_SPEC_STAT_RELIC_ARCANE     = 33,
+    ITEM_SPEC_STAT_RELIC_FROST      = 34,
+    ITEM_SPEC_STAT_RELIC_FIRE       = 35,
+    ITEM_SPEC_STAT_RELIC_WATER      = 36,
+    ITEM_SPEC_STAT_RELIC_LIFE       = 37,
+    ITEM_SPEC_STAT_RELIC_WIND       = 38,
+    ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
-    ITEM_SPEC_STAT_NONE             = 28
+    ITEM_SPEC_STAT_NONE             = 40
 };
 
 enum MountCapabilityFlags

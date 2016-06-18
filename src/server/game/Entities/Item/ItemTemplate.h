@@ -386,7 +386,7 @@ enum ItemClass : uint8
     ITEM_CLASS_REAGENT                          = 5,
     ITEM_CLASS_PROJECTILE                       = 6,
     ITEM_CLASS_TRADE_GOODS                      = 7,
-    ITEM_CLASS_GENERIC                          = 8,  // OBSOLETE
+    ITEM_CLASS_ITEM_ENHANCEMENT                 = 8,
     ITEM_CLASS_RECIPE                           = 9,
     ITEM_CLASS_MONEY                            = 10, // OBSOLETE
     ITEM_CLASS_QUIVER                           = 11,
@@ -394,10 +394,12 @@ enum ItemClass : uint8
     ITEM_CLASS_KEY                              = 13,
     ITEM_CLASS_PERMANENT                        = 14, // OBSOLETE
     ITEM_CLASS_MISCELLANEOUS                    = 15,
-    ITEM_CLASS_GLYPH                            = 16
+    ITEM_CLASS_GLYPH                            = 16,
+    ITEM_CLASS_BATTLE_PETS                      = 17,
+    ITEM_CLASS_WOW_TOKEN                        = 18
 };
 
-#define MAX_ITEM_CLASS                            17
+#define MAX_ITEM_CLASS                            19
 
 enum ItemSubclassConsumable
 {
@@ -409,10 +411,11 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_FOOD_DRINK                    = 5,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
     ITEM_SUBCLASS_BANDAGE                       = 7,
-    ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8
+    ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8,
+    ITEM_SUBCLASS_VANTUS_RUNE                   = 9
 };
 
-#define MAX_ITEM_SUBCLASS_CONSUMABLE              9
+#define MAX_ITEM_SUBCLASS_CONSUMABLE              10
 
 enum ItemSubclassContainer
 {
@@ -442,7 +445,7 @@ enum ItemSubclassWeapon
     ITEM_SUBCLASS_WEAPON_POLEARM                = 6,
     ITEM_SUBCLASS_WEAPON_SWORD                  = 7,  // One-Handed Swords
     ITEM_SUBCLASS_WEAPON_SWORD2                 = 8,  // Two-Handed Swords
-    ITEM_SUBCLASS_WEAPON_Obsolete               = 9,
+    ITEM_SUBCLASS_WEAPON_WARGLAIVES             = 9,
     ITEM_SUBCLASS_WEAPON_STAFF                  = 10,
     ITEM_SUBCLASS_WEAPON_EXOTIC                 = 11, // One-Handed Exotics
     ITEM_SUBCLASS_WEAPON_EXOTIC2                = 12, // Two-Handed Exotics
@@ -464,20 +467,21 @@ enum ItemSubclassWeapon
 
 enum ItemSubclassGem
 {
-    ITEM_SUBCLASS_GEM_RED                       = 0,
-    ITEM_SUBCLASS_GEM_BLUE                      = 1,
-    ITEM_SUBCLASS_GEM_YELLOW                    = 2,
-    ITEM_SUBCLASS_GEM_PURPLE                    = 3,
-    ITEM_SUBCLASS_GEM_GREEN                     = 4,
-    ITEM_SUBCLASS_GEM_ORANGE                    = 5,
-    ITEM_SUBCLASS_GEM_META                      = 6,
-    ITEM_SUBCLASS_GEM_SIMPLE                    = 7,
-    ITEM_SUBCLASS_GEM_PRISMATIC                 = 8,
-    ITEM_SUBCLASS_GEM_HYDRAULIC                 = 9,
-    ITEM_SUBCLASS_GEM_COGWHEEL                  = 10
+    ITEM_SUBCLASS_GEM_INTELLECT                 = 0,
+    ITEM_SUBCLASS_GEM_AGILITY                   = 1,
+    ITEM_SUBCLASS_GEM_STRENGTH                  = 2,
+    ITEM_SUBCLASS_GEM_STAMINA                   = 3,
+    ITEM_SUBCLASS_GEM_SPIRIT                    = 4,
+    ITEM_SUBCLASS_GEM_CRITICAL_STRIKE           = 5,
+    ITEM_SUBCLASS_GEM_MASTERY                   = 6,
+    ITEM_SUBCLASS_GEM_HASTE                     = 7,
+    ITEM_SUBCLASS_GEM_VERSATILITY               = 8,
+    ITEM_SUBCLASS_GEM_OTHER                     = 9,
+    ITEM_SUBCLASS_GEM_MULTIPLE_STATS            = 10,
+    ITEM_SUBCLASS_GEM_ARTIFACT_RELIC            = 11
 };
 
-#define MAX_ITEM_SUBCLASS_GEM                     11
+#define MAX_ITEM_SUBCLASS_GEM                     12
 
 enum ItemSubclassArmor
 {
@@ -499,10 +503,11 @@ enum ItemSubclassArmor
 
 enum ItemSubclassReagent
 {
-    ITEM_SUBCLASS_REAGENT                       = 0
+    ITEM_SUBCLASS_REAGENT                       = 0,
+    ITEM_SUBCLASS_KEYSTONE                      = 1
 };
 
-#define MAX_ITEM_SUBCLASS_REAGENT                 1
+#define MAX_ITEM_SUBCLASS_REAGENT                 2
 
 enum ItemSubclassProjectile
 {
@@ -532,16 +537,32 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ENCHANTING                    = 12,
     ITEM_SUBCLASS_MATERIAL                      = 13,
     ITEM_SUBCLASS_ENCHANTMENT                   = 14,
+    ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15,
+    ITEM_SUBCLASS_INSCRIPTION                   = 16,
+    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             15
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             18
 
-enum ItemSubclassGeneric
+enum ItemSubclassItemEnhancement
 {
-    ITEM_SUBCLASS_GENERIC                       = 0  // OBSOLETE
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_HEAD                 = 0,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_NECK                 = 1,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHOULDER             = 2,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_CLOAK                = 3,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_CHEST                = 4,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WRIST                = 5,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_HANDS                = 6,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WAIST                = 7,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_LEGS                 = 8,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_FEET                 = 9,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_FINGER               = 10,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WEAPON               = 11,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_TWO_HANDED_WEAPON    = 12,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13
 };
 
-#define MAX_ITEM_SUBCLASS_GENERIC                 1
+#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                14
 
 enum ItemSubclassRecipe
 {
@@ -564,10 +585,9 @@ enum ItemSubclassRecipe
 enum ItemSubclassMoney
 {
     ITEM_SUBCLASS_MONEY                         = 0,  // OBSOLETE
-    ITEM_SUBCLASS_MONEY_UNK_7                   = 7,  // OBSOLETE, 1 item (41749)
 };
 
-#define MAX_ITEM_SUBCLASS_MONEY                   8
+#define MAX_ITEM_SUBCLASS_MONEY                   1
 
 enum ItemSubclassQuiver
 {
@@ -605,16 +625,15 @@ enum ItemSubclassPermanent
 
 enum ItemSubclassJunk
 {
-    ITEM_SUBCLASS_JUNK                          = 0,
-    ITEM_SUBCLASS_JUNK_REAGENT                  = 1,
-    ITEM_SUBCLASS_JUNK_PET                      = 2,
-    ITEM_SUBCLASS_JUNK_HOLIDAY                  = 3,
-    ITEM_SUBCLASS_JUNK_OTHER                    = 4,
-    ITEM_SUBCLASS_JUNK_MOUNT                    = 5,
-    ITEM_SUBCLASS_JUNK_UNK12                    = 12, // 1 item (37677)
+    ITEM_SUBCLASS_MISCELLANEOUS_JUNK                 = 0,
+    ITEM_SUBCLASS_MISCELLANEOUS_REAGENT         = 1,
+    ITEM_SUBCLASS_MISCELLANEOUS_COMPANION_PET             = 2,
+    ITEM_SUBCLASS_MISCELLANEOUS_HOLIDAY         = 3,
+    ITEM_SUBCLASS_MISCELLANEOUS_OTHER           = 4,
+    ITEM_SUBCLASS_MISCELLANEOUS_MOUNT           = 5,
 };
 
-#define MAX_ITEM_SUBCLASS_JUNK                    13
+#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           6
 
 enum ItemSubclassGlyph
 {
@@ -627,10 +646,26 @@ enum ItemSubclassGlyph
     ITEM_SUBCLASS_GLYPH_SHAMAN                  = 7,
     ITEM_SUBCLASS_GLYPH_MAGE                    = 8,
     ITEM_SUBCLASS_GLYPH_WARLOCK                 = 9,
-    ITEM_SUBCLASS_GLYPH_DRUID                   = 11
+    ITEM_SUBCLASS_GLYPH_MONK                    = 10,
+    ITEM_SUBCLASS_GLYPH_DRUID                   = 11,
+    ITEM_SUBCLASS_GLYPH_DEMON_HUNTER            = 12
 };
 
-#define MAX_ITEM_SUBCLASS_GLYPH                   12
+#define MAX_ITEM_SUBCLASS_GLYPH                   13
+
+enum ItemSubclassBattlePet
+{
+    ITEM_SUBCLASS_BATTLE_PET                    = 0
+};
+
+#define MAX_ITEM_SUBCLASS_BATTLE_PET              1
+
+enum ItemSubclassWowToken
+{
+    ITEM_SUBCLASS_WOW_TOKEN                     = 0
+};
+
+#define MAX_ITEM_SUBCLASS_WOW_TOKEN               1
 
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
@@ -642,15 +677,17 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_REAGENT,
     MAX_ITEM_SUBCLASS_PROJECTILE,
     MAX_ITEM_SUBCLASS_TRADE_GOODS,
-    MAX_ITEM_SUBCLASS_GENERIC,
+    MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT,
     MAX_ITEM_SUBCLASS_RECIPE,
     MAX_ITEM_SUBCLASS_MONEY,
     MAX_ITEM_SUBCLASS_QUIVER,
     MAX_ITEM_SUBCLASS_QUEST,
     MAX_ITEM_SUBCLASS_KEY,
     MAX_ITEM_SUBCLASS_PERMANENT,
-    MAX_ITEM_SUBCLASS_JUNK,
-    MAX_ITEM_SUBCLASS_GLYPH
+    MAX_ITEM_SUBCLASS_MISCELLANEOUS,
+    MAX_ITEM_SUBCLASS_GLYPH,
+    MAX_ITEM_SUBCLASS_BATTLE_PET,
+    MAX_ITEM_SUBCLASS_WOW_TOKEN
 };
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21

@@ -1457,6 +1457,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
 
     switch (CriteriaAdditionalCondition(reqType))
     {
+        case CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
+        {
+            // miscValue1 is itemid
+            ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+            if (!item || item->GetBaseItemLevel() < reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY: // 4
             if (!unit || unit->GetEntry() != reqValue)
                 return false;
