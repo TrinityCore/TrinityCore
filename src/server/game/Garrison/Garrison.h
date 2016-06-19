@@ -21,6 +21,12 @@
 #include "Player.h"
 #include "GarrisonPackets.h"
 
+enum GarrisonType
+{
+    GARRISON_TYPE_GARRISON      = 2,
+    GARRISON_TYPE_CLASS_ORDER   = 3
+};
+
 enum GarrisonFactionIndex
 {
     GARRISON_FACTION_INDEX_HORDE    = 0,
@@ -74,7 +80,8 @@ enum GarrisonFollowerStatus
 {
     FOLLOWER_STATUS_FAVORITE    = 0x01,
     FOLLOWER_STATUS_EXHAUSTED   = 0x02,
-    FOLLOWER_STATUS_INACTIVE    = 0x04
+    FOLLOWER_STATUS_INACTIVE    = 0x04,
+    FOLLOWER_STATUS_TROOP       = 0x08
 };
 
 class GameObject;
