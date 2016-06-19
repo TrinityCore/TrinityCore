@@ -54,6 +54,7 @@ namespace WorldPackets
             uint8 Index = 0;
             bool Usable = false;
             std::vector<InspectEnchantData> Enchants;
+            std::vector<Item::ItemGemInstanceData> Gems;
         };
 
         struct InspectGuildData
@@ -70,13 +71,14 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            ObjectGuid InspecteeGUID;
             std::vector<InspectItemData> Items;
+            std::vector<uint16> Glyphs;
+            std::vector<uint16> Talents;
+            std::vector<uint16> PvpTalents;
             int32 ClassID = CLASS_NONE;
             int32 GenderID = GENDER_NONE;
-            std::vector<uint16> Talents;
-            std::vector<uint16> Glyphs;
             Optional<InspectGuildData> GuildData;
-            ObjectGuid InspecteeGUID;
             int32 SpecializationID = 0;
         };
 
