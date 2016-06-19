@@ -1870,12 +1870,6 @@ struct SpellItemEnchantmentConditionEntry
     //uint8   Logic[5]                                      // 25-30    m_logic[5]
 };
 
-struct SpellIconEntry
-{
-	uint32 ID;                                              // 0
-	char* spellIcon;                                        // 1
-};
-
 struct StableSlotPricesEntry
 {
     uint32 Slot;

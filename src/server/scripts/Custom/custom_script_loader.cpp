@@ -27,7 +27,6 @@ void AddSC_REFORGER_NPC();
 void AddSC_guildmaster();
 void AddSC_solocraft();
 void AddSC_Npc_Beastmaster();
-void MercenarySetup();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -44,5 +43,4 @@ void AddCustomScripts()
 	AddSC_guildmaster();
 	AddSC_solocraft();
 	AddSC_Npc_Beastmaster();
-	MercenarySetup();
 }
