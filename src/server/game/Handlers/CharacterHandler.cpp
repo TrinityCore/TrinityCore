@@ -1356,7 +1356,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
              >> customizeInfo.FacialHair
              >> customizeInfo.Face;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DATA_NAME);
     stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1370,6 +1370,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     uint8 plrRace = fields[0].GetUInt8();
     uint8 plrClass = fields[1].GetUInt8();
     uint8 plrGender = fields[2].GetUInt8();
+    std::string plrName = fields[3].GetString();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
     {
@@ -1402,6 +1403,13 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!normalizePlayerName(customizeInfo.Name))
     {
         SendCharCustomize(CHAR_NAME_NO_NAME, customizeInfo);
+        return;
+    }
+
+    //Prevent To Rename Character (Poriya)
+    if ((customizeInfo.Name != plrName) && (sWorld->getIntConfig(CONFIG_PERVENT_RENAME_CUSTOMIZATION) == 1))
+    {
+        SendCharCustomize(CHAR_NAME_FAILURE, customizeInfo);
         return;
     }
 
@@ -1614,6 +1622,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
+    std::string oldName = nameData->Name;
     uint8 oldRace = nameData->Race;
     uint8 playerClass = nameData->Class;
     uint8 level = nameData->Level;
@@ -1670,6 +1679,12 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
+    //Prevent To rename Character (Poriya)
+    if ((factionChangeInfo.Name != oldName) && (sWorld->getIntConfig(CONFIG_PERVENT_RENAME_CUSTOMIZATION) == 1))
+    {
+        SendCharFactionChange(CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, factionChangeInfo);
+        return;
+    }
     // check name limitations
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(factionChangeInfo.Name))
     {
