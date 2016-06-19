@@ -113,7 +113,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 #endif
     Creature* unit = NULL;
     GameObject* go = NULL;
-    if (guid.IsCreatureOrVehicle())
+	if ((guid.IsCreatureOrVehicle() || guid.IsCreatureOrPet()))
     {
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP);
         if (!unit)

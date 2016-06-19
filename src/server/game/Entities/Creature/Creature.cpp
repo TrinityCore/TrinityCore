@@ -50,6 +50,7 @@
 #include "LuaEngine.h"
 #endif
 #include "Transport.h"
+#include "MercenaryMgr.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -371,6 +372,11 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+	else
+		RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+
     SetDisplayId(displayID);
     SetNativeDisplayId(displayID);
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
@@ -434,6 +440,11 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2 | UNIT_FLAG2_MIRROR_IMAGE);
+	else
+		SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
 
