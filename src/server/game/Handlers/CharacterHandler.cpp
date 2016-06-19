@@ -1406,7 +1406,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
         return;
     }
 
-    //Prevent To Rename Character (Poriya)
+    //Prevent To Rename Character
     if ((customizeInfo.Name != plrName) && (sWorld->getIntConfig(CONFIG_PERVENT_RENAME_CUSTOMIZATION) == 1))
     {
         SendCharCustomize(CHAR_NAME_FAILURE, customizeInfo);
@@ -1679,7 +1679,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
-    //Prevent To rename Character (Poriya)
+    //Prevent To rename Character
     if ((factionChangeInfo.Name != oldName) && (sWorld->getIntConfig(CONFIG_PERVENT_RENAME_CUSTOMIZATION) == 1))
     {
         SendCharFactionChange(CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, factionChangeInfo);
