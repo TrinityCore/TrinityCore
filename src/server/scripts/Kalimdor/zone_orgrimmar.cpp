@@ -32,6 +32,8 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "GridNotifiers.h"
 
 /*######
@@ -348,7 +350,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override 
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -528,7 +530,7 @@ enum HeraldTalk
 
     SAY_SYLVANAS_0              = 0, // Lady Proudmoore, the Warchief speaks the truth. This subterfuge was set in motion by Varimathras and Grand Apothecary Putress. It was not the Horde's doing.
     SAY_SYLVANAS_1              = 1, // As the combined Horde and Alliance forces began their assault upon the Wrath Gate, an uprising broke out in the Undercity. Varimathras and hordes of his demonic brethren attacked. Hundreds of my people were slain in the coup. I barely managed to escape with my life.
-    
+
     SAY_JAINA_0                 = 0, // Thrall, what has happened? The King is preparing for war...
     SAY_JAINA_1                 = 1, // I will deliver this information to King Wrynn, Thrall, but...
     SAY_JAINA_2                 = 2, // Bolvar was like a brother to him. In the King's absence, Bolvar kept the Alliance united. He found strength for our people in our darkest hours. He watched over Anduin, raising him as his own.
