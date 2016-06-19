@@ -1553,6 +1553,13 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
         return;
     }
 
+    // prevent character rename
+    if (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION) && (customizeInfo->CharName != oldName))
+    {
+        SendCharCustomize(CHAR_NAME_FAILURE, customizeInfo.get());
+        return;
+    }
+
     atLoginFlags &= ~AT_LOGIN_CUSTOMIZE;
 
     // prevent character rename to invalid name
@@ -1811,6 +1818,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         return;
     }
 
+    std::string oldName = characterInfo->Name;
     uint8 oldRace     = characterInfo->Race;
     uint8 playerClass = characterInfo->Class;
     uint8 level       = characterInfo->Level;
@@ -1853,6 +1861,13 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
             return;
         }
+    }
+
+    // prevent character rename
+    if (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION) && (factionChangeInfo->Name != oldName))
+    {
+        SendCharFactionChange(CHAR_NAME_FAILURE, factionChangeInfo.get());
+        return;
     }
 
     // prevent character rename to invalid name
