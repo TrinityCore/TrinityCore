@@ -3798,6 +3798,18 @@ Custom.RespawnSpeed = 1.0
 Custom.FastFishing = 0
 
 #
+#     Custom.AttackSpeedForPlayer
+#     Custom.AttackSpeedForMobs
+#         Set it to a number upper than 1 to speed up the attack of the player or the mobs
+#     Default : 1.0 (Normal speed)
+#     Example : 2.0 (attack speed is 200% faster)
+#     Example : 0.5 (attack speed is 50% slower)
+#
+
+Custom.AttackSpeedForPlayer = 1.0
+Custom.AttackSpeedForMobs = 1.0
+
+#
 ###################################################################################################
 
 ###################################################################################################
