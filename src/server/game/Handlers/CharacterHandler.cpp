@@ -1679,10 +1679,10 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
-    //Prevent To rename Character
+    //Prevent To Rename Character
     if ((factionChangeInfo.Name != oldName) && (sWorld->getBoolConfig(CONFIG_PERVENT_RENAME_CUSTOMIZATION)))
     {
-        SendCharFactionChange(CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, factionChangeInfo);
+        SendCharFactionChange(CHAR_NAME_FAILURE, factionChangeInfo);
         return;
     }
     // check name limitations
