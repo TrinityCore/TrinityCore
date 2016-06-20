@@ -428,6 +428,20 @@ WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::SupercededSpells::Write()
+{
+    _worldPacket << uint32(SpellID.size());
+    _worldPacket << uint32(Superceded.size());
+
+    if (!SpellID.empty())
+        _worldPacket.append(SpellID.data(), SpellID.size());
+
+    if (!Superceded.empty())
+        _worldPacket.append(Superceded.data(), Superceded.size());
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 {
     _worldPacket << CasterUnit;
