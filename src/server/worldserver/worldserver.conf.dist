@@ -3810,6 +3810,34 @@ Custom.AttackSpeedForPlayer = 1.0
 Custom.AttackSpeedForMobs = 1.0
 
 #
+#     Custom.SpeedGame
+#         Set it to a number upper than 1 to speed up realm timer
+#     Default : 1 (Real Time)
+#     Example : 60 to force 1scde (real time) = 1 minute (realm timer)
+
+Custom.SpeedGame = 1
+
+#     Custom.NoCastTime
+#         Set it to 1 to disable cast time
+#     Default : 0 (Cast Time Enable)
+#
+
+Custom.NoCastTime = 0
+
+#     Custom.NoCooldown
+#         Set it to 1 to disable cooldown
+#     Default : 0 (Cooldown Enable)
+#
+
+Custom.NoCooldown = 0
+
+#     Custom.HurtInRealTime
+#         Set it to 1 to disable autohurt with weapon
+#     Default : 0 (Autohurt Enable)
+
+Custom.HurtInRealTime = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
