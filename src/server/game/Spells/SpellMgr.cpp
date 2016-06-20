@@ -1281,11 +1281,8 @@ void SpellMgr::LoadSpellRanks()
         if (hasPrev.count(itr->first))
             continue;
 
-        SpellInfo const* first = GetSpellInfo(itr->first);
-        SpellInfo const* next = GetSpellInfo(itr->second);
-
-        if (!first || next)
-            continue;
+        SpellInfo const* first = AssertSpellInfo(itr->first);
+        SpellInfo const* next = AssertSpellInfo(itr->second);
 
         mSpellChains[itr->first].first = first;
         mSpellChains[itr->first].prev = nullptr;
@@ -1305,10 +1302,8 @@ void SpellMgr::LoadSpellRanks()
         auto nextItr = chains.find(itr->second);
         while (nextItr != chains.end())
         {
-            SpellInfo const* prev = GetSpellInfo(nextItr->first); // already checked in previous iteration (or above, in case this is the first one)
-            SpellInfo const* last = GetSpellInfo(nextItr->second);
-            if (!last)
-                break;
+            SpellInfo const* prev = AssertSpellInfo(nextItr->first); // already checked in previous iteration (or above, in case this is the first one)
+            SpellInfo const* last = AssertSpellInfo(nextItr->second);
 
             mSpellChains[nextItr->first].next = last;
 

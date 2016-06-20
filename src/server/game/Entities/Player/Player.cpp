@@ -2905,6 +2905,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     bool dependent_set = false;
     bool disabled_case = false;
+    bool superceded_old = false;
 
     PlayerSpellMap::iterator itr = m_spells.find(spellId);
 
@@ -3052,6 +3053,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                             itr2->second->active = false;
                             if (itr2->second->state != PLAYERSPELL_NEW)
                                 itr2->second->state = PLAYERSPELL_CHANGED;
+                            superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
                         else
                         {
@@ -3171,7 +3173,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     // return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
-    return active && !disabled;
+    return active && !disabled && !superceded_old;
 }
 
 void Player::AddTemporarySpell(uint32 spellId)
@@ -22646,6 +22648,11 @@ void Player::LearnQuestRewardedSpells()
 
 void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
+    // bad hack to work around data being suited only for the client - AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN for riding
+    // client uses it to show riding in spellbook as trainable
+    if (skillId == SKILL_RIDING)
+        return;
+
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
@@ -26059,9 +26066,10 @@ void Player::SendUpdatePhasing()
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 {
-    WorldPacket data(SMSG_SUPERCEDED_SPELLS, 8);
-    data << uint32(newSpell) << uint32(oldSpell);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spells::SupercededSpells supercededSpells;
+    supercededSpells.SpellID.push_back(newSpell);
+    supercededSpells.Superceded.push_back(oldSpell);
+    GetSession()->SendPacket(supercededSpells.Write());
 }
 
 uint32 Player::CalculateTalentsTiers() const
