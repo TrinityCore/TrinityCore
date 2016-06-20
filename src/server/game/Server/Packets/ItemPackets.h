@@ -135,7 +135,7 @@ namespace WorldPackets
 
         struct ItemPurchaseContents
         {
-            uint32 Money = 0;
+            uint64 Money = 0;
             ItemPurchaseRefundItem Items[5] = { };
             ItemPurchaseRefundCurrency Currencies[5] = { };
         };
@@ -366,9 +366,9 @@ namespace WorldPackets
         public:
             enum DisplayType
             {
-                DISPLAY_TYPE_ENCOUNTER_LOOT = 1,
-                DISPLAY_TYPE_NORMAL = 2,
-                DISPLAY_TYPE_HIDDEN = 3
+                DISPLAY_TYPE_HIDDEN = 0,
+                DISPLAY_TYPE_NORMAL = 1,
+                DISPLAY_TYPE_ENCOUNTER_LOOT = 2
             };
 
             ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
@@ -379,11 +379,11 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            uint32 QuestLogItemID           = 0; // Item ID used for updating quest progress
+            int32 QuestLogItemID            = 0; // Item ID used for updating quest progress
                                                  // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
-            uint32 DungeonEncounterID       = 0;
+            int32 DungeonEncounterID       = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
@@ -527,8 +527,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Item;
-            int32 Sockets[MAX_GEM_SOCKETS] = {};
-            int32 SocketMatch = 0;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);

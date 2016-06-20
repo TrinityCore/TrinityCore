@@ -22397,7 +22397,6 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     raidInstanceMessage.Type = type;
     raidInstanceMessage.MapID = mapid;
     raidInstanceMessage.DifficultyID = difficulty;
-    raidInstanceMessage.TimeLeft = int32(time);
     if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
         raidInstanceMessage.Locked = bind->perm;
     else
