@@ -3029,6 +3029,16 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#    PreventRenameCharacterOnCustomization
+#        Description: if equal to 1 when players wants to do Customizations Can't Rename Character Too
+#                     work with all character customization commands.
+#        Default:     0 - Disable(character can rename at character Customizations)
+#                     1 - Enable(Can't Rename on Character Customizations)
+#
+
+PreventRenameCharacterOnCustomization = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -3737,20 +3747,6 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
-
-#
-###################################################################################################
-
-###################################################################################################
-#
-#    PreventRenameCharacterOnCustomization
-#        Description: if equal to 1 when players wants to do Customizations Can't Rename Character Too
-#                     work with all character customization commands.
-#        Default:     0 - Disable(character can rename at character Customizations)
-#                     1 - Enable(Can't Rename on Character Customizations)
-#
-
-PreventRenameCharacterOnCustomization = 0
 
 #
 ###################################################################################################
