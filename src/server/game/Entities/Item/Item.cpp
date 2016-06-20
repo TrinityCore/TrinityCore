@@ -1013,11 +1013,6 @@ void Item::SendUpdateSockets()
 {
     WorldPackets::Item::SocketGemsResult socketGems;
     socketGems.Item = GetGUID();
-    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        socketGems.Sockets[i] = int32(GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i)));
-
-    socketGems.SocketMatch = int32(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
-
     GetOwner()->GetSession()->SendPacket(socketGems.Write());
 }
 
