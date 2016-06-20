@@ -1332,7 +1332,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnablePrefixCorrection", true);
 
     //Prevent Rename Character on Character Customization
-    m_int_configs[CONFIG_PERVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetIntDefault("PreventRenameCharacterOnCustomization", 0);
+    m_bool_configs[CONFIG_PERVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
