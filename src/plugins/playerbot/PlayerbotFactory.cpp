@@ -1732,6 +1732,6 @@ void PlayerbotFactory::InitGuild()
         return;
     }
 
-    if (guild->GetMemberCount() < 10)
+    if (guild->GetMemberCount() < 100)
         guild->AddMember(bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
 }
