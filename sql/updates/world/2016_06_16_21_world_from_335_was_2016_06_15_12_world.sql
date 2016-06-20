@@ -93,7 +93,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (25951,0,0,'Yess. The Tidehunter will be pleased at this development. The Firelord\'s hold will weaken.',12,0,100,1,0,0,'Heretic Emissary',25124),
 (25951,1,0,'Skar\'this has informed us well. We have worked our way into the slave pens and await your cryomancerss.',12,0,100,1,0,0,'Heretic Emissary',25127);
 
-DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1 AND `eventEntry`=1;
+DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+14 AND `eventEntry`=1;
 INSERT INTO `game_event_creature` SELECT 1, creature.guid FROM `creature` WHERE creature.guid BETWEEN @CGUID+0 AND @CGUID+14;
-DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+1 AND `eventEntry`=1;
+DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+14 AND `eventEntry`=1;
 INSERT INTO `game_event_gameobject` SELECT 1, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+14;
