@@ -1356,7 +1356,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
              >> customizeInfo.FacialHair
              >> customizeInfo.Face;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DATA_NAME);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
     stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1370,7 +1370,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     uint8 plrRace = fields[0].GetUInt8();
     uint8 plrClass = fields[1].GetUInt8();
     uint8 plrGender = fields[2].GetUInt8();
-    std::string plrName = fields[3].GetString();
+    std::string plrName = fields[4].GetString();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
     {
