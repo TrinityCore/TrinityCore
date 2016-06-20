@@ -17,7 +17,6 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_announce_login();
-void AddSC_LearnSpellsOnLevelUp();
 void AddSC_XpWeekend();
 void AddSC_PvP_System();
 void AddSC_VAS_AutoBalance();
@@ -33,7 +32,6 @@ void AddSC_Npc_Beastmaster();
 void AddCustomScripts()
 {
 	AddSC_announce_login();
-	AddSC_LearnSpellsOnLevelUp();
 	AddSC_XpWeekend();
 	AddSC_PvP_System();
 	AddSC_VAS_AutoBalance();
