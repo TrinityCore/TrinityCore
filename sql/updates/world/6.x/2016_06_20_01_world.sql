@@ -12,7 +12,7 @@ SET @TIMER    := 30;     -- Respawn timer in seconds
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID1 AND @OGUID1+@LASTGUID;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID2 AND @OGUID2+@LASTGUID;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID3 AND @OGUID3+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 -- Mithril Deposits
 (@OGUID1+0,2040,1,1,1,0,3518.36,-1096.71,230.29,4.485497,0,0,0,1, @TIMER, 255, 1),
 (@OGUID1+1,2040,1,1,1,0,3532.12,-1080.09,234.065,4.485497,0,0,0,1, @TIMER, 255, 1),
@@ -1427,3 +1427,5 @@ INSERT INTO `pool_pool` (`pool_id`,`mother_pool`,`chance`,`description`) VALUES
 (@POOL+171,@MOTHER,0, 'Felwood Ore Spawnpoint'),
 (@POOL+172,@MOTHER,0, 'Felwood Ore Spawnpoint'),
 (@POOL+173,@MOTHER,0, 'Felwood Ore Spawnpoint');
+
+UPDATE `gameobject` SET `PhaseId`=169 WHERE `PhaseId`=1;
