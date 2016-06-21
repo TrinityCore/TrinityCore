@@ -63,6 +63,7 @@ TC_GAME_API extern DB2Storage<ImportPriceQualityEntry>              sImportPrice
 TC_GAME_API extern DB2Storage<ImportPriceShieldEntry>               sImportPriceShieldStore;
 TC_GAME_API extern DB2Storage<ImportPriceWeaponEntry>               sImportPriceWeaponStore;
 TC_GAME_API extern DB2Storage<ItemClassEntry>                       sItemClassStore;
+TC_GAME_API extern DB2Storage<ItemUpgradeEntry>                    sItemUpgradeStore;
 TC_GAME_API extern DB2Storage<ItemCurrencyCostEntry>                sItemCurrencyCostStore;
 TC_GAME_API extern DB2Storage<ItemDisenchantLootEntry>              sItemDisenchantLootStore;
 TC_GAME_API extern DB2Storage<ItemEffectEntry>                      sItemEffectStore;
@@ -150,6 +151,7 @@ public:
     typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
+    typedef std::map<uint32, uint32> RulesetItemUpgradeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
@@ -181,6 +183,7 @@ public:
     uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
+    uint32 GetRulesetItemUpgrade(uint32 itemId);
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
@@ -217,6 +220,7 @@ private:
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
+    RulesetItemUpgradeContainer _rulesetItemUpgrade;
     QuestPackageItemContainer _questPackages;
     SpecializationSpellsContainer _specializationSpellsBySpec;
     SpellPowerContainer _spellPowers;

@@ -668,6 +668,24 @@ struct ItemBonusTreeNodeEntry
     uint32 BonusListID;                                             // 4
 };
 
+struct ItemUpgradeEntry
+{
+    uint32 ID;
+    uint32 ItemUpgradePath;
+    uint32 LevelUpgrade;
+    uint32 prevItemUpgradeId;
+    uint32 CurrencyId;
+    uint32 CurrencyCost;
+};
+
+struct RulesetItemUpgradeEntry
+{
+    uint32 ID;
+    uint32 unk;
+    uint32 ItemUpgradeID;
+    uint32 ItemID;
+};
+
 struct ItemClassEntry
 {
     uint32 ID;                                                      // 0

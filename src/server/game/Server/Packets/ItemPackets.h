@@ -502,6 +502,20 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
         };
 
+        class UpgradeItem final : public ClientPacket
+        {
+        public:
+            UpgradeItem(WorldPacket&& packet) : ClientPacket(CMSG_UPGRADE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Npc;
+            ObjectGuid ItemGUID;
+            uint32 UpgradeID;
+            uint32 bag;
+            uint32 slot;
+        };
+
         class SocketGems final : public ClientPacket
         {
         public:

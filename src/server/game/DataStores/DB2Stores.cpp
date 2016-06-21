@@ -68,6 +68,8 @@ DB2Storage<ImportPriceWeaponEntry>              sImportPriceWeaponStore("ImportP
 DB2Storage<ItemAppearanceEntry>                 sItemAppearanceStore("ItemAppearance.db2", ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", ItemBonusFormat, HOTFIX_SEL_ITEM_BONUS);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeFormat, HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
+DB2Storage<ItemUpgradeEntry>                    sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeEntryfmt, HOTFIX_SEL_ITEM_UPGRADE);
+DB2Storage<RulesetItemUpgradeEntry>         sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeEntryfmt, HOTFIX_SEL_RULESET_ITEM_UPGRADE);
 DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassFormat, HOTFIX_SEL_ITEM_CLASS);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostFormat, HOTFIX_SEL_ITEM_CURRENCY_COST);
 DB2Storage<ItemDisenchantLootEntry>             sItemDisenchantLootStore("ItemDisenchantLoot.db2", ItemDisenchantLootFormat, HOTFIX_SEL_ITEM_DISENCHANT_LOOT);
@@ -250,6 +252,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemAppearanceStore);
     LOAD_DB2(sItemBonusStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
+    LOAD_DB2(sItemUpgradeStore);
+    LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDisenchantLootStore);
@@ -364,6 +368,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
         _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
+
+    for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
+        if (rulesetItemUpgrade->unk == 1)
+            _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
 
     {
         std::set<uint32> scalingCurves;
@@ -715,6 +723,15 @@ uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
         if (itr != _itemDisplayIDs.end())
             return itr->second;
     }
+
+    return 0;
+}
+
+uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId)
+{
+    auto itr = _rulesetItemUpgrade.find(itemId);
+    if (itr != _rulesetItemUpgrade.end())
+        return itr->second;
 
     return 0;
 }

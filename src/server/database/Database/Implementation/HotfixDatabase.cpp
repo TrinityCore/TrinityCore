@@ -229,6 +229,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, Flags, PriceMod, Name FROM item_class ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, Name_lang FROM item_class_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    //ItemUpgrade.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_UPGRADE, "SELECT ID, UpgradePath, LevelUpgrade, prevUpgradeId, CurrencyId, CurrencyCost FROM item_upgrade ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    //RulesetItemUpgrade.db2
+    PrepareStatement(HOTFIX_SEL_RULESET_ITEM_UPGRADE, "SELECT ID, unk, ItemUpgradeID, ItemID FROM ruleset_item_upgrade ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemId FROM item_currency_cost ORDER BY ID DESC", CONNECTION_SYNCH);
 
