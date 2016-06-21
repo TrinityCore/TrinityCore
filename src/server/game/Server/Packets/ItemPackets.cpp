@@ -553,3 +553,11 @@ WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();//dose it needed?
+
+    return &_worldPacket;
+}

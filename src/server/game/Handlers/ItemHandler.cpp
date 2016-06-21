@@ -1330,6 +1330,10 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
         return;
     }
 
+    WorldPackets::Item::ItemUpgradeResult itemUpgradeResult;
+    itemUpgradeResult.Success = true;
+    SendPacket(itemUpgradeResult.Write());
+
     item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemUpgradeEntry->ID);
     item->SetState(ITEM_CHANGED, player);
     player->ModifyCurrency(itemUpgradeEntry->CurrencyId, -int32(itemUpgradeEntry->CurrencyCost));

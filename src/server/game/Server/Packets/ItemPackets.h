@@ -516,6 +516,16 @@ namespace WorldPackets
             int32 Slot = 0;
         };
 
+        class ItemUpgradeResult final : public ServerPacket
+        {
+        public:
+            ItemUpgradeResult() : ServerPacket(SMSG_ITEM_UPGRADE_RESULT, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Success = false;
+        };
+
         class SocketGems final : public ClientPacket
         {
         public:
