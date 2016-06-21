@@ -534,8 +534,8 @@ void WorldPackets::Item::UpgradeItem::Read()
     _worldPacket >> Npc;
     _worldPacket >> ItemGuid;
     _worldPacket >> UpgradeID;
-    _worldPacket >> bag;
-    _worldPacket >> slot;
+    _worldPacket >> ContainerSlot;
+    _worldPacket >> Slot;
 }
 
 void WorldPackets::Item::SocketGems::Read()

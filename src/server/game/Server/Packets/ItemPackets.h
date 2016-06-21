@@ -511,9 +511,9 @@ namespace WorldPackets
 
             ObjectGuid Npc;
             ObjectGuid ItemGUID;
-            uint32 UpgradeID;
-            uint32 bag;
-            uint32 slot;
+            int32 ContainerSlot = 0;
+            int32 UpgradeID = 0;
+            int32 Slot = 0;
         };
 
         class SocketGems final : public ClientPacket
