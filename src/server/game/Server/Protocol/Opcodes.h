@@ -1151,7 +1151,6 @@ enum OpcodeServer : uint32
     SMSG_ITEM_PURCHASE_REFUND_RESULT                  = 0x2535,
     SMSG_ITEM_PUSH_RESULT                             = 0x25BA,
     SMSG_ITEM_TIME_UPDATE                             = 0x2714,
-    SMSG_ITEM_UPGRADE_RESULT                     = 0x25DB,
     SMSG_KICK_REASON                                  = 0x2798,
     SMSG_LEARNED_SPELLS                               = 0x2BCB,
     SMSG_LEARN_TALENT_FAILED                          = 0x256D,
@@ -1647,6 +1646,7 @@ enum OpcodeServer : uint32
     SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x254B, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x2FCF,
     SMSG_MULTIPLE_PACKETS                             = 0x2FCE,
+    SMSG_ITEM_UPGRADE_RESULT                          = 0x25DB,
 
     // Deleted opcodes, here only to allow compile
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,
