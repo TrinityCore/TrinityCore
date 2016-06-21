@@ -532,7 +532,7 @@ void WorldPackets::Item::UseCritterItem::Read()
 void WorldPackets::Item::UpgradeItem::Read()
 {
     _worldPacket >> Npc;
-    _worldPacket >> ItemGuid;
+    _worldPacket >> ItemGUID;
     _worldPacket >> UpgradeID;
     _worldPacket >> ContainerSlot;
     _worldPacket >> Slot;
