@@ -557,7 +557,7 @@ WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
 WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
 {
     _worldPacket.WriteBit(Success);
-    _worldPacket.FlushBits();//dose it needed?
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
