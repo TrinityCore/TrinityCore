@@ -280,7 +280,11 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
         ItemBonus->Context = 0; /// @todo
     }
 
-    /// no Modifications
+    if (lootItem.upgradeId)
+    {
+        Modifications = boost::in_place();
+        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, lootItem.upgradeId);
+    }
 }
 
 void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidItem)
