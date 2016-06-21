@@ -19,7 +19,7 @@
 void AddSC_announce_login();
 void AddSC_LearnSpellsOnLevelUp();
 void AddSC_XpWeekend();
-void AddSC_PvP_System();
+void AddSC_killstreak_system();
 void AddSC_VAS_AutoBalance();
 void AddSC_item_enchant_visuals();
 void AddSC_Transmogrification();
@@ -27,6 +27,7 @@ void AddSC_REFORGER_NPC();
 void AddSC_guildmaster();
 void AddSC_solocraft();
 void AddSC_Npc_Beastmaster();
+void AddSC_Boss_Announcer();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -35,7 +36,7 @@ void AddCustomScripts()
 	AddSC_announce_login();
 	AddSC_LearnSpellsOnLevelUp();
 	AddSC_XpWeekend();
-	AddSC_PvP_System();
+	AddSC_killstreak_system();
 	AddSC_VAS_AutoBalance();
 	AddSC_item_enchant_visuals();
     AddSC_Transmogrification();
@@ -43,4 +44,5 @@ void AddCustomScripts()
 	AddSC_guildmaster();
 	AddSC_solocraft();
 	AddSC_Npc_Beastmaster();
+	AddSC_Boss_Announcer();
 }
