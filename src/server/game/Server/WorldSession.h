@@ -371,6 +371,7 @@ namespace WorldPackets
         class CancelTempEnchantment;
         class TransmogrifyItems;
         class UseCritterItem;
+        class UpgradeItem;
         class SocketGems;
         struct ItemInstance;
     }
@@ -1426,6 +1427,7 @@ class TC_GAME_API WorldSession
         void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleWrapItem(WorldPackets::Item::WrapItem& packet);
         void HandleUseCritterItem(WorldPackets::Item::UseCritterItem& packet);
+        void HandleUpgradeItem(WorldPackets::Item::UpgradeItem& packet);
 
         void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);

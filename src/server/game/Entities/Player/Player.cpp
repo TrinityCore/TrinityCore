@@ -11038,6 +11038,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         if (randomPropertyId)
             item->SetItemRandomProperties(randomPropertyId);
 
+        if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
+            item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
+
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
 
