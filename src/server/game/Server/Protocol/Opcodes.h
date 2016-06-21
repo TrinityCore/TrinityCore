@@ -1646,6 +1646,7 @@ enum OpcodeServer : uint32
     SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x254B, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x2FCF,
     SMSG_MULTIPLE_PACKETS                             = 0x2FCE,
+    SMSG_ITEM_UPGRADE_RESULT                          = 0x25DB,
 
     // Deleted opcodes, here only to allow compile
     SMSG_ARENA_TEAM_STATS                             = 0xBADD,

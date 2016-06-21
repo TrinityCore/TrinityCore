@@ -529,6 +529,15 @@ void WorldPackets::Item::UseCritterItem::Read()
     _worldPacket >> ItemGuid;
 }
 
+void WorldPackets::Item::UpgradeItem::Read()
+{
+    _worldPacket >> Npc;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> UpgradeID;
+    _worldPacket >> ContainerSlot;
+    _worldPacket >> Slot;
+}
+
 void WorldPackets::Item::SocketGems::Read()
 {
     _worldPacket >> ItemGuid;
@@ -541,6 +550,14 @@ WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
     _worldPacket << Item;
     _worldPacket.append(Sockets, MAX_GEM_SOCKETS);
     _worldPacket << int32(SocketMatch);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

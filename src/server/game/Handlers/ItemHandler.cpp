@@ -1292,3 +1292,49 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     GetBattlePetMgr()->AddPet(battlePetSpecies->ID, battlePetSpecies->CreatureID, BattlePetMgr::RollPetBreed(battlePetSpecies->ID), BattlePetMgr::GetDefaultPetQuality(battlePetSpecies->ID));
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
+
+void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeItem)
+{
+    Player* player = GetPlayer();
+    if (!player->GetNPCIfCanInteractWith(upgradeItem.Npc, UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - %s not found or player can't interact with it.", upgradeItem.Npc.ToString().c_str());
+        return;
+    }
+
+    Item* item = player->GetItemByGuid(upgradeItem.ItemGUID);
+    if (!item)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems: Item %s not found!", upgradeItem.ItemGUID.ToString().c_str());
+        return;
+    }
+
+    ItemUpgradeEntry const* itemUpgradeEntry = sItemUpgradeStore.LookupEntry(upgradeItem.UpgradeID);
+    if (!itemUpgradeEntry)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) not found.", upgradeItem.UpgradeID);
+        return;
+    }
+
+    // Check if player has enough currency
+    if (!player->HasCurrency(itemUpgradeEntry->CurrencyId, itemUpgradeEntry->CurrencyCost))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyId, itemUpgradeEntry->CurrencyCost);
+        return;
+    }
+
+    uint32 actualUpgrade = item->GetModifier(ITEM_MODIFIER_UPGRADE_ID);
+    if (actualUpgrade != itemUpgradeEntry->PrevItemUpgradeId)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpgradeEntry->ID, actualUpgrade);
+        return;
+    }
+
+    WorldPackets::Item::ItemUpgradeResult itemUpgradeResult;
+    itemUpgradeResult.Success = true;
+    SendPacket(itemUpgradeResult.Write());
+
+    item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemUpgradeEntry->ID);
+    item->SetState(ITEM_CHANGED, player);
+    player->ModifyCurrency(itemUpgradeEntry->CurrencyId, -int32(itemUpgradeEntry->CurrencyCost));
+}
