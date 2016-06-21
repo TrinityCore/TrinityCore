@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Thousand Needles
 SD%Complete: 100
-SDComment: Support for Quest: 1950, 4770, 4904, 4966, 5151.
+SDComment: Support for Quest: 4770, 4904, 4966, 5151.
 SDCategory: Thousand Needles
 EndScriptData */
 
@@ -27,7 +27,6 @@ EndScriptData */
 npc_kanati
 npc_lakota_windsong
 npc_swiftmountain
-npc_plucky
 npc_enraged_panther
 go_panther_cage
 EndContentData */
@@ -44,10 +43,9 @@ EndContentData */
 
 enum Kanati
 {
-    SAY_KAN_START              = 0,
-
-    QUEST_PROTECT_KANATI        = 4966,
-    NPC_GALAK_ASS               = 10720
+    SAY_KAN_START        = 0,
+    QUEST_PROTECT_KANATI = 4966,
+    NPC_GALAK_ASS        = 10720
 };
 
 Position const GalakLoc = {-4867.387695f, -1357.353760f, -48.226f, 0.0f};
@@ -112,19 +110,19 @@ public:
 
 enum Lakota
 {
-    SAY_LAKO_START              = 0,
-    SAY_LAKO_LOOK_OUT           = 1,
-    SAY_LAKO_HERE_COME          = 2,
-    SAY_LAKO_MORE               = 3,
-    SAY_LAKO_END                = 4,
+    SAY_LAKO_START        = 0,
+    SAY_LAKO_LOOK_OUT     = 1,
+    SAY_LAKO_HERE_COME    = 2,
+    SAY_LAKO_MORE         = 3,
+    SAY_LAKO_END          = 4,
 
-    QUEST_FREE_AT_LAST          = 4904,
-    NPC_GRIM_BANDIT             = 10758,
-    FACTION_ESCORTEE_LAKO       = 232,                      //guessed
+    QUEST_FREE_AT_LAST    = 4904,
+    NPC_GRIM_BANDIT       = 10758,
+    FACTION_ESCORTEE_LAKO = 232,   //guessed
 
-    ID_AMBUSH_1                 = 0,
-    ID_AMBUSH_2                 = 2,
-    ID_AMBUSH_3                 = 4
+    ID_AMBUSH_1           = 0,
+    ID_AMBUSH_2           = 2,
+    ID_AMBUSH_3           = 4
 };
 
 Position const BanditLoc[6] =
@@ -195,7 +193,6 @@ public:
                 me->SummonCreature(NPC_GRIM_BANDIT, BanditLoc[i+AmbushId], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
-
 };
 
 /*######
@@ -204,13 +201,13 @@ public:
 
 enum Packa
 {
-    SAY_START           = 0,
-    SAY_WYVERN          = 1,
-    SAY_COMPLETE        = 2,
+    SAY_START        = 0,
+    SAY_WYVERN       = 1,
+    SAY_COMPLETE     = 2,
 
-    QUEST_HOMEWARD      = 4770,
-    NPC_WYVERN          = 4107,
-    FACTION_ESCORTEE    = 232                               //guessed
+    QUEST_HOMEWARD   = 4770,
+    NPC_WYVERN       = 4107,
+    FACTION_ESCORTEE = 232                               //guessed
 };
 
 Position const WyvernLoc[3] =
@@ -275,137 +272,10 @@ public:
     };
 };
 
-/*#####
-# npc_plucky
-######*/
-
-#define GOSSIP_P    "Please tell me the Phrase.."
-
-enum Plucky
-{
-    FACTION_FRIENDLY        = 35,
-    QUEST_SCOOP             = 1950,
-    SPELL_PLUCKY_HUMAN      = 9192,
-    SPELL_PLUCKY_CHICKEN    = 9220
-};
-
-class npc_plucky : public CreatureScript
-{
-public:
-    npc_plucky() : CreatureScript("npc_plucky") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->CLOSE_GOSSIP_MENU();
-                player->CompleteQuest(QUEST_SCOOP);
-            break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(738, creature->GetGUID());
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_pluckyAI(creature);
-    }
-
-    struct npc_pluckyAI : public ScriptedAI
-    {
-        npc_pluckyAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            NormFaction = creature->getFaction();
-        }
-
-        void Initialize()
-        {
-            ResetTimer = 120000;
-        }
-
-        uint32 NormFaction;
-        uint32 ResetTimer;
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (me->getFaction() != NormFaction)
-                me->setFaction(NormFaction);
-
-            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            DoCast(me, SPELL_PLUCKY_CHICKEN, false);
-        }
-
-        void ReceiveEmote(Player* player, uint32 TextEmote) override
-        {
-            if (player->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (TextEmote == TEXT_EMOTE_BECKON)
-                {
-                    me->setFaction(FACTION_FRIENDLY);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
-                }
-            }
-
-            if (TextEmote == TEXT_EMOTE_CHICKEN)
-            {
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                    return;
-                else
-                {
-                    me->setFaction(FACTION_FRIENDLY);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                }
-            }
-        }
-
-        void UpdateAI(uint32 Diff) override
-        {
-            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-            {
-                if (ResetTimer <= Diff)
-                {
-                    if (!me->GetVictim())
-                        EnterEvadeMode();
-                    else
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                    return;
-                }
-                else
-                    ResetTimer -= Diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-};
-
 enum PantherCage
 {
-    ENRAGED_PANTHER = 10992
+    QUEST_HYPERCAPACITOR_GIZMO = 5151,
+    ENRAGED_PANTHER            = 10992
 };
 
 class go_panther_cage : public GameObjectScript
@@ -416,7 +286,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         go->UseDoorOrButton();
-        if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(QUEST_HYPERCAPACITOR_GIZMO) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* panther = go->FindNearestCreature(ENRAGED_PANTHER, 5, true))
             {
@@ -466,7 +336,6 @@ void AddSC_thousand_needles()
     new npc_kanati();
     new npc_lakota_windsong();
     new npc_paoka_swiftmountain();
-    new npc_plucky();
     new npc_enraged_panther();
     new go_panther_cage();
 }

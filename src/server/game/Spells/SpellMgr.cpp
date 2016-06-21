@@ -3338,6 +3338,17 @@ void SpellMgr::LoadSpellInfoCorrections()
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 47476: // Deathknight - Strangulate
+            case 15487: // Priest - Silence
+            case 5211:  // Druid - Bash  - R1
+            case 6798:  // Druid - Bash  - R2
+            case 8983:  // Druid - Bash  - R3
+                spellInfo->AttributesEx7 |= SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
+                break;
+            case 42490: // Energized!
+            case 42492: // Cast Energized
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
@@ -3746,14 +3757,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
-                break;
-            case 45257: // Using Steam Tonk Controller
-            case 45440: // Steam Tonk Controller
-            case 60256: // Collect Sample
-            case 45634: // Neural Needle
-            case 54897: // Flaming Arrow
-                // Crashes client on pressing ESC
-                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
                 break;
             // ISLE OF CONQUEST SPELLS
             //
