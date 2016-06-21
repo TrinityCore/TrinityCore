@@ -673,7 +673,7 @@ struct ItemUpgradeEntry
     uint32 ID;                                                      // 0
     uint32 ItemUpgradePath;                                     // 1
     uint32 LevelUpgrade;                                          // 2
-    uint32 prevItemUpgradeId;                                 // 3
+    uint32 PrevItemUpgradeId;                                 // 3
     uint32 CurrencyId;                                             // 4
     uint32 CurrencyCost;                                            // 5
 };
@@ -681,7 +681,7 @@ struct ItemUpgradeEntry
 struct RulesetItemUpgradeEntry
 {
     uint32 ID;                                                      // 0
-    uint32 unk;                                                    // 1
+    uint32 Unk;                                                    // 1
     uint32 ItemUpgradeID;                                    // 2
     uint32 ItemID;                                               // 3
 };

@@ -1324,7 +1324,7 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
     }
 
     uint32 actualUpgrade = item->GetModifier(ITEM_MODIFIER_UPGRADE_ID);
-    if (actualUpgrade != itemUpgradeEntry->prevItemUpgradeId)
+    if (actualUpgrade != itemUpgradeEntry->PrevItemUpgradeId)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpgradeEntry->ID, actualUpgrade);
         return;
