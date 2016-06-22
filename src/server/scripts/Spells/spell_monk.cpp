@@ -304,14 +304,11 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (SpellEffectInfo const* eff = GetSpellInfo()->GetEffect(EFFECT_1))
-                {
-                    targets.remove(GetExplTargetWorldObject());
-                    if (targets.empty())
-                        return;
-                    targets.sort(Trinity::HealthPctOrderPred());
-                    targets.resize(1);
-                }
+                targets.remove(GetExplTargetWorldObject());
+                if (targets.empty())
+                    return;
+                targets.sort(Trinity::HealthPctOrderPred());
+                targets.resize(1);
             }
 
             void HandleDummy(SpellEffIndex effIndex)
