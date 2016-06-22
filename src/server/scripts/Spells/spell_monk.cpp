@@ -310,7 +310,7 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
                     if (targets.empty())
                         return;
                     targets.sort(Trinity::HealthPctOrderPred());
-                    targets.resize(eff->BasePoints);
+                    targets.resize(1);
                 }
             }
 
@@ -333,8 +333,6 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_renewing_mist_target_selector_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_target_selector_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
-
-            bool emptyTargets;
         };
 
         SpellScript* GetSpellScript() const override
