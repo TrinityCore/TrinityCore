@@ -38,7 +38,7 @@ enum MonkSpells
     SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL              = 119611,
     SPELL_MONK_RENEWING_MIST_TARGET_SELECT              = 119607,
     SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL               = 119647,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436
 };
 
 // 117952 - Crackling Jade Lightning
@@ -288,10 +288,7 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
             PrepareSpellScript(spell_monk_renewing_mist_target_selector_SpellScript);
 
         public:
-            spell_monk_renewing_mist_target_selector_SpellScript()
-            {
-                emptyTargets = false;
-            }
+            spell_monk_renewing_mist_target_selector_SpellScript() { }
 
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -311,10 +308,7 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
                 {
                     targets.remove(GetExplTargetWorldObject());
                     if (targets.empty())
-                    {
-                        emptyTargets = true;
                         return;
-                    }
                     targets.sort(Trinity::HealthPctOrderPred());
                     targets.resize(eff->BasePoints);
                 }
@@ -323,16 +317,15 @@ class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
             void HandleDummy(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (!emptyTargets)
-                    if (Unit* target = GetHitUnit())
-                        if (Aura* aura = GetExplTargetUnit()->GetAura(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, GetCaster()->GetGUID()))
-                            if (AuraEffect* effect = aura->GetEffect(EFFECT_1))
-                            {
-                                GetExplTargetUnit()->CastSpell(target, SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL, true);
-                                aura->SetCharges(0);
-                                int32 bp1 = std::max(0, effect->GetAmount() - 1);
-                                GetExplTargetUnit()->CastCustomSpell(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, SPELLVALUE_BASE_POINT1, bp1, target, true, 0, effect, GetCaster()->GetGUID());
-                            }
+                if (Unit* target = GetHitUnit())
+                    if (Aura* aura = GetExplTargetUnit()->GetAura(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, GetCaster()->GetGUID()))
+                        if (AuraEffect* effect = aura->GetEffect(EFFECT_1))
+                        {
+                            GetExplTargetUnit()->CastSpell(target, SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL, true);
+                            aura->SetCharges(0);
+                            int32 bp1 = std::max(0, effect->GetAmount() - 1);
+                            GetExplTargetUnit()->CastCustomSpell(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, SPELLVALUE_BASE_POINT1, bp1, target, true, 0, effect, GetCaster()->GetGUID());
+                        }
             }
 
             void Register() override
