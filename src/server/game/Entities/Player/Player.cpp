@@ -25451,12 +25451,31 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     // Find out how many points we have in this field
     uint32 spentPoints = 0;
     uint32 primaryTreeTalents = 0;
-    uint32 tTab = talentInfo->TalentTab;
-    bool isMainTree = GetPrimaryTalentTree(GetActiveSpec()) == tTab || !GetPrimaryTalentTree(GetActiveSpec());
+    uint32 primaryTreeId = GetPrimaryTalentTree(GetActiveSpec());
+    bool isMainTree = primaryTreeId == talentInfo->TalentTab || !primaryTreeId;
 
     if (talentInfo->Row > 0 || !isMainTree)
-        for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)          // Loop through all talents.
-            if (sTalentStore.LookupEntry(i))
+    {
+        for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)              // Loop through all talents.
+        {
+            if (const TalentEntry* tmpTalent = sTalentStore.LookupEntry(i)) // Someday, someone needs to revamp the way talents are tracked
+            {
+                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+                {
+                    if (tmpTalent->RankID[rank] != 0)
+                    {
+                        if (HasSpell(tmpTalent->RankID[rank]))
+                        {
+                            if (tmpTalent->TalentTab == talentInfo->TalentTab)
+                                spentPoints += (rank + 1);
+                            if (tmpTalent->TalentTab == primaryTreeId)
+                                primaryTreeTalents += (rank + 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // not have required min points spent in talent tree
     if (spentPoints < (talentInfo->Row * MAX_TALENT_RANK))
