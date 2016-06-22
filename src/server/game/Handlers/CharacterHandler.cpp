@@ -1407,7 +1407,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     //Prevent To Rename Character
-    if ((customizeInfo.Name != plrName) && (!sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
+    if ((customizeInfo.Name != plrName) && (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
     {
         SendCharCustomize(CHAR_NAME_FAILURE, customizeInfo);
         return;
@@ -1680,7 +1680,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     //Prevent To Rename Character
-    if ((factionChangeInfo.Name != oldName) && (!sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
+    if ((factionChangeInfo.Name != oldName) && (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
     {
         SendCharFactionChange(CHAR_NAME_FAILURE, factionChangeInfo);
         return;
