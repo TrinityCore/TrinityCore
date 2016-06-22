@@ -460,7 +460,7 @@ namespace WorldPackets
         class PartyUninvite;
         class GroupDecline;
         class RequestPartyMemberStats;
-        class PartyMemberStats;
+        class PartyMemberState;
         class SetPartyLeader;
         class SetPartyAssignment;
         class SetRole;

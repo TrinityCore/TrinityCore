@@ -1608,7 +1608,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
-        WorldPackets::Party::GroupPlayerInfos playerInfos;
+        WorldPackets::Party::PartyPlayerInfo playerInfos;
 
         playerInfos.GUID = citr->guid;
         playerInfos.Name = citr->name;
@@ -1668,7 +1668,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPackets::Party::PartyMemberStats packet;
+    WorldPackets::Party::PartyMemberState packet;
     packet.Initialize(player);
 
     Player* member;
