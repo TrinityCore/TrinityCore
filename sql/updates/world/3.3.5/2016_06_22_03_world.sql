@@ -1645,8 +1645,8 @@ UPDATE `quest_template_addon` SET `PrevQuestId`=11955 WHERE `Id`=11696; -- Ahune
 
 -- #12
 -- Disable deprecated quests /in 2008/ from Midsummer Fire Festival
-DELETE FROM `Disables` WHERE `sourceType` = 1 AND `entry` in (9388,9322,9389,9323);
-INSERT INTO `Disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
+DELETE FROM `disables` WHERE `sourceType` = 1 AND `entry` in (9388,9322,9389,9323);
+INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
 (1,9388,0,0,0,'Disable quest Flickering Flames in Kalimdor /Deprecated after 2008/'),
 (1,9322,0,0,0,'Disable quest Wild Fires in Kalimdor /Deprecated after 2008/'),
 (1,9389,0,0,0,'Disable quest Flickering Flames in the Eastern Kingdoms /Deprecated after 2008/'),
