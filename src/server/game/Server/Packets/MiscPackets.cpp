@@ -626,3 +626,29 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket.FlushBits();
+
+    // both lists have to have the same size
+    _worldPacket << uint32(Mounts->size());
+    _worldPacket << uint32(Mounts->size());
+
+    for (auto const& spell : *Mounts)
+        _worldPacket << uint32(spell.first);
+
+    for (auto const& favourite : *Mounts)
+        _worldPacket.WriteBit(favourite.second);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::MountSetFavorite::Read()
+{
+    _worldPacket >> MountSpellID;
+    IsFavorite = _worldPacket.ReadBit();
+}

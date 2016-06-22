@@ -477,7 +477,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MASTER_LOOT_ITEM,                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterGiveOpcode      );
     DEFINE_HANDLER(CMSG_MINIMAP_PING,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::MinimapPingClient, &WorldSession::HandleMinimapPingOpcode);
     DEFINE_HANDLER(CMSG_MISSILE_TRAJECTORY_COLLISION,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::MissileTrajectoryCollision, &WorldSession::HandleMissileTrajectoryCollision);
-    DEFINE_HANDLER(CMSG_MOUNT_SET_FAVORITE,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_MOUNT_SET_FAVORITE,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Misc::MountSetFavorite, &WorldSession::HandleMountSetFavorite);
     DEFINE_HANDLER(CMSG_MOUNT_SPECIAL_ANIM,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::MountSpecial, &WorldSession::HandleMountSpecialAnimOpcode);
     DEFINE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                      STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_MOVE_CHANGE_TRANSPORT,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
@@ -803,7 +803,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_CRITERIA_UPDATE,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_HEIRLOOM_UPDATE,                 STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_MOUNT_UPDATE,                    STATUS_UNHANDLED,    CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_MOUNT_UPDATE,                    STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_TOYS_UPDATE,                     STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACHIEVEMENT_DELETED,                     STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACHIEVEMENT_EARNED,                      STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);

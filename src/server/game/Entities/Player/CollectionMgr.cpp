@@ -16,6 +16,7 @@
  */
 
 #include "CollectionMgr.h"
+#include "MiscPackets.h"
 #include "Player.h"
 
 void CollectionMgr::LoadToys()
@@ -258,4 +259,150 @@ bool CollectionMgr::CanApplyHeirloomXpBonus(uint32 itemId, uint32 level)
         return level <= 90;
 
     return level <= 60;
+}
+
+MountDefinitionMap _mountDefinitions;
+
+void CollectionMgr::LoadAccountMounts(PreparedQueryResult result)
+{
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 spellId = fields[0].GetUInt32();
+        bool isFavourite = fields[1].GetBool();
+
+        if (!sDB2Manager.GetMount(spellId))
+            continue;
+
+        _mounts[spellId] = isFavourite;
+    } while (result->NextRow());
+}
+
+void CollectionMgr::SaveAccountMounts(SQLTransaction& trans)
+{
+    PreparedStatement* stmt = nullptr;
+    for (auto const& mount : _mounts)
+    {
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_MOUNTS);
+        stmt->setUInt32(0, _owner->GetBattlenetAccountId());
+        stmt->setUInt32(1, mount.first);
+        stmt->setBool(2, mount.second);
+        trans->Append(stmt);
+    }
+}
+
+bool CollectionMgr::UpdateAccountMounts(uint32 spellId, bool isFavourite)
+{
+    return _mounts.insert(MountContainer::value_type(spellId, isFavourite)).second;
+}
+
+void CollectionMgr::LoadMounts()
+{
+    for (auto const& m : _mounts)
+        AddMount(m.first, m.second, false, true);
+}
+
+bool CollectionMgr::AddMount(uint32 spellId, bool isFavourite /*= false*/, bool factionMount, bool loading /*= false*/)
+{
+    Player* player = _owner->GetPlayer();
+    if (!player)
+        return false;
+
+    MountEntry const* mount = sDB2Manager.GetMount(spellId);
+    if (!mount)
+        return false;  
+
+    MountDefinitionMap::const_iterator itr = _mountDefinitions.find(spellId);
+    if (itr != _mountDefinitions.end() && !factionMount)
+        AddMount(itr->second, isFavourite, true, loading);
+
+    if (mount->PlayerConditionId)
+    {
+        PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mount->PlayerConditionId);
+        if (!ConditionMgr::IsPlayerMeetingCondition(player, playerCondition))
+            return false;
+    }
+
+    UpdateAccountMounts(spellId, isFavourite);
+
+    if (!loading)
+    {
+        if (!factionMount)
+            SendSingleMountUpdate(std::make_pair(spellId, isFavourite));
+        if (!player->HasSpell(spellId))
+            player->LearnSpell(spellId, false);
+    }
+
+    return true;
+}
+
+void CollectionMgr::MountSetFavorite(uint32 spellId, bool favorite)
+{
+    MountContainer::iterator itr = _mounts.find(spellId);
+    if (itr == _mounts.end()) 
+        return;
+
+    itr->second = favorite;
+
+    SendSingleMountUpdate(*itr);
+}
+
+void CollectionMgr::SendSingleMountUpdate(std::pair<uint32, bool> mount)
+{
+    Player* player = _owner->GetPlayer();
+    if (!player)
+        return;
+
+    // Temporary container, just need to store only selected mount
+    MountContainer tempMounts;
+    tempMounts.insert(mount);
+
+    WorldPackets::Misc::AccountMountUpdate mountUpdate;
+    mountUpdate.IsFullUpdate = false;
+    mountUpdate.Mounts = &tempMounts;
+    player->SendDirectMessage(mountUpdate.Write());
+}
+
+void CollectionMgr::LoadMountDefinitions()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT spellId, otherSpellId FROM mount_definitions");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 mount definitions. DB table `mount_definitions` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 spellId = fields[0].GetUInt32();
+        uint32 otherSpellId = fields[1].GetUInt32();
+
+        if (!sDB2Manager.GetMount(spellId))
+        {
+            TC_LOG_ERROR("sql.sql", "Mount spell %u defined in `mount_definitions` does not exists in Mount.db2, skipped", spellId);
+            continue;
+        }
+
+        if (otherSpellId && !sDB2Manager.GetMount(otherSpellId))
+        {
+            TC_LOG_ERROR("sql.sql", "OtherSpell %u defined in `mount_definitions` for spell %u does not exists in Mount.db2, skipped", otherSpellId, spellId);
+            continue;
+        }
+
+        _mountDefinitions[spellId] = otherSpellId;
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u mount definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
