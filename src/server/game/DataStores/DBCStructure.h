@@ -977,7 +977,7 @@ struct SkillLineAbilityEntry
     uint32      ClassMask;                                  // 4
     uint32      MinSkillLineRank;                           // 7
     uint32      SupercedesSpell;                            // 8
-    uint32      AquireMethod;                               // 9
+    uint32      AcquireMethod;                              // 9
     uint32      TrivialSkillLineRankHigh;                   // 10
     uint32      TrivialSkillLineRankLow;                    // 11
     uint32      NumSkillUps;                                // 12

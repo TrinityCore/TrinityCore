@@ -1409,8 +1409,8 @@ void SpellMgr::LoadSpellLearnSkills()
             if (effect && effect->Effect == SPELL_EFFECT_SKILL)
             {
                 SpellLearnSkillNode dbc_node;
-                dbc_node.skill = effect->MiscValue;
-                dbc_node.step  = effect->CalcValue();
+                dbc_node.skill = uint16(effect->MiscValue);
+                dbc_node.step  = uint16(effect->CalcValue());
                 if (dbc_node.skill != SKILL_RIDING)
                     dbc_node.value = 1;
                 else
@@ -1636,7 +1636,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
         // target facing is in degrees for 6484 & 9268... (blizz sucks)
         if (effect->PositionFacing > 2 * M_PI)
-            st.target_Orientation = effect->PositionFacing * M_PI / 180;
+            st.target_Orientation = effect->PositionFacing * float(M_PI) / 180;
         else
             st.target_Orientation = effect->PositionFacing;
 
@@ -2334,7 +2334,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (skillLine->SkillLine != creatureFamily->SkillLine[j])
                     continue;
 
-                if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
                 SpellInfo const* spell = GetSpellInfo(skillLine->SpellID);
@@ -3452,7 +3452,7 @@ void SpellMgr::LoadPetFamilySpellsStore()
                     if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
                         continue;
 
-                    if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                    if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                         continue;
 
                     sPetFamilySpellsStore[i].insert(spellInfo->ID);
