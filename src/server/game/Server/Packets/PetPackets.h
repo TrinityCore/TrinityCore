@@ -83,7 +83,7 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Duration = 0;
             int32 CategoryDuration = 0;
-            int Category = 0;
+            uint16 Category = 0;
         };
 
         struct PetSpellHistory
@@ -106,7 +106,7 @@ namespace WorldPackets
             uint32 TimeLimit = 0;
             uint8 ReactState = 0;
             uint8 CommandState = 0;
-            uint16 Flag = 0;
+            uint8 Flag = 0;
 
             std::array<int, 10> ActionButtons;
 
