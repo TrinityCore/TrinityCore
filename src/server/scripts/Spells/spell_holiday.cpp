@@ -1213,9 +1213,6 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
 
-                if (!target)
-                    return;
-
                 // check if aura needs to be removed
                 if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
                 {
@@ -1227,7 +1224,7 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
                 // set xp buff duration
                 if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
                 {
-                    aur->SetMaxDuration(aur->GetMaxDuration() >= 3600000 ? 3600000 : aur->GetMaxDuration() + 180000);
+                    aur->SetMaxDuration(std::min(3600000, aur->GetMaxDuration() + 180000));
                     aur->RefreshDuration();
 
                     // reward achievement criteria
