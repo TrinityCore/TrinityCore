@@ -113,6 +113,105 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
         }
 };
 
+enum HallowEndCandysSpells
+{
+    SPELL_HALLOWS_END_CANDY_ORANGE_GIANT          = 24924, // Effect 1: Apply Aura: Mod Size, Value: 30%
+    SPELL_HALLOWS_END_CANDY_SKELETON              = 24925, // Effect 1: Apply Aura: Change Model (Skeleton). Effect 2: Apply Aura: Underwater Breathing
+    SPELL_HALLOWS_END_CANDY_PIRATE                = 24926, // Effect 1: Apply Aura: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_GHOST                 = 24927, // Effect 1: Apply Aura: Levitate / Hover. Effect 2: Apply Aura: Slow Fall, Effect 3: Apply Aura: Water Walking
+    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE  = 44742, // Effect 1: Apply Aura: Change Model (Defias Pirate, Female). Effect 2: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE    = 44743  // Effect 1: Apply Aura: Change Model (Defias Pirate, Male).   Effect 2: Increase Swim Speed, Value: 50%
+};
+
+// 24930 - Hallow's End Candy
+class spell_hallow_end_candy : public SpellScriptLoader
+{
+    public:
+        spell_hallow_end_candy() : SpellScriptLoader("spell_hallow_end_candy") { }
+
+        class spell_hallow_end_candy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hallow_end_candy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (uint32 spellId : spells)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), spells[urand(0, 3)], true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_hallow_end_candy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        private:
+            static uint32 const spells[4];
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hallow_end_candy_SpellScript();
+        }
+};
+
+uint32 const spell_hallow_end_candy::spell_hallow_end_candy_SpellScript::spells[4] =
+{
+    SPELL_HALLOWS_END_CANDY_ORANGE_GIANT,
+    SPELL_HALLOWS_END_CANDY_SKELETON,
+    SPELL_HALLOWS_END_CANDY_PIRATE,
+    SPELL_HALLOWS_END_CANDY_GHOST
+};
+
+// 24926 - Hallow's End Candy
+class spell_hallow_end_candy_pirate : public SpellScriptLoader
+{
+    public:
+        spell_hallow_end_candy_pirate() : SpellScriptLoader("spell_hallow_end_candy_pirate") { }
+
+        class spell_hallow_end_candy_pirate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hallow_end_candy_pirate_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE))
+                    return false;
+                return true;
+            }
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 spell = GetTarget()->getGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                GetTarget()->CastSpell(GetTarget(), spell, true);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 spell = GetTarget()->getGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                GetTarget()->RemoveAurasDueToSpell(spell);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_hallow_end_candy_pirate_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hallow_end_candy_pirate_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hallow_end_candy_pirate_AuraScript();
+        }
+};
+
 // 24750 Trick
 enum TrickSpells
 {
@@ -1189,6 +1288,8 @@ void AddSC_holiday_spell_scripts()
     // Love is in the Air
     new spell_love_is_in_the_air_romantic_picnic();
     // Hallow's End
+    new spell_hallow_end_candy();
+    new spell_hallow_end_candy_pirate();
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
