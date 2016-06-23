@@ -62,7 +62,6 @@ enum UlduarNPCs
     NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
     NPC_XT_TOY_PILE                         = 33337,
-    NPC_XT_VOID_ZONE                        = 34001,
     NPC_STEELBREAKER                        = 32867,
     NPC_MOLGEIM                             = 32927,
     NPC_BRUNDIR                             = 32857,
