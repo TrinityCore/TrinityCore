@@ -1200,7 +1200,7 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellEntry const* /*spell*/) override
             {
                 if (!sSpellStore.LookupEntry(SPELL_HAS_FULL_MIDSUMMER_SET))
                     return false;
@@ -1240,13 +1240,13 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
                     target->AddAura(SPELL_RIBBON_DANCE, target);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_ribbon_pole_dancer_check_AuraScript();
         }
