@@ -34,7 +34,11 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
+    SPELL_MONK_RENEWING_MIST                            = 115151,
+    SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL              = 119611,
+    SPELL_MONK_RENEWING_MIST_TARGET_SELECT              = 119607,
+    SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL               = 119647,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436
 };
 
 // 117952 - Crackling Jade Lightning
@@ -186,9 +190,160 @@ public:
     }
 };
 
+// 115151 - Renewing Mist
+class spell_monk_renewing_mist : public SpellScriptLoader
+{
+    public:
+        spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
+
+        class spell_monk_renewing_mist_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_renewing_mist_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_TARGET_SELECT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_renewing_mist_SpellScript();
+        }
+};
+
+// 119611 - Renewing Mist Periodic Heal
+class spell_monk_renewing_mist_periodic_heal : public SpellScriptLoader
+{
+    public:
+        spell_monk_renewing_mist_periodic_heal() : SpellScriptLoader("spell_monk_renewing_mist_periodic_heal") { }
+
+        class spell_monk_renewing_mist_periodic_heal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_renewing_mist_periodic_heal_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_TARGET_SELECT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL))
+                    return false;
+                return true;
+            }
+
+            void HandlePeriodic(AuraEffect const* aurEff)
+            {
+                if (aurEff->GetBase()->GetCharges() > 1)
+                    if (Unit* originCaster = GetCaster())
+                        originCaster->CastSpell(GetTarget(), SPELL_MONK_RENEWING_MIST_TARGET_SELECT, true);
+            }
+
+            void HandleDummy(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                aurEff->GetBase()->SetCharges(aurEff->GetAmount());
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_periodic_heal_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectApply += AuraEffectApplyFn(spell_monk_renewing_mist_periodic_heal_AuraScript::HandleDummy, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_monk_renewing_mist_periodic_heal_AuraScript();
+        }
+};
+
+// 119607 - Renewing Mist Target Selection
+class spell_monk_renewing_mist_target_selector : public SpellScriptLoader
+{
+    public:
+        spell_monk_renewing_mist_target_selector() : SpellScriptLoader("spell_monk_renewing_mist_target_selector") { }
+
+        class spell_monk_renewing_mist_target_selector_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_renewing_mist_target_selector_SpellScript);
+
+        public:
+            spell_monk_renewing_mist_target_selector_SpellScript() { }
+
+        private:
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_TARGET_SELECT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove(GetExplTargetWorldObject());
+                if (targets.empty())
+                    return;
+                targets.sort(Trinity::HealthPctOrderPred());
+                targets.resize(1);
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Unit* target = GetHitUnit())
+                    if (Aura* aura = GetExplTargetUnit()->GetAura(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, GetCaster()->GetGUID()))
+                        if (AuraEffect* effect = aura->GetEffect(EFFECT_1))
+                        {
+                            GetExplTargetUnit()->CastSpell(target, SPELL_MONK_RENEWING_MIST_DUMMY_VISUAL, true);
+                            aura->SetCharges(0);
+                            int32 bp1 = std::max(0, effect->GetAmount() - 1);
+                            GetExplTargetUnit()->CastCustomSpell(SPELL_MONK_RENEWING_MIST_PERIODIC_HEAL, SPELLVALUE_BASE_POINT1, bp1, target, true, 0, effect, GetCaster()->GetGUID());
+                        }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_renewing_mist_target_selector_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_target_selector_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_renewing_mist_target_selector_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_knockback_proc_aura();
     new spell_monk_provoke();
+    new spell_monk_renewing_mist();
+    new spell_monk_renewing_mist_periodic_heal();
+    new spell_monk_renewing_mist_target_selector();
 }
