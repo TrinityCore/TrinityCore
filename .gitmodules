@@ -1,3 +1,0 @@
-[submodule "src/LuaEngine"]
-	path = src/server/game/LuaEngine
-	url = https://github.com/ElunaLuaEngine/Eluna.git
