@@ -18,4 +18,4 @@ CMakeLists.txt.user
 *.LOCAL.*
 /cmake/
 nbproject/*
-workspace
+workspace.idea/*
