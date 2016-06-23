@@ -1200,13 +1200,11 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
 
-            bool Validate(SpellEntry const* /*spell*/) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellStore.LookupEntry(SPELL_HAS_FULL_MIDSUMMER_SET))
-                    return false;
-                if (!sSpellStore.LookupEntry(SPELL_BURNING_HOT_POLE_DANCE))
-                    return false;
-                if (!sSpellStore.LookupEntry(SPELL_RIBBON_DANCE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET)
+                    || !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE))
                     return false;
                 return true;
             }
