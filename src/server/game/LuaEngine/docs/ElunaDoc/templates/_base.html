@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block description %}API documentation for the Eluna engine.{% endblock %}">
+    <meta name="keywords" content="eluna, lua, lua engine, trinitycore, trinity, mangos, cmangos, script, scripting, doc, docs, documentation">
+
+    <title>{% block title %}Eluna API{% endblock %}</title>
+
+    <link rel="stylesheet" type="text/css" href="{{ static('main.css') }}">
+
+    <link rel="shortcut icon" href="{{ static('favicon.ico') }}">
+
+</head>
+<body class="rustdoc">
+<!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+<section class="sidebar">
+    <a href='{{ root('index.html') }}'><img src='{{ static('eluna-logo.png') }}' alt='Eluna Logo' width='100'></a>
+    <div class="block">
+        {% block sidebar %}
+            <h2>All Classes</h2>
+            {% for class in classes -%}
+            <a class="mod {{ 'current' if class == current_class }}" href="{{ root(class.name + '/index.html') }}">{{ class.name }}</a>
+            {%- endfor %}
+        {% endblock %}
+    </div>
+</section>
+
+<nav class="sub">
+    <form class="search-form js-only">
+        <div class="search-container">
+            <input class="search-input" name="search"
+                   autocomplete="off"
+                   placeholder="Click or press 'S' to search, '?' for more options..."
+                   type="search">
+        </div>
+    </form>
+</nav>
+
+<section id='main' class="content mod">
+    <h1 class='fqn'>
+        {% block document_title %}Title Missing{% endblock %}
+        <span class='out-of-band'>
+            <span id='render-detail'>
+                <a id="collapse-all" href="#">[-]</a>
+                <a id="expand-all" href="#">[+]</a>
+            </span>
+        </span>
+    </h1>
+
+    {% block content %}<h2>Content missing.</h2>{% endblock %}
+</section>
+
+<section id='search' class="content hidden"></section>
+
+<section class="footer"></section>
+
+<div id="help" class="hidden">
+    <div class="shortcuts">
+        <h1>Keyboard shortcuts</h1>
+        <dl>
+            <dt>?</dt>
+            <dd>Show this help dialog</dd>
+            <dt>S</dt>
+            <dd>Focus the search field</dd>
+            <dt>&larrb;</dt>
+            <dd>Move up in search results</dd>
+            <dt>&rarrb;</dt>
+            <dd>Move down in search results</dd>
+            <dt>&#9166;</dt>
+            <dd>Go to active search result</dd>
+        </dl>
+    </div>
+    <div class="infos">
+        <h1>Search tricks</h1>
+        <p>
+            Prefix searches with a type followed by a colon (e.g.
+            <code>fn:</code>) to restrict the search to a given type.
+        </p>
+        <p>
+            Accepted types are: <code>fn</code>, <code>mod</code>,
+            <code>struct</code> (or <code>str</code>), <code>enum</code>,
+            <code>trait</code>, <code>typedef</code> (or
+            <code>tdef</code>).
+        </p>
+    </div>
+</div>
+
+<script>
+    window.rootPath = "{{ ('../' * level) if level }}";
+</script>
+<script src="{{ static('jquery.js') }}"></script>
+<script src="{{ static('main.js') }}"></script>
+<script async src="{{ root('search-index.js') }}"></script>
+<center>Generated on {{ currdate }}</center>
+<center>&copy;2016 - Eluna Lua Engine</center>
+</body>
+</html>
