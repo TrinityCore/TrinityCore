@@ -1370,6 +1370,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     uint8 plrRace = fields[0].GetUInt8();
     uint8 plrClass = fields[1].GetUInt8();
     uint8 plrGender = fields[2].GetUInt8();
+    std::string plrName = fields[4].GetString();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
     {
@@ -1402,6 +1403,13 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!normalizePlayerName(customizeInfo.Name))
     {
         SendCharCustomize(CHAR_NAME_NO_NAME, customizeInfo);
+        return;
+    }
+
+    //Prevent To Rename Character
+    if ((customizeInfo.Name != plrName) && (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
+    {
+        SendCharCustomize(CHAR_NAME_FAILURE, customizeInfo);
         return;
     }
 
@@ -1614,6 +1622,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
+    std::string oldName = nameData->Name;
     uint8 oldRace = nameData->Race;
     uint8 playerClass = nameData->Class;
     uint8 level = nameData->Level;
@@ -1670,6 +1679,12 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
+    //Prevent To Rename Character
+    if ((factionChangeInfo.Name != oldName) && (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION)))
+    {
+        SendCharFactionChange(CHAR_NAME_FAILURE, factionChangeInfo);
+        return;
+    }
     // check name limitations
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(factionChangeInfo.Name))
     {
