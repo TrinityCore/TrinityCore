@@ -92,6 +92,8 @@ namespace WorldPackets
 
             ObjectGuid Vendor;
             uint32 Node = 0;
+            uint32 GroundMountID = 0;
+            uint32 FlyingMountID = 0;
         };
 
         class NewTaxiPath final : public ServerPacket
