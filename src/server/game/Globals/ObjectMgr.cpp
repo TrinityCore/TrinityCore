@@ -3670,31 +3670,33 @@ void ObjectMgr::LoadQuests()
     QueryResult result = WorldDatabase.Query("SELECT "
         //0  1          2           3               4         5            6            7                  8                9                   10
         "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
-        //11          12                     13                     14                15                  16           17           18               19         20     21
-        "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, StartItem, Flags, FlagsEx, "
-        //22          23             24         25                 26           27             28         29
+        //11          12                     13                     14                15                   16                   17                   18           19           20               21
+        "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell1, RewardDisplaySpell2, RewardDisplaySpell3, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
+        //22                         23                          24                        25     26
+        "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, "
+        //27          28             29         30                 31           32             33         34
         "RewardItem1, RewardAmount1, ItemDrop1, ItemDropQuantity1, RewardItem2, RewardAmount2, ItemDrop2, ItemDropQuantity2, "
-        //30          31             32         33                 34           35             36         37
+        //35          36             37         38                 39           40             41         42
         "RewardItem3, RewardAmount3, ItemDrop3, ItemDropQuantity3, RewardItem4, RewardAmount4, ItemDrop4, ItemDropQuantity4, "
-        //38                  39                         40                          41                   42                         43
+        //43                  44                         45                          46                   47                         48
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, "
-        //44                  45                         46                          47                   48                         49
+        //49                  50                         51                          52                   53                         54
         "RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, "
-        //50                  51                         52                          53                   54                         55
+        //55                  56                         57                          58                   59                         60
         "RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //56           57    58    59           60           61             62                 63                 64                 65             66
-        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardTalents, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
-        //67               68                   69                      70                71                   72
-        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, "
-        //73               74                   75                      76                77                   78
-        "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, "
-        //79               80                   81                      82
-        "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionFlags, "
-        //83                84                  85                 86                  87                 88                  89                 90
+        //61           62    63    64           65           66                 67                 68                 69             70
+        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
+        //71               72                   73                      74                75                   76                   77                      78
+        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionCapIn1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionCapIn2, "
+        //79               80                   81                      82                   83                84                   85                      86
+        "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionCapIn3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionCapIn4, "
+        //87               88                   89                      90                   91
+        "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
+        //92                93                  94                 95                  96                 97                  98                 99
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //91                 92                  93           94           95
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, "
-        //96       97              98                99               100                101                102                 103                 104
+        //100                101                 102          103          104             105
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, "
+        //106      107             108               109              110                111                112                 113                 114
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -4301,22 +4303,25 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->RewardDisplaySpell)
+        for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardDisplaySpell);
-
-            if (!spellInfo)
+            if (qinfo->RewardDisplaySpell[i])
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u does not exist, spell removed as display reward.",
-                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
-                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
-            }
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardDisplaySpell[i]);
 
-            else if (!SpellMgr::IsSpellValid(spellInfo))
-            {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `RewardSpell` = %u but spell %u is broken, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
-                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
+                if (!spellInfo)
+                {
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell%u` = %u but spell %u does not exist, spell removed as display reward.",
+                        qinfo->GetQuestId(), i, qinfo->RewardDisplaySpell[i], qinfo->RewardDisplaySpell[i]);
+                    qinfo->RewardDisplaySpell[i] = 0;                        // no spell reward will display for this quest
+                }
+
+                else if (!SpellMgr::IsSpellValid(spellInfo))
+                {
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell%u` = %u but spell %u is broken, quest will not have a spell reward.",
+                        qinfo->GetQuestId(), i, qinfo->RewardDisplaySpell[i], qinfo->RewardDisplaySpell[i]);
+                    qinfo->RewardDisplaySpell[i] = 0;                        // no spell reward will display for this quest
+                }
             }
         }
 

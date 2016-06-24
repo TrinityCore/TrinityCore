@@ -1588,7 +1588,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver) const;
         void SendPushToPartyResponse(Player* player, QuestPushReason reason) const;
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count) const;
-        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required) const;
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
 
         ObjectGuid GetDivider() const { return m_divider; }
         void SetDivider(ObjectGuid guid) { m_divider = guid; }
