@@ -4176,3 +4176,21 @@ BeastMaster.EnableExoticPet = 1
 
 #
 ###################################################################################################
+
+###################################################################################################
+#
+#     TimeReq.Chat
+#        Description: Time requirement for characters to be able to Chat.
+#        Default:     1
+
+TimeReq.Chat = 1
+
+#
+#     LevelReq.Chat
+#        Description: Level requirement for characters to be able to Chat.
+#        Default:     1
+
+LevelReq.Chat = 1
+
+#
+###################################################################################################

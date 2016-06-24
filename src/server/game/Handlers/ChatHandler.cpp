@@ -49,8 +49,28 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     recvData >> type;
     recvData >> lang;
-
-    if (type >= MAX_CHAT_MSG_TYPE)
+	Player* times = GetPlayer();
+	{
+		if ((times->GetTotalPlayedTime() < sWorld->getIntConfig(CONFIG_CHAT_TIME_REQ)) && times->GetSession()->GetSecurity() == SEC_PLAYER)
+		{
+			std::string Played = secsToTimeString(sWorld->getIntConfig(CONFIG_CHAT_TIME_REQ) - times->GetTotalPlayedTime());
+			ChatHandler(times->GetSession()).PSendSysMessage(times->GetSession()->GetTrinityString(30001), Played.c_str());
+			recvData.rfinish();
+			return;
+		}
+	}
+	
+	Player* Levels = GetPlayer();
+	{
+		if ((Levels->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_LEVEL_REQ)) && Levels->GetSession()->GetSecurity() == SEC_PLAYER)
+		{
+			ChatHandler(Levels->GetSession()).PSendSysMessage(Levels->GetSession()->GetTrinityString(30002), sWorld->getIntConfig(CONFIG_CHAT_LEVEL_REQ));
+			recvData.rfinish();
+				return;
+		}
+	}
+	
+	if (type >= MAX_CHAT_MSG_TYPE)
     {
         TC_LOG_ERROR("network", "CHAT: Wrong message type received: %u", type);
         recvData.rfinish();
