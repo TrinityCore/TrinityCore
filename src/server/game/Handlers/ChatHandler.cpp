@@ -242,6 +242,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     switch (type)
     {
         case CHAT_MSG_SAY:
+		{
+			if (sender->IsGameMaster() && sWorld->getBoolConfig(CONFIG_GM_BLUE_CHAT_ENABLE) && !msg.empty())
+				msg = "|cff2998ff" + msg + "|r";
+				return;
+		)	
         case CHAT_MSG_EMOTE:
         case CHAT_MSG_YELL:
         {
