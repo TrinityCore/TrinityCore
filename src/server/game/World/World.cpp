@@ -1380,6 +1380,9 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_NO_CAST_TIME] = sConfigMgr->GetBoolDefault("Custom.NoCastTime", false);
 	m_bool_configs[CONFIG_NO_COOLDOWN] = sConfigMgr->GetBoolDefault("Custom.NoCooldown", false);
 	m_bool_configs[CONFIG_HURT_IN_REAL_TIME] = sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", false);
+	
+	// GM blue chat
+	m_bool_configs[CONFIG_GM_BLUE_CHAT_ENABLE] = sConfigMgr->GetIntDefault("Gm.Chat.Blue.Enable", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
