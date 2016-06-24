@@ -1381,6 +1381,9 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_NO_COOLDOWN] = sConfigMgr->GetBoolDefault("Custom.NoCooldown", false);
 	m_bool_configs[CONFIG_HURT_IN_REAL_TIME] = sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", false);
 
+	// Chat Min Played Time
+	m_int_configs[CONFIG_INT_CHAT_PLAYED_TIME] = sConfigMgr->GetIntDefault("req.playtime", 60);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
