@@ -14386,22 +14386,28 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
         if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_APPLY_AURA))
         {
-            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
-                creature->CastSpell(this, quest->GetRewSpell(), true);
+            if (Unit* unit = questGiver->ToUnit())
+                unit->CastSpell(this, quest->GetRewSpell(), true);
         }
         else
             CastSpell(this, quest->GetRewSpell(), true);
     }
-    else if (quest->GetRewDisplaySpell() > 0)
+    else
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewDisplaySpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
+        for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
         {
-            if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
-                creature->CastSpell(this, quest->GetRewDisplaySpell(), true);
+            if (quest->RewardDisplaySpell[i] > 0)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->RewardDisplaySpell[i]);
+                if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
+                {
+                    if (Unit* unit = questGiver->ToUnit())
+                        unit->CastSpell(this, quest->RewardDisplaySpell[i], true);
+                }
+                else
+                    CastSpell(this, quest->RewardDisplaySpell[i], true);
+            }
         }
-        else
-            CastSpell(this, quest->GetRewDisplaySpell(), true);
     }
 
     if (quest->GetZoneOrSort() > 0)
@@ -15554,7 +15560,7 @@ void Player::KilledPlayerCredit()
                 if (curKillCount < uint32(obj.Amount))
                 {
                     SetQuestObjectiveData(qInfo, obj.StorageIndex, curKillCount + addKillCount);
-                    SendQuestUpdateAddPlayer(qInfo, curKillCount + addKillCount, obj.Amount);
+                    SendQuestUpdateAddPlayer(qInfo, curKillCount + addKillCount);
                 }
 
                 if (CanCompleteQuest(questid))
@@ -15962,7 +15968,6 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP) const
     packet.XPReward = xp;
     packet.SkillLineIDReward = quest->GetRewardSkillId();
     packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
-    packet.TalentReward = quest->GetBonusTalents();
 
     // @todo fix these 3
     packet.UseQuestReward = true;
@@ -16048,13 +16053,12 @@ void Player::SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, Quest
     GetSession()->SendPacket(packet.Write());
 }
 
-void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required) const
+void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
 {
-    WorldPacket data(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, (3*4));
-    data << uint32(quest->GetQuestId());
-    data << uint32(newCount);
-    data << uint32(required);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Quest::QuestUpdateAddPvPCredit questUpdateAddPvpCredit;
+    questUpdateAddPvpCredit.QuestID = quest->GetQuestId();
+    questUpdateAddPvpCredit.Count = newCount;
+    GetSession()->SendPacket(questUpdateAddPvpCredit.Write());
 }
 
 bool Player::HasPvPForcingQuest() const
