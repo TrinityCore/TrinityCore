@@ -52,23 +52,28 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     recvData >> type;
     recvData >> lang;
-
-	/* Chat Min PlayedTime Coded By IranCore.Ir */
-	Player* chatkonande = GetPlayer();
+	Player* times = GetPlayer();
 	{
-		if ((chatkonande->GetTotalPlayedTime() <= sWorld->getIntConfig(CONFIG_INT_CHAT_PLAYED_TIME)) && chatkonande->GetSession()->GetSecurity() == SEC_PLAYER)
+		if ((times->GetTotalPlayedTime() < sWorld->getIntConfig(CONFIG_CHAT_TIME_REQ)) && times->GetSession()->GetSecurity() == SEC_PLAYER)
 		{
-			std::string adStr = secsToTimeString(sWorld->getIntConfig(CONFIG_INT_CHAT_PLAYED_TIME) - chatkonande->GetTotalPlayedTime());
-			SendNotification("You need %s seconds playtime before can use chat.", adStr.c_str());
+			std::string Played = secsToTimeString(sWorld->getIntConfig(CONFIG_CHAT_TIME_REQ) - times->GetTotalPlayedTime());
+			ChatHandler(times->GetSession()).PSendSysMessage(times->GetSession()->GetTrinityString(30001), Played.c_str());
 			recvData.rfinish();
 			return;
 		}
 	}
-	/*End Chat MIn Played Time */
-
-
-
-    if (type >= MAX_CHAT_MSG_TYPE)
+	
+	Player* Levels = GetPlayer();
+	{
+		if ((Levels->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_LEVEL_REQ)) && Levels->GetSession()->GetSecurity() == SEC_PLAYER)
+		{
+			ChatHandler(Levels->GetSession()).PSendSysMessage(Levels->GetSession()->GetTrinityString(30002), sWorld->getIntConfig(CONFIG_CHAT_LEVEL_REQ));
+			recvData.rfinish();
+				return;
+		}
+	}
+	
+	if (type >= MAX_CHAT_MSG_TYPE)
     {
         TC_LOG_ERROR("network", "CHAT: Wrong message type received: %u", type);
         recvData.rfinish();
