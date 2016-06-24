@@ -576,24 +576,22 @@ namespace MMAP
     void MMapData::AddBaseTile(uint32 packedGridPos, unsigned char* data, MmapTileHeader const& fileHeader, int32 dataSize)
     {
         auto itr = _baseTiles.find(packedGridPos);
-        // ASSERT(itr == _baseTiles.end()) ?
         if (itr == _baseTiles.end())
         {
             PhasedTile* pt = new PhasedTile();
             pt->data = data;
             pt->fileHeader = fileHeader;
-            pt->dataSize = fileHeader.size;
+            pt->dataSize = dataSize;
             _baseTiles[packedGridPos] = pt;
         }
     }
 
     void MMapData::DeleteBaseTile(uint32 packedGridPos)
     {
-        // ASSERT(itr != _baseTiles.end()) ?
         auto itr = _baseTiles.find(packedGridPos);
         if (itr != _baseTiles.end())
         {
-            delete itr->second->data;
+            dtFree(itr->second->data);
             delete itr->second;
             _baseTiles.erase(itr);
         }
