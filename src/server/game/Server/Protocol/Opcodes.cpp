@@ -494,7 +494,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOUNT_SPECIAL_ANIM,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::MountSpecial, &WorldSession::HandleMountSpecialAnimOpcode);
     DEFINE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                      STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_MOVE_CHANGE_TRANSPORT,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
-    DEFINE_HANDLER(CMSG_MOVE_CHANGE_VEHICLE_SEATS,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::MoveChangeVehicleSeats, &WorldSession::HandleMoveChangeVehicleSeats);
+    DEFINE_HANDLER(CMSG_MOVE_CHANGE_VEHICLE_SEATS,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::MoveChangeVehicleSeats, &WorldSession::HandleMoveChangeVehicleSeats);
     DEFINE_HANDLER(CMSG_MOVE_CHARM_TELEPORT_CHEAT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_MOVE_DISMISS_VEHICLE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::MoveDismissVehicle, &WorldSession::HandleMoveDismissVehicle);
     DEFINE_HANDLER(CMSG_MOVE_ENABLE_SWIM_TO_FLY_TRANS_ACK,                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::MovementAckMessage, &WorldSession::HandleMovementAckMessage);
@@ -529,7 +529,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_SET_PITCH,                                     STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
     DEFINE_HANDLER(CMSG_MOVE_SET_RELATIVE_POSITION,                         STATUS_UNHANDLED, PROCESS_THREADSAFE,   WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_MOVE_SET_RUN_MODE,                                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
-    DEFINE_HANDLER(CMSG_MOVE_SET_VEHICLE_REC_ID_ACK,                        STATUS_UNHANDLED, PROCESS_THREADSAFE,   WorldPackets::Vehicle::MoveSetVehicleRecIdAck, &WorldSession::HandleMoveSetVehicleRecAck);
+    DEFINE_HANDLER(CMSG_MOVE_SET_VEHICLE_REC_ID_ACK,                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Vehicle::MoveSetVehicleRecIdAck, &WorldSession::HandleMoveSetVehicleRecAck);
     DEFINE_HANDLER(CMSG_MOVE_SET_WALK_MODE,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
     DEFINE_HANDLER(CMSG_MOVE_SPLINE_DONE,                                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::MoveSplineDone, &WorldSession::HandleMoveSplineDoneOpcode);
     DEFINE_HANDLER(CMSG_MOVE_START_ASCEND,                                  STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);
@@ -665,9 +665,9 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_RATED_BATTLEFIELD_INFO,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::RequestRatedBattlefieldInfo, &WorldSession::HandleRequestRatedBattlefieldInfo);
     DEFINE_HANDLER(CMSG_REQUEST_RESEARCH_HISTORY,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_REQUEST_STABLED_PETS,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::RequestStabledPets, &WorldSession::HandleRequestStabledPets);
-    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_EXIT,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleExit, &WorldSession::HandleRequestVehicleExit);
-    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_NEXT_SEAT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleNextSeat, &WorldSession::HandleRequestVehicleNextSeat);
-    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_PREV_SEAT,                          STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehiclePrevSeat, &WorldSession::HandleRequestVehiclePrevSeat);
+    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_EXIT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleExit, &WorldSession::HandleRequestVehicleExit);
+    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_NEXT_SEAT,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleNextSeat, &WorldSession::HandleRequestVehicleNextSeat);
+    DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_PREV_SEAT,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehiclePrevSeat, &WorldSession::HandleRequestVehiclePrevSeat);
     DEFINE_HANDLER(CMSG_REQUEST_VEHICLE_SWITCH_SEAT,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::RequestVehicleSwitchSeat, &WorldSession::HandleRequestVehicleSwitchSeat);
     DEFINE_HANDLER(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Token::RequestWowTokenMarketPrice, &WorldSession::HandleRequestWowTokenMarketPrice);
     DEFINE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -693,7 +693,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SET_ACTION_BAR_TOGGLES,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::SetActionBarToggles, &WorldSession::HandleSetActionBarToggles);
     DEFINE_HANDLER(CMSG_SET_ACTION_BUTTON,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::SetActionButton, &WorldSession::HandleSetActionButtonOpcode);
     DEFINE_HANDLER(CMSG_SET_ACTIVE_MOVER,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Movement::SetActiveMover, &WorldSession::HandleSetActiveMoverOpcode);
-    DEFINE_HANDLER(CMSG_SET_ACTIVE_VOICE_CHANNEL,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Voice::SetActiveVoiceChannel, &WorldSession::HandleSetActiveVoiceChannel);
+    DEFINE_HANDLER(CMSG_SET_ACTIVE_VOICE_CHANNEL,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Voice::SetActiveVoiceChannel, &WorldSession::HandleSetActiveVoiceChannel);
     DEFINE_HANDLER(CMSG_SET_ADVANCED_COMBAT_LOGGING,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::ClientConfig::SetAdvancedCombatLogging, &WorldSession::HandleSetAdvancedCombatLogging);
     DEFINE_HANDLER(CMSG_SET_ASSISTANT_LEADER,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::SetAssistantLeader, &WorldSession::HandleSetAssistantLeaderOpcode);
     DEFINE_HANDLER(CMSG_SET_BACKPACK_AUTOSORT_DISABLED,                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -803,7 +803,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_VIOLENCE_LEVEL,                                     STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::Misc::ViolenceLevel, &WorldSession::HandleViolenceLevel);
     DEFINE_HANDLER(CMSG_VOICE_ADD_IGNORE,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_VOICE_DEL_IGNORE,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_VOICE_SESSION_ENABLE,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Voice::VoiceSessionEnable, &WorldSession::HandleVoiceSessionEnable);
+    DEFINE_HANDLER(CMSG_VOICE_SESSION_ENABLE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Voice::VoiceSessionEnable, &WorldSession::HandleVoiceSessionEnable);
     DEFINE_HANDLER(CMSG_VOID_STORAGE_TRANSFER,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::VoidStorage::VoidStorageTransfer, &WorldSession::HandleVoidStorageTransfer);
     DEFINE_HANDLER(CMSG_WARDEN_DATA,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Warden::WardenData, &WorldSession::HandleWardenData);
     DEFINE_HANDLER(CMSG_WHO,                                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Who::WhoRequestPkt, &WorldSession::HandleWhoOpcode);
@@ -1701,7 +1701,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TOTEM_CREATED,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TOTEM_MOVED,                             STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRADE_STATUS,                            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRADE_UPDATED,                           STATUS_UNHANDLED,    CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRADE_UPDATED,                           STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRAINER_BUY_FAILED,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRAINER_LIST,                            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRANSFER_ABORTED,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
