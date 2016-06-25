@@ -232,6 +232,7 @@ namespace WorldPackets
             void Read() override;
 
             uint8 TeamSizeIndex = 0;
+            uint8 Roles = 0;
         };
 
         class BattlefieldLeave final : public ClientPacket

@@ -132,6 +132,7 @@ void WorldPackets::Battleground::BattlemasterJoin::Read()
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()
 {
     _worldPacket >> TeamSizeIndex;
+    _worldPacket >> Roles;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
