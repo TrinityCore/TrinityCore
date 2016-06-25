@@ -19,7 +19,7 @@
 #ifndef _UPDATEFIELDS_H
 #define _UPDATEFIELDS_H
 
-// Auto generated for version 7, 0, 3, 21963
+// Auto generated for version 7, 0, 3, 22045
 
 enum ObjectFields
 {
@@ -392,8 +392,7 @@ enum AreaTriggerFields
     AREATRIGGER_SPELLVISUALID                              = OBJECT_END + 0x017, // Size: 1, Flags: DYNAMIC
     AREATRIGGER_BOUNDS_RADIUS_2D                           = OBJECT_END + 0x018, // Size: 1, Flags: DYNAMIC, URGENT
     AREATRIGGER_DECAL_PROPERTIES_ID                        = OBJECT_END + 0x019, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_VISUAL_ANIMATION                           = OBJECT_END + 0x01A, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_END                                        = OBJECT_END + 0x01B,
+    AREATRIGGER_END                                        = OBJECT_END + 0x01A,
 };
 
 enum AreaTriggerDynamicFields

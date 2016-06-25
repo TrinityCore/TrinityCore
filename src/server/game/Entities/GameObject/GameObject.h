@@ -234,6 +234,7 @@ struct GameObjectTemplate
             uint32 NeverUsableWhileMounted;                 // 28 Never Usable While Mounted, enum { false, true, }; Default: false
             uint32 SortFarZ;                                // 29 Sort Far Z, enum { false, true, }; Default: false
             uint32 SyncAnimationtoObjectLifetime;           // 30 Sync Animation to Object Lifetime (global track only), enum { false, true, }; Default: false
+            uint32 NoFuzzyHit;                              // 31 No Fuzzy Hit, enum { false, true, }; Default: false
         } goober;
         // 11 GAMEOBJECT_TYPE_TRANSPORT
         struct
