@@ -4082,7 +4082,6 @@ uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END] =
     UF_FLAG_DYNAMIC,                                        // AREATRIGGER_SPELLVISUALID
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // AREATRIGGER_BOUNDS_RADIUS_2D
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_DECAL_PROPERTIES_ID
-    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // AREATRIGGER_VISUAL_ANIMATION
 };
 
 uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END] =
