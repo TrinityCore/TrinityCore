@@ -1115,8 +1115,9 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
     UpdateBattlegroundSettings();
-    // check for seasonal quest reset.
-    sWorld->ResetEventSeasonalQuests(event_id);
+    // Only reset seasonal quests if event manager is active (after server startup)
+    if (isSystemInit)
+        sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
