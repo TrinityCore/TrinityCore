@@ -64,14 +64,13 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         {
             WorldPackets::Trade::TradeUpdated::TradeItem tradeItem;
             tradeItem.Slot = i;
-            tradeItem.EntryID = item->GetEntry();
+            tradeItem.Item.Initialize(item);
             tradeItem.StackCount = item->GetCount();
             tradeItem.GiftCreator = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
             if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
                 tradeItem.Unwrapped = boost::in_place();
 
-                tradeItem.Unwrapped->Item.Initialize(item);
                 tradeItem.Unwrapped->EnchantID = item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
                 tradeItem.Unwrapped->OnUseEnchantmentID = item->GetEnchantmentId(USE_ENCHANTMENT_SLOT);
                 tradeItem.Unwrapped->Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
@@ -80,8 +79,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
                 tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
 
-                for (uint32 s = SOCK_ENCHANTMENT_SLOT; s < MAX_GEM_SOCKETS; ++s)
-                    tradeItem.Unwrapped->SocketEnchant[s] = item->GetEnchantmentId(EnchantmentSlot(s + SOCK_ENCHANTMENT_SLOT));
+                for (std::size_t i = 0; i < item->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+                {
+                    uint32 gemItemId = item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
+                    if (!gemItemId)
+                        continue;
+
+                    WorldPackets::Item::ItemGemInstanceData gem;
+                    gem.Slot = i;
+                    gem.Item.ItemID = gemItemId;
+                    tradeItem.Unwrapped->Gems.push_back(gem);
+                }
             }
 
             tradeUpdated.Items.push_back(tradeItem);
