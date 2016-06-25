@@ -95,7 +95,7 @@ public:
         ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
-        if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
+        if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;
@@ -119,7 +119,7 @@ public:
 
         // Assign ticket
         SQLTransaction trans = SQLTransaction(NULL);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realm.Id.Realm)));
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
@@ -387,7 +387,7 @@ public:
         {
             ObjectGuid guid = ticket->GetAssignedToGUID();
             uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
-            security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
+            security = AccountMgr::GetSecurity(accountId, realmID);
         }
 
         // Check security

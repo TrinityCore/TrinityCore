@@ -16,14 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "RealmList.h"
 #include <boost/asio/ip/tcp.hpp>
+#include "Common.h"
+#include "RealmList.h"
+#include "Database/DatabaseEnv.h"
 
 namespace boost { namespace asio { namespace ip { class address; } } }
 
-RealmList::RealmList() : _updateInterval(0), _nextUpdateTime(time(NULL)), _resolver(nullptr) { }
+RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)), _resolver(nullptr) { }
 RealmList::~RealmList()
 {
     delete _resolver;
@@ -33,43 +33,45 @@ RealmList::~RealmList()
 void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
 {
     _resolver = new boost::asio::ip::tcp::resolver(ioService);
-    _updateInterval = updateInterval;
+    m_UpdateInterval = updateInterval;
 
     // Get the content of the realmlist table in the database
     UpdateRealms(true);
 }
 
-void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
-    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
-    float population)
+void RealmList::UpdateRealm(uint32 id, const std::string& name, ip::address const& address, ip::address const& localAddr,
+    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population, uint32 build)
 {
     // Create new if not exist or update existed
-    Realm& realm = _realms[id];
+    Realm& realm = m_realms[name];
 
-    realm.Id = id;
-    realm.Build = build;
-    realm.Name = name;
-    realm.Type = icon;
-    realm.Flags = flag;
-    realm.Timezone = timezone;
-    realm.AllowedSecurityLevel = allowedSecurityLevel;
-    realm.PopulationLevel = population;
+    realm.m_ID = id;
+    realm.name = name;
+    realm.icon = icon;
+    realm.flag = flag;
+    realm.timezone = timezone;
+    realm.allowedSecurityLevel = allowedSecurityLevel;
+    realm.populationLevel = population;
+
+    // Append port to IP address.
+
     realm.ExternalAddress = address;
     realm.LocalAddress = localAddr;
     realm.LocalSubnetMask = localSubmask;
-    realm.Port = port;
+    realm.port = port;
+    realm.gamebuild = build;
 }
 
 void RealmList::UpdateIfNeed()
 {
     // maybe disabled or updated recently
-    if (!_updateInterval || _nextUpdateTime > time(NULL))
+    if (!m_UpdateInterval || m_NextUpdateTime > time(NULL))
         return;
 
-    _nextUpdateTime = time(NULL) + _updateInterval;
+    m_NextUpdateTime = time(NULL) + m_UpdateInterval;
 
     // Clears Realm list
-    _realms.clear();
+    m_realms.clear();
 
     // Get the content of the realmlist table in the database
     UpdateRealms();
@@ -128,23 +130,17 @@ void RealmList::UpdateRealms(bool init)
 
                 uint16 port = fields[5].GetUInt16();
                 uint8 icon = fields[6].GetUInt8();
-                if (icon == REALM_TYPE_FFA_PVP)
-                    icon = REALM_TYPE_PVP;
-                if (icon >= MAX_CLIENT_REALM_TYPE)
-                    icon = REALM_TYPE_NORMAL;
                 RealmFlags flag = RealmFlags(fields[7].GetUInt8());
                 uint8 timezone = fields[8].GetUInt8();
                 uint8 allowedSecurityLevel = fields[9].GetUInt8();
                 float pop = fields[10].GetFloat();
                 uint32 build = fields[11].GetUInt32();
 
-                RealmHandle id{ realmId };
-
-                UpdateRealm(id, build, name, externalAddress, localAddress, localSubmask, port, icon, flag,
-                    timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
+                UpdateRealm(realmId, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
+                    (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
                 if (init)
-                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
+                    TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {
@@ -154,13 +150,4 @@ void RealmList::UpdateRealms(bool init)
         }
         while (result->NextRow());
     }
-}
-
-Realm const* RealmList::GetRealm(RealmHandle const& id) const
-{
-    auto itr = _realms.find(id);
-    if (itr != _realms.end())
-        return &itr->second;
-
-    return NULL;
 }

@@ -16,7 +16,6 @@ file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic/*.h)
 file(GLOB_RECURSE sources_Networking Networking/*.cpp Networking/*.h)
 file(GLOB_RECURSE sources_Packets Packets/*.cpp Packets/*.h)
-file(GLOB_RECURSE sources_Realm Realm/*.cpp Realm/*.h)
 if( WIN32 )
    file(GLOB_RECURSE sources_Service Service/*.cpp Service/*.h)
 endif( WIN32 )
@@ -37,7 +36,6 @@ set(shared_STAT_SRCS
   ${sources_Dynamic}
   ${sources_Networking}
   ${sources_Packets}
-  ${sources_Realm}
   ${sources_Utilities}
   ${sources_Service}
   ${sources_localdir}
@@ -46,7 +44,6 @@ set(shared_STAT_SRCS
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Dynamic
   ${CMAKE_CURRENT_SOURCE_DIR}/Networking
-  ${CMAKE_CURRENT_SOURCE_DIR}/Realm
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/src/common/
   ${CMAKE_SOURCE_DIR}/src/common/Debugging
