@@ -15008,8 +15008,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SetSeasonalQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id, false);
-    m_RewardedQuests.insert(quest_id);
-    m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
+    if (!quest->IsDFQuest() && !quest->IsDaily() && (!quest->IsRepeatable() || quest->IsWeekly() || quest->IsMonthly() || quest->IsSeasonal()))
+    {
+        // Dungeon Finder/daily/repeatable quests should not be added to the rewarded quest table
+        m_RewardedQuests.insert(quest_id);
+        m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
+    }
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -18275,6 +18279,10 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 if (quest->GetBonusTalents())
                     m_questRewardTalentCount += quest->GetBonusTalents();
             }
+
+            // Dungeon Finder/daily/repeatable quests should not be loaded as completed quests from character_queststatus_rewarded table
+            if (quest->IsDFQuest() || quest->IsDaily() || (quest->IsRepeatable() && !quest->IsWeekly() && !quest->IsMonthly() && !quest->IsSeasonal()))
+                continue;
 
             m_RewardedQuests.insert(quest_id);
         }
