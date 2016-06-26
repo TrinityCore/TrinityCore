@@ -30,6 +30,8 @@
           Destroying of Toasty Fires
 */
 
+/* @todo Hodir aggro behavior is wonky. He gets set to _PASSIVE, but never to _AGGRESSIVE unless you kill an ice block which doesn't spawn unless you have*/
+
 enum HodirYells
 {
     SAY_AGGRO                                    = 0,
@@ -375,7 +377,7 @@ class boss_hodir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -402,6 +404,12 @@ class boss_hodir : public CreatureScript
                     me->DespawnOrUnsummon(10000);
 
                     _JustDied();
+                }
+                else if (!me->IsInCombat())
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->AI()->DoZoneInCombat();
+                    me->AI()->AttackStart(who);
                 }
             }
 
