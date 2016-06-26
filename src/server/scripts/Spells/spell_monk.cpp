@@ -32,12 +32,11 @@ enum MonkSpells
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
-    SPELL_MONK_GLYPH_OF_SURGING_MIST                    = 120483,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
+    SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
-    SPELL_MONK_SURGING_MIST_HEAL_GLYPHED                = 123273,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -203,26 +202,26 @@ class spell_monk_surging_mist : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SURGING_MIST_HEAL))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SURGING_MIST_HEAL_GLYPHED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_GLYPH_OF_SURGING_MIST))
-                    return false;
                 return true;
+            }
+
+            void SelectTarget(WorldObject*& target)
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetUInt32Value(UNIT_CHANNEL_SPELL) == SPELL_MONK_SOOTHING_MIST)
+                    if (Unit* soothingMistTarget = ObjectAccessor::GetUnit(*caster, caster->GetChannelObjectGuid()))
+                        target = soothingMistTarget;
             }
 
             void HandleDummy(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                if (caster->GetShapeshiftForm() == FORM_CRANE_STANCE && caster->HasAura(SPELL_MONK_GLYPH_OF_SURGING_MIST))
-                    caster->CastSpell(target, SPELL_MONK_SURGING_MIST_HEAL_GLYPHED, true);
-                else
-                    caster->CastSpell(target, SPELL_MONK_SURGING_MIST_HEAL, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_SURGING_MIST_HEAL, true);
             }
 
             void Register() override
             {
+                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_monk_surging_mist_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_TARGET_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -233,10 +232,73 @@ class spell_monk_surging_mist : public SpellScriptLoader
         }
 };
 
+// 123273 - Surging Mist (Glyphed)
+class spell_monk_surging_mist_glyphed : public SpellScriptLoader
+{
+public:
+    spell_monk_surging_mist_glyphed() : SpellScriptLoader("spell_monk_surging_mist_glyphed") { }
+
+    class spell_monk_surging_mist_glyphed_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_surging_mist_glyphed_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SURGING_MIST_HEAL))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_SOOTHING_MIST))
+                return false;
+            return true;
+        }
+
+        void SelectTarget(std::list<WorldObject*>& targets)
+        {
+            Unit* caster = GetCaster();
+            if (caster->GetUInt32Value(UNIT_CHANNEL_SPELL) == SPELL_MONK_SOOTHING_MIST)
+            {
+                targets.clear();
+                if (Unit* soothingMistTarget = ObjectAccessor::GetUnit(*caster, caster->GetChannelObjectGuid()))
+                    targets.push_back(soothingMistTarget);
+            }
+            else
+            {
+                targets.remove_if([caster](WorldObject* target)
+                {
+                    return target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsInRaidWith(caster);
+                });
+                targets.sort(Trinity::HealthPctOrderPred());
+                if (!targets.empty())
+                    targets.resize(1);
+            }
+
+            if (targets.empty())
+                targets.push_back(caster);
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_SURGING_MIST_HEAL, true);
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_surging_mist_glyphed_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_glyphed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_surging_mist_glyphed_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_knockback_proc_aura();
     new spell_monk_provoke();
     new spell_monk_surging_mist();
+    new spell_monk_surging_mist_glyphed();
 }
