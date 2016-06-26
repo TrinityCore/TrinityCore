@@ -229,7 +229,7 @@ public:
 					item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 								if (!item)
 													{
-															creature->Say("This enchant needs a 2H weapon equiped.", LANG_UNIVERSAL);
+															creature->Whisper("This enchant needs a 2H weapon equiped.", LANG_UNIVERSAL, player);
 															player->CLOSE_GOSSIP_MENU();
 														return false;
 													}
@@ -245,7 +245,7 @@ public:
 								}
 								else 
 								{
-									creature->Say("This enchant needs a 2H weapon equiped.", LANG_UNIVERSAL);
+									creature->Whisper("This enchant needs a 2H weapon equiped.", LANG_UNIVERSAL, player);
 									player->CLOSE_GOSSIP_MENU();
 								}
 									player->PlayerTalkClass->SendGossipMenu(100003, creature->GetGUID());
@@ -256,7 +256,7 @@ public:
 						item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 														if (!item)
 													{
-															creature->Say("This enchant needs a shield equiped.", LANG_UNIVERSAL);
+															creature->Whisper("This enchant needs a shield equiped.", LANG_UNIVERSAL, player);
 															player->CLOSE_GOSSIP_MENU();
 														return false;
 													}
@@ -272,7 +272,7 @@ public:
 						}
 						else
 						{
-							creature->Say("This enchant needs a shield equiped.", LANG_UNIVERSAL);
+							creature->Whisper("This enchant needs a shield equiped.", LANG_UNIVERSAL, player);
 							player->CLOSE_GOSSIP_MENU();
 						}
 							player->PlayerTalkClass->SendGossipMenu(100004, creature->GetGUID());
