@@ -1749,8 +1749,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveSpecializationSpells();
         void SendSpellCategoryCooldowns() const;
 
-        void SetReputation(uint32 factionentry, uint32 value);
-        uint32 GetReputation(uint32 factionentry) const;
+        void SetReputation(uint32 factionentry, int32 value);
+        int32 GetReputation(uint32 factionentry) const;
         std::string GetGuildName() const;
 
         // Loot Spec
