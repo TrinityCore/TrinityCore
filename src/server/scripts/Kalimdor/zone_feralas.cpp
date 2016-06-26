@@ -19,9 +19,14 @@
 /* ScriptData
 SDName: Feralas
 SD%Complete: 100
-SDComment: Quest support: 2767, Special vendor Gregan Brewspewer
+SDComment: Quest support: 2767, 2987
 SDCategory: Feralas
 EndScriptData */
+
+/* ContentData
+npc_oox22fe
+spell_gordunni_trap
+EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -30,44 +35,6 @@ EndScriptData */
 #include "SpellScript.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_gregan_brewspewer
-######*/
-
-#define GOSSIP_HELLO "Buy somethin', will ya?"
-
-class npc_gregan_brewspewer : public CreatureScript
-{
-public:
-    npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            player->SEND_GOSSIP_MENU(2434, creature->GetGUID());
-        }
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(2433, creature->GetGUID());
-        return true;
-    }
-
-};
 
 /*######
 ## npc_oox22fe
@@ -183,6 +150,10 @@ public:
 
 };
 
+/*######
+## spell_gordunni_trap
+######*/
+
 enum GordunniTrap
 {
     GO_GORDUNNI_DIRT_MOUND = 144064,
@@ -225,7 +196,6 @@ class spell_gordunni_trap : public SpellScriptLoader
 
 void AddSC_feralas()
 {
-    new npc_gregan_brewspewer();
     new npc_oox22fe();
     new spell_gordunni_trap();
 }

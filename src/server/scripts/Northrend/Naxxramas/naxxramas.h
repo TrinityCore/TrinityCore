@@ -107,7 +107,8 @@ enum CreaturesIds
     NPC_DK_UNDERSTUDY           = 16803,
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
-    NPC_OLD_WORLD_TRIGGER       = 15384
+    NPC_OLD_WORLD_TRIGGER       = 15384,
+    NPC_FROGGER                 = 16027
 };
 
 enum GameObjectsIds
@@ -174,6 +175,9 @@ enum InstanceEvents
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
+
+    // Periodic Frogger summon
+    EVENT_SUMMON_FROGGER_WAVE,
 
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,

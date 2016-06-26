@@ -112,7 +112,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
     LANG_PVPSTATS                       = 80,
     LANG_PVPSTATS_DISABLED              = 81,
-    // Free 82 - 95
+    LANG_COMMAND_NEARGRAVEYARD          = 82,
+    LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
+    // Free 84 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,

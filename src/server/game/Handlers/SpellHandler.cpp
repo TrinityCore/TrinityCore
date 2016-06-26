@@ -196,7 +196,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+    if (!(proto->Flags & ITEM_PROTO_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
     {
         pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
         TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",

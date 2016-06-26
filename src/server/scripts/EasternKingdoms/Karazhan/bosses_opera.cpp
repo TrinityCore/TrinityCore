@@ -797,46 +797,43 @@ enum RedRidingHood
     SAY_WOLF_AGGRO                  = 0,
     SAY_WOLF_SLAY                   = 1,
     SAY_WOLF_HOOD                   = 2,
+    OPTION_WHAT_PHAT_LEWTS_YOU_HAVE = 7443,
     SOUND_WOLF_DEATH                = 9275,
 
     SPELL_LITTLE_RED_RIDING_HOOD    = 30768,
     SPELL_TERRIFYING_HOWL           = 30752,
     SPELL_WIDE_SWIPE                = 30761,
 
-    CREATURE_BIG_BAD_WOLF           = 17521,
+    CREATURE_BIG_BAD_WOLF           = 17521
 };
-
-
-#define GOSSIP_GRANDMA          "What phat lewtz you have grandmother?"
-
-
 
 class npc_grandmother : public CreatureScript
 {
-public:
-    npc_grandmother() : CreatureScript("npc_grandmother") { }
+    public:
+        npc_grandmother() : CreatureScript("npc_grandmother") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
+        struct npc_grandmotherAI : public ScriptedAI
         {
-            if (Creature* pBigBadWolf = creature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
-                pBigBadWolf->AI()->AttackStart(player);
+            npc_grandmotherAI(Creature* creature) : ScriptedAI(creature) { }
 
-            creature->DespawnOrUnsummon();
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                if (menuId == OPTION_WHAT_PHAT_LEWTS_YOU_HAVE && gossipListId == 0)
+                {
+                    player->CLOSE_GOSSIP_MENU();
+
+                    if (Creature* pBigBadWolf = me->SummonCreature(CREATURE_BIG_BAD_WOLF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                        pBigBadWolf->AI()->AttackStart(player);
+
+                    me->DespawnOrUnsummon();
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_grandmotherAI(creature);
         }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GRANDMA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        player->SEND_GOSSIP_MENU(8990, creature->GetGUID());
-
-        return true;
-    }
 };
 
 class boss_bigbadwolf : public CreatureScript
