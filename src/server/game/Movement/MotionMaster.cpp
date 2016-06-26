@@ -479,11 +479,12 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
 
+    _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    _owner->m_movementInfo.SetFallTime(0);
+
+    // don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        _owner->m_movementInfo.SetFallTime(0);
-    }
+        return;
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
@@ -534,6 +535,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) seek assistance (X: %f Y: %f Z: %f)",
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), x, y, z);
         _owner->AttackStop();
+        _owner->CastStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
         Mutate(new AssistanceMovementGenerator(x, y, z), MOTION_SLOT_ACTIVE);
     }
