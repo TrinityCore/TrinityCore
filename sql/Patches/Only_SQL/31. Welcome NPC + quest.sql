@@ -2,10 +2,10 @@ SET
 @ENTRY  := 190004,
 @ID     := 190010;
 REPLACE INTO `creature_template` (entry,modelid1,name,subname,minlevel,maxlevel,faction,npcflag,scale,AIName,InhabitType) VALUES
-(@ENTRY,31011,"Welcome Quester","",80,80,35,2,1,"SmartAI",3);
+(@ENTRY,31011,"Conan Master","",80,80,35,2,1,"SmartAI",3);
 
 REPLACE INTO quest_template (Id, RewardChoiceItemId1, RewardChoiceItemQuantity1, LogTitle, LogDescription, QuestDescription) VALUES 
-   (@ID, 999999, 1, "|cff58FAF4WELCOME", "Welcome. So you decided to play on our server. We are glad to have you here. Just complete this small quest. We hope you enjoy us!", "Welcome. So you decided to play on our server. We are glad to have you here. Just complete this small quest. We hope you enjoy us!");
+   (@ID, 999999, 1, "|cff58FAF4WELCOME", "Custom NPC available only in center of Stormwind and Orgrimmar!", "Welcome on Single Player Project home server. We are glad to have you here. Just complete this small quest. We hope you enjoy us! If you find any issues, please report to me on SingleCore_TC Github page.");
  REPLACE INTO `creature_queststarter` VALUES
  (@ENTRY, @ID);
 REPLACE INTO `creature_questender` VALUES
