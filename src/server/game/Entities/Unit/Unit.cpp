@@ -634,7 +634,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                    if (spell->getState() == SPELL_STATE_PREPARING)
                    {
                        uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                       if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                       if ((interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG) != 0)
                            victim->InterruptNonMeleeSpells(false);
                    }
 
