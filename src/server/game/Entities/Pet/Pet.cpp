@@ -329,6 +329,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         _LoadSpellCooldowns();
         LearnPetPassives();
         InitLevelupSpellsForLevel();
+        if (map->IsBattleArena())
+            RemoveArenaAuras();
+
         CastPetAuras(current);
     }
 
