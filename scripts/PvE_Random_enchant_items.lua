@@ -1,5 +1,5 @@
 function RollEnchant(item)
-	rarityRoll = math.random(100)
+	rarityRoll = math.random(25)
 	local itemClass = ""
 	if (item:GetClass() == 2) then
 		itemClass = "WEAPON"

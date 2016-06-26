@@ -4,8 +4,8 @@ local ZoneCheck = {
         },
         TeleportLocations = {
                 -- [TeamId] = {Map, X, Y, Z, Orientation}
-                [0] = {0, -9468, 108, 58, 0},
-                [1] = {0, -9410, 16, 60, 0},
+                [0] = {0, -9483, 139, 57, 0},
+                [1] = {0, -9410, 16, 61, 0},
         },
         RestrictedMessage = "You have entered a restricted zone. You have been removed from the area."
 }

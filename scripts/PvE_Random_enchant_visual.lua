@@ -9,7 +9,7 @@ This is purely visual fun and the visual will be replaced when the weapon is enc
 This script is 100% automatic. You can only put it to your script folder and it will work.
 ]]
 
-local chance = 1.0
+local chance = 0.25
 
 -- Do not edit anything below
 
