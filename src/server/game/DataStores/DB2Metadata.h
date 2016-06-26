@@ -827,9 +827,9 @@ struct CharTitlesMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sshhb";
-        static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 5, 0x597835B2, types, arraySizes);
+        static char const* types = "sshb";
+        static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 4, 0xECCBDBF9, types, arraySizes);
         return &instance;
     }
 };
@@ -1179,9 +1179,9 @@ struct CreatureFamilyMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ffsShhbbbb";
-        static uint8 const arraySizes[10] = { 1, 1, 1, 1, 2, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 10, 0xD3A903B4, types, arraySizes);
+        static char const* types = "ffsShhbbb";
+        static uint8 const arraySizes[9] = { 1, 1, 1, 1, 2, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 9, 0xC9BA80A3, types, arraySizes);
         return &instance;
     }
 };
@@ -4138,9 +4138,9 @@ struct QuestPOIBlobMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hhbb";
-        static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 4, 0x2B6FCF8C, types, arraySizes);
+        static char const* types = "hhbbi";
+        static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 5, 0xA11D5590, types, arraySizes);
         return &instance;
     }
 };
@@ -4160,9 +4160,9 @@ struct QuestPOIPointCliTaskMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "hhhhhb";
-        static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 6, 0xB4B42A70, types, arraySizes);
+        static char const* types = "hhhhhbi";
+        static uint8 const arraySizes[7] = { 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 7, 0x6F65A1E7, types, arraySizes);
         return &instance;
     }
 };

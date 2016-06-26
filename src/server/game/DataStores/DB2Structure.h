@@ -257,7 +257,6 @@ struct CharTitlesEntry
     uint32 ID;
     LocalizedString* NameMale;
     LocalizedString* NameFemale;
-    uint16 ConditionID;
     uint16 MaskID;
     uint8 Flags;
 };
@@ -423,7 +422,6 @@ struct CreatureFamilyEntry
     uint8 MinScaleLevel;
     uint8 MaxScaleLevel;
     uint8 PetTalentType;
-    uint8 CategoryEnumID;
 };
 
 struct CreatureModelDataEntry

@@ -105,7 +105,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "ItemID24, PetDisplayID, RaceID, ClassID, GenderID, OutfitID, PetFamilyID FROM char_start_outfit ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CharTitles.db2
-    PrepareStatement(HOTFIX_SEL_CHAR_TITLES, "SELECT ID, NameMale, NameFemale, ConditionID, MaskID, Flags FROM char_titles ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHAR_TITLES, "SELECT ID, NameMale, NameFemale, MaskID, Flags FROM char_titles ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHAR_TITLES, "SELECT ID, NameMale_lang, NameFemale_lang FROM char_titles_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ChatChannels.db2
@@ -154,7 +154,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // CreatureFamily.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_FAMILY, "SELECT ID, MinScale, MaxScale, Name, IconFile, SkillLine1, SkillLine2, PetFoodMask, MinScaleLevel, "
-        "MaxScaleLevel, PetTalentType, CategoryEnumID FROM creature_family ORDER BY ID DESC", CONNECTION_SYNCH);
+        "MaxScaleLevel, PetTalentType FROM creature_family ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CREATURE_FAMILY, "SELECT ID, Name_lang FROM creature_family_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // CreatureModelData.db2
@@ -437,8 +437,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_RANDOM_PROPERTIES, "SELECT ID, Name_lang FROM item_random_properties_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ItemRandomSuffix.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name, Enchantment1, Enchantment2, Enchantment3, Enchantment4, "
-        "Enchantment5, AllocationPct1, AllocationPct2, AllocationPct3, AllocationPct4, AllocationPct5 FROM item_random_suffix ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name, Enchantment1, Enchantment2, Enchantment3, Enchantment4, Enchantment5, "
+        "AllocationPct1, AllocationPct2, AllocationPct3, AllocationPct4, AllocationPct5 FROM item_random_suffix ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name_lang FROM item_random_suffix_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ItemSet.db2
