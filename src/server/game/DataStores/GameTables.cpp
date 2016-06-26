@@ -63,21 +63,31 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
-        Tokenizer values(line, '\t', columnDefs.size(), false);
-        if (values.size() == 0)
+        Tokenizer values(line, '\t', columnDefs.size());
+        if (!values.size())
             break;
 
-        ASSERT(values.size() == columnDefs.size(), SZFMTD " == " SZFMTD, values.size(), columnDefs.size());
+        // make end point just after last nonempty token
+        auto end = values.begin() + values.size() - 1;
+        while (!strlen(*end) && end != values.begin())
+            --end;
 
-        // as of 21796 blizz doesnt seem to care about id column and just puts in whatever there
-        ASSERT(strtol(values[0], nullptr, 10) == data.size(),
-            "Unexpected row identifier %u at row " SZFMTD " (expected " SZFMTD ")",
-            strtol(values[0], nullptr, 10), data.size(), data.size());
+        if (values.begin() == end)
+            break;
+
+        ++end;
+
+        ASSERT(std::distance(values.begin(), end) == columnDefs.size(), SZFMTD " == " SZFMTD, std::distance(values.begin(), end), columnDefs.size());
+
+        // client ignores id column - CombatRatings has copypasted rows for levels > 110
+        //ASSERT(strtol(values[0], nullptr, 10) == data.size(),
+        //    "Unexpected row identifier %u at row " SZFMTD " (expected " SZFMTD ")",
+        //    strtol(values[0], nullptr, 10), data.size(), data.size());
 
         data.emplace_back();
         float* row = reinterpret_cast<float*>(&data.back());
-        for (std::size_t col = 1; col < columnDefs.size(); ++col)
-            *row++ = strtof(values[col], nullptr);
+        for (auto itr = values.begin() + 1; itr != end; ++itr)
+            *row++ = strtof(*itr, nullptr);
     }
 
     storage.SetData(std::move(data));
