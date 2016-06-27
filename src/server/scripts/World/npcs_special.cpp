@@ -608,7 +608,7 @@ public:
             running = false;
         }
 
-        void SetData(uint32 type, uint32 uiData) override
+        void SetData(uint32 /*type*/, uint32 /*uiData*/) override
         {
             // Don't start event if it's already running.
             if (running)
