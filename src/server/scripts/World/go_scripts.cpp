@@ -1213,8 +1213,8 @@ public:
     {
         if (Creature* creature = go->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
         {
-            creature->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
-            player->CastSpell(creature, SPELL_POLE_DANCE);
+            creature->GetAI()->SetData(0, 0);
+            player->CastSpell(creature, SPELL_POLE_DANCE, true);
         }
         return true;
     }

@@ -11,10 +11,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 29726, 0, 0, 31, 0, 3, 17066, 0, 0, 0, 0, "", "Spell 'Test Ribbon Pole Channel' targets creature 'Ribbon Pole Debug Target'");
 UPDATE `gameobject_template` SET `ScriptName`="go_midsummer_ribbon_pole" WHERE `entry`=181605;
 
-DELETE FROM `disables` WHERE `sourceType`=0 AND `entry`=46842;
+DELETE FROM `disables` WHERE `sourceType`=0 AND `entry` IN (46836, 46842);
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
+(0, 46836, 64, 0, "", "Spell Flame Patch - Ignore LOS"),
 (0, 46842, 64, 0, "", "Spell Flame Ring - Ignore LOS");
 
 UPDATE `creature_template_addon` SET `bytes1`=33554688 WHERE `entry`=17066;
 DELETE FROM `creature_addon` WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id`=17066);
 UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `id`=17066;
+UPDATE `creature_template` SET `ScriptName`="npc_midsummer_bunny_pole" WHERE `entry`=17066;
