@@ -399,7 +399,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GUILD_INVITE_BY_NAME,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildInviteByName, &WorldSession::HandleGuildInviteByName);
     DEFINE_HANDLER(CMSG_GUILD_LEAVE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildLeave, &WorldSession::HandleGuildLeave);
     DEFINE_HANDLER(CMSG_GUILD_MEMBER_SEND_SOR_REQUEST,                      STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_GUILD_NEWS_UPDATE_STICKY,                           STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Guild::GuildNewsUpdateSticky, &WorldSession::HandleGuildNewsUpdateSticky);
+    DEFINE_HANDLER(CMSG_GUILD_NEWS_UPDATE_STICKY,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildNewsUpdateSticky, &WorldSession::HandleGuildNewsUpdateSticky);
     DEFINE_HANDLER(CMSG_GUILD_OFFICER_REMOVE_MEMBER,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildOfficerRemoveMember, &WorldSession::HandleGuildOfficerRemoveMember);
     DEFINE_HANDLER(CMSG_GUILD_PERMISSIONS_QUERY,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildPermissionsQuery, &WorldSession::HandleGuildPermissionsQuery);
     DEFINE_HANDLER(CMSG_GUILD_PROMOTE_MEMBER,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::GuildPromoteMember, &WorldSession::HandleGuildPromoteMember);
