@@ -1951,7 +1951,8 @@ enum Emote
     EMOTE_STATE_STRANGULATE             = 473,
     EMOTE_STATE_READY_SPELL_OMNI        = 474,
     EMOTE_STATE_HOLD_JOUST              = 475,
-    EMOTE_ONESHOT_CRY_JAINA             = 476
+    EMOTE_ONESHOT_CRY_JAINA             = 476,
+    EMOTE_MAX                           = 477
 };
 
 // AnimationData.dbc
