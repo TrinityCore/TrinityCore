@@ -598,8 +598,11 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemId);
 
     for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
-        if (ItemAppearanceEntry const* appearance = sItemAppearanceStore.LookupEntry(appearanceMod->AppearanceID))
-            _itemDisplayIDs[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearance->DisplayID;
+    {
+        ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
+        ASSERT(appearanceMod->AppearanceModID <= 0xFF);
+        _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearanceMod;
+    }
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
         _itemSetSpells[itemSetSpell->ItemSetID].push_back(itemSetSpell);
@@ -1052,19 +1055,28 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
 {
-    auto itr = _itemDisplayIDs.find(itemId | (appearanceModId << 24));
-    if (itr != _itemDisplayIDs.end())
+    if (ItemModifiedAppearanceEntry const* modifiedAppearance = GetItemModifiedAppearance(itemId, appearanceModId))
+        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(modifiedAppearance->AppearanceID))
+            return itemAppearance->DisplayID;
+
+    return 0;
+}
+
+ItemModifiedAppearanceEntry const* DB2Manager::GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const
+{
+    auto itr = _itemModifiedAppearancesByItem.find(itemId | (appearanceModId << 24));
+    if (itr != _itemModifiedAppearancesByItem.end())
         return itr->second;
 
     // Fall back to unmodified appearance
     if (appearanceModId)
     {
-        itr = _itemDisplayIDs.find(itemId);
-        if (itr != _itemDisplayIDs.end())
+        itr = _itemModifiedAppearancesByItem.find(itemId);
+        if (itr != _itemModifiedAppearancesByItem.end())
             return itr->second;
     }
 
-    return 0;
+    return nullptr;
 }
 
 std::vector<ItemSetSpellEntry const*> const* DB2Manager::GetItemSetSpells(uint32 itemSetId) const
