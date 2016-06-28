@@ -107,8 +107,8 @@ class VAS_AutoBalance_WorldScript : public WorldScript
 	{
 	// Load from the VAS.AutoBalance.XX.Name entries in the Configuration File
 	forcedCreatureIds.clear();
-	//LoadForcedCreatureIdsFromString(sWorld->GetVAS40(), 40);
-	//LoadForcedCreatureIdsFromString(sWorld->GetVAS25(), 25);
+	LoadForcedCreatureIdsFromString(sWorld->GetVAS40(), 40);
+	LoadForcedCreatureIdsFromString(sWorld->GetVAS25(), 25);
 	LoadForcedCreatureIdsFromString(sWorld->GetVAS10(), 10);
 	LoadForcedCreatureIdsFromString(sWorld->GetVAS5(), 5);
 	LoadForcedCreatureIdsFromString(sWorld->GetVAS2(), 2);

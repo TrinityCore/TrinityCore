@@ -2,6 +2,7 @@
 //Fixed Error SymbolixDEV
 //release SymbolixDEV
 #include "ScriptMgr.h"
+#include "Config.h"
 #include <Player.h>
 
 class Boss_Announcer : public PlayerScript
@@ -11,8 +12,10 @@ public:
 
 	void OnCreatureKill(Player* player, Creature* boss)
 	{
-		if (boss->isWorldBoss())
+		if (sConfigMgr->GetBoolDefault("Boss.Announcer.Enable", true))
 		{
+		if (boss->isWorldBoss())
+			{
 			std::string plr = player->GetName();
 			std::string boss_n = boss->GetName();
 			bool ingroup = player->GetGroup();
@@ -24,6 +27,7 @@ public:
 				"|r|cff" << plr_colour << " " << plr <<
 				"|r 's group killed |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";
 			sWorld->SendServerMessage(SERVER_MSG_STRING, stream.str().c_str());
+			}
 		}
 	};
 };
