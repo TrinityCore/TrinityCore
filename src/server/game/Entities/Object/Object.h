@@ -168,11 +168,11 @@ class TC_GAME_API Object
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
-        uint32 GetDynamicValue(uint16 index, uint8 offset) const;
+        uint32 GetDynamicValue(uint16 index, uint16 offset) const;
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
-        void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
+        void SetDynamicValue(uint16 index, uint16 offset, uint32 value);
 
         void ClearUpdateMask(bool remove);
 
