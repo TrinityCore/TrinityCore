@@ -1871,6 +1871,11 @@ uint32 Item::GetDisplayId() const
     return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
 
+ItemModifiedAppearanceEntry const* Item::GetItemModifiedAppearance() const
+{
+    return sDB2Manager.GetItemModifiedAppearance(GetEntry(), _bonusData.AppearanceModID);
+}
+
 void Item::SetModifier(ItemModifier modifier, uint32 value)
 {
     _modifiers[modifier] = value;
@@ -1916,6 +1921,7 @@ void Item::AddBonuses(uint32 bonusListID)
         AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
         for (ItemBonusEntry const* bonus : *bonuses)
             _bonusData.AddBonus(bonus->Type, bonus->Value);
+        SetUInt32Value(ITEM_FIELD_APPEARANCE_MOD_ID, _bonusData.AppearanceModID);
     }
 }
 
