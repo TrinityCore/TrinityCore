@@ -4222,3 +4222,69 @@ PvPRank.HKPerRank = 10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,3
 
 #
 ###################################################################################################
+
+###################################################################################################
+#
+#     Solocraft.Enable
+#        Description: Solocraft is a script to increase players and bots stats in raids, 
+#		 based on group size. It feels a little Hacky, but raids is unfair hard with playerbots.
+#        Default:     0
+
+Solocraft.Enable = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#     Killstreak.Enable
+#        Description: System announce every 5, 10, 15...etc killstreak in global chat.
+#        Default:     1
+
+Killstreak.Enable = 1
+
+#
+#     Killstreak.Battleground.Only
+#        Description: Killstreak system only in battlegrounds.
+#        Default:     0
+
+Killstreak.Battleground.Only = 0
+
+#
+#     Loose.Token.On.PvP.Death
+#        Description: Loosing PvP token if you killed by someone else.
+#        Default:     0
+
+Loose.Token.On.PvP.Death = 1
+
+#
+#     Add.Token.On.PvP.Kill
+#        Description: You receive PvP token when you killing other players or bots
+#        Default:     0
+
+Add.Token.On.PvP.Kill = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#     Boss.Announcer.Enable
+#        Description: System announce who killed a world boss in global.
+#        Default:     1
+
+Boss.Announcer.Enable = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#     Login.Announcer.Enable
+#        Description: Announce every player and bots login
+#        Default:     1
+
+Login.Announcer.Enable = 1
+
+#
+###################################################################################################

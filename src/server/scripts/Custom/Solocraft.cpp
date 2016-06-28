@@ -22,16 +22,21 @@ public:
 	solocraft_player_instance_handler() : PlayerScript("solocraft_player_instance_handler") {
 		TC_LOG_INFO("scripts.solocraft.player.instance", "[Solocraft] solocraft_player_instance_handler Loaded");
 	}
-
+	
 	void OnLogin(Player *player, bool firstLogin) override {
+		if (sConfigMgr->GetBoolDefault("Solocraft.Enable", true))
+		{
 		ChatHandler(player->GetSession()).SendSysMessage("Solocraft mode activated in raids");
+		}
 	}
 
 	void OnMapChanged(Player *player) override {
+		if (sConfigMgr->GetBoolDefault("Solocraft.Enable", true)) {
 		Map *map = player->GetMap();
 		int difficulty = CalculateDifficulty(map, player);
 		int numInGroup = GetNumInGroup(player);
 		ApplyBuffs(player, map, difficulty, numInGroup);
+		}
 	}
 private:
 	std::map<ObjectGuid, int> _unitDifficulty;
@@ -41,13 +46,13 @@ private:
 		if (map) {
 			if (map->Is25ManRaid()) {
 				difficulty = 25;
-			} /*else if (map->IsHeroic()) {
+			} else if (map->IsHeroic()) {
 				difficulty = 10;
-			}*/ else if (map->IsRaid()) {
+			} else if (map->IsRaid()) {
 				difficulty = 40;
-			} /*else if (map->IsDungeon()) {
+			} else if (map->IsDungeon()) {
 				difficulty = 5;
-			}*/
+			}
 		}
 		return difficulty;
 	}
@@ -99,6 +104,7 @@ private:
 };
 
 }
+
 
 void AddSC_solocraft() {
 	new solocraft_player_instance_handler();

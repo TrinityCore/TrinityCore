@@ -1,14 +1,11 @@
 #include "ScriptMgr.h"
+#include "Config.h"
 #include <Player.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////// KILLSTREAK CONFIG ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool PvPSystemEnabled = true;
-bool OnlyInBattlegrounds = false;
-bool LooseTokenOnPvPDeath = true;
 int32 AmountOfItemsYouWantTheVictimToLoose = 1;
-bool AddTokenOnPvPKill = true;
 int32 ItemReward = 23247;
 int32 AmountOfRewardsOnKillStreak[9] = { 4, 6, 8, 10, 12, 14, 16, 18, 20 };
 int32 HowManyTimesYouWantTheKillerToGetAwardedForKillingTheSameVictim = 2;
@@ -41,11 +38,7 @@ public:
 
 	void OnPVPKill(Player* killer, Player* killed)
 	{
-		if (PvPSystemEnabled == false)
-		{
-			return;
-		}
-		else if (PvPSystemEnabled == true)
+		if (sConfigMgr->GetBoolDefault("Killstreak.Enable", true))
 		{
 			uint32 kGUID; 
 			uint32 vGUID;
@@ -75,7 +68,7 @@ public:
 				}
 				KillingStreak[vGUID].KillCount = 1;
 				killer->AddItem(ItemReward, 1);
-				if (LooseTokenOnPvPDeath == true)
+				if (sConfigMgr->GetBoolDefault("Killstreak.Enable", true))
 					killed->DestroyItemCount(ItemReward, AmountOfItemsYouWantTheVictimToLoose, true, false);
 			}
 			if (KillingStreak[kGUID].LastGUIDKill != vGUID)
@@ -89,7 +82,7 @@ public:
 				return;
 			}
 
-			if (OnlyInBattlegrounds == true)
+			if (sConfigMgr->GetBoolDefault("Loose.Token.On.PvP.Death", true))
 			{
 				if (!killer->GetMap()->IsBattleground() || killer->GetMapId() == 30)
 				{
@@ -102,12 +95,12 @@ public:
 			KillingStreak[kGUID].LastGUIDKill = vGUID;
 			KillingStreak[vGUID].LastGUIDKill = 0;
 
-			if (AddTokenOnPvPKill == true)
+			if (sConfigMgr->GetBoolDefault("Add.Token.On.PvP.Kill", true))
 			{
 				killer->AddItem(29435, 1);
 			}
 
-			if (LooseTokenOnPvPDeath == true)
+			if (sConfigMgr->GetBoolDefault("Loose.Token.On.PvP.Death", true))
 			{
 				killed->DestroyItemCount(ItemReward, AmountOfItemsYouWantTheVictimToLoose, true);
 			}
