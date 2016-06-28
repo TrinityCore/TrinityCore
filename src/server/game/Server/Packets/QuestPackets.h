@@ -222,6 +222,7 @@ namespace WorldPackets
             int32 Money                     = 0;
             int32 XP                        = 0;
             int32 ArtifactXP                = 0;
+            int32 ArtifactCategoryID        = 0;
             int32 Honor                     = 0;
             int32 Title                     = 0;
             int32 FactionFlags              = 0;

@@ -273,6 +273,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     rewards.ItemCount               = GetRewItemsCount();
     rewards.Money                   = player->GetQuestMoneyReward(this);
     rewards.XP                      = player->GetQuestXPReward(this);
+    rewards.ArtifactCategoryID      = GetArtifactCategoryId();
     rewards.Title                   = GetRewTitle();
     rewards.FactionFlags            = GetRewardReputationMask();
     for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
