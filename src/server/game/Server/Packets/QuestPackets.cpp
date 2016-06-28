@@ -228,6 +228,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
     data << int32(questRewards.Money);
     data << int32(questRewards.XP);
     data << int32(questRewards.ArtifactXP);
+    data << int32(questRewards.ArtifactCategoryID);
     data << int32(questRewards.Honor);
     data << int32(questRewards.Title);
     data << int32(questRewards.FactionFlags);
