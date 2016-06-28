@@ -1,4 +1,5 @@
 #include "DisableMgr.h"
+#include "Config.h"
 
 class LearnSpellsOnLevelUp : public PlayerScript
 {
@@ -45,8 +46,11 @@ class LearnSpellsOnLevelUp : public PlayerScript
 
     void OnLevelChanged(Player* player, uint8 oldLevel)
     {
+		if (sConfigMgr->GetBoolDefault("Auto.Spell.Learn", true))
+		{
             if (oldLevel < player->getLevel())
                     LearnSpellsForNewLevel(player, oldLevel);
+		}
     }
 
     bool IsIgnoredSpell(uint32 spellID)
@@ -59,6 +63,8 @@ class LearnSpellsOnLevelUp : public PlayerScript
 
     void LearnSpellsForNewLevel(Player* player, uint8 level)
     {
+		if (sConfigMgr->GetBoolDefault("Auto.Spell.Learn", true))
+		{
             if (level == player->getLevel() + 1)
                     return;
             uint32 family;
@@ -138,6 +144,7 @@ class LearnSpellsOnLevelUp : public PlayerScript
                             player->LearnSpell(spellInfo->Id, false);
             }
             LearnSpellsForNewLevel(player, ++level);
+		}
     }
 };
 
