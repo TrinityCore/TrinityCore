@@ -110,18 +110,6 @@ enum CombatPhase
     PHASE_GROUND
 };
 
-std::list<uint32> SummonSpellsList =
-{
-    SPELL_SUMMON_YMIRJAR_WARRIOR_E,
-    SPELL_SUMMON_YMIRJAR_HARPOONER_W,
-    SPELL_SUMMON_YMIRJAR_WARRIOR_W,
-    SPELL_SUMMON_YMIRJAR_HARPOONER_E,
-    SPELL_SUMMON_YMIRJAR_WARRIOR_W,
-    SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_E,
-    SPELL_SUMMON_YMIRJAR_WARRIOR_E,
-    SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_W
-};
-
 Position const BreachPoint = { 0.0f, 0.0f, 0.0f, 2.670354f };
 Position const SecondaryWavesInitialPoint = { 478.7434f, -505.5758f, 104.7237f };
 Position const SecondaryWavesFinalPoint = { 318.177f, -503.8898f, 104.5326f };
@@ -377,7 +365,7 @@ public:
             me->setActive(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
+            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
@@ -874,6 +862,18 @@ class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
                     CastTheNextTwoSpells();
                 }
             }
+        private:
+            std::deque<uint32> SummonSpellsList =
+            {
+                SPELL_SUMMON_YMIRJAR_WARRIOR_E,
+                SPELL_SUMMON_YMIRJAR_HARPOONER_W,
+                SPELL_SUMMON_YMIRJAR_WARRIOR_W,
+                SPELL_SUMMON_YMIRJAR_HARPOONER_E,
+                SPELL_SUMMON_YMIRJAR_WARRIOR_W,
+                SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_E,
+                SPELL_SUMMON_YMIRJAR_WARRIOR_E,
+                SPELL_SUMMON_YMIRJAR_WITCH_DOCTOR_W
+            };
 
             void Register() override
             {
