@@ -133,6 +133,7 @@ class TC_GAME_API Aura
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         ObjectGuid GetCasterGUID() const { return m_casterGuid; }
+        uint32 GetSpellXSpellVisualId() const { return m_spellXSpellVisualId; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
@@ -300,6 +301,7 @@ class TC_GAME_API Aura
         ObjectGuid const m_casterGuid;
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         int32 m_castItemLevel;
+        uint32 const m_spellXSpellVisualId;
         time_t const m_applyTime;
         WorldObject* const m_owner;
 
@@ -313,7 +315,6 @@ class TC_GAME_API Aura
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
-        //AuraEffect* m_effects[3];
         ApplicationMap m_applications;
 
         bool m_isRemoved;

@@ -573,8 +573,8 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
-    uint32 GetSpellXSpellVisualId(Difficulty difficulty) const;
-    uint32 GetSpellVisual(Difficulty difficulty, Player* forPlayer = nullptr) const;
+    uint32 GetSpellXSpellVisualId(Unit const* caster = nullptr) const;
+    uint32 GetSpellVisual(Unit const* caster = nullptr) const;
 
     // loading helpers
     void _InitializeExplicitTargetMask();

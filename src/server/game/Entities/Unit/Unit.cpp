@@ -16118,6 +16118,24 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     return spellInfo;
 }
 
+uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
+{
+    Unit::AuraEffectList const& visualOverrides = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_VISUAL);
+    for (AuraEffect const* effect : visualOverrides)
+    {
+        if (effect->GetMiscValue() == spellInfo->Id)
+        {
+            if (SpellInfo const* visualSpell = sSpellMgr->GetSpellInfo(effect->GetMiscValueB()))
+            {
+                spellInfo = visualSpell;
+                break;
+            }
+        }
+    }
+
+    return spellInfo->GetSpellXSpellVisualId(this);
+}
+
 struct CombatLogSender
 {
     WorldObject const* i_source;
