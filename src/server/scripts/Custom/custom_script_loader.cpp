@@ -21,6 +21,7 @@ void AddSC_LearnSpellsOnLevelUp();
 void AddSC_XpWeekend();
 void AddSC_killstreak_system();
 void AddSC_VAS_AutoBalance();
+void AddSC_item_enchant_visuals();
 void AddSC_Transmogrification();
 void AddSC_REFORGER_NPC();
 void AddSC_guildmaster();
@@ -38,6 +39,7 @@ void AddCustomScripts()
 	AddSC_XpWeekend();
 	AddSC_killstreak_system();
 	AddSC_VAS_AutoBalance();
+	AddSC_item_enchant_visuals();
     AddSC_Transmogrification();
     AddSC_REFORGER_NPC();
 	AddSC_guildmaster();
