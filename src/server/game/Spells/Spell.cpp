@@ -591,7 +591,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     focusObject = NULL;
     m_cast_count = 0;
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
-    m_SpellVisual = m_spellInfo->GetSpellXSpellVisualId(caster->GetMap()->GetDifficultyID());
+    m_SpellVisual = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
@@ -4355,7 +4355,7 @@ void Spell::SendChannelStart(uint32 duration)
         m_caster->SetChannelObjectGuid(channelTarget);
 
     m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
-    m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, m_spellInfo->GetSpellXSpellVisualId(m_caster->GetMap()->GetDifficultyID()));
+    m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL_X_SPELL_VISUAL, m_SpellVisual);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -6763,7 +6763,7 @@ bool Spell::IsAutoActionResetSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_spellInfo->GetSpellXSpellVisualId(m_caster->GetMap()->GetDifficultyID()) || m_spellInfo->IsChanneled() ||
+    return m_SpellVisual || m_spellInfo->IsChanneled() ||
         (m_spellInfo->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)) || m_spellInfo->Speed > 0.0f || (!m_triggeredByAuraSpell && !IsTriggered());
 }
 

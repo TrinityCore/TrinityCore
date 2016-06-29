@@ -202,7 +202,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     WorldPackets::Spells::AuraDataInfo auraData;
     auraData.SpellID = aura->GetId();
-    auraData.SpellXSpellVisualID = aura->GetSpellInfo()->GetSpellXSpellVisualId(_target->GetMap()->GetDifficultyID());
+    auraData.SpellXSpellVisualID = aura->GetSpellXSpellVisualId();
     auraData.Flags = GetFlags();
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         auraData.Flags |= AFLAG_DURATION;
@@ -365,7 +365,7 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
 
 Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel) :
 m_spellInfo(spellproto), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
-m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_castItemLevel(castItemLevel),
+m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_castItemLevel(castItemLevel), m_spellXSpellVisualId(caster ? caster->GetCastSpellXSpellVisualId(spellproto) : spellproto->GetSpellXSpellVisualId()),
 m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),

@@ -1931,6 +1931,7 @@ class TC_GAME_API Unit : public WorldObject
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
+        uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const;
 
         SpellHistory* GetSpellHistory() { return _spellHistory; }
         SpellHistory const* GetSpellHistory() const { return _spellHistory; }
