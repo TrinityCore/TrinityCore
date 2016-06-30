@@ -4254,18 +4254,6 @@ PvPRank.HKPerRank = 10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,3
 
 ###################################################################################################
 #
-#     Solocraft.Enable
-#        Description: Solocraft is a script to increase players and bots stats in raids, 
-#		 based on group size. It feels a little Hacky, but raids is unfair hard with playerbots.
-#        Default:     0
-
-Solocraft.Enable = 0
-
-#
-###################################################################################################
-
-###################################################################################################
-#
 #     Killstreak.Enable
 #        Description: System announce every 5, 10, 15...etc killstreak in global chat.
 #        Default:     1
@@ -4298,16 +4286,34 @@ Add.Token.On.PvP.Kill = 1
 
 ###################################################################################################
 #
+#     StartGuild
+#        Description: New players automatically added for the configurated guild IDs.
+#		 Example: 	  StartGuild.Alliance = 45
+#					  StartGuild.Horde = 46
+#        Default:     0 (disabled)
+
+StartGuild.Alliance = 0
+StartGuild.Horde = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#     Solocraft.Enable
+#        Description: Solocraft is a script to increase players and bots stats in raids, 
+#		 based on group size. It feels a little Hacky, but raids is unfair hard with playerbots.
+#        Default:     0
+
+Solocraft.Enable = 0
+
+#
 #     Boss.Announcer.Enable
 #        Description: System announce who killed a world boss in global.
 #        Default:     1
 
 Boss.Announcer.Enable = 1
 
-#
-###################################################################################################
-
-###################################################################################################
 #
 #     Login.Announcer.Enable
 #        Description: Announce every player and bots login
@@ -4316,10 +4322,6 @@ Boss.Announcer.Enable = 1
 Login.Announcer.Enable = 1
 
 #
-###################################################################################################
-
-###################################################################################################
-#
 #     Auto.Spell.Learn
 #        Description: Learning spells automatically on levelup.
 #        Default:     1
@@ -4327,16 +4329,34 @@ Login.Announcer.Enable = 1
 Auto.Spell.Learn = 1
 
 #
-###################################################################################################
-
-###################################################################################################
-#
 #     Random.Visual.Enchant
 #        Description: You have 25% chance to loot a weapon with a random visual enchant.
 #					  Only a visual tuning, not a real enchant.
 #        Default:     1
 
 Random.Visual.Enchant = 1
+
+#
+#     Reset.on.login
+#        Description: Restore players health, mana and cooldowns when log into the game.
+#        Default:     1
+
+Reset.on.login = 1
+
+#
+#     Login.BoA
+#        Description: New players get some starting equipment.
+#        Default:     1
+
+Login.BoA = 1
+
+#
+#     PhasedDueling.Enable
+#        Description: On the start of a duel, the system create a separated phase 
+#					  for the duel partners and hide the other players.
+#        Default:     0
+
+PhasedDueling.Enable = 0
 
 #
 ###################################################################################################
