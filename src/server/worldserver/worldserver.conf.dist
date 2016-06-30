@@ -4322,4 +4322,12 @@ Reset.on.login = 1
 Login.BoA = 1
 
 #
+#     PhasedDueling.Enable
+#        Description: On the start of a duel, the system create a separated phase 
+#					  for the duel partners and hide the other players.
+#        Default:     0
+
+PhasedDueling.Enable = 0
+
+#
 ###################################################################################################
