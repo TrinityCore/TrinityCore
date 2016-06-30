@@ -1030,11 +1030,6 @@ struct SmartAction
 
         struct
         {
-            uint32 movement;
-        } offsetMovement;
-
-        struct
-        {
             std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
             uint32 onlySelf;
         } randomSound;

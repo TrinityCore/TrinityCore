@@ -1134,23 +1134,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                     Position pos = (*itr)->GetPosition();
 
-                    if (e.action.offsetMovement.movement)
-                    {
-                        // Use normal WoW axis-based movement
-                        Position offset = { e.target.x, e.target.y, e.target.z, 0.0f };
-                        pos.RelocateOffset(offset);
-                        (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, pos);
-                    }
-                    else
-                    {
-                        // Use forward/backward/left/right cartesian plane movement
-                        float x, y, z, o;
-                        o = pos.GetOrientation();
-                        x = pos.GetPositionX() + (cos(o - (M_PI / 2))*e.target.x) + (cosf(o)*e.target.y);
-                        y = pos.GetPositionY() + (sin(o - (M_PI / 2))*e.target.x) + (sinf(o)*e.target.y);
-                        z = pos.GetPositionZ() + e.target.z;
-                        (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
-                    }
+                    // Use forward/backward/left/right cartesian plane movement
+                    float x, y, z, o;
+                    o = pos.GetOrientation();
+                    x = pos.GetPositionX() + (std::cos(o - (M_PI / 2))*e.target.x) + (std::cos(o)*e.target.y);
+                    y = pos.GetPositionY() + (std::sin(o - (M_PI / 2))*e.target.x) + (std::sin(o)*e.target.y);
+                    z = pos.GetPositionZ() + e.target.z;
+                    (*itr)->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
                 }
 
                 delete targets;
