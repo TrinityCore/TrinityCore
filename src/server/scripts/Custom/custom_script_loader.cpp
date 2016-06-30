@@ -29,6 +29,7 @@ void AddSC_solocraft();
 void AddSC_Npc_Beastmaster();
 void AddSC_Boss_Announcer();
 void AddSC_npc_enchantment();
+void AddSC_login_script();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -47,4 +48,5 @@ void AddCustomScripts()
 	AddSC_Npc_Beastmaster();
 	AddSC_Boss_Announcer();
 	AddSC_npc_enchantment();
+	AddSC_login_script();
 }
