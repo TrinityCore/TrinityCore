@@ -461,7 +461,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //399
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
     &AuraEffect::HandleNULL,                                      //401
-    &AuraEffect::HandleNULL,                                      //402
+    &AuraEffect::HandleModPowerDisplay,                           //402 SPELL_AURA_MOD_POWER_DISPLAY
     &AuraEffect::HandleNoImmediateEffect,                         //403 SPELL_AURA_OVERRIDE_SPELL_VISUAL implemented in Unit::GetCastSpellXSpellVisualId
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
     &AuraEffect::HandleNULL,                                      //405 SPELL_AURA_MOD_RATING_PCT
@@ -4194,6 +4194,28 @@ void AuraEffect::HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aur
         return;
 
     aurApp->GetTarget()->HandleStatModifier(UNIT_MOD_MANA, BASE_PCT, float(GetAmount()), apply);
+}
+
+void AuraEffect::HandleModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(GetMiscValue());
+    if (!powerDisplay)
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (target->GetPowerIndex(powerDisplay->PowerType) == MAX_POWERS)
+        return;
+
+    if (apply)
+    {
+        target->RemoveAurasByType(GetAuraType(), ObjectGuid::Empty, GetBase());
+        target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, powerDisplay->ID);
+    }
+    else
+        target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, 0);
 }
 
 /********************************/

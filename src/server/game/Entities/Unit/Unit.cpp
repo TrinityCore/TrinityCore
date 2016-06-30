@@ -16123,7 +16123,7 @@ uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
     Unit::AuraEffectList const& visualOverrides = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_VISUAL);
     for (AuraEffect const* effect : visualOverrides)
     {
-        if (effect->GetMiscValue() == spellInfo->Id)
+        if (uint32(effect->GetMiscValue()) == spellInfo->Id)
         {
             if (SpellInfo const* visualSpell = sSpellMgr->GetSpellInfo(effect->GetMiscValueB()))
             {
