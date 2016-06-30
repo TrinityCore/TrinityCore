@@ -4257,6 +4257,20 @@ Add.Token.On.PvP.Kill = 1
 
 ###################################################################################################
 #
+#     StartGuild
+#        Description: New players automatically added for the configurated guild IDs.
+#		 Example: 	  StartGuild.Alliance = 45
+#					  StartGuild.Horde = 46
+#        Default:     0 (disabled)
+
+StartGuild.Alliance = 0
+StartGuild.Horde = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+#
 #     Solocraft.Enable
 #        Description: Solocraft is a script to increase players and bots stats in raids, 
 #		 based on group size. It feels a little Hacky, but raids is unfair hard with playerbots.
