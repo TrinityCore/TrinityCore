@@ -298,7 +298,7 @@ public:
                 if (Blind_Timer <= diff)
                 {
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, me->GetMeleeReach()*5, true);
+                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, me->GetCombatReach()*5, true);
                     for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
                         if (!me->IsWithinMeleeRange(*i))
                         {
