@@ -57,6 +57,7 @@ enum class HighGuid
     Container      = 0x4000,                      // blizz 4000
     Player         = 0x0000,                      // blizz 0000
     GameObject     = 0xF110,                      // blizz F110
+    GOMoveObject   = GameObject+1,
     Transport      = 0xF120,                      // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
     Unit           = 0xF130,                      // blizz F130
     Pet            = 0xF140,                      // blizz F140
@@ -99,6 +100,7 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::Unit)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Vehicle)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Pet)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::GameObject)
+GUID_TRAIT_MAP_SPECIFIC(HighGuid::GOMoveObject)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::DynamicObject)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Corpse)
 
@@ -126,7 +128,7 @@ class TC_GAME_API ObjectGuid
 
         ObjectGuid() : _guid(0) { }
         explicit ObjectGuid(uint64 guid) : _guid(guid) { }
-        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
+        ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _guid(hi == HighGuid::GOMoveObject || counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
         ObjectGuid(HighGuid hi, LowType counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
 
         operator uint64() const { return _guid; }

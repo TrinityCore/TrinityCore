@@ -32,6 +32,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include "GOMove.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
@@ -164,6 +165,8 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+        GOMove::GOMoveRemoveGO(GetGUID());
+
 #ifdef ELUNA
         sEluna->OnRemoveFromWorld(this);
 #endif
@@ -222,7 +225,11 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag = (m_updateFlag | UPDATEFLAG_TRANSPORT) & ~UPDATEFLAG_POSITION;
 
-    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
+    static std::atomic<uint32> GOMoveID(0);
+    if (!guidlow)
+        Object::_Create(0, ++GOMoveID, HighGuid::GOMoveObject);
+    else
+        Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
 
     m_goInfo = goinfo;
 

@@ -1,0 +1,75 @@
+<Ui>
+    <Button name="GOMove_UI_MapButton" text="G" parent="Minimap" toplevel="true" movable="true" frameStrata="LOW" enableMouse="true">
+        <Size x="27" y="27" />
+        <Anchors>
+            <Anchor point="TOPLEFT" x="-25" y="-60" />
+        </Anchors>
+        <Scripts>
+            <OnLoad>
+                this:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
+                this:RegisterForDrag("RightButton");
+            </OnLoad>
+            <OnEnter>
+                GameTooltip:SetOwner(this, "ANCHOR_LEFT");
+                GameTooltip:AddLine("GOMove UI");
+                GameTooltip:AddLine("Type /gomove to show or hide the GOMove window");
+                GameTooltip:AddLine("Type /gomove reset to reset the gomove UI positions");
+                GameTooltip:AddLine(" ");
+                GameTooltip:AddLine("Left click to show/hide");
+                GameTooltip:AddLine("Right click to drag this");
+                GameTooltip:Show();
+            </OnEnter>
+            <OnLeave>
+                GameTooltip:Hide();
+            </OnLeave>
+            <OnClick>
+                if(GOMove.MainFrame:IsVisible()) then
+                    GOMove.MainFrame:Hide()
+                else
+                    GOMove.MainFrame:Show()
+                end
+            </OnClick>
+            <OnDragStart>
+                this:StartMoving();
+            </OnDragStart>
+            <OnDragStop>
+                this:StopMovingOrSizing();
+            </OnDragStop>
+        </Scripts>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture name="Texture1" file="Interface\Minimap\MiniMap-TrackingBorder">
+                    <Size>
+                        <AbsDimension x="46" y="46" />
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" />
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="BACKGROUND">
+                <Texture name="$parent_Texture">
+                    <Size>
+                        <AbsDimension x="15" y="15" />
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="6" y="-6" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                    <TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925" />
+                </Texture>
+            </Layer>
+        </Layers>
+        <ButtonText name="$parentText">
+            <FontHeight>
+                <AbsValue val="10" />
+            </FontHeight>
+        </ButtonText>
+        <NormalFont style="GameFontNormal" />
+        <HighlightFont style="GameFontHighlight" />
+        <DisabledFont style="GameFontDisable" />
+    </Button>
+</Ui>
