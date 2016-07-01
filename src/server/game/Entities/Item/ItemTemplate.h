@@ -680,6 +680,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistribution; }
     uint32 GetDamageType() const { return ExtendedData->DamageType; }
     uint32 GetDelay() const { return ExtendedData->Delay; }
+    float GetRangedModRange() const { return ExtendedData->RangedModRange; }
     ItemBondingType GetBonding() const { return ItemBondingType(ExtendedData->Bonding); }
     char const* GetName(LocaleConstant locale) const;
     uint32 GetPageText() const { return ExtendedData->PageText; }
