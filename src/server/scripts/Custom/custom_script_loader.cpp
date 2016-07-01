@@ -35,7 +35,7 @@ void AddSC_Player_Boa();
 void AddSC_PhasedDueling();
 void AddSC_GOMove_commandscript();
 void AddSC_custom_commands();
-void AddSC_Soul_System();
+
 void AddSC_cs_world_chat();
 
 // The name of this function should match:
@@ -61,6 +61,6 @@ void AddCustomScripts()
 	AddSC_PhasedDueling();
     AddSC_GOMove_commandscript();
 	AddSC_custom_commands();
-	AddSC_Soul_System();
+
 	AddSC_cs_world_chat();
 }
