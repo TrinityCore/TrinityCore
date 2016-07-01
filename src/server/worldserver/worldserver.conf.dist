@@ -4301,11 +4301,14 @@ Auto.Spell.Learn = 1
 
 #
 #     Random.Visual.Enchant
-#        Description: You have 25% chance to loot a weapon with a random visual enchant.
-#					  Only a visual tuning, not a real enchant.
-#        Default:     1
+#        Description: You have chance to loot weapons with a random visual enchant.
+#					  Only a visual tuning, not a real enchant
+#
+#        Default:     Random.Visual.Enchant = 1
+#					  Visual.drop.chance = 0.10 (0.10 = 10% chance, 1.0 = 100%)
 
 Random.Visual.Enchant = 1
+Visual.drop.chance = 0.10
 
 #
 #     Reset.on.login
