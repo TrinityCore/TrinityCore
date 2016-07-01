@@ -704,6 +704,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
 
     // custom permissions 1000+
+	RBAC_PERM_COMMAND_CUSTOM_CHAT							 = 1009,
 	RBAC_SEC_PLAYER                                          = 1011,
     RBAC_PERM_MAX
 };
