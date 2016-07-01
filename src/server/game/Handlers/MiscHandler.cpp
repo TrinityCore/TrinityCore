@@ -111,7 +111,6 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 #ifdef ELUNA
     Item* item = NULL;
 #endif
-    Item* item = NULL;
     Creature* unit = NULL;
     GameObject* go = NULL;
     if (guid.IsCreatureOrVehicle())
@@ -132,41 +131,24 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             return;
         }
     }
-    else if (guid.IsItem())
-    {
-        item = _player->GetItemByGuid(guid);
-        if (!item || _player->IsBankPos(item->GetPos()))
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
-            return;
-        }
-    }
-    else if (guid.IsPlayer())
-    {
-        if (guid != _player->GetGUID() || menuId != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
-            return;
-        }
-    }
 #ifdef ELUNA
-    else if (guid.IsItem())
-    {
-        item = _player->GetItemByGuid(guid);
-        if (!item)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
-            return;
-        }
-    }
-    else if (guid.IsPlayer())
-    {
-        if (_player->GetGUID() != guid)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
-            return;
-        }
-    }
+	else if (guid.IsItem())
+	{
+		item = _player->GetItemByGuid(guid);
+		if (!item || _player->IsBankPos(item->GetPos()))
+		{
+			TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+			return;
+		}
+	}
+	else if (guid.IsPlayer())
+	{
+		if (guid != _player->GetGUID() || menuId != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
+		{
+			TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+			return;
+		}
+	}
 #endif
     else
     {
