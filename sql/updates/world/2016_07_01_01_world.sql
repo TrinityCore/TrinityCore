@@ -1,0 +1,4 @@
+--
+DELETE FROM `item_template` WHERE `entry` =54218;
+INSERT INTO `item_template` (`entry`, `class`, `subclass`, `SoundOverrideSubclass`, `name`,               `displayid`, `Quality`, `Flags`, `FlagsExtra`, `BuyCount`, `BuyPrice`, `SellPrice`, `InventoryType`, `AllowableClass`, `AllowableRace`, `ItemLevel`, `RequiredLevel`, `stackable`,  `RangedModRange`, `bonding`, `description`,                                     `PageText`, `LanguageID`, `PageMaterial`, `startquest`, `lockid`, `Material`, `VerifiedBuild`) VALUES
+                            ( 54218,   15,      0,          -1,                     'Landro\'s Gift Box',  22192,       1,         65540,   0,            1,          0,          0,           0,               32767,            -1,              1,           1,               1,            0,                1,        'NOTE: Not Guaranteed to Contain an Actual Mount',  0,          0,            0,              0,            0,        4,          12340);
