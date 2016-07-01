@@ -32,6 +32,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include "GOMove.h"
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
@@ -157,6 +158,8 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+        GOMove::GOMoveRemoveGO(GetGUID());
+
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
@@ -212,7 +215,11 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         m_updateFlag = (m_updateFlag | UPDATEFLAG_TRANSPORT) & ~UPDATEFLAG_POSITION;
 
-    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
+    static std::atomic<uint32> GOMoveID(0);
+    if (!guidlow)
+        Object::_Create(0, ++GOMoveID, HighGuid::GOMoveObject);
+    else
+        Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
 
     m_goInfo = goinfo;
 
