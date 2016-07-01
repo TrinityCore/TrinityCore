@@ -13,13 +13,11 @@ This script is 100% automatic. Just add it to your source and DB table is automa
 Works with BOOST and ACE
 */
 
-static const float chance = 0.25f;
-
 // Do not edit anything below
 
 #include "ScriptMgr.h"
+#include "config.h"
 #include <Player.h>
-
 
 #ifndef UNORDERED_MAP
 #define UNORDERED_MAP std::unordered_map
@@ -171,7 +169,7 @@ void SetRandomEnchantVisual(Player* player, Item* item)
         temp->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return;
 
-    if (rand_norm() >= chance)
+    if (rand_norm() >= (sConfigMgr->GetFloatDefault("Visual.drop.chance", 0.10)))
         return;
 
     uint32 enchant = ItemEnchants[urand(0, ItemEnchants_size)];
