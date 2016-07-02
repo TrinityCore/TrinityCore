@@ -83,14 +83,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 86981, 0, 0, 31, 0, 3, 46387, 0, 0, 0, 0, '', 'Storm Rune Beam AA targets NPC_STORM_TARGET'),
 (13, 1, 87328, 0, 0, 31, 0, 3, 47000, 0, 0, 0, 0, '', 'Supremacy of the Storm targets NPC_ASAAD_GROUNDING_FIELD');
 
-
 -- Lurking Tempest
 DELETE FROM `creature_template_addon` WHERE `entry` = 45704;
 
 DELETE FROM `creature_text` WHERE `entry` = 45704;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (45704, 0, 0, '%s realizes it''s been spotted and quickly plays dead!', 16, 0, 100, 0, 0, 0, 0, 0, 'Lurking Tempest to Lurking Tempest');
-
 
 -- Grand Vizier Ertan
 UPDATE `creature_template` SET `difficulty_entry_1` = 43879 WHERE `entry` = 43878;
@@ -201,7 +199,6 @@ DELETE FROM `creature_template_addon` WHERE `entry` = 47342;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (47342, 0, 0, 0, 1, 0, '88313');
 
-
 -- Zephyr
 UPDATE `creature_template` SET `speed_walk` = 4, `speed_run` = 12, `flags_extra` = 128 WHERE `entry` = 45991;
 DELETE FROM `creature_template_addon` WHERE `entry` = 45991;
@@ -229,7 +226,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (4599101, 9, -780.9688, 511.8101, 651.2169, 0, 0, 0, 45991, 100, 0);
 DELETE FROM `waypoint_scripts` WHERE `id` = 45991;
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
-(45991, 0, 18, 0, 0, 0, 0, 0, 0, 0, 891);
+(45991, 0, 18, 0, 0, 0, 0, 0, 0, 0, 8);
 
 -- Grounding Field and Skyfall Star inhabit type correction
 UPDATE `creature_template` SET `InhabitType` = 7 WHERE `entry` IN (47085, 45932);
@@ -274,4 +271,3 @@ UPDATE `creature_template` SET `InhabitType` = 7 WHERE `entry` IN (47000);
 
 -- Set CREATURE_FLAG_EXTRA_TRIGGER to Storm Target, Unstable Grounding Field and Grounding Field.
 UPDATE `creature_template` SET `flags_extra` = 128 WHERE `entry` IN (46387, 46492, 47000);
---
