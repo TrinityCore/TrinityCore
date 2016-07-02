@@ -896,7 +896,7 @@ public:
             int count = 0;
             for (Creature* groundingField : groundingFields)
             {
-                if (GetCaster()->GetGUIDLow() == groundingField->GetGUIDLow())
+                if (GetCaster()->GetGUID() == groundingField->GetGUID())
                     continue;
 
                 GroundFieldPositions[count] = groundingField->GetPosition();
