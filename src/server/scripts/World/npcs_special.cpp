@@ -649,7 +649,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_RED_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, 5000);
+                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, Seconds(5));
             }
             break;
             case EVENT_CAST_BLUE_FIRE_RING:
@@ -663,7 +663,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 5000);
+                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, Seconds(5));
             }
             break;
             }
