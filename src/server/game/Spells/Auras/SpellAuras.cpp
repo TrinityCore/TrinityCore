@@ -524,7 +524,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
 
     if (m_dropEvent)
     {
-        m_dropEvent->to_Abort = true;
+        m_dropEvent->ScheduleAbort();
         m_dropEvent = nullptr;
     }
 }
