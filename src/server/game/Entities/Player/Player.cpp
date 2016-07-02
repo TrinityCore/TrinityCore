@@ -7914,11 +7914,10 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
     {
         if (m_items[i])
         {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
+            if (!CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            _ApplyItemBonuses(m_items[i], i, apply);
-            ApplyItemEquipSpell(m_items[i], apply);
+            _ApplyItemMods(m_items[i], i, apply);
         }
     }
 }
@@ -12833,6 +12832,25 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:
+                    if (pEnchant->ScalingClass)
+                    {
+                        int32 scalingClass = pEnchant->ScalingClass;
+                        if ((GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) || GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL)) && pEnchant->ScalingClassRestricted)
+                            scalingClass = pEnchant->ScalingClassRestricted;
+
+                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 scalingLevel = getLevel();
+                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sGtSpellScalingStore.GetTableRowCount());
+
+                        if (minLevel > getLevel())
+                            scalingLevel = minLevel;
+                        else if (maxLevel < getLevel())
+                            scalingLevel = maxLevel;
+
+                        if (GtSpellScalingEntry const* spellScaling = sGtSpellScalingStore.EvaluateTable(scalingLevel - 1, MAX_CLASSES - 1 - scalingClass))
+                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * spellScaling->value);
+                    }
+
                     if (!enchant_amount)
                     {
                         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
@@ -12853,6 +12871,25 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     break;
                 case ITEM_ENCHANTMENT_TYPE_STAT:
                 {
+                    if (pEnchant->ScalingClass)
+                    {
+                        int32 scalingClass = pEnchant->ScalingClass;
+                        if ((GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) || GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL)) && pEnchant->ScalingClassRestricted)
+                            scalingClass = pEnchant->ScalingClassRestricted;
+
+                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 scalingLevel = getLevel();
+                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sGtSpellScalingStore.GetTableRowCount());
+
+                        if (minLevel > getLevel())
+                            scalingLevel = minLevel;
+                        else if (maxLevel < getLevel())
+                            scalingLevel = maxLevel;
+
+                        if (GtSpellScalingEntry const* spellScaling = sGtSpellScalingStore.EvaluateTable(scalingLevel - 1, (MAX_CLASSES - 1 /*ChrClasses->MaxIndex*/) - scalingClass - 1))
+                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * spellScaling->value);
+                    }
+
                     if (!enchant_amount)
                     {
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
