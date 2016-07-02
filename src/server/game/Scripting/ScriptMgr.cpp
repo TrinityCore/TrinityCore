@@ -368,7 +368,9 @@ class CreatureGameObjectScriptRegistrySwapHooks
     // Hook which is called before a creature is swapped
     static void UnloadStage1(Creature* creature)
     {
-        creature->m_Events.KillAllEvents(true);
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        creature->m_Events.KillAllEvents(false);
 
         if (creature->IsCharmed())
             creature->RemoveCharmedBy(nullptr);
