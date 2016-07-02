@@ -116,7 +116,7 @@ public:
                 Talk(SAY_KILL);
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             _EnterEvadeMode();
             CleanStalkers();
