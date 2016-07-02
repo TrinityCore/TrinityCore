@@ -206,12 +206,12 @@ uint32 Quest::XPValue(Player* player) const
 {
     if (player)
     {
-        int32 quest_level = (Level == -1 ? player->getLevel() : Level);
+        int32 quest_level = (Level == -1 ? player->getRealLevel() : Level);
         const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
         if (!xpentry)
             return 0;
 
-        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - player->getAdaptiveLevel()) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
