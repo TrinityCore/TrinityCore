@@ -467,12 +467,6 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
-float Unit::GetMeleeReach() const
-{
-    float reach = m_floatValues[UNIT_FIELD_COMBATREACH];
-    return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH;
-}
-
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
 {
     if (!obj || !IsInMap(obj) || !InSamePhase(obj))
@@ -499,7 +493,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
     float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float sizefactor = GetMeleeReach() + obj->GetMeleeReach();
+    float sizefactor = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
     float maxdist = dist + sizefactor;
 
     return distsq < maxdist * maxdist;
@@ -12051,7 +12045,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
     }
 
-    if (m_movedPlayer) // unit controlled by a player.
+    if (Player* playerMover = GetPlayerMover()) // unit controlled by a player.
     {
         // Send notification to self. this packet is only sent to one client (the client of the player concerned by the change).
         WorldPacket self;
@@ -12061,7 +12055,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         if (mtype == MOVE_RUN)
             self << uint8(1);                               // unknown byte added in 2.1.0
         self << float(GetSpeed(mtype));
-        m_movedPlayer->GetSession()->SendPacket(&self);
+        playerMover->GetSession()->SendPacket(&self);
 
         // Send notification to other players. sent to every clients (if in range) except one: the client of the player concerned by the change.
         WorldPacket data;
@@ -12069,7 +12063,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
         data << GetPackGUID();
         BuildMovementPacket(&data);
         data << float(GetSpeed(mtype));
-        SendMessageToSet(&data, false);
+        playerMover->SendMessageToSet(&data, false);
     }
     else // unit controlled by AI.
     {
@@ -13593,6 +13587,20 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
             break;
         }
     }
+}
+
+Unit* Unit::GetMover() const
+{
+    if (Player const* player = ToPlayer())
+        return player->m_mover;
+    return nullptr;
+}
+
+Player* Unit::GetPlayerMover() const
+{
+    if (Unit* mover = GetMover())
+        return mover->ToPlayer();
+    return nullptr;
 }
 
 bool Unit::isFrozen() const
@@ -17249,7 +17257,6 @@ bool Unit::SetWalk(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-
     return true;
 }
 
@@ -17264,15 +17271,7 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
     }
     else
-    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-        if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
-        {
-            m_movementInfo.SetFallTime(0);
-            AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        }
-    }
-
     return true;
 }
 
@@ -17285,7 +17284,6 @@ bool Unit::SetSwim(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-
     return true;
 }
 
@@ -17300,15 +17298,7 @@ bool Unit::SetCanFly(bool enable, bool /*packetOnly = false */)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
     }
     else
-    {
         RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
-        if (!IsLevitating())
-        {
-            m_movementInfo.SetFallTime(0);
-            AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        }
-    }
-
     return true;
 }
 
@@ -17321,7 +17311,6 @@ bool Unit::SetWaterWalking(bool enable, bool /*packetOnly = false */)
         AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-
     return true;
 }
 
@@ -17334,7 +17323,6 @@ bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
         AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-
     return true;
 }
 
@@ -17362,7 +17350,6 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/)
             UpdateHeight(newZ);
         }
     }
-
     return true;
 }
 
