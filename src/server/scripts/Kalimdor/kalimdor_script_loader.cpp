@@ -89,6 +89,11 @@ void AddSC_instance_halls_of_origination();  //Halls of Origination
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
+void AddSC_vortex_pinnacle(); //Vortex Pinnacle
+void AddSC_instance_vortex_pinnacle();
+void AddSC_boss_grand_vizier_ertan();
+void AddSC_boss_altairus();
+void AddSC_boss_asaad();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
 
@@ -189,6 +194,11 @@ void AddKalimdorScripts()
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
     AddSC_boss_anraphet();
+    AddSC_vortex_pinnacle();
+    AddSC_instance_vortex_pinnacle();
+    AddSC_boss_grand_vizier_ertan();
+    AddSC_boss_altairus();
+    AddSC_boss_asaad();
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
 
