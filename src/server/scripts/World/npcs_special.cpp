@@ -600,7 +600,7 @@ public:
 
     struct npc_midsummer_bunny_poleAI : public ScriptedAI
     {
-        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
@@ -608,7 +608,7 @@ public:
             running = false;
         }
 
-        void SetData(uint32 /*type*/, uint32 /*uiData*/) override
+        void DoAction(int32 /*action*/) override
         {
             // Don't start event if it's already running.
             if (running)

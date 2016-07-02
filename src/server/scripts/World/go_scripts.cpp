@@ -1201,7 +1201,8 @@ enum MidsummerPoleRibbon
 {
     SPELL_POLE_DANCE      = 29726,
     SPELL_BLUE_FIRE_RING  = 46842,
-    NPC_POLE_RIBBON_BUNNY = 17066
+    NPC_POLE_RIBBON_BUNNY = 17066,
+    ACTION_COSMETIC_FIRES = 0
 };
 
 class go_midsummer_ribbon_pole : public GameObjectScript
@@ -1213,7 +1214,7 @@ public:
     {
         if (Creature* creature = go->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
         {
-            creature->GetAI()->SetData(0, 0);
+            creature->GetAI()->DoAction(ACTION_COSMETIC_FIRES);
             player->CastSpell(creature, SPELL_POLE_DANCE, true);
         }
         return true;
