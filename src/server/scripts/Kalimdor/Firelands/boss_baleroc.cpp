@@ -24,6 +24,11 @@
 ***Redesign achievement data storage system
 */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "Player.h"
 #include "firelands.h"
 
 enum Spells
@@ -54,7 +59,7 @@ enum Spells
     SPELL_COUNTDOWN_4               = 99518,
     SPELL_COUNTDOWN_5               = 99519,
 
-    SPELL_BERSERK                   = 26662,
+    SPELL_BERSERK                   = 26662
 };
 
 enum Events
@@ -67,7 +72,7 @@ enum Events
     EVENT_BERSERK                   = 6,
 
     EVENT_SHARD_SPAWN_EFFECT        = 7,
-    EVENT_UNLOCK_YELLSPAM           = 8,
+    EVENT_UNLOCK_YELLSPAM           = 8
 };
 
 enum Emotes
@@ -81,12 +86,12 @@ enum Emotes
     EMOTE_ENRAGE_2                  = 6,
     EMOTE_DEATH                     = 7,
     ABILITY_INFERNO_BLADE           = 8,
-    ABILITY_DECIMATION_BLADE        = 9,
+    ABILITY_DECIMATION_BLADE        = 9
 };
 
 enum Guids
 {
-    GUID_TORMENTED    = 1,
+    GUID_TORMENTED    = 1
 };
 
 enum Misc
@@ -102,13 +107,11 @@ class boss_baleroc : public CreatureScript
 
         struct boss_balerocAI : public BossAI
         {
-            boss_balerocAI(Creature* creature) : BossAI(creature, DATA_BALEROC)
-            {
-            }
+            boss_balerocAI(Creature* creature) : BossAI(creature, DATA_BALEROC) {}
 
             bool _canYellKilledPlayer;
 
-            void Reset() OVERRIDE
+            void Reset() override
             {
                 _Reset();
                 me->SetMaxPower(POWER_RAGE, 0);
@@ -116,7 +119,7 @@ class boss_baleroc : public CreatureScript
                 me->SetCanDualWield(true);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -136,7 +139,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* target) OVERRIDE
+            void EnterCombat(Unit* target) override
             {
                 _EnterCombat();
                 Talk(EMOTE_AGGRO);
@@ -156,7 +159,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER && _canYellKilledPlayer)
                 {
@@ -166,7 +169,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(EMOTE_DEATH);
@@ -186,7 +189,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode() OVERRIDE
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLAZE_OF_GLORY);
@@ -195,7 +198,7 @@ class boss_baleroc : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void DoMeleeAttackIfReady() OVERRIDE
+            void DoMeleeAttackIfReady()
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -227,7 +230,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff) override
             {
                 if (me->IsAlive())
                     if (!UpdateVictim())
@@ -294,7 +297,7 @@ class boss_baleroc : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SetGUID(uint64 guid, int32 type = 0) OVERRIDE
+            void SetGUID(ObjectGuid guid, int32 type = 0) override
             {
                 switch (type)
                 {
@@ -336,7 +339,7 @@ class boss_baleroc : public CreatureScript
                 _sharedThePain[25];
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetFirelandsAI<boss_balerocAI>(creature);
         }
@@ -361,7 +364,7 @@ class npc_shard_of_torment : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* summoner) OVERRIDE
+            void IsSummonedBy(Unit* summoner) override
             {
                 if (summoner->GetEntry() == NPC_BALEROC)
                 {
@@ -376,7 +379,7 @@ class npc_shard_of_torment : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void KilledUnit(Unit* who) OVERRIDE
+            void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     if (_baleroc)
@@ -460,7 +463,7 @@ class spell_countdown_p1 : public SpellScriptLoader
                 target2 = (*itr);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_countdown_p1_SpellScript::CastSpellLink);
                 OnEffectHitTarget += SpellEffectFn(spell_countdown_p1_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
@@ -471,7 +474,7 @@ class spell_countdown_p1 : public SpellScriptLoader
             WorldObject* target2;
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_countdown_p1_SpellScript();
         }
@@ -493,13 +496,13 @@ class spell_countdown_p2 : public SpellScriptLoader
                 GetTarget()->ToPlayer()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_5);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_countdown_p2_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_countdown_p2_AuraScript();
         }
@@ -537,13 +540,13 @@ class spell_countdown_p3 : public SpellScriptLoader
                 GetCaster()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_5);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_countdown_p3_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_countdown_p3_SpellScript();
         }
@@ -636,14 +639,14 @@ class spell_shards_of_torment : public SpellScriptLoader
                 Trinity::Containers::RandomResizeList(targets, numtargets);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_shards_of_torment_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shards_of_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_shards_of_torment_SpellScript();
         }
@@ -705,13 +708,13 @@ class spell_baleroc_torment : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_baleroc_torment_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_baleroc_torment_SpellScript();
         }
@@ -751,7 +754,7 @@ class spell_baleroc_tormented : public SpellScriptLoader
 
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_baleroc_tormented_SpellScript();
         }
@@ -771,13 +774,13 @@ class spell_baleroc_tormented : public SpellScriptLoader
                 }
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_baleroc_tormented_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_baleroc_tormented_AuraScript();
         }
@@ -795,17 +798,17 @@ class spell_baleroc_tormented_debuff : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    if (Creature* baleroc = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BALEROC)))
+                    if (Creature* baleroc = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(DATA_BALEROC)))
                         baleroc->AI()->SetGUID(GetTarget()->GetGUID(), GUID_TORMENTED);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_baleroc_tormented_debuff_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const override
         {
             return new spell_baleroc_tormented_debuff_AuraScript();
         }
@@ -832,13 +835,13 @@ class spell_baleroc_tormented_heroic : public SpellScriptLoader
                     GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TORMENTED_40, true);
             }
 
-            void Register() OVERRIDE
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_baleroc_tormented_heroic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const override
         {
             return new spell_baleroc_tormented_heroic_SpellScript();
         }
@@ -849,7 +852,7 @@ class achievement_share_the_pain : public AchievementCriteriaScript
     public:
         achievement_share_the_pain() : AchievementCriteriaScript("achievement_share_the_pain") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;
