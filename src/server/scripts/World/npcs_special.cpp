@@ -600,12 +600,20 @@ public:
 
     struct npc_midsummer_bunny_poleAI : public ScriptedAI
     {
-        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             events.Reset();
             running = false;
+        }
+        
+        void Reset() override
+        {
+            Initialize();
         }
 
         void DoAction(int32 /*action*/) override
