@@ -702,7 +702,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     }
 
     SetUInt32Value(UNIT_FIELD_LEVEL, start_level);
-	m_realLevel = m_adaptiveLevel = start_level;
 
     InitRunes();
 
@@ -2798,7 +2797,6 @@ void Player::GiveLevel(uint8 level)
     _ApplyAllLevelScaleItemMods(false);
 
     SetLevel(level);
-	m_realLevel = level;
 
     UpdateSkillsForLevel();
 
@@ -3056,111 +3054,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
-}
-
-void Player::GiveAdaptiveLevel(uint8 level)
- {
-	if (level > m_realLevel)
-		level = m_realLevel;
-	uint8 oldLevel = getAdaptiveLevel();
-	if (level == oldLevel)
-		return;
-	if (abs(level - oldLevel) <= 3)
-		return;
-	m_adaptiveLevel = level;
-	
-		    /*if (Guild* guild = GetGuild())
-			guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);*/
-		
-	PlayerLevelInfo info;
-	sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
-	
-	PlayerClassLevelInfo classInfo;
-	sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, &classInfo);
-	
-		    // send levelup info to client
-		    /*WorldPacket data(SMSG_LEVELUP_INFO, (4 + 4 + MAX_POWERS * 4 + MAX_STATS * 4));
-			     data << uint32(level);
-			     data << uint32(int32(classInfo.basehealth) - int32(GetCreateHealth()));
-			     // for (int i = 0; i < MAX_POWERS; ++i)                  // Powers loop (0-6)
-			     data << uint32(int32(classInfo.basemana) - int32(GetCreateMana()));
-			     data << uint32(0);
-			     data << uint32(0);
-			     data << uint32(0);
-			     data << uint32(0);
-			     data << uint32(0);
-			     data << uint32(0);
-			     // end for
-			     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)          // Stats loop (0-4)
-			     data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
-			 
-			     GetSession()->SendPacket(&data);*/
-		
-		    //SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
-		
-		    //update level, max level of skills
-		    //m_Played_time[PLAYED_TIME_LEVEL] = 0;                   // Level Played Time reset
-		
-		_ApplyAllLevelScaleItemMods(false);
-	
-		    //SetLevel(level);
-		
-		    //UpdateSkillsForLevel();
-		
-		    // save base values (bonuses already included in stored stats
-		for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-		 SetCreateStat(Stats(i), info.stats[i]);
-	
-	SetCreateHealth(classInfo.basehealth);
-	SetCreateMana(classInfo.basemana);
-	
-		    //InitTalentForLevel();
-		    //InitTaxiNodesForLevel();
-		    //InitGlyphsForLevel();
-		
-		UpdateAllStats();
-	
-		    /*if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
-		    UpdateSkillsToMaxSkillsForLevel();*/
-		
-		    // set current level health and mana/energy to maximum after applying all mods.
-		SetFullHealth();
-	SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
-	SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-	if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
-	 SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
-	SetPower(POWER_FOCUS, 0);
-	SetPower(POWER_HAPPINESS, 0);
-	
-	_ApplyAllLevelScaleItemMods(true);
-	
-		    // update level to hunter/summon pet
-		    /*if (Pet* pet = GetPet())
-			     pet->SynchronizeLevelWithOwner();*/
-		
-		    /*if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
-			     {
-			     /// @todo Poor design of mail system
-			     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-			     MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
-			     CharacterDatabase.CommitTransaction(trans);
-			     }*/
-		
-		    //UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
-		
-		    // Refer-A-Friend
-		    /*if (GetSession()->GetRecruiterId())
-			     if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
-			     if (level % 2 == 0)
-			     {
-			     ++m_grantableLevels;
-			 
-			     if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
-			     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
-			     }*/
-		
-		    //sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
-		ChatHandler(GetSession()).PSendSysMessage("[AdaptiveLevel] Your level has been capped to %d", level);
 }
 
 void Player::SendInitialSpells()
@@ -6593,11 +6486,11 @@ void Player::CheckAreaExploreAndOutdoor()
             }
             else
             {
-				int32 diff = int32(getAdaptiveLevel()) - areaEntry->area_level;
+                int32 diff = int32(getLevel()) - areaEntry->area_level;
                 uint32 XP;
                 if (diff < -5)
                 {
-					XP = uint32(sObjectMgr->GetBaseXP(getAdaptiveLevel() + 5)*sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(getLevel()+5)*sWorld->getRate(RATE_XP_EXPLORE));
                 }
                 else if (diff > 5)
                 {
@@ -7298,68 +7191,6 @@ void Player::UpdateArea(uint32 newArea)
     AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
     pvpInfo.IsInFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
     UpdatePvPState(true);
-
-	if (sWorld->getBoolConfig(CONFIG_ADAPTIVE_LEVEL))
-		{
-		        /*if (area->area_level == 0 && m_realLevel > 1) {
-				         m_realLevel = getLevel();
-				         GiveLevel(1);
-				         }
-				         else*/
-			if (area->area_level > 0)
-			{
-			if (getRealLevel() > area->area_level)
-				{
-				GiveAdaptiveLevel(area->area_level);
-				}
-			else
-				{
-				GiveAdaptiveLevel(getRealLevel());
-				}
-			}
-		else
-			{
-			CellCoord pair(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-			Cell cell(pair);
-			cell.SetNoCreate();
-			
-			std::list<Creature*> creatures;
-			Trinity::AllHostileCreaturesInGrid creature_check(this);
-			Trinity::CreatureListSearcher<Trinity::AllHostileCreaturesInGrid> creature_searcher(this, creatures, creature_check);
-			
-			TypeContainerVisitor <Trinity::CreatureListSearcher<Trinity::AllHostileCreaturesInGrid>, GridTypeMapContainer> creature_visitor(creature_searcher);
-			cell.Visit(pair, creature_visitor, *GetMap(), *this, GetGridActivationRange());
-			
-				if (!creatures.empty())
-				 {
-				float _areaLevel = 0;
-				int _count = 0;
-				                //TC_LOG_INFO("entities.player.character", "[LASYAN] %d creatures found", creatures.size());
-					for (std::list<Creature*>::iterator i = creatures.begin(); i != creatures.end(); ++i)
-					{
-					Creature* const cre = *i;
-					//if (cre->IsHostileToPlayers())
-					if (cre->GetName().size() > 0)
-						{
-						_areaLevel += cre->getLevel();
-						_count++;
-						//TC_LOG_INFO("entities.player.character", "[LASYAN] %s %d ", cre->GetName(), cre->getLevel());
-						}
-					}
-						_areaLevel /= _count;
-				    //TC_LOG_INFO("entities.player.character", "[LASYAN] Give new level %f - %f - %f", _adaptativeLevel, floor(_adaptativeLevel), ceil(_adaptativeLevel));
-				if (getRealLevel() > _areaLevel)
-					{
-						GiveAdaptiveLevel(_areaLevel);
-					}
-				else
-					{
-						GiveAdaptiveLevel(getRealLevel());
-					}
-				}
-			}
-		}
-
 
     UpdateAreaDependentAuras(newArea);
 
@@ -15490,7 +15321,7 @@ bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg) const
 {
-    if (getRealLevel() < qInfo->GetMinLevel())
+    if (getLevel() < qInfo->GetMinLevel())
     {
         if (msg)
         {
@@ -15501,7 +15332,7 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg) const
         return false;
     }
 
-    if (qInfo->GetMaxLevel() > 0 && getRealLevel() > qInfo->GetMaxLevel())
+    if (qInfo->GetMaxLevel() > 0 && getLevel() > qInfo->GetMaxLevel())
     {
         if (msg)
         {
@@ -16197,15 +16028,13 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
                 {
                     if (quest->IsAutoComplete())
                         result2 = DIALOG_STATUS_REWARD_REP;
-                    else if (getRealLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+                    else if (getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
                     {
                         if (quest->IsDaily())
                             result2 = DIALOG_STATUS_AVAILABLE_REP;
                         else
                             result2 = DIALOG_STATUS_AVAILABLE;
                     }
-					else if (getAdaptiveLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
-						 result2 = DIALOG_STATUS_AVAILABLE;
                     else
                         result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
                 }
@@ -17278,7 +17107,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
-	m_realLevel = m_adaptiveLevel = fields[6].GetUInt8();
     SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
 
     _LoadIntoDataField(fields[66].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
