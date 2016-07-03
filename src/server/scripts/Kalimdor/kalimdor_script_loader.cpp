@@ -96,6 +96,7 @@ void AddSC_boss_altairus();
 void AddSC_boss_asaad();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
+void AddSC_boss_baleroc();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -201,6 +202,7 @@ void AddKalimdorScripts()
     AddSC_boss_asaad();
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
+    AddSC_boss_baleroc();
 
     AddSC_ashenvale();
     AddSC_azshara();
