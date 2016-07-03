@@ -25,6 +25,7 @@ enum Spells
 {
     SPELL_CALL_THE_WIND = 88276, // targets 47305 in hook
     SPELL_CHILLING_BREATH = 88322,
+    SPELL_LIGHTNING_BLAST = 88357,
 
     // Invisible Stalker
     SPELL_CALL_THE_WIND_CHANNEL = 88772, // visual channeling targeting Air Current
@@ -55,6 +56,7 @@ enum Events
     EVENT_NONE,
     EVENT_CALL_THE_WIND,
     EVENT_CHILLING_BREATH,
+    EVENT_LIGHTNING_BLAST,
 
     // Air Current
     EVENT_SET_FACING,
@@ -76,6 +78,7 @@ enum Points
 };
 
 const Position InvisibleStalkerPos = { -1216.12f, 64.026f, 734.2573f };
+const Position platform = { -1213.83f, 62.99f, 735.2f, 0.0f };
 
 const Position TwisterSpawnPoints[POINT_TWISTER_MAX] = {
     { -1226.936f, 58.03993f, 734.2574f },
@@ -127,6 +130,7 @@ class boss_altairus : public CreatureScript
 
                 events.ScheduleEvent(EVENT_CALL_THE_WIND, 6000);
                 events.ScheduleEvent(EVENT_CHILLING_BREATH, 15000);
+                events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
             }
 
             void EnterCombat(Unit* /*target*/) override
@@ -139,6 +143,17 @@ class boss_altairus : public CreatureScript
                     for (int8 i = 0; i < POINT_TWISTER_MAX; i++)
                         if (Creature* twister = me->SummonCreature(NPC_TWISTER, TwisterSpawnPoints[i]))
                             twister->GetMotionMaster()->MoveRandom(10.0f);
+            }
+            
+            void CheckPlatform()
+            {
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+	
+                if (!playerList.isEmpty())
+                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        if (Player* player = itr->GetSource())
+                            if (player->GetDistance2d(platform.m_positionX, platform.m_positionY) > 25.0f)
+                                me->CastSpell(player, SPELL_LIGHTNING_BLAST, true);
             }
 
             void UpdateAI(uint32 diff) override
@@ -165,6 +180,10 @@ class boss_altairus : public CreatureScript
                                 DoCast(target, SPELL_CHILLING_BREATH);
                             events.ScheduleEvent(EVENT_CHILLING_BREATH, 13000);
                             break;
+                        case EVENT_LIGHTNING_BLAST:
+                            CheckPlatform();
+	                        events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 5000);
+                             break;
                         default:
                             break;
                     }
