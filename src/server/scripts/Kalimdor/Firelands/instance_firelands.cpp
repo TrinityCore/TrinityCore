@@ -21,12 +21,12 @@
 
 DoorData const doorData[] =
 {
-    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM,        BOUNDARY_E    },
-    {GO_BETH_TILAC_DOOR,         DATA_BETH_TILAC,         DOOR_TYPE_ROOM,        BOUNDARY_SE   },
-    //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM,        BOUNDARY_S    },
-    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE,     BOUNDARY_N    },
-    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM,        BOUNDARY_S    },
-    {0,                          0,                       DOOR_TYPE_ROOM,        BOUNDARY_NONE }, //END
+    {GO_LORD_RHYOLITH_BRIDGE,    DATA_LORD_RHYOLITH,      DOOR_TYPE_ROOM},
+    {GO_BETH_TILAC_DOOR,         DATA_BETH_TILAC,         DOOR_TYPE_ROOM},
+    //{GO_BALEROC_FIREWALL,        DATA_BALEROC,            DOOR_TYPE_ROOM},
+    {GO_MAJORDOMO_FIREWALL,      DATA_MAJORDOMO_STAGHELM, DOOR_TYPE_PASSAGE},
+    {GO_RAGNAROS_DOOR,           DATA_RAGNAROS,           DOOR_TYPE_ROOM},
+    {0,                          0,                       DOOR_TYPE_ROOM}, //END
 }; //Baleroc door is special, it depends on the health status of the other bosses in the instance
 
 class instance_firelands : public InstanceMapScript
@@ -42,7 +42,7 @@ class instance_firelands : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                BalerocGUID = 0;
+                BalerocGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -59,7 +59,7 @@ class instance_firelands : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) OVERRIDE
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch(go->GetEntry())
                 {
@@ -75,7 +75,7 @@ class instance_firelands : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go) OVERRIDE
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -91,7 +91,7 @@ class instance_firelands : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const OVERRIDE
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -99,57 +99,11 @@ class instance_firelands : public InstanceMapScript
                         return BalerocGUID;
                 }
 
-                return 0;
-            }
-
-            std::string GetSaveData() OVERRIDE
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "F L " << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* str) OVERRIDE
-            {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'F' && dataHead2 == 'L')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    uint32 temp = 0;
-                    loadStream >> temp;
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                return ObjectGuid::Empty;
             }
 
             private:
-                uint64 BalerocGUID;
+                ObjectGuid BalerocGUID;
 
         };
 
