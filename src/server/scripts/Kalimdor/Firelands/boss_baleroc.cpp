@@ -139,7 +139,7 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* target) override
+            void EnterCombat(Unit* /*target*/) override
             {
                 _EnterCombat();
                 Talk(EMOTE_AGGRO);
