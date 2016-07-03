@@ -504,8 +504,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
 
     // only for flyable vehicles
     if (unit->IsFlying())
-        if (_me->IsFriendlyTo(unit))
-            _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+        _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
