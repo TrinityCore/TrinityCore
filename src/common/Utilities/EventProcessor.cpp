@@ -82,24 +82,31 @@ void EventProcessor::Update(uint32 p_time)
 
 void EventProcessor::KillAllEvents(bool force)
 {
-    // first, abort all existing events
-    for (EventList::iterator i = m_events.begin(); i != m_events.end();)
+    for (auto itr = m_events.begin(); itr != m_events.end();)
     {
-        EventList::iterator i_old = i;
-        ++i;
-
-        i_old->second->SetAborted();
-        i_old->second->Abort(m_time);
-        if (force || i_old->second->IsDeletable())
+        // Abort events which weren't aborted already
+        if (!itr->second->IsAborted())
         {
-            delete i_old->second;
-
-            if (!force)                                      // need per-element cleanup
-                m_events.erase (i_old);
+            itr->second->SetAborted();
+            itr->second->Abort(m_time);
         }
+
+        // Skip non-deletable events when we are
+        // not forcing the event cancellation.
+        if (!force && !itr->second->IsDeletable())
+        {
+            ++itr;
+            continue;
+        }
+
+        delete itr->second;
+
+        if (force)
+            ++itr; // Clear the whole container when forcing
+        else
+            itr = m_events.erase(itr);
     }
 
-    // fast clear event list (in force case)
     if (force)
         m_events.clear();
 }
