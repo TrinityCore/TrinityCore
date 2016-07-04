@@ -15746,6 +15746,7 @@ void Player::SendQuestUpdate(uint32 questId)
             else if (itr->second->autocast)
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
+        }
     }
 
     UpdateForQuestWorldObjects();
