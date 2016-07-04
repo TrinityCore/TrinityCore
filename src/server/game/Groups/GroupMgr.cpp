@@ -201,8 +201,8 @@ void GroupMgr::LoadGroups()
     TC_LOG_INFO("server.loading", "Loading Group instance saves...");
     {
         uint32 oldMSTime = getMSTime();
-        //                                                   0           1        2              3             4             5           6              7
-        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, COUNT(g.guid) "
+        //                                                   0           1        2              3             4             5            6
+        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, COUNT(g.guid) "
             "FROM group_instance gi INNER JOIN instance i ON gi.instance = i.id "
             "LEFT JOIN character_instance ci LEFT JOIN groups g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
         if (!result)
@@ -230,7 +230,7 @@ void GroupMgr::LoadGroups()
             if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
                 continue;
 
-            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt32()), fields[6].GetUInt32(), fields[7].GetUInt64() != 0, true);
+            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt32()), fields[6].GetUInt64() != 0, true);
             group->BindToInstance(save, fields[3].GetBool(), true);
             ++count;
         }
