@@ -158,3 +158,10 @@ WorldPacket const* WorldPackets::Instance::InstanceEncounterGainCombatResurrecti
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::InstanceBossKillCredit::Write()
+{
+    _worldPacket << uint32(DungeonEncounterID);
+
+    return &_worldPacket;
+}
