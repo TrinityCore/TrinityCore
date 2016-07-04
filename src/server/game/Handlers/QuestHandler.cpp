@@ -66,6 +66,12 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 
     // inform client about status of quest
     _player->PlayerTalkClass->SendQuestGiverStatus(uint8(questStatus), guid);
+	if (_player->m_lastQuestCompleted != NULL) // LASYAN3
+	{
+		//TC_LOG_INFO("lasyan3", "SendQuestGiverRequestItems");
+		_player->PlayerTalkClass->SendQuestGiverRequestItems(_player->m_lastQuestCompleted, guid, true, true);
+		_player->m_lastQuestCompleted = NULL;
+	}
 }
 
 void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)

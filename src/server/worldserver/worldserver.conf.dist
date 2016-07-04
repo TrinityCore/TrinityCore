@@ -3847,6 +3847,15 @@ Custom.NoCooldown = 0
 
 Custom.HurtInRealTime = 0
 
+#     Custom.AutoCompleteQuestDelay
+#         Set it to a number to enable the summon of the quest giver of the quest you just completed.
+#	      The number indicates the duration of the summoning.
+#     Default : 0 (AutoComplete Disable)
+#     Example : 180 (When a quest is completed, the quest giver will be summoned for 3 minutes)
+#
+
+Custom.AutoCompleteQuestDelay = 180
+
 #
 ###################################################################################################
 
