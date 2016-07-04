@@ -6,7 +6,7 @@
 
 **Target branch(es)**: 335/6x
 
-**Issues addressed**: Fixes #
+**Issues addressed**: Closes #
 
 **Tests performed**: (Does it build, tested in-game, etc)
 

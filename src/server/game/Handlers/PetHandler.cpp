@@ -515,10 +515,9 @@ void WorldSession::HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet)
 void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 {
     ObjectGuid petguid = packet.RenameData.PetGUID;
-    bool isdeclined = packet.RenameData.HasDeclinedNames;
 
     std::string name = packet.RenameData.NewName;
-    DeclinedName declinedname = packet.RenameData.DeclinedNames;
+    DeclinedName* declinedname = packet.RenameData.DeclinedNames.get_ptr();
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
@@ -546,21 +545,21 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 
-    if (isdeclined)
+    if (declinedname)
     {
         std::wstring wname;
         if (!Utf8toWStr(name, wname))
             return;
 
-        if (!ObjectMgr::CheckDeclinedNames(wname, declinedname))
+        if (!ObjectMgr::CheckDeclinedNames(wname, *declinedname))
         {
-            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, &declinedname);
+            SendPetNameInvalid(PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME, name, declinedname);
             return;
         }
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (isdeclined)
+    if (declinedname)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
         stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());
@@ -571,7 +570,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
         stmt->setUInt64(1, _player->GetGUID().GetCounter());
 
         for (uint8 i = 0; i < 5; i++)
-            stmt->setString(i + 2, declinedname.name[i]);
+            stmt->setString(i + 2, declinedname->name[i]);
 
         trans->Append(stmt);
     }
@@ -717,8 +716,42 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     WorldPackets::Pet::PetNameInvalid petNameInvalid;
     petNameInvalid.Result = error;
     petNameInvalid.RenameData.NewName = name;
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-        petNameInvalid.RenameData.DeclinedNames.name[i] = declinedName[i].name[i];
+    if (declinedName)
+        petNameInvalid.RenameData.DeclinedNames = *declinedName;
 
     SendPacket(petNameInvalid.Write());
+}
+
+void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& learnPetSpecializationGroup)
+{
+    if (!_player->IsInWorld())
+        return;
+
+    Pet* pet = ObjectAccessor::GetPet(*_player, learnPetSpecializationGroup.PetGUID);
+
+    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
+        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
+        return;
+
+    if (learnPetSpecializationGroup.SpecGroupIndex >= MAX_SPECIALIZATIONS)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u out of range", learnPetSpecializationGroup.SpecGroupIndex);
+        return;
+    }
+
+    uint32 specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
+    ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[specIndex][learnPetSpecializationGroup.SpecGroupIndex];
+    if (!petSpec)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u not found", learnPetSpecializationGroup.SpecGroupIndex);
+        return;
+    }
+
+    if (_player->getLevel() < MIN_SPECIALIZATION_LEVEL)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - player level too low for specializations");
+        return;
+    }
+
+    pet->SetSpecialization(petSpec->ID);
 }

@@ -879,6 +879,16 @@ struct ItemToBattlePetSpeciesEntry
     uint32      BattlePetSpeciesID;                                 // 1
 };
 
+struct ItemUpgradeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemUpgradePathID;                                       // 1
+    uint32 ItemLevelBonus;                                          // 2
+    uint32 PrevItemUpgradeID;                                       // 3
+    uint32 CurrencyID;                                              // 4
+    uint32 CurrencyCost;                                            // 5
+};
+
 struct ItemXBonusTreeEntry
 {
     uint32 ID;                                                      // 0
@@ -1101,6 +1111,14 @@ struct QuestXPEntry
 {
     uint32 ID;                                                      // 0
     uint32 Exp[10];                                                 // 1
+};
+
+struct RulesetItemUpgradeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 RulesetID;                                               // 1
+    uint32 ItemUpgradeID;                                           // 2
+    uint32 ItemID;                                                  // 3
 };
 
 struct ScalingStatDistributionEntry

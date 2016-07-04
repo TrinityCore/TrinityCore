@@ -260,37 +260,40 @@ enum UnitBytes1_Flags
 // high byte (3 from 0..3) of UNIT_FIELD_BYTES_2
 enum ShapeshiftForm
 {
-    FORM_NONE               = 0x00,
-    FORM_CAT                = 0x01,
-    FORM_TREE               = 0x02,
-    FORM_TRAVEL             = 0x03,
-    FORM_AQUA               = 0x04,
-    FORM_BEAR               = 0x05,
-    FORM_AMBIENT            = 0x06,
-    FORM_GHOUL              = 0x07,
-    FORM_DIREBEAR           = 0x08, // Removed in 4.0.1
-    FORM_STEVES_GHOUL       = 0x09,
-    FORM_THARONJA_SKELETON  = 0x0A,
-    FORM_TEST_OF_STRENGTH   = 0x0B,
-    FORM_BLB_PLAYER         = 0x0C,
-    FORM_SHADOW_DANCE       = 0x0D,
-    FORM_CREATUREBEAR       = 0x0E,
-    FORM_CREATURECAT        = 0x0F,
-    FORM_GHOSTWOLF          = 0x10,
-    FORM_BATTLESTANCE       = 0x11,
-    FORM_DEFENSIVESTANCE    = 0x12,
-    FORM_BERSERKERSTANCE    = 0x13,
-    FORM_TEST               = 0x14,
-    FORM_ZOMBIE             = 0x15,
-    FORM_METAMORPHOSIS      = 0x16,
-    FORM_UNDEAD             = 0x19,
-    FORM_MASTER_ANGLER      = 0x1A,
-    FORM_FLIGHT_EPIC        = 0x1B,
-    FORM_SHADOW             = 0x1C,
-    FORM_FLIGHT             = 0x1D,
-    FORM_STEALTH            = 0x1E,
-    FORM_MOONKIN            = 0x1F,
-    FORM_SPIRITOFREDEMPTION = 0x20
+    FORM_NONE                       = 0,
+    FORM_CAT_FORM                   = 1,
+    FORM_TREE_OF_LIFE               = 2,
+    FORM_TRAVEL_FORM                = 3,
+    FORM_AQUATIC_FORM               = 4,
+    FORM_BEAR_FORM                  = 5,
+    FORM_AMBIENT                    = 6,
+    FORM_GHOUL                      = 7,
+    FORM_DIRE_BEAR_FORM             = 8,
+    FORM_CRANE_STANCE               = 9,
+    FORM_THARONJA_SKELETON          = 10,
+    FORM_DARKMOON_TEST_OF_STRENGTH  = 11,
+    FORM_BLB_PLAYER                 = 12,
+    FORM_SHADOW_DANCE               = 13,
+    FORM_CREATURE_BEAR              = 14,
+    FORM_CREATURE_CAT               = 15,
+    FORM_GHOST_WOLF                 = 16,
+    FORM_BATTLE_STANCE              = 17,
+    FORM_DEFENSIVE_STANCE           = 18,
+    FORM_BERSERKER_STANCE           = 19,
+    FORM_SERPENT_STANCE             = 20,
+    FORM_ZOMBIE                     = 21,
+    FORM_METAMORPHOSIS              = 22,
+    FORM_OX_STANCE                  = 23,
+    FORM_TIGER_STANCE               = 24,
+    FORM_UNDEAD                     = 25,
+    FORM_FRENZY                     = 26,
+    FORM_FLIGHT_FORM_EPIC           = 27,
+    FORM_SHADOWFORM                 = 28,
+    FORM_FLIGHT_FORM                = 29,
+    FORM_STEALTH                    = 30,
+    FORM_MOONKIN_FORM               = 31,
+    FORM_SPIRIT_OF_REDEMPTION       = 32,
+    FORM_GLADIATOR_STANCE           = 33
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -726,7 +729,8 @@ enum UnitFlags2
     UNIT_FLAG2_DISABLE_TURN                 = 0x00008000,
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_NO_ACTIONS                   = 0x00800000
 };
 
 /// Non Player Character flags
@@ -1361,7 +1365,6 @@ class TC_GAME_API Unit : public WorldObject
         bool CanDualWield() const { return m_canDualWield; }
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
         float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
-        float GetMeleeReach() const;
         bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
         bool IsWithinMeleeRange(const Unit* obj, float dist = MELEE_RANGE) const;
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
@@ -1678,6 +1681,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);
         bool SetCollision(bool disable);
+        bool SetCanTransitionBetweenSwimAndFly(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
@@ -1751,7 +1755,8 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void UpdateCharmAI();
-        //Player* GetMoverSource() const;
+        Unit* GetMover() const;
+        Player* GetPlayerMover() const;
         Player* m_movedPlayer;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
@@ -1925,6 +1930,7 @@ class TC_GAME_API Unit : public WorldObject
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
+        uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const;
 
         SpellHistory* GetSpellHistory() { return _spellHistory; }
         SpellHistory const* GetSpellHistory() const { return _spellHistory; }

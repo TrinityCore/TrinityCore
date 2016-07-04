@@ -481,11 +481,9 @@ public:
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
     bool IsQuestTame() const;
-    bool IsProfessionOrRiding(uint32 difficulty = DIFFICULTY_NONE) const;
     bool IsProfession(uint32 difficulty = DIFFICULTY_NONE) const;
     bool IsPrimaryProfession(uint32 difficulty = DIFFICULTY_NONE) const;
     bool IsPrimaryProfessionFirstRank(uint32 difficulty = DIFFICULTY_NONE) const;
-    bool IsAbilityLearnedWithProfession() const;
     bool IsAbilityOfSkillType(uint32 skillType) const;
 
     bool IsAffectingArea(uint32 difficulty) const;
@@ -575,8 +573,8 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
-    uint32 GetSpellXSpellVisualId(Difficulty difficulty) const;
-    uint32 GetSpellVisual(Difficulty difficulty, Player* forPlayer = nullptr) const;
+    uint32 GetSpellXSpellVisualId(Unit const* caster = nullptr) const;
+    uint32 GetSpellVisual(Unit const* caster = nullptr) const;
 
     // loading helpers
     void _InitializeExplicitTargetMask();

@@ -179,6 +179,12 @@ enum BG_AB_Objectives
     AB_OBJECTIVE_DEFEND_BASE            = 123
 };
 
+enum BG_AB_ExploitTeleportLocations
+{
+    AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3705,
+    AB_EXPLOIT_TELEPORT_LOCATION_HORDE = 3706
+};
+
 #define BG_AB_NotABBGWeekendHonorTicks      260
 #define BG_AB_ABBGWeekendHonorTicks         160
 #define BG_AB_NotABBGWeekendReputationTicks 160
@@ -288,6 +294,7 @@ class BattlegroundAB : public Battleground
         void Reset() override;
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;

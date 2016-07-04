@@ -713,138 +713,138 @@ enum SpellAttr9
 
 enum SpellAttr10
 {
-    SPELL_ATTR10_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR10_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR10_UNK2                             = 0x00000004, //  2
-    SPELL_ATTR10_UNK3                             = 0x00000008, //  3
-    SPELL_ATTR10_WATER_SPOUT                      = 0x00000010, //  4
-    SPELL_ATTR10_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR10_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR10_TELEPORT_PLAYER                  = 0x00000080, //  7 4 Teleport Player spells
-    SPELL_ATTR10_UNK8                             = 0x00000100, //  8
-    SPELL_ATTR10_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR10_UNK10                            = 0x00000400, // 10
-    SPELL_ATTR10_HERB_GATHERING_MINING            = 0x00000800, // 11 Only Herb Gathering and Mining
-    SPELL_ATTR10_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR10_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR10_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR10_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR10_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR10_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR10_UNK18                            = 0x00040000, // 18
-    SPELL_ATTR10_UNK19                            = 0x00080000, // 19
-    SPELL_ATTR10_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR10_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR10_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR10_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR10_UNK24                            = 0x01000000, // 24
-    SPELL_ATTR10_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR10_UNK26                            = 0x04000000, // 26
-    SPELL_ATTR10_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE        = 0x20000000, // 29 This mount is stored per-character
-    SPELL_ATTR10_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR10_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR10_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR10_UNK1                            = 0x00000002, //  1
+    SPELL_ATTR10_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR10_UNK3                            = 0x00000008, //  3
+    SPELL_ATTR10_WATER_SPOUT                     = 0x00000010, //  4
+    SPELL_ATTR10_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR10_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR10_TELEPORT_PLAYER                 = 0x00000080, //  7 4 Teleport Player spells
+    SPELL_ATTR10_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR10_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR10_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR10_HERB_GATHERING_MINING           = 0x00000800, // 11 Only Herb Gathering and Mining
+    SPELL_ATTR10_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR10_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR10_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR10_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR10_UNK16                           = 0x00010000, // 16
+    SPELL_ATTR10_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR10_UNK18                           = 0x00040000, // 18
+    SPELL_ATTR10_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR10_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR10_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR10_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR10_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR10_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR10_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR10_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR10_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR10_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE       = 0x20000000, // 29 This mount is stored per-character
+    SPELL_ATTR10_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR10_UNK31                           = 0x80000000  // 31
 };
 
 enum SpellAttr11
 {
-    SPELL_ATTR11_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR11_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL           = 0x00000004, //  2
-    SPELL_ATTR11_UNK3                             = 0x00000008, //  3
-    SPELL_ATTR11_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR11_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR11_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR11_NO_RANK                          = 0x00000080, //  7 Spell_C_GetSpellRank returns 0 instead of 5 * std::min(SpellLevels->MaxLevel, caster->Level)
-    SPELL_ATTR11_UNK8                             = 0x00000100, //  8
-    SPELL_ATTR11_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR11_UNK10                            = 0x00000400, // 10
-    SPELL_ATTR11_UNK11                            = 0x00000800, // 11
-    SPELL_ATTR11_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR11_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR11_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR11_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE     = 0x00010000, // 16
-    SPELL_ATTR11_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR11_UNK18                            = 0x00040000, // 18
-    SPELL_ATTR11_UNK19                            = 0x00080000, // 19
-    SPELL_ATTR11_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR11_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR11_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR11_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR11_UNK24                            = 0x01000000, // 24
-    SPELL_ATTR11_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR11_UNK26                            = 0x04000000, // 26
-    SPELL_ATTR11_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR11_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR11_UNK29                            = 0x20000000, // 29
-    SPELL_ATTR11_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR11_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR11_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR11_UNK1                            = 0x00000002, //  1
+    SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL          = 0x00000004, //  2
+    SPELL_ATTR11_UNK3                            = 0x00000008, //  3
+    SPELL_ATTR11_UNK4                            = 0x00000010, //  4
+    SPELL_ATTR11_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR11_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR11_NO_RANK                         = 0x00000080, //  7 Spell_C_GetSpellRank returns 0 instead of 5 * std::min(SpellLevels->MaxLevel, caster->Level)
+    SPELL_ATTR11_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR11_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR11_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR11_UNK11                           = 0x00000800, // 11
+    SPELL_ATTR11_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR11_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR11_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR11_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE    = 0x00010000, // 16
+    SPELL_ATTR11_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR11_UNK18                           = 0x00040000, // 18
+    SPELL_ATTR11_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR11_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR11_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR11_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR11_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR11_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR11_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR11_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR11_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR11_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR11_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR11_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR11_UNK31                           = 0x80000000  // 31
 };
 
 enum SpellAttr12
 {
-    SPELL_ATTR12_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR12_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR12_UNK2                             = 0x00000004, //  2
-    SPELL_ATTR12_UNK3                             = 0x00000008, //  3
-    SPELL_ATTR12_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR12_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR12_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR12_UNK7                             = 0x00000080, //  7
-    SPELL_ATTR12_UNK8                             = 0x00000100, //  8
-    SPELL_ATTR12_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR12_UNK10                            = 0x00000400, // 10
-    SPELL_ATTR12_UNK11                            = 0x00000800, // 11
-    SPELL_ATTR12_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR12_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR12_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR12_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR12_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR12_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR12_UNK18                            = 0x00040000, // 18
-    SPELL_ATTR12_UNK19                            = 0x00080000, // 19
-    SPELL_ATTR12_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR12_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR12_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR12_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR12_UNK24                            = 0x01000000, // 24
-    SPELL_ATTR12_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR12_UNK26                            = 0x04000000, // 26
-    SPELL_ATTR12_IS_READINESS_SPELL               = 0x08000000, // 27
-    SPELL_ATTR12_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR12_UNK29                            = 0x20000000, // 29
-    SPELL_ATTR12_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR12_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR12_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR12_UNK1                            = 0x00000002, //  1
+    SPELL_ATTR12_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR12_UNK3                            = 0x00000008, //  3
+    SPELL_ATTR12_UNK4                            = 0x00000010, //  4
+    SPELL_ATTR12_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR12_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR12_UNK7                            = 0x00000080, //  7
+    SPELL_ATTR12_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR12_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR12_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR12_UNK11                           = 0x00000800, // 11
+    SPELL_ATTR12_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR12_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR12_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR12_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR12_UNK16                           = 0x00010000, // 16
+    SPELL_ATTR12_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR12_UNK18                           = 0x00040000, // 18
+    SPELL_ATTR12_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR12_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR12_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR12_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR12_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR12_IS_GARRISON_BUFF                = 0x01000000, // 24
+    SPELL_ATTR12_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR12_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR12_IS_READINESS_SPELL              = 0x08000000, // 27
+    SPELL_ATTR12_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR12_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR12_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR12_UNK31                           = 0x80000000  // 31
 };
 
 enum SpellAttr13
 {
-    SPELL_ATTR13_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR13_UNK1                             = 0x00000002, //  1
-    SPELL_ATTR13_UNK2                             = 0x00000004, //  2
-    SPELL_ATTR13_UNK3                             = 0x00000008, //  3
-    SPELL_ATTR13_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR13_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR13_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR13_UNK7                             = 0x00000080, //  7
-    SPELL_ATTR13_UNK8                             = 0x00000100, //  8
-    SPELL_ATTR13_UNK9                             = 0x00000200, //  9
-    SPELL_ATTR13_UNK10                            = 0x00000400, // 10
-    SPELL_ATTR13_UNK11                            = 0x00000800, // 11
-    SPELL_ATTR13_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR13_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR13_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR13_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR13_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR13_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT    = 0x00040000, // 18
-    SPELL_ATTR13_UNK19                            = 0x00080000, // 19
-    SPELL_ATTR13_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR13_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR13_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR13_UNK23                            = 0x00800000  // 23
+    SPELL_ATTR13_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR13_UNK1                            = 0x00000002, //  1
+    SPELL_ATTR13_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR13_UNK3                            = 0x00000008, //  3
+    SPELL_ATTR13_UNK4                            = 0x00000010, //  4
+    SPELL_ATTR13_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR13_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR13_UNK7                            = 0x00000080, //  7
+    SPELL_ATTR13_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR13_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR13_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR13_UNK11                           = 0x00000800, // 11
+    SPELL_ATTR13_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR13_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR13_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR13_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR13_UNK16                           = 0x00010000, // 16
+    SPELL_ATTR13_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT   = 0x00040000, // 18
+    SPELL_ATTR13_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR13_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR13_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR13_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR13_UNK23                           = 0x00800000  // 23
 };
 
 #define MIN_TALENT_GROUP            0
@@ -1213,7 +1213,7 @@ enum SpellEffectName
     SPELL_EFFECT_203                                = 203,
     SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY           = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
-    SPELL_EFFECT_206                                = 206,
+    SPELL_EFFECT_ALTER_ITEM                         = 206, // NYI
     SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // Starts one of the "progress bar" quests
     SPELL_EFFECT_208                                = 208,
     SPELL_EFFECT_209                                = 209,
@@ -2054,10 +2054,9 @@ enum SpellDmgClass
 
 enum SpellPreventionType
 {
-    SPELL_PREVENTION_TYPE_NONE      = 0,
-    SPELL_PREVENTION_TYPE_SILENCE   = 1,
-    SPELL_PREVENTION_TYPE_PACIFY    = 2,
-    SPELL_PREVENTION_TYPE_UNK       = 3 // Only a few spells have this, but most of the should be interruptable.
+    SPELL_PREVENTION_TYPE_SILENCE       = 1,
+    SPELL_PREVENTION_TYPE_PACIFY        = 2,
+    SPELL_PREVENTION_TYPE_NO_ACTIONS    = 4
 };
 
 enum GameobjectTypes : uint8 // (6.0.3.19103)
@@ -2120,13 +2119,15 @@ enum GameObjectFlags
 {
     GO_FLAG_IN_USE          = 0x00000001,                   // disables interaction while animated
     GO_FLAG_LOCKED          = 0x00000002,                   // require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
-    GO_FLAG_INTERACT_COND   = 0x00000004,                   // cannot interact (condition to interact)
+    GO_FLAG_INTERACT_COND   = 0x00000004,                   // cannot interact (condition to interact - requires GO_DYNFLAG_LO_ACTIVATE to enable interaction clientside)
     GO_FLAG_TRANSPORT       = 0x00000008,                   // any kind of transport? Object can transport (elevator, boat, car)
     GO_FLAG_NOT_SELECTABLE  = 0x00000010,                   // not selectable even in GM mode
     GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
-    GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_AI_OBSTACLE     = 0x00000040,                   // makes the client register the object in something called AIObstacleMgr, unknown what it does
+    GO_FLAG_FREEZE_ANIMATION = 0x00000080,
     GO_FLAG_DAMAGED         = 0x00000200,
-    GO_FLAG_DESTROYED       = 0x00000400
+    GO_FLAG_DESTROYED       = 0x00000400,
+    GO_FLAG_INTERACT_DISTANCE_USES_TEMPLATE_MODEL = 0x00080000, // client checks interaction distance from model sent in SMSG_QUERY_GAMEOBJECT_RESPONSE instead of GAMEOBJECT_DISPLAYID
 };
 
 enum GameObjectDynamicLowFlags

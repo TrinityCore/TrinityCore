@@ -146,9 +146,7 @@ public:
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
-
-        if (!object->Create(guidLow, objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -164,7 +162,7 @@ public:
 
         // fill the gameobject data and save to the db
         object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMask());
-        guidLow = object->GetSpawnId();
+        ObjectGuid::LowType spawnId = object->GetSpawnId();
 
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.
         // this is required to avoid weird behavior and memory leaks
@@ -172,16 +170,16 @@ public:
 
         object = new GameObject();
         // this will generate a new guid if the object is in an instance
-        if (!object->LoadGameObjectFromDB(guidLow, map))
+        if (!object->LoadGameObjectFromDB(spawnId, map))
         {
             delete object;
             return false;
         }
 
         /// @todo is it really necessary to add both the real and DB table guid here ?
-        sObjectMgr->AddGameobjectToGrid(guidLow, ASSERT_NOTNULL(sObjectMgr->GetGOData(guidLow)));
+        sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGOData(spawnId)));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), spawnId, x, y, z);
         return true;
     }
 
@@ -669,7 +667,7 @@ public:
         int32 objectState = atoi(state);
 
         if (objectType < 4)
-            object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
+            object->SetByteValue(GAMEOBJECT_BYTES_1, uint8(objectType), uint8(objectState));
         else if (objectType == 4)
             object->SendCustomAnim(objectState);
 

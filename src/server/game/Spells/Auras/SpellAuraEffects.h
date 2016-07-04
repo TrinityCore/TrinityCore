@@ -167,6 +167,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowOnlyAbility(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  tracking
         void HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -174,7 +175,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModStalked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraUntrackable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  skills & talents
-        void HandleAuraModPetTalentsPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -248,6 +248,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -305,6 +306,9 @@ class TC_GAME_API AuraEffect
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleShowConfirmationPrompt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;

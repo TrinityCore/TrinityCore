@@ -54,6 +54,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Metric.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1077,7 +1078,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // reset for all pets before pet loading
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        Pet::resetTalentsForAllPetsOf(pCurrChar);
+    {
+        // Delete all of the player's pet spells
+        PreparedStatement* stmtSpells = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PET_SPELLS_BY_OWNER);
+        stmtSpells->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpells);
+
+        // Then reset all of the player's pet specualizations
+        PreparedStatement* stmtSpec = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_SPECS_BY_OWNER);
+        stmtSpec->setUInt64(0, pCurrChar->GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmtSpec);
+    }
 
     // Load pet if any (if player not alive and in taxi flight or another then pet will remember as temporary unsummoned)
     pCurrChar->LoadPet();
@@ -1136,6 +1147,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     _player->UpdateCriteria(CRITERIA_TYPE_ON_LOGIN, 1);
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
+
+    TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
     delete holder;
 }
@@ -2197,8 +2210,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
                     uint32 title_alliance = it->first;
                     uint32 title_horde = it->second;
 
-                    CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
-                    CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                    CharTitlesEntry const* atitleInfo = sCharTitlesStore.AssertEntry(title_alliance);
+                    CharTitlesEntry const* htitleInfo = sCharTitlesStore.AssertEntry(title_horde);
                     // new team
                     if (newTeamId == TEAM_ALLIANCE)
                     {

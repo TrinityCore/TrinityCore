@@ -164,7 +164,10 @@ void Player::ApplySpellPowerBonus(int32 amount, bool apply)
         ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
 
     if (HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
+    {
         UpdateAttackPowerAndDamage();
+        UpdateAttackPowerAndDamage(true);
+    }
 }
 
 void Player::UpdateSpellDamageAndHealingBonus()
@@ -178,7 +181,10 @@ void Player::UpdateSpellDamageAndHealingBonus()
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)));
 
     if (HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
+    {
         UpdateAttackPowerAndDamage();
+        UpdateAttackPowerAndDamage(true);
+    }
 }
 
 bool Player::UpdateAllStats()
@@ -302,7 +308,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float val2 = 0.0f;
     float level = float(getLevel());
 
-    ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
+    ChrClassesEntry const* entry = sChrClassesStore.AssertEntry(getClass());
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
@@ -314,19 +320,24 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
         index_mod = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
-        val2 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
-    else if (!HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
+
+    if (!HasAuraType(SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT))
     {
-        float strengthValue = std::max(GetStat(STAT_STRENGTH) * entry->AttackPowerPerStrength, 0.0f);
-        float agilityValue = std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerAgility, 0.0f);
+        if (!ranged)
+        {
+            float strengthValue = std::max(GetStat(STAT_STRENGTH) * entry->AttackPowerPerStrength, 0.0f);
+            float agilityValue = std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerAgility, 0.0f);
 
-        SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
-        // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
-        if (form && form->Flags & 0x20)
-            agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
+            SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
+            // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
+            if (form && form->Flags & 0x20)
+                agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
 
-        val2 = strengthValue + agilityValue;
+            val2 = strengthValue + agilityValue;
+        }
+        else
+            val2 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
     else
     {
@@ -417,12 +428,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         if (Item* weapon = GetWeaponForAttack(BASE_ATTACK, true))
             weaponSpeed =  weapon->GetTemplate()->GetDelay() / 1000;
 
-        if (GetShapeshiftForm() == FORM_CAT)
+        if (GetShapeshiftForm() == FORM_CAT_FORM)
         {
             weaponMinDamage = weaponMinDamage / weaponSpeed;
             weaponMaxDamage = weaponMaxDamage / weaponSpeed;
         }
-        else if (GetShapeshiftForm() == FORM_BEAR)
+        else if (GetShapeshiftForm() == FORM_BEAR_FORM)
         {
             weaponMinDamage = weaponMinDamage / weaponSpeed + weaponMinDamage / 2.5;
             weaponMaxDamage = weaponMinDamage / weaponSpeed + weaponMaxDamage / 2.5;

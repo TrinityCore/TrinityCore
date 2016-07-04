@@ -486,7 +486,23 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, (transmogEntry >> 24) & 0xFF);
         SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, transmogEntry & 0xFFFFFF);
     }
-    SetModifier(ITEM_MODIFIER_UPGRADE_ID, fields[14].GetUInt32());
+
+    uint32 upgradeId = fields[14].GetUInt32();
+    ItemUpgradeEntry const* rulesetUpgrade = sItemUpgradeStore.LookupEntry(sDB2Manager.GetRulesetItemUpgrade(entry));
+    ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(upgradeId);
+    if (!rulesetUpgrade || !upgrade || rulesetUpgrade->ItemUpgradePathID != upgrade->ItemUpgradePathID)
+    {
+        upgradeId = 0;
+        need_save = true;
+    }
+
+    if (rulesetUpgrade && !upgradeId)
+    {
+        upgradeId = rulesetUpgrade->ID;
+        need_save = true;
+    }
+
+    SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeId);
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, fields[15].GetUInt32());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, fields[16].GetUInt32());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[17].GetUInt32());
@@ -502,11 +518,13 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
+        uint8 index = 0;
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
-        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURATION));
-        stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_FLAGS));
-        stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-        stmt->setUInt64(3, guid);
+        stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURATION));
+        stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_FLAGS));
+        stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURABILITY));
+        stmt->setUInt32(index++, GetModifier(ITEM_MODIFIER_UPGRADE_ID));
+        stmt->setUInt64(index++, guid);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -1848,6 +1866,9 @@ uint32 Item::GetItemLevel(Player const* owner) const
         if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
             itemLevel = heirloomIlvl;
 
+    if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))
+        itemLevel += upgrade->ItemLevelBonus;
+
     return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
@@ -1877,6 +1898,12 @@ uint32 Item::GetDisplayId() const
 
 void Item::SetModifier(ItemModifier modifier, uint32 value)
 {
+    if (_modifiers[modifier] != value)
+    {
+        _dynamicChangesMask.SetBit(ITEM_DYNAMIC_FIELD_MODIFIERS);
+        AddToObjectUpdateIfNeeded();
+    }
+
     _modifiers[modifier] = value;
     ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << modifier, value != 0);
 }
