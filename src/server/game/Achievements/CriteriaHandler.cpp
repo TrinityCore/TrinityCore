@@ -936,37 +936,80 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
         return false;
 
     uint64 requiredCount = tree->Entry->Amount;
-    uint64 completedCount = 0;
-    uint32 op = tree->Entry->Operator;
-    bool hasAll = true;
-
-    // Check criteria we depend on first
-    for (CriteriaTree const* node : tree->Children)
+    switch (tree->Entry->Operator)
     {
-        if (IsCompletedCriteriaTree(node))
-            ++completedCount;
-        else
-            hasAll = false;
-
-        if (op & CRITERIA_TREE_OPERATOR_ANY && completedCount >= requiredCount)
+        case CRITERIA_TREE_OPERATOR_SINGLE:
+            return tree->Criteria && IsCompletedCriteria(tree->Criteria, requiredCount);
+        case CRITERIA_TREE_OPERATOR_SINGLE_NOT_COMPLETED:
+            return !tree->Criteria || !IsCompletedCriteria(tree->Criteria, requiredCount);
+        case CRITERIA_TREE_OPERATOR_ALL:
+            for (CriteriaTree const* node : tree->Children)
+                if (!IsCompletedCriteriaTree(node))
+                    return false;
+            return true;
+        case CRITERIA_TREE_OPERAROR_SUM_CHILDREN:
         {
-            if (!tree->Criteria)
-                return true;
-
-            break;
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter;
+            });
+            return progress >= requiredCount;
         }
+        case CRITERIA_TREE_OPERATOR_MAX_CHILD:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        if (criteriaProgress->Counter > progress)
+                            progress = criteriaProgress->Counter;
+            });
+            return progress >= requiredCount;
+        }
+        case CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN:
+        {
+            uint64 progress = 0;
+            for (CriteriaTree const* node : tree->Children)
+                if (node->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(node->Criteria))
+                        if (criteriaProgress->Counter >= 1)
+                            if (++progress >= requiredCount)
+                                return true;
+
+            return false;
+        }
+        case CRITERIA_TREE_OPERATOR_ANY:
+        {
+            uint64 progress = 0;
+            for (CriteriaTree const* node : tree->Children)
+                if (IsCompletedCriteriaTree(node))
+                    if (++progress >= requiredCount)
+                        return true;
+
+            return false;
+        }
+        default:
+            break;
     }
 
-    if (op & CRITERIA_TREE_OPERATOR_ANY && completedCount < requiredCount)
+    return false;
+}
+
+bool CriteriaHandler::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
+{
+    if ((tree->Entry->Flags & CRITERIA_TREE_FLAG_HORDE_ONLY && referencePlayer->GetTeam() != HORDE) ||
+        (tree->Entry->Flags & CRITERIA_TREE_FLAG_ALLIANCE_ONLY && referencePlayer->GetTeam() != ALLIANCE))
+    {
+        TC_LOG_TRACE("criteria", "CriteriaHandler::CanUpdateCriteriaTree: (Id: %u Type %s CriteriaTree %u) Wrong faction",
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Entry->ID);
         return false;
+    }
 
-    if (op & CRITERIA_TREE_OPERATOR_ALL && !hasAll)
-        return false;
-
-    if (!tree->Criteria)
-        return true;
-
-    return IsCompletedCriteria(tree->Criteria, requiredCount);
+    return true;
 }
 
 bool CriteriaHandler::CanCompleteCriteriaTree(CriteriaTree const* /*tree*/)
