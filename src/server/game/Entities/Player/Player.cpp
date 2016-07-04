@@ -14819,7 +14819,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
-    SendQuestUpdate(quest_id);
+    SendQuestUpdate();
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
     {
@@ -15055,7 +15055,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         UpdatePvPState();
     }
 
-    SendQuestUpdate(quest_id);
+    SendQuestUpdate();
 
     SendQuestGiverStatusMultiple();
 
@@ -15699,7 +15699,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
     }
 
     if (update)
-        SendQuestUpdate(questId);
+        SendQuestUpdate();
 
     sScriptMgr->OnQuestStatusChange(this, questId, status);
 }
@@ -15714,7 +15714,7 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
-        SendQuestUpdate(questId);
+        SendQuestUpdate();
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -15727,10 +15727,10 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
-        SendQuestUpdate(questId);
+        SendQuestUpdate();
 }
 
-void Player::SendQuestUpdate(uint32 questId)
+void Player::SendQuestUpdate()
 {
     uint32 zone = 0, area = 0;
     GetZoneAndAreaId(zone, area);
