@@ -1,7 +1,7 @@
 -- 
 DELETE FROM `creature_queststarter` WHERE `quest`=10888;
 
-DELETE FROM `quest_template_addon` WHERE `quest` IN (10888, 13430);
+DELETE FROM `quest_template_addon` WHERE `ID` IN (10888, 13430);
 INSERT INTO `quest_template_addon` (`ID`, `ExclusiveGroup`) VALUES
 (10888, 10888),
 (13430, 10888);
