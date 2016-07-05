@@ -15008,7 +15008,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SetSeasonalQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id, false);
-    if (!quest->IsDFQuest() && !quest->IsDaily() && (!quest->IsRepeatable() || quest->IsWeekly() || quest->IsMonthly() || quest->IsSeasonal()))
+    if (quest->CanIncreaseRewardedQuestCounters())
     {
         // Dungeon Finder/daily/repeatable quests should not be added to the rewarded quest table
         m_RewardedQuests.insert(quest_id);
@@ -18280,11 +18280,8 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                     m_questRewardTalentCount += quest->GetBonusTalents();
             }
 
-            // Dungeon Finder/daily/repeatable quests should not be loaded as completed quests from character_queststatus_rewarded table
-            if (quest->IsDFQuest() || quest->IsDaily() || (quest->IsRepeatable() && !quest->IsWeekly() && !quest->IsMonthly() && !quest->IsSeasonal()))
-                continue;
-
-            m_RewardedQuests.insert(quest_id);
+            if (quest->CanIncreaseRewardedQuestCounters())
+                m_RewardedQuests.insert(quest_id);
         }
         while (result->NextRow());
     }
