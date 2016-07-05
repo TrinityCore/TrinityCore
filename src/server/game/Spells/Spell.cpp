@@ -5884,12 +5884,15 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     maxRange += rangeMod;
 
+    minRange *= minRange;
+    maxRange *= maxRange;
+
     if (target && target != m_caster)
     {
-        if (!m_caster->IsInDist(target, maxRange))
+        if (m_caster->GetExactDistSq(target) > maxRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
 
-        if (minRange > 0.0f && m_caster->IsInDist(target, minRange))
+        if (minRange > 0.0f && m_caster->GetExactDistSq(target) < minRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
@@ -5899,9 +5902,9 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_targets.HasDst() && !m_targets.HasTraj())
     {
-        if (!m_caster->IsInDist(m_targets.GetDstPos(), maxRange))
+        if (m_caster->GetExactDistSq(m_targets.GetDstPos()) > maxRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
-        if (minRange > 0.0f && m_caster->IsInDist(m_targets.GetDstPos(), minRange))
+        if (minRange > 0.0f && m_caster->GetExactDistSq(m_targets.GetDstPos()) < minRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
     }
 
