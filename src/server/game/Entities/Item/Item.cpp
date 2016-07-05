@@ -32,6 +32,7 @@
 #include "ItemPackets.h"
 #include "TradeData.h"
 #include "GameTables.h"
+#include "CollectionMgr.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -234,6 +235,34 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
     return false;
 }
 
+ItemModifier const AppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS] =
+{
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4
+};
+
+static uint32 const AppearanceModifierMaskSpecSpecific =
+    (1 << ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1) |
+    (1 << ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2) |
+    (1 << ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3) |
+    (1 << ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4);
+
+ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS] =
+{
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4
+};
+
+static uint32 const IllusionModifierMaskSpecSpecific =
+    (1 << ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1) |
+    (1 << ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2) |
+    (1 << ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3) |
+    (1 << ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4);
+
 Item::Item()
 {
     m_objectType |= TYPEMASK_ITEM;
@@ -356,9 +385,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
-            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID) | (GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD) << 24));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_UPGRADE_ID));
-            stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL));
@@ -395,6 +422,43 @@ void Item::SaveToDB(SQLTransaction& trans)
                     stmt->setUInt32(1 + i, 0);
                 trans->Append(stmt);
             }
+
+            static ItemModifier const transmogMods[10] =
+            {
+                ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS,
+                ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1,
+                ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2,
+                ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3,
+                ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4,
+
+                ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS,
+                ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1,
+                ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2,
+                ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3,
+                ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4,
+            };
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_TRANSMOG);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+
+            if (std::find_if(std::begin(transmogMods), std::end(transmogMods), [this](ItemModifier modifier) { return GetModifier(modifier) != 0; }) != std::end(transmogMods))
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_TRANSMOG);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt32(1, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS));
+                stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2));
+                stmt->setUInt32(4, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3));
+                stmt->setUInt32(5, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4));
+                stmt->setUInt32(6, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS));
+                stmt->setUInt32(7, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1));
+                stmt->setUInt32(8, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2));
+                stmt->setUInt32(9, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3));
+                stmt->setUInt32(10, GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4));
+                trans->Append(stmt);
+            }
+
             break;
         }
         case ITEM_REMOVED:
@@ -436,12 +500,16 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
 {
-    //                                             0          1            2                3      4         5        6      7             8                 9          10          11    12
-    //result = CharacterDatabase.PQuery("SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
-    //                                                          13         14               15                  16                  17              18                  19            20
-    //                                          transmogrification, upgradeId, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-    //                                                  21          22          23
-    //                                          gemItemId1, gemItemId2, gemItemId3 FROM item_instance WHERE guid = '%u'", guid);
+    //           0          1            2                3      4         5        6      7             8                 9          10          11    12
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
+    //               13                  14                  15              16                  17            18
+    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
+    //                                    19                           20                           21                           22                           23
+    //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
+    //                                  24                        25                          26                         27                         28
+    //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
+    //                29          30          31
+    //        gemItemId1, gemItemId2, gemItemId3 FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -509,19 +577,32 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[11].GetUInt32());
     SetText(fields[12].GetString());
 
-    if (uint32 transmogEntry = fields[13].GetUInt32())
-    {
-        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, (transmogEntry >> 24) & 0xFF);
-        SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, transmogEntry & 0xFFFFFF);
-    }
-    SetModifier(ITEM_MODIFIER_UPGRADE_ID, fields[14].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, fields[15].GetUInt32());
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, fields[16].GetUInt32());
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[17].GetUInt32());
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[18].GetUInt16());
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[19].GetUInt32());
+    SetModifier(ITEM_MODIFIER_UPGRADE_ID, fields[13].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, fields[14].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, fields[15].GetUInt32());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[16].GetUInt16());
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[17].GetUInt32());
 
-    uint32 gemItemIds[3] = { fields[21].GetUInt32(), fields[22].GetUInt32(), fields[23].GetUInt32() };
+    Tokenizer bonusListIDs(fields[18].GetString(), ' ');
+    for (char const* token : bonusListIDs)
+    {
+        uint32 bonusListID = atoul(token);
+        AddBonuses(bonusListID);
+    }
+
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[19].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[20].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[21].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[22].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[23].GetUInt32());
+
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[24].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[25].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[26].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[27].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[28].GetUInt32());
+
+    uint32 gemItemIds[3] = { fields[29].GetUInt32(), fields[30].GetUInt32(), fields[31].GetUInt32() };
     if (gemItemIds[0] || gemItemIds[1] || gemItemIds[2])
     {
         // gem slots must be preserved, hence funky logic
@@ -530,13 +611,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
             AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[1]);
         if (gemItemIds[2])
             AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[2]);
-    }
-
-    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
-    for (char const* token : bonusListIDs)
-    {
-        uint32 bonusListID = atoul(token);
-        AddBonuses(bonusListID);
     }
 
     if (need_save)                                           // normal item changed state set not work at loading
@@ -1130,7 +1204,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                 arrayMask.SetCount(values.size());
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                    if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index].GetBit(v) : values[v])
                     {
                         arrayMask.SetBit(v);
                         buffer << uint32(values[v]);
@@ -1149,7 +1223,6 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                         buffer << uint32(modifier);
                     }
                 }
-
             }
 
             fieldBuffer << uint16(arrayMask.GetBlockCount());
@@ -1204,7 +1277,7 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
     }
 }
 
-void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransaction* trans /*=NULL*/)
+void Item::SetNotRefundable(Player* owner, bool changestate /*= true*/, SQLTransaction* trans /*= nullptr*/, bool addToCollection /*= true*/)
 {
     if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
@@ -1224,6 +1297,8 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     DeleteRefundDataFromDB(trans);
 
     owner->DeleteRefundReference(GetGUID());
+    if (addToCollection)
+        owner->GetSession()->GetCollectionMgr()->AddItemAppearance(this);
 }
 
 void Item::UpdatePlayedTime(Player* owner)
@@ -1278,6 +1353,7 @@ void Item::ClearSoulboundTradeable(Player* currentOwner)
     if (allowedGUIDs.empty())
         return;
 
+    currentOwner->GetSession()->GetCollectionMgr()->AddItemAppearance(this);
     allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
@@ -1303,9 +1379,6 @@ bool Item::IsValidTransmogrificationTarget() const
     if (!proto)
         return false;
 
-    if (proto->GetQuality() == ITEM_QUALITY_LEGENDARY)
-        return false;
-
     if (proto->GetClass() != ITEM_CLASS_ARMOR &&
         proto->GetClass() != ITEM_CLASS_WEAPON)
         return false;
@@ -1317,34 +1390,6 @@ bool Item::IsValidTransmogrificationTarget() const
         return false;
 
     if (!HasStats())
-        return false;
-
-    return true;
-}
-
-bool Item::IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
-{
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(transmogrifier.ItemID);
-    if (!proto)
-        return false;
-
-    if (proto->GetFlags2() & ITEM_FLAG2_CANNOT_TRANSMOG)
-        return false;
-
-    if (proto->GetQuality() == ITEM_QUALITY_LEGENDARY)
-        return false;
-
-    if (proto->GetClass() != ITEM_CLASS_ARMOR &&
-        proto->GetClass() != ITEM_CLASS_WEAPON)
-        return false;
-
-    if (proto->GetClass() == ITEM_CLASS_WEAPON && proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->GetFlags2() & ITEM_FLAG2_CAN_TRANSMOG)
-        return true;
-
-    if (!HasStats(transmogrifier, bonus))
         return false;
 
     return true;
@@ -1456,18 +1501,18 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
     -1                                                      // INVTYPE_RELIC
 };
 
-bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus)
+bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
 {
-    ItemTemplate const* source = sObjectMgr->GetItemTemplate(transmogrifier.ItemID); // source
-    ItemTemplate const* target = transmogrified->GetTemplate(); // dest
+    ItemTemplate const* source = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID); // source
+    ItemTemplate const* target = item->GetTemplate(); // dest
 
     if (!source || !target)
         return false;
 
-    if (sDB2Manager.GetItemDisplayId(source->GetId(), bonus->AppearanceModID) == transmogrified->GetDisplayId())
+    if (itemModifiedAppearance == item->GetItemModifiedAppearance())
         return false;
 
-    if (!IsValidTransmogrificationSource(transmogrifier, bonus) || !transmogrified->IsValidTransmogrificationTarget())
+    if (!item->IsValidTransmogrificationTarget())
         return false;
 
     if (source->GetClass() != target->GetClass())
@@ -1483,11 +1528,19 @@ bool Item::CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets:
 
     if (source->GetSubClass() != target->GetSubClass())
     {
-        if (source->GetClass() != ITEM_CLASS_WEAPON)
-            return false;
-
-        if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
-            return false;
+        switch (source->GetClass())
+        {
+            case ITEM_CLASS_WEAPON:
+                if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
+                    return false;
+                break;
+            case ITEM_CLASS_ARMOR:
+                if (source->GetSubClass() != ITEM_SUBCLASS_ARMOR_COSMETIC)
+                    return false;
+                break;
+            default:
+                return false;
+        }
     }
 
     if (source->GetInventoryType() != target->GetInventoryType())
@@ -1863,10 +1916,14 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
     return _bonusData.ItemStatValue[index];
 }
 
-uint32 Item::GetDisplayId() const
+uint32 Item::GetDisplayId(Player const* owner) const
 {
-    if (uint32 transmogrification = GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return sDB2Manager.GetItemDisplayId(transmogrification, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
+    ItemModifier transmogModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, AppearanceModifierMaskSpecSpecific))
+        transmogModifier = AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()];
+
+    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(transmogModifier)))
+        return sDB2Manager.GetItemDisplayId(transmog->ItemID, transmog->AppearanceModID);
 
     return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
@@ -1882,33 +1939,46 @@ void Item::SetModifier(ItemModifier modifier, uint32 value)
     ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << modifier, value != 0);
 }
 
-uint32 Item::GetVisibleEntry() const
+uint32 Item::GetVisibleEntry(Player const* owner) const
 {
-    if (uint32 transmogrification = GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return transmogrification;
+    ItemModifier transmogModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, AppearanceModifierMaskSpecSpecific))
+        transmogModifier = AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()];
+
+    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(transmogModifier)))
+        return transmog->ItemID;
 
     return GetEntry();
 }
 
-uint16 Item::GetVisibleAppearanceModId() const
+uint16 Item::GetVisibleAppearanceModId(Player const* owner) const
 {
-    if (GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return uint16(GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
+    ItemModifier transmogModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, AppearanceModifierMaskSpecSpecific))
+        transmogModifier = AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()];
+
+    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(transmogModifier)))
+        return transmog->AppearanceModID;
 
     return uint16(GetAppearanceModId());
 }
 
-uint32 Item::GetVisibleEnchantmentId() const
+uint32 Item::GetVisibleEnchantmentId(Player const* owner) const
 {
-    if (uint32 enchantIllusion = GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION))
+    ItemModifier illusionModifier = ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS;
+    if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, IllusionModifierMaskSpecSpecific))
+        illusionModifier = IllusionModifierSlotBySpec[owner->GetActiveTalentGroup()];
+
+    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(illusionModifier)))
+        if (uint32 enchantIllusion = GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS))
         return enchantIllusion;
 
     return GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
 }
 
-uint16 Item::GetVisibleItemVisual() const
+uint16 Item::GetVisibleItemVisual(Player const* owner) const
 {
-    if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetVisibleEnchantmentId()))
+    if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetVisibleEnchantmentId(owner)))
         return enchant->ItemVisual;
 
     return 0;

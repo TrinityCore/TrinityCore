@@ -1317,6 +1317,24 @@ struct ItemRandomSuffixEntry
     uint16 AllocationPct[MAX_ITEM_RANDOM_PROPERTIES];
 };
 
+struct ItemSearchNameEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint32 Flags[3];
+    uint32 AllowableRace;
+    uint32 RequiredSpell;
+    uint16 RequiredReputationFaction;
+    uint16 RequiredSkill;
+    uint16 RequiredSkillRank;
+    uint16 ItemLevel;
+    uint8 Quality;
+    uint8 RequiredExpansion;
+    uint8 RequiredReputationRank;
+    uint8 RequiredLevel;
+    uint32 AllowableClass;
+};
+
 #define MAX_ITEM_SET_ITEMS 17
 
 struct ItemSetEntry
@@ -1717,7 +1735,7 @@ struct PhaseXPhaseGroupEntry
 
 struct PlayerConditionEntry
 {
-    uint32 ID; // 1, 1, 1
+    uint32 ID;
     uint32 RaceMask;
     uint32 SkillLogic;
     uint32 ReputationLogic;

@@ -17,6 +17,7 @@
  */
 
 #include "WorldSession.h"
+#include "CollectionMgr.h"
 #include "Common.h"
 #include "Config.h"
 #include "GameObjectAI.h"
@@ -111,6 +112,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         {
             item->SetState(ITEM_CHANGED, user);
             item->SetBinding(true);
+            GetCollectionMgr()->AddItemAppearance(item);
         }
     }
 
@@ -544,7 +546,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
                 (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
                 itemDisplayId = 0;
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                itemDisplayId = item->GetDisplayId();
+                itemDisplayId = item->GetDisplayId(player);
             else
                 itemDisplayId = 0;
 

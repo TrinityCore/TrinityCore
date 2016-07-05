@@ -217,7 +217,7 @@ enum ItemFlags2 : uint32
     ITEM_FLAG2_NEED_ROLL_DISABLED     = 0x00000100,
     ITEM_FLAG2_CASTER_WEAPON          = 0x00000200,
     ITEM_FLAG2_UNK6                   = 0x00000400,
-    ITEM_FLAG2_UNK7                   = 0x00000800,
+    ITEM_FLAG2_UNAVAILABLE_FOR_PLAYERS= 0x00000800,
     ITEM_FLAG2_UNK8                   = 0x00001000,
     ITEM_FLAG2_UNK9                   = 0x00002000,
     ITEM_FLAG2_HAS_NORMAL_PRICE       = 0x00004000,
@@ -490,7 +490,7 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_LEATHER                 = 2,
     ITEM_SUBCLASS_ARMOR_MAIL                    = 3,
     ITEM_SUBCLASS_ARMOR_PLATE                   = 4,
-    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 5, // OBSOLETE
+    ITEM_SUBCLASS_ARMOR_COSMETIC                = 5,
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
@@ -769,6 +769,7 @@ struct TC_GAME_API ItemTemplate
     uint32 FlagsCu;
     float SpellPPMRate;
     std::unordered_set<uint32> Specializations[2];  // one set for 1-40 level range and another for 41-100
+    uint32 ItemSpecClassMask;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;

@@ -474,30 +474,6 @@ namespace WorldPackets
             uint32 Slot = 0;
         };
 
-        struct TransmogrifyItem
-        {
-            Optional<ObjectGuid> SrcItemGUID;
-            Optional<ObjectGuid> SrcVoidItemGUID;
-            ItemInstance Item;
-            uint32 Slot = 0;
-        };
-
-        class TransmogrifyItems final : public ClientPacket
-        {
-        public:
-            enum
-            {
-                MAX_TRANSMOGRIFY_ITEMS = 11
-            };
-
-            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Npc;
-            Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
-        };
-
         class UseCritterItem final : public ClientPacket
         {
         public:

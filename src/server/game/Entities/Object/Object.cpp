@@ -813,7 +813,7 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
             arrayMask.SetCount(values.size());
             for (std::size_t v = 0; v < values.size(); ++v)
             {
-                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index].GetBit(v) : values[v])
                 {
                     arrayMask.SetBit(v);
                     buffer << uint32(values[v]);
@@ -1382,10 +1382,23 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     AddToObjectUpdateIfNeeded();
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
+void Object::RemoveDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-    /// TODO: Research if this is actually needed
+
+    // TODO: Research if this is blizzlike to just set value to 0
+    std::vector<uint32>& values = _dynamicValues[index];
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+        if (values[i] == value)
+        {
+            values[i] = 0;
+            _dynamicChangesMask.SetBit(index);
+            _dynamicChangesArrayMask[index].SetBit(i);
+
+            AddToObjectUpdateIfNeeded();
+        }
+    }
 }
 
 void Object::ClearDynamicValue(uint16 index)
