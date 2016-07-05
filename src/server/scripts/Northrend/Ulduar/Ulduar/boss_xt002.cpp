@@ -907,33 +907,29 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
         }
 };
 
-/*-------------------------------------------------------
-*
-*        VOID ZONE
-*
-*///----------------------------------------------------
+//VOID ZONE
 class npc_xt_void_zone : public CreatureScript
 {
-	public:
+    public:
         npc_xt_void_zone() : CreatureScript("npc_xt_void_zone") { }
 
-		struct npc_xt_void_zoneAI : public PassiveAI
-		{
-			npc_xt_void_zoneAI(Creature* creature) : PassiveAI(creature)
-			{
-				Initialize();
-			}
-			void Initialize() {
-				DoCast(me, SPELL_VOID_ZONE_PERIODIC);
-			}
+        struct npc_xt_void_zoneAI : public PassiveAI
+        {
+            npc_xt_void_zoneAI(Creature* creature) : PassiveAI(creature)
+            {
+                Initialize();
+            }
+            void Initialize() {
+                DoCast(me, SPELL_VOID_ZONE_PERIODIC);
+            }
 
-			void UpdateAI(uint32 /*diff*/) override { }
-		};
-
-		CreatureAI* GetAI(Creature* creature) const override
-		{
-			return new npc_xt_void_zoneAI(creature);
-		}
+            void UpdateAI(uint32 /*diff*/) override { }
+        };
+        
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_xt_void_zoneAI(creature);
+        }
 
 };
 

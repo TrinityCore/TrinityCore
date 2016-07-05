@@ -424,8 +424,8 @@ enum UlduarAchievementData
 
 enum UlduarSharedSpells
 {
-	SPELL_LUMBERJACKED_CREDIT    = 65296,
-	SPELL_TELEPORT_KEEPER_VISUAL = 62940, // used by keepers 
+    SPELL_LUMBERJACKED_CREDIT    = 65296,
+    SPELL_TELEPORT_KEEPER_VISUAL = 62940, // used by keepers 
 };
 
 enum UlduarEvents
@@ -452,19 +452,19 @@ AI* GetUlduarAI(T* obj)
 
 class KeeperDespawnEvent : public BasicEvent
 {
-	public:
+    public:
 	    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
+        {
+            _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
+            _owner->DespawnOrUnsummon(1000 + _despawnTimer);
+            return true;
+        }
 	
-		bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-	    {
-			_owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-			_owner->DespawnOrUnsummon(1000 + _despawnTimer);
-			return true;
-		}
-	
-	private:
-		Creature* _owner;
-		uint32 _despawnTimer;
+    private:
+        Creature* _owner;
+        uint32 _despawnTimer;
 };
 
 
