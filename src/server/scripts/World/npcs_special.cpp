@@ -574,6 +574,115 @@ public:
 };
 
 /*######
+## npc_midsummer_bunny_pole
+######*/
+
+enum RibbonPoleData
+{
+    GO_RIBBON_POLE              = 181605,
+    SPELL_RIBBON_DANCE_COSMETIC = 29726,
+    SPELL_RED_FIRE_RING         = 46836,
+    SPELL_BLUE_FIRE_RING        = 46842,
+    EVENT_CAST_RED_FIRE_RING    = 1,
+    EVENT_CAST_BLUE_FIRE_RING   = 2
+};
+
+class npc_midsummer_bunny_pole : public CreatureScript
+{
+public:
+    npc_midsummer_bunny_pole() : CreatureScript("npc_midsummer_bunny_pole") { }
+
+    struct npc_midsummer_bunny_poleAI : public ScriptedAI
+    {
+        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            events.Reset();
+            running = false;
+        }
+        
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void DoAction(int32 /*action*/) override
+        {
+            // Don't start event if it's already running.
+            if (running)
+                return;
+
+            running = true;
+            events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 1);
+        }
+
+        bool checkNearbyPlayers()
+        {
+            // Returns true if no nearby player has aura "Test Ribbon Pole Channel".
+            std::list<Player*> players;
+            Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
+            Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
+            me->VisitNearbyWorldObject(10.0f, searcher);
+
+            return players.empty();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!running)
+                return;
+
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+            case EVENT_CAST_RED_FIRE_RING:
+            {
+                if (checkNearbyPlayers())
+                {
+                    Reset();
+                    return;
+                }
+
+                if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
+                    me->CastSpell(go, SPELL_RED_FIRE_RING, true);
+
+                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, Seconds(5));
+            }
+            break;
+            case EVENT_CAST_BLUE_FIRE_RING:
+            {
+                if (checkNearbyPlayers())
+                {
+                    Reset();
+                    return;
+                }
+
+                if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
+                    me->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
+
+                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, Seconds(5));
+            }
+            break;
+            }
+        }
+
+    private:
+        EventMap events;
+        bool running;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_midsummer_bunny_poleAI(creature);
+    }
+};
+
+/*######
 ## Triage quest
 ######*/
 
@@ -2380,6 +2489,7 @@ void AddSC_npcs_special()
     new npc_chicken_cluck();
     new npc_dancing_flames();
     new npc_torch_tossing_target_bunny_controller();
+    new npc_midsummer_bunny_pole();
     new npc_doctor();
     new npc_injured_patient();
     new npc_garments_of_quests();
