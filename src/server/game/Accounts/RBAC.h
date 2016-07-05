@@ -705,6 +705,17 @@ enum RBACPermissions
 
     // custom permissions 1000+
 	RBAC_SEC_PLAYER                                          = 1011,
+	RBAC_PERM_COMMAND_NPCBOT                                 = 1800,
+    RBAC_PERM_COMMAND_NPCBOT_FACTION                         = 1801,
+    RBAC_PERM_COMMAND_NPCBOT_OWNER                           = 1802,
+    RBAC_PERM_COMMAND_NPCBOT_SET                             = 1803,
+    RBAC_PERM_COMMAND_NPCBOT_ADD                             = 1804,
+    RBAC_PERM_COMMAND_NPCBOT_REMOVE                          = 1805,
+    RBAC_PERM_COMMAND_NPCBOT_SPAWN                           = 1806,
+    RBAC_PERM_COMMAND_NPCBOT_DELETE                          = 1807,
+    RBAC_PERM_COMMAND_NPCBOT_LOOKUP                          = 1808,
+    RBAC_PERM_COMMAND_NPCBOT_REVIVE                          = 1809,
+    RBAC_PERM_COMMAND_NPCBOT_CAST                            = 1810,
     RBAC_PERM_MAX
 };
 

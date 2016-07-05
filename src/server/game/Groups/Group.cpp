@@ -104,6 +104,12 @@ bool Group::Create(Player* leader)
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
 
+	//npcbot - set loot mode on create
+	if (leader->HaveBot()) //player + npcbot so set to free-for-all on create
+		m_lootMethod = FREE_FOR_ALL;
+	else
+    //end npcbot
+
     if (!isLFGGroup())
         m_lootMethod = GROUP_LOOT;
 
@@ -362,6 +368,10 @@ bool Group::AddMember(Player* player)
 
     SubGroupCounterIncrease(subGroup);
 
+	//npcbot - check if trying to add bot
+	if (player->GetGUID().IsPlayer())
+	{
+    //end npcbot
     player->SetGroupInvite(NULL);
     if (player->GetGroup())
     {
@@ -375,6 +385,9 @@ bool Group::AddMember(Player* player)
 
     // if the same group invites the player back, cancel the homebind timer
     player->m_InstanceValid = player->CheckInstanceValidity(false);
+	//npcbot
+	}
+	//end npcbot
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
@@ -398,6 +411,11 @@ bool Group::AddMember(Player* player)
 
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
+
+	//npcbot - check 2
+	if (player->GetGUID().IsPlayer())
+	{
+    //end npcbot
 
     if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
     {
@@ -474,7 +492,9 @@ bool Group::AddMember(Player* player)
 
     if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
         m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
-
+	//npcbot
+	}
+	//end npcbot
     return true;
 }
 
@@ -597,6 +617,9 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         }
 
         if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+		//npcbot
+		if (GetMembersCount() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+		//end npcbot
             Disband();
 
         return true;

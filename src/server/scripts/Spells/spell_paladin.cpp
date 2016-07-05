@@ -126,6 +126,11 @@ class spell_pal_ardent_defender : public SpellScriptLoader
             {
                 healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                 absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+				
+				//npcbot - allow for npcbots
+				if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && GetUnitOwner()->ToCreature()->IsNPCBot())
+					return true;
+                //end npcbot
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -140,6 +145,40 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                 Unit* victim = GetTarget();
                 int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
                 uint32 allowedHealth = victim->CountPctFromMaxHealth(35);
+
+				//npcbot - calc for bots
+				if (victim->GetTypeId() == TYPEID_UNIT/* && victim->ToCreature()->IsNPCBot()*/)
+				{
+					if (remainingHealth <= 0 && !victim->ToCreature()->GetSpellHistory()->HasCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
+					{
+						// Cast healing spell, completely avoid damage
+						absorbAmount = dmgInfo.GetDamage();
+
+						uint32 defenseSkillValue = victim->GetDefenseSkillValue();
+						// Max heal when defense skill denies critical hits from raid bosses
+						// Formula: max defense at level + 140 (raiting from gear)
+						uint32 reqDefForMaxHeal = victim->getLevel() * 5 + 140;
+						float pctFromDefense = (defenseSkillValue >= reqDefForMaxHeal)
+							? 1.0f
+							: float(defenseSkillValue) / float(reqDefForMaxHeal);
+
+						int32 healAmount = int32(victim->CountPctFromMaxHealth(int32(healPct * pctFromDefense)));
+						victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+						victim->ToCreature()->AddBotSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 120 * IN_MILLISECONDS);
+					}
+					else if (remainingHealth < int32(allowedHealth))
+					{
+						// Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
+						uint32 damageToReduce = (victim->GetHealth() < allowedHealth)
+							? dmgInfo.GetDamage()
+							: allowedHealth - remainingHealth;
+						absorbAmount = CalculatePct(damageToReduce, absorbPct);
+					}
+
+					return;
+				}
+				//end npcbot
+
                 // If damage kills us
                 if (remainingHealth <= 0 && !victim->GetSpellHistory()->HasCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
                 {

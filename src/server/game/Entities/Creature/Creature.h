@@ -37,6 +37,11 @@ class Player;
 class SpellInfo;
 class WorldSession;
 
+// npcbot
+class bot_ai;
+class bot_minion_ai;
+class bot_pet_ai;
+
 enum CreatureFlagsExtra
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -55,6 +60,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_TAUNT_DIMINISH       = 0x00080000,       // Taunt is a subject to diminishing returns on this creautre
     CREATURE_FLAG_EXTRA_ALL_DIMINISH         = 0x00100000,       // creature is subject to all diminishing returns as player are
     CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ = 0x00200000,       // creature does not need to take player damage for kill credit
+	CREATURE_FLAG_EXTRA_NPCBOT				 = 0x04000000,       // custom flag for NPCBots (not confirmed safe)
     CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING   = 0x20000000,       // creature ignore pathfinding
     CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000        // creature is immune to knockback effects
@@ -65,7 +71,8 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
     CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
-    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
+	CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | \
+	CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK | CREATURE_FLAG_EXTRA_NPCBOT)
 
 static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
 static const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
@@ -694,6 +701,76 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
 
+		//Bot commands
+		bool LoadBotCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
+		Player* GetBotOwner() const;
+		void SetBotOwner(Player* newowner);
+		Creature* GetCreatureOwner() const { return m_creature_owner; }
+		void SetCreatureOwner(Creature* newCreOwner) { m_creature_owner = newCreOwner; }
+		Creature* GetBotsPet() const { return m_bots_pet; }
+		void SetBotsPetDied();
+		void SetBotsPet(Creature* newpet) { /*ASSERT (!m_bots_pet);*/ m_bots_pet = newpet; }
+		bool IsNPCBot() const;
+		bool IsFreeBot() const;
+		void SetIAmABot(bool bot = true);
+		bool GetIAmABot() const;
+		bool GetIAmABotsPet() const;
+		uint8 GetBotClass() const;
+		uint8 GetBotRoles() const;
+		bot_ai* GetBotAI() const { return bot_AI; }
+		bot_minion_ai* GetBotMinionAI() const;
+		bot_pet_ai* GetBotPetAI() const;
+		void SetBotAI(bot_ai* ai) { bot_AI = ai; }
+		void SetBotCommandState(CommandStates st, bool force = false);
+		CommandStates GetBotCommandState() const;
+		void ApplyBotDamageMultiplierMelee(uint32& damage, CalcDamageInfo& damageinfo) const;
+		void ApplyBotDamageMultiplierMelee(int32& damage, SpellNonMeleeDamage& damageinfo, SpellInfo const* spellInfo, WeaponAttackType attackType, bool& crit) const;
+		void ApplyBotDamageMultiplierSpell(int32& damage, SpellNonMeleeDamage& damageinfo, SpellInfo const* spellInfo, WeaponAttackType attackType, bool& crit) const;
+		void ApplyBotDamageMultiplierHeal(Unit const* victim, float& heal, SpellInfo const* spellInfo, DamageEffectType damagetype, uint32 stack) const;
+		void ApplyBotCritMultiplierAll(Unit const* victim, float& crit_chance, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType) const;
+		void ApplyCreatureSpellCostMods(SpellInfo const* spellInfo, int32& cost) const;
+		void ApplyCreatureSpellCastTimeMods(SpellInfo const* spellInfo, int32& casttime) const;
+		void SetBotShouldUpdateStats();
+		void OnBotSummon(Creature* summon);
+		void OnBotDespawn(Creature* summon);
+		void SetCanUpdate(bool can) { m_canUpdate = can; }
+		void KillEvents(bool force);
+		void BotStopMovement();
+		void ResetBotAI(uint8 resetType = 0);
+
+		bool CanParry() const;
+		bool CanDodge() const;
+		bool CanBlock() const;
+		bool CanCrit() const;
+		bool CanMiss() const;
+
+		float GetCreatureParryChance() const;
+		float GetCreatureDodgeChance() const;
+		float GetCreatureBlockChance() const;
+		float GetCreatureCritChance() const;
+		float GetCreatureMissChance() const;
+		float GetCreatureEvasion() const;
+		float GetCreatureArmorPenetrationCoef() const;
+		float GetCreatureDamageTakenMod() const;
+		uint32 GetCreatureExpertise() const;
+		uint32 GetCreatureSpellPenetration() const;
+		uint32 GetCreatureSpellPower() const;
+
+		bool IsCreatureImmuneToSpell(SpellInfo const* spellInfo) const;
+		bool IsTempBot() const;
+
+		MeleeHitOutcome BotRollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const;
+
+		void CastCreatureItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Spell const* spell = NULL);
+
+		void OnSpellGo(Spell const* spell);
+		void AddBotSpellCooldown(uint32 spellId, uint32 cooldown);
+
+		static bool IsBotCustomSpell(uint32 spellId);
+		//advanced
+		bool IsQuestBot() const;
+		//End Bot commands
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -751,6 +828,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
+
+		//bot system
+		Creature* m_creature_owner;
+		Creature* m_bots_pet;
+		bot_ai* bot_AI;
+		bool m_canUpdate;
+		//end bot system
         void ForcedDespawn(uint32 timeMSToDespawn = 0);
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
