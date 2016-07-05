@@ -422,6 +422,18 @@ namespace WorldPackets
             bool SuppressMessaging = false;
         };
 
+        class SupercededSpells final : public ServerPacket
+        {
+        public:
+            SupercededSpells() : ServerPacket(SMSG_SUPERCEDED_SPELLS, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int32> SpellID;
+            std::vector<int32> Superceded;
+            std::vector<int32> FavoriteSpellID;
+        };
+
         class SpellFailure final : public ServerPacket
         {
         public:

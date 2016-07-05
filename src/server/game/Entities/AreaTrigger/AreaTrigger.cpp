@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Unit.h"
-#include "SpellInfo.h"
-#include "Log.h"
-#include "UpdateData.h"
 #include "AreaTrigger.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "SpellInfo.h"
+#include "Unit.h"
+#include "UpdateData.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
+AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -56,8 +57,9 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos)
+bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId)
 {
+    _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
@@ -69,13 +71,17 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), triggerEntry, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
 
+    uint32 spellVisual = 0;
+    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(spellXSpellVisualId))
+        spellVisual = visual->SpellVisualID[0];
+
     SetEntry(triggerEntry);
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->GetSpellVisual(GetMap()->GetDifficultyID()));
+    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spellVisual);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
 
     CopyPhaseFrom(caster);

@@ -85,7 +85,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         return false;
     }
 
-    return true;
+    return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 }
 
 bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTree const* tree)

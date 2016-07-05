@@ -487,7 +487,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                 {
                     GtSpellScalingEntry const* gtScaling = sSpellScalingGameTable.GetRow(level);
                     if (_spellInfo->Scaling.Class > 0)
-                        value = GetGameTableColumnForClass(gtScaling, _spellInfo->Scaling.Class);
+                        value = GetSpellScalingColumnForClass(gtScaling, _spellInfo->Scaling.Class);
                     else
                         value = gtScaling->Item;
                 }
@@ -1029,6 +1029,9 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     ActiveIconID = _misc ? _misc->ActiveIconID : 0;
 
     _visuals = std::move(visuals);
+    // sort all visuals so that the ones without a condition requirement are last on the list
+    for (auto& visualPair : _visuals)
+        std::sort(visualPair.second.begin(), visualPair.second.end(), [](SpellXSpellVisualEntry const* first, SpellXSpellVisualEntry const* second) { return first->PlayerConditionID > second->PlayerConditionID; });
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = data.Scaling;
@@ -1243,22 +1246,6 @@ bool SpellInfo::IsQuestTame() const
     return effect0 && effect1 && effect0->Effect == SPELL_EFFECT_THREAT && effect1->Effect == SPELL_EFFECT_APPLY_AURA && effect1->ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
-bool SpellInfo::IsProfessionOrRiding(uint32 difficulty) const
-{
-    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
-    for (SpellEffectInfo const* effect : effects)
-    {
-        if ((effect && effect->Effect == SPELL_EFFECT_SKILL))
-        {
-            uint32 skill = effect->MiscValue;
-
-            if (IsProfessionOrRidingSkill(skill))
-                return true;
-        }
-    }
-    return false;
-}
-
 bool SpellInfo::IsProfession(uint32 difficulty) const
 {
     SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
@@ -1294,23 +1281,6 @@ bool SpellInfo::IsPrimaryProfession(uint32 difficulty) const
 bool SpellInfo::IsPrimaryProfessionFirstRank(uint32 difficulty) const
 {
     return IsPrimaryProfession(difficulty) && GetRank() == 1;
-}
-
-bool SpellInfo::IsAbilityLearnedWithProfession() const
-{
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-    {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
-            continue;
-
-        if (pAbility->MinSkillLineRank > 0)
-            return true;
-    }
-
-    return false;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -1409,12 +1379,6 @@ bool SpellInfo::IsAutocastable() const
 bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
-        return false;
-
-    if (IsProfessionOrRiding())
-        return false;
-
-    if (IsAbilityLearnedWithProfession())
         return false;
 
     // All stance spells. if any better way, change it.
@@ -2974,32 +2938,46 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
     return false;
 }
 
-uint32 SpellInfo::GetSpellXSpellVisualId(Difficulty difficulty) const
+uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* caster /*= nullptr*/) const
 {
-    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
-    while (difficultyEntry)
+    if (caster)
     {
-        auto itr = _visuals.find(difficulty);
-        if (itr != _visuals.end())
-            for (SpellXSpellVisualEntry const* visual : itr->second)
-                if (!visual->PlayerConditionID)
-                    return visual->ID;
+        Difficulty difficulty = caster->GetMap()->GetDifficultyID();
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+        while (difficultyEntry)
+        {
+            auto itr = _visuals.find(difficulty);
+            if (itr != _visuals.end())
+            {
+                for (SpellXSpellVisualEntry const* visual : itr->second)
+                {
+                    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->PlayerConditionID);
+                    if (!playerCondition || (caster->GetTypeId() == TYPEID_PLAYER && sConditionMgr->IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition)))
+                        return visual->ID;
+                }
+            }
 
-        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        }
     }
 
     auto itr = _visuals.find(DIFFICULTY_NONE);
     if (itr != _visuals.end())
+    {
         for (SpellXSpellVisualEntry const* visual : itr->second)
-            if (!visual->PlayerConditionID)
+        {
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->PlayerConditionID);
+            if (!playerCondition || (caster && caster->GetTypeId() == TYPEID_PLAYER && sConditionMgr->IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition)))
                 return visual->ID;
+        }
+    }
 
     return 0;
 }
 
-uint32 SpellInfo::GetSpellVisual(Difficulty difficulty, Player* /*forPlayer*/ /*= nullptr*/) const
+uint32 SpellInfo::GetSpellVisual(Unit const* caster /*= nullptr*/) const
 {
-    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(difficulty)))
+    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(caster)))
     {
         //if (visual->SpellVisualID[1] && forPlayer->GetViolenceLevel() operator 2)
         //    return visual->SpellVisualID[1];

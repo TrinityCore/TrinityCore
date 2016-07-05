@@ -480,6 +480,24 @@ WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::SupercededSpells::Write()
+{
+    _worldPacket << uint32(SpellID.size());
+    _worldPacket << uint32(Superceded.size());
+    _worldPacket << uint32(FavoriteSpellID.size());
+
+    if (!SpellID.empty())
+        _worldPacket.append(SpellID.data(), SpellID.size());
+
+    if (!Superceded.empty())
+        _worldPacket.append(Superceded.data(), Superceded.size());
+
+    if (!FavoriteSpellID.empty())
+        _worldPacket.append(FavoriteSpellID.data(), FavoriteSpellID.size());
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
 {
     _worldPacket << CasterUnit;

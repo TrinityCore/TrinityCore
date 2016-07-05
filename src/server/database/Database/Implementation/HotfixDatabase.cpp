@@ -481,6 +481,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ItemSpecOverride.db2
     PrepareStatement(HOTFIX_SEL_ITEM_SPEC_OVERRIDE, "SELECT ID, ItemID, SpecID FROM item_spec_override ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemUpgrade.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_UPGRADE, "SELECT ID, CurrencyCost, PrevItemUpgradeID, CurrencyID, ItemUpgradePathID, ItemLevelBonus"
+        " FROM item_upgrade ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemXBonusTree.db2
     PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -623,6 +627,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "RarePropertiesPoints5, UncommonPropertiesPoints1, UncommonPropertiesPoints2, UncommonPropertiesPoints3, UncommonPropertiesPoints4, "
         "UncommonPropertiesPoints5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // RulesetItemUpgrade.db2
+    PrepareStatement(HOTFIX_SEL_RULESET_ITEM_UPGRADE, "SELECT ID, ItemID, ItemUpgradeID FROM ruleset_item_upgrade ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ScalingStatDistribution.db2
     PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, ItemLevelCurveID, MinLevel, MaxLevel FROM scaling_stat_distribution"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -635,7 +642,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // SkillLineAbility.db2
     PrepareStatement(HOTFIX_SEL_SKILL_LINE_ABILITY, "SELECT ID, SpellID, RaceMask, SupercedesSpell, Unknown703, SkillLine, MinSkillLineRank, "
-        "TrivialSkillLineRankHigh, TrivialSkillLineRankLow, UniqueBit, TradeSkillCategoryID, AquireMethod, NumSkillUps, ClassMask"
+        "TrivialSkillLineRankHigh, TrivialSkillLineRankLow, UniqueBit, TradeSkillCategoryID, AcquireMethod, NumSkillUps, ClassMask"
         " FROM skill_line_ability ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SkillRaceClassInfo.db2

@@ -484,12 +484,6 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
-float Unit::GetMeleeReach() const
-{
-    float reach = m_floatValues[UNIT_FIELD_COMBATREACH];
-    return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH;
-}
-
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
 {
     if (!obj || !IsInMap(obj) || !IsInPhase(obj))
@@ -516,7 +510,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
     float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float sizefactor = GetMeleeReach() + obj->GetMeleeReach();
+    float sizefactor = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
     float maxdist = dist + sizefactor;
 
     return distsq < maxdist * maxdist;
@@ -3308,7 +3302,7 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
         {
             Unit* caster = aura->GetCaster();
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), aura->GetSpellInfo()->GetSpellXSpellVisualId(caster->GetMap()->GetDifficultyID()), aura->GetCastGUID(), SPELL_FAILED_AURA_BOUNCED);
+                Spell::SendCastResult(caster->ToPlayer(), aura->GetSpellInfo(), aura->GetSpellXSpellVisualId(), aura->GetCastGUID(), SPELL_FAILED_AURA_BOUNCED);
         }
 
         aura->Remove();
@@ -6183,10 +6177,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         switch (GetShapeshiftForm())
                         {
                             case FORM_NONE:     trigger_spell_id = 37344; break;
-                            case FORM_CAT:      trigger_spell_id = 37341; break;
-                            case FORM_BEAR:     trigger_spell_id = 37340; break;
-                            case FORM_TREE:     trigger_spell_id = 37342; break;
-                            case FORM_MOONKIN:  trigger_spell_id = 37343; break;
+                            case FORM_CAT_FORM:      trigger_spell_id = 37341; break;
+                            case FORM_BEAR_FORM:     trigger_spell_id = 37340; break;
+                            case FORM_TREE_OF_LIFE:     trigger_spell_id = 37342; break;
+                            case FORM_MOONKIN_FORM:  trigger_spell_id = 37343; break;
                             default:
                                 return false;
                         }
@@ -6197,8 +6191,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     {
                         switch (GetShapeshiftForm())
                         {
-                            case FORM_CAT:      trigger_spell_id = 67355; break;
-                            case FORM_BEAR:     trigger_spell_id = 67354; break;
+                            case FORM_CAT_FORM:      trigger_spell_id = 67355; break;
+                            case FORM_BEAR_FORM:     trigger_spell_id = 67354; break;
                             default:
                                 return false;
                         }
@@ -10660,7 +10654,7 @@ void Unit::SetShapeshiftForm(ShapeshiftForm form)
 bool Unit::IsInFeralForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form == FORM_CAT || form == FORM_BEAR;
+    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM;
 }
 
 bool Unit::IsInDisallowedMountForm() const
@@ -11582,6 +11576,7 @@ bool InitTriggerAuraData()
         isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
+    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
@@ -11906,6 +11901,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     }
                     case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+                    case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
                     {
                         triggeredByAura->HandleProcTriggerSpellOnPowerAmountAuraProc(aurApp, eventInfo);
                         takeCharges = true;
@@ -13106,7 +13102,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 // restore for use at real death
                 victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
-                // FORM_SPIRITOFREDEMPTION and related auras
+                // FORM_SPIRIT_OF_REDEMPTION and related auras
                 victim->CastSpell(victim, 27827, true, NULL, aurEff);
                 spiritOfRedemption = true;
                 break;
@@ -14195,7 +14191,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     {
         switch (form)
         {
-            case FORM_CAT:
+            case FORM_CAT_FORM:
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
@@ -14343,7 +14339,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 892;
                 else
                     return 8571;
-            case FORM_BEAR:
+            case FORM_BEAR_FORM:
                 // Based on Hair color
                 if (getRace() == RACE_NIGHTELF)
                 {
@@ -14491,17 +14487,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 2281;
                 else
                     return 2289;
-            case FORM_FLIGHT:
+            case FORM_FLIGHT_FORM:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
                     return 20857;
                 return 20872;
-            case FORM_FLIGHT_EPIC:
+            case FORM_FLIGHT_FORM_EPIC:
                 if (Player::TeamForRace(getRace()) == ALLIANCE)
                     return (getRace() == RACE_WORGEN ? 37729 : 21243);
                 if (getRace() == RACE_TROLL)
                     return 37730;
                 return 21244;
-            case FORM_MOONKIN:
+            case FORM_MOONKIN_FORM:
                 switch (getRace())
                 {
                     case RACE_NIGHTELF:
@@ -14516,7 +14512,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         break;
                 }
                 break;
-            case FORM_GHOSTWOLF:
+            case FORM_GHOST_WOLF:
                 if (HasAura(58135)) //! Glyph of Arctic Wolf
                     return 27312;
             default:
@@ -16036,6 +16032,24 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     }
 
     return spellInfo;
+}
+
+uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
+{
+    Unit::AuraEffectList const& visualOverrides = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_VISUAL);
+    for (AuraEffect const* effect : visualOverrides)
+    {
+        if (uint32(effect->GetMiscValue()) == spellInfo->Id)
+        {
+            if (SpellInfo const* visualSpell = sSpellMgr->GetSpellInfo(effect->GetMiscValueB()))
+            {
+                spellInfo = visualSpell;
+                break;
+            }
+        }
+    }
+
+    return spellInfo->GetSpellXSpellVisualId(this);
 }
 
 struct CombatLogSender
