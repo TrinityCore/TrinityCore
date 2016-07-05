@@ -196,7 +196,7 @@ TC_GAME_API extern GameTable<GtXpEntry>                         sXpGameTable;
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
 
 template<class T>
-inline float GetGameTableColumnForClass(T const* row, uint32 class_)
+inline float GetGameTableColumnForClass(T const* row, int32 class_)
 {
     switch (class_)
     {
@@ -224,6 +224,53 @@ inline float GetGameTableColumnForClass(T const* row, uint32 class_)
             return row->Druid;
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32 class_)
+{
+    switch (class_)
+    {
+        case CLASS_WARRIOR:
+            return row->Warrior;
+        case CLASS_PALADIN:
+            return row->Paladin;
+        case CLASS_HUNTER:
+            return row->Hunter;
+        case CLASS_ROGUE:
+            return row->Rogue;
+        case CLASS_PRIEST:
+            return row->Priest;
+        case CLASS_DEATH_KNIGHT:
+            return row->DeathKnight;
+        case CLASS_SHAMAN:
+            return row->Shaman;
+        case CLASS_MAGE:
+            return row->Mage;
+        case CLASS_WARLOCK:
+            return row->Warlock;
+        case CLASS_MONK:
+            return row->Monk;
+        case CLASS_DRUID:
+            return row->Druid;
+        case CLASS_DEMON_HUNTER:
+            return row->DemonHunter;
+        case -1:
+            return row->Item;
+        case -2:
+            return row->Consumable;
+        case -3:
+            return row->Gem1;
+        case -4:
+            return row->Gem2;
+        case -5:
+            return row->Gem3;
+        case -6:
+            return row->Health;
         default:
             break;
     }

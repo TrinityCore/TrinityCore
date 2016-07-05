@@ -2917,7 +2917,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (!spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (spellInfo->IsRanked())
         {
             if (uint32 next = sSpellMgr->GetNextSpellInChain(spellId))
             {
@@ -3030,7 +3030,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         newspell->disabled  = disabled;
 
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
+        if (newspell->active && !newspell->disabled && spellInfo->IsRanked())
         {
             for (PlayerSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
             {
@@ -3138,7 +3138,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
                 continue;
 
             // Runeforging special case
-            if ((_spell_idx->second->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(_spell_idx->second->SkillLine)) || ((_spell_idx->second->SkillLine == SKILL_RUNEFORGING) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
+            if ((_spell_idx->second->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN && !HasSkill(_spell_idx->second->SkillLine)) || ((_spell_idx->second->SkillLine == SKILL_RUNEFORGING) && _spell_idx->second->TrivialSkillLineRankHigh == 0))
                 if (SkillRaceClassInfoEntry const* rcInfo = sDB2Manager.GetSkillRaceClassInfo(_spell_idx->second->SkillLine, getRace(), getClass()))
                     LearnDefaultSkill(rcInfo);
         }
@@ -3380,7 +3380,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
         /// No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
-        if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
+        if (cur_active && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -7960,11 +7960,10 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
     {
         if (m_items[i])
         {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
+            if (!CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            _ApplyItemBonuses(m_items[i], i, apply);
-            ApplyItemEquipSpell(m_items[i], apply);
+            _ApplyItemMods(m_items[i], i, apply);
         }
     }
 }
@@ -11075,6 +11074,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         if (randomPropertyId)
             item->SetItemRandomProperties(randomPropertyId);
 
+        if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
+            item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
+
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
 
@@ -12877,6 +12879,25 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     }
                     break;
                 case ITEM_ENCHANTMENT_TYPE_RESISTANCE:
+                    if (pEnchant->ScalingClass)
+                    {
+                        int32 scalingClass = pEnchant->ScalingClass;
+                        if ((GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) || GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL)) && pEnchant->ScalingClassRestricted)
+                            scalingClass = pEnchant->ScalingClassRestricted;
+
+                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 scalingLevel = getLevel();
+                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
+
+                        if (minLevel > getLevel())
+                            scalingLevel = minLevel;
+                        else if (maxLevel < getLevel())
+                            scalingLevel = maxLevel;
+
+                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
+                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
+                    }
+
                     if (!enchant_amount)
                     {
                         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
@@ -12897,6 +12918,25 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     break;
                 case ITEM_ENCHANTMENT_TYPE_STAT:
                 {
+                    if (pEnchant->ScalingClass)
+                    {
+                        int32 scalingClass = pEnchant->ScalingClass;
+                        if ((GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) || GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL)) && pEnchant->ScalingClassRestricted)
+                            scalingClass = pEnchant->ScalingClassRestricted;
+
+                        uint8 minLevel = pEnchant->Flags & 0x20 ? 1 : 60;
+                        uint8 scalingLevel = getLevel();
+                        uint8 maxLevel = uint8(pEnchant->MaxLevel ? pEnchant->MaxLevel : sSpellScalingGameTable.GetTableRowCount() - 1);
+
+                        if (minLevel > getLevel())
+                            scalingLevel = minLevel;
+                        else if (maxLevel < getLevel())
+                            scalingLevel = maxLevel;
+
+                        if (GtSpellScalingEntry const* spellScaling = sSpellScalingGameTable.GetRow(scalingLevel))
+                            enchant_amount = uint32(pEnchant->EffectScalingPoints[s] * GetSpellScalingColumnForClass(spellScaling, scalingClass));
+                    }
+
                     if (!enchant_amount)
                     {
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
@@ -17818,7 +17858,6 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 
 void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 {
-    uint16 slot = 0;
 
     ////                                                       0        1       2
     //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '%u'", GetGUIDLow());
@@ -17831,8 +17870,9 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 
             uint32 questID = fields[0].GetUInt32();
 
+            uint16 slot = FindQuestSlot(questID);
             auto itr = m_QuestStatus.find(questID);
-            if (itr != m_QuestStatus.end())
+            if (itr != m_QuestStatus.end() && slot < MAX_QUEST_LOG_SIZE)
             {
                 QuestStatusData& questStatusData = itr->second;
                 uint8 objectiveIndex = fields[1].GetUInt8();
@@ -20935,13 +20975,13 @@ void Player::InitDataForForm(bool reapplyMods)
     switch (form)
     {
         case FORM_GHOUL:
-        case FORM_CAT:
+        case FORM_CAT_FORM:
         {
             if (getPowerType() != POWER_ENERGY)
                 setPowerType(POWER_ENERGY);
             break;
         }
-        case FORM_BEAR:
+        case FORM_BEAR_FORM:
         {
             if (getPowerType() != POWER_RAGE)
                 setPowerType(POWER_RAGE);
@@ -22678,6 +22718,11 @@ void Player::LearnQuestRewardedSpells()
 
 void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
+    // bad hack to work around data being suited only for the client - AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN for riding
+    // client uses it to show riding in spellbook as trainable
+    if (skillId == SKILL_RIDING)
+        return;
+
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
@@ -22690,7 +22735,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
         if (!spellInfo)
             continue;
 
-        if (ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+        if (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
             continue;
 
         // Check race if set
@@ -22706,7 +22751,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             continue;
 
         // need unlearn spell
-        if (skillValue < ability->MinSkillLineRank && ability->AquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
+        if (skillValue < ability->MinSkillLineRank && ability->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
             RemoveSpell(ability->SpellID);
         // need learn
         else if (!IsInWorld())
@@ -25266,11 +25311,11 @@ void Player::SendTimeSync()
             GetName().c_str(), GetGUID().ToString().c_str());
 }
 
-void Player::SetReputation(uint32 factionentry, uint32 value)
+void Player::SetReputation(uint32 factionentry, int32 value)
 {
     GetReputationMgr().SetReputation(sFactionStore.LookupEntry(factionentry), value);
 }
-uint32 Player::GetReputation(uint32 factionentry) const
+int32 Player::GetReputation(uint32 factionentry) const
 {
     return GetReputationMgr().GetReputation(sFactionStore.LookupEntry(factionentry));
 }
@@ -25969,9 +26014,10 @@ void Player::SendUpdatePhasing()
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 {
-    WorldPacket data(SMSG_SUPERCEDED_SPELLS, 8);
-    data << uint32(newSpell) << uint32(oldSpell);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spells::SupercededSpells supercededSpells;
+    supercededSpells.SpellID.push_back(newSpell);
+    supercededSpells.Superceded.push_back(oldSpell);
+    GetSession()->SendPacket(supercededSpells.Write());
 }
 
 uint32 Player::CalculateTalentsTiers() const

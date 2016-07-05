@@ -293,7 +293,11 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
         ItemBonus->Context = 0; /// @todo
     }
 
-    /// no Modifications
+    if (lootItem.upgradeId)
+    {
+        Modifications = boost::in_place();
+        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, lootItem.upgradeId);
+    }
 }
 
 void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidItem)
@@ -508,6 +512,15 @@ void WorldPackets::Item::UseCritterItem::Read()
     _worldPacket >> ItemGuid;
 }
 
+void WorldPackets::Item::UpgradeItem::Read()
+{
+    _worldPacket >> ItemMaster;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> UpgradeID;
+    _worldPacket >> ContainerSlot;
+    _worldPacket >> Slot;
+}
+
 void WorldPackets::Item::SocketGems::Read()
 {
     _worldPacket >> ItemGuid;
@@ -518,6 +531,14 @@ void WorldPackets::Item::SocketGems::Read()
 WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
 {
     _worldPacket << Item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
+{
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

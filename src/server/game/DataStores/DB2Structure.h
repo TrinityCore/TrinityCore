@@ -1446,6 +1446,16 @@ struct ItemSpecOverrideEntry
     uint16 SpecID;
 };
 
+struct ItemUpgradeEntry
+{
+    uint32 ID;
+    uint32 CurrencyCost;
+    uint16 PrevItemUpgradeID;
+    uint16 CurrencyID;
+    uint8 ItemUpgradePathID;
+    uint8 ItemLevelBonus;
+};
+
 struct ItemXBonusTreeEntry
 {
     uint32 ID;
@@ -1887,6 +1897,13 @@ struct RandPropPointsEntry
     uint32 UncommonPropertiesPoints[5];
 };
 
+struct RulesetItemUpgradeEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint16 ItemUpgradeID;
+};
+
 struct ScalingStatDistributionEntry
 {
     uint32 ID;
@@ -1921,7 +1938,7 @@ struct SkillLineAbilityEntry
     uint16 TrivialSkillLineRankLow;
     uint16 UniqueBit;
     uint16 TradeSkillCategoryID;
-    uint8 AquireMethod;
+    uint8 AcquireMethod;
     uint8 NumSkillUps;
     uint32 ClassMask;
 };

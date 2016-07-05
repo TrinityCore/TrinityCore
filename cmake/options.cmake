@@ -9,8 +9,20 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 option(SERVERS          "Build worldserver and bnetserver"                            1)
+
+set(SCRIPTS_AVAILABLE_OPTIONS none static dynamic minimal-static minimal-dynamic)
+
+# Log a fatal error when the value of the SCRIPTS variable isn't a valid option.
+if (SCRIPTS)
+  list (FIND SCRIPTS_AVAILABLE_OPTIONS "${SCRIPTS}" SCRIPTS_INDEX)
+  if (${SCRIPTS_INDEX} EQUAL -1)
+    message(FATAL_ERROR "The value (${SCRIPTS}) of your SCRIPTS variable is invalid! "
+                        "Allowed values are: ${SCRIPTS_AVAILABLE_OPTIONS}")
+  endif()
+endif()
+
 set(SCRIPTS "static" CACHE STRING "Build core with scripts")
-set_property(CACHE SCRIPTS PROPERTY STRINGS none static dynamic minimal-static minimal-dynamic)
+set_property(CACHE SCRIPTS PROPERTY STRINGS ${SCRIPTS_AVAILABLE_OPTIONS})
 
 # Build a list of all script modules when -DSCRIPT="custom" is selected
 GetScriptModuleList(SCRIPT_MODULE_LIST)

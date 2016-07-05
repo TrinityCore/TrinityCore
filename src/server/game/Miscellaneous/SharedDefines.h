@@ -2254,10 +2254,9 @@ enum SpellDmgClass
 
 enum SpellPreventionType
 {
-    SPELL_PREVENTION_TYPE_NONE      = 0,
-    SPELL_PREVENTION_TYPE_SILENCE   = 1,
-    SPELL_PREVENTION_TYPE_PACIFY    = 2,
-    SPELL_PREVENTION_TYPE_UNK       = 3 // Only a few spells have this, but most of the should be interruptable.
+    SPELL_PREVENTION_TYPE_SILENCE       = 1,
+    SPELL_PREVENTION_TYPE_PACIFY        = 2,
+    SPELL_PREVENTION_TYPE_NO_ACTIONS    = 4
 };
 
 enum GameobjectTypes : uint8 // (6.0.3.19103)

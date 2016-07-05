@@ -32,7 +32,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
+        bool CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId);
         void Update(uint32 p_time) override;
         void Remove();
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
@@ -42,5 +42,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
     protected:
         int32 _duration;
+        uint32 _spellXSpellVisualId;
 };
 #endif

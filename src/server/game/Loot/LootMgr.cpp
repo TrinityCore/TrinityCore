@@ -366,6 +366,7 @@ LootItem::LootItem(LootStoreItem const& li)
 
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
+    upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
     count = 0;
     is_looted = 0;
     is_blocked = 0;
