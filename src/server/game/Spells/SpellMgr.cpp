@@ -3364,6 +3364,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
                 break;
+            case 46842: // Flame Ring
+            case 46836: // Flame Patch
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo();
+                break;
+            case 29726: // Test Ribbon Pole Channel
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
