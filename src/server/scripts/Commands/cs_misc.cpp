@@ -2125,7 +2125,7 @@ public:
         return true;
     }
 
-    static bool HandleComeToMeCommand(ChatHandler* handler, char const* args)
+    static bool HandleComeToMeCommand(ChatHandler* handler, char const* /*args*/)
     {
         Creature* caster = handler->getSelectedCreature();
         if (!caster)
