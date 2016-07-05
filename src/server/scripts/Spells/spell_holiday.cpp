@@ -1287,6 +1287,7 @@ enum RibbonPoleData
 {
     SPELL_HAS_FULL_MIDSUMMER_SET        = 58933,
     SPELL_BURNING_HOT_POLE_DANCE        = 58934,
+    SPELL_RIBBON_DANCE_COSMETIC         = 29726,
     SPELL_RIBBON_DANCE                  = 29175,
     GO_RIBBON_POLE                      = 181605,
 };
@@ -1314,10 +1315,11 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
                 Unit* target = GetTarget();
 
                 // check if aura needs to be removed
-                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 8.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
                 {
                     target->InterruptNonMeleeSpells(false);
                     target->RemoveAurasDueToSpell(GetId());
+                    target->RemoveAura(SPELL_RIBBON_DANCE_COSMETIC);
                     return;
                 }
 

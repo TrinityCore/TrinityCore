@@ -3174,6 +3174,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42492: // Cast Energized
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
+            case 46842: // Flame Ring
+            case 46836: // Flame Patch
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo();
+                break;
+            case 29726: // Test Ribbon Pole Channel
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
