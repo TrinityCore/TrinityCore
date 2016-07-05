@@ -1,6 +1,6 @@
 SET @CGUID := 11003;
 
-UPDATE `spell_dbc` SET `EffectBasePoints1`=20 WHERE `Id`=70507;
+UPDATE `spelleffect_dbc` SET `EffectBasePoints`=20 WHERE `Id`=70507;
 UPDATE `creature_template` SET `unit_flags`=32832 WHERE `entry` IN(40142,40143,40144,40145);
 UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry` IN (40081,40470,40471,40472);
 
