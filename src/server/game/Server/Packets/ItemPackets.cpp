@@ -503,36 +503,6 @@ WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::TransmogrifyItem& transmogItem)
-{
-    if (data.ReadBit())
-        transmogItem.SrcItemGUID = boost::in_place();
-
-    if (data.ReadBit())
-        transmogItem.SrcVoidItemGUID = boost::in_place();
-
-    data >> transmogItem.Item;
-    data >> transmogItem.Slot;
-
-    if (transmogItem.SrcItemGUID.is_initialized())
-        data >> *transmogItem.SrcItemGUID;
-
-    if (transmogItem.SrcVoidItemGUID.is_initialized())
-        data >> *transmogItem.SrcVoidItemGUID;
-
-    return data;
-}
-
-void WorldPackets::Item::TransmogrifyItems::Read()
-{
-    Items.resize(_worldPacket.read<uint32>());
-    _worldPacket >> Npc;
-    for (TransmogrifyItem& item : Items)
-        _worldPacket >> item;
-
-    CurrentSpecOnly = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Item::UseCritterItem::Read()
 {
     _worldPacket >> ItemGuid;

@@ -2666,6 +2666,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
+        itemTemplate.ItemSpecClassMask = 0;
 
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
@@ -2699,8 +2700,13 @@ void ObjectMgr::LoadItemTemplates()
                         continue;
 
                     if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
+                    {
                         if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
+                        {
+                            itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
                             itemTemplate.Specializations[itemSpec->MaxLevel > 40].insert(itemSpec->SpecID);
+                        }
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@
  */
 
 #include "Common.h"
+#include "CollectionMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -196,6 +197,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);
         item->SetBinding(true);
+        GetCollectionMgr()->AddItemAppearance(item);
 
         voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 

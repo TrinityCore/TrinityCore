@@ -5803,9 +5803,9 @@ void Spell::EffectApplyEnchantIllusion(SpellEffIndex /*effIndex*/)
         return;
 
     itemTarget->SetState(ITEM_CHANGED, player);
-    itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, effectInfo->MiscValue);
+    itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, effectInfo->MiscValue);
     if (itemTarget->IsEquipped())
-        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual());
+        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual(player));
 
     player->RemoveTradeableItem(itemTarget);
     itemTarget->ClearSoulboundTradeable(player);

@@ -366,7 +366,6 @@ namespace WorldPackets
         class SwapItem;
         class WrapItem;
         class CancelTempEnchantment;
-        class TransmogrifyItems;
         class UseCritterItem;
         class SocketGems;
         struct ItemInstance;
@@ -664,6 +663,12 @@ namespace WorldPackets
         class SetTradeItem;
         class UnacceptTrade;
         class TradeStatus;
+    }
+
+    namespace Transmogrification
+    {
+        class TransmogrifyItems;
+        class TransmogAppearanceSetFavorite;
     }
 
     namespace Vehicle
@@ -1642,7 +1647,8 @@ class TC_GAME_API WorldSession
         void SendVoidStorageTransferResult(VoidTransferError result);
 
         // Transmogrification
-        void HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems& transmogrifyItems);
+        void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
+        void HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);

@@ -774,8 +774,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TRADE_SKILL_SET_FAVORITE,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TRAINER_BUY_SPELL,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::TrainerBuySpell, &WorldSession::HandleTrainerBuySpellOpcode);
     DEFINE_HANDLER(CMSG_TRAINER_LIST,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleTrainerListOpcode);
-    DEFINE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Item::TransmogrifyItems, &WorldSession::HandleTransmogrifyItems);
-    DEFINE_HANDLER(CMSG_TRANSMOG_APPEARANCE_SET_FAVORITE,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Transmogrification::TransmogrifyItems, &WorldSession::HandleTransmogrifyItems);
+    DEFINE_HANDLER(CMSG_TRANSMOG_APPEARANCE_SET_FAVORITE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Transmogrification::TransmogAppearanceSetFavorite, &WorldSession::HandleTransmogAppearanceSetFavorite);
     DEFINE_HANDLER(CMSG_TURN_IN_PETITION,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::TurnInPetition, &WorldSession::HandleTurnInPetition);
     DEFINE_HANDLER(CMSG_TUTORIAL,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::TutorialSetFlag, &WorldSession::HandleTutorialFlag);
     DEFINE_HANDLER(CMSG_TWITTER_CHECK_STATUS,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -1710,7 +1710,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRAINER_LIST,                            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRANSFER_ABORTED,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRANSFER_PENDING,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRANSMOG_COLLECTION_UPDATE,              STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRANSMOG_COLLECTION_UPDATE,              STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRIGGER_CINEMATIC,                       STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRIGGER_MOVIE,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_TURN_IN_PETITION_RESULT,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);

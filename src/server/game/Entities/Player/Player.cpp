@@ -88,6 +88,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "TalentPackets.h"
+#include "TransmogrificationPackets.h"
 #include "ToyPackets.h"
 #include "Transport.h"
 #include "UpdateData.h"
@@ -3963,6 +3964,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_TRANSMOG_BY_OWNER);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
@@ -4345,7 +4350,7 @@ Corpse* Player::CreateCorpse()
     {
         if (m_items[i])
         {
-            iDisplayID = m_items[i]->GetDisplayId();
+            iDisplayID = m_items[i]->GetDisplayId(this);
             iIventoryType = m_items[i]->GetTemplate()->GetInventoryType();
 
             _cfi = iDisplayID | (iIventoryType << 24);
@@ -10930,9 +10935,6 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                     return EQUIP_ERR_PROFICIENCY_NEEDED;
             }
 
-            if (pProto->GetRequiredReputationFaction() && uint32(GetReputationRank(pProto->GetRequiredReputationFaction())) < pProto->GetRequiredReputationRank())
-                return EQUIP_ERR_CANT_EQUIP_REPUTATION;
-
             return EQUIP_ERR_OK;
         }
     }
@@ -10945,6 +10947,9 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
+
+    if (proto->GetFlags2() & ITEM_FLAG2_UNAVAILABLE_FOR_PLAYERS)
+        return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if ((proto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY) && GetTeam() != HORDE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
@@ -10972,6 +10977,9 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     // If World Event is not active, prevent using event dependant items
     if (proto->GetHolidayID() && !IsHolidayActive(proto->GetHolidayID()))
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
+
+    if (proto->GetRequiredReputationFaction() && uint32(GetReputationRank(proto->GetRequiredReputationFaction())) < proto->GetRequiredReputationRank())
+        return EQUIP_ERR_CANT_EQUIP_REPUTATION;
 
     // learning (recipes, mounts, pets, etc.)
     if (proto->Effects.size() >= 2)
@@ -11015,7 +11023,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (proto->GetClass() == ITEM_CLASS_WEAPON && GetSkillValue(proto->GetSkill()) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->GetSubClass() < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->GetInventoryType() != INVTYPE_CLOAK)
+    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->GetSubClass() < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->GetInventoryType() != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
@@ -11051,7 +11059,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId /*= 0*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId /*= 0*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11063,9 +11071,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         ItemAddedQuestCheck(itemId, count);
         UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, itemId, count);
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
-
-        if (sDB2Manager.GetHeirloomByItemId(itemId))
-            GetSession()->GetCollectionMgr()->AddHeirloom(itemId, 0);
 
         if (randomPropertyId)
             item->SetItemRandomProperties(randomPropertyId);
@@ -11093,6 +11098,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
         }
+
+        if (addToCollection)
+            GetSession()->GetCollectionMgr()->OnItemAdded(item);
     }
     return item;
 }
@@ -11376,9 +11384,9 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (slot * 2), pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 0, pItem->GetVisibleAppearanceModId());
-        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 1, pItem->GetVisibleItemVisual());
+        SetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (slot * 2), pItem->GetVisibleEntry(this));
+        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 0, pItem->GetVisibleAppearanceModId(this));
+        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (slot * 2), 1, pItem->GetVisibleItemVisual(this));
     }
     else
     {
@@ -11394,7 +11402,10 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
     if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
+    {
         pItem->SetBinding(true);
+        GetSession()->GetCollectionMgr()->AddItemAppearance(pItem);
+    }
 
     TC_LOG_DEBUG("entities.player.items", "Player::SetVisibleItemSlot: Player '%s' (%s), Slot: %u, Item: %u",
         GetName().c_str(), GetGUID().ToString().c_str(), slot, pItem->GetEntry());
@@ -11505,8 +11516,9 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
     {
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
-        it->SetNotRefundable(this, false);
+        it->SetNotRefundable(this, false, nullptr, false);
         it->RemoveFromUpdateQueueOf(this);
+        GetSession()->GetCollectionMgr()->RemoveTemporaryAppearance(it);
         if (it->IsInWorld())
         {
             it->RemoveFromWorld();
@@ -13118,7 +13130,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (item->GetSlot() * 2), 1, item->GetVisibleItemVisual());
+        SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (item->GetSlot() * 2), 1, item->GetVisibleItemVisual(this));
 
     if (apply_dur)
     {
@@ -16874,6 +16886,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
     GetSession()->GetCollectionMgr()->LoadToys();
     GetSession()->GetCollectionMgr()->LoadHeirlooms();
+    GetSession()->GetCollectionMgr()->LoadItemAppearances();
 
     LearnSpecializationSpells();
 
@@ -17271,10 +17284,16 @@ void Player::LoadCorpse(PreparedQueryResult result)
 
 void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
-    //              0             1               2                   3         4            5           6         7                8                    9             10             11       12                     13            14
-    // SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomPropertyId, ii.durability, ii.playedTime, ii.text, ii.transmogrification, ii.upgradeId
-    //                        15                  16                  17              18                  19               20             21             22             23   24    25
-    //        ii.enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, ii.bonusListIDs, ig.gemItemId1, ig.gemItemId2, ig.gemItemId3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //           0          1            2                3      4         5        6      7             8                 9          10          11    12
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
+    //               13                  14                  15              16                  17            18
+    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
+    //                                    19                           20                           21                           22                           23
+    //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
+    //                                  24                        25                          26                         27                         28
+    //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
+    //                29          30          31   32    33
+    //        gemItemId1, gemItemId2, gemItemId3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17296,10 +17315,11 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[24].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[24].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[25].GetUInt8();
+                ObjectGuid bagGuid = fields[32].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[32].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[33].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
+                GetSession()->GetCollectionMgr()->AddItemAppearance(item);
 
                 InventoryResult err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -17625,7 +17645,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[24].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[24].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[32].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[32].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -17861,6 +17881,18 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
                     if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
                         SetQuestCompletedBit(questBit, true);
+
+                for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
+                    GetSession()->GetCollectionMgr()->AddItemAppearance(quest->RewardChoiceItemId[i]);
+
+                for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
+                    GetSession()->GetCollectionMgr()->AddItemAppearance(quest->RewardItemId[i]);
+
+                if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
+                    for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+                        if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                            if (rewardProto->ItemSpecClassMask & getClassMask())
+                                GetSession()->GetCollectionMgr()->AddItemAppearance(questPackageItem->ItemID);
             }
 
             m_RewardedQuests.insert(quest_id);
@@ -18649,8 +18681,8 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
-                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId()))
+                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId(this) << ' ';
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId(this)))
                     ss << enchant->ItemVisual;
                 else
                     ss << '0';
@@ -18790,8 +18822,8 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
-                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId()))
+                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId(this) << ' ';
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetVisibleEnchantmentId(this)))
                     ss << enchant->ItemVisual;
                 else
                     ss << '0';
@@ -18860,6 +18892,7 @@ void Player::SaveToDB(bool create /*=false*/)
     GetSession()->GetCollectionMgr()->SaveAccountToys(trans);
     GetSession()->GetBattlePetMgr()->SaveToDB(trans);
     GetSession()->GetCollectionMgr()->SaveAccountHeirlooms(trans);
+    GetSession()->GetCollectionMgr()->SaveAccountItemAppearances(trans);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_LAST_PLAYER_CHARACTERS);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -20232,7 +20265,7 @@ void Player::VehicleSpellInitialize()
     petSpells.TimeLimit = vehicle->IsSummon() ? vehicle->ToTempSummon()->GetTimer() : 0;
     petSpells.ReactState = vehicle->GetReactState();
     petSpells.CommandState = COMMAND_FOLLOW;
-    petSpells.Flag = 0x800;
+    petSpells.Flag = 0x8;
 
     for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
         petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(0, i + 8);
@@ -20993,7 +21026,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     }
 
     Item* it = bStore ?
-        StoreNewItem(vDest, item, true) :
+        StoreNewItem(vDest, item, true, Item::GenerateItemRandomPropertyId(item), {}, {}, false) :
         EquipNewItem(uiDest, item, true);
     if (it)
     {
@@ -21020,6 +21053,8 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
             it->SaveRefundDataToDB();
             AddRefundReference(it->GetGUID());
         }
+
+        GetSession()->GetCollectionMgr()->OnItemAdded(it);
     }
     return true;
 }
@@ -22292,6 +22327,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     heirloomUpdate.IsFullUpdate = true;
     heirloomUpdate.Heirlooms = &GetSession()->GetCollectionMgr()->GetAccountHeirlooms();
     SendDirectMessage(heirloomUpdate.Write());
+
+    GetSession()->GetCollectionMgr()->SendFavoriteAppearances();
 
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
@@ -25199,6 +25236,10 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     SetPower(pw, 0);
     UpdateItemSetAuras(false);
+    // update visible transmog
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+        if (Item* equippedItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            SetVisibleItemSlot(i, equippedItem);
 }
 
 void Player::ResetTimeSync()
@@ -25411,7 +25452,8 @@ void Player::RefundItem(Item* item)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Delete any references to the refund data
-    item->SetNotRefundable(this, true, &trans);
+    item->SetNotRefundable(this, true, &trans, false);
+    GetSession()->GetCollectionMgr()->RemoveTemporaryAppearance(item);
 
     // Destroy item
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);

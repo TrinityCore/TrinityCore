@@ -441,6 +441,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "AllocationPct1, AllocationPct2, AllocationPct3, AllocationPct4, AllocationPct5 FROM item_random_suffix ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_RANDOM_SUFFIX, "SELECT ID, Name_lang FROM item_random_suffix_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // ItemSearchName.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_SEARCH_NAME, "SELECT ID, Name, Flags1, Flags2, Flags3, AllowableRace, RequiredSpell, RequiredReputationFaction, "
+        "RequiredSkill, RequiredSkillRank, ItemLevel, Quality, RequiredExpansion, RequiredReputationRank, RequiredLevel, AllowableClass"
+        " FROM item_search_name ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SEARCH_NAME, "SELECT ID, Name_lang FROM item_search_name_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // ItemSet.db2
     PrepareStatement(HOTFIX_SEL_ITEM_SET, "SELECT ID, Name, ItemID1, ItemID2, ItemID3, ItemID4, ItemID5, ItemID6, ItemID7, ItemID8, ItemID9, "
         "ItemID10, ItemID11, ItemID12, ItemID13, ItemID14, ItemID15, ItemID16, ItemID17, RequiredSkillRank, RequiredSkill, Flags FROM item_set"
