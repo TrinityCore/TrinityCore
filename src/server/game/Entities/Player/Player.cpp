@@ -15010,7 +15010,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     RemoveActiveQuest(quest_id, false);
     if (quest->CanIncreaseRewardedQuestCounters())
     {
-        // Dungeon Finder/daily/repeatable quests should not be added to the rewarded quest table
         m_RewardedQuests.insert(quest_id);
         m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
     }
