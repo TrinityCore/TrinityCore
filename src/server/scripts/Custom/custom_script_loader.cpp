@@ -35,6 +35,7 @@ void AddSC_Player_Boa();
 void AddSC_PhasedDueling();
 void AddSC_GOMove_commandscript();
 void AddSC_custom_commands();
+void AddSC_FireWorksOnLevelUp();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -59,4 +60,5 @@ void AddCustomScripts()
 	AddSC_PhasedDueling();
     AddSC_GOMove_commandscript();
 	AddSC_custom_commands();
+	AddSC_FireWorksOnLevelUp();
 }
