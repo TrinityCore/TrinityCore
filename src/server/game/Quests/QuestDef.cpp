@@ -286,7 +286,7 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
     return honor;
 }
 
-bool Quest::CanIncreaseRewardedQuestCounters()
+bool Quest::CanIncreaseRewardedQuestCounters() const
 {
     // Dungeon Finder/Daily/Repeatable (if not weekly, monthly or seasonal) quests are never considered rewarded serverside.
     // This affects counters and client requests for completed quests.
