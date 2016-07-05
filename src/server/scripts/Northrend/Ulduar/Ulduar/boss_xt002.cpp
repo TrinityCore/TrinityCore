@@ -64,7 +64,7 @@ enum Spells
 
     //------------------VOID ZONE--------------------
     SPELL_VOID_ZONE                             = 64203,
-	SPELL_VOID_ZONE_PERIODIC                    = 46262,
+    SPELL_VOID_ZONE_PERIODIC                    = 46262,
 
     // Life Spark
     SPELL_STATIC_CHARGED                        = 64227,
@@ -94,8 +94,8 @@ enum Spells
 enum Events
 {
     EVENT_TYMPANIC_TANTRUM = 1,
-    EVENT_SEARING_LIGHT,	
-    EVENT_GRAVITY_BOMB,	
+    EVENT_SEARING_LIGHT,
+    EVENT_GRAVITY_BOMB,
     EVENT_HEART_PHASE,
     EVENT_ENERGY_ORB,
     EVENT_DISPOSE_HEART,
@@ -107,7 +107,7 @@ enum Timers
 {
     TIMER_TYMPANIC_TANTRUM_MIN                  = 32000,
     TIMER_TYMPANIC_TANTRUM_MAX                  = 36000,
-    TIMER_SEARING_LIGHT                         = 20000,
+    TIMER_SEARING_LIGHT                         = 10000,
     TIMER_GRAVITY_BOMB                          = 20000,
     TIMER_HEART_PHASE                           = 30000,
     TIMER_ENERGY_ORB_MIN                        = 9000,
@@ -230,7 +230,7 @@ class boss_xt002 : public CreatureScript
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
-                events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2);
+                events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                 //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
 
@@ -262,10 +262,10 @@ class boss_xt002 : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1))){
-					
-					Talk(SAY_HEART_OPENED);
-					ExposeHeart();
-				}
+                    Talk(SAY_HEART_OPENED);
+                    // events.ScheduleEvent(EVENT_REST_PHASE, TIMER_REST_PHASE);
+                    ExposeHeart();
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -283,10 +283,9 @@ class boss_xt002 : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SEARING_LIGHT:
-							if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-								DoCast(target, SPELL_SEARING_LIGHT);
-	
-							events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_SEARING_LIGHT);
+                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT * 2);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -308,7 +307,7 @@ class boss_xt002 : public CreatureScript
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_ENTER_HARD_MODE:
-							Talk(EMOTE_HEART_CLOSED);
+                            Talk(EMOTE_HEART_CLOSED);
                             me->SetFullHealth();
                             DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
@@ -376,7 +375,7 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
-                    heart->AddAura(SPELL_EXPOSED_HEART, heart);    // Changed 6-15-16, Hack Fix that applies 2x damage aura
+                    heart->AddAura(SPELL_EXPOSED_HEART, heart);    //Hack Fix that applies 2x damage aura
                     heart->ChangeSeat(HEART_VEHICLE_SEAT_EXPOSED, true);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
@@ -404,7 +403,7 @@ class boss_xt002 : public CreatureScript
 
                 _phase = 1;
 
-                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2);
+                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                 events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
 
@@ -523,13 +522,13 @@ class npc_scrapbot : public CreatureScript
                 {
                     if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
                     {
-						if (me->IsWithinMeleeRange(xt002))
-						{
-							DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
-							// Unapply vehicle aura again
-							xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
-							me->DespawnOrUnsummon();
-						}
+                        if (me->IsWithinMeleeRange(xt002))
+                        {
+                            DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
+                            // Unapply vehicle aura again
+                            xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
+                            me->DespawnOrUnsummon();
+                        }
                     }
                 }
                 else
@@ -916,7 +915,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
 class npc_xt_void_zone : public CreatureScript
 {
 	public:
-		npc_xt_void_zone() : CreatureScript("npc_xt_void_zone") { }
+        npc_xt_void_zone() : CreatureScript("npc_xt_void_zone") { }
 
 		struct npc_xt_void_zoneAI : public PassiveAI
 		{
@@ -1120,7 +1119,7 @@ void AddSC_boss_xt002()
     new npc_boombot();
 
     new npc_life_spark();
-	new npc_xt_void_zone();
+    new npc_xt_void_zone();
     new boss_xt002();
 
     new spell_xt002_searing_light_spawn_life_spark();

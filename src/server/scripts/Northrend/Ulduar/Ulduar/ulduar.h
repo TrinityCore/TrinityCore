@@ -61,8 +61,8 @@ enum UlduarNPCs
     NPC_STEELFORGED_DEFFENDER               = 33236,
     NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
+    NPC_XT_VOID_ZONE                        = 34001,
     NPC_XT_TOY_PILE                         = 33337,
-	NPC_XT_VOID_ZONE                        = 34001,
     NPC_STEELBREAKER                        = 32867,
     NPC_MOLGEIM                             = 32927,
     NPC_BRUNDIR                             = 32857,
@@ -417,10 +417,15 @@ enum UlduarWorldStates
 enum UlduarAchievementData
 {
     // FL Achievement boolean
-    DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
+    DATA_UNBROKEN               = 29052906, // 2905, 2906 are achievement IDs,
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232,
-    SPELL_LUMBERJACKED_CREDIT = 65296
+    MAX_HERALD_WEAPON_ITEMLEVEL = 232
+};
+
+enum UlduarSharedSpells
+{
+	SPELL_LUMBERJACKED_CREDIT    = 65296,
+	SPELL_TELEPORT_KEEPER_VISUAL = 62940, // used by keepers 
 };
 
 enum UlduarEvents
@@ -444,6 +449,24 @@ AI* GetUlduarAI(T* obj)
 {
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+class KeeperDespawnEvent : public BasicEvent
+{
+	public:
+	    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+	
+		bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
+	    {
+			_owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
+			_owner->DespawnOrUnsummon(1000 + _despawnTimer);
+			return true;
+		}
+	
+	private:
+		Creature* _owner;
+		uint32 _despawnTimer;
+};
+
 
 class PlayerOrPetCheck
 {
