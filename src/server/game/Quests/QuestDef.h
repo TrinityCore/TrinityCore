@@ -276,6 +276,7 @@ class TC_GAME_API Quest
         bool   IsAllowedInRaid(Difficulty difficulty) const;
         bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
+        bool   CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
