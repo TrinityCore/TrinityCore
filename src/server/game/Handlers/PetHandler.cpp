@@ -521,7 +521,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
-    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
+    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
