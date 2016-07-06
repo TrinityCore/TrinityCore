@@ -240,7 +240,7 @@ namespace WorldPackets
         class InstanceBossKillCredit final : public ServerPacket
         {
         public:
-            InstanceBossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 0) { }
+            InstanceBossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4) { }
 
             WorldPacket const* Write() override;
             uint32 DungeonEncounterID = 0;
