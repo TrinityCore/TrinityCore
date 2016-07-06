@@ -2647,9 +2647,10 @@ void ObjectMgr::LoadItemTemplates()
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
-                itemTemplate.Specializations[0].insert(itemSpecOverride->SpecID);
+                if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpecOverride->SpecID))
+                    itemTemplate.Specializations[0].set(ItemTemplate::CalculateItemSpecBit(specialization));
 
-            itemTemplate.Specializations[1] = itemTemplate.Specializations[0];
+            itemTemplate.Specializations[1] |= itemTemplate.Specializations[0];
         }
         else
         {
@@ -2677,7 +2678,7 @@ void ObjectMgr::LoadItemTemplates()
 
                     if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
                         if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
-                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].insert(itemSpec->SpecID);
+                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].set(ItemTemplate::CalculateItemSpecBit(specialization));
                 }
             }
         }

@@ -21,6 +21,7 @@
 
 #include "DB2Structure.h"
 #include "SharedDefines.h"
+#include <bitset>
 
 enum ItemModType
 {
@@ -643,6 +644,7 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 #define MAX_ITEM_LEVEL 1000
 
 class Player;
+struct ChrSpecializationEntry;
 
 struct TC_GAME_API ItemTemplate
 {
@@ -716,7 +718,7 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
-    std::unordered_set<uint32> Specializations[2];  // one set for 1-40 level range and another for 41-100
+    std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[2];  // one set for 1-40 level range and another for 41-100
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
@@ -745,7 +747,8 @@ struct TC_GAME_API ItemTemplate
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
-    bool CanWinForPlayer(Player const* player) const;
+    bool IsUsableBySpecialization(Player const* player) const;
+    static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
 
 // Benchmarked: Faster than std::map (insert/find)
