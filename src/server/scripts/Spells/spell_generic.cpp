@@ -4228,6 +4228,41 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
         }
 };
 
+// 26662 - Berserk
+class spell_gen_berserk : public SpellScriptLoader
+{
+public:
+    spell_gen_berserk() : SpellScriptLoader("spell_gen_berserk") { }
+
+    class spell_gen_berserk_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_berserk_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            GetTarget()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+            GetTarget()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_gen_berserk_AuraScript::OnApply, EFFECT_2, SPELL_AURA_LINKED, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_gen_berserk_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_LINKED, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gen_berserk_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4318,4 +4353,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
     new spell_gen_clear_debuffs();
+    new spell_gen_berserk();
 }

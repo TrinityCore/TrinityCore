@@ -244,7 +244,7 @@ class npc_harbinger_of_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_harbinger_of_flameAI(creature);
+            return GetFirelandsAI<npc_harbinger_of_flameAI>(creature);
         }
 };
 
@@ -346,7 +346,7 @@ class npc_blazing_monstrosity : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_blazing_monstrosityAI(creature);
+            return GetFirelandsAI<npc_blazing_monstrosityAI>(creature);
         }
 };
 
@@ -386,7 +386,7 @@ class npc_molten_barrage : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_molten_barrageAI(creature);
+            return GetFirelandsAI<npc_molten_barrageAI>(creature);
         }
 };
 
@@ -489,7 +489,7 @@ class npc_egg_pile : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_egg_pileAI(creature);
+            return GetFirelandsAI<npc_egg_pileAI>(creature);
         }
 };
 
