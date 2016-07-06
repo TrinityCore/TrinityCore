@@ -61,17 +61,6 @@ enum Spells
     SPELL_BERSERK                   = 26662,
 };
 
-enum Events
-{
-    EVENT_NONE,
-    EVENT_BLADES_OF_BALEROC,
-    EVENT_INCENDIARY_SOUL,
-    EVENT_SHARDS_OF_TORMENT,
-    EVENT_COUNTDOWN,
-    EVENT_BERSERK,
-    EVENT_UNLOCK_YELLSPAM,
-};
-
 enum Emotes
 {
     SAY_AGGRO                       = 0,
@@ -93,10 +82,6 @@ enum Guids
 
 enum Misc
 {
-    STATE_NONE                      = 3,
-    STATE_CHANNELING                = 4,
-    STATE_EXPLODING                 = 5,
-
     EQUIP_DEFAULT                   = 1,
     EQUIP_INFERNO_BLADE             = 2,
     EQUIP_DECIMATION_BLADE          = 3,
@@ -880,15 +865,16 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                // Shards of torment seems to target tanks if no other targets are available as of Warlords of Draenor
+                if (targets.size() <= 1)
+                    return;
+
                 Creature* caster = GetCaster()->ToCreature();
-                if (!caster)
+                if (!caster || !caster->IsAIEnabled)
                     return;
 
                 if (WorldObject* tank = caster->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO))
                     targets.remove(tank);
-
-                if (targets.empty())
-                    return;
 
                 std::list<WorldObject*> melee, ranged;
                 for (auto target : targets)
