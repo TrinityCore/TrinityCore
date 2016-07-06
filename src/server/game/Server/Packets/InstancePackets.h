@@ -237,10 +237,10 @@ namespace WorldPackets
             uint32 CombatResChargeRecovery = 0;
         };
 
-        class InstanceBossKillCredit final : public ServerPacket
+        class BossKillCredit final : public ServerPacket
         {
         public:
-            InstanceBossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4) { }
+            BossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4) { }
 
             WorldPacket const* Write() override;
             uint32 DungeonEncounterID = 0;

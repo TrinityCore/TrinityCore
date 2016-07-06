@@ -666,7 +666,7 @@ void InstanceScript::SendEncounterEnd()
 
 void InstanceScript::SendBossKillCredit(uint32 encounterId)
 {
-    WorldPackets::Instance::InstanceBossKillCredit bossKillCreditMessage;
+    WorldPackets::Instance::BossKillCredit bossKillCreditMessage;
     bossKillCreditMessage.DungeonEncounterID = encounterId;
 
     instance->SendToPlayers(bossKillCreditMessage.Write());
