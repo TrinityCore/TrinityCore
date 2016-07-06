@@ -920,7 +920,7 @@ class npc_xt_void_zone : public CreatureScript
                 Initialize();
             }
             void Initialize() {
-                DoCast(me, SPELL_VOID_ZONE_PERIODIC);
+                DoCastSelf(SPELL_VOID_ZONE_PERIODIC);
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
