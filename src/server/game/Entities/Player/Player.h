@@ -2524,6 +2524,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint8 m_grantableLevels;
 
+        uint8 m_fishingsteps;
+
         bool m_needsZoneUpdate;
 
     private:

@@ -497,6 +497,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_lastFallZ = 0;
 
     m_grantableLevels = 0;
+    m_fishingsteps = 0;
 
     m_ControlledByPlayer = true;
 
@@ -5744,17 +5745,36 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     return false;
 }
 
+uint8 GetFishingStepsNeededToLevelUp(uint32 SkillValue)
+{
+    // These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
+    if (SkillValue < 75)
+        return 1;
+
+    if (SkillValue <= 300)
+        return SkillValue / 44;
+
+    return SkillValue / 31;
+}
+
 bool Player::UpdateFishingSkill()
 {
     TC_LOG_DEBUG("entities.player.skills", "Player::UpdateFishingSkill: Player '%s' (%s)", GetName().c_str(), GetGUID().ToString().c_str());
 
     uint32 SkillValue = GetPureSkillValue(SKILL_FISHING);
 
-    int32 chance = SkillValue < 75 ? 100 : 2500/(SkillValue-50);
+    uint8 stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(SkillValue);
+    m_fishingsteps++;
 
-    uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
+    if (m_fishingsteps >= stepsNeededToLevelUp)
+    {
+        m_fishingsteps = 0;
 
-    return UpdateSkillPro(SKILL_FISHING, chance*10, gathering_skill_gain);
+        uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
+        return UpdateSkillPro(SKILL_FISHING, 100*10, gathering_skill_gain);
+    }
+
+    return false;
 }
 
 // levels sync. with spell requirement for skill levels to learn
@@ -16886,8 +16906,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
     // 44           45                46                47                    48          49          50              51           52               53              54
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, "
-    // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69           70          71
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
+    // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69           70          71               72
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels, fishing_steps FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
@@ -17002,6 +17022,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
     SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[70].GetUInt8());
+
+    m_fishingsteps = fields[72].GetUInt8();
 
     InitDisplayIds();
 
@@ -19141,7 +19163,8 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
-        stmt->setUInt32(index, m_grantableLevels);
+        stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setUInt8(index, m_fishingsteps);
     }
     else
     {
@@ -19267,6 +19290,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
+        stmt->setUInt8(index++, m_fishingsteps);
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
         // Index
