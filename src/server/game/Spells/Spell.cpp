@@ -5194,7 +5194,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                             return SPELL_FAILED_OUT_OF_RANGE;
                         else if (!result || m_preGeneratedPath.GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
                             return SPELL_FAILED_NOPATH;
+                        else if (m_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
+                            return SPELL_FAILED_NOPATH;
                     }
+                    else if (m_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if in a straight line
+                            return SPELL_FAILED_NOPATH;
 
                     m_preGeneratedPath.ReducePathLenghtByDist(objSize); // move back
                 }
@@ -6995,7 +6999,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                     reqSkillValue = lockInfo->Skill[j];
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
-                    skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
+                    skillValue = m_CastItem || m_caster->GetTypeId() != TYPEID_PLAYER ?
                         0 : m_caster->ToPlayer()->GetSkillValue(skillId);
 
                     // skill bonus provided by casting spell (mostly item spells)
