@@ -16,7 +16,7 @@ Works with BOOST and ACE
 // Do not edit anything below
 
 #include "ScriptMgr.h"
-#include "config.h"
+#include "Config.h"
 #include <Player.h>
 
 #ifndef UNORDERED_MAP
