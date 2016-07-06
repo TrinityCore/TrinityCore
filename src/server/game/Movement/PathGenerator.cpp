@@ -942,3 +942,10 @@ void PathGenerator::ReducePathLenghtByDist(float dist)
         nextVec = currVec; // we're going backwards
     }
 }
+
+bool PathGenerator::InValidPathZ(Unit* target)
+{
+    G3D::Vector3 endPos = GetActualEndPosition();
+
+    return (target->GetPositionZ() - endPos.z) > 5.f;
+}
