@@ -46,6 +46,9 @@ class instance_firelands : public InstanceMapScript
                         // Cannot directly start attacking here as the creature is not yet on map
                         creature->m_Events.AddEvent(new DelayedAttackStartEvent(creature), creature->m_Events.CalculateTime(500));
                         break;
+                    case NPC_BALEROC:
+                        BalerocGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -82,8 +85,20 @@ class instance_firelands : public InstanceMapScript
                 return true;
             }
 
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_BALEROC:
+                        return BalerocGUID;
+                    default:
+                        return ObjectGuid::Empty;
+                }
+            }
+
             protected:
                 ObjectGuid BalerocDoorGUID;
+                ObjectGuid BalerocGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

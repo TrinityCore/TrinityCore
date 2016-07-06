@@ -96,6 +96,24 @@ class DelayedAttackStartEvent : public BasicEvent
         Creature* _owner;
 };
 
+class DelayedSpellCastEvent : public BasicEvent
+{
+    public:
+        DelayedSpellCastEvent(Creature* owner, Unit* target, uint32 spellId, bool triggered) : _owner(owner), _target(target), _spellId(spellId), _triggered(triggered) { }
+
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+        {
+            _owner->CastSpell(_target, _spellId, _triggered);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+        Unit* _target;
+        uint32 _spellId;
+        bool _triggered;
+};
+
 class PlayerCheck
 {
     public:
@@ -119,11 +137,8 @@ struct firelands_bossAI : public BossAI
     {
         BossAI::JustDied(killer);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        seperateScheduler.Schedule(Seconds(2), [this](TaskContext)
-        {
-            DoCastAOE(SPELL_SMOULDERING_1);
-            DoCastAOE(SPELL_SMOULDERING_2);
-        });
+        me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_1, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
+        me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_2, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -160,9 +175,6 @@ struct firelands_bossAI : public BossAI
 
         _DespawnAtEvade();
     }
-
-private:
-    TaskScheduler seperateScheduler;
 };
 
 template<class AI, class T>

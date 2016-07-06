@@ -141,6 +141,13 @@ class npc_firelands_flame_archon : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 scheduler.CancelAll();
+                ScriptedAI::JustDied(killer);
+            }
+
+            void EnterEvadeMode(EvadeReason why) override
+            {
+                scheduler.CancelAll();
+                ScriptedAI::EnterEvadeMode(why);
             }
 
             void UpdateAI(uint32 diff) override
@@ -182,7 +189,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                if (summon->GetEntry() != NPC_MAGMAKIN)
+                if (summon->GetEntry() != NPC_MAGMA_CONDUIT)
                     return;
 
                 summon->CastSpell(summon, SPELL_SUMMON_MAGMAKIN);
@@ -215,11 +222,13 @@ class npc_firelands_molten_flamefather : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 scheduler.CancelAll();
+                ScriptedAI::JustDied(killer);
             }
 
             void EnterEvadeMode(EvadeReason why) override
             {
                 scheduler.CancelAll();
+                ScriptedAI::EnterEvadeMode(why);
             }
 
             void UpdateAI(uint32 diff) override
@@ -266,28 +275,14 @@ class npc_firelands_magmakin : public CreatureScript
                 me->TauntApply(target);
             }
 
-            void EnterCombat(Unit* who) override
-            {
-                scheduler.Schedule(Seconds(1), [this](TaskContext context)
-                {
-                    if (Unit* victim = me->GetVictim())
-                        if (me->IsWithinMeleeRange(victim))
-                            DoCastAOE(SPELL_ERUPTION);
-                });
-            }
-
-            void JustDied(Unit* /*attacker*/) override
-            {
-                scheduler.CancelAll();
-            }
-
             void UpdateAI(uint32 diff) override
             {
-                ScriptedAI::UpdateAI(diff);
-                scheduler.Update(diff);
-            }
+                if (!UpdateVictim())
+                    return;
 
-            TaskScheduler scheduler;
+                // Not good enough, they usually just walk up to your face and look at you. Before writing a workaround maybe we can look if there's some disparity between the distance logic for DoSpellAttackIfReady and UpdateVictim
+                DoSpellAttackIfReady(SPELL_ERUPTION);
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -408,7 +403,7 @@ class boss_baleroc : public CreatureScript
             {
                 scheduler.Update(diff);
                 separateScheduler.Update(diff);
-                BossAI::UpdateAI(diff);
+                firelands_bossAI::UpdateAI(diff);
             }
 
             void SetGUID(ObjectGuid guid, int32 type = 0) override
@@ -1095,13 +1090,13 @@ class spell_baleroc_tormented : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-                    if (Creature* baleroc = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(NPC_BALEROC)))
+                    if (Creature* baleroc = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(DATA_BALEROC)))
                         baleroc->AI()->SetGUID(GetTarget()->GetGUID(), GUID_TORMENTED);
             }
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_baleroc_tormented_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_baleroc_tormented_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 

@@ -1,4 +1,5 @@
 -- Baleroc
+DELETE FROM `creature` WHERE `guid` IN (339184, 339185); -- Remove sniff spawn of Riplimb and Rageface in Baleroc encounter area
 UPDATE `creature` SET `equipment_id`=1, `position_x`=95.15452, `position_y`=-63.20313, `position_z`=54.9362, `orientation`=3.16296, `spawntimesecs`=604800 WHERE `guid`=338782;
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=53494 AND ID IN (2, 3);
@@ -6,11 +7,18 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (53494, 2, 71138, 0, 0, 0),
 (53494, 3, 71082, 0, 0, 0);
 
-UPDATE `creature_template` SET `difficulty_entry_1`=54162, `speed_walk`=0.714286, `mechanic_immune_mask`=617561727, `ScriptName`='npc_firelands_flame_archon', `VerifiedBuild`=0 WHERE `entry`=54161;
+DELETE FROM `creature_formations` WHERE `leaderGUID` IN (339198,339284);
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(339198, 339198, 0, 0, 2, 0, 0),
+(339198, 317657, 0, 0, 2, 0, 0),
+(339284, 339284, 0, 0, 2, 0, 0),
+(339284, 339285, 0, 0, 2, 0, 0);
+
+UPDATE `creature_template` SET `difficulty_entry_1`=54162, `speed_walk`=0.714286, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824, `ScriptName`='npc_firelands_flame_archon' WHERE `entry`=54161;
 UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.714286, `speed_run`=1.42857, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|2097152, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824 WHERE `entry`=54162;
 UPDATE `creature_template` SET `difficulty_entry_1`=54196, `speed_walk`=0.277777, `speed_run`=1.71429, `mechanic_immune_mask`=617561687, `ScriptName`='npc_firelands_molten_flamefather' WHERE `entry`=54143;
 UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|4194304, `mechanic_immune_mask`=617561687 WHERE `entry`=54196;
-UPDATE `creature_template` SET `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=64, `unit_flags2`=32768, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824, `ScriptName`='npc_firelands_magma_conduit' WHERE `entry`=54145;
+UPDATE `creature_template` SET `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=64, `unit_flags2`=32768, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824, `AIName`='PassiveAI' WHERE `entry`=54145;
 UPDATE `creature_template` SET `difficulty_entry_1`=54204, `unit_flags2`=`unit_flags2`|2097152, `ScriptName`='npc_firelands_magmakin' WHERE `entry`=54144;
 UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.555556, `speed_run`=1.71429, `unit_flags2`=2099200 WHERE `entry`=54204;
 UPDATE `creature_template` SET `minlevel`=88, `maxlevel`=88, `exp`=3, `faction`=14, `speed_walk`=1.14286, `speed_run`=2, `unit_flags`=32768, `unit_flags2`=2099200, `type_flags2`=128, `mechanic_immune_mask`=617562103, `flags_extra`=1073741825 WHERE `entry` IN (53587, 53588, 53589);
@@ -37,6 +45,15 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 
 DELETE FROM `criteria_data` WHERE `criteria_id`=17577;
 INSERT INTO `criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES (17577, 11, 0, 0, 'achievement_share_the_pain');
+
+DELETE FROM `linked_respawn` WHERE `guid` IN (317642,317652,317657,339198,339284,339285); -- guid is unique, not linkedGuid
+INSERT INTO `linked_respawn` (`guid`, `linkedGuid`, `linkType`) VALUES
+(317642, 338782, 0),
+(317652, 338782, 0),
+(317657, 338782, 0),
+(339198, 338782, 0),
+(339284, 338782, 0),
+(339285, 338782, 0);
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (100799,99342,99350,99352,99353,99515,99516,99517,99259,99253,99256,99257,99489,99263,99262);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
