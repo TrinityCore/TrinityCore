@@ -197,19 +197,20 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
 }
 
-bool ItemTemplate::CanWinForPlayer(Player const* player) const
+bool ItemTemplate::IsUsableBySpecialization(Player const* player) const
 {
-    std::unordered_set<uint32> const& specs = Specializations[player->getLevel() > 40];
-    if (specs.empty())
-        return true;
-
     uint32 spec = player->GetSpecId(player->GetActiveTalentGroup());
     if (!spec)
         spec = player->GetDefaultSpecId();
 
-    if (!spec)
+    ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
+    if (!chrSpecialization)
         return false;
 
-    auto itr = specs.find(spec);
-    return itr != specs.end();
+    return Specializations[player->getLevel() > 40].test(CalculateItemSpecBit(chrSpecialization));
+}
+
+std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spec)
+{
+    return (spec->ClassID - 1) * MAX_SPECIALIZATIONS + spec->OrderIndex;
 }

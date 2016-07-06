@@ -14064,7 +14064,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 
                 if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
-                    if (rewardProto->CanWinForPlayer(this))
+                    if (rewardProto->IsUsableBySpecialization(this))
                     {
                         InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount);
                         if (res != EQUIP_ERR_OK)
@@ -14285,7 +14285,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
                 if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
-                    if (rewardProto->CanWinForPlayer(this))
+                    if (rewardProto->IsUsableBySpecialization(this))
                     {
                         ItemPosCountVec dest;
                         if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)

@@ -2677,7 +2677,7 @@ void ObjectMgr::LoadItemTemplates()
 
                     if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
                         if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
-                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].insert(itemSpec->SpecID);
+                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].set(ItemTemplate::CalculateItemSpecBit(specialization));
                 }
             }
         }
