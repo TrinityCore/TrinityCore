@@ -188,7 +188,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
                 summon->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 scheduler.Schedule(Seconds(5), [this](TaskContext context)
                 {
@@ -260,7 +260,7 @@ class npc_firelands_magmakin : public CreatureScript
                 me->TauntApply(target);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -473,7 +473,7 @@ class npc_shard_of_torment : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCastAOE(SPELL_TORMENT_PRE_VISUAL);
                 scheduler.Schedule(Milliseconds(4400), [this](TaskContext)
@@ -483,7 +483,7 @@ class npc_shard_of_torment : public CreatureScript
                 });
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
             {
                 if (spell->Id != SPELL_TORMENT)
                     return;
@@ -1003,7 +1003,7 @@ class spell_baleroc_torment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_torment_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TORMENT))
                     return false;
@@ -1129,7 +1129,7 @@ class spell_baleroc_vital_spark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_baleroc_vital_spark_AuraScript);
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 if (Unit* target = eventInfo.GetProcTarget())
@@ -1159,14 +1159,14 @@ class spell_baleroc_vital_flame : public SpellScriptLoader
         {
             PrepareAuraScript(spell_baleroc_vital_flame_AuraScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_VITAL_SPARK))
                     return false;
                 return true;
             }
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster()->HasAura(SPELL_VITAL_SPARK))
                 {
