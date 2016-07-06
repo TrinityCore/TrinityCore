@@ -943,7 +943,7 @@ void PathGenerator::ReducePathLenghtByDist(float dist)
     }
 }
 
-bool PathGenerator::InValidPathZ(Unit* target)
+bool PathGenerator::IsInvalidDestinationZ(Unit* target)
 {
     G3D::Vector3 endPos = GetActualEndPosition();
 
