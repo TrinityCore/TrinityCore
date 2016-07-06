@@ -1761,6 +1761,15 @@ void Player::RemoveFromWorld()
     }
 }
 
+void Player::SetObjectScale(float scale)
+{
+    Unit::SetObjectScale(scale);
+    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, scale * DEFAULT_WORLD_OBJECT_SIZE);
+    SetFloatValue(UNIT_FIELD_COMBATREACH, scale * DEFAULT_COMBAT_REACH);
+    if (IsInWorld())
+        SendMovementSetCollisionHeight(scale * GetCollisionHeight(IsMounted()));
+}
+
 bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
     SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index);
