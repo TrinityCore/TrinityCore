@@ -109,7 +109,7 @@ class npc_firelands_flame_archon : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* attacker) override
+            void EnterCombat(Unit* /*attacker*/) override
             {
                 scheduler.Schedule(Seconds(10), Seconds(12), [this](TaskContext context)
                 {

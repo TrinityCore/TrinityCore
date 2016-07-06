@@ -73,7 +73,7 @@ class instance_firelands : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
-                if (type == DATA_SHANNOX && state == DONE || type == DATA_BALEROC && state != IN_PROGRESS)
+                if ((type == DATA_SHANNOX && state == DONE) || (type == DATA_BALEROC && state != IN_PROGRESS))
                 {
                     if (GameObject* door = instance->GetGameObject(BalerocDoorGUID))
                         door->SetGoState(GO_STATE_ACTIVE);
