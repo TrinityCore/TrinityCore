@@ -945,5 +945,5 @@ void PathGenerator::ReducePathLenghtByDist(float dist)
 
 bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 {
-    (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
+    return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
 }
