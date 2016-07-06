@@ -273,7 +273,7 @@ protected:
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 
     bool IsCompletedCriteriaTree(CriteriaTree const* tree);
-    virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const = 0;
+    virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const;
     virtual bool CanCompleteCriteriaTree(CriteriaTree const* tree);
     virtual void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) = 0;
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
