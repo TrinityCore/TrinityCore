@@ -719,8 +719,8 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScriptLoader
 
             void CastSpellLink()
             {
-                Unit* firstTarget = _target1->ToUnit();
-                Unit* secondTarget = _target2->ToUnit();
+                Unit* firstTarget = ObjectAccessor::GetUnit(*GetCaster(), _targets.front());
+                Unit* secondTarget = ObjectAccessor::GetUnit(*GetCaster(), _targets.back());
                 if (!firstTarget || !secondTarget)
                     return;
 
@@ -749,8 +749,8 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScriptLoader
 
                 Trinity::Containers::RandomResizeList(targets, 2);
 
-                _target1 = targets.front();
-                _target2 = targets.back();
+                _targets.push_back(targets.front()->GetGUID());
+                _targets.push_back(targets.back()->GetGUID());
             }
 
             void Register() override
@@ -760,8 +760,7 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScriptLoader
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_baleroc_countdown_aoe_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
             
-            WorldObject* _target1;
-            WorldObject* _target2;
+            GuidList _targets;
         };
 
         SpellScript* GetSpellScript() const override
@@ -912,24 +911,24 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScriptLoader
             WorldObject* GetRandomContainerElement(std::list<WorldObject*>& priority1, std::list<WorldObject*>& priority2) const
             {
                 WorldObject* target = static_cast<WorldObject*>(nullptr);
-                target = GetRandomContainerElement(priority1);
+                target = GetRandomContainerElement(&priority1);
                 if (target)
                     priority1.remove(target);
                 else
                 {
-                    target = GetRandomContainerElement(priority2);
+                    target = GetRandomContainerElement(&priority2);
                     priority2.remove(target);
                 }
 
                 return target;
             }
 
-            static WorldObject* GetRandomContainerElement(std::list<WorldObject*> list)
+            static WorldObject* GetRandomContainerElement(std::list<WorldObject*> const* list)
             {
-                if (!list.empty())
-                    return Trinity::Containers::SelectRandomContainerElement(list);
+                if (!list->empty())
+                    return Trinity::Containers::SelectRandomContainerElement(*list);
 
-                return static_cast<WorldObject*>(nullptr);
+                return nullptr;
             }
         };
 
@@ -1178,7 +1177,7 @@ class spell_baleroc_vital_flame : public SpellScriptLoader
                 uint32 auraCnt = GetCaster()->GetAuraCount(SPELL_VITAL_SPARK);
                 int32 healingPct = sSpellMgr->GetSpellInfo(SPELL_VITAL_SPARK)->GetEffect(EFFECT_0)->BasePoints * auraCnt;
 
-                if (static_cast<uint32>(GetAura()->GetEffect(EFFECT_0)->GetAmount()) < healingPct)
+                if (uint32(GetAura()->GetEffect(EFFECT_0)->GetAmount()) < healingPct)
                     GetAura()->GetEffect(EFFECT_0)->SetAmount(healingPct);
 
                 stacks = auraCnt;
