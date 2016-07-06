@@ -450,24 +450,6 @@ AI* GetUlduarAI(T* obj)
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
 
-class KeeperDespawnEvent : public BasicEvent
-{
-    public:
-	    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
-
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-        {
-            _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-            _owner->DespawnOrUnsummon(1000 + _despawnTimer);
-            return true;
-        }
-	
-    private:
-        Creature* _owner;
-        uint32 _despawnTimer;
-};
-
-
 class PlayerOrPetCheck
 {
     public:
