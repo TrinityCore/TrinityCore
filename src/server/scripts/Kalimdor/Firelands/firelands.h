@@ -31,13 +31,13 @@ uint32 const EncounterCount = 7;
 
 enum DataTypes
 {
-    DATA_BETH_TILAC             = 0,
-    DATA_LORD_RHYOLITH          = 1,
-    DATA_SHANNOX                = 2,
-    DATA_ALYSRAZOR              = 3,
-    DATA_BALEROC                = 4,
-    DATA_MAJORDOMO_STAGHELM     = 5,
-    DATA_RAGNAROS               = 6,
+    DATA_BETH_TILAC                 = 0,
+    DATA_LORD_RHYOLITH              = 1,
+    DATA_SHANNOX                    = 2,
+    DATA_ALYSRAZOR                  = 3,
+    DATA_BALEROC                    = 4,
+    DATA_MAJORDOMO_STAGHELM         = 5,
+    DATA_RAGNAROS                   = 6,
 };
 
 enum CreatureIds
