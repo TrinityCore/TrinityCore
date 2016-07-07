@@ -18,6 +18,32 @@
 #include "AuthenticationPackets.h"
 #include "HmacHash.h"
 
+bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
+{
+    try
+    {
+        Read();
+        return true;
+    }
+    catch (ByteBufferPositionException const& ex)
+    {
+    }
+
+    return false;
+}
+
+void WorldPackets::Auth::Ping::Read()
+{
+    _worldPacket >> Serial;
+    _worldPacket >> Latency;
+}
+
+const WorldPacket* WorldPackets::Auth::Pong::Write()
+{
+    _worldPacket << uint32(Serial);
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 {
     _worldPacket.append(DosChallenge, 8);
