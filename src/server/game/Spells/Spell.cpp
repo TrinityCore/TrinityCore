@@ -4084,7 +4084,9 @@ void Spell::SendSpellGo()
         castData.MissileTrajectory.Pitch = m_targets.GetPitch();
     }
 
-    m_caster->SendMessageToSet(packet.Write(), true);
+    packet.LogData.Initialize(this);
+
+    m_caster->SendCombatLogMessage(&packet);
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet

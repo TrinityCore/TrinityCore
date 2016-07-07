@@ -97,7 +97,25 @@ void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
     Health = unit->GetHealth();
     AttackPower = unit->GetTotalAttackPowerValue(unit->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
     SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    PowerData.emplace_back(int32(unit->getPowerType()), unit->GetPower(unit->getPowerType()));
+    PowerData.emplace_back(int32(unit->getPowerType()), unit->GetPower(unit->getPowerType()), int32(0));
+}
+
+void WorldPackets::Spells::SpellCastLogData::Initialize(Spell const* spell)
+{
+    Health = spell->GetCaster()->GetHealth();
+    AttackPower = spell->GetCaster()->GetTotalAttackPowerValue(spell->GetCaster()->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
+    SpellPower = spell->GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+    Powers primaryPowerType = spell->GetCaster()->getPowerType();
+    bool primaryPowerAdded = false;
+    for (SpellInfo::CostData const& cost : spell->GetPowerCost())
+    {
+        PowerData.emplace_back(int32(cost.Power), spell->GetCaster()->GetPower(Powers(cost.Power)), int32(cost.Amount));
+        if (cost.Power == primaryPowerType)
+            primaryPowerAdded = true;
+    }
+
+    if (!primaryPowerAdded)
+        PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), spell->GetCaster()->GetPower(primaryPowerType), 0));
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData)
@@ -112,6 +130,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     {
         data << int32(powerData.PowerType);
         data << int32(powerData.Amount);
+        data << int32(powerData.Cost);
     }
 
     return data;
@@ -453,13 +472,12 @@ WorldPacket const* WorldPackets::Spells::SpellStart::Write()
 
 WorldPacket const* WorldPackets::Spells::SpellGo::Write()
 {
-    _worldPacket << Cast;
+    *this << Cast;
 
-    _worldPacket.WriteBit(LogData.is_initialized());
-    _worldPacket.FlushBits();
+    WriteLogDataBit();
+    FlushBits();
 
-    if (LogData)
-        _worldPacket << *LogData;
+    WriteLogData();
 
     return &_worldPacket;
 }
