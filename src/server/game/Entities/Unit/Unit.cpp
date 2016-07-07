@@ -70,7 +70,6 @@
 #include "VehiclePackets.h"
 #include "LootPackets.h"
 #include "PartyPackets.h"
-#include "InstancePackets.h"
 
 #include <cmath>
 
@@ -16231,11 +16230,4 @@ void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* 
 {
     CombatLogSender notifier(this, combatLog, GetVisibilityRange());
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
-}
-
-void Unit::SendBossKillCredit(uint32 encounterID)
-{
-    WorldPackets::Instance::BossKillCredit bossKillCreditMessage;
-    bossKillCreditMessage.DungeonEncounterID = encounterID;
-    SendMessageToSet(bossKillCreditMessage.Write(), true);
 }
