@@ -80,6 +80,14 @@ enum Guids
     GUID_TORMENTED                  = 1,
 };
 
+enum Actions
+{
+    ACTION_EQUIP_DEFAULT            = 1,
+    ACTION_EQUIP_INFERNO_BLADE      = 2,
+    ACTION_EQUIP_DECIMATION_BLADE   = 3,
+};
+
+
 enum Misc
 {
     EQUIP_DEFAULT                   = 1,
@@ -357,6 +365,20 @@ class boss_baleroc : public CreatureScript
                 }
             }
 
+            void DoAction(int32 action) override
+            {
+                switch (action)
+                {
+                    case ACTION_EQUIP_DEFAULT:
+                    case ACTION_EQUIP_INFERNO_BLADE:
+                    case ACTION_EQUIP_DECIMATION_BLADE:
+                        EquipWeapon(action);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER && _canYellKilledPlayer)
@@ -425,25 +447,24 @@ class boss_baleroc : public CreatureScript
                 return true;
             }
 
-            void EquipWeapon(uint8 equipment) const
-            {
-                switch (equipment)
-                {
-                    case EQUIP_DEFAULT:
-                        me->LoadEquipment(equipment);
-                        me->SetCanDualWield(true);
-                        break;
-                    case EQUIP_INFERNO_BLADE:
-                    case EQUIP_DECIMATION_BLADE:
-                        me->LoadEquipment(equipment);
-                        me->SetCanDualWield(false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             private:
+                void EquipWeapon(uint8 equipment) const
+                {
+                    switch (equipment)
+                    {
+                        case EQUIP_DEFAULT:
+                            me->LoadEquipment(equipment);
+                            me->SetCanDualWield(true);
+                            break;
+                        case EQUIP_INFERNO_BLADE:
+                        case EQUIP_DECIMATION_BLADE:
+                            me->LoadEquipment(equipment);
+                            me->SetCanDualWield(false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 // Our default TaskScheduler has a UNIT_STATE_CASTING validator that would get in the way of certain tasks, run them on a separate track.
                 TaskScheduler separateScheduler;
                 bool _canYellKilledPlayer;
@@ -611,12 +632,14 @@ class spell_baleroc_inferno_blade : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                ENSURE_AI(boss_baleroc::boss_balerocAI, GetTarget()->GetAI())->EquipWeapon(EQUIP_INFERNO_BLADE);
+                if (GetTarget()->IsAIEnabled)
+                    GetTarget()->GetAI()->DoAction(ACTION_EQUIP_INFERNO_BLADE);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                ENSURE_AI(boss_baleroc::boss_balerocAI, GetTarget()->GetAI())->EquipWeapon(EQUIP_DEFAULT);
+                if (GetTarget()->IsAIEnabled)
+                    GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
             }
 
             void Register() override
@@ -649,12 +672,14 @@ class spell_baleroc_decimation_blade : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                ENSURE_AI(boss_baleroc::boss_balerocAI, GetTarget()->GetAI())->EquipWeapon(EQUIP_DECIMATION_BLADE);
+                if (GetTarget()->IsAIEnabled)
+                    GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DECIMATION_BLADE);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                ENSURE_AI(boss_baleroc::boss_balerocAI, GetTarget()->GetAI())->EquipWeapon(EQUIP_DEFAULT);
+                if (GetTarget()->IsAIEnabled)
+                    GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
             }
 
             void Register() override
@@ -1177,7 +1202,7 @@ class spell_baleroc_vital_flame : public SpellScriptLoader
                 uint32 auraCnt = GetCaster()->GetAuraCount(SPELL_VITAL_SPARK);
                 int32 healingPct = sSpellMgr->GetSpellInfo(SPELL_VITAL_SPARK)->GetEffect(EFFECT_0)->BasePoints * auraCnt;
 
-                if (uint32(GetAura()->GetEffect(EFFECT_0)->GetAmount()) < healingPct)
+                if (GetAura()->GetEffect(EFFECT_0)->GetAmount() < healingPct)
                     GetAura()->GetEffect(EFFECT_0)->SetAmount(healingPct);
 
                 stacks = auraCnt;
