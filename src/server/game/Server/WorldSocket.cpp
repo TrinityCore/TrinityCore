@@ -404,8 +404,18 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     switch (opcode)
     {
         case CMSG_PING:
+        {
             LogOpcodeText(opcode, sessionGuard);
-            return HandlePing(packet) ? ReadDataHandlerResult::Ok : ReadDataHandlerResult::Error;
+            WorldPackets::Auth::Ping ping(std::move(packet));
+            if (!ping.ReadNoThrow())
+            {
+                TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_PING", GetRemoteIpAddress().to_string().c_str());
+                return ReadDataHandlerResult::Error;
+            }
+            if (!HandlePing(ping))
+                return ReadDataHandlerResult::Error;
+            break;
+        }
         case CMSG_AUTH_SESSION:
         {
             LogOpcodeText(opcode, sessionGuard);
@@ -418,7 +428,11 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             }
 
             std::shared_ptr<WorldPackets::Auth::AuthSession> authSession = std::make_shared<WorldPackets::Auth::AuthSession>(std::move(packet));
-            authSession->Read();
+            if (!authSession->ReadNoThrow())
+            {
+                TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string().c_str());
+                return ReadDataHandlerResult::Error;
+            }
             HandleAuthSession(authSession);
             return ReadDataHandlerResult::WaitingForQuery;
         }
@@ -434,7 +448,11 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             }
 
             std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession = std::make_shared<WorldPackets::Auth::AuthContinuedSession>(std::move(packet));
-            authSession->Read();
+            if (!authSession->ReadNoThrow())
+            {
+                TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_CONTINUED_SESSION", GetRemoteIpAddress().to_string().c_str());
+                return ReadDataHandlerResult::Error;
+            }
             HandleAuthContinuedSession(authSession);
             return ReadDataHandlerResult::WaitingForQuery;
         }
@@ -455,7 +473,11 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 
             LogOpcodeText(opcode, sessionGuard);
             WorldPackets::Auth::ConnectToFailed connectToFailed(std::move(packet));
-            connectToFailed.Read();
+            if (!connectToFailed.ReadNoThrow())
+            {
+                TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_CONNECT_TO_FAILED", GetRemoteIpAddress().to_string().c_str());
+                return ReadDataHandlerResult::Error;
+            }
             HandleConnectToFailed(connectToFailed);
             break;
         }
@@ -964,16 +986,9 @@ void WorldSocket::SendAuthResponseError(uint32 code)
     SendPacketAndLogOpcode(*response.Write());
 }
 
-bool WorldSocket::HandlePing(WorldPacket& recvPacket)
+bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
 {
     using namespace std::chrono;
-
-    uint32 ping;
-    uint32 latency;
-
-    // Get the ping packet content
-    recvPacket >> ping;
-    recvPacket >> latency;
 
     if (_LastPingTime == steady_clock::time_point())
     {
@@ -1015,7 +1030,7 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
 
         if (_worldSession)
         {
-            _worldSession->SetLatency(latency);
+            _worldSession->SetLatency(ping.Latency);
             _worldSession->ResetClientTimeDelay();
         }
         else
@@ -1025,8 +1040,6 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         }
     }
 
-    WorldPacket packet(SMSG_PONG, 4);
-    packet << ping;
-    SendPacketAndLogOpcode(packet);
+    SendPacketAndLogOpcode(*WorldPackets::Auth::Pong(ping.Serial).Write());
     return true;
 }
