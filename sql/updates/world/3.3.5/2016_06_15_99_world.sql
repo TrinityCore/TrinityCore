@@ -1,3 +1,6 @@
+-- Fix requirement quest for the alliance
+UPDATE `quest_template_addon` SET `PrevQuestID`=2278, `NextQuestID`=2439 WHERE `ID`=2279;
+
 -- Add sniffed gossip text to menu
 DELETE FROM `gossip_menu_option` WHERE (`menu_id` BETWEEN 1674 AND 1679) OR (`menu_id` IN (9977, 9978));
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
@@ -7,7 +10,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`Op
 (1677,0,0,'Excuse me? We\'ve been "rescheduled for visitation"? What does that mean?!',4058,1,1,1678,0,0,0,'',0),
 (1678,0,0,'So... what\'s inside Uldum?',4059,1,1,1679,0,0,0,'',0),
 (1679,0,0,'I will return when I have the Plates of Uldum.',4060,1,1,0,0,0,0,'',0),
-(9978,0,0,'Please take me to the master\'s lair.',17742,1,1,0,0,0,0,'',0);
+(8072,0,0,'Please take me to the master\'s lair.',17742,1,3,0,0,0,0,'',0);
 
 -- Migrate NPC's to use SmartAI
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (7918, 20142);
@@ -26,5 +29,6 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` IN (9977, 9978);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,1674,0,0,0,9,0,2954,0,0,0,0,'','Stone Watcher of Norgannon - Show Gossip Option 0 if player has accepted quest 2954'),
-(14,9977,0,0,0,14,0,10279,0,0,0,0,'','Steward of Time - Show Gossip Menu 9977 if Quest 10279 is none'),
-(14,9978,0,0,0,14,0,10279,0,0,1,0,'','Steward of Time - Show Gossip Menu 9978 if Quest 10279 is not none');
+(15,8072,0,0,0,8,0,10279,0,0,0,0,'','Steward of Time - Show Gossip Option 0 if Quest 10279 is not rewarded'),
+(14,8072,9977,0,0,8,0,10279,0,0,1,0,'','Steward of Time - Show Gossip Menu text 9977 if Quest 10279 is not rewarded'),
+(14,8072,9978,0,0,8,0,10279,0,0,0,0,'','Steward of Time - Show Gossip Menu text 9978 if Quest 10279 is rewarded');
