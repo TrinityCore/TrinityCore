@@ -430,7 +430,7 @@ public:
 
         void DoAction(int32 actionId) override
         {
-            if (actionId == ACTION_SHADE_OF_AKAMA_DEAD) 
+            if (actionId == ACTION_SHADE_OF_AKAMA_DEAD)
             {
                 IsInCombat = false;
                 me->CombatStop(true);
@@ -467,7 +467,6 @@ public:
                 if (i == 9) //On Sniffs, npc that Yell "Special" is the tenth to be created
                     chosen = summoned->GetGUID();
             }
-            
         }
 
         void UpdateAI(uint32 diff) override
@@ -1151,7 +1150,6 @@ public:
             instance = me->GetInstanceScript();
         }
 
-
         void MovementInform(uint32 motionType, uint32 /*pointId*/) override
         {
             if (motionType != POINT_MOTION_TYPE)
@@ -1160,7 +1158,6 @@ public:
             if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA)))
                 me->SetFacingToObject(Akama);
         }
-
 
         void DoAction(int32 actionId) override
         {
@@ -1179,8 +1176,8 @@ public:
                 default:
                     break;
             }
-
         }
+
     private:
         InstanceScript* instance;
     };

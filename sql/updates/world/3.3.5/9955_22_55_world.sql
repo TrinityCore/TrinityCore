@@ -11,7 +11,7 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 DELETE FROM `creature` WHERE `id` IN (23191,23421);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_shade_soul_channel_serverside','spell_shade_soul_channel');
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (40401,'spell_shade_soul_channel_serverside'),
 (40520,'spell_shade_soul_channel');
 
@@ -24,6 +24,6 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=618610687 WHERE `entry`=23
 UPDATE `creature_template` SET `ScriptName`='npc_ashtongue_broken' WHERE `entry`=23319;
 
 DELETE FROM `creature_text` WHERE `entry`=23191 AND `groupid` IN (3,4);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (23191,3,0,'I will not last much longer!',14,0,100,0,0,11385,21784,0,'Akama SAY_LOW_HEALTH'),
 (23191,4,0,'No! Not yet!',14,0,100,0,0,11386,21785,0,'Akama SAY_DEAD');
