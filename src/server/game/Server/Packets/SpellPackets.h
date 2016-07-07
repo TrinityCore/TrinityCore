@@ -28,6 +28,86 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellLogPowerData
+        {
+            SpellLogPowerData(int32 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
+
+            int32 PowerType = 0;
+            int32 Amount = 0;
+            int32 Cost = 0;
+        };
+
+        struct SpellCastLogData
+        {
+            int64 Health = 0;
+            int32 AttackPower = 0;
+            int32 SpellPower = 0;
+            std::vector<SpellLogPowerData> PowerData;
+
+            void Initialize(Unit const* unit);
+            void Initialize(Spell const* spell);
+        };
+    }
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
+
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class CombatLogServerPacket : public ServerPacket
+        {
+        public:
+            CombatLogServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
+                : ServerPacket(opcode, initialSize, connection), _fullLogPacket(opcode, initialSize, connection) { }
+
+            WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
+            WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
+
+            Spells::SpellCastLogData LogData;
+
+        protected:
+            template<typename T>
+            void operator<<(T const& val)
+            {
+                _worldPacket << val;
+                _fullLogPacket << val;
+            }
+
+            void WriteLogDataBit()
+            {
+                _worldPacket.WriteBit(false);
+                _fullLogPacket.WriteBit(true);
+            }
+
+            void FlushBits()
+            {
+                _worldPacket.FlushBits();
+                _fullLogPacket.FlushBits();
+            }
+
+            bool WriteBit(bool bit)
+            {
+                _worldPacket.WriteBit(bit);
+                _fullLogPacket.WriteBit(bit);
+                return bit;
+            }
+
+            void WriteBits(uint32 value, uint32 bitCount)
+            {
+                _worldPacket.WriteBits(value, bitCount);
+                _fullLogPacket.WriteBits(value, bitCount);
+            }
+
+            ByteBuffer& WriteLogData() { return _fullLogPacket << LogData; }
+
+            WorldPacket _fullLogPacket;
+        };
+    }
+
+    namespace Spells
+    {
         class CancelAura final : public ClientPacket
         {
         public:
@@ -162,24 +242,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> Spells;
-        };
-
-        struct SpellLogPowerData
-        {
-            SpellLogPowerData(int32 powerType, int32 amount) : PowerType(powerType), Amount(amount) { }
-
-            int32 PowerType = 0;
-            int32 Amount    = 0;
-        };
-
-        struct SpellCastLogData
-        {
-            int64 Health        = 0;
-            int32 AttackPower   = 0;
-            int32 SpellPower    = 0;
-            std::vector<SpellLogPowerData> PowerData;
-
-            void Initialize(Unit const* unit);
         };
 
         struct SandboxScalingData
@@ -389,14 +451,13 @@ namespace WorldPackets
             SpellHealPrediction Predict;
         };
 
-        class SpellGo final : public ServerPacket
+        class SpellGo final : public CombatLog::CombatLogServerPacket
         {
         public:
-            SpellGo() : ServerPacket(SMSG_SPELL_GO) { }
+            SpellGo() : CombatLog::CombatLogServerPacket(SMSG_SPELL_GO) { }
 
             WorldPacket const* Write() override;
 
-            Optional<SpellCastLogData> LogData;
             SpellCastData Cast;
         };
 
@@ -936,7 +997,6 @@ namespace WorldPackets
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
 ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData);
 

@@ -26,55 +26,6 @@ namespace WorldPackets
 {
     namespace CombatLog
     {
-        class CombatLogServerPacket : public ServerPacket
-        {
-        public:
-            CombatLogServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
-                : ServerPacket(opcode, initialSize, connection), _fullLogPacket(opcode, initialSize, connection) { }
-
-            WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
-            WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
-
-            Spells::SpellCastLogData LogData;
-
-        protected:
-            template<typename T>
-            void operator<<(T const& val)
-            {
-                _worldPacket << val;
-                _fullLogPacket << val;
-            }
-
-            void WriteLogDataBit()
-            {
-                _worldPacket.WriteBit(false);
-                _fullLogPacket.WriteBit(true);
-            }
-
-            void FlushBits()
-            {
-                _worldPacket.FlushBits();
-                _fullLogPacket.FlushBits();
-            }
-
-            bool WriteBit(bool bit)
-            {
-                _worldPacket.WriteBit(bit);
-                _fullLogPacket.WriteBit(bit);
-                return bit;
-            }
-
-            void WriteBits(uint32 value, uint32 bitCount)
-            {
-                _worldPacket.WriteBits(value, bitCount);
-                _fullLogPacket.WriteBits(value, bitCount);
-            }
-
-            ByteBuffer& WriteLogData() { return _fullLogPacket << LogData; }
-
-            WorldPacket _fullLogPacket;
-        };
-
         class SpellNonMeleeDamageLog final : public CombatLogServerPacket
         {
         public:
