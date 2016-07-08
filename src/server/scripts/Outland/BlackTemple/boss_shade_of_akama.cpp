@@ -98,11 +98,10 @@ enum Actions
     ACTION_START_SPAWNING            = 0,
     ACTION_STOP_SPAWNING             = 1,
     ACTION_DESPAWN_ALL_SPAWNS        = 2,
-    ACTION_AKAMA_DEAD                = 3,
-    ACTION_SHADE_OF_AKAMA_DEAD       = 4,
-    ACTION_BROKEN_SPECIAL            = 5,
-    ACTION_BROKEN_EMOTE              = 6,
-    ACTION_BROKEN_HAIL               = 7
+    ACTION_SHADE_OF_AKAMA_DEAD       = 3,
+    ACTION_BROKEN_SPECIAL            = 4,
+    ACTION_BROKEN_EMOTE              = 5,
+    ACTION_BROKEN_HAIL               = 6
 };
 
 enum Events
@@ -242,12 +241,6 @@ public:
                     spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
             _DespawnAtEvade();
-        }
-
-        void DoAction(int32 actionId) override
-        {
-            if (actionId == ACTION_AKAMA_DEAD)
-                EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -411,10 +404,10 @@ public:
                 _isInCombat = true;
                 me->SetWalk(false);
                 me->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
-                if (Creature* Shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 {
-                    Shade->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
-                    AttackStart(Shade);
+                    shade->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
+                    AttackStart(shade);
                     _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(2));
                     _events.ScheduleEvent(EVENT_DESTRUCTIVE_POISON, Seconds(5));
                 }
@@ -551,9 +544,9 @@ public:
         {
             _summons.DespawnAll();
             Talk(SAY_DEAD);
-            if (Creature* Shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
-                if (Shade->IsAlive())
-                    Shade->AI()->DoAction(ACTION_AKAMA_DEAD);
+            if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (shade->IsAlive())
+                    shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -597,9 +590,9 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext channel)
             {
-                if (Creature* Shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
                 {
-                    if (Shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                     else
