@@ -35,7 +35,7 @@ enum Says
     SAY_DEAD                         = 4,
     // Ashtongue Broken
     SAY_BROKEN_SPECIAL               = 0,
-    SAY_BROKEN_HAIL                  = 1,
+    SAY_BROKEN_HAIL                  = 1
 };
 
 enum Spells
@@ -84,7 +84,7 @@ enum Creatures
     NPC_ASHTONGUE_ROGUE              = 23318,
     NPC_ASHTONGUE_SPIRITBINDER       = 23524,
     NPC_ASHTONGUE_BROKEN             = 23319,
-    NPC_CREATURE_SPAWNER_AKAMA       = 23210,
+    NPC_CREATURE_SPAWNER_AKAMA       = 23210
 };
 
 enum Factions
@@ -102,7 +102,7 @@ enum Actions
     ACTION_SHADE_OF_AKAMA_DEAD       = 4,
     ACTION_BROKEN_SPECIAL            = 5,
     ACTION_BROKEN_EMOTE              = 6,
-    ACTION_BROKEN_HAIL               = 7,
+    ACTION_BROKEN_HAIL               = 7
 };
 
 enum Events
@@ -142,7 +142,7 @@ enum Events
     // Ashtongue Spiritbinder
     EVENT_SPIRIT_HEAL                    = 27,
     EVENT_SPIRIT_MEND_RESET              = 28,
-    EVENT_CHAIN_HEAL_RESET               = 29,
+    EVENT_CHAIN_HEAL_RESET               = 29
 };
 
 enum Misc
@@ -153,13 +153,13 @@ enum Misc
     SUMMON_GROUP_RESET      = 1
 };
 
-G3D::Vector3 const AkamaWP[] =
+Position const AkamaWP[] =
 {
     { 517.4877f, 400.7993f, 112.7837f },
     { 468.4435f, 401.1062f, 118.5379f }
 };
 
-G3D::Vector4 const BrokenPos[] =
+Position const BrokenPos[] =
 {
     { 495.5628f, 462.7089f, 112.8169f, 4.1808090f },
     { 498.3421f, 463.8384f, 112.8673f, 4.5634810f },
@@ -181,7 +181,7 @@ G3D::Vector4 const BrokenPos[] =
     { 496.8722f, 338.0152f, 112.8673f, 0.5428222f }
 };
 
-G3D::Vector3 const BrokenWP[] =
+Position const BrokenWP[] =
 {
     { 479.1884f, 434.8635f, 112.7838f },
     { 479.7349f, 435.9843f, 112.7838f },
@@ -210,20 +210,23 @@ public:
 
     struct boss_shade_of_akamaAI : public BossAI
     {
-        boss_shade_of_akamaAI(Creature* creature) : BossAI(creature, DATA_SHADE_OF_AKAMA) { }
+        boss_shade_of_akamaAI(Creature* creature) : BossAI(creature, DATA_SHADE_OF_AKAMA)
+        {
+            Initialize();
+        }
 
         void Initialize()
         {
             Spawners.clear();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-            me->SetWalk(true);
         }
 
         void Reset() override
         {
             Initialize();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+            me->SetWalk(true);
             events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, Seconds(1));
             me->SummonCreatureGroup(SUMMON_GROUP_RESET);
         }
@@ -232,8 +235,8 @@ public:
         {
             _Reset();
 
-            for (GuidVector::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+            for (ObjectGuid const& spawner : Spawners)
+                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, spawner))
                     Spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
             _DespawnAtEvade();
@@ -253,10 +256,7 @@ public:
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
                 if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
-                {
                     AttackStart(Akama);
-                    me->AddThreat(Akama, 100000.0f);
-                }
             }
 
             if (spell->Id == SPELL_AKAMA_SOUL_EXPEL)
@@ -271,8 +271,8 @@ public:
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
-                for (GuidVector::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                    if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                for (ObjectGuid const& spawner : Spawners)
+                    if (Creature* Spawner = ObjectAccessor::GetCreature(*me, spawner))
                         Spawner->AI()->DoAction(ACTION_STOP_SPAWNING);
             }
         }
@@ -284,8 +284,8 @@ public:
             if (Creature* Akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
                 Akama->AI()->DoAction(ACTION_SHADE_OF_AKAMA_DEAD);
 
-            for (GuidVector::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+            for (ObjectGuid const& spawner : Spawners)
+                if (Creature* Spawner = ObjectAccessor::GetCreature(*me, spawner))
                     Spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
             events.Reset();
@@ -293,7 +293,7 @@ public:
             instance->SetBossState(DATA_SHADE_OF_AKAMA, DONE);
         }
 
-        void CheckIfNeedsToEvade()
+        void EnterEvadeModeIfNeeded()
         {
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
@@ -320,8 +320,8 @@ public:
                         std::list<Creature*> SpawnerList;
                         me->GetCreatureListWithEntryInGrid(SpawnerList, NPC_CREATURE_SPAWNER_AKAMA);
                         if (!SpawnerList.empty())
-                            for (std::list<Creature*>::const_iterator itr = SpawnerList.begin(); itr != SpawnerList.end(); ++itr)
-                                Spawners.push_back((*itr)->GetGUID());
+                            for (Creature* spawner : SpawnerList)
+                                Spawners.push_back(spawner->GetGUID());
                         break;
                     }
                     case EVENT_START_CHANNELERS_AND_SPAWNERS:
@@ -331,8 +331,8 @@ public:
                                 if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
                                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                       for (GuidVector::const_iterator itr = Spawners.begin(); itr != Spawners.end(); ++itr)
-                            if (Creature* Spawner = ObjectAccessor::GetCreature(*me, *itr))
+                        for (ObjectGuid const& spawner : Spawners)
+                            if (Creature* Spawner = ObjectAccessor::GetCreature(*me, spawner))
                                 Spawner->AI()->DoAction(ACTION_START_SPAWNING);
 
                         break;
@@ -342,7 +342,7 @@ public:
                         events.ScheduleEvent(EVENT_ADD_THREAT, Seconds(3) + Milliseconds(500));
                         break;
                     case EVENT_EVADE_CHECK:
-                        CheckIfNeedsToEvade();
+                        EnterEvadeModeIfNeeded();
                         events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
                         break;
                     default:
@@ -380,16 +380,16 @@ public:
         {
             IsInCombat = false;
             HasYelledOnce = false;
+            chosen.Clear();
+            Summons.DespawnAll();
+            events.Reset();
         }
 
         void Reset() override
         {
-            Summons.DespawnAll();
-            events.Reset();
-            chosen.Clear();
+            Initialize();
             me->setFaction(FACTION_FRIENDLY);
             DoCastSelf(SPELL_STEALTH);
-            Initialize();
 
             if (instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -437,7 +437,7 @@ public:
                 me->setFaction(FACTION_FRIENDLY);
                 me->SetWalk(true);
                 events.Reset();
-                me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1].x, AkamaWP[1].y, AkamaWP[1].z);
+                me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1]);
             }
         }
 
@@ -461,11 +461,13 @@ public:
         {
             for (uint8 i = 0; i < 18; i++)
             {
-                TempSummon* summoned = me->SummonCreature(NPC_ASHTONGUE_BROKEN, BrokenPos[i].x, BrokenPos[i].y, BrokenPos[i].z, BrokenPos[i].w);
-                summoned->SetWalk(true);
-                summoned->GetMotionMaster()->MovePoint(0, BrokenWP[i].x, BrokenWP[i].y, BrokenWP[i].z);
-                if (i == 9) //On Sniffs, npc that Yell "Special" is the tenth to be created
-                    chosen = summoned->GetGUID();
+                if (TempSummon* summoned = me->SummonCreature(NPC_ASHTONGUE_BROKEN, BrokenPos[i]))
+                {
+                    summoned->SetWalk(true);
+                    summoned->GetMotionMaster()->MovePoint(0, BrokenWP[i]);
+                    if (i == 9) //On Sniffs, npc that Yell "Special" is the tenth to be created
+                        chosen = summoned->GetGUID();
+                }
             }
         }
 
@@ -482,7 +484,7 @@ public:
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->RemoveAurasDueToSpell(SPELL_STEALTH);
                         me->SetWalk(true);
-                        me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z, false);
+                        me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
                         break;
                     case EVENT_SHADE_CHANNEL:
                         me->SetFacingTo(3.118662f);
@@ -599,7 +601,7 @@ public:
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                     else
-                        me->DespawnOrUnsummon(3000);
+                        me->DespawnOrUnsummon(3 * IN_MILLISECONDS);
                 }
 
                 channel.Repeat(Seconds(2));
@@ -630,13 +632,21 @@ public:
 
     struct npc_creature_generator_akamaAI : public ScriptedAI
     {
-        npc_creature_generator_akamaAI(Creature* creature) : ScriptedAI(creature), Summons(me) { }
+        npc_creature_generator_akamaAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        {
+            Initialize();
+        }
 
-        void Reset() override
+        void Initialize()
         {
             leftSide = false;
             events.Reset();
             Summons.DespawnAll();
+        }
+
+        void Reset() override
+        {
+            Initialize();
 
             if (me->GetPositionY() < 400.0f)
                 leftSide   = true;
@@ -750,7 +760,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -841,7 +851,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -919,7 +929,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -988,7 +998,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1066,7 +1076,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5 * IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit* /*who*/) override
