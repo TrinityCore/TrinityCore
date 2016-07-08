@@ -8,6 +8,12 @@ ConfVersion=2010102201
 # Enable or disable AI Playerbot
 AiPlayerbot.Enabled = 1
 
+# thesawolf - Not So Random bot creation, use prefab or fallback to random
+AiPlayerbot.NotSoRandom = 1
+
+# thesawolf - Enable ARAC (Any Race, Any Class) support for chargen
+AiPlayerbot.ARAC = 1
+
 # Warrior
 AiPlayerbot.RandomClassSpecProbability.1.0 = 20
 AiPlayerbot.RandomClassSpecProbability.1.1 = 30
@@ -28,6 +34,10 @@ AiPlayerbot.RandomClassSpecProbability.4.2 = 10
 AiPlayerbot.RandomClassSpecProbability.5.0 = 40
 AiPlayerbot.RandomClassSpecProbability.5.1 = 40
 AiPlayerbot.RandomClassSpecProbability.5.2 = 20
+# DeathKnight
+AiPlayerbot.RandomClassSpecProbability.6.0 = 33
+AiPlayerbot.RandomClassSpecProbability.6.1 = 33
+AiPlayerbot.RandomClassSpecProbability.6.2 = 33
 # Shaman
 AiPlayerbot.RandomClassSpecProbability.7.0 = 10
 AiPlayerbot.RandomClassSpecProbability.7.1 = 45
@@ -81,7 +91,7 @@ AiPlayerbot.WhisperDistance = 6000.0
 AiPlayerbot.ContactDistance = 0.5
 
 # Bot can flee for enemy
-#AiPlayerbot.FleeingEnabled = 1
+AiPlayerbot.FleeingEnabled = 1
 
 # Health/Mana levels
 AiPlayerbot.CriticalHealth = 20
