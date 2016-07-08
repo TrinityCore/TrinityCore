@@ -390,7 +390,7 @@ enum AuraType
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,
     SPELL_AURA_FORCE_WEATHER                                = 331,
     SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,
-    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,
+    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED          = 333,  // Spells cast with this override have no cast time or power cost
     SPELL_AURA_MOD_BLIND                                    = 334,  // NYI
     SPELL_AURA_335                                          = 335,
     SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI
