@@ -595,6 +595,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void RemoveCorpse(bool setSpawnTime = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(Milliseconds const& time) { DespawnOrUnsummon(uint32(time.count())); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
