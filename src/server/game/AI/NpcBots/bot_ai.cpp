@@ -283,7 +283,10 @@ void bot_ai::ResetBotAI(uint8 resetType)
         //otherwise - will teleport to master
         teleHomeEvent = new TeleportHomeEvent(ToMinionAI());
         events.AddEvent(teleHomeEvent, events.CalculateTime(0)); //make sure event will be deleted
-        teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
+        //thesawolf - TC commit 1ad73212dca0cf8a829d15ffdbcc4cd611e64d4e
+        //		changed this, updating to new calls
+        //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
+        teleHomeEvent->ScheduleAbort();
         teleHomeEvent->Execute(0,0);
     }
     else
@@ -8343,8 +8346,9 @@ void bot_minion_ai::EnterEvadeMode(bool /*force*/)
     if (mapid != me->GetMapId() || me->GetDistance(pos) > 30.f || _evadeCount >= 3)
     {
         //TeleportHome();
-
-        if (!teleHomeEvent || teleHomeEvent->to_Abort)
+        // thesawolf - TC commit adjustment
+        //if (!teleHomeEvent || teleHomeEvent->to_Abort) .. there's no more bool
+        if (!teleHomeEvent)
         {
             teleHomeEvent = new TeleportHomeEvent(this);
             events.AddEvent(teleHomeEvent, events.CalculateTime(1000));
@@ -8469,7 +8473,9 @@ bool bot_minion_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, f
 
         teleHomeEvent = new TeleportHomeEvent(this);
         events.AddEvent(teleHomeEvent, events.CalculateTime(0)); //make sure event will be deleted
-        teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
+        //thesawolf - recent commit adjustment
+        //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
+        teleHomeEvent->ScheduleAbort();
         teleHomeEvent->Execute(0,0);
         _evadeMode = false;
 
@@ -8509,13 +8515,15 @@ void bot_minion_ai::AbortTeleport()
 {
     if (teleHomeEvent)
     {
-        teleHomeEvent->to_Abort = true;
+        //teleHomeEvent->to_Abort = true; //thesawolf
+        teleHomeEvent->ScheduleAbort();
         teleHomeEvent = NULL;
     }
 
     if (teleFinishEvent)
     {
-        teleFinishEvent->to_Abort = true;
+        //teleFinishEvent->to_Abort = true; //thesawolf
+        teleHomeEvent->ScheduleAbort();
         teleFinishEvent = NULL;
     }
 
