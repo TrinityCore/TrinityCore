@@ -2001,7 +2001,7 @@ void Unit::ExecuteDelayedSwingHit(WeaponAttackType attType, bool extra)
 
     //if there is extra attack proc then target is already defined
     if (!extra)
-        _damageInfo[attType].target = ObjectAccessor::GetUnit(_delayedTargetGuid[attType]);
+        _damageInfo[attType].target = ObjectAccessor::GetUnit(this, _delayedTargetGuid[attType]);
 
     if (!_damageInfo[attType].target)
         return;
