@@ -286,7 +286,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
         }
 
         if (target && _caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
-            (_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
+            (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
             rangeMod += 5.0f / 3.0f;
     }
 
