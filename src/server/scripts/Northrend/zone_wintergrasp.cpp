@@ -358,7 +358,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                                 if (Creature* teleportTrigger = passenger->SummonTrigger(go->GetPositionX()-60.0f, go->GetPositionY(), go->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1000))
                                     return teleportTrigger;
 
-                return NULL;
+                return nullptr;
             }
 
             void UpdateAI(uint32 diff)
