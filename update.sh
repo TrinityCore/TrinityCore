@@ -13,7 +13,7 @@ git pull
 rm -r -f ./build
 mkdir build
 cd build
-cmake .. -DCONF_DIR=~/Settings -DTOOLS=0 -DWITH_WARNINGS=0
+cmake .. -DCONF_DIR=Settings -DTOOLS=0 -DWITH_WARNINGS=0
 
 echo
 echo "»»» Debian fix «««"
