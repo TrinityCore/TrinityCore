@@ -49,7 +49,6 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemPackets.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"

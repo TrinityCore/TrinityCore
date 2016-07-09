@@ -17,7 +17,6 @@
  */
 
 #include "Common.h"
-#include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"

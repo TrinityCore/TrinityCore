@@ -92,7 +92,6 @@
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "VehiclePackets.h"
 #include "Weather.h"
@@ -131,7 +130,6 @@ Player::Player(WorldSession* session) : Unit(true)
     m_ExtraFlags = 0;
 
     m_spellModTakingSpell = nullptr;
-    //m_pad = 0;
 
     // players always accept
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))

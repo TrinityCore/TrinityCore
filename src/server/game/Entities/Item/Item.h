@@ -439,7 +439,7 @@ class TC_GAME_API Item : public Object
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
-        uint32 GetModifier(ItemModifier modifier) const { return _modifiers[modifier]; }
+        uint32 GetModifier(ItemModifier modifier) const;
         void SetModifier(ItemModifier modifier, uint32 value);
 
     protected:
@@ -457,6 +457,5 @@ class TC_GAME_API Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
-        uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
 #endif
