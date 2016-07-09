@@ -2162,6 +2162,9 @@ class TC_GAME_API Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
+        void SuspendDelayedSwing(WeaponAttackType attType);
+        void ExecuteDelayedSwingHit(WeaponAttackType attType, bool extra = false);
+
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
 
@@ -2291,6 +2294,12 @@ class TC_GAME_API Unit : public WorldObject
         GuidSet m_ComboPointHolders;
 
         RedirectThreatInfo _redirectThreadInfo;
+
+        CalcDamageInfo _damageInfo[2];
+
+        uint64 _delayedTargetGuid[2];
+        uint32 _swingDelayTimer[2];
+        bool _swingLanded[2];
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
