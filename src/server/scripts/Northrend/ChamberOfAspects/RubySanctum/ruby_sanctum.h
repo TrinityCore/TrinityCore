@@ -56,6 +56,7 @@ enum SharedActions
     ACTION_INTRO_BALTHARUS                  = -3975101,
     ACTION_BALTHARUS_DEATH                  = -3975102,
     ACTION_INTRO_HALION                     = -4014601,
+    ACTION_INTRO_HALION_2                   = -4014602,
 };
 
 enum CreaturesIds
