@@ -1235,7 +1235,7 @@ public:
     {
         PrepareAuraScript(spell_shade_soul_channel_AuraScript);
 
-        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             int32 const maxSlowEff = -99;
             if (aurEff->GetAmount() < maxSlowEff)
