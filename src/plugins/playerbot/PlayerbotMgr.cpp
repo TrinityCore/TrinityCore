@@ -94,19 +94,18 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
     //thesawolf - autoset to master level
     uint32 level = master->getLevel();
     uint32 blevel = bot->getLevel();
-	bool skipit = 1;
+    bot->SetLevel(level);
+    bool skipit = 0;
     uint32 ldiff = 0;
 
     //thesawolf - do a level check to see if init somethings can be skipped
-	if (blevel >= level)
+    if (blevel > level)
         ldiff = blevel - level;
     else
         ldiff = level - blevel;
 
-	if (ldiff > 3)
-		skipit = 0;
-
-	bot->SetLevel(level);
+    if (ldiff >= 3)
+        skipit = 1;        
 
     //thesawolf - lets freshen things up a bit
     //sidenote: moved stuff from private to public to make these doable
@@ -125,21 +124,19 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
     bot->SaveToDB();
     
     if (skipit == 0)
-	{
-		factory.InitEquipment(true);
-		factory.InitBags();
-		factory.InitSecondEquipmentSet();
-	}
+        factory.InitEquipment(true);
 
+    factory.InitBags();
     factory.InitAmmo();
     factory.InitFood();
     factory.InitPotions();
+    factory.InitSecondEquipmentSet();
     // factory.InitInventory();  // lets not lose gear stored by a packmule
     factory.InitGlyphs();
     factory.InitGuild();
     factory.InitPet();
         
-	bot->SetMoney(urand(level * 10000, level * 5 * 10000));
+    bot->SetMoney(urand(level * 1000, level * 5 * 1000));
     bot->SaveToDB();
     
     //thesawolf - autosummon to master
@@ -189,14 +186,14 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
     bool isRandomAccount = sPlayerbotAIConfig.IsInRandomAccountList(botAccount);
     bool isMasterAccount = (masterAccountId == botAccount);
 
-	if (isRandomAccount && !isRandomBot && !admin) //thesawolf
+    if (isRandomAccount && !isRandomBot && !admin)
     {
         Player* bot = sObjectMgr->GetPlayerByLowGUID(guid);
         if (bot->GetGuildId() != masterGuildId)
             return "not in your guild";
     }
 
-	if (!isRandomAccount && !isMasterAccount) // && !admin) thesawolf
+    if (!isRandomAccount && !isMasterAccount && !admin)
         return "not in your account";
 
     if (cmd == "add" || cmd == "login")
@@ -219,7 +216,7 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
         return "ok";
     }
 
-	if (admin || !admin) // thesawolf
+    if (admin)
     {
         Player* bot = GetPlayerBot(guid.GetRawValue());
         if (!bot)
@@ -350,14 +347,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         messages.push_back("  (OR) .bot lookup [CLASS] (without to see list of classes)");
         return messages;
     }
-
-    //thesawolf - without this null check, tc was crashing because of the null to string conversion
-	if (charname == NULL)
-	{
-		messages.push_back("ERROR: No bot was specified. Try again.");
-		return messages;
-	}
-	    
+    
     std::string cmdStr = cmd;
     std::string charnameStr = charname;
 
@@ -493,7 +483,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         }
     }
 
-	if (charnameStr == "!" && master && master->GetSession()->GetSecurity() >= SEC_PLAYER)//SEC_GAMEMASTER) thesawolf
+    if (charnameStr == "!" && master && master->GetSession()->GetSecurity() > SEC_GAMEMASTER)
     {
         for (PlayerBotMap::const_iterator i = GetPlayerBotsBegin(); i != GetPlayerBotsEnd(); ++i)
         {
@@ -543,7 +533,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         else if (master && member != master->GetGUID())
         {
             out << ProcessBotCommand(cmdStr, member,
-					master->GetSession()->GetSecurity() >= SEC_PLAYER, //SEC_GAMEMASTER, thesawolf
+                    master->GetSession()->GetSecurity() >= SEC_GAMEMASTER,
                     master->GetSession()->GetAccountId(),
                     master->GetGuildId());
         }
