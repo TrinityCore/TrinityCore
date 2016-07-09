@@ -21,10 +21,10 @@
 
 #include "Common.h"
 #include "Position.h"
-#include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
 #include "Map.h"
+#include "UpdateFields.h"
 
 #include <set>
 #include <string>
@@ -239,9 +239,9 @@ class TC_GAME_API Object
 
         std::vector<uint32>* _dynamicValues;
 
-        UpdateMask _changesMask;
-        UpdateMask _dynamicChangesMask;
-        UpdateMask* _dynamicChangesArrayMask;
+        std::vector<uint8> _changesMask;
+        std::vector<uint8> _dynamicChangesMask;
+        std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
         uint16 _dynamicValuesCount;
