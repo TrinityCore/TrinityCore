@@ -1197,6 +1197,29 @@ public:
     }
 };
 
+enum MidsummerPoleRibbon
+{
+    SPELL_POLE_DANCE      = 29726,
+    SPELL_BLUE_FIRE_RING  = 46842,
+    NPC_POLE_RIBBON_BUNNY = 17066,
+    ACTION_COSMETIC_FIRES = 0
+};
+
+class go_midsummer_ribbon_pole : public GameObjectScript
+{
+public:
+    go_midsummer_ribbon_pole() : GameObjectScript("go_midsummer_ribbon_pole") { }
+
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        if (Creature* creature = go->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
+        {
+            creature->GetAI()->DoAction(ACTION_COSMETIC_FIRES);
+            player->CastSpell(creature, SPELL_POLE_DANCE, true);
+        }
+        return true;
+    }
+};
 
 enum ToyTrainSpells
 {
@@ -1274,5 +1297,6 @@ void AddSC_go_scripts()
     new go_veil_skith_cage();
     new go_frostblade_shrine();
     new go_midsummer_bonfire();
+    new go_midsummer_ribbon_pole();
     new go_toy_train_set();
 }
