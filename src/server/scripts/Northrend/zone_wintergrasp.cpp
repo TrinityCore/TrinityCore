@@ -337,30 +337,48 @@ class go_wg_vehicle_teleporter : public GameObjectScript
 
         struct go_wg_vehicle_teleporterAI : public GameObjectAI
         {
-            go_wg_vehicle_teleporterAI(GameObject* gameObject) : GameObjectAI(gameObject), _checkTimer(1000) { }
-
-            void UpdateAI(uint32 diff) override
+            go_wg_vehicle_teleporterAI(GameObject* gameObject) : GameObjectAI(gameObject),
+                _checkTimer(0)
             {
-                if (_checkTimer <= diff)
-                {
-                    if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-                        // Tabulation madness in the hole!
-                        for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
-                            if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
-                                if (!vehicleCreature->HasAura(SPELL_VEHICLE_TELEPORT) && vehicleCreature->getFaction() == WintergraspFaction[wg->GetDefenderTeam()])
-                                    if (Creature* teleportTrigger = vehicleCreature->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 100.0f, true))
-                                        teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
-
-                    _checkTimer = 1000;
-                }
-                else _checkTimer -= diff;
             }
 
+            bool IsFriendly(Unit* passenger)
+            {
+                return ((go->GetUInt32Value(GAMEOBJECT_FACTION) == WintergraspFaction[TEAM_HORDE] && passenger->getRaceMask() & RACEMASK_HORDE) ||
+                        (go->GetUInt32Value(GAMEOBJECT_FACTION) == WintergraspFaction[TEAM_ALLIANCE] && passenger->getRaceMask() & RACEMASK_ALLIANCE));
+            }
+
+
+            Creature* IsValidVehicle(Creature* cVeh)
+            {
+                if (!cVeh->HasAura(SPELL_VEHICLE_TELEPORT))
+                    if (Vehicle* vehicle = cVeh->GetVehicleKit())
+                        if (Unit* passenger = vehicle->GetPassenger(0))
+                            if (IsFriendly(passenger))
+                                if (Creature* teleportTrigger = passenger->SummonTrigger(go->GetPositionX()-60.0f, go->GetPositionY(), go->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1000))
+                                    return teleportTrigger;
+
+                return NULL;
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                _checkTimer += diff;
+                if (_checkTimer >= 1000)
+                {
+                    for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
+                        if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
+                            if (Creature* teleportTrigger = IsValidVehicle(vehicleCreature))
+                                teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
+
+                    _checkTimer = 0;
+                }
+            }
           private:
               uint32 _checkTimer;
         };
 
-        GameObjectAI* GetAI(GameObject* go) const override
+        GameObjectAI* GetAI(GameObject* go) const
         {
             return new go_wg_vehicle_teleporterAI(go);
         }
