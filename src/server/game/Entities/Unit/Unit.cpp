@@ -381,7 +381,7 @@ void Unit::Update(uint32 p_time)
     {
         if (_delayedTargetGuid[i])
         {
-            if (_swingLanded[i] == true)
+            if (_swingLanded[i])
                 _delayedTargetGuid[i] = 0;
             else if (_swingDelayTimer[i] >= p_time)
                 _swingDelayTimer[i] -= p_time;
