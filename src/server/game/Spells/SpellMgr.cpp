@@ -3349,6 +3349,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42492: // Cast Energized
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
+            case 46842: // Flame Ring
+            case 46836: // Flame Patch
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo();
+                break;
+            case 29726: // Test Ribbon Pole Channel
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
@@ -3707,9 +3714,17 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-            case 75888: // Awaken Flames
-            case 75889: // Awaken Flames
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+            case 75875: // Combustion and Consumption Heroic versions lacks radius data
+                spellInfo->Effects[EFFECT_0].Mechanic = MECHANIC_NONE;
+                spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_SNARE;
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+                break;
+            case 75884:
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
+                // No break
+            case 75883:
+            case 75876:
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_6_YARDS);
                 break;
             // ENDOF RUBY SANCTUM SPELLS
             //
