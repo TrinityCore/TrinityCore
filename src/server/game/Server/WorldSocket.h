@@ -41,6 +41,7 @@ namespace WorldPackets
         class AuthSession;
         class AuthContinuedSession;
         class ConnectToFailed;
+        class Ping;
     }
 }
 
@@ -118,9 +119,8 @@ private:
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
+    bool HandlePing(WorldPackets::Auth::Ping& ping);
     void HandleEnableEncryptionAck();
-
-    bool HandlePing(WorldPacket& recvPacket);
 
     ConnectionType _type;
     uint64 _key;

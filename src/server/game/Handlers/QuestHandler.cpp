@@ -285,7 +285,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID);
                     if (rewardProto)
                     {
-                        if (rewardProto->CanWinForPlayer(_player))
+                        if (rewardProto->IsUsableBySpecialization(_player))
                         {
                             itemValid = true;
                             break;
