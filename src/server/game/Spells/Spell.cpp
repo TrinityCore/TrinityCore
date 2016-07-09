@@ -4755,7 +4755,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
-                return SPELL_FAILED_NOT_READY;
+		else if (m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))  // Shadowform, Tricks of the Trade, Misdirection
         }
     }
 
