@@ -322,8 +322,8 @@ public:
                     case EVENT_START_CHANNELERS_AND_SPAWNERS:
                     {
                         for (ObjectGuid const& summonGuid : summons)
-                            if (Creature* Channeler = ObjectAccessor::GetCreature(*me, summonGuid))
-                                Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
+                                channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                         for (ObjectGuid const& spawnerGuid : _spawners)
                             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
