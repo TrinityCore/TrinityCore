@@ -27,7 +27,6 @@
 #include "SpellMgr.h"
 #include "Player.h"
 #include "GossipDef.h"
-#include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"

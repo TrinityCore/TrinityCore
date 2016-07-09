@@ -24,7 +24,6 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "UpdateMask.h"
 #include "NPCHandler.h"
 #include "MapManager.h"
 #include "QueryPackets.h"
