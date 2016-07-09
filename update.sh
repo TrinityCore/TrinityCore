@@ -17,8 +17,8 @@ cmake .. -DCONF_DIR=/home/conan/Settings -DTOOLS=0 -DWITH_WARNINGS=0
 
 echo
 echo "»»» Debian fix «««"
-rm -f "./src/server/worldserver/CMakeFiles/worldserver.dir/link.txt"
-cp "../cmake/link.txt" "./src/server/worldserver/CMakeFiles/worldserver.dir"
+//rm -f "./src/server/worldserver/CMakeFiles/worldserver.dir/link.txt"
+//cp "../cmake/link.txt" "./src/server/worldserver/CMakeFiles/worldserver.dir"
 echo
 
 make -j4
