@@ -43,12 +43,6 @@ bool PlayerbotAIConfig::Initialize()
         return false;
     }
 
-    // thesawolf - not so random bot creation
-    notrandom = config.GetBoolDefault("AiPlayerbot.NotSoRandom", true);
-    
-    // thesawolf - ARAC chargen support
-    aracgen = config.GetBoolDefault("AiPlayerbot.ARAC", true);
-    
     globalCoolDown = (uint32) config.GetIntDefault("AiPlayerbot.GlobalCooldown", 500);
     maxWaitForMove = config.GetIntDefault("AiPlayerbot.MaxWaitForMove", 3000);
     reactDelay = (uint32) config.GetIntDefault("AiPlayerbot.ReactDelay", 100);

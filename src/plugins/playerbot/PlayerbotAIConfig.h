@@ -22,10 +22,6 @@ public:
     bool IsInRandomQuestItemList(uint32 id);
 
     bool enabled;
-    //thesawolf - for notsorandom
-    bool notrandom;
-    //thesawolf - for ARAC support
-    bool aracgen;
     bool allowGuildBots;
     uint32 globalCoolDown, reactDelay, maxWaitForMove;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance,
