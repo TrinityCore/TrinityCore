@@ -314,17 +314,16 @@ public:
                     {
                         std::list<Creature*> SpawnerList;
                         me->GetCreatureListWithEntryInGrid(SpawnerList, NPC_CREATURE_SPAWNER_AKAMA);
-                        if (!SpawnerList.empty())
-                            for (Creature* spawner : SpawnerList)
-                                _spawners.push_back(spawner->GetGUID());
+                        for (Creature* spawner : SpawnerList)
+                            _spawners.push_back(spawner->GetGUID());
+
                         break;
                     }
                     case EVENT_START_CHANNELERS_AND_SPAWNERS:
                     {
-                        if (!summons.empty())
-                            for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                                if (Creature* Channeler = ObjectAccessor::GetCreature(*me, *itr))
-                                    Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        for (ObjectGuid const& summonGuid : summons)
+                            if (Creature* Channeler = ObjectAccessor::GetCreature(*me, summonGuid))
+                                Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                         for (ObjectGuid const& spawnerGuid : _spawners)
                             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -1236,34 +1235,17 @@ public:
     {
         PrepareAuraScript(spell_shade_soul_channel_AuraScript);
 
-        void UpdateSpeed()
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            if (target->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2) <= 3)
-            {
-                float moveSpeed = (2.0f - (0.6f * target->GetAuraCount(SPELL_SHADE_SOUL_CHANNEL_2)));
-                target->SetSpeedRate(MOVE_WALK, moveSpeed / 2.5f);
-                target->SetSpeedRate(MOVE_RUN, (moveSpeed * 2) / 7);
-                target->ClearUnitState(UNIT_STATE_ROOT);
-            }
-            else
-                target->AddUnitState(UNIT_STATE_ROOT);
-        }
-
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            UpdateSpeed();
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            UpdateSpeed();
+            int32 const maxSlowEff = -99;
+            if (aurEff->GetAmount() < maxSlowEff)
+                if (AuraEffect* slowEff = GetEffect(EFFECT_0))
+                    slowEff->ChangeAmount(maxSlowEff);
         }
 
         void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_shade_soul_channel_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_shade_soul_channel_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
     };
 

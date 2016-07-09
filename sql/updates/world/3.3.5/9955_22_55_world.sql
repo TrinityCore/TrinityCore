@@ -22,6 +22,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 UPDATE `creature_template` SET `mechanic_immune_mask`=618610687 WHERE `entry`=23215; -- Ashtongue Sorcerer Immunity
 UPDATE `creature_template` SET `ScriptName`='npc_ashtongue_broken' WHERE `entry`=23319;
+UPDATE `creature_template` SET `speed_run`=0.571429 WHERE `entry`=22841;
 
 DELETE FROM `creature_text` WHERE `entry`=23191 AND `groupid` IN (3,4);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
