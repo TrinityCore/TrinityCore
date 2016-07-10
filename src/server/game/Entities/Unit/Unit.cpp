@@ -4671,25 +4671,25 @@ void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
 {
     m_dynObj.push_back(dynObj);
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
         ToCreature()->AI()->JustRegisteredDynObject(dynObj);
 }
 
 void Unit::_UnregisterDynObject(DynamicObject* dynObj)
 {
     m_dynObj.remove(dynObj);
-    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
         ToCreature()->AI()->JustUnregisteredDynObject(dynObj);
 }
 
-DynamicObject* Unit::GetDynObject(uint32 spellId)
+DynamicObject* Unit::GetDynObject(uint32 spellId) const
 {
     return GetDynObjects(spellId).front();
 }
 
-std::list<DynamicObject*> Unit::GetDynObjects(uint32 spellId)
+std::vector<DynamicObject*> Unit::GetDynObjects(uint32 spellId) const
 {
-    DynObjectList dynamicobjects;
+    std::vector<DynamicObject*> dynamicobjects;
     for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)
             dynamicobjects.push_back(*i);
@@ -4720,14 +4720,14 @@ void Unit::RemoveAllDynObjects()
         m_dynObj.front()->Remove();
 }
 
-GameObject* Unit::GetGameObject(uint32 spellId)
+GameObject* Unit::GetGameObject(uint32 spellId) const
 {
     return GetGameObjects(spellId).front();
 }
 
-std::list<GameObject*> Unit::GetGameObjects(uint32 spellId)
+std::vector<GameObject*> Unit::GetGameObjects(uint32 spellId) const
 {
-    GameObjectList gameobjects;
+    std::vector<GameObject*> gameobjects;
     for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)
             gameobjects.push_back(*i);
