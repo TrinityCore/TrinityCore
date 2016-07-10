@@ -314,12 +314,7 @@ class boss_baleroc : public CreatureScript
                 Talk(SAY_AGGRO);
                 PreparePhase(PHASE_ONE);
 
-                //Reset our achievement list. We do this here and not in Reset(), as the debuff may have been spread after the boss has reset.
-                for (int i = 0; i < 25; i++)
-                {
-                    _sharedThePain[i].player = ObjectGuid::Empty;
-                    _sharedThePain[i].tormented = 0;
-                }
+                _sharedThePain.clear();
             }
 
             void PreparePhase(Phases phase)
@@ -402,6 +397,7 @@ class boss_baleroc : public CreatureScript
 
             void EnterEvadeMode(EvadeReason reason) override
             {
+                summons.DespawnAll();
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLAZE_OF_GLORY);
                 firelands_bossAI::EnterEvadeMode(reason);
             }
@@ -418,20 +414,7 @@ class boss_baleroc : public CreatureScript
                 switch (type)
                 {
                     case GUID_TORMENTED:
-                        for (int i = 0; i < 25; i++)
-                        {
-                            if (_sharedThePain[i].player == guid)
-                            {
-                                _sharedThePain[i].tormented += 1;
-                                break;
-                            }
-                            if (_sharedThePain[i].player.IsEmpty())
-                            {
-                                _sharedThePain[i].player = guid;
-                                _sharedThePain[i].tormented += 1;
-                                break;
-                            }
-                        }
+                        ++_sharedThePain[guid];
                         break;
                     default:
                         break;
@@ -440,8 +423,8 @@ class boss_baleroc : public CreatureScript
 
             bool SharedThePain() const
             {
-                for (int i = 0; i < 25; i++)
-                    if (_sharedThePain[i].tormented > 3)
+                for (std::unordered_map<ObjectGuid, uint8>::const_iterator itr = _sharedThePain.begin(); itr != _sharedThePain.end(); ++itr)
+                    if (itr->second > 3)
                         return false;
 
                 return true;
@@ -468,12 +451,7 @@ class boss_baleroc : public CreatureScript
                 // Our default TaskScheduler has a UNIT_STATE_CASTING validator that would get in the way of certain tasks, run them on a separate track.
                 TaskScheduler separateScheduler;
                 bool _canYellKilledPlayer;
-                struct _sharedThePain
-                {
-                    ObjectGuid player;
-                    uint32 tormented;
-                }
-                _sharedThePain[25];
+                std::unordered_map<ObjectGuid, uint32> _sharedThePain;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -501,6 +479,11 @@ class npc_shard_of_torment : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_TORMENT_PRE_VISUAL);
                     DoCastAOE(SPELL_TORMENT_ACTIVE);
+                    scheduler.Schedule(Milliseconds(1100), [this](TaskContext context)
+                    {
+                        DoCastAOE(SPELL_WAVE_OF_TORMENT);
+                        context.Repeat(Seconds(1));
+                    });
                 });
             }
 

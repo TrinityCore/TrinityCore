@@ -3410,7 +3410,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // FIRELANDS SPELLS
             //
             case 99253: // Torment Searcher
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
                 break;
             case 99256: // Torment Damage
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
