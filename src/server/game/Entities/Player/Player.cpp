@@ -26884,7 +26884,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
 
     pet->setPowerType(POWER_MANA);
-    pet->SetUInt64Value(UNIT_NPC_FLAGS, 0);
+    pet->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
     pet->InitStatsForLevel(getLevel());
 
