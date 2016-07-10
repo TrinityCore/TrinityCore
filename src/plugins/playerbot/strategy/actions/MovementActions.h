@@ -13,16 +13,15 @@ namespace ai
         }
 
     protected:
-		bool ChaseTo(WorldObject *obj);
         bool MoveNear(uint32 mapId, float x, float y, float z, float distance = sPlayerbotAIConfig.followDistance);
         bool MoveTo(uint32 mapId, float x, float y, float z);
         bool MoveTo(Unit* target, float distance = 0.0f);
         bool MoveNear(WorldObject* target, float distance = sPlayerbotAIConfig.followDistance);
         float GetFollowAngle();
-        bool Follow(WorldObject* target, float distance = sPlayerbotAIConfig.followDistance);
-        bool Follow(WorldObject* target, float distance, float angle);
+        bool Follow(Unit* target, float distance = sPlayerbotAIConfig.followDistance);
+        bool Follow(Unit* target, float distance, float angle);
         void WaitForReach(float distance);
-        bool IsMovingAllowed(WorldObject* target);
+        bool IsMovingAllowed(Unit* target);
         bool IsMovingAllowed(uint32 mapId, float x, float y, float z);
         bool IsMovingAllowed();
         bool Flee(Unit *target);

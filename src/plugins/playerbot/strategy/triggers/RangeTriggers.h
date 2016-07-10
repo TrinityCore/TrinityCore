@@ -73,4 +73,9 @@ namespace ai
         float distance;
     };
 
+    class OutOfReactRangeTrigger : public FarFromMasterTrigger
+    {
+    public:
+        OutOfReactRangeTrigger(PlayerbotAI* ai) : FarFromMasterTrigger(ai, "out of react range", sPlayerbotAIConfig.reactDistance / 2, 10) {}
+    };
 }

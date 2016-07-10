@@ -14,5 +14,4 @@ public:
         return AI_VALUE(uint32, "lfg proposal");
     }
 };
-
 }

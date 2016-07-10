@@ -16,24 +16,6 @@ bool MovementAction::MoveNear(uint32 mapId, float x, float y, float z, float dis
     return MoveTo(mapId, x + cos(angle) * distance, y + sin(angle) * distance, z);
 }
 
-bool MovementAction::ChaseTo(WorldObject* obj)
-{
-	if (bot->IsSitState())
-		bot->SetStandState(UNIT_STAND_STATE_STAND);
-
-	if (bot->IsNonMeleeSpellCast(true))
-	{
-		bot->CastStop();
-		ai->InterruptSpell();
-	}
-
-	MotionMaster &mm = *bot->GetMotionMaster();
-	mm.Clear();
-
-	mm.MoveChase(obj);
-	return true;
-}
-
 bool MovementAction::MoveNear(WorldObject* target, float distance)
 {
     if (!target)
@@ -42,25 +24,23 @@ bool MovementAction::MoveNear(WorldObject* target, float distance)
     distance += target->GetObjectSize() / 2.0f;
 
     float followAngle = GetFollowAngle();
-	for (float angle = followAngle; angle <= followAngle + 2 * M_PI; angle += M_PI / 4)
-	{
-		if (isnan(followAngle))
-			break;
-		bool moved = MoveTo(target->GetMapId(),
-			target->GetPositionX() + cos(angle) * distance,
-			target->GetPositionY() + sin(angle) * distance,
-			target->GetPositionZ());
-		if (moved)
-			return true;
-	}
+    for (float angle = followAngle; angle <= followAngle + 2 * M_PI; angle += M_PI / 4)
+    {
+        bool moved = MoveTo(target->GetMapId(),
+            target->GetPositionX() + cos(angle) * distance,
+            target->GetPositionY()+ sin(angle) * distance,
+            target->GetPositionZ());
+        if (moved)
+            return true;
+    }
     return false;
 }
 
 bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
 {
+    bot->UpdateGroundPositionZ(x, y, z);
     if (!IsMovingAllowed(mapId, x, y, z))
         return false;
-	bot->UpdateGroundPositionZ(x, y, z);
 
     float distance = bot->GetDistance2d(x, y);
     if (distance > sPlayerbotAIConfig.contactDistance)
@@ -76,17 +56,18 @@ bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
             ai->InterruptSpell();
         }
 
-        bool generatePath = !bot->IsFlying() && !bot->IsUnderWater();
+        bool generatePath = bot->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) &&
+                !bot->IsFlying() && !bot->IsUnderWater();
         MotionMaster &mm = *bot->GetMotionMaster();
         mm.Clear();
 
         float botZ = bot->GetPositionZ();
-		if (!bot->InBattleground() && z - botZ > 0.5f && bot->GetDistance2d(x, y) <= 5.0f)
-		{
-			float speed = bot->GetSpeed(MOVE_RUN);
-			mm.MoveJump(x, y, botZ + 0.5f, speed, speed, 1);
-		}
-		else
+        if (z - botZ > 0.5f && bot->GetDistance2d(x, y) <= 5.0f)
+        {
+            float speed = bot->GetSpeed(MOVE_RUN);
+            mm.MoveJump(x, y, botZ + 0.5f, speed, speed, 1);
+        }
+        else
             mm.MovePoint(mapId, x, y, z, generatePath);
 
         AI_VALUE(LastMovement&, "last movement").Set(x, y, z, bot->GetOrientation());
@@ -146,7 +127,7 @@ float MovementAction::GetFollowAngle()
     return 0;
 }
 
-bool MovementAction::IsMovingAllowed(WorldObject* target)
+bool MovementAction::IsMovingAllowed(Unit* target)
 {
     if (!target)
         return false;
@@ -155,7 +136,7 @@ bool MovementAction::IsMovingAllowed(WorldObject* target)
         return false;
 
     float distance = bot->GetDistance(target);
-    if (!bot->InBattleground() && distance > sPlayerbotAIConfig.reactDistance)
+    if (distance > sPlayerbotAIConfig.reactDistance)
         return false;
 
     return IsMovingAllowed();
@@ -164,7 +145,7 @@ bool MovementAction::IsMovingAllowed(WorldObject* target)
 bool MovementAction::IsMovingAllowed(uint32 mapId, float x, float y, float z)
 {
     float distance = bot->GetDistance(x, y, z);
-    if (!bot->InBattleground() && distance > sPlayerbotAIConfig.reactDistance)
+    if (distance > sPlayerbotAIConfig.reactDistance)
         return false;
 
     return IsMovingAllowed();
@@ -184,19 +165,19 @@ bool MovementAction::IsMovingAllowed()
     return mm.GetCurrentMovementGeneratorType() != FLIGHT_MOTION_TYPE;
 }
 
-bool MovementAction::Follow(WorldObject* target, float distance)
+bool MovementAction::Follow(Unit* target, float distance)
 {
     return Follow(target, distance, GetFollowAngle());
 }
 
-bool MovementAction::Follow(WorldObject* target, float distance, float angle)
+bool MovementAction::Follow(Unit* target, float distance, float angle)
 {
     MotionMaster &mm = *bot->GetMotionMaster();
 
     if (!target)
         return false;
 
-    if (!bot->InBattleground() && bot->GetDistance2d(target->GetPositionX(), target->GetPositionY()) <= sPlayerbotAIConfig.sightDistance &&
+    if (bot->GetDistance2d(target->GetPositionX(), target->GetPositionY()) <= sPlayerbotAIConfig.sightDistance &&
             abs(bot->GetPositionZ() - target->GetPositionZ()) >= sPlayerbotAIConfig.spellDistance)
     {
         mm.Clear();
@@ -215,13 +196,11 @@ bool MovementAction::Follow(WorldObject* target, float distance, float angle)
 
     if (!IsMovingAllowed(target))
         return false;
-	if (target->GetTypeId()==TYPEID_PLAYER)
-	{
-		if (((Unit *)target)->IsFriendlyTo(bot) && bot->IsMounted() && AI_VALUE(list<ObjectGuid>, "possible targets").empty())
-			distance += angle;
-	}
 
-    if (!bot->InBattleground() && bot->GetDistance2d(target) <= sPlayerbotAIConfig.followDistance)
+    if (target->IsFriendlyTo(bot) && bot->IsMounted() && AI_VALUE(list<ObjectGuid>, "possible targets").empty())
+        distance += angle;
+
+    if (bot->GetDistance2d(target) <= sPlayerbotAIConfig.followDistance)
         return false;
 
     if (bot->IsSitState())
@@ -232,7 +211,6 @@ bool MovementAction::Follow(WorldObject* target, float distance, float angle)
         bot->CastStop();
         ai->InterruptSpell();
     }
-
 
     mm.MoveFollow(target, distance, angle);
 

@@ -24,4 +24,3 @@ Value<Unit*>* CastFreezingTrap::GetTargetValue()
 {
     return context->GetValue<Unit*>("cc target", "freezing trap");
 }
-

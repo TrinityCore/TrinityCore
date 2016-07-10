@@ -119,31 +119,31 @@ template void PointMovementGenerator<Creature>::DoReset(Creature*);
 template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
-void AssistanceMovementGenerator::Finalize(WorldObject* unit)
+void AssistanceMovementGenerator::Finalize(Unit* unit)
 {
     unit->ToCreature()->SetNoCallAssistance(false);
     unit->ToCreature()->CallAssistance();
-	if (((Unit *)unit)->IsAlive())
-		((Unit *)unit)->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
+    if (unit->IsAlive())
+        unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(WorldObject* unit, uint32)
+bool EffectMovementGenerator::Update(Unit* unit, uint32)
 {
-	return !((Unit *)unit)->movespline->Finalized();
+    return !unit->movespline->Finalized();
 }
 
-void EffectMovementGenerator::Finalize(WorldObject* unit)
+void EffectMovementGenerator::Finalize(Unit* unit)
 {
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;
 
     // Need restore previous movement since we have no proper states system
-	if (((Unit *)unit)->IsAlive() && !((Unit *)unit)->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
+    if (unit->IsAlive() && !unit->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
     {
-		if (Unit* victim = ((Unit *)unit)->GetVictim())
-			((Unit *)unit)->GetMotionMaster()->MoveChase(victim);
+        if (Unit* victim = unit->GetVictim())
+            unit->GetMotionMaster()->MoveChase(victim);
         else
-			((Unit *)unit)->GetMotionMaster()->Initialize();
+            unit->GetMotionMaster()->Initialize();
     }
 
     if (unit->ToCreature()->AI())
