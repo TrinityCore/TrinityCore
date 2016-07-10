@@ -278,6 +278,16 @@ struct BonusData
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
 
+#pragma pack(push, 1)
+struct ItemDynamicFieldGems
+{
+    uint32 ItemId;
+    uint16 BonusListIDs[16];
+    uint8 Context;
+    uint8 Padding[3];
+};
+#pragma pack(pop)
+
 class TC_GAME_API Item : public Object
 {
     public:
@@ -373,6 +383,9 @@ class TC_GAME_API Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        DynamicFieldStructuredView<ItemDynamicFieldGems> GetGems() const;
+        ItemDynamicFieldGems const* GetGem(uint16 slot) const;
+        void SetGem(uint16 slot, ItemDynamicFieldGems const* gem);
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }

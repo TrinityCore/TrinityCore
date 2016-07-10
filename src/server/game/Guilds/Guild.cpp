@@ -2394,7 +2394,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[33].GetUInt8();
+    uint8 tabId = fields[39].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
@@ -3214,16 +3214,17 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
             if (tabItem)
             {
-                for (std::size_t i = 0; i < tabItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+                uint8 i = 0;
+                for (ItemDynamicFieldGems const& gemData : tabItem->GetGems())
                 {
-                    uint32 gemItemId = tabItem->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
-                    if (!gemItemId)
-                        continue;
-
-                    WorldPackets::Item::ItemGemInstanceData gem;
-                    gem.Slot = i;
-                    gem.Item.ItemID = gemItemId;
-                    itemInfo.SocketEnchant.push_back(gem);
+                    if (gemData.ItemId)
+                    {
+                        WorldPackets::Item::ItemGemInstanceData gem;
+                        gem.Slot = i;
+                        gem.Item.Initialize(&gemData);
+                        itemInfo.SocketEnchant.push_back(gem);
+                    }
+                    ++i;
                 }
             }
 
@@ -3297,16 +3298,17 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
                     itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
                     itemInfo.Flags = 0;
 
-                    for (std::size_t i = 0; i < tabItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+                    uint8 i = 0;
+                    for (ItemDynamicFieldGems const& gemData : tabItem->GetGems())
                     {
-                        uint32 gemItemId = tabItem->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
-                        if (!gemItemId)
-                            continue;
-
-                        WorldPackets::Item::ItemGemInstanceData gem;
-                        gem.Slot = i;
-                        gem.Item.ItemID = gemItemId;
-                        itemInfo.SocketEnchant.push_back(gem);
+                        if (gemData.ItemId)
+                        {
+                            WorldPackets::Item::ItemGemInstanceData gem;
+                            gem.Slot = i;
+                            gem.Item.Initialize(&gemData);
+                            itemInfo.SocketEnchant.push_back(gem);
+                        }
+                        ++i;
                     }
 
                     itemInfo.Locked = false;

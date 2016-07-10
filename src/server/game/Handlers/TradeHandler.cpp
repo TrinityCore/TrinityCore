@@ -79,16 +79,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
                 tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
 
-                for (std::size_t i = 0; i < item->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+                uint8 i = 0;
+                for (ItemDynamicFieldGems const& gemData : item->GetGems())
                 {
-                    uint32 gemItemId = item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
-                    if (!gemItemId)
-                        continue;
-
-                    WorldPackets::Item::ItemGemInstanceData gem;
-                    gem.Slot = i;
-                    gem.Item.ItemID = gemItemId;
-                    tradeItem.Unwrapped->Gems.push_back(gem);
+                    if (gemData.ItemId)
+                    {
+                        WorldPackets::Item::ItemGemInstanceData gem;
+                        gem.Slot = i;
+                        gem.Item.Initialize(&gemData);
+                        tradeItem.Unwrapped->Gems.push_back(gem);
+                    }
+                    ++i;
                 }
             }
 
