@@ -423,7 +423,7 @@ class boss_baleroc : public CreatureScript
 
             bool SharedThePain() const
             {
-                for (auto entry : _sharedThePain)
+                for (auto const& entry : _sharedThePain)
                     if (entry.second > 3)
                         return false;
 
