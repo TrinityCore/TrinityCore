@@ -4671,24 +4671,30 @@ void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
 {
     m_dynObj.push_back(dynObj);
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->JustRegisteredDynObject(dynObj);
 }
 
 void Unit::_UnregisterDynObject(DynamicObject* dynObj)
 {
     m_dynObj.remove(dynObj);
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->JustUnregisteredDynObject(dynObj);
 }
 
 DynamicObject* Unit::GetDynObject(uint32 spellId)
 {
-    if (m_dynObj.empty())
-        return NULL;
-    for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end();++i)
-    {
-        DynamicObject* dynObj = *i;
-        if (dynObj->GetSpellId() == spellId)
-            return dynObj;
-    }
-    return NULL;
+    return GetDynObjects(spellId).front();
+}
+
+std::list<DynamicObject*> Unit::GetDynObjects(uint32 spellId)
+{
+    DynObjectList dynamicobjects;
+    for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end(); ++i)
+        if ((*i)->GetSpellId() == spellId)
+            dynamicobjects.push_back(*i);
+
+    return dynamicobjects;
 }
 
 void Unit::RemoveDynObject(uint32 spellId)
@@ -4714,13 +4720,19 @@ void Unit::RemoveAllDynObjects()
         m_dynObj.front()->Remove();
 }
 
-GameObject* Unit::GetGameObject(uint32 spellId) const
+GameObject* Unit::GetGameObject(uint32 spellId)
 {
+    return GetGameObjects(spellId).front();
+}
+
+std::list<GameObject*> Unit::GetGameObjects(uint32 spellId)
+{
+    GameObjectList gameobjects;
     for (GameObjectList::const_iterator i = m_gameObj.begin(); i != m_gameObj.end(); ++i)
         if ((*i)->GetSpellId() == spellId)
-            return *i;
+            gameobjects.push_back(*i);
 
-    return NULL;
+    return gameobjects;
 }
 
 void Unit::AddGameObject(GameObject* gameObj)
@@ -4739,6 +4751,9 @@ void Unit::AddGameObject(GameObject* gameObj)
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
             GetSpellHistory()->StartCooldown(createBySpell, 0, nullptr, true);
     }
+
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->JustSummonedGameobject(gameObj);
 }
 
 void Unit::RemoveGameObject(GameObject* gameObj, bool del)
@@ -4770,6 +4785,9 @@ void Unit::RemoveGameObject(GameObject* gameObj, bool del)
     }
 
     m_gameObj.remove(gameObj);
+
+    if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->SummonedGameobjectDespawn(gameObj);
 
     if (del)
     {

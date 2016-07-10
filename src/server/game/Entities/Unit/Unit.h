@@ -2030,10 +2030,12 @@ class TC_GAME_API Unit : public WorldObject
         void _RegisterDynObject(DynamicObject* dynObj);
         void _UnregisterDynObject(DynamicObject* dynObj);
         DynamicObject* GetDynObject(uint32 spellId);
+        std::list<DynamicObject*> GetDynObjects(uint32 spellId);
         void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
 
-        GameObject* GetGameObject(uint32 spellId) const;
+        GameObject* GetGameObject(uint32 spellId);
+        std::list<GameObject*> GetGameObjects(uint32 spellId);
         void AddGameObject(GameObject* gameObj);
         void RemoveGameObject(GameObject* gameObj, bool del);
         void RemoveGameObject(uint32 spellid, bool del);
