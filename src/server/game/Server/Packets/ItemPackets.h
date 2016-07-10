@@ -40,6 +40,7 @@ namespace WorldPackets
         struct ItemInstance
         {
             void Initialize(::Item const* item);
+            void Initialize(::ItemDynamicFieldGems const* gem);
             void Initialize(::LootItem const& lootItem);
             void Initialize(::VoidStorageItem const* voidItem);
 

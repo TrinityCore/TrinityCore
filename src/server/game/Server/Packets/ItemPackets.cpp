@@ -281,6 +281,20 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
     }
 }
 
+void WorldPackets::Item::ItemInstance::Initialize(::ItemDynamicFieldGems const* gem)
+{
+    ItemID = gem->ItemId;
+
+    ItemBonusInstanceData bonus;
+    bonus.Context = gem->Context;
+    for (uint16 bonusListId : gem->BonusListIDs)
+        if (bonusListId)
+            bonus.BonusListIDs.push_back(bonusListId);
+
+    if (bonus.Context || !bonus.BonusListIDs.empty())
+        ItemBonus = bonus;
+}
+
 void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
 {
     ItemID               = lootItem.itemid;

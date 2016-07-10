@@ -407,19 +407,42 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(1, GetGUID().GetCounter());
                 trans->Append(stmt);
             }
-            if (!GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).empty())
-            {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_GEMS);
-                stmt->setUInt64(0, GetGUID().GetCounter());
-                trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_GEMS);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+
+            if (GetGems().size())
+            {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
-                for (; i < MAX_GEM_SOCKETS && i < GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
-                    stmt->setUInt32(1 + i, GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i));
+                for (ItemDynamicFieldGems const& gemData : GetGems())
+                {
+                    if (gemData.ItemId)
+                    {
+                        stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, gemData.ItemId);
+                        std::ostringstream gemBonusListIDs;
+                        for (uint16 bonusListID : gemData.BonusListIDs)
+                            if (bonusListID)
+                                gemBonusListIDs << bonusListID << ' ';
+                        stmt->setString(2 + i * MAX_GEM_SOCKETS, gemBonusListIDs.str());
+                        stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, gemData.Context);
+                    }
+                    else
+                    {
+                        stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, 0);
+                        stmt->setString(2 + i * MAX_GEM_SOCKETS, "");
+                        stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, 0);
+                    }
+                    ++i;
+                }
                 for (; i < MAX_GEM_SOCKETS; ++i)
-                    stmt->setUInt32(1 + i, 0);
+                {
+                    stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, 0);
+                    stmt->setString(2 + i * MAX_GEM_SOCKETS, "");
+                    stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, 0);
+                }
                 trans->Append(stmt);
             }
 
@@ -508,8 +531,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
     //                                  24                        25                          26                         27                         28
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29          30          31
-    //        gemItemId1, gemItemId2, gemItemId3 FROM item_instance
+    //                29           30           31          32           33           34          35           36           37
+    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3 FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -618,15 +641,20 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[27].GetUInt32());
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[28].GetUInt32());
 
-    uint32 gemItemIds[3] = { fields[29].GetUInt32(), fields[30].GetUInt32(), fields[31].GetUInt32() };
-    if (gemItemIds[0] || gemItemIds[1] || gemItemIds[2])
+    ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
+    memset(gemData, 0, sizeof(gemData));
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        // gem slots must be preserved, hence funky logic
-        AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[0]);
-        if (gemItemIds[1] || gemItemIds[2])
-            AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[1]);
-        if (gemItemIds[2])
-            AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, gemItemIds[2]);
+        gemData[i].ItemId = fields[29 + i * MAX_GEM_SOCKETS].GetUInt32();
+        Tokenizer bonusListIDs(fields[30 + i * MAX_GEM_SOCKETS].GetString(), ' ');
+        uint32 b = 0;
+        for (char const* token : bonusListIDs)
+            if (uint32 bonusListID = atoul(token))
+                gemData[i].BonusListIDs[b++] = bonusListID;
+
+        gemData[i].Context = fields[31 + i * MAX_GEM_SOCKETS].GetUInt8();
+        if (gemData[i].ItemId)
+            SetGem(i, &gemData[i]);
     }
 
     if (need_save)                                           // normal item changed state set not work at loading
@@ -1050,10 +1078,27 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     SetState(ITEM_CHANGED, GetOwner());
 }
 
+DynamicFieldStructuredView<ItemDynamicFieldGems> Item::GetGems() const
+{
+    return GetDynamicStructuredValues<ItemDynamicFieldGems>(ITEM_DYNAMIC_FIELD_GEMS);
+}
+
+ItemDynamicFieldGems const* Item::GetGem(uint16 slot) const
+{
+    ASSERT(slot < MAX_GEM_SOCKETS);
+    return GetDynamicStructuredValue<ItemDynamicFieldGems>(ITEM_DYNAMIC_FIELD_GEMS, slot);
+}
+
+void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
+{
+    ASSERT(slot < MAX_GEM_SOCKETS);
+    SetDynamicStructuredValue(ITEM_DYNAMIC_FIELD_GEMS, slot, gem);
+}
+
 bool Item::GemsFitSockets() const
 {
     uint32 gemSlot = 0;
-    for (uint32 gemItemId : GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
+    for (ItemDynamicFieldGems const& gemData : GetGems())
     {
         uint8 SocketColor = GetTemplate()->GetSocketColor(gemSlot);
         if (!SocketColor) // no socket slot
@@ -1061,7 +1106,7 @@ bool Item::GemsFitSockets() const
 
         uint32 GemColor = 0;
 
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemData.ItemId);
         if (gemProto)
         {
             GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
@@ -1077,17 +1122,17 @@ bool Item::GemsFitSockets() const
 
 uint8 Item::GetGemCountWithID(uint32 GemID) const
 {
-    return std::count_if(GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).begin(), GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).end(), [GemID](uint32 gemItemId)
+    return std::count_if(GetGems().begin(), GetGems().end(), [GemID](ItemDynamicFieldGems const& gemData)
     {
-        return gemItemId == GemID;
+        return gemData.ItemId == GemID;
     });
 }
 
 uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 {
-    return std::count_if(GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).begin(), GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).end(), [limitCategory](uint32 gemItemId)
+    return std::count_if(GetGems().begin(), GetGems().end(), [limitCategory](ItemDynamicFieldGems const& gemData)
     {
-        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
+        ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemData.ItemId);
         if (!gemProto)
             return false;
 

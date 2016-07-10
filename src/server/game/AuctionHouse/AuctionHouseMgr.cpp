@@ -845,16 +845,17 @@ void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::Auct
         auctionItem.Enchantments.emplace_back(item->GetEnchantmentId((EnchantmentSlot) i), item->GetEnchantmentDuration((EnchantmentSlot) i), item->GetEnchantmentCharges((EnchantmentSlot) i), i);
     }
 
-    for (std::size_t i = 0; i < item->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+    uint8 i = 0;
+    for (ItemDynamicFieldGems const& gemData : item->GetGems())
     {
-        uint32 gemItemId = item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
-        if (!gemItemId)
-            continue;
-
-        WorldPackets::Item::ItemGemInstanceData gem;
-        gem.Slot = i;
-        gem.Item.ItemID = gemItemId;
-        auctionItem.Gems.push_back(gem);
+        if (gemData.ItemId)
+        {
+            WorldPackets::Item::ItemGemInstanceData gem;
+            gem.Slot = i;
+            gem.Item.Initialize(&gemData);
+            auctionItem.Gems.push_back(gem);
+        }
+        ++i;
     }
 
     items.emplace_back(auctionItem);

@@ -44,16 +44,17 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
         Enchants.push_back(enchant);
     }
 
-    for (std::size_t i = 0; i < item->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size(); ++i)
+    uint8 i = 0;
+    for (ItemDynamicFieldGems const& gemData : item->GetGems())
     {
-        uint32 gemItemId = item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i);
-        if (!gemItemId)
-            continue;
-
-        Item::ItemGemInstanceData gem;
-        gem.Slot = i;
-        gem.Item.ItemID = gemItemId;
-        Gems.push_back(gem);
+        if (gemData.ItemId)
+        {
+            WorldPackets::Item::ItemGemInstanceData gem;
+            gem.Slot = i;
+            gem.Item.Initialize(&gemData);
+            Gems.push_back(gem);
+        }
+        ++i;
     }
 }
 

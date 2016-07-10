@@ -12821,9 +12821,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         }
 
         // Cogwheel gems dont have requirement data set in SpellItemEnchantment.dbc, but they do have it in Item-sparse.db2
-        if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, uint32(slot - SOCK_ENCHANTMENT_SLOT))))
-            if (gem->GetRequiredSkill() && GetSkillValue(gem->GetRequiredSkill()) < gem->GetRequiredSkillRank())
-                return;
+        if (ItemDynamicFieldGems const* gem = item->GetGem(uint16(slot - SOCK_ENCHANTMENT_SLOT)))
+            if (ItemTemplate const* gemTemplate = sObjectMgr->GetItemTemplate(gem->ItemId))
+                if (gemTemplate->GetRequiredSkill() && GetSkillValue(gemTemplate->GetRequiredSkill()) < gemTemplate->GetRequiredSkillRank())
+                    return;
     }
 
     if (!item->IsBroken())
@@ -17339,8 +17340,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
     //                                  24                        25                          26                         27                         28
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29          30          31   32    33
-    //        gemItemId1, gemItemId2, gemItemId3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //                29           30           31          32           33           34          35           36           37   38    39
+    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17362,8 +17363,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = fields[32].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[32].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[33].GetUInt8();
+                ObjectGuid bagGuid = fields[38].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[38].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[39].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -17692,7 +17693,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[32].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[32].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[38].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[38].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -21641,9 +21642,9 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
         Item* pItem2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (pItem2 && !pItem2->IsBroken())
         {
-            for (uint32 gemItemId : pItem2->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
+            for (ItemDynamicFieldGems const& gemData : pItem2->GetGems())
             {
-                ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemItemId);
+                ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemData.ItemId);
                 if (!gemProto)
                     continue;
 
@@ -24529,9 +24530,9 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
         return res;
 
     // check unique-equipped on gems
-    for (uint32 gemItemId : pItem->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS))
+    for (ItemDynamicFieldGems const& gemData : pItem->GetGems())
     {
-        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(gemItemId);
+        ItemTemplate const* pGem = sObjectMgr->GetItemTemplate(gemData.ItemId);
         if (!pGem)
             continue;
 

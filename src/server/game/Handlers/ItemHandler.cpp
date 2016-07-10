@@ -872,22 +872,38 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     //this slot is excepted when applying / removing meta gem bonus
     uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : uint8(NULL_SLOT);
 
-    Item* Gems[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = !socketGems.GemItem[i].IsEmpty() ? _player->GetItemByGuid(socketGems.GemItem[i]) : NULL;
+    Item* gems[MAX_GEM_SOCKETS];
+    memset(gems, 0, sizeof(gems));
+    ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
+    memset(gemData, 0, sizeof(gemData));
+    GemPropertiesEntry const* gemProperties[MAX_GEM_SOCKETS];
+    memset(gemProperties, 0, sizeof(gemProperties));
+    ItemDynamicFieldGems const* oldGemData[MAX_GEM_SOCKETS];
+    memset(oldGemData, 0, sizeof(oldGemData));
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+    {
+        if (Item* gem = _player->GetItemByGuid(socketGems.GemItem[i]))
+        {
+            gems[i] = gem;
+            gemData[i].ItemId = gem->GetEntry();
+            gemData[i].Context = gem->GetUInt32Value(ITEM_FIELD_CONTEXT);
+            for (std::size_t b = 0; b < gem->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() && b < 16; ++b)
+                gemData[i].BonusListIDs[b] = gem->GetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, b);
 
-    GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GetGemProperties()) : NULL;
+            gemProperties[i] = sGemPropertiesStore.LookupEntry(gem->GetTemplate()->GetGemProperties());
+        }
+
+        oldGemData[i] = itemTarget->GetGem(i);
+    }
 
     // Find first prismatic socket
-    int32 firstPrismatic = 0;
+    uint32 firstPrismatic = 0;
     while (firstPrismatic < MAX_GEM_SOCKETS && itemTarget->GetSocketColor(firstPrismatic))
         ++firstPrismatic;
 
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
     {
-        if (!GemProps[i])
+        if (!gemProperties[i])
             continue;
 
         // tried to put gem in socket where no socket exists (take care about prismatic sockets)
@@ -902,50 +918,42 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         }
 
         // Gem must match socket color
-        if (SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] != GemProps[i]->Type)
+        if (SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] != gemProperties[i]->Type)
         {
             // unless its red, blue, yellow or prismatic
-            if (!(SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] & SOCKET_COLOR_PRISMATIC) || !(GemProps[i]->Type & SOCKET_COLOR_PRISMATIC))
+            if (!(SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] & SOCKET_COLOR_PRISMATIC) || !(gemProperties[i]->Type & SOCKET_COLOR_PRISMATIC))
                 return;
         }
     }
 
-    uint32 GemEnchants[MAX_GEM_SOCKETS];
-    uint32 oldGemItemIds[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get new and old enchantments
-    {
-        GemEnchants[i] = (GemProps[i]) ? GemProps[i]->EnchantID : 0;
-        oldGemItemIds[i] = itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size() > i ? itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS)[i] : 0;
-    }
-
     // check unique-equipped conditions
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (!Gems[i])
+        if (!gems[i])
             continue;
 
         // continue check for case when attempt add 2 similar unique equipped gems in one item.
-        ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
+        ItemTemplate const* iGemProto = gems[i]->GetTemplate();
 
         // unique item (for new and already placed bit removed enchantments
         if (iGemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPED)
         {
-            for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
+            for (uint32 j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
                 if (i == j)                                    // skip self
                     continue;
 
-                if (Gems[j])
+                if (gems[j])
                 {
-                    if (iGemProto->GetId() == Gems[j]->GetEntry())
+                    if (iGemProto->GetId() == gems[j]->GetEntry())
                     {
                         _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                         return;
                     }
                 }
-                else if (oldGemItemIds[j])
+                else if (oldGemData[j])
                 {
-                    if (iGemProto->GetId() == oldGemItemIds[j])
+                    if (iGemProto->GetId() == oldGemData[j]->ItemId)
                     {
                         _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                         return;
@@ -963,16 +971,16 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                 // NOTE: limitEntry->mode is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
                 {
-                    if (Gems[j])
+                    if (gems[j])
                     {
                         // new gem
-                        if (iGemProto->GetItemLimitCategory() == Gems[j]->GetTemplate()->GetItemLimitCategory())
+                        if (iGemProto->GetItemLimitCategory() == gems[j]->GetTemplate()->GetItemLimitCategory())
                             ++limit_newcount;
                     }
-                    else if (oldGemItemIds[j])
+                    else if (oldGemData[j])
                     {
                         // existing gem
-                        if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(oldGemItemIds[j]))
+                        if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(oldGemData[j]->ItemId))
                             if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
                                 ++limit_newcount;
                     }
@@ -989,7 +997,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         // for equipped item check all equipment for duplicate equipped gems
         if (itemTarget->IsEquipped())
         {
-            if (InventoryResult res = _player->CanEquipUniqueItem(Gems[i], slot, std::max(limit_newcount, 0)))
+            if (InventoryResult res = _player->CanEquipUniqueItem(gems[i], slot, std::max(limit_newcount, 0)))
             {
                 _player->SendEquipError(res, itemTarget, NULL);
                 return;
@@ -1006,25 +1014,17 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
         _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
 
-    uint32 reqGemSlots = 0;
-    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        if (Gems[i])
-            reqGemSlots = i + 1;
-
-    while (itemTarget->GetDynamicValues(ITEM_DYNAMIC_FIELD_GEMS).size() < reqGemSlots)
-        itemTarget->AddDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, 0);
-
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+    for (uint16 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (Item* guidItem = _player->GetItemByGuid(socketGems.GemItem[i]))
+        if (gems[i])
         {
-            itemTarget->SetDynamicValue(ITEM_DYNAMIC_FIELD_GEMS, i, guidItem->GetEntry());
+            itemTarget->SetGem(i, &gemData[i]);
 
-            if (GemEnchants[i])
-                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
+            if (gemProperties[i] && gemProperties[i]->EnchantID)
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
 
             uint32 gemCount = 1;
-            _player->DestroyItemCount(guidItem, gemCount, true);
+            _player->DestroyItemCount(gems[i], gemCount, true);
         }
     }
 
