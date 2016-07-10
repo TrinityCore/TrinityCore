@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
@@ -205,6 +206,14 @@ void BattlegroundWS::StartingEventCloseDoors()
     UpdateWorldState(BG_WS_STATE_TIMER, 25);
 }
 
+Position const spawnCoord[3] =
+{
+	{ 1269.962158f, 1382.655640f, 308.545288f },        // middle
+	{ 1227.446289f, 1476.235718f, 307.484589f },        // left
+	{ 1239.085693f, 1541.408569f, 306.491791f }       // right
+};
+
+
 void BattlegroundWS::StartingEventOpenDoors()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_A_6; ++i)
@@ -219,6 +228,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     SpawnBGObject(BG_WS_OBJECT_DOOR_A_6, RESPAWN_ONE_DAY);
     SpawnBGObject(BG_WS_OBJECT_DOOR_H_3, RESPAWN_ONE_DAY);
     SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
+
 
     // players joining later are not eligibles
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
@@ -720,6 +730,38 @@ bool BattlegroundWS::SetupBattleground()
     }
 
     TC_LOG_DEBUG("bg.battleground", "BatteGroundWS: BG objects and spirit guides spawned");
+
+	std::vector<uint32> ids;
+	CreatureTemplateContainer const* creatureTemplateContainer = sObjectMgr->GetCreatureTemplates();
+	for (CreatureTemplateContainer::const_iterator i = creatureTemplateContainer->begin(); i != creatureTemplateContainer->end(); ++i)
+	{
+		CreatureTemplate const& co = i->second;
+		if (!co.IsTameable(false))
+			continue;
+
+		if (co.maxlevel < GetMinLevel() || co.minlevel> GetMaxLevel() )
+			continue;
+
+		if (co.type!=1)
+			continue;
+
+		ids.push_back(i->first);
+	}
+	
+	for (int i = 0; i < 20; i++)
+	{
+		int idx = urand(0, ids.size() - 1);
+
+		sObjectMgr->GetCreatureTemplates();
+		Creature* creature = this->AddCreature(ids[idx], i + 2, spawnCoord[urand(0, 2)].m_positionX + frand(-1, +1), spawnCoord[urand(0, 2)].m_positionY + frand(-1, +1),spawnCoord[urand(0, 2)].m_positionZ,0.0f, TEAM_NEUTRAL, 3000);
+		creature->SetLevel(urand(GetMinLevel(), GetMaxLevel()));
+		creature->GetMotionMaster()->Initialize();
+		creature->setDeathState(JUST_DIED);
+		creature->Respawn();
+		creature->GetMotionMaster()->MoveRandom(40);
+	}
+	TC_LOG_DEBUG("bg.battleground", "BatteGroundWS: Nagas spawned");
+
 
     return true;
 }
