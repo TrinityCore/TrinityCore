@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "Unit.h"
-#include "UpdateMask.h"
 #include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"

@@ -31,6 +31,7 @@
 #include "WorldSession.h"
 #include "ItemPackets.h"
 #include "TradeData.h"
+#include <boost/dynamic_bitset.hpp>
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -247,7 +248,6 @@ Item::Item()
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
 
-    memset(_modifiers, 0, sizeof(_modifiers));
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
@@ -1128,60 +1128,59 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
     if (!target)
         return;
 
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(_dynamicValuesCount);
+    boost::dynamic_bitset<uint32> updateMask(_dynamicValuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
+    *data << uint8(updateMask.num_blocks());
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + updateMask.num_blocks() * sizeof(uint32));
+
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
-        ByteBuffer buffer;
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)) ||
-            (index == ITEM_DYNAMIC_FIELD_MODIFIERS && (updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(ITEM_FIELD_MODIFIERS_MASK) : GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK) != 0)))
+            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            updateMask.SetBit(index);
+            updateMask.set(index);
 
-            UpdateMask arrayMask;
+            boost::dynamic_bitset<uint32> arrayMask(values.size());
+            *data << uint8(arrayMask.num_blocks());
+            std::size_t fieldMaskPos = data->wpos();
+            data->resize(data->size() + arrayMask.num_blocks() * sizeof(uint32));
             if (index != ITEM_DYNAMIC_FIELD_MODIFIERS)
             {
-                arrayMask.SetCount(values.size());
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                    if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
                     {
-                        arrayMask.SetBit(v);
-                        buffer << uint32(values[v]);
+                        arrayMask.set(v);
+                        *data << uint32(values[v]);
                     }
                 }
+
             }
             else
             {
-                uint32 count = 0;
-                arrayMask.SetCount(MAX_ITEM_MODIFIERS);
-                for (uint32 v = 0; v < MAX_ITEM_MODIFIERS; ++v)
+                // in case of ITEM_DYNAMIC_FIELD_MODIFIERS it is ITEM_FIELD_MODIFIERS_MASK that controls index of each value, not updatemask
+                // so we just have to write this starting from 0 index
+                for (std::size_t v = 0, m = 0; v < values.size(); ++v)
                 {
-                    if (uint32 modifier = _modifiers[v])
+                    if (values[v] || _dynamicChangesArrayMask[index][v])
                     {
-                        arrayMask.SetBit(count++);
-                        buffer << uint32(modifier);
+                        arrayMask.set(m++);
+                        *data << uint32(values[v]);
                     }
                 }
 
             }
 
-            fieldBuffer << uint8(arrayMask.GetBlockCount());
-            arrayMask.AppendToPacket(&fieldBuffer);
-            fieldBuffer.append(buffer);
+            boost::to_block_range(arrayMask, reinterpret_cast<uint32*>(data->contents() + fieldMaskPos));
         }
     }
 
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
-    data->append(fieldBuffer);
+    boost::to_block_range(updateMask, reinterpret_cast<uint32*>(data->contents() + maskPos));
 }
 
 void Item::AddToObjectUpdate()
@@ -1896,16 +1895,15 @@ uint32 Item::GetDisplayId() const
     return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
 
+uint32 Item::GetModifier(ItemModifier modifier) const
+{
+    return GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, modifier);
+}
+
 void Item::SetModifier(ItemModifier modifier, uint32 value)
 {
-    if (_modifiers[modifier] != value)
-    {
-        _dynamicChangesMask.SetBit(ITEM_DYNAMIC_FIELD_MODIFIERS);
-        AddToObjectUpdateIfNeeded();
-    }
-
-    _modifiers[modifier] = value;
     ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << modifier, value != 0);
+    SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, modifier, value);
 }
 
 uint32 Item::GetVisibleEntry() const

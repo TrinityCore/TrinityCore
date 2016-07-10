@@ -21,10 +21,10 @@
 
 #include "Common.h"
 #include "Position.h"
-#include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
 #include "Map.h"
+#include "UpdateFields.h"
 
 #include <set>
 #include <string>
@@ -168,6 +168,7 @@ class TC_GAME_API Object
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        uint32 GetDynamicValue(uint16 index, uint8 offset) const;
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
@@ -238,9 +239,9 @@ class TC_GAME_API Object
 
         std::vector<uint32>* _dynamicValues;
 
-        UpdateMask _changesMask;
-        UpdateMask _dynamicChangesMask;
-        UpdateMask* _dynamicChangesArrayMask;
+        std::vector<uint8> _changesMask;
+        std::vector<uint8> _dynamicChangesMask;
+        std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
         uint16 _dynamicValuesCount;
