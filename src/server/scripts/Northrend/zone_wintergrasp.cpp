@@ -378,7 +378,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
               uint32 _checkTimer;
         };
 
-        GameObjectAI* GetAI(GameObject* go) const
+        GameObjectAI* GetAI(GameObject* go) const override
         {
             return new go_wg_vehicle_teleporterAI(go);
         }
