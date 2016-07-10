@@ -73,11 +73,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (99263, 'spell_baleroc_vital_flame'),
 (99262, 'spell_baleroc_vital_spark');
 
--- Added missing spellscript (generic berserk spell)
-DELETE FROM `spell_script_names` WHERE `spell_id` = 26662;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(26662, 'spell_gen_berserk');
-
 -- Firelands Spells
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (101089,101092,101093);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
