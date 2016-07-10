@@ -482,7 +482,7 @@ bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
     return distsq < maxdist * maxdist;
 }
 
-bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
+bool Unit::IsWithinMeleeRange(Unit const* obj) const
 {
     if (!obj || !IsInMap(obj) || !InSamePhase(obj))
         return false;
@@ -492,10 +492,9 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
     float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float sizefactor = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
-    float maxdist = dist + sizefactor;
+    float maxdist = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
 
-    return distsq < maxdist * maxdist;
+    return distsq <= maxdist * maxdist;
 }
 
 void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const
@@ -13879,9 +13878,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
 
-        // For players set spell cooldown if need
         Milliseconds cooldown = Milliseconds::zero();
-        if (prepare && GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
+        if (prepare && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = Seconds(i->spellProcEvent->cooldown);
 
         // Note: must SetCantProc(false) before return
