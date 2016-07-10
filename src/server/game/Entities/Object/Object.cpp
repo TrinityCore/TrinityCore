@@ -1339,6 +1339,14 @@ std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
     return _dynamicValues[index];
 }
 
+uint32 Object::GetDynamicValue(uint16 index, uint8 offset) const
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    if (offset >= _dynamicValues[index].size())
+        return 0;
+    return _dynamicValues[index][offset];
+}
+
 void Object::AddDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));

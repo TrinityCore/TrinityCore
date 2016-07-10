@@ -1897,7 +1897,7 @@ uint32 Item::GetDisplayId() const
 
 uint32 Item::GetModifier(ItemModifier modifier) const
 {
-    return GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS)[modifier];
+    return GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, modifier);
 }
 
 void Item::SetModifier(ItemModifier modifier, uint32 value)
