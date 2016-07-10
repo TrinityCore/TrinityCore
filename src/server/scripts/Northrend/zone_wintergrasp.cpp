@@ -349,7 +349,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
             }
 
 
-            Creature* IsValidVehicle(Creature* cVeh)
+            Creature* GetValidVehicle(Creature* cVeh)
             {
                 if (!cVeh->HasAura(SPELL_VEHICLE_TELEPORT))
                     if (Vehicle* vehicle = cVeh->GetVehicleKit())
