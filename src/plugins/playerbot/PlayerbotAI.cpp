@@ -109,6 +109,7 @@ PlayerbotAI::PlayerbotAI(Player* bot) :
     botOutgoingPacketHandlers.AddHandler(SMSG_DUEL_REQUESTED, "duel requested");
     botOutgoingPacketHandlers.AddHandler(SMSG_LFG_ROLE_CHOSEN, "lfg role check");
     botOutgoingPacketHandlers.AddHandler(SMSG_LFG_PROPOSAL_UPDATE, "lfg proposal");
+	botOutgoingPacketHandlers.AddHandler(SMSG_BATTLEFIELD_STATUS, "bg status");
 
     masterOutgoingPacketHandlers.AddHandler(SMSG_PARTY_COMMAND_RESULT, "party command");
     masterOutgoingPacketHandlers.AddHandler(MSG_RAID_READY_CHECK, "ready check");
@@ -466,7 +467,14 @@ void PlayerbotAI::DoNextAction()
             if (member && member->IsInWorld() && !member->GetPlayerbotAI() && (!master || master->GetPlayerbotAI()))
             {
                 ai->SetMaster(member);
-                ai->ResetStrategies();
+				if (bot->InBattleground())
+				{
+					ai->ChangeStrategy("+follow",BotState::BOT_STATE_COMBAT);
+				}
+				else 
+				{
+					ai->ResetStrategies();
+				}
                 ai->TellMaster("Hello");
                 break;
             }
@@ -991,15 +999,14 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
         SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
         return false;
     }
-
+	if (spell->GetCastTime()>0)
+		bot->GetMotionMaster()->MovementExpired();
 	spell->prepare(&targets);
 	WaitForSpellCast(spell);
-
-    if (oldSel)
-        bot->SetSelection(oldSel->GetGUID());
-
-    LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
-    return lastSpell.id == spellId;
+	if (oldSel)
+		bot->SetSelection(oldSel->GetGUID());
+	LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
+	return lastSpell.id == spellId;
 }
 
 void PlayerbotAI::WaitForSpellCast(Spell *spell)
