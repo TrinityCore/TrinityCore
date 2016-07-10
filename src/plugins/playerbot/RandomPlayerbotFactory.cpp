@@ -22,24 +22,11 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_WARRIOR].push_back(RACE_TAUREN);
     availableRaces[CLASS_WARRIOR].push_back(RACE_TROLL);
     availableRaces[CLASS_WARRIOR].push_back(RACE_DRAENEI);
-    if (sPlayerbotAIConfig.aracgen) //thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_WARRIOR].push_back(RACE_BLOODELF);
-    }
-    
+
     availableRaces[CLASS_PALADIN].push_back(RACE_HUMAN);
     availableRaces[CLASS_PALADIN].push_back(RACE_DWARF);
     availableRaces[CLASS_PALADIN].push_back(RACE_DRAENEI);
     availableRaces[CLASS_PALADIN].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_PALADIN].push_back(RACE_NIGHTELF);
-        availableRaces[CLASS_PALADIN].push_back(RACE_GNOME);
-        availableRaces[CLASS_PALADIN].push_back(RACE_ORC);
-        availableRaces[CLASS_PALADIN].push_back(RACE_UNDEAD_PLAYER);
-        availableRaces[CLASS_PALADIN].push_back(RACE_TAUREN);
-        availableRaces[CLASS_PALADIN].push_back(RACE_TROLL);
-    }
 
     availableRaces[CLASS_ROGUE].push_back(RACE_HUMAN);
     availableRaces[CLASS_ROGUE].push_back(RACE_DWARF);
@@ -48,12 +35,6 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_ROGUE].push_back(RACE_ORC);
     availableRaces[CLASS_ROGUE].push_back(RACE_TROLL);
     availableRaces[CLASS_ROGUE].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_ROGUE].push_back(RACE_TAUREN);
-        availableRaces[CLASS_ROGUE].push_back(RACE_UNDEAD_PLAYER);
-        availableRaces[CLASS_ROGUE].push_back(RACE_DRAENEI);
-    }
 
     availableRaces[CLASS_PRIEST].push_back(RACE_HUMAN);
     availableRaces[CLASS_PRIEST].push_back(RACE_DWARF);
@@ -62,12 +43,6 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_PRIEST].push_back(RACE_TROLL);
     availableRaces[CLASS_PRIEST].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_PRIEST].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_PRIEST].push_back(RACE_ORC);
-        availableRaces[CLASS_PRIEST].push_back(RACE_TAUREN);
-        availableRaces[CLASS_PRIEST].push_back(RACE_GNOME);
-    }
 
     availableRaces[CLASS_MAGE].push_back(RACE_HUMAN);
     availableRaces[CLASS_MAGE].push_back(RACE_GNOME);
@@ -75,41 +50,17 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_MAGE].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_MAGE].push_back(RACE_TROLL);
     availableRaces[CLASS_MAGE].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_MAGE].push_back(RACE_TAUREN);
-        availableRaces[CLASS_MAGE].push_back(RACE_ORC);
-        availableRaces[CLASS_MAGE].push_back(RACE_DWARF);
-        availableRaces[CLASS_MAGE].push_back(RACE_NIGHTELF);
-    }
 
     availableRaces[CLASS_WARLOCK].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARLOCK].push_back(RACE_GNOME);
     availableRaces[CLASS_WARLOCK].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_WARLOCK].push_back(RACE_ORC);
     availableRaces[CLASS_WARLOCK].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_WARLOCK].push_back(RACE_TAUREN);
-        availableRaces[CLASS_WARLOCK].push_back(RACE_DWARF);
-        availableRaces[CLASS_WARLOCK].push_back(RACE_DRAENEI);
-        availableRaces[CLASS_WARLOCK].push_back(RACE_TROLL);
-        availableRaces[CLASS_WARLOCK].push_back(RACE_NIGHTELF);
-    }
 
     availableRaces[CLASS_SHAMAN].push_back(RACE_DRAENEI);
     availableRaces[CLASS_SHAMAN].push_back(RACE_ORC);
     availableRaces[CLASS_SHAMAN].push_back(RACE_TAUREN);
     availableRaces[CLASS_SHAMAN].push_back(RACE_TROLL);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_SHAMAN].push_back(RACE_HUMAN);
-        availableRaces[CLASS_SHAMAN].push_back(RACE_DWARF);
-        availableRaces[CLASS_SHAMAN].push_back(RACE_NIGHTELF);
-        availableRaces[CLASS_SHAMAN].push_back(RACE_UNDEAD_PLAYER);
-        availableRaces[CLASS_SHAMAN].push_back(RACE_BLOODELF);
-        availableRaces[CLASS_SHAMAN].push_back(RACE_GNOME);
-    }
 
     availableRaces[CLASS_HUNTER].push_back(RACE_DWARF);
     availableRaces[CLASS_HUNTER].push_back(RACE_NIGHTELF);
@@ -118,26 +69,9 @@ RandomPlayerbotFactory::RandomPlayerbotFactory(uint32 accountId) : accountId(acc
     availableRaces[CLASS_HUNTER].push_back(RACE_TAUREN);
     availableRaces[CLASS_HUNTER].push_back(RACE_TROLL);
     availableRaces[CLASS_HUNTER].push_back(RACE_BLOODELF);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_HUNTER].push_back(RACE_UNDEAD_PLAYER);
-        availableRaces[CLASS_HUNTER].push_back(RACE_HUMAN);
-        availableRaces[CLASS_HUNTER].push_back(RACE_GNOME);
-    }
 
     availableRaces[CLASS_DRUID].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
-    if (sPlayerbotAIConfig.aracgen) // thesawolf - ARAC enabled
-    {
-        availableRaces[CLASS_DRUID].push_back(RACE_HUMAN);    
-        availableRaces[CLASS_DRUID].push_back(RACE_ORC);
-        availableRaces[CLASS_DRUID].push_back(RACE_UNDEAD_PLAYER);
-        availableRaces[CLASS_DRUID].push_back(RACE_TROLL);
-        availableRaces[CLASS_DRUID].push_back(RACE_BLOODELF);
-        availableRaces[CLASS_DRUID].push_back(RACE_DRAENEI);
-        availableRaces[CLASS_DRUID].push_back(RACE_GNOME);
-        availableRaces[CLASS_DRUID].push_back(RACE_DWARF);
-    }
 }
 
 typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
@@ -166,106 +100,9 @@ CharSectionsEntry const* GetRandomCharSection(uint8 race, CharSectionType genTyp
     return charSections[charSectionIndex];
 }
 
-//thesawolf - not so random chargen
-//NOTE: originally I had this if..else merged into CreateRandomBot but it was coughing up errors
-bool RandomPlayerbotFactory::CreateNotRandomBot(uint32 nid)
-{
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "START: Creating new preset bot starting with ID %u", nid);
-
-    QueryResult result = CharacterDatabase.PQuery("SELECT * from ai_playerbot_names WHERE name_id = '%d'", nid);
-    
-    if (!result)
-    {
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "No more names left for random bots");
-        return false;
-    }
-
-    Field *fields = result->Fetch();
-    string name = fields[1].GetString();
-    uint8 gender = fields[2].GetUInt8();
-    if (!gender)//(gender == "0xFF") //random fallback
-    {
-        uint8 gender = rand() % 2? GENDER_MALE : GENDER_FEMALE;
-    }
-    uint8 cls = fields[4].GetUInt8();
-    if (!cls)//(cls == "0xFFFF") //random fallback
-    {
-        //TODO: put in random minus DK(6) and Monk(10)
-    }        
-    uint8 race = fields[3].GetUInt8();
-    if (!race)//(race == "0xFFFF") //random fallback
-    {
-        uint8 race = availableRaces[cls][urand(0, availableRaces[cls].size() - 1)];
-    }
-
-        //DEBUG THIS
-        uint8 inuse = fields[7].GetUInt8();
-        //sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "   DEBUG->id:%u - name:%s - race:%u - gender:%u - cls:%u - inuse:%u", nid, name, race, gender, cls, inuse);
-
-    //thesawolf - lets update in_use SQL flag for a name to avoid dupes
-    //TODO: toggle in_use back to 0 if deleting characters/accounts
-    
-    CharacterDatabase.PExecute("UPDATE ai_playerbot_names SET in_use = 1 WHERE name_id = '%u'", nid);
-    /*
-    result = CharacterDatabase.PQuery("SELECT * FROM ai_playerbot_names WHERE in_use = 0 AND name_id = '%u'", nid);
-    if (result)
-    {
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "   !!! Issue with in_use lock for id:%u - name:%s", nid, name);
-        return false;    
-    }
-    */
-    
-    CharSectionsEntry const* skin = GetRandomCharSection(race, SECTION_TYPE_SKIN, gender);
-    CharSectionsEntry const* face = GetRandomCharSection(race, SECTION_TYPE_FACE, gender, skin->Color);
-    CharSectionsEntry const* hair = GetRandomCharSection(race, SECTION_TYPE_HAIR, gender);
-    CharSectionsEntry const* facialHair = GetRandomCharSection(race, SECTION_TYPE_FACIAL_HAIR, gender, hair->Color);
-    uint8 outfitId = 0;
-
-    WorldSession* session = new WorldSession(accountId, "rndbot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-    if (!session)
-    {
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Couldn't create session for random bot account %d", accountId);
-        delete session;
-        return false;
-    }
-
-    Player *player = new Player(session);
-
-    CharacterCreateInfo cci;
-    cci.Name = name;
-    cci.Race = race;
-    cci.Class = cls;
-    cci.Gender = gender;
-    cci.Skin = skin->Color;
-    cci.Face = face->Type;
-    cci.HairStyle = hair->Type;
-    cci.HairColor = hair->Color;
-    cci.FacialHair = facialHair ? facialHair->Type : 0;
-    cci.OutfitId = outfitId;
-
-    if (!player->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), &cci))
-    {
-        player->DeleteFromDB(player->GetGUID(), accountId, true, true);
-        delete session;
-        delete player;
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "Unable to create random bot for account %d - name: \"%s\"; race: %u; class: %u",
-                accountId, name.c_str(), race, cls);
-        return false;
-    }
-
-    player->setCinematic(2);
-    player->SetAtLoginFlag(AT_LOGIN_NONE);
-    player->SaveToDB(true);
-
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preset bot created for account %d - name: \"%s\"; race: %u; class: %u",
-            accountId, name.c_str(), race, cls);
-
-    return true;
-}
-
 bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "START: Creating new random bot for class %d", cls);
+    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Creating new random bot for class %d", cls);
 
     uint8 gender = rand() % 2 ? GENDER_MALE : GENDER_FEMALE;
 
@@ -344,9 +181,10 @@ string RandomPlayerbotFactory::CreateRandomBotName()
         return "";
     }
 
-    fields = result->Fetch();
+	fields = result->Fetch();
     return fields[0].GetString();
 }
+
 
 void RandomPlayerbotFactory::CreateRandomBots()
 {
@@ -384,16 +222,12 @@ void RandomPlayerbotFactory::CreateRandomBots()
         }
         sAccountMgr->CreateAccount(accountName, password, "playerbot");
 
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "+ Account %s created for random bots", accountName.c_str());
+        sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Account %s created for random bots", accountName.c_str());
     }
 
     LoginDatabase.PExecute("UPDATE account SET expansion = '%u' where username like '%s%%'", 2, sPlayerbotAIConfig.randomBotAccountPrefix.c_str());
 
     int totalRandomBotChars = 0;
-    
-    //thesawolf - kludgy fix for notrandom and name overlaps - FIXME
-    uint32 nid = 0;
-
     for (int accountNumber = 0; accountNumber < sPlayerbotAIConfig.randomBotAccountCount; ++accountNumber)
     {
         ostringstream out; out << sPlayerbotAIConfig.randomBotAccountPrefix << accountNumber;
@@ -416,39 +250,16 @@ void RandomPlayerbotFactory::CreateRandomBots()
         }
 
         RandomPlayerbotFactory factory(accountId);
-
         for (uint8 cls = CLASS_WARRIOR; cls < MAX_CLASSES; ++cls)
         {
             if (cls != 10 && cls != CLASS_DEATH_KNIGHT)
-                //thesawolf - NotSoRandom chargen
-                if (sPlayerbotAIConfig.notrandom)
-                {
-                    QueryResult qresult = CharacterDatabase.Query("SELECT COUNT(in_use) FROM ai_playerbot_names WHERE in_use = 0");
-
-                    Field *fields = qresult->Fetch();
-                    uint32 bstop = fields[0].GetUInt32();
-                    
-                    if (bstop == 0 || bstop == NULL)
-                    {
-                        cls = MAX_CLASSES;
-                    } 
-                    else 
-                    {
-                        ++nid;
-                        //factory.CreateNotRandomBot(cls);
-                        factory.CreateNotRandomBot(nid);
-                    }
-                }
-                else
-                {
-                    factory.CreateRandomBot(cls);
-                }
+                factory.CreateRandomBot(cls);
         }
 
         totalRandomBotChars += sAccountMgr->GetCharactersCount(accountId);
     }
 
-    sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "=== %d random bot accounts with %d characters available (total %d bots added)", sPlayerbotAIConfig.randomBotAccounts.size(), totalRandomBotChars, nid);
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d random bot accounts with %d characters available", sPlayerbotAIConfig.randomBotAccounts.size(), totalRandomBotChars);
 }
 
 
