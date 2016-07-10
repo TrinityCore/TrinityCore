@@ -365,7 +365,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 {
                     for (uint8 i = 0; i < MAX_WINTERGRASP_VEHICLES; i++)
                         if (Creature* vehicleCreature = go->FindNearestCreature(vehiclesList[i], 3.0f, true))
-                            if (Creature* teleportTrigger = IsValidVehicle(vehicleCreature))
+                            if (Creature* teleportTrigger = GetValidVehicle(vehicleCreature))
                                 teleportTrigger->CastSpell(vehicleCreature, SPELL_VEHICLE_TELEPORT, true);
 
                     _checkTimer = 0;
