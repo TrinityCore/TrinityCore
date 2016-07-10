@@ -1356,7 +1356,8 @@ std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
 uint32 Object::GetDynamicValue(uint16 index, uint16 offset) const
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-    ASSERT(offset < _dynamicValues[index].size());
+    if (offset >= _dynamicValues[index].size())
+        return 0;
     return _dynamicValues[index][offset];
 }
 
