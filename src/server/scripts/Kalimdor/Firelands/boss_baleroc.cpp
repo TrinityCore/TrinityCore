@@ -423,8 +423,8 @@ class boss_baleroc : public CreatureScript
 
             bool SharedThePain() const
             {
-                for (std::unordered_map<ObjectGuid, uint8>::const_iterator itr = _sharedThePain.begin(); itr != _sharedThePain.end(); ++itr)
-                    if (itr->second > 3)
+                for (auto entry : _sharedThePain)
+                    if (entry.second > 3)
                         return false;
 
                 return true;
