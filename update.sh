@@ -10,6 +10,7 @@ read -n1 -r -p "Press any key to continue..." key
 
 git reset --hard
 git pull
+echo
 sudo rm -r -f ./build
 mkdir build
 cd build
