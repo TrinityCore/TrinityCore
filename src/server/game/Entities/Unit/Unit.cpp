@@ -4684,7 +4684,8 @@ void Unit::_UnregisterDynObject(DynamicObject* dynObj)
 
 DynamicObject* Unit::GetDynObject(uint32 spellId) const
 {
-    return GetDynObjects(spellId).front();
+    std::vector<DynamicObject*> dynamicobjects = GetDynObjects(spellId);
+    return dynamicobjects.empty() ? nullptr : dynamicobjects.front();
 }
 
 std::vector<DynamicObject*> Unit::GetDynObjects(uint32 spellId) const
@@ -4722,7 +4723,8 @@ void Unit::RemoveAllDynObjects()
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
 {
-    return GetGameObjects(spellId).front();
+    std::vector<GameObject*> gameobjects = GetGameObjects(spellId);
+    return gameobjects.empty() ? nullptr : gameobjects.front();
 }
 
 std::vector<GameObject*> Unit::GetGameObjects(uint32 spellId) const
