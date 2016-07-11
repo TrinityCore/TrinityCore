@@ -34,7 +34,6 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
-#include <boost/dynamic_bitset.hpp>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(NULL), m_goValue(), m_AI(NULL), _animKitId(0)
@@ -2300,16 +2299,16 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     bool forcedFlags = GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.usegrouplootrules && HasLootRecipient();
     bool targetIsGM = target->IsGameMaster();
 
-    boost::dynamic_bitset<uint32> updateMask(m_valuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(m_valuesCount);
 
     uint32* flags = GameObjectUpdateFieldFlags;
     uint32 visibleFlag = UF_FLAG_PUBLIC;
     if (GetOwnerGUID() == target->GetGUID())
         visibleFlag |= UF_FLAG_OWNER;
 
-    *data << uint8(updateMask.num_blocks());
+    *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
-    data->resize(data->size() + updateMask.num_blocks() * sizeof(uint32));
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
@@ -2317,7 +2316,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
             (index == GAMEOBJECT_FLAGS && forcedFlags))
         {
-            updateMask.set(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             if (index == OBJECT_DYNAMIC_FLAGS)
             {
@@ -2391,8 +2390,6 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 *data << m_uint32Values[index];                // other cases
         }
     }
-
-    boost::to_block_range(updateMask, reinterpret_cast<uint32*>(data->contents() + maskPos));
 }
 
 void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = NULL*/) const
