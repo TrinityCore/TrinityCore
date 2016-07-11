@@ -277,6 +277,9 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
             break;
     }
 
+    if ((Flags & QUEST_FLAGS_RAID) != 0)
+        return true;
+
     return false;
 }
 
@@ -307,4 +310,11 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
     }
 
     return honor;
+}
+
+bool Quest::CanIncreaseRewardedQuestCounters() const
+{
+    // Dungeon Finder/Daily/Repeatable (if not weekly, monthly or seasonal) quests are never considered rewarded serverside.
+    // This affects counters and client requests for completed quests.
+    return (!IsDFQuest() && !IsDaily() && (!IsRepeatable() || IsWeekly() || IsMonthly() || IsSeasonal()));
 }
