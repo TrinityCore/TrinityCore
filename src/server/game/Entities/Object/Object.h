@@ -488,7 +488,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsWithinDist2d(Position const* pos, float dist) const;
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
-        bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;
+        bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true) const;
         bool IsWithinLOS(float x, float y, float z, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
         bool IsWithinLOSInMap(WorldObject const* obj, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
         Position GetHitSpherePointFor(Position const& dest) const;
@@ -647,7 +647,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
-        virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
+        virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
         bool CanNeverSee(WorldObject const* obj) const;
         virtual bool CanAlwaysSee(WorldObject const* /*obj*/) const { return false; }

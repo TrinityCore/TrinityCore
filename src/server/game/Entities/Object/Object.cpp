@@ -1113,9 +1113,11 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
     return (dist > 0 ? dist : 0);
 }
 
-bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
+bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius) const
 {
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float sizefactor = 0;
+    sizefactor += incOwnRadius ? GetObjectSize() : 0;
+    sizefactor += incTargetRadius ? obj->GetObjectSize() : 0;
     float maxdist = dist2compare + sizefactor;
 
     if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
@@ -1226,9 +1228,9 @@ bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool 
     return obj && _IsWithinDist(obj, dist2compare, is3D);
 }
 
-bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
+bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/, bool incOwnRadius /*= true*/, bool incTargetRadius /*= true*/) const
 {
-    return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
+    return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz, VMAP::ModelIgnoreFlags ignoreFlags) const
