@@ -45,7 +45,6 @@
 #include "BattlefieldMgr.h"
 #include "GameObjectPackets.h"
 #include "MiscPackets.h"
-#include <boost/dynamic_bitset.hpp>
 
 Object::Object()
 {
@@ -750,27 +749,25 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     if (!target)
         return;
 
-    boost::dynamic_bitset<uint32> updateMask(m_valuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(m_valuesCount);
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
     ASSERT(flags);
 
-    *data << uint8(updateMask.num_blocks());
+    *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
-    data->resize(data->size() + updateMask.num_blocks() * sizeof(uint32));
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
-            updateMask.set(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
             *data << m_uint32Values[index];
         }
     }
-
-    boost::to_block_range(updateMask, reinterpret_cast<uint32*>(data->contents() + maskPos));
 }
 
 void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -778,14 +775,14 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     if (!target)
         return;
 
-    boost::dynamic_bitset<uint32> updateMask(_dynamicValuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
-    *data << uint8(updateMask.num_blocks());
+    *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
-    data->resize(data->size() + updateMask.num_blocks() * sizeof(uint32));
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
@@ -793,26 +790,22 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            updateMask.set(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
-            boost::dynamic_bitset<uint32> arrayMask(values.size());
-            *data << uint8(arrayMask.num_blocks());
-            std::size_t fieldMaskPos = data->wpos();
-            data->resize(data->size() + arrayMask.num_blocks() * sizeof(uint32));
+            std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
+            *data << uint8(arrayBlockCount);
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             for (std::size_t v = 0; v < values.size(); ++v)
             {
                 if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
                 {
-                    arrayMask.set(v);
+                    UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                     *data << uint32(values[v]);
                 }
             }
-
-            boost::to_block_range(arrayMask, reinterpret_cast<uint32*>(data->contents() + fieldMaskPos));
         }
     }
-
-    boost::to_block_range(updateMask, reinterpret_cast<uint32*>(data->contents() + maskPos));
 }
 
 void Object::AddToObjectUpdateIfNeeded()

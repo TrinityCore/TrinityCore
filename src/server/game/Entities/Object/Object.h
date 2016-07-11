@@ -92,6 +92,25 @@ class ZoneScript;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
+namespace UpdateMask
+{
+    typedef uint32 BlockType;
+
+    inline std::size_t GetBlockCount(std::size_t bitCount)
+    {
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
+        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    template<typename T>
+    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    {
+        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
+        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+    }
+}
+
 class TC_GAME_API Object
 {
     public:
