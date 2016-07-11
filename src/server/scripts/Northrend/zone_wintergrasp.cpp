@@ -345,7 +345,6 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                         (go->GetUInt32Value(GAMEOBJECT_FACTION) == WintergraspFaction[TEAM_ALLIANCE] && passenger->getRaceMask() & RACEMASK_ALLIANCE));
             }
 
-
             Creature* GetValidVehicle(Creature* cVeh)
             {
                 if (!cVeh->HasAura(SPELL_VEHICLE_TELEPORT))
