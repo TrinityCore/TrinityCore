@@ -10,7 +10,8 @@ read -n1 -r -p "Press any key to continue..." key
 
 git reset --hard
 git pull
-rm -r -f ./build
+echo
+sudo rm -r -f ./build
 mkdir build
 cd build
 cmake .. -DCONF_DIR=/home/conan/Settings -DTOOLS=0 -DWITH_WARNINGS=0
