@@ -28,3 +28,61 @@ DELETE FROM `creature_text` WHERE `entry`=23191 AND `groupid` IN (3,4);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (23191,3,0,'I will not last much longer!',14,0,100,0,0,11385,21784,0,'Akama SAY_LOW_HEALTH'),
 (23191,4,0,'No! Not yet!',14,0,100,0,0,11386,21785,0,'Akama SAY_DEAD');
+
+-- Waypoints
+
+-- Middle Creatures
+SET @NPC := 12806;
+SET @PATH := @NPC * 10;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=489.6115,`position_y`=407.0968,`position_z`=112.7839 WHERE `guid`=@NPC;
+UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `guid`=12805;
+DELETE FROM `creature_addon` WHERE `guid`=@NPC;
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(@NPC,@PATH,0,0,1,0, '');
+DELETE FROM `waypoint_data` WHERE `id`=@PATH;
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,489.6115,407.0968,112.7839,0,0,0,0,100,0),
+(@PATH,2,521.2068,407.0993,112.7837,0,0,0,0,100,0);
+DELETE FROM `creature_formations` WHERE `leaderGUID`=@NPC;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(@NPC,@NPC,0,0,1,0,0),
+(@NPC,12805,6,90,2,1,2);
+
+-- Side Creatures
+SET @NPC := 12780;
+SET @PATH := @NPC * 10;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=528.3928,`position_y`=429.879,`position_z`=113.0337 WHERE `guid`=@NPC;
+DELETE FROM `creature_addon` WHERE `guid`=@NPC;
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(@NPC,@PATH,0,0,1,0, '');
+DELETE FROM `waypoint_data` WHERE `id`=@PATH;
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,528.3928,429.879,113.0337,0,0,0,0,100,0),
+(@PATH,2,506.946,432.0048,113.0337,0,0,0,0,100,0),
+(@PATH,3,500.5693,414.4586,113.0338,0,0,0,0,100,0),
+(@PATH,4,506.946,432.0048,113.0337,0,0,0,0,100,0);
+
+SET @NPC := 12782;
+SET @PATH := @NPC * 10;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=516.83,`position_y`=368.9177,`position_z`=113.0337 WHERE `guid`=@NPC;
+DELETE FROM `creature_addon` WHERE `guid`=@NPC;
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
+(@NPC,@PATH,0,0,1,0, '');
+DELETE FROM `waypoint_data` WHERE `id`=@PATH;
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,501.718,381.9136,113.0337,0,0,0,0,100,0),
+(@PATH,2,507.699,369.5598,113.0337,0,0,0,0,100,0),
+(@PATH,3,527.0941,372.4955,113.0337,0,0,0,0,100,0),
+(@PATH,4,507.699,369.5598,113.0337,0,0,0,0,100,0);
+
+UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `guid` IN (12804,12814,12791,12807,12815,12793);
+DELETE FROM `creature_formations` WHERE `leaderGUID` IN (12780,12782);
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(12780,12780,0,  0,1,0,0),
+(12780,12804,5,30,1,3,1),
+(12780,12814,8, 45,1,3,1),
+(12780,12791,5,315,1,3,1),
+(12782,12782,0,  0,1,0,0),
+(12782,12807,5,290,1,1,3),
+(12782,12815,8,315,1,1,3),
+(12782,12793,5, 45,1,1,3);
