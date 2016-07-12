@@ -87,7 +87,7 @@ public:
     void LoadAccountItemAppearances(PreparedQueryResult knownAppearances, PreparedQueryResult favoriteAppearances);
     void SaveAccountItemAppearances(SQLTransaction& trans);
     void AddItemAppearance(Item* item);
-    void AddItemAppearance(uint32 itemId);
+    void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
     void RemoveTemporaryAppearance(Item* item);
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;

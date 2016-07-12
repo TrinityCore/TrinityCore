@@ -422,9 +422,9 @@ void CollectionMgr::AddItemAppearance(Item* item)
     AddItemAppearance(itemModifiedAppearance);
 }
 
-void CollectionMgr::AddItemAppearance(uint32 itemId)
+void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 0*/)
 {
-    ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(itemId, 0);
+    ItemModifiedAppearanceEntry const* itemModifiedAppearance = sDB2Manager.GetItemModifiedAppearance(itemId, appearanceModId);
     if (!CanAddAppearance(itemModifiedAppearance))
         return;
 

@@ -17525,6 +17525,13 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, upgradeId, bonusListIDs);
+
+        WorldPackets::Item::ItemInstance voidInstance;
+        voidInstance.Initialize(_voidStorageItems[slot]);
+        BonusData bonus;
+        bonus.Initialize(voidInstance);
+
+        GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, bonus.AppearanceModID);
     }
     while (result->NextRow());
 }
