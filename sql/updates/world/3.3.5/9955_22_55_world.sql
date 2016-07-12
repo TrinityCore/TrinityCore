@@ -45,7 +45,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,2,521.2068,407.0993,112.7837,0,0,0,0,100,0);
 DELETE FROM `creature_formations` WHERE `leaderGUID`=@NPC;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
-(@NPC,@NPC,0,0,1,0,0),
+(@NPC,@NPC ,0, 0,1,0,0),
 (@NPC,12805,6,90,2,1,2);
 
 -- Side Creatures
@@ -57,10 +57,10 @@ INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`
 (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,528.3928,429.879,113.0337,0,0,0,0,100,0),
-(@PATH,2,506.946,432.0048,113.0337,0,0,0,0,100,0),
+(@PATH,1,528.3928, 429.879,113.0337,0,0,0,0,100,0),
+(@PATH,2, 506.946,432.0048,113.0337,0,0,0,0,100,0),
 (@PATH,3,500.5693,414.4586,113.0338,0,0,0,0,100,0),
-(@PATH,4,506.946,432.0048,113.0337,0,0,0,0,100,0);
+(@PATH,4, 506.946,432.0048,113.0337,0,0,0,0,100,0);
 
 SET @NPC := 12782;
 SET @PATH := @NPC * 10;
@@ -70,16 +70,16 @@ INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`
 (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,501.718,381.9136,113.0337,0,0,0,0,100,0),
-(@PATH,2,507.699,369.5598,113.0337,0,0,0,0,100,0),
+(@PATH,1, 501.718,381.9136,113.0337,0,0,0,0,100,0),
+(@PATH,2, 507.699,369.5598,113.0337,0,0,0,0,100,0),
 (@PATH,3,527.0941,372.4955,113.0337,0,0,0,0,100,0),
-(@PATH,4,507.699,369.5598,113.0337,0,0,0,0,100,0);
+(@PATH,4, 507.699,369.5598,113.0337,0,0,0,0,100,0);
 
 UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `guid` IN (12804,12814,12791,12807,12815,12793);
 DELETE FROM `creature_formations` WHERE `leaderGUID` IN (12780,12782);
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (12780,12780,0,  0,1,0,0),
-(12780,12804,5,30,1,3,1),
+(12780,12804,5, 30,1,3,1),
 (12780,12814,8, 45,1,3,1),
 (12780,12791,5,315,1,3,1),
 (12782,12782,0,  0,1,0,0),
