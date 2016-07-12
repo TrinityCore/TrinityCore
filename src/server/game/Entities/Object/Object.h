@@ -96,10 +96,21 @@ namespace UpdateMask
 {
     typedef uint32 BlockType;
 
+    enum DynamicFieldChangeType : uint8
+    {
+        VALUE_CHANGED           = 0x7F,
+        VALUE_AND_SIZE_CHANGED  = 0x80
+    };
+
     inline std::size_t GetBlockCount(std::size_t bitCount)
     {
         using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
         return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
+    {
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * (3 - updateType /*this part evaluates to 0 if update type is not VALUES*/));
     }
 
     template<typename T>
@@ -259,7 +270,7 @@ class TC_GAME_API Object
         std::vector<uint32>* _dynamicValues;
 
         std::vector<uint8> _changesMask;
-        std::vector<uint8> _dynamicChangesMask;
+        std::vector<UpdateMask::DynamicFieldChangeType> _dynamicChangesMask;
         std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;

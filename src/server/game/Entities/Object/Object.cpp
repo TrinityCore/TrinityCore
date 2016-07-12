@@ -793,7 +793,10 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
             UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
-            *data << uint8(arrayBlockCount);
+            *data << uint8(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+                *data << uint16(values.size());
+
             std::size_t arrayMaskPos = data->wpos();
             data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             for (std::size_t v = 0; v < values.size(); ++v)
@@ -1359,7 +1362,7 @@ void Object::ClearDynamicValue(uint16 index)
     if (!_dynamicValues[index].empty())
     {
         _dynamicValues[index].clear();
-        _dynamicChangesMask[index] = 1;
+        _dynamicChangesMask[index] = UpdateMask::VALUE_AND_SIZE_CHANGED;
         _dynamicChangesArrayMask[index].clear();
 
         AddToObjectUpdateIfNeeded();
@@ -1370,9 +1373,13 @@ void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
 
+    UpdateMask::DynamicFieldChangeType changeType = UpdateMask::VALUE_CHANGED;
     std::vector<uint32>& values = _dynamicValues[index];
     if (values.size() <= offset)
+    {
         values.resize(offset + 1);
+        changeType = UpdateMask::VALUE_AND_SIZE_CHANGED;
+    }
 
     if (_dynamicChangesArrayMask[index].size() <= offset)
         _dynamicChangesArrayMask[index].resize((offset / 32 + 1) * 32);
@@ -1380,7 +1387,7 @@ void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
     if (values[offset] != value)
     {
         values[offset] = value;
-        _dynamicChangesMask[index] = 1;
+        _dynamicChangesMask[index] = changeType;
         _dynamicChangesArrayMask[index][offset] = 1;
 
         AddToObjectUpdateIfNeeded();

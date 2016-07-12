@@ -1145,7 +1145,10 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
-            *data << uint8(arrayBlockCount);
+            *data << uint8(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+                *data << uint16(values.size());
+
             std::size_t arrayMaskPos = data->wpos();
             data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             if (index != ITEM_DYNAMIC_FIELD_MODIFIERS)
@@ -1158,13 +1161,13 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                         *data << uint32(values[v]);
                     }
                 }
-
             }
             else
             {
                 // in case of ITEM_DYNAMIC_FIELD_MODIFIERS it is ITEM_FIELD_MODIFIERS_MASK that controls index of each value, not updatemask
                 // so we just have to write this starting from 0 index
-                for (std::size_t v = 0, m = 0; v < values.size(); ++v)
+                uint16 m = 0;
+                for (std::size_t v = 0; v < values.size(); ++v)
                 {
                     if (values[v])
                     {
@@ -1173,6 +1176,8 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                     }
                 }
 
+                if (_changesMask[ITEM_FIELD_MODIFIERS_MASK] && updateType == UPDATETYPE_VALUES)
+                    data->put(arrayMaskPos - sizeof(m), m);
             }
         }
     }
