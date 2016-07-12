@@ -13,7 +13,7 @@ PlayerbotSecurity::PlayerbotSecurity(Player* const bot) : bot(bot)
 
 PlayerbotSecurityLevel PlayerbotSecurity::LevelFor(Player* from, DenyReason* reason, bool ignoreGroup)
 {
-    if (from->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
+	if (from->GetSession()->GetSecurity() >= SEC_PLAYER) //SEC_GAMEMASTER) thesawolf
         return PLAYERBOT_SECURITY_ALLOW_ALL;
 
     if (from->GetPlayerbotAI())
@@ -114,7 +114,7 @@ bool PlayerbotSecurity::CheckLevelFor(PlayerbotSecurityLevel level, bool silent,
         return false;
 
     Player* master = bot->GetPlayerbotAI()->GetMaster();
-    if (master && bot->GetPlayerbotAI() && bot->GetPlayerbotAI()->IsOpposing(master) && master->GetSession()->GetSecurity() < SEC_GAMEMASTER)
+	if (master && bot->GetPlayerbotAI() && bot->GetPlayerbotAI()->IsOpposing(master) && master->GetSession()->GetSecurity() < SEC_PLAYER)//SEC_GAMEMASTER) thesawolf
         return false;
 
     ostringstream out;
