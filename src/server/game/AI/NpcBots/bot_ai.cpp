@@ -19,7 +19,6 @@ Quests
 I NEED MORE
 
 Further updates/features by: thesawolf (@ gmail . com) 
-Patch files available: SOONISH
 */
 const uint8 GroupIconsFlags[TARGETICONCOUNT] =
 {
@@ -4376,7 +4375,7 @@ bool bot_minion_ai::OnGossipHello(Player* player, Creature* creature, uint32 /*o
             if (creature->IsHostileTo(player) || player->IsHostileTo(creature) ||
                 creature->HasAura(BERSERK))
                 reason = -1;
-            if (!reason && creature->GetBotAI()->GetBotOwnerGuid())
+            if (!reason && (player->GetGUID().GetCounter() != creature->GetBotAI()->GetBotOwnerGuid()) && (creature->GetBotAI()->GetBotOwnerGuid() != 0))
                 reason = 1;
             if (!reason && player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
                 reason = 2;
@@ -4399,19 +4398,19 @@ bool bot_minion_ai::OnGossipHello(Player* player, Creature* creature, uint32 /*o
             {
                 std::ostringstream message;
                 message << "Do you wish to hire " << creature->GetName() << '?';
-                player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "Will you follow me?",
+                player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "Will you follow me? (hire)",
                     GOSSIP_SENDER_HIRE, GOSSIP_ACTION_INFO_DEF + 0, message.str().c_str(), cost, false);
             }
             else
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Will you follow me?", GOSSIP_SENDER_HIRE, GOSSIP_ACTION_INFO_DEF + reason);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Will you follow me? (hire)", GOSSIP_SENDER_HIRE, GOSSIP_ACTION_INFO_DEF + reason);
 
             if (creature->GetBotClass() >= BOT_CLASS_EX_START)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "<Take a better look on this one>", GOSSIP_SENDER_SCAN, GOSSIP_ACTION_INFO_DEF + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "<Take a better look at this one>", GOSSIP_SENDER_SCAN, GOSSIP_ACTION_INFO_DEF + 1);
             
             //thesawolf - add set faction option to gossip
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Pick a side!", GOSSIP_SENDER_FACTION, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Pick a side! (set faction)", GOSSIP_SENDER_FACTION, GOSSIP_ACTION_INFO_DEF + 1);
             //thesawolf - a delete for good measure
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "You can go now...", GOSSIP_SENDER_EARLYDISMISS, GOSSIP_ACTION_INFO_DEF + 1);            
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "You can go now... (delete)", GOSSIP_SENDER_EARLYDISMISS, GOSSIP_ACTION_INFO_DEF + 1);            
 
             menus = true;
         }
@@ -4457,9 +4456,19 @@ bool bot_minion_ai::OnGossipHello(Player* player, Creature* creature, uint32 /*o
         if (player == creature->GetBotOwner())
         {
             std::ostringstream astr;
-            astr << "Are you going to send " << creature->GetName() << " away?";
+            astr << "Are you going to DISMISS " << creature->GetName() << "?";
             player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "You are dismissed",
                 GOSSIP_SENDER_DISMISS, GOSSIP_ACTION_INFO_DEF + 1, astr.str().c_str(), 0, false);
+
+            std::ostringstream rstr;
+            rstr << "Are you going to RELEASE " << creature->GetName() << "?";
+            player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "You are free to go (reset owner)",
+                GOSSIP_SENDER_RELEASE, GOSSIP_ACTION_INFO_DEF + 1, rstr.str().c_str(), 0, false);
+
+            std::ostringstream fstr;
+            fstr << "Are you going to FIRE " << creature->GetName() << "?!";
+            player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "You are fired! (remove)",
+                GOSSIP_SENDER_FIRE, GOSSIP_ACTION_INFO_DEF + 1, fstr.str().c_str(), 0, false);
 
             menus = true;
         }
@@ -4497,12 +4506,31 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
         case 0: //any kind of fail
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_NO);
-            BotSay("You may want to try that again.. or try something different..", player);
+            BotSay("Ok then...", player);
             break;
         }
         case 1: //return to main menu
         {
             return bot_minion_ai::OnGossipHello(player, creature, 0);
+        }
+        case GOSSIP_SENDER_RELEASE:
+        {
+            //thesawolf - release npcbot (reset owner)
+            if (!IAmFree())
+                master->GetBotMgr()->RemoveBot(me->GetGUID(), BOT_REMOVE_DISMISS);
+            else
+            {
+                ResetBotAI(BOTAI_RESET_DISMISS);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NPCBOT_OWNER);
+                //"UPDATE characters_npcbot SET owner = ? WHERE entry = ?", CONNECTION_ASYNC
+                stmt->setUInt32(0, uint32(0));
+                stmt->setUInt32(1, me->GetEntry());
+                CharacterDatabase.Execute(stmt);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                BotSay("I'm out of here!", player);
+            }
+            break;        
         }
         case GOSSIP_SENDER_EARLYDISMISS:
         {
@@ -4778,6 +4806,9 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
             }
             else
             {
+                //thesawolf - TODO: It works.. but not group clickable yet for some reason
+                // probably because Npcbots are pseudo-grouped since they are npc's - FIXME
+
                 //aftercastTargetGuid = player->GetGUID();
                 //portspell->prepare(&targets);
                 PlaySound(TEXT_EMOTE_TRAIN);
@@ -5016,7 +5047,7 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, str.str().c_str(), GOSSIP_SENDER_EQUIPMENT_SHOW, action);
             }
 
-            //s2.2.1 add unequip option if have weapon (GMs only)
+            //s2.2.1 add unequip option if have weapon (GMs only) removed GM only
             if (action - GOSSIP_ACTION_INFO_DEF <= BOT_SLOT_RANGED)
                 //if (player->IsGameMaster())
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Use your old equipment", GOSSIP_SENDER_EQUIP_RESET, action);
@@ -5498,7 +5529,7 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                 // thesawolf - stop unhired reset npcbot from killing player
                 // BotYell("Die!", player);
                 // me->Attack(player, IsMelee());
-                BotSay("...", player);
+                BotSay("Do I really look like I'd join you?!", player);
                 break;
             }
             else
@@ -5550,6 +5581,48 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
 
             //send items to owner -- Unequip all
             bool abort = false;
+            /* thesawolf - maintain gearset
+            for (uint8 i = 0; i != BOT_INVENTORY_SIZE; ++i)
+            {
+                if (!(i < BOT_SLOT_RANGED ? _resetEquipment(i) : _unequip(i)))
+                {
+                    std::ostringstream estr;
+                    estr << "Cannot reset equipment in slot " << uint32(i) << " (" << _getNameForSlot(i + 1) << ")! Cannot dismiss bot!";
+                    ChatHandler ch(player->GetSession());
+                    ch.SendSysMessage(estr.str().c_str());
+                    abort = true;
+                    break;
+                }
+            }
+            */
+            
+            if (abort)
+                break;
+            mgr->RemoveBot(me->GetGUID(), BOT_REMOVE_DISMISS);
+            /* remove this hire lockout
+            if (Aura* bers = me->AddAura(BERSERK, me))
+            {
+                uint32 dur = 1 * HOUR * IN_MILLISECONDS;
+                bers->SetDuration(dur);
+                bers->SetMaxDuration(dur);
+            }
+            */
+            
+            me->setFaction(35);
+            if (Creature* pet = me->GetBotsPet())
+                pet->setFaction(35);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+            BotSay("You are going to miss me...", player);
+            
+            break;
+        }
+        case GOSSIP_SENDER_FIRE:
+        {
+            BotMgr* mgr = player->GetBotMgr();
+            ASSERT(mgr);
+
+            //send items to owner -- Unequip all
+            bool abort = false;
             for (uint8 i = 0; i != BOT_INVENTORY_SIZE; ++i)
             {
                 if (!(i < BOT_SLOT_RANGED ? _resetEquipment(i) : _unequip(i)))
@@ -5573,24 +5646,15 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                 bers->SetDuration(dur);
                 bers->SetMaxDuration(dur);
             }
-            if (urand(1,100) <= 25)
-            {
-                me->setFaction(35);
-                if (Creature* pet = me->GetBotsPet())
-                    pet->setFaction(35);
-                // thesawolf - 80 npcbot slaughtering you, isn't funny, make them passive aggressive
-                me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-                BotSay("You were a sucky boss anyways...", player);
-                //me->Attack(player, IsMelee());
-            }
-            else
-            {
-                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                BotSay("You are going to miss me...", player);
-            }
+            me->setFaction(35);
+            if (Creature* pet = me->GetBotsPet())
+                pet->setFaction(35);
+            // thesawolf - 80 npcbot slaughtering you, isn't funny, make them passive aggressive
+            me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+            BotSay("You sucked anyways...", player);
+            //me->Attack(player, IsMelee());
             
             //thesawolf - instead of dismissing.. delete
-            //reason: bots go back to spawn normally.. which can be FAR away or in the oddest places
             me->CombatStop();
             me->DeleteFromDB();
             me->AddObjectToRemoveList();
@@ -5600,8 +5664,8 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
             //"DELETE FROM characters_npcbot WHERE entry = ?", CONNECTION_ASYNC
             stmt->setUInt32(0, id);
             CharacterDatabase.Execute(stmt);
-
             break;
+        
         }
         case GOSSIP_SENDER_JOIN_GROUP:
         {
