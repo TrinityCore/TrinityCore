@@ -65,6 +65,26 @@ void PlayerbotHolder::LogoutPlayerBot(uint64 guid)
     }
 }
 
+string PlayerbotHolder::LockPlayerBot(uint64 guid) //thesawolf - for gearlocking
+{
+    Player* bot = GetPlayerBot(guid);
+    if (bot)
+    {
+        QueryResult gresults = CharacterDatabase.PQuery("SELECT * FROM ai_playerbot_locks WHERE name_id = '%u'", guid);
+        if (gresults)
+        {
+            CharacterDatabase.PExecute("DELETE FROM ai_playerbot_locks WHERE name_id = '%u'", guid);    
+            return "Gearlock: OFF";
+        } 
+        else 
+        {
+            CharacterDatabase.PExecute("INSERT INTO ai_playerbot_locks (name_id, gearlock) VALUES ('%u', 1)", guid);    
+            return "Gearlock: ON";
+        }
+    }
+    return "ERROR: bot does not exist";
+}
+
 Player* PlayerbotHolder::GetPlayerBot(uint64 playerGuid) const
 {
     PlayerBotMap::const_iterator it = playerBots.find(playerGuid);
@@ -86,67 +106,70 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
         if (master->GetGroup() &&
             ! master->GetGroup()->IsLeader(masterGuid))
             master->GetGroup()->ChangeLeader(masterGuid);
-    }
+        //thesawolf - faction change - still flags opposing for pvp.. but non-KOS
+        bot->setFaction(master->getFaction());
 
-    //thesawolf - faction change - still flags opposing for pvp.. but non-KOS
-    bot->setFaction(master->getFaction());
+        //thesawolf - autoset to master level
+        uint32 level = master->getLevel();
+        uint32 blevel = bot->getLevel();
+        bool skipit = 1;
+        uint32 ldiff = 0;
 
-    //thesawolf - autoset to master level
-    uint32 level = master->getLevel();
-    uint32 blevel = bot->getLevel();
-	bool skipit = 1;
-    uint32 ldiff = 0;
+        //thesawolf - do a level check to see if init somethings can be skipped
+        if (blevel >= level)
+            ldiff = blevel - level;
+        else
+            ldiff = level - blevel;
 
-    //thesawolf - do a level check to see if init somethings can be skipped
-	if (blevel >= level)
-        ldiff = blevel - level;
-    else
-        ldiff = level - blevel;
+        if (ldiff > 3)
+            skipit = 0;        
+        bot->SetLevel(level);
 
-	if (ldiff > 3)
-		skipit = 0;
-
-	bot->SetLevel(level);
-
-    //thesawolf - lets freshen things up a bit
-    //sidenote: moved stuff from private to public to make these doable
-    PlayerbotFactory factory(bot, master->getLevel());
-    factory.Prepare();
-    bot->ResetTalents(true);
-    factory.CancelAuras();
-    factory.InitAvailableSpells(); // spells step1
-    factory.InitSkills(); // skills step1
-    factory.InitTradeSkills();
-    factory.InitTalents();
-    factory.InitAvailableSpells(); // spells step2, needs to reinit
-    factory.InitSpecialSpells();
-    factory.InitMounts();
-    factory.UpdateTradeSkills(); // skills step2, needs to update
-    bot->SaveToDB();
+        //thesawolf - lets freshen things up a bit
+        //sidenote: moved stuff from private to public to make these doable
+        PlayerbotFactory factory(bot, master->getLevel());
+        factory.Prepare();
+        bot->ResetTalents(true);
+        factory.CancelAuras();
+        factory.InitAvailableSpells(); // spells step1
+        factory.InitSkills(); // skills step1
+        factory.InitTradeSkills();
+        factory.InitTalents();
+        factory.InitAvailableSpells(); // spells step2, needs to reinit
+        factory.InitSpecialSpells();
+        factory.InitMounts();
+        factory.UpdateTradeSkills(); // skills step2, needs to update
+        bot->SaveToDB();
     
-    if (skipit == 0)
-	{
-		factory.InitEquipment(true);
-		factory.InitBags();
-		factory.InitSecondEquipmentSet();
-	}
+        if (skipit == 0)
+        {
+            factory.InitEquipment(true);
+            factory.InitBags();        
+            factory.InitSecondEquipmentSet();        
+        }
 
-    factory.InitAmmo();
-    factory.InitFood();
-    factory.InitPotions();
-    // factory.InitInventory();  // lets not lose gear stored by a packmule
-    factory.InitGlyphs();
-    factory.InitGuild();
-    factory.InitPet();
+        factory.InitAmmo();
+        factory.InitFood();
+        factory.InitPotions();
+        // factory.InitInventory();  // lets not lose gear stored by a packmule
+        factory.InitGlyphs();
+        factory.InitGuild(); 
+        factory.InitPet();
         
-	bot->SetMoney(urand(level * 10000, level * 5 * 10000));
-    bot->SaveToDB();
+        bot->SetMoney(urand(level * 10000, level * 5 * 10000));
+        
+        //thesawolf - refill hp/sp since level resets can leave a vacuum
+        bot->SetHealth(bot->GetMaxHealth());
+        bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));
+
+        bot->SaveToDB();
     
-    //thesawolf - autosummon to master
-    bot->TeleportTo(master->GetMapId(), master->GetPositionX(), master->GetPositionY(), master->GetPositionZ(), master->GetOrientation());
-    //with pizazz
-    bot->CastSpell(bot, 52096, true);
-    bot->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+        //thesawolf - autosummon to master
+        bot->TeleportTo(master->GetMapId(), master->GetPositionX(), master->GetPositionY(), master->GetPositionZ(), master->GetOrientation());
+        //with pizazz
+        bot->CastSpell(bot, 52096, true);
+        bot->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+    }
     
     Group *group = bot->GetGroup();
     if (group)
@@ -219,7 +242,17 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
         return "ok";
     }
 
-	if (admin || !admin) // thesawolf
+    else if (cmd == "lock") // thesawolf - gear lock so not replaced
+    {
+        if (!sObjectMgr->GetPlayerByLowGUID(guid))
+            return "player if offline";
+        
+        if (!GetPlayerBot(guid.GetRawValue()))
+            return "not your bot";
+        
+        return(LockPlayerBot(guid.GetRawValue()));
+    }
+    if (admin || !admin) // thesawolf - giving all players access (for now)
     {
         Player* bot = GetPlayerBot(guid.GetRawValue());
         if (!bot)
@@ -251,6 +284,10 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
                 PlayerbotFactory factory(bot, master->getLevel(), ITEM_QUALITY_EPIC);
                 factory.CleanRandomize();
                 return "ok";
+            }
+            else if (cmd == "init")
+            {
+                return "Specify quality level to init to.. ie. init=blue"; //thesawolf - give some instructions
             }
         }
 
@@ -316,8 +353,9 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
 
     if (!*args)
     {
-        messages.push_back("Usage: .bot add/init/remove PLAYERNAME");
+        messages.push_back("Usage: .bot add / remove PLAYERNAME");
         messages.push_back("  (OR) .bot lookup [CLASS] (without to see list of classes)");
+        messages.push_back("(advanced) .bot update / random / init=[QUALITY]");
         return messages;
     }
 
@@ -346,8 +384,9 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
     }
     else if (!cmd || !charname)
     {
-        messages.push_back("Usage: .bot add/init/remove PLAYERNAME");
+        messages.push_back("Usage: .bot add / remove PLAYERNAME");
         messages.push_back("  (OR) .bot lookup [CLASS] (without to see list of classes)");
+        messages.push_back("(advanced) .bot update / random / init=[QUALITY]");
         return messages;
     }
 
@@ -571,8 +610,6 @@ uint32 PlayerbotHolder::GetAccountId(string name)
 
     return accountId;
 }
-
-
 
 PlayerbotMgr::PlayerbotMgr(Player* const master) : PlayerbotHolder(),  master(master)
 {

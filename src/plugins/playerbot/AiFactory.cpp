@@ -88,7 +88,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 
     //thesawolf - combat stuck avoidance by conan513 and tactic change from attack weak to dps/heal
     //added in tank so that tanks hit dungeonfinder properly
-    engine->addStrategies("tank", "dps", "heal", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", "move random", NULL);
+    engine->addStrategies("tank", "dps", "heal", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
 
     switch (player->getClass())
     {
@@ -200,7 +200,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
     }
     // thesawolf - combat stuck avoidance by conan513 and tactics change from attack weak to heal
     // removed nc heal for now because healers weren't moving with this set in nc
-    nonCombatEngine->addStrategies("nc", "food", "stay", "move random", "follow", "chat",
+    nonCombatEngine->addStrategies("nc", "food", "stay", "follow", "chat",
             "default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", "bhealth", "bmana", NULL);
 
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())

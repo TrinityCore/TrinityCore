@@ -170,8 +170,6 @@ CharSectionsEntry const* GetRandomCharSection(uint8 race, CharSectionType genTyp
 //NOTE: originally I had this if..else merged into CreateRandomBot but it was coughing up errors
 bool RandomPlayerbotFactory::CreateNotRandomBot(uint32 nid)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "START: Creating new preset bot starting with ID %u", nid);
-
     QueryResult result = CharacterDatabase.PQuery("SELECT * from ai_playerbot_names WHERE name_id = '%d'", nid);
     
     if (!result)
@@ -183,7 +181,7 @@ bool RandomPlayerbotFactory::CreateNotRandomBot(uint32 nid)
     Field *fields = result->Fetch();
     string name = fields[1].GetString();
     uint8 gender = fields[2].GetUInt8();
-    if (!gender)//(gender == "0xFF") //random fallback
+    if (gender == 255)//(gender == "0xFF") //random fallback
     {
         uint8 gender = rand() % 2? GENDER_MALE : GENDER_FEMALE;
     }
@@ -193,27 +191,15 @@ bool RandomPlayerbotFactory::CreateNotRandomBot(uint32 nid)
         //TODO: put in random minus DK(6) and Monk(10)
     }        
     uint8 race = fields[3].GetUInt8();
-    if (!race)//(race == "0xFFFF") //random fallback
+    if (race == 65535)//(race == "0xFFFF") //random fallback
     {
         uint8 race = availableRaces[cls][urand(0, availableRaces[cls].size() - 1)];
     }
-
-        //DEBUG THIS
-        uint8 inuse = fields[7].GetUInt8();
-        //sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "   DEBUG->id:%u - name:%s - race:%u - gender:%u - cls:%u - inuse:%u", nid, name, race, gender, cls, inuse);
 
     //thesawolf - lets update in_use SQL flag for a name to avoid dupes
     //TODO: toggle in_use back to 0 if deleting characters/accounts
     
     CharacterDatabase.PExecute("UPDATE ai_playerbot_names SET in_use = 1 WHERE name_id = '%u'", nid);
-    /*
-    result = CharacterDatabase.PQuery("SELECT * FROM ai_playerbot_names WHERE in_use = 0 AND name_id = '%u'", nid);
-    if (result)
-    {
-        sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "   !!! Issue with in_use lock for id:%u - name:%s", nid, name);
-        return false;    
-    }
-    */
     
     CharSectionsEntry const* skin = GetRandomCharSection(race, SECTION_TYPE_SKIN, gender);
     CharSectionsEntry const* face = GetRandomCharSection(race, SECTION_TYPE_FACE, gender, skin->Color);
@@ -265,8 +251,6 @@ bool RandomPlayerbotFactory::CreateNotRandomBot(uint32 nid)
 
 bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "START: Creating new random bot for class %d", cls);
-
     uint8 gender = rand() % 2 ? GENDER_MALE : GENDER_FEMALE;
 
     uint8 race = availableRaces[cls][urand(0, availableRaces[cls].size() - 1)];
@@ -316,7 +300,7 @@ bool RandomPlayerbotFactory::CreateRandomBot(uint8 cls)
     player->SetAtLoginFlag(AT_LOGIN_NONE);
     player->SaveToDB(true);
 
-    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Random bot created for account %d - name: \"%s\"; race: %u; class: %u",
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random bot created for account %d - name: \"%s\"; race: %u; class: %u",
             accountId, name.c_str(), race, cls);
 
     return true;
@@ -373,9 +357,7 @@ void RandomPlayerbotFactory::CreateRandomBots()
         string accountName = out.str();
         QueryResult results = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", accountName.c_str());
         if (results)
-        {
             continue;
-        }
 
         string password = "";
         for (int i = 0; i < 10; i++)
@@ -409,7 +391,7 @@ void RandomPlayerbotFactory::CreateRandomBots()
         sPlayerbotAIConfig.randomBotAccounts.push_back(accountId);
 
         int count = sAccountMgr->GetCharactersCount(accountId);
-        if (count >= 10)
+        if (count >= 9)
         {
             totalRandomBotChars += count;
             continue;
@@ -420,17 +402,18 @@ void RandomPlayerbotFactory::CreateRandomBots()
         for (uint8 cls = CLASS_WARRIOR; cls < MAX_CLASSES; ++cls)
         {
             if (cls != 10 && cls != CLASS_DEATH_KNIGHT)
+			{
                 //thesawolf - NotSoRandom chargen
                 if (sPlayerbotAIConfig.notrandom)
                 {
                     QueryResult qresult = CharacterDatabase.Query("SELECT COUNT(in_use) FROM ai_playerbot_names WHERE in_use = 0");
-
                     Field *fields = qresult->Fetch();
                     uint32 bstop = fields[0].GetUInt32();
-                    
-                    if (bstop == 0 || bstop == NULL)
+
+                    if (bstop == 0)
                     {
                         cls = MAX_CLASSES;
+						continue;
                     } 
                     else 
                     {
@@ -443,12 +426,14 @@ void RandomPlayerbotFactory::CreateRandomBots()
                 {
                     factory.CreateRandomBot(cls);
                 }
+			}
         }
 
         totalRandomBotChars += sAccountMgr->GetCharactersCount(accountId);
+		
     }
 
-    sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "=== %d random bot accounts with %d characters available (total %d bots added)", sPlayerbotAIConfig.randomBotAccounts.size(), totalRandomBotChars, nid);
+    sLog->outMessage("playerbot", LOG_LEVEL_ERROR, "%d random bot accounts with %d characters available", sPlayerbotAIConfig.randomBotAccounts.size(), totalRandomBotChars);
 }
 
 
