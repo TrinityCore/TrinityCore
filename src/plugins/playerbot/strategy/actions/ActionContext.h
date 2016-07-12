@@ -47,7 +47,8 @@ namespace ai
             creators["add all loot"] = &ActionContext::add_all_loot;
             creators["shoot"] = &ActionContext::shoot;
             creators["follow"] = &ActionContext::follow;
-            creators["follow"] = &ActionContext::follow;
+            // thesawolf - why was there a dupe here?
+            //creators["follow"] = &ActionContext::follow;
             creators["runaway"] = &ActionContext::runaway;
             creators["stay"] = &ActionContext::stay;
             creators["attack anything"] = &ActionContext::attack_anything;
