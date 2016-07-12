@@ -127,6 +127,14 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 
+        // Called when the creature successfully summons a gameobject
+        virtual void JustSummonedGameobject(GameObject* /*gameobject*/) { }
+        virtual void SummonedGameobjectDespawn(GameObject* /*gameobject*/) { }
+
+        // Called when the creature successfully registers a dynamicobject
+        virtual void JustRegisteredDynObject(DynamicObject* /*dynObject*/) { }
+        virtual void JustUnregisteredDynObject(DynamicObject* /*dynObject*/) { }
+
         // Called when hit by a spell
         virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
 
