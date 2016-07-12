@@ -200,7 +200,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
     }
     // thesawolf - combat stuck avoidance by conan513 and tactics change from attack weak to heal
     // removed nc heal for now because healers weren't moving with this set in nc
-    nonCombatEngine->addStrategies("nc", "food", "stay", "follow", "chat",
+    nonCombatEngine->addStrategies("attack weak", "nc", "food", "stay", "follow", "chat",
             "default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", "bhealth", "bmana", NULL);
 
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
