@@ -9,14 +9,14 @@ INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
 (57000,1674),(57001,1675),(57002,1676),(57003,1677),(57004,1678),(57005,1679);
 
 DELETE FROM `gossip_menu_option` WHERE (`menu_id` BETWEEN 57000 AND 57005) OR (`menu_id` IN (8072));
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
-(57000,0,0,'What function do you serve?',4054,1,3,57001,0,0,0,'',0),
-(57001,0,0,'What are the Plates of Uldum?',4056,1,3,57002,0,0,0,'',0),
-(57002,0,0,'Where are the Plates of Uldum?',4057,1,3,57003,0,0,0,'',0),
-(57003,0,0,'Excuse me? We\'ve been "rescheduled for visitation"? What does that mean?!',4058,1,3,57004,0,0,0,'',0),
-(57004,0,0,'So... what\'s inside Uldum?',4059,1,3,57005,0,0,0,'',0),
-(57005,0,0,'I will return when I have the Plates of Uldum.',4060,1,3,0,0,0,0,'',0),
-(8072,0,0,'Please take me to the master\'s lair.',17742,1,3,0,0,0,0,'',0);
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(57000,0,0,'What function do you serve?',4054,1,3,57001,0,0,0,'',0,-1),
+(57001,0,0,'What are the Plates of Uldum?',4056,1,3,57002,0,0,0,'',0,-1),
+(57002,0,0,'Where are the Plates of Uldum?',4057,1,3,57003,0,0,0,'',0,-1),
+(57003,0,0,'Excuse me? We\'ve been "rescheduled for visitation"? What does that mean?!',4058,1,3,57004,0,0,0,'',0,-1),
+(57004,0,0,'So... what\'s inside Uldum?',4059,1,3,57005,0,0,0,'',0,-1),
+(57005,0,0,'I will return when I have the Plates of Uldum.',4060,1,3,0,0,0,0,'',0,-1),
+(8072,0,0,'Please take me to the master\'s lair.',17742,1,3,0,0,0,0,'',0,18019);
 
 -- Migrate NPC's to use SmartAI
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN (7918, 20142);
