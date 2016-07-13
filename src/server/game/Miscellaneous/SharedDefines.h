@@ -1558,7 +1558,9 @@ enum SpellCastResult
     SPELL_FAILED_SPELL_ALREADY_KNOWN                            = 275,
     SPELL_FAILED_MUST_KNOW_SUPERCEDING_SPELL                    = 276,
     SPELL_FAILED_YOU_CANNOT_USE_THAT_IN_PVP_INSTANCE            = 277,
-    SPELL_FAILED_UNKNOWN                                        = 278,
+    SPELL_FAILED_NO_ARTIFACT_EQUIPPED                           = 278,
+    SPELL_FAILED_WRONG_ARTIFACT_EQUIPPED                        = 279,
+    SPELL_FAILED_UNKNOWN                                        = 280,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
@@ -1881,6 +1883,10 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_REQUIRES_ARTIFACT_WEAPON                         = 313, // Requires an artifact weapon.
     SPELL_CUSTOM_ERROR_YOU_CANT_CAST_THAT_HERE                          = 314, // You can't cast that here
     SPELL_CUSTOM_ERROR_CANT_DO_THAT_ON_CLASS_TRIAL                      = 315, // You cannot do that while on a Class Trial.
+    SPELL_CUSTOM_ERROR_RITUAL_OF_DOOM_ONCE_PER_DAY                      = 316, // You can only benefit from the Ritual of Doom once per day.
+    SPELL_CUSTOM_ERROR_CANNOT_RITUAL_OF_DOOM_WHILE_SUMMONING_SITERS     = 317, // You cannot perform the Ritual of Doom while attempting to summon the sisters.
+    SPELL_CUSTOM_ERROR_LEARNED_ALL_THAT_YOU_CAN_ABOUT_YOUR_ARTIFACT     = 318, // You have learned all that you can about your artifact.
+    SPELL_CUSTOM_ERROR_CANT_CALL_PET_WITH_LONE_WOLF                     = 319, // You cannot use Call Pet while Lone Wolf is active.
 };
 
 enum StealthType

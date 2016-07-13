@@ -226,17 +226,13 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data << uint32(movementSpline.MoveTime);
     data << float(movementSpline.JumpGravity);
     data << uint32(movementSpline.SpecialTime);
-    data << uint32(movementSpline.Points.size());
     data << uint8(movementSpline.Mode);
     data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
     data << int8(movementSpline.VehicleSeat);
-    data << uint32(movementSpline.PackedDeltas.size());
-    for (G3D::Vector3 const& pos : movementSpline.Points)
-        data << pos;
-    for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
-        data.appendPackXYZ(pos.x, pos.y, pos.z);
     data.WriteBits(movementSpline.Face, 2);
+    data.WriteBits(movementSpline.Points.size(), 16);
+    data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
     data.FlushBits();
@@ -257,6 +253,11 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
             data << float(movementSpline.FaceDirection);
             break;
     }
+
+    for (G3D::Vector3 const& pos : movementSpline.Points)
+        data << pos;
+    for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
+        data.appendPackXYZ(pos.x, pos.y, pos.z);
 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
@@ -297,12 +298,10 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << uint32(moveSpline.Duration());                                  // Duration
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
-        data << uint32(moveSpline.getPath().size());
-        data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
-
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
         bool HasJumpGravity = data.WriteBit(moveSpline.splineflags & (::Movement::MoveSplineFlag::Parabolic | ::Movement::MoveSplineFlag::Animation));                 // HasJumpGravity
         bool HasSpecialTime = data.WriteBit((moveSpline.splineflags & ::Movement::MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
+        data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
         data.WriteBit(0);                                                       // HasSpellEffectExtraData
@@ -339,6 +338,8 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
+
+        data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
 
         //if (HasSpellEffectExtraData)
         //{
