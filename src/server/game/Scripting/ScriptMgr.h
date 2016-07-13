@@ -875,6 +875,9 @@ class TC_GAME_API ScriptMgr
         /// calls for better performance (bulk changes).
         void SwapScriptContext(bool initialize = false);
 
+        /// Returns the context name of the static context provided by the worldserver
+        static std::string const& GetNameOfStaticContext();
+
         /// Acquires a strong module reference to the module containing the given script name,
         /// which prevents the shared library which contains the script from unloading.
         /// The shared library is lazy unloaded as soon as all references to it are released.
