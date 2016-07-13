@@ -133,6 +133,14 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
     if (bot->IsBeingTeleported())
         return;
 
+	//DEBUG
+/*	engines[BOT_STATE_COMBAT]->testMode = bot->InBattleground();
+	engines[BOT_STATE_NON_COMBAT]->testMode = bot->InBattleground();
+	engines[BOT_STATE_COMBAT]->testPrefix = bot->GetName();
+	engines[BOT_STATE_NON_COMBAT]->testPrefix = bot->GetName();*/
+
+	//EOD
+
     if (nextAICheckDelay > sPlayerbotAIConfig.globalCoolDown &&
             bot->IsNonMeleeSpellCast(true, true, false) &&
             *GetAiObjectContext()->GetValue<bool>("invalid target", "current target"))
@@ -458,28 +466,22 @@ void PlayerbotAI::DoNextAction()
         ChangeEngine(BOT_STATE_NON_COMBAT);
 
     Group *group = bot->GetGroup();
-    if (!master && group)
-    {
-        for (GroupReference *gref = group->GetFirstMember(); gref; gref = gref->next())
-        {
-            Player* member = gref->GetSource();
-            PlayerbotAI* ai = bot->GetPlayerbotAI();
-            if (member && member->IsInWorld() && !member->GetPlayerbotAI() && (!master || master->GetPlayerbotAI()))
-            {
-                ai->SetMaster(member);
-				if (bot->InBattleground())
-				{
-					ai->ChangeStrategy("+follow",BotState::BOT_STATE_COMBAT);
-				}
-				else 
-				{
-					ai->ResetStrategies();
-				}
-                ai->TellMaster("Hello");
-                break;
-            }
-        }
-    }
+
+	if (!master && group &&!bot->InBattleground())
+	{
+		for (GroupReference *gref = group->GetFirstMember(); gref; gref = gref->next())
+		{
+			Player* member = gref->GetSource();
+			PlayerbotAI* ai = bot->GetPlayerbotAI();
+			if (member && member->IsInWorld() && !member->GetPlayerbotAI() && (!master || master->GetPlayerbotAI()))
+			{
+				ai->SetMaster(member);
+				ai->ResetStrategies();
+				ai->TellMaster("Hello");
+				break;
+			}
+		}
+	}
 }
 
 void PlayerbotAI::ReInitCurrentEngine()

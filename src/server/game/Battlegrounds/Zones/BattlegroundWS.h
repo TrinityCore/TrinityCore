@@ -130,7 +130,7 @@ enum BG_WS_CreatureTypes
 	WS_SPIRIT_MAIN_ALLIANCE = 0,
 	WS_SPIRIT_MAIN_HORDE = 1,
 
-	BG_CREATURES_MAX_WS = 2 + 40
+	BG_CREATURES_MAX_WS = 2
 };
 
 enum BG_WS_CarrierDebuffs

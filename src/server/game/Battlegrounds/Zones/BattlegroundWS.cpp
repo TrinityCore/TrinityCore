@@ -748,21 +748,6 @@ bool BattlegroundWS::SetupBattleground()
 		ids.push_back(i->first);
 	}
 	
-	for (int i = 0; i < 20; i++)
-	{
-		int idx = urand(0, ids.size() - 1);
-
-		sObjectMgr->GetCreatureTemplates();
-		Creature* creature = this->AddCreature(ids[idx], i + 2, spawnCoord[urand(0, 2)].m_positionX + frand(-1, +1), spawnCoord[urand(0, 2)].m_positionY + frand(-1, +1),spawnCoord[urand(0, 2)].m_positionZ,0.0f, TEAM_NEUTRAL, 3000);
-		creature->SetLevel(urand(GetMinLevel(), GetMaxLevel()));
-		creature->GetMotionMaster()->Initialize();
-		creature->setDeathState(JUST_DIED);
-		creature->Respawn();
-		creature->GetMotionMaster()->MoveRandom(40);
-	}
-	TC_LOG_DEBUG("bg.battleground", "BatteGroundWS: Nagas spawned");
-
-
     return true;
 }
 
