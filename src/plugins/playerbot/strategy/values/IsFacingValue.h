@@ -14,7 +14,7 @@ namespace ai
             if (!target)
                 return false;
 
-            return bot->isInFront(target, M_PI / 3.0f);
+            return bot->isInFront(target, M_PI / 3.0);
         }
     };
 }

@@ -140,41 +140,31 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 
 	if (player->InBattleground() && player->isDead())
 	{
-		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
-		// the world update order is sessions, players, creatures
-		// the netcode runs in parallel with all of these
-		// creatures can kill players
-		// so if the server is lagging enough the player can
-		// release spirit after he's killed but before he is updated
-		if (player->getDeathState() == JUST_DIED)
+		if (!GetEventValue(bot, "revive"))
 		{
-			player->KillPlayer();
+			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
+			SetEventValue(bot, "revive", 1, 15);
+			//this is spirit release confirm?
+			player->RemoveGhoul();
+			player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+			player->BuildPlayerRepop();
+			player->RepopAtGraveyard();
 		}
-
-		//this is spirit release confirm?
-		player->RemoveGhoul();
-		player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
-		player->BuildPlayerRepop();
-		player->RepopAtGraveyard();
-		// resurrect
-		player->ResurrectPlayer(1.0f);
-
-		// spawn bones
-		player->SpawnCorpseBones();
-		player->SetFullHealth();
-		player->SetPvP(true);
-		if (player->GetMaxPower(POWER_MANA) > 0)
-			player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
-
-		if (player->GetMaxPower(POWER_ENERGY) > 0)
-			player->SetPower(POWER_ENERGY, player->GetMaxPower(POWER_ENERGY));
+		else {
+			if (player->getDeathState() == JUST_DIED)
+			{
+				player->KillPlayer();
+			}
+			player->ResurrectPlayer(100, false);
+		}
+		return false;
 	}
 
 	if (player->InBattleground())
 	{
 		return false;
 	}
-	
+
     PlayerbotAI* ai = player->GetPlayerbotAI();
     if (!ai)
         return false;
@@ -809,8 +799,9 @@ void RandomPlayerbotMgr::OnPlayerLogout(Player* player)
         PlayerbotAI* ai = bot->GetPlayerbotAI();
         if (player == ai->GetMaster())
         {
-            ai->SetMaster(NULL);
-            ai->ResetStrategies();
+			ai->SetMaster(NULL);
+			if (!bot->InBattleground())
+				ai->ResetStrategies();
         }
     }
 
@@ -840,9 +831,12 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
             PlayerbotAI* ai = bot->GetPlayerbotAI();
             if (member == player && (!ai->GetMaster() || ai->GetMaster()->GetPlayerbotAI()))
             {
-                ai->SetMaster(player);
-                ai->ResetStrategies();
-                ai->TellMaster("Hello");
+				if (!bot->InBattleground())
+				{
+					ai->SetMaster(player);
+					ai->ResetStrategies();
+					ai->TellMaster("Hello");
+				}
                 break;
             }
         }
