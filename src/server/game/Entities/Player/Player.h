@@ -52,7 +52,6 @@ class Pet;
 class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
-class UpdateMask;
 class PlayerAI;
 
 typedef std::deque<Mail*> PlayerMails;

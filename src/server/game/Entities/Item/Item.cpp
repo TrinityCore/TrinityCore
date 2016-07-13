@@ -33,7 +33,6 @@
 #include "TradeData.h"
 #include "GameTables.h"
 #include "CollectionMgr.h"
-#include <boost/dynamic_bitset.hpp>
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -1244,14 +1243,14 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
     if (!target)
         return;
 
-    boost::dynamic_bitset<uint32> updateMask(_dynamicValuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
-    *data << uint8(updateMask.num_blocks());
+    *data << uint8(blockCount);
     std::size_t maskPos = data->wpos();
-    data->resize(data->size() + updateMask.num_blocks() * sizeof(uint32));
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
@@ -1259,43 +1258,45 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            updateMask.set(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
-            boost::dynamic_bitset<uint32> arrayMask(values.size());
-            *data << uint16(arrayMask.num_blocks());
-            std::size_t fieldMaskPos = data->wpos();
-            data->resize(data->size() + arrayMask.num_blocks() * sizeof(uint32));
+            std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
+            *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+                *data << uint32(values.size());
+
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             if (index != ITEM_DYNAMIC_FIELD_MODIFIERS)
             {
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
                     if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
                     {
-                        arrayMask.set(v);
+                        UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                         *data << uint32(values[v]);
                     }
                 }
-
             }
             else
             {
                 // in case of ITEM_DYNAMIC_FIELD_MODIFIERS it is ITEM_FIELD_MODIFIERS_MASK that controls index of each value, not updatemask
                 // so we just have to write this starting from 0 index
-                for (std::size_t v = 0, m = 0; v < values.size(); ++v)
+                uint32 m = 0;
+                for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (values[v] || _dynamicChangesArrayMask[index][v])
+                    if (values[v])
                     {
-                        arrayMask.set(m++);
+                        UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, m++);
                         *data << uint32(values[v]);
                     }
                 }
-            }
 
-            boost::to_block_range(arrayMask, reinterpret_cast<uint32*>(data->contents() + fieldMaskPos));
+                if (_changesMask[ITEM_FIELD_MODIFIERS_MASK] && updateType == UPDATETYPE_VALUES)
+                    data->put(arrayMaskPos - sizeof(m), m);
+            }
         }
     }
-
-    boost::to_block_range(updateMask, reinterpret_cast<uint32*>(data->contents() + maskPos));
 }
 
 void Item::AddToObjectUpdate()
