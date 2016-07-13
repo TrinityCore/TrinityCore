@@ -506,10 +506,11 @@ struct GameObjectTemplate
         // 35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
         {
-            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 AutoLink;                                // 0 Auto Link, enum { false, true, }; Default: false
             uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 BlocksPathsDown;                         // 3 Blocks Paths Down, enum { false, true, }; Default: false
+            uint32 PathBlockerBump;                         // 4 Path Blocker Bump (ft), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } trapdoor;
         // 36 GAMEOBJECT_TYPE_NEW_FLAG
         struct

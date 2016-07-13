@@ -403,6 +403,7 @@ namespace WorldPackets
             std::string QuestTitle;
             std::string CompletionText;
             bool CanIgnoreQuest         = false;
+            bool IsQuestIgnored         = false;
         };
 
         class QuestGiverRequestReward final : public ClientPacket

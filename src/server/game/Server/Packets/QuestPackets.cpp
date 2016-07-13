@@ -430,6 +430,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
 
     _worldPacket.WriteBit(AutoLaunched);
     _worldPacket.WriteBit(CanIgnoreQuest);
+    _worldPacket.WriteBit(IsQuestIgnored);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
