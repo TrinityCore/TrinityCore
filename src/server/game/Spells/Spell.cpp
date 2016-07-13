@@ -4976,7 +4976,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         // If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_TARGETTING
         if (m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
         {
-            bool can_target = true;
             for (auto const& itr : m_caster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
                 if (!m_caster->IsFriendlyTo(itr->GetCaster()) && !target->HasAura(itr->GetId(), itr->GetCasterGUID()))
                     return SPELL_FAILED_VISION_OBSCURED;
