@@ -42,6 +42,7 @@ namespace WorldPackets
         class AuthSession;
         class AuthContinuedSession;
         class ConnectToFailed;
+        class Ping;
     }
 }
 
@@ -129,8 +130,7 @@ private:
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
-
-    bool HandlePing(WorldPacket& recvPacket);
+    bool HandlePing(WorldPackets::Auth::Ping& ping);
 
     void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
 

@@ -28,7 +28,6 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "UpdateData.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"
@@ -108,15 +107,14 @@ Object::~Object()
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
-    memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
+    memset(m_uint32Values, 0, m_valuesCount * sizeof(uint32));
 
-    _changesMask.SetCount(m_valuesCount);
-
-    _dynamicChangesMask.SetCount(_dynamicValuesCount);
+    _changesMask.resize(m_valuesCount);
+    _dynamicChangesMask.resize(_dynamicValuesCount);
     if (_dynamicValuesCount)
     {
         _dynamicValues = new std::vector<uint32>[_dynamicValuesCount];
-        _dynamicChangesArrayMask = new UpdateMask[_dynamicValuesCount];
+        _dynamicChangesArrayMask = new std::vector<uint8>[_dynamicValuesCount];
     }
 
     m_objectUpdated = false;
@@ -751,27 +749,25 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     if (!target)
         return;
 
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(m_valuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(m_valuesCount);
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
     ASSERT(flags);
 
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+            ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
-            updateMask.SetBit(index);
-            fieldBuffer << m_uint32Values[index];
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+            *data << m_uint32Values[index];
         }
     }
-
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
-    data->append(fieldBuffer);
 }
 
 void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -779,42 +775,40 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     if (!target)
         return;
 
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(_dynamicValuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
-        ByteBuffer buffer;
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)))
+            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            updateMask.SetBit(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
-            UpdateMask arrayMask;
-            arrayMask.SetCount(values.size());
+            std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
+            *data << uint8(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+                *data << uint16(values.size());
+
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             for (std::size_t v = 0; v < values.size(); ++v)
             {
-                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
                 {
-                    arrayMask.SetBit(v);
-                    buffer << uint32(values[v]);
+                    UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
+                    *data << uint32(values[v]);
                 }
             }
-
-            fieldBuffer << uint8(arrayMask.GetBlockCount());
-            arrayMask.AppendToPacket(&fieldBuffer);
-            fieldBuffer.append(buffer);
         }
     }
-
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
-    data->append(fieldBuffer);
 }
 
 void Object::AddToObjectUpdateIfNeeded()
@@ -828,10 +822,10 @@ void Object::AddToObjectUpdateIfNeeded()
 
 void Object::ClearUpdateMask(bool remove)
 {
-    _changesMask.Clear();
-    _dynamicChangesMask.Clear();
+    memset(_changesMask.data(), 0, _changesMask.size());
+    memset(_dynamicChangesMask.data(), 0, _dynamicChangesMask.size());
     for (uint32 i = 0; i < _dynamicValuesCount; ++i)
-        _dynamicChangesArrayMask[i].Clear();
+        memset(_dynamicChangesArrayMask[i].data(), 0, _dynamicChangesArrayMask[i].size());
 
     if (m_objectUpdated)
     {
@@ -976,7 +970,7 @@ void Object::_LoadIntoDataField(std::string const& data, uint32 startOffset, uin
     for (uint32 index = 0; index < count; ++index)
     {
         m_uint32Values[startOffset + index] = atoul(tokens[index]);
-        _changesMask.SetBit(startOffset + index);
+        _changesMask[startOffset + index] = 1;
     }
 }
 
@@ -987,7 +981,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
     if (m_int32Values[index] != value)
     {
         m_int32Values[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1000,7 +994,7 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     if (m_uint32Values[index] != value)
     {
         m_uint32Values[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1011,7 +1005,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
     m_uint32Values[index] = value;
-    _changesMask.SetBit(index);
+    _changesMask[index] = 1;
 }
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
@@ -1021,8 +1015,8 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1034,10 +1028,10 @@ bool Object::AddGuidValue(uint16 index, ObjectGuid const& value)
     if (!value.IsEmpty() && ((ObjectGuid*)&(m_uint32Values[index]))->IsEmpty())
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
         return true;
@@ -1052,10 +1046,10 @@ bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
     if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
         ((ObjectGuid*)&(m_uint32Values[index]))->Clear();
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
         return true;
@@ -1071,7 +1065,7 @@ void Object::SetFloatValue(uint16 index, float value)
     if (m_floatValues[index] != value)
     {
         m_floatValues[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1091,7 +1085,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFF) << (offset * 8));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1111,7 +1105,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 16));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1123,10 +1117,10 @@ void Object::SetGuidValue(uint16 index, ObjectGuid const& value)
     if (*((ObjectGuid*)&(m_uint32Values[index])) != value)
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1205,7 +1199,7 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1222,7 +1216,7 @@ void Object::RemoveFlag(uint16 index, uint32 oldFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1262,7 +1256,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
     if (!(uint8(m_uint32Values[index] >> (offset * 8)) & newFlag))
     {
         m_uint32Values[index] |= uint32(uint32(newFlag) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1281,7 +1275,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     if (uint8(m_uint32Values[index] >> (offset * 8)) & oldFlag)
     {
         m_uint32Values[index] &= ~uint32(uint32(oldFlag) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1341,24 +1335,18 @@ std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
     return _dynamicValues[index];
 }
 
+uint32 Object::GetDynamicValue(uint16 index, uint8 offset) const
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    if (offset >= _dynamicValues[index].size())
+        return 0;
+    return _dynamicValues[index][offset];
+}
+
 void Object::AddDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-
-    std::vector<uint32>& values = _dynamicValues[index];
-    UpdateMask& mask = _dynamicChangesArrayMask[index];
-
-    _dynamicChangesMask.SetBit(index);
-    if (values.size() >= values.capacity())
-        values.reserve(values.capacity() + 32);
-
-    values.push_back(value);
-    if (mask.GetCount() < values.size())
-        mask.AddBlock();
-
-    mask.SetBit(values.size() - 1);
-
-    AddToObjectUpdateIfNeeded();
+    SetDynamicValue(index, _dynamicValues[index].size(), value);
 }
 
 void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
@@ -1374,8 +1362,8 @@ void Object::ClearDynamicValue(uint16 index)
     if (!_dynamicValues[index].empty())
     {
         _dynamicValues[index].clear();
-        _dynamicChangesMask.SetBit(index);
-        _dynamicChangesArrayMask[index].SetCount(0);
+        _dynamicChangesMask[index] = UpdateMask::VALUE_AND_SIZE_CHANGED;
+        _dynamicChangesArrayMask[index].clear();
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1385,15 +1373,22 @@ void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
 
+    UpdateMask::DynamicFieldChangeType changeType = UpdateMask::VALUE_CHANGED;
     std::vector<uint32>& values = _dynamicValues[index];
+    if (values.size() <= offset)
+    {
+        values.resize(offset + 1);
+        changeType = UpdateMask::VALUE_AND_SIZE_CHANGED;
+    }
 
-    ASSERT(offset < values.size());
+    if (_dynamicChangesArrayMask[index].size() <= offset)
+        _dynamicChangesArrayMask[index].resize((offset / 32 + 1) * 32);
 
     if (values[offset] != value)
     {
         values[offset] = value;
-        _dynamicChangesMask.SetBit(index);
-        _dynamicChangesArrayMask[index].SetBit(offset);
+        _dynamicChangesMask[index] = changeType;
+        _dynamicChangesArrayMask[index][offset] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -2137,7 +2132,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
-    _changesMask.SetBit(i);
+    _changesMask[i] = 1;
     AddToObjectUpdateIfNeeded();
 }
 

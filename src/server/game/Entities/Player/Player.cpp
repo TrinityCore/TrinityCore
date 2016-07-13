@@ -92,7 +92,6 @@
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "VehiclePackets.h"
 #include "Weather.h"
@@ -131,7 +130,6 @@ Player::Player(WorldSession* session) : Unit(true)
     m_ExtraFlags = 0;
 
     m_spellModTakingSpell = nullptr;
-    //m_pad = 0;
 
     // players always accept
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))
@@ -1759,6 +1757,15 @@ void Player::RemoveFromWorld()
             SetViewpoint(viewpoint, false);
         }
     }
+}
+
+void Player::SetObjectScale(float scale)
+{
+    Unit::SetObjectScale(scale);
+    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, scale * DEFAULT_WORLD_OBJECT_SIZE);
+    SetFloatValue(UNIT_FIELD_COMBATREACH, scale * DEFAULT_COMBAT_REACH);
+    if (IsInWorld())
+        SendMovementSetCollisionHeight(scale * GetCollisionHeight(IsMounted()));
 }
 
 bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const

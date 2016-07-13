@@ -1366,7 +1366,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
         float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
         bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
-        bool IsWithinMeleeRange(const Unit* obj, float dist = MELEE_RANGE) const;
+        bool IsWithinMeleeRange(Unit const* obj) const;
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
@@ -2029,11 +2029,13 @@ class TC_GAME_API Unit : public WorldObject
         // DynamicObject management
         void _RegisterDynObject(DynamicObject* dynObj);
         void _UnregisterDynObject(DynamicObject* dynObj);
-        DynamicObject* GetDynObject(uint32 spellId);
+        DynamicObject* GetDynObject(uint32 spellId) const;
+        std::vector<DynamicObject*> GetDynObjects(uint32 spellId) const;
         void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
 
         GameObject* GetGameObject(uint32 spellId) const;
+        std::vector<GameObject*> GetGameObjects(uint32 spellId) const;
         void AddGameObject(GameObject* gameObj);
         void RemoveGameObject(GameObject* gameObj, bool del);
         void RemoveGameObject(uint32 spellid, bool del);
@@ -2122,7 +2124,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.AddExtraMovementFlag(f); }
         void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.RemoveExtraMovementFlag(f); }
-        uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
+        bool HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.GetExtraMovementFlags(); }
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.SetExtraMovementFlags(f); }
         bool IsSplineEnabled() const;

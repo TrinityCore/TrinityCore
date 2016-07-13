@@ -588,7 +588,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUERY_CREATURE,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryCreature, &WorldSession::HandleCreatureQuery);
     DEFINE_HANDLER(CMSG_QUERY_GAME_OBJECT,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryGameObject, &WorldSession::HandleGameObjectQueryOpcode);
     DEFINE_HANDLER(CMSG_QUERY_GARRISON_CREATURE_NAME,                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_QUERY_GUILD_INFO,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::QueryGuildInfo, &WorldSession::HandleGuildQueryOpcode);
+    DEFINE_HANDLER(CMSG_QUERY_GUILD_INFO,                                   STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Guild::QueryGuildInfo, &WorldSession::HandleGuildQueryOpcode);
     DEFINE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Inspect::QueryInspectAchievements, &WorldSession::HandleQueryInspectAchievements);
     DEFINE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailQueryNextMailTime, &WorldSession::HandleQueryNextMailTime);
     DEFINE_HANDLER(CMSG_QUERY_NPC_TEXT,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryNPCText, &WorldSession::HandleNpcTextQueryOpcode);
@@ -912,7 +912,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT,       STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BLACK_MARKET_WON,                        STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BONUS_ROLL_EMPTY,                        STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BOSS_KILL_CREDIT,                        STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BOSS_KILL_CREDIT,                        STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BREAK_TARGET,                            STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_FAILED,                              STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_BUY_SUCCEEDED,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);

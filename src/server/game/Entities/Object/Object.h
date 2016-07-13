@@ -21,10 +21,10 @@
 
 #include "Common.h"
 #include "Position.h"
-#include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
 #include "Map.h"
+#include "UpdateFields.h"
 
 #include <set>
 #include <string>
@@ -91,6 +91,36 @@ class WorldPacket;
 class ZoneScript;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+
+namespace UpdateMask
+{
+    typedef uint32 BlockType;
+
+    enum DynamicFieldChangeType : uint8
+    {
+        VALUE_CHANGED           = 0x7F,
+        VALUE_AND_SIZE_CHANGED  = 0x80
+    };
+
+    inline std::size_t GetBlockCount(std::size_t bitCount)
+    {
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
+        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
+    {
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * (3 - updateType /*this part evaluates to 0 if update type is not VALUES*/));
+    }
+
+    template<typename T>
+    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    {
+        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
+        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+    }
+}
 
 class TC_GAME_API Object
 {
@@ -168,6 +198,7 @@ class TC_GAME_API Object
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        uint32 GetDynamicValue(uint16 index, uint8 offset) const;
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
@@ -238,9 +269,9 @@ class TC_GAME_API Object
 
         std::vector<uint32>* _dynamicValues;
 
-        UpdateMask _changesMask;
-        UpdateMask _dynamicChangesMask;
-        UpdateMask* _dynamicChangesArrayMask;
+        std::vector<uint8> _changesMask;
+        std::vector<UpdateMask::DynamicFieldChangeType> _dynamicChangesMask;
+        std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
         uint16 _dynamicValuesCount;
