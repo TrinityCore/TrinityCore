@@ -28,7 +28,7 @@
 class TargetedMovementGeneratorBase
 {
     public:
-        TargetedMovementGeneratorBase(Unit* target) { i_target.link(target, this); }
+        TargetedMovementGeneratorBase(WorldObject* target) { i_target.link(target, this); }
         void stopFollowing() { }
     protected:
         FollowerReference i_target;
@@ -38,7 +38,7 @@ template<class T, typename D>
 class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     protected:
-        TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
+        TargetedMovementGeneratorMedium(WorldObject* target, float offset, float angle) :
             TargetedMovementGeneratorBase(target), i_path(NULL),
             i_recheckDistance(0), i_offset(offset), i_angle(angle),
             i_recalculateTravel(false), i_targetReached(false)
@@ -48,7 +48,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
 
     public:
         bool DoUpdate(T*, uint32);
-        Unit* GetTarget() const { return i_target.getTarget(); }
+        WorldObject* GetTarget() const { return i_target.getTarget(); }
 
         void unitSpeedChanged() override { i_recalculateTravel = true; }
         bool IsReachable() const { return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true; }
@@ -67,9 +67,9 @@ template<class T>
 class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >
 {
     public:
-        ChaseMovementGenerator(Unit* target)
+        ChaseMovementGenerator(WorldObject* target)
             : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target) { }
-        ChaseMovementGenerator(Unit* target, float offset, float angle)
+        ChaseMovementGenerator(WorldObject* target, float offset, float angle)
             : TargetedMovementGeneratorMedium<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
         ~ChaseMovementGenerator() { }
 
@@ -91,9 +91,9 @@ template<class T>
 class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >
 {
     public:
-        FollowMovementGenerator(Unit* target)
+        FollowMovementGenerator(WorldObject* target)
             : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target){ }
-        FollowMovementGenerator(Unit* target, float offset, float angle)
+        FollowMovementGenerator(WorldObject* target, float offset, float angle)
             : TargetedMovementGeneratorMedium<T, FollowMovementGenerator<T> >(target, offset, angle) { }
         ~FollowMovementGenerator() { }
 
