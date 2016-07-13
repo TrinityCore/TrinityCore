@@ -86,9 +86,13 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 {
     int tab = GetPlayerSpecTab(player);
 
-    //thesawolf - combat stuck avoidance by conan513 and tactic change from attack weak to dps/heal
-    //added in tank so that tanks hit dungeonfinder properly
-    engine->addStrategies("tank", "dps", "heal", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
+	{
+		engine->addStrategies("grind","warsong", "tank", "dps", "heal", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
+	else {
+		engine->addStrategies("tank", "dps", "heal", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
 
     switch (player->getClass())
     {
@@ -150,7 +154,8 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             engine->addStrategies("dps", "bdps", "threat", NULL);
             if (player->getLevel() > 19)
                 engine->addStrategy("dps debuff");
-            break;
+			engine->addStrategy("flee");
+			break;
         case CLASS_ROGUE:
             engine->addStrategies("dps", "threat", NULL);
             break;
@@ -197,12 +202,22 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             else
                 nonCombatEngine->addStrategy("bmana");
             break;
+		case CLASS_ROGUE:
+			nonCombatEngine->addStrategy("stealth");
+			break;
+		case CLASS_DRUID:
+			if (tab == 2)
+				nonCombatEngine->addStrategy("stealth");
     }
-    // thesawolf - combat stuck avoidance by conan513 and tactics change from attack weak to heal
-    // removed nc heal for now because healers weren't moving with this set in nc
-    nonCombatEngine->addStrategies("attack weak", "nc", "food", "stay", "follow", "chat",
+	if (player->InBattleground())
+	{
+		nonCombatEngine->addStrategies("grind","warsong", "attack weak", "nc", "food", "stay", "follow", "chat",
             "default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", "bhealth", "bmana", NULL);
-
+	}
+	else {
+		nonCombatEngine->addStrategies("attack weak", "nc", "food", "stay", "follow", "chat",
+            "default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", "bhealth", "bmana", NULL);
+	}
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
     {
         nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);
