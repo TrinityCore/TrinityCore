@@ -4981,7 +4981,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_VISION_OBSCURED;
 
             for (auto const& itr : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
-                if (!m_caster->IsFriendlyTo(itr->GetCaster()) && !target->HasAura(itr->GetId(), itr->GetCasterGUID()))
+                if (!m_caster->IsFriendlyTo(itr->GetCaster()) && (!target->HasAura(itr->GetId(), itr->GetCasterGUID()) || !m_caster->HasAura(itr->GetId(), itr->GetCasterGUID())))
                     return SPELL_FAILED_VISION_OBSCURED;
         }
 
