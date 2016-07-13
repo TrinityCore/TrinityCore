@@ -92,6 +92,36 @@ class ZoneScript;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
+namespace UpdateMask
+{
+    typedef uint32 BlockType;
+
+    enum DynamicFieldChangeType : uint16
+    {
+        VALUE_CHANGED           = 0x7FFF,
+        VALUE_AND_SIZE_CHANGED  = 0x8000
+    };
+
+    inline std::size_t GetBlockCount(std::size_t bitCount)
+    {
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
+        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
+    {
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * (3 - updateType /*this part evaluates to 0 if update type is not VALUES*/));
+    }
+
+    template<typename T>
+    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    {
+        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
+        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+    }
+}
+
 // Helper class used to iterate object dynamic fields while interpreting them as a structure instead of raw int array
 template<class T>
 class DynamicFieldStructuredView
@@ -301,7 +331,7 @@ class TC_GAME_API Object
         std::vector<uint32>* _dynamicValues;
 
         std::vector<uint8> _changesMask;
-        std::vector<uint8> _dynamicChangesMask;
+        std::vector<UpdateMask::DynamicFieldChangeType> _dynamicChangesMask;
         std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
