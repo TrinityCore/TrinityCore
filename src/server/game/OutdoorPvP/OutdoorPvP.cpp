@@ -609,9 +609,8 @@ void OutdoorPvP::RegisterZone(uint32 zoneId)
 
 bool OutdoorPvP::HasPlayer(Player const* player) const
 {
-	return false;
-	GuidSet const &plSet = m_players[player->GetTeamId()];
-	return plSet.find(player->GetGUID()) != plSet.end();
+    GuidSet const &plSet = m_players[player->GetTeamId()];
+    return plSet.find(player->GetGUID()) != plSet.end();
 }
 
 void OutdoorPvP::TeamCastSpell(TeamId team, int32 spellId)

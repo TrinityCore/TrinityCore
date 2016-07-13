@@ -27,7 +27,7 @@ namespace ai
             lastMoveToOri = other.lastMoveToOri;
         }
         
-        void Set(WorldObject* lastFollow)
+        void Set(Unit* lastFollow)
         {
             Set(0.0f, 0.0f, 0.0f, 0.0f);
             this->lastFollow = lastFollow;
@@ -45,7 +45,7 @@ namespace ai
     public:
         vector<uint32> taxiNodes;
         ObjectGuid taxiMaster;
-        WorldObject* lastFollow;
+        Unit* lastFollow;
         uint32 lastAreaTrigger;
         float lastMoveToX, lastMoveToY, lastMoveToZ, lastMoveToOri;
     };

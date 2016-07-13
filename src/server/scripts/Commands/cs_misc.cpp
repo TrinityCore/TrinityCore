@@ -2071,7 +2071,7 @@ public:
                     break;
                 case CHASE_MOTION_TYPE:
                 {
-                    WorldObject* target = NULL;
+                    Unit* target = NULL;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else
@@ -2087,7 +2087,7 @@ public:
                 }
                 case FOLLOW_MOTION_TYPE:
                 {
-                    WorldObject* target = NULL;
+                    Unit* target = NULL;
                     if (unit->GetTypeId() == TYPEID_PLAYER)
                         target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                     else

@@ -22,14 +22,12 @@
 
 void FollowerReference::targetObjectBuildLink()
 {
-	if (getTarget()->GetTypeId() == TYPEID_PLAYER)
-		((Unit *)getTarget())->addFollower(this);
+    getTarget()->addFollower(this);
 }
 
 void FollowerReference::targetObjectDestroyLink()
 {
-	if (getTarget()->GetTypeId() == TYPEID_PLAYER)
-		((Unit *)getTarget())->removeFollower(this);
+    getTarget()->removeFollower(this);
 }
 
 void FollowerReference::sourceObjectDestroyLink()
