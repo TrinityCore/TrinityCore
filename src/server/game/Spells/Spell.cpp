@@ -4978,16 +4978,12 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             bool can_target = true;
             for (auto const& itr : m_caster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
-            {
-                if (target->HasAura(itr->GetId(), itr->GetCasterGUID()))
-                    continue;
+                if (!m_caster->IsFriendlyTo(itr->GetCaster()) && !target->HasAura(itr->GetId(), itr->GetCasterGUID()))
+                    return SPELL_FAILED_VISION_OBSCURED;
 
-                can_target = false;
-                break;
-            }
-
-            if (!can_target || target->HasAuraType(SPELL_AURA_INTERFERE_TARGETTING))
-                return SPELL_FAILED_VISION_OBSCURED;
+            for (auto const& itr : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
+                if (!m_caster->IsFriendlyTo(itr->GetCaster()) && !target->HasAura(itr->GetId(), itr->GetCasterGUID()))
+                    return SPELL_FAILED_VISION_OBSCURED;
         }
 
         if (target != m_caster)
