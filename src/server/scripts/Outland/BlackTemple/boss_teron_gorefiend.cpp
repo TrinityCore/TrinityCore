@@ -433,17 +433,13 @@ public:
 
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    Creature* Shadow = nullptr;
                     float X = CalculateRandomLocation(me->GetPositionX(), 10);
-                    Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
-                    if (Shadow)
+                    if (Creature* shadow me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0))
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        if (!target)
-                            target = me->GetVictim();
-
-                        if (target)
-                            Shadow->AI()->AttackStart(target);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            shadow->AI()->AttackStart(target);
+                        else if (me->GetVictim())
+                            shadow->AI()->AttackStart(me->GetVictim());
                     }
                 }
                 SummonShadowsTimer = 60000;
