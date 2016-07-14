@@ -194,6 +194,8 @@ public:
     static Optional<std::shared_ptr<ScriptModule>>
         CreateFromPath(fs::path const& path, Optional<fs::path> cache_path);
 
+    static void ScheduleDelayedDelete(ScriptModule* module);
+
     char const* GetScriptModuleRevisionHash() const override
     {
         return _getScriptModuleRevisionHash();
@@ -287,8 +289,13 @@ Optional<std::shared_ptr<ScriptModule>>
         GetFunctionFromSharedLibrary(handle, "AddScripts", addScripts) &&
         GetFunctionFromSharedLibrary(handle, "GetScriptModule", getScriptModule) &&
         GetFunctionFromSharedLibrary(handle, "GetBuildDirective", getBuildDirective))
-        return std::make_shared<ScriptModule>(std::move(holder), getScriptModuleRevisionHash,
+    {
+        auto module = new ScriptModule(std::move(holder), getScriptModuleRevisionHash,
             addScripts, getScriptModule, getBuildDirective, path);
+
+        // Unload the module at the next update tick as soon as all references are removed
+        return std::shared_ptr<ScriptModule>(module, ScheduleDelayedDelete);
+    }
     else
     {
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
@@ -937,13 +944,6 @@ private:
             }
         }
 
-        sScriptMgr->SetScriptContext(module_name);
-        (*module)->AddScripts();
-        TC_LOG_TRACE("scripts.hotswap", ">> Registered all scripts of module %s.", module_name.c_str());
-
-        if (swap_context)
-            sScriptMgr->SwapScriptContext();
-
         // Create the source listener
         auto listener = Trinity::make_unique<SourceUpdateListener>(
             sScriptReloadMgr->GetSourceDirectory() / module_name,
@@ -952,8 +952,16 @@ private:
         // Store the module
         _known_modules_build_directives.insert(std::make_pair(module_name, (*module)->GetBuildDirective()));
         _running_script_modules.insert(std::make_pair(module_name,
-            std::make_pair(std::move(*module), std::move(listener))));
+            std::make_pair(*module, std::move(listener))));
         _running_script_module_names.insert(std::make_pair(path, module_name));
+
+        // Process the script loading after the module was registered correctly (#17557).
+        sScriptMgr->SetScriptContext(module_name);
+        (*module)->AddScripts();
+        TC_LOG_TRACE("scripts.hotswap", ">> Registered all scripts of module %s.", module_name.c_str());
+
+        if (swap_context)
+            sScriptMgr->SwapScriptContext();
     }
 
     void ProcessReloadScriptModule(fs::path const& path)
@@ -1435,6 +1443,26 @@ private:
     fs::path temporary_cache_path_;
 };
 
+class ScriptModuleDeleteMessage
+{
+public:
+    explicit ScriptModuleDeleteMessage(ScriptModule* module)
+        : module_(module) { }
+
+    void operator() (HotSwapScriptReloadMgr*)
+    {
+        module_.reset();
+    }
+
+private:
+    std::unique_ptr<ScriptModule> module_;
+};
+
+void ScriptModule::ScheduleDelayedDelete(ScriptModule* module)
+{
+    sScriptReloadMgr->QueueMessage(ScriptModuleDeleteMessage(module));
+}
+
 /// Maps efsw actions to strings
 static char const* ActionToString(efsw::Action action)
 {
@@ -1592,11 +1620,15 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
 std::shared_ptr<ModuleReference>
     ScriptReloadMgr::AcquireModuleReferenceOfContext(std::string const& context)
 {
-    auto const itr = sScriptReloadMgr->_running_script_modules.find(context);
-    if (itr != sScriptReloadMgr->_running_script_modules.end())
-        return itr->second.first;
-    else
+    // Return empty references for the static context exported by the worldserver
+    if (context == ScriptMgr::GetNameOfStaticContext())
         return { };
+
+    auto const itr = sScriptReloadMgr->_running_script_modules.find(context);
+    ASSERT(itr != sScriptReloadMgr->_running_script_modules.end()
+           && "Requested a reference to a non existent script context!");
+
+    return itr->second.first;
 }
 
 // Returns the full hot swap implemented ScriptReloadMgr
