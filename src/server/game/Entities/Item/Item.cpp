@@ -1169,7 +1169,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                 // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
                 if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] != UpdateMask::VALUE_AND_SIZE_CHANGED && _changesMask[ITEM_FIELD_MODIFIERS_MASK])
                 {
-                    data << m;
+                    *data << m;
                     arrayMaskPos += sizeof(m);
                 }
 
