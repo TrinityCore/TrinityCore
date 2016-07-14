@@ -1146,7 +1146,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
 
             std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
             *data << uint8(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
-            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+            if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED)
                 *data << uint16(values.size());
 
             std::size_t arrayMaskPos = data->wpos();
@@ -1164,9 +1164,17 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             }
             else
             {
+                uint16 m = 0;
+
+                // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
+                if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] != UpdateMask::VALUE_AND_SIZE_CHANGED && _changesMask[ITEM_FIELD_MODIFIERS_MASK])
+                {
+                    data << m;
+                    arrayMaskPos += sizeof(m);
+                }
+
                 // in case of ITEM_DYNAMIC_FIELD_MODIFIERS it is ITEM_FIELD_MODIFIERS_MASK that controls index of each value, not updatemask
                 // so we just have to write this starting from 0 index
-                uint16 m = 0;
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
                     if (values[v])
@@ -1176,7 +1184,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                     }
                 }
 
-                if (_changesMask[ITEM_FIELD_MODIFIERS_MASK] && updateType == UPDATETYPE_VALUES)
+                if (updateType == UPDATETYPE_VALUES && _changesMask[ITEM_FIELD_MODIFIERS_MASK])
                     data->put(arrayMaskPos - sizeof(m), m);
             }
         }
