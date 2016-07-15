@@ -33,6 +33,13 @@ enum BattlefieldIDs
     BATTLEFIELD_BATTLEID_TB                      = 21       // Tol Barad
 };
 
+enum BattlefieldState : int8
+{
+    BATTLEFIELD_INACTIVE = 0,
+    BATTLEFIELD_WARMUP = 1,
+    BATTLEFIELD_IN_PROGRESS = 2
+};
+
 enum BattlefieldObjectiveStates
 {
     BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL = 0,
