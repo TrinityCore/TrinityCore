@@ -635,6 +635,9 @@ namespace Trinity
                 if (go->GetGOInfo()->spellFocus.spellFocusType != i_focusId)
                     return false;
 
+                if (!go->isSpawned())
+                    return false;
+
                 float dist = go->GetGOInfo()->spellFocus.radius / 2.f;
 
                 return go->IsWithinDistInMap(i_unit, dist);
