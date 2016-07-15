@@ -716,6 +716,10 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NPCBOT_LOOKUP                          = 1808,
     RBAC_PERM_COMMAND_NPCBOT_REVIVE                          = 1809,
     RBAC_PERM_COMMAND_NPCBOT_CAST                            = 1810,
+    RBAC_PERM_COMMAND_NPCBOT_INFO						     = 1811,
+    RBAC_PERM_COMMAND_NPCBOT_RESET						     = 1812,
+    RBAC_PERM_COMMAND_NPCBOT_COMMAND		                 = 1813,
+    RBAC_PERM_COMMAND_NPCBOT_DISTANCE			     		 = 1814,
     RBAC_PERM_MAX
 };
 
