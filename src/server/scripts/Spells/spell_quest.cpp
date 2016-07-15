@@ -1080,9 +1080,7 @@ enum RedSnapperVeryTasty
     ITEM_RED_SNAPPER             = 23614,
 
     SPELL_CAST_NET               = 29866,
-    SPELL_NEW_SUMMON_TEST        = 49214,
-
-    GO_SCHOOL_OF_RED_SNAPPER     = 181616
+    SPELL_NEW_SUMMON_TEST        = 49214
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1097,15 +1095,6 @@ class spell_q9452_cast_net: public SpellScriptLoader
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            SpellCastResult CheckCast()
-            {
-                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
-                if (!go || go->GetRespawnTime())
-                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-                return SPELL_CAST_OK;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1127,7 +1116,6 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_q9452_cast_net_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
