@@ -2,7 +2,7 @@
 #define _BOT_AI_H
 
 #include "ScriptedCreature.h"
-#include "EventProcessor.h"
+//#include "EventProcessor.h"
 /*
 NpcBot System by Graff (onlysuffering@gmail.com)
 Original patch from: LordPsyan https://bitbucket.org/lordpsyan/trinitycore-patches/src/3b8b9072280e/Individual/11185-BOTS-NPCBots.patch
