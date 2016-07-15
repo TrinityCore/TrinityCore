@@ -274,28 +274,64 @@ bool SpellTargetSelector::operator()(Unit const* target) const
         return false;
 
     // copypasta from Spell::CheckRange
-    uint32 range_type = _spellInfo->RangeEntry ? _spellInfo->RangeEntry->type : 0;
-    float max_range = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
-    float min_range = _caster->GetSpellMinRangeForTarget(target, _spellInfo);
+    float minRange = 0.0f;
+    float maxRange = 0.0f;
+    float rangeMod = 0.0f;
+    if (_spellInfo->RangeEntry)
+    {
+        if (_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
+        {
+            rangeMod = _caster->GetCombatReach() + 4.0f / 3.0f;
+            if (target)
+                rangeMod += target->GetCombatReach();
+            else
+                rangeMod += _caster->GetCombatReach();
 
+            rangeMod = std::max(rangeMod, NOMINAL_MELEE_RANGE);
+        }
+        else
+        {
+            float meleeRange = 0.0f;
+            if (_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED)
+            {
+                meleeRange = _caster->GetCombatReach() + 4.0f / 3.0f;
+                if (target)
+                    meleeRange += target->GetCombatReach();
+                else
+                    meleeRange += _caster->GetCombatReach();
+
+                meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
+            }
+
+            minRange = _caster->GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
+            maxRange = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
+
+            if (target)
+            {
+                rangeMod = _caster->GetCombatReach();
+                rangeMod += target->GetCombatReach();
+
+                if (minRange > 0.0f && !(_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
+                    minRange += rangeMod;
+            }
+        }
+
+        if (target && _caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
+            (_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
+            rangeMod += 5.0f / 3.0f;
+    }
+
+    maxRange += rangeMod;
+
+    minRange *= minRange;
+    maxRange *= maxRange;
 
     if (target && target != _caster)
     {
-        if (range_type == SPELL_RANGE_MELEE)
-        {
-            // Because of lag, we can not check too strictly here.
-            if (!_caster->IsWithinMeleeRange(target, max_range))
-                return false;
-        }
-        else if (!_caster->IsWithinCombatRange(target, max_range))
+        if (_caster->GetExactDistSq(target) > maxRange)
             return false;
 
-        if (range_type == SPELL_RANGE_RANGED)
-        {
-            if (_caster->IsWithinMeleeRange(target))
-                return false;
-        }
-        else if (min_range && _caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
+        if (minRange > 0.0f && _caster->GetExactDistSq(target) < minRange)
             return false;
     }
 

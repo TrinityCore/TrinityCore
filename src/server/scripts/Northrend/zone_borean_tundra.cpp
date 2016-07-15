@@ -2274,8 +2274,8 @@ public:
         void DoAction(int32 /*iParam*/) override
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+            me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->SetFacingToObject(player);
             uiEventTimer = 3000;
