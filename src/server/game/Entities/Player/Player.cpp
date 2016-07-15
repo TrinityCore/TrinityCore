@@ -14509,11 +14509,15 @@ void Player::FailQuest(uint32 questId)
         // Destroy quest items on quest failure.
         for (QuestObjective const& obj : quest->GetObjectives())
             if (obj.Type == QUEST_OBJECTIVE_ITEM)
-                DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+                if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
+                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                        DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+
         // Destroy items received during the quest.
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
-            if (quest->ItemDrop[i] && quest->ItemDropQuantity[i])
-                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
+                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
 
@@ -14524,12 +14528,15 @@ void Player::AbandonQuest(uint32 questId)
         // Destroy quest items on quest abandon.
         for (QuestObjective const& obj : quest->GetObjectives())
             if (obj.Type == QUEST_OBJECTIVE_ITEM)
-                DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+                if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
+                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                        DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
 
         // Destroy items received during the quest.
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
-            if (quest->ItemDrop[i] && quest->ItemDropQuantity[i] && sObjectMgr->GetItemTemplate(quest->ItemDrop[i])->GetBonding() == BIND_QUEST_ITEM)
-                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
+                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
 
