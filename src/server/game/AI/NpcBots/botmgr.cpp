@@ -498,7 +498,8 @@ void BotMgr::RemoveBot(ObjectGuid guid, uint8 removetype)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NPCBOT_OWNER);
         //"UPDATE characters_npcbot SET owner = ? WHERE entry = ?", CONNECTION_ASYNC
-        stmt->setUInt32(0, uint32(0));
+        stmt->setUInt32(0, _owner->GetGUID().GetCounter());
+        //stmt->setUInt32(0, uint32(0)); thesawolf - set wrong
         stmt->setUInt32(1, bot->GetEntry());
         CharacterDatabase.Execute(stmt);
     }

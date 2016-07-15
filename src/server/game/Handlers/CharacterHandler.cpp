@@ -51,8 +51,8 @@
 #include "Metric.h"
 
 // Playerbot mod:
-#include "../../plugins/playerbot/playerbot.h"
-#include "../../plugins/playerbot/PlayerbotAIConfig.h"
+#include "../../../plugins/playerbot/playerbot.h"
+#include "../../../plugins/playerbot/PlayerbotAIConfig.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {

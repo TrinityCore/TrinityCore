@@ -130,6 +130,8 @@ enum CommonValues
     GOSSIP_SENDER_ABILITIES_USE,
     GOSSIP_SENDER_HIRE,
     GOSSIP_SENDER_DISMISS,
+    // thesawolf - changed dismiss->delete to separate fire option
+    GOSSIP_SENDER_FIRE,
     GOSSIP_SENDER_JOIN_GROUP,
     GOSSIP_SENDER_LEAVE_GROUP,
     GOSSIP_SENDER_FORMATION,
@@ -139,13 +141,15 @@ enum CommonValues
     GOSSIP_SENDER_SCAN_OWNER_ABILITY,
     GOSSIP_SENDER_DEBUG,
     GOSSIP_SENDER_DEBUG_ACTION,
-//thesawolf - add in faction set gossip
+    //thesawolf - add in faction set gossip
     GOSSIP_SENDER_EARLYDISMISS,
     GOSSIP_SENDER_FACTION,
     GOSSIP_SENDER_FACTION_ALLIANCE,
     GOSSIP_SENDER_FACTION_HORDE,
     GOSSIP_SENDER_FACTION_MONSTER,
     GOSSIP_SENDER_FACTION_FRIEND,
+    //thesawolf - relase (reset owner)
+    GOSSIP_SENDER_RELEASE,
 //COMMON NPCS
     NPC_WORLD_TRIGGER                   = 22515,
 //COMMON GAMEEVENTS

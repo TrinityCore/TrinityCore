@@ -15,7 +15,7 @@
 #include "../../../Battlegrounds/Zones/BattlegroundWS.h"
 #include "ChooseTargetActions.h"
 #include "CheckMountStateAction.h"
-#include "G3D/Vector3.h"
+#include "G3D\Vector3.h"
 
 namespace ai
 {
