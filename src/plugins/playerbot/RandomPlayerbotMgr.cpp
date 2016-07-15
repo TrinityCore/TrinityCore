@@ -8,6 +8,8 @@
 #include "../../game/Maps/MapManager.h"
 #include "PlayerbotCommandServer.h"
 #include "GuildTaskMgr.h"
+#include "../../game/Battlegrounds/Battleground.h"
+
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
@@ -140,28 +142,26 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 
 	if (player->InBattleground() && player->isDead())
 	{
-		if (!GetEventValue(bot, "dead"))
+		Battleground *bg = player->GetBattleground();
+		const WorldSafeLocsEntry *pos = bg->GetClosestGraveYard(player);
+		if (!player->IsWithinDist3d(pos->x, pos->y, pos->z, 3.0))
 		{
-			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
-			SetEventValue(bot, "dead", 1, 20);
-			SetEventValue(bot, "revive", 1, 10);
+			// Special handle for battleground maps
+				sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
+			SetEventValue(bot, "dead", 1, 5);
 			//this is spirit release confirm?
 			player->RemoveGhoul();
 			player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 			player->BuildPlayerRepop();
+			player->SpawnCorpseBones();
 			player->RepopAtGraveyard();
-			return false;
 		}
-		if (!GetEventValue(bot, "revive"))
-		{
-			player->ResurrectPlayer(100, false);
-			SetEventValue(bot, "dead", 0, 0);
-			SetEventValue(bot, "revive", 0, 0);
-			return false;
+		else {
+			player->ResurrectPlayer(1.0f);
 		}
 		return false;
 	}
-
+	
 	if (player->InBattleground())
 	{
 		return false;
