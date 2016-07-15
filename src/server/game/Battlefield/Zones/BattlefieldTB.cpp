@@ -227,7 +227,7 @@ void BattlefieldTB::RemoveAurasFromPlayer(Player* player)
 }
 
 // 62 fields, [7]-[68]
-void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
+void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
 {
     packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
     packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
