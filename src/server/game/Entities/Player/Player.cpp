@@ -14517,6 +14517,22 @@ void Player::FailQuest(uint32 questId)
     }
 }
 
+void Player::AbandonQuest(uint32 questId)
+{
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    {
+        // Destroy quest items on quest abandon.
+        for (QuestObjective const& obj : quest->GetObjectives())
+            if (obj.Type == QUEST_OBJECTIVE_ITEM)
+                DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+
+        // Destroy items received during the quest.
+        for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
+            if (quest->ItemDrop[i] && quest->ItemDropQuantity[i] && sObjectMgr->GetItemTemplate(quest->ItemDrop[i])->GetBonding() == BIND_QUEST_ITEM)
+                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+    }
+}
+
 bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const
 {
     uint32 skill = qInfo->GetRequiredSkill();
