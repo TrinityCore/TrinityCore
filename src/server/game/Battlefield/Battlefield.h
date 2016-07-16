@@ -238,6 +238,8 @@ class Battlefield : public ZoneScript
         /// Return true if battle is start, false if battle is not started
         bool IsWarTime() const { return m_isActive; }
 
+        int8 GetState() const { return m_isActive ? BATTLEFIELD_IN_PROGRESS : (m_Timer <= m_StartGroupingTimer ? BATTLEFIELD_WARMUP : BATTLEFIELD_INACTIVE); }
+
         /// Enable or Disable battlefield
         void ToggleBattlefield(bool enable) { m_IsEnabled = enable; }
         /// Return if battlefield is enable
