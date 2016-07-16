@@ -551,9 +551,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     if (!ownerGuid.IsEmpty())
         SetOwnerGUID(ownerGuid);
 
+    uint32 itemFlags = fields[7].GetUInt32();
     bool need_save = false;                                 // need explicit save data at load fixes
     if (uint64 creator = fields[2].GetUInt64())
-        SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(creator));
+    {
+        if (!(itemFlags & ITEM_FIELD_FLAG_CHILD))
+            SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(creator));
+        else
+            SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Item>(creator));
+    }
     if (uint64 giftCreator = fields[3].GetUInt64())
         SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(giftCreator));
     SetCount(fields[4].GetUInt32());
@@ -572,7 +578,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
             SetSpellCharges(i, atoi(tokens[i]));
 
-    SetUInt32Value(ITEM_FIELD_FLAGS, fields[7].GetUInt32());
+    SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
     // Remove bind flag for items vs NO_BIND set
     if (IsSoulBound() && proto->GetBonding() == NO_BIND)
     {

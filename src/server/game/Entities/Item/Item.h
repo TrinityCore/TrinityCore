@@ -477,6 +477,9 @@ class TC_GAME_API Item : public Object
         uint32 GetModifier(ItemModifier modifier) const;
         void SetModifier(ItemModifier modifier, uint32 value);
 
+        ObjectGuid GetChildItem() const { return m_childItem; }
+        void SetChildItem(ObjectGuid childItem) { m_childItem = childItem; }
+
     protected:
         BonusData _bonusData;
 
@@ -492,5 +495,6 @@ class TC_GAME_API Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
+        ObjectGuid m_childItem;
 };
 #endif

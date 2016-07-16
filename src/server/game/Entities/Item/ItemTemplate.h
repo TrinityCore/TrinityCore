@@ -152,7 +152,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK11         = 0x00010000,
     ITEM_FIELD_FLAG_UNK12         = 0x00020000,
     ITEM_FIELD_FLAG_UNK13         = 0x00040000,
-    ITEM_FIELD_FLAG_UNK14         = 0x00080000,
+    ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
     ITEM_FIELD_FLAG_UNK16         = 0x00200000,
     ITEM_FIELD_FLAG_UNK17         = 0x00400000,
@@ -164,9 +164,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK23         = 0x10000000,
     ITEM_FIELD_FLAG_UNK24         = 0x20000000,
     ITEM_FIELD_FLAG_UNK25         = 0x40000000,
-    ITEM_FIELD_FLAG_UNK26         = 0x80000000,
-
-    ITEM_FIELD_FLAG_MAIL_TEXT_MASK = ITEM_FIELD_FLAG_READABLE | ITEM_FIELD_FLAG_UNK13 | ITEM_FIELD_FLAG_UNK14
+    ITEM_FIELD_FLAG_UNK26         = 0x80000000
 };
 
 enum ItemFlags : uint32
@@ -789,6 +787,7 @@ struct TC_GAME_API ItemTemplate
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
+    bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_CRAFTING_MATERIAL) != 0; }
 
     bool IsRangedWeapon() const
     {

@@ -635,7 +635,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     if (m->messageType == MAIL_NORMAL)
         bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
 
-    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_MAIL_TEXT_MASK);
+    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_READABLE);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

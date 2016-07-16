@@ -3581,6 +3581,22 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
             m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
         }
+
+        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        {
+            if (m_items[i] == nullptr)
+                continue;
+
+            m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
+        }
+
+        for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        {
+            if (m_items[i] == nullptr)
+                continue;
+
+            m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
+        }
     }
 
     Unit::BuildCreateUpdateBlockForPlayer(data, target);
@@ -3601,6 +3617,22 @@ void Player::DestroyForPlayer(Player* target) const
     if (target == this)
     {
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            if (m_items[i] == nullptr)
+                continue;
+
+            m_items[i]->DestroyForPlayer(target);
+        }
+
+        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        {
+            if (m_items[i] == nullptr)
+                continue;
+
+            m_items[i]->DestroyForPlayer(target);
+        }
+
+        for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -9296,6 +9328,24 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
             }
 
 
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetEntry() == item)
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return EQUIP_ERR_OK;
+            }
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetEntry() == item)
+            {
+                tempcount += pItem->GetCount();
+                if (tempcount >= count)
+                    return EQUIP_ERR_OK;
+            }
+
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
         if (Bag* pBag = GetBagByPos(i))
             for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
@@ -9348,6 +9398,28 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
                         count += pItem->GetGemCountWithID(item);
     }
 
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem != skipItem &&  pItem->GetEntry() == item)
+                count += pItem->GetCount();
+
+    if (skipItem && skipItem->GetTemplate()->GetGemProperties())
+        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+            if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (pItem != skipItem && pItem->GetSocketColor(0))
+                    count += pItem->GetGemCountWithID(item);
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem != skipItem &&  pItem->GetEntry() == item)
+                count += pItem->GetCount();
+
+    if (skipItem && skipItem->GetTemplate()->GetGemProperties())
+        for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+            if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (pItem != skipItem && pItem->GetSocketColor(0))
+                    count += pItem->GetGemCountWithID(item);
+
     return count;
 }
 
@@ -9376,6 +9448,20 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
         if (Bag* pBag = GetBagByPos(i))
             count += pBag->GetItemCountWithLimitCategory(limitCategory, skipItem);
 
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem != skipItem)
+                if (ItemTemplate const* pProto = pItem->GetTemplate())
+                    if (pProto->GetItemLimitCategory() == limitCategory)
+                        count += pItem->GetCount();
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem != skipItem)
+                if (ItemTemplate const* pProto = pItem->GetTemplate())
+                    if (pProto->GetItemLimitCategory() == limitCategory)
+                        count += pItem->GetCount();
+
     return count;
 }
 
@@ -9386,7 +9472,17 @@ Item* Player::GetItemByGuid(ObjectGuid guid) const
             if (pItem->GetGUID() == guid)
                 return pItem;
 
-    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+    for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
                 return pItem;
@@ -9417,7 +9513,7 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && slot < BANK_SLOT_BAG_END)
+    if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < BUYBACK_SLOT_START || slot >= BUYBACK_SLOT_END))
         return m_items[slot];
     if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
@@ -9494,6 +9590,21 @@ Item* Player::GetShield(bool useable) const
     return item;
 }
 
+Item* Player::GetChildItemByGuid(ObjectGuid guid) const
+{
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
+    return nullptr;
+}
+
 uint8 Player::GetAttackBySlot(uint8 slot, InventoryType inventoryType)
 {
     switch (slot)
@@ -9511,6 +9622,10 @@ bool Player::IsInventoryPos(uint8 bag, uint8 slot)
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= INVENTORY_SLOT_ITEM_START && slot < INVENTORY_SLOT_ITEM_END))
         return true;
     if (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END)
+        return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
+        return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= CHILD_EQUIPMENT_SLOT_START && slot < CHILD_EQUIPMENT_SLOT_END))
         return true;
     return false;
 }
@@ -9544,6 +9659,11 @@ bool Player::IsBagPos(uint16 pos)
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END))
         return true;
     return false;
+}
+
+bool Player::IsChildEquipmentPos(uint8 bag, uint8 slot)
+{
+    return bag == INVENTORY_SLOT_BAG_0 && (slot >= CHILD_EQUIPMENT_SLOT_START && slot < CHILD_EQUIPMENT_SLOT_END);
 }
 
 bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
@@ -9654,6 +9774,28 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
                     }
                 }
             }
+        }
+    }
+
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; i++)
+    {
+        Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+        {
+            tempcount += pItem->GetCount();
+            if (tempcount >= count)
+                return true;
+        }
+    }
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; i++)
+    {
+        Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+        {
+            tempcount += pItem->GetCount();
+            if (tempcount >= count)
+                return true;
         }
     }
 
@@ -9826,6 +9968,20 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
         }
     }
 
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+    {
+        item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+            return true;
+    }
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+    {
+        item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+            return true;
+    }
+
     return false;
 }
 
@@ -9839,8 +9995,17 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
 
     uint32 need_space;
 
-    if (pSrcItem && pSrcItem->IsNotEmptyBag() && !IsBagPos(uint16(bag) << 8 | slot))
-        return EQUIP_ERR_DESTROY_NONEMPTY_BAG;
+    if (pSrcItem)
+    {
+        if (pSrcItem->IsNotEmptyBag() && !IsBagPos(uint16(bag) << 8 | slot))
+            return EQUIP_ERR_DESTROY_NONEMPTY_BAG;
+
+        if (pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD) && !IsEquipmentPos(bag, slot) && !IsChildEquipmentPos(bag, slot))
+            return EQUIP_ERR_WRONG_BAG_TYPE_3;
+
+        if (!pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD) && IsChildEquipmentPos(bag, slot))
+            return EQUIP_ERR_WRONG_BAG_TYPE_3;
+    }
 
     // empty specific slot - check item fit to slot
     if (!pItem2 || swap)
@@ -9906,8 +10071,14 @@ InventoryResult Player::CanStoreItem_InBag(uint8 bag, ItemPosCountVec &dest, Ite
     if (!pBag || pBag == pSrcItem)
         return EQUIP_ERR_WRONG_BAG_TYPE;
 
-    if (pSrcItem && pSrcItem->IsNotEmptyBag())
-        return EQUIP_ERR_DESTROY_NONEMPTY_BAG;
+    if (pSrcItem)
+    {
+        if (pSrcItem->IsNotEmptyBag())
+            return EQUIP_ERR_DESTROY_NONEMPTY_BAG;
+
+        if (pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+            return EQUIP_ERR_WRONG_BAG_TYPE_3;
+    }
 
     ItemTemplate const* pBagProto = pBag->GetTemplate();
     if (!pBagProto)
@@ -10090,6 +10261,42 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
         {
             if (bag == INVENTORY_SLOT_BAG_0)               // inventory
             {
+                res = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, pProto, count, true, pItem, bag, slot);
+                if (res != EQUIP_ERR_OK)
+                {
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return res;
+                }
+
+                if (count == 0)
+                {
+                    if (no_similar_count == 0)
+                        return EQUIP_ERR_OK;
+
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return EQUIP_ERR_ITEM_MAX_COUNT;
+                }
+
+                res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, true, pItem, bag, slot);
+                if (res != EQUIP_ERR_OK)
+                {
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return res;
+                }
+
+                if (count == 0)
+                {
+                    if (no_similar_count == 0)
+                        return EQUIP_ERR_OK;
+
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return EQUIP_ERR_ITEM_MAX_COUNT;
+                }
+
                 res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
                 if (res != EQUIP_ERR_OK)
                 {
@@ -10137,6 +10344,47 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
         // search free slot in bag for place to
         if (bag == INVENTORY_SLOT_BAG_0)                     // inventory
         {
+            if (pItem && pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+            {
+                res = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
+                if (res != EQUIP_ERR_OK)
+                {
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return res;
+                }
+
+                if (count == 0)
+                {
+                    if (no_similar_count == 0)
+                        return EQUIP_ERR_OK;
+
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return EQUIP_ERR_ITEM_MAX_COUNT;
+                }
+            }
+            else if (pProto->IsCraftingReagent() && HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED))
+            {
+                res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
+                if (res != EQUIP_ERR_OK)
+                {
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return res;
+                }
+
+                if (count == 0)
+                {
+                    if (no_similar_count == 0)
+                        return EQUIP_ERR_OK;
+
+                    if (no_space_count)
+                        *no_space_count = count + no_similar_count;
+                    return EQUIP_ERR_ITEM_MAX_COUNT;
+                }
+            }
+
             res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
             if (res != EQUIP_ERR_OK)
             {
@@ -10185,6 +10433,42 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     // search stack for merge to
     if (pProto->GetMaxStackSize() != 1)
     {
+        res = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, pProto, count, true, pItem, bag, slot);
+        if (res != EQUIP_ERR_OK)
+        {
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return res;
+        }
+
+        if (count == 0)
+        {
+            if (no_similar_count == 0)
+                return EQUIP_ERR_OK;
+
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return EQUIP_ERR_ITEM_MAX_COUNT;
+        }
+
+        res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, true, pItem, bag, slot);
+        if (res != EQUIP_ERR_OK)
+        {
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return res;
+        }
+
+        if (count == 0)
+        {
+            if (no_similar_count == 0)
+                return EQUIP_ERR_OK;
+
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return EQUIP_ERR_ITEM_MAX_COUNT;
+        }
+
         res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
         if (res != EQUIP_ERR_OK)
         {
@@ -10264,6 +10548,47 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
 
     if (pItem && pItem->IsNotEmptyBag())
         return EQUIP_ERR_BAG_IN_BAG;
+
+    if (pItem && pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+    {
+        res = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
+        if (res != EQUIP_ERR_OK)
+        {
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return res;
+        }
+
+        if (count == 0)
+        {
+            if (no_similar_count == 0)
+                return EQUIP_ERR_OK;
+
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return EQUIP_ERR_ITEM_MAX_COUNT;
+        }
+    }
+    else if (pProto->IsCraftingReagent() && HasFlag(PLAYER_FLAGS_EX, PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED))
+    {
+        res = CanStoreItem_InInventorySlots(REAGENT_SLOT_START, REAGENT_SLOT_END, dest, pProto, count, false, pItem, bag, slot);
+        if (res != EQUIP_ERR_OK)
+        {
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return res;
+        }
+
+        if (count == 0)
+        {
+            if (no_similar_count == 0)
+                return EQUIP_ERR_OK;
+
+            if (no_space_count)
+                *no_space_count = count + no_similar_count;
+            return EQUIP_ERR_ITEM_MAX_COUNT;
+        }
+    }
 
     // search free slot
     res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
@@ -10660,6 +10985,46 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
     }
 
     return !swap ? EQUIP_ERR_ITEM_NOT_FOUND : EQUIP_ERR_CANT_SWAP;
+}
+
+InventoryResult Player::CanEquipChildItem(Item* parentItem) const
+{
+    Item* childItem = GetChildItemByGuid(parentItem->GetChildItem());
+    if (!childItem)
+        return EQUIP_ERR_OK;
+
+    ItemChildEquipmentEntry const* childEquipement = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry());
+    if (!childItem)
+        return EQUIP_ERR_OK;
+
+    Item* dstItem = GetItemByPos(INVENTORY_SLOT_BAG_0, childEquipement->AltEquipmentSlot);
+    if (!dstItem)
+        return EQUIP_ERR_OK;
+
+    uint16 childDest = (INVENTORY_SLOT_BAG_0 << 8) | childEquipement->AltEquipmentSlot;
+    InventoryResult msg = CanUnequipItem(childDest, !childItem->IsBag());
+    if (msg != EQUIP_ERR_OK)
+        return msg;
+
+    // check dest->src move possibility
+    uint16 src = parentItem->GetPos();
+    ItemPosCountVec dest;
+    if (IsInventoryPos(src))
+    {
+        msg = CanStoreItem(parentItem->GetBagSlot(), NULL_SLOT, dest, dstItem, true);
+        if (msg != EQUIP_ERR_OK)
+            msg = CanStoreItem(NULL_BAG, NULL_SLOT, dest, dstItem, true);
+    }
+    else if (IsBankPos(src))
+    {
+        msg = CanBankItem(parentItem->GetBagSlot(), NULL_SLOT, dest, dstItem, true);
+        if (msg != EQUIP_ERR_OK)
+            msg = CanBankItem(NULL_BAG, NULL_SLOT, dest, dstItem, true);
+    }
+    else if (IsEquipmentPos(src))
+        return EQUIP_ERR_CANT_SWAP;
+
+    return msg;
 }
 
 InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
@@ -11110,6 +11475,20 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
 
         if (addToCollection)
             GetSession()->GetCollectionMgr()->OnItemAdded(item);
+
+        if (ItemChildEquipmentEntry const* childItemEntry = sDB2Manager.GetItemChildEquipment(itemId))
+        {
+            if (ItemTemplate const* childTemplate = sObjectMgr->GetItemTemplate(childItemEntry->AltItemID))
+            {
+                ItemPosCountVec childDest;
+                CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, childDest, childTemplate, count, false, nullptr, NULL_BAG, NULL_SLOT);
+                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, 0, {}, {}, addToCollection))
+                {
+                    childItem->SetGuidValue(ITEM_FIELD_CREATOR, item->GetGUID());
+                    childItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD);
+                }
+            }
+        }
     }
     return item;
 }
@@ -11135,6 +11514,9 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
+
+    AutoUnequipChildItem(pItem);
+
     return lastItem;
 }
 
@@ -11368,6 +11750,105 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     return pItem;
 }
 
+void Player::EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem)
+{
+    if (ItemChildEquipmentEntry const* itemChildEquipment = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry()))
+    {
+        if (Item* childItem = GetChildItemByGuid(parentItem->GetChildItem()))
+        {
+            uint16 childDest = (INVENTORY_SLOT_BAG_0 << 8) | itemChildEquipment->AltEquipmentSlot;
+            if (childItem->GetPos() != childDest)
+            {
+                Item* dstItem = GetItemByPos(childDest);
+                if (!dstItem)                                      // empty slot, simple case
+                {
+                    RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), true);
+                    EquipItem(childDest, childItem, true);
+                    AutoUnequipOffhandIfNeed();
+                }
+                else                                                    // have currently equipped item, not simple case
+                {
+                    uint8 dstbag = dstItem->GetBagSlot();
+                    uint8 dstslot = dstItem->GetSlot();
+
+                    InventoryResult msg = CanUnequipItem(childDest, !childItem->IsBag());
+                    if (msg != EQUIP_ERR_OK)
+                    {
+                        SendEquipError(msg, dstItem);
+                        return;
+                    }
+
+                    // check dest->src move possibility but try to store currently equipped item in the bag where the parent item is
+                    ItemPosCountVec sSrc;
+                    uint16 eSrc = 0;
+                    if (IsInventoryPos(parentBag, parentSlot))
+                    {
+                        msg = CanStoreItem(parentBag, NULL_SLOT, sSrc, dstItem, true);
+                        if (msg != EQUIP_ERR_OK)
+                            msg = CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+                    }
+                    else if (IsBankPos(parentBag, parentSlot))
+                    {
+                        msg = CanBankItem(parentBag, NULL_SLOT, sSrc, dstItem, true);
+                        if (msg != EQUIP_ERR_OK)
+                            msg = CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+                    }
+                    else if (IsEquipmentPos(parentBag, parentSlot))
+                    {
+                        msg = CanEquipItem(parentSlot, eSrc, dstItem, true);
+                        if (msg == EQUIP_ERR_OK)
+                            msg = CanUnequipItem(eSrc, true);
+                    }
+
+                    if (msg != EQUIP_ERR_OK)
+                    {
+                        SendEquipError(msg, dstItem, childItem);
+                        return;
+                    }
+
+                    // now do moves, remove...
+                    RemoveItem(dstbag, dstslot, false);
+                    RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), false);
+
+                    // add to dest
+                    EquipItem(childDest, childItem, true);
+
+                    // add to src
+                    if (IsInventoryPos(parentBag, parentSlot))
+                        StoreItem(sSrc, dstItem, true);
+                    else if (IsBankPos(parentBag, parentSlot))
+                        BankItem(sSrc, dstItem, true);
+                    else if (IsEquipmentPos(parentBag, parentSlot))
+                        EquipItem(eSrc, dstItem, true);
+
+                    AutoUnequipOffhandIfNeed();
+                }
+            }
+        }
+    }
+}
+
+void Player::AutoUnequipChildItem(Item* parentItem)
+{
+    if (ItemChildEquipmentEntry const* itemChildEquipment = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry()))
+    {
+        if (Item* childItem = GetChildItemByGuid(parentItem->GetChildItem()))
+        {
+            if (IsChildEquipmentPos(childItem->GetPos()))
+                return;
+
+            ItemPosCountVec dest;
+            uint32 count = childItem->GetCount();
+            InventoryResult result = CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, dest, childItem->GetTemplate(), count, false, childItem, NULL_BAG, NULL_SLOT);
+            if (result != EQUIP_ERR_OK)
+                return;
+
+            RemoveItem(childItem->GetBagSlot(), childItem->GetSlot(), true);
+            StoreItem(dest, childItem, true);
+        }
+    }
+}
+
 void Player::QuickEquipItem(uint16 pos, Item* pItem)
 {
     if (pItem)
@@ -11515,6 +11996,8 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
+
+        AutoUnequipChildItem(pItem);
     }
 }
 
@@ -11825,6 +12308,63 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
             }
         }
     }
+
+    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
+            {
+                if (item->GetCount() + remcount <= count)
+                {
+                    // all keys can be unequipped
+                    remcount += item->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+
+                    if (remcount >= count)
+                        return;
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
+                    item->SetCount(item->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        item->SendUpdateToPlayer(this);
+                    item->SetState(ITEM_CHANGED, this);
+                    return;
+                }
+            }
+        }
+    }
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
+            {
+                if (item->GetCount() + remcount <= count)
+                {
+                    // all keys can be unequipped
+                    remcount += item->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+
+                    if (remcount >= count)
+                        return;
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
+                    item->SetCount(item->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        item->SendUpdateToPlayer(this);
+                    item->SetState(ITEM_CHANGED, this);
+                    return;
+                }
+            }
+        }
+    }
+
 }
 
 void Player::DestroyZoneLimitedItem(bool update, uint32 new_zone)
@@ -11901,6 +12441,11 @@ Item* Player::GetItemByEntry(uint32 entry) const
             if (pItem->GetEntry() == entry)
                 return pItem;
 
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetEntry() == entry)
+                return pItem;
+
     return nullptr;
 }
 
@@ -11932,6 +12477,11 @@ std::vector<Item*> Player::GetItemListByEntry(uint32 entry, bool inBankAlso) con
                 if (item->GetEntry() == entry)
                     itemList.push_back(item);
     }
+
+    for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (item->GetEntry() == entry)
+                itemList.push_back(item);
 
     return itemList;
 }
@@ -12091,6 +12641,33 @@ void Player::SwapItem(uint16 src, uint16 dst)
     if (!pSrcItem)
         return;
 
+    if (pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+    {
+        if (Item* parentItem = GetItemByGuid(pSrcItem->GetGuidValue(ITEM_FIELD_CREATOR)))
+        {
+            if (IsEquipmentPos(src))
+            {
+                AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
+                SwapItem(dst, src);                 // src is now empty
+                SwapItem(parentItem->GetPos(), dst);// dst is now empty
+                return;
+            }
+        }
+    }
+    else if (pDstItem && pDstItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+    {
+        if (Item* parentItem = GetItemByGuid(pDstItem->GetGuidValue(ITEM_FIELD_CREATOR)))
+        {
+            if (IsEquipmentPos(dst))
+            {
+                AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
+                SwapItem(src, dst);                 // dst is now empty
+                SwapItem(parentItem->GetPos(), src);// src is now empty
+                return;
+            }
+        }
+    }
+
     TC_LOG_DEBUG("entities.player.items", "Player::SwapItem: Player '%s' (%s), Bag: %u, Slot: %u, Item: %u",
         GetName().c_str(), GetGUID().ToString().c_str(), dstbag, dstslot, pSrcItem->GetEntry());
 
@@ -12129,7 +12706,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     // DST checks
-
     if (pDstItem)
     {
         // check unequip potability for equipped items and bank bags
@@ -12213,6 +12789,9 @@ void Player::SwapItem(uint16 src, uint16 dst)
         else
             return;
 
+        if (msg == EQUIP_ERR_OK && IsEquipmentPos(dst) && !pSrcItem->GetChildItem().IsEmpty())
+            msg = CanEquipChildItem(pSrcItem);
+
         // can be merge/fill
         if (msg == EQUIP_ERR_OK)
         {
@@ -12227,6 +12806,9 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 else if (IsEquipmentPos(dst))
                 {
                     EquipItem(eDest, pSrcItem, true);
+                    if (!pSrcItem->GetChildItem().IsEmpty())
+                        EquipChildItem(srcbag, srcslot, pSrcItem);
+
                     AutoUnequipOffhandIfNeed();
                 }
             }
@@ -12283,6 +12865,9 @@ void Player::SwapItem(uint16 src, uint16 dst)
         if (msg == EQUIP_ERR_OK)
             msg = CanUnequipItem(eDest2, true);
     }
+
+    if (msg == EQUIP_ERR_OK && IsEquipmentPos(dst) && !pSrcItem->GetChildItem().IsEmpty())
+        msg = CanEquipChildItem(pSrcItem);
 
     if (msg != EQUIP_ERR_OK)
     {
@@ -12367,7 +12952,11 @@ void Player::SwapItem(uint16 src, uint16 dst)
     else if (IsBankPos(dst))
         BankItem(sDest, pSrcItem, true);
     else if (IsEquipmentPos(dst))
+    {
         EquipItem(eDest, pSrcItem, true);
+        if (!pSrcItem->GetChildItem().IsEmpty())
+            EquipChildItem(srcbag, srcslot, pSrcItem);
+    }
 
     // add to src
     if (IsInventoryPos(src))
@@ -17353,6 +17942,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
         std::map<ObjectGuid, Bag*> bagMap;                               // fast guid lookup for bags
         std::map<ObjectGuid, Item*> invalidBagMap;                       // fast guid lookup for bags
+        std::vector<Item*> childItems;
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -17439,9 +18029,14 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
                 }
 
+
                 // Item's state may have changed after storing
                 if (err == EQUIP_ERR_OK)
+                {
                     item->SetState(ITEM_UNCHANGED, this);
+                    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+                        childItems.push_back(item);
+                }
                 else
                 {
                     TC_LOG_ERROR("entities.player", "Player::_LoadInventory: Player '%s' (%s) has item (%s, entry: %u) which can't be loaded into inventory (Bag %s, slot: %u) by reason %u. Item will be sent by mail.",
@@ -17467,6 +18062,15 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             }
             draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
         }
+
+        for (Item* childItem : childItems)
+        {
+            if (Item* parent = GetItemByGuid(childItem->GetGuidValue(ITEM_FIELD_CREATOR)))
+                parent->SetChildItem(childItem->GetGUID());
+            else
+                childItem->SetState(ITEM_REMOVED, this);
+        }
+
         CharacterDatabase.CommitTransaction(trans);
     }
     //if (IsAlive())
@@ -17514,14 +18118,6 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage: Player '%s' (%s) has an item with an invalid slot (item id: " UI64FMTD ", entry: %u, slot: %u).",
                 GetName().c_str(), GetGUID().ToString().c_str(), itemId, itemEntry, slot);
             continue;
-        }
-
-        std::string name;
-        if (!creatorGuid.IsEmpty() && !ObjectMgr::GetPlayerNameByGUID(creatorGuid, name))
-        {
-            TC_LOG_ERROR("entities.player", "Player::_LoadVoidStorage: Player '%s' (%s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creator: %s).",
-                GetName().c_str(), GetGUID().ToString().c_str(), itemId, itemEntry, creatorGuid.ToString().c_str());
-            creatorGuid.Clear();
         }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, upgradeId, bonusListIDs);

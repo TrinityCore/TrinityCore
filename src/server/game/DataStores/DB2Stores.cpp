@@ -101,6 +101,7 @@ DB2Storage<ItemBagFamilyEntry>                  sItemBagFamilyStore("ItemBagFami
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
 DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
+DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST);
 DB2Storage<ItemDamageAmmoEntry>                 sItemDamageAmmoStore("ItemDamageAmmo.db2", ItemDamageAmmoMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_AMMO);
 DB2Storage<ItemDamageOneHandEntry>              sItemDamageOneHandStore("ItemDamageOneHand.db2", ItemDamageOneHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND);
@@ -362,6 +363,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemBonusStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
     LOAD_DB2(sItemClassStore);
+    LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
@@ -598,6 +600,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             _itemBonusTrees[bonusTreeId].insert(bonusTreeNode);
             bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->SubTreeID);
         }
+    }
+
+    for (ItemChildEquipmentEntry const* itemChildEquipment : sItemChildEquipmentStore)
+    {
+        ASSERT(_itemChildEquipment.find(itemChildEquipment->ItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
+        _itemChildEquipment[itemChildEquipment->ItemID] = itemChildEquipment;
     }
 
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
@@ -1060,6 +1068,15 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
     }
 
     return bonusListIDs;
+}
+
+ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) const
+{
+    auto itr = _itemChildEquipment.find(itemId);
+    if (itr != _itemChildEquipment.end())
+        return itr->second;
+
+    return nullptr;
 }
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
