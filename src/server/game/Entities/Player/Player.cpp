@@ -23714,6 +23714,25 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
     }
 }
 
+bool Player::IsDailyQuestDone(uint32 quest_id)
+{
+    bool found = false;
+    if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
+    {
+        std::vector<uint32> const& dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+        for (uint32 dailyQuestId : dailies)
+        {
+            if (dailyQuestId == quest_id)
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    return found;
+}
+
 void Player::SetWeeklyQuestStatus(uint32 quest_id)
 {
     m_weeklyquests.insert(quest_id);
