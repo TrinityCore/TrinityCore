@@ -714,9 +714,8 @@ public:
         Player* owner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!owner)
         {
-            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
+            owner = handler->GetSession()->GetPlayer();
+            target = owner;
         }
 
         std::string nameLink = handler->GetNameLink(owner);
