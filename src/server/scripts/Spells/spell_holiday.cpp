@@ -747,6 +747,7 @@ enum RamBlaBla
 {
     SPELL_GIDDYUP                           = 42924,
     SPELL_RENTAL_RACING_RAM                 = 43883,
+    SPELL_SWIFT_WORK_RAM                    = 43880,
     SPELL_RENTAL_RACING_RAM_AURA            = 42146,
     SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
     SPELL_RAM_TROT                          = 42992,
@@ -754,6 +755,7 @@ enum RamBlaBla
     SPELL_RAM_GALLOP                        = 42994,
     SPELL_RAM_FATIGUE                       = 43052,
     SPELL_EXHAUSTED_RAM                     = 43332,
+    SPELL_RELAY_RACE_TURN_IN                = 44501,
 
     // Quest
     SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN  = 43345,
@@ -774,7 +776,7 @@ class spell_brewfest_giddyup : public SpellScriptLoader
             void OnChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (!target->HasAura(SPELL_RENTAL_RACING_RAM))
+                if (!target->HasAura(SPELL_RENTAL_RACING_RAM) && !target->HasAura(SPELL_SWIFT_WORK_RAM))
                 {
                     target->RemoveAura(GetId());
                     return;
@@ -1009,6 +1011,40 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
         {
             return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
         }
+};
+
+class spell_brewfest_relay_race_turn_in : public SpellScriptLoader
+{
+public:
+    spell_brewfest_relay_race_turn_in() : SpellScriptLoader("spell_brewfest_relay_race_turn_in") { }
+
+    class spell_brewfest_relay_race_turn_in_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_brewfest_relay_race_turn_in_SpellScript);
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (GetHitUnit()->HasAura(SPELL_SWIFT_WORK_RAM))
+            {
+                if (Aura* aur = GetHitUnit()->GetAura(SPELL_SWIFT_WORK_RAM))
+                {
+                    aur->SetDuration(aur->GetDuration() + 30 * IN_MILLISECONDS);
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_RELAY_RACE_TURN_IN, TRIGGERED_FULL_MASK);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_turn_in_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_brewfest_relay_race_turn_in_SpellScript();
+    }
 };
 
 // 43876 - Dismount Ram
@@ -1281,6 +1317,7 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_apple_trap();
     new spell_brewfest_exhausted_ram();
     new spell_brewfest_relay_race_intro_force_player_to_throw();
+    new spell_brewfest_relay_race_turn_in();
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
