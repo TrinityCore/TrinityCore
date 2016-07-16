@@ -201,8 +201,21 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     Item* dstItem = _player->GetItemByPos(dest);
     if (!dstItem)                                      // empty slot, simple case
     {
+        if (!srcItem->GetChildItem().IsEmpty())
+        {
+            InventoryResult childEquipResult = _player->CanEquipChildItem(srcItem);
+            if (childEquipResult != EQUIP_ERR_OK)
+            {
+                _player->SendEquipError(msg, srcItem);
+                return;
+            }
+        }
+
         _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, true);
         _player->EquipItem(dest, srcItem, true);
+        if (!srcItem->GetChildItem().IsEmpty())
+            _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
+
         _player->AutoUnequipOffhandIfNeed();
     }
     else                                                    // have currently equipped item, not simple case
@@ -217,52 +230,75 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
             return;
         }
 
-        // check dest->src move possibility
-        ItemPosCountVec sSrc;
-        uint16 eSrc = 0;
-        if (_player->IsInventoryPos(src))
+        if (!dstItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
         {
-            msg = _player->CanStoreItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+            // check dest->src move possibility
+            ItemPosCountVec sSrc;
+            uint16 eSrc = 0;
+            if (_player->IsInventoryPos(src))
+            {
+                msg = _player->CanStoreItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanStoreItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            }
+            else if (_player->IsBankPos(src))
+            {
+                msg = _player->CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanBankItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            }
+            else if (_player->IsEquipmentPos(src))
+            {
+                msg = _player->CanEquipItem(autoEquipItem.Slot, eSrc, dstItem, true);
+                if (msg == EQUIP_ERR_OK)
+                    msg = _player->CanUnequipItem(eSrc, true);
+            }
+
+            if (msg == EQUIP_ERR_OK && Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
+                msg = _player->CanEquipChildItem(srcItem);
+
             if (msg != EQUIP_ERR_OK)
-                msg = _player->CanStoreItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            {
+                _player->SendEquipError(msg, dstItem, srcItem);
+                return;
+            }
+
+            // now do moves, remove...
+            _player->RemoveItem(dstbag, dstslot, false);
+            _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, false);
+
+            // add to dest
+            _player->EquipItem(dest, srcItem, true);
+
+            // add to src
+            if (_player->IsInventoryPos(src))
+                _player->StoreItem(sSrc, dstItem, true);
+            else if (_player->IsBankPos(src))
+                _player->BankItem(sSrc, dstItem, true);
+            else if (_player->IsEquipmentPos(src))
+                _player->EquipItem(eSrc, dstItem, true);
+
+            if (Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
+                _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
         }
-        else if (_player->IsBankPos(src))
+        else
         {
-            msg = _player->CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanBankItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            if (Item* parentItem = _player->GetItemByGuid(dstItem->GetGuidValue(ITEM_FIELD_CREATOR)))
+            {
+                if (Player::IsEquipmentPos(dest))
+                {
+                    _player->AutoUnequipChildItem(parentItem);
+                    // dest is now empty
+                    _player->SwapItem(src, dest);
+                    // src is now empty
+                    _player->SwapItem(parentItem->GetPos(), src);
+                }
+            }
         }
-        else if (_player->IsEquipmentPos(src))
-        {
-            msg = _player->CanEquipItem(autoEquipItem.Slot, eSrc, dstItem, true);
-            if (msg == EQUIP_ERR_OK)
-                msg = _player->CanUnequipItem(eSrc, true);
-        }
-
-        if (msg != EQUIP_ERR_OK)
-        {
-            _player->SendEquipError(msg, dstItem, srcItem);
-            return;
-        }
-
-        // now do moves, remove...
-        _player->RemoveItem(dstbag, dstslot, false);
-        _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, false);
-
-        // add to dest
-        _player->EquipItem(dest, srcItem, true);
-
-        // add to src
-        if (_player->IsInventoryPos(src))
-            _player->StoreItem(sSrc, dstItem, true);
-        else if (_player->IsBankPos(src))
-            _player->BankItem(sSrc, dstItem, true);
-        else if (_player->IsEquipmentPos(src))
-            _player->EquipItem(eSrc, dstItem, true);
 
         _player->AutoUnequipOffhandIfNeed();
     }

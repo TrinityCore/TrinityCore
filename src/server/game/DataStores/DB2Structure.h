@@ -1182,6 +1182,14 @@ struct ItemBonusTreeNodeEntry
     uint8 BonusTreeModID;
 };
 
+struct ItemChildEquipmentEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint32 AltItemID;
+    uint8 AltEquipmentSlot;
+};
+
 struct ItemClassEntry
 {
     uint32 ID;
