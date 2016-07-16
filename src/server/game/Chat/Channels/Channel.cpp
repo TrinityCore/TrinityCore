@@ -213,6 +213,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         UpdateChannelUseageInDB();
 
         // If the channel has no owner yet and ownership is allowed, set the new owner.
+        if (!_ownerGuid && _ownershipEnabled)
         {
             SetOwner(guid, _playersStore.size() > 1);
             pinfo.SetModerator(true);
