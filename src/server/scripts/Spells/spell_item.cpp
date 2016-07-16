@@ -2834,7 +2834,7 @@ class spell_item_talisman_of_ascendance : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }
@@ -2868,7 +2868,7 @@ class spell_item_jom_gabbar : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }
@@ -2902,7 +2902,7 @@ class spell_item_battle_trance : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }
@@ -2936,7 +2936,7 @@ class spell_item_world_queller_focus : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }
@@ -2982,7 +2982,7 @@ class spell_item_water_strider : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(EFFECT_1)->TriggerSpell);
             }
@@ -3019,7 +3019,7 @@ class spell_item_brutal_kinship : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }

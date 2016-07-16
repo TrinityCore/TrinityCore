@@ -4409,7 +4409,7 @@ class spell_gen_face_rage : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(EFFECT_2)->TriggerSpell);
             }
@@ -4443,7 +4443,7 @@ class spell_gen_impatient_mind : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
             }
