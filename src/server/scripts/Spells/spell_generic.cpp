@@ -4386,6 +4386,80 @@ class spell_gen_azgalor_rain_of_fire_hellfire_citadel : public SpellScriptLoader
         }
 };
 
+enum AuraProcRemoveSpells
+{
+    SPELL_FACE_RAGE         = 99947,
+    SPELL_IMPATIENT_MIND    = 187213
+};
+
+// 99947 - Face Rage
+class spell_gen_face_rage : public SpellScriptLoader
+{
+    public:
+        spell_gen_face_rage() : SpellScriptLoader("spell_gen_face_rage") { }
+
+        class spell_gen_face_rage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_face_rage_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FACE_RAGE))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            {
+                GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(EFFECT_2)->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_face_rage_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_face_rage_AuraScript();
+        }
+};
+
+// 187213 - Impatient Mind
+class spell_gen_impatient_mind : public SpellScriptLoader
+{
+    public:
+        spell_gen_impatient_mind() : SpellScriptLoader("spell_gen_impatient_mind") { }
+
+        class spell_gen_impatient_mind_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_impatient_mind_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_IMPATIENT_MIND))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_impatient_mind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_impatient_mind_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4480,4 +4554,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_anetheron_summon_towering_infernal();
     new spell_gen_mark_of_kazrogal_hellfire();
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
+    new spell_gen_face_rage();
+    new spell_gen_impatient_mind();
 }
