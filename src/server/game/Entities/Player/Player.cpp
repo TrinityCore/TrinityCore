@@ -4969,35 +4969,7 @@ float Player::OCTRegenMPPerSpirit() const
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[combatRating];
     m_baseRatingValue[combatRating] += (apply ? value : -value);
-
-    // explicit affected values
-    float const multiplier = GetRatingMultiplier(combatRating);
-    float const oldVal = oldRating * multiplier;
-    float const newVal = m_baseRatingValue[combatRating] * multiplier;
-    switch (combatRating)
-    {
-        case CR_HASTE_MELEE:
-            ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
-            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                if (getClass() == CLASS_DEATH_KNIGHT)
-                    UpdateAllRunesRegen();
-            break;
-        case CR_HASTE_RANGED:
-            ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
-            break;
-        case CR_HASTE_SPELL:
-            ApplyCastTimePercentMod(oldVal, false);
-            ApplyCastTimePercentMod(newVal, true);
-            break;
-        default:
-            break;
-    }
-
     UpdateRating(combatRating);
 }
 
@@ -5008,10 +4980,18 @@ void Player::UpdateRating(CombatRating cr)
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & (1<<cr))
+        if ((*i)->GetMiscValue() & (1 << cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
+    AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
+    for (AuraEffectList::const_iterator i = modRatingPct.begin(); i != modRatingPct.end(); ++i)
+        if ((*i)->GetMiscValue() & (1 << cr))
+            amount += int32(CalculatePct(amount, (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
+
+    uint32 oldRating = GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr);
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
@@ -5061,10 +5041,37 @@ void Player::UpdateRating(CombatRating cr)
         case CR_RESILIENCE_CRIT_TAKEN:
         case CR_LIFESTEAL:
             break;
-        case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
+        case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
+        {
+            // explicit affected values
+            float const multiplier = GetRatingMultiplier(cr);
+            float const oldVal = oldRating * multiplier;
+            float const newVal = amount * multiplier;
+            switch (cr)
+            {
+                case CR_HASTE_MELEE:
+                    ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
+                    ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+                    if (getClass() == CLASS_DEATH_KNIGHT)
+                        UpdateAllRunesRegen();
+                    break;
+                case CR_HASTE_RANGED:
+                    ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+                    break;
+                case CR_HASTE_SPELL:
+                    ApplyCastTimePercentMod(oldVal, false);
+                    ApplyCastTimePercentMod(newVal, true);
+                    break;
+                default:
+                    break;
+            }
             break;
+        }
         case CR_AVOIDANCE:
         case CR_UNUSED_2:
         case CR_WEAPON_SKILL_RANGED:
