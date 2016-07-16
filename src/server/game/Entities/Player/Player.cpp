@@ -22941,7 +22941,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
 bool Player::IsDailyQuestDone(uint32 quest_id)
 {
     bool found = false;
-    if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
+    if (sObjectMgr->GetQuestTemplate(quest_id))
     {
         for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         {
