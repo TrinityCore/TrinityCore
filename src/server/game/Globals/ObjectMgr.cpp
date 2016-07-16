@@ -2337,13 +2337,12 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
         return true;
     }
 
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-    {
-        name = characterInfo->Name;
-        return true;
-    }
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
+        return false;
 
-    return false;
+    name = characterInfo->Name;
+    return true;
 }
 
 bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class)
