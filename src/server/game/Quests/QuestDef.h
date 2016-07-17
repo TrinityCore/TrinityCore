@@ -134,7 +134,7 @@ enum QuestFlags
     QUEST_FLAGS_SHARABLE                = 0x00000008,   // Can be shared: Player::CanShareQuest()
     QUEST_FLAGS_HAS_CONDITION           = 0x00000010,   // Not used currently
     QUEST_FLAGS_HIDE_REWARD_POI         = 0x00000020,   // Not used currently: Unsure of content
-    QUEST_FLAGS_RAID                    = 0x00000040,   // Not used currently
+    QUEST_FLAGS_RAID                    = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_TBC                     = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
     QUEST_FLAGS_NO_MONEY_FROM_XP        = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
     QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
