@@ -1,4 +1,4 @@
-CREATE TABLE `custom_reforging` (
+CREATE TABLE IF NOT EXISTS `custom_reforging` (
 	`GUID` INT(10) UNSIGNED NOT NULL COMMENT 'item guid low',
 	`increase` INT(10) UNSIGNED NOT NULL COMMENT 'stat_type',
 	`decrease` INT(10) UNSIGNED NOT NULL COMMENT 'stat_type',
