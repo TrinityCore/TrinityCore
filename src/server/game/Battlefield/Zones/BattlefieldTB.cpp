@@ -229,16 +229,16 @@ void BattlefieldTB::RemoveAurasFromPlayer(Player* player)
 // 62 fields, [7]-[68]
 void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
 {
-    packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_ATTACKING_SHOW), int32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0));
+    data << uint32(TB_WS_ALLIANCE_ATTACKING_SHOW) << int32(IsWarTime() && GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0);
+    data << uint32(TB_WS_HORDE_ATTACKING_SHOW) << int32(IsWarTime() && GetAttackerTeam() == TEAM_HORDE ? 1 : 0);
 
     // Not sure if TB
     //packet.Worldstates.emplace_back(uint32(TB_WS_9_UNKNOWN), int32(1));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_SOUTH_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_SOUTH_INTACT_NEUTRAL), int32(0));
+    data << uint32(TB_WS_SOUTH_DAMAGED_NEUTRAL) << int32(0);
+    data << uint32(TB_WS_SOUTH_INTACT_NEUTRAL) << int32(0);
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_PROGRESS_SHOW), int32(0));
+    data << uint32(TB_WS_PROGRESS_SHOW) << int32(0);
 
     // Buildings/bases
     for (BfCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
@@ -288,22 +288,22 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
                 break;
         }
 
-        packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsControlled[TEAM_ALLIANCE]), int32(team == TEAM_ALLIANCE && controlled ? 1 : 0));
-        packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsCapturing[TEAM_ALLIANCE]), int32(team == TEAM_ALLIANCE && capturing ? 1 : 0));
-        packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsNeutral), int32(team == TEAM_NEUTRAL ? 1 : 0));
-        packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsCapturing[TEAM_HORDE]), int32(team == TEAM_HORDE && capturing ? 1 : 0));
-        packet.Worldstates.emplace_back(uint32(TBCapturePoints[i].wsControlled[TEAM_HORDE]), int32(team == TEAM_HORDE && controlled ? 1 : 0));
+        data << uint32(TBCapturePoints[i].wsControlled[TEAM_ALLIANCE]) << int32(team == TEAM_ALLIANCE && controlled ? 1 : 0);
+        data << uint32(TBCapturePoints[i].wsCapturing[TEAM_ALLIANCE]) << int32(team == TEAM_ALLIANCE && capturing ? 1 : 0);
+        data << uint32(TBCapturePoints[i].wsNeutral) << int32(team == TEAM_NEUTRAL ? 1 : 0);
+        data << uint32(TBCapturePoints[i].wsCapturing[TEAM_HORDE]) << int32(team == TEAM_HORDE && capturing ? 1 : 0);
+        data << uint32(TBCapturePoints[i].wsControlled[TEAM_HORDE]) << int32(team == TEAM_HORDE && controlled ? 1 : 0);
     }
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TOWERS_DESTROYED_SHOW), int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
-    packet.Worldstates.emplace_back(uint32(TB_WS_BUILDINGS_CAPTURED_SHOW), int32(IsWarTime() ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_BUILDINGS_CAPTURED), int32(GetData(BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED)));
-    packet.Worldstates.emplace_back(uint32(TB_WS_TOWERS_DESTROYED), int32(0));
-    
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END_SHOW), int32(IsWarTime() ? 1 : 0));
+    data << uint32(TB_WS_TOWERS_DESTROYED_SHOW) << int32(GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
+    data << uint32(TB_WS_BUILDINGS_CAPTURED_SHOW) << int32(IsWarTime() ? 1 : 0);
+    data << uint32(TB_WS_BUILDINGS_CAPTURED) << int32(GetData(BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED));
+    data << uint32(TB_WS_TOWERS_DESTROYED) << int32(0);
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_STATE_BATTLE), int32(IsWarTime() ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_STATE_PREPARATIONS), int32(GetState() == BATTLEFIELD_WARMUP ? 1 : 0));
+    data << uint32(TB_WS_TIME_BATTLE_END_SHOW) << int32(IsWarTime() ? 1 : 0);
+
+    data << uint32(TB_WS_STATE_BATTLE) << int32(IsWarTime() ? 1 : 0);
+    data << uint32(TB_WS_STATE_PREPARATIONS) << int32(GetState() == BATTLEFIELD_WARMUP ? 1 : 0);
 
     // Not sure if TB
     //packet.Worldstates.emplace_back(uint32(TB_WS_35_UNKNOWN), int32(0));
@@ -311,10 +311,10 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
     //packet.Worldstates.emplace_back(uint32(TB_WS_37_UNKNOWN), int32(0));
 
     // Unused tower icons
-    packet.Worldstates.emplace_back(uint32(TB_WS_WEST_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_WEST_INTACT_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_EAST_DAMAGED_NEUTRAL), int32(0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_EAST_INTACT_NEUTRAL), int32(0));
+    data << uint32(TB_WS_WEST_DAMAGED_NEUTRAL) << int32(0);
+    data << uint32(TB_WS_WEST_INTACT_NEUTRAL) << int32(0);
+    data << uint32(TB_WS_EAST_DAMAGED_NEUTRAL) << int32(0);
+    data << uint32(TB_WS_EAST_INTACT_NEUTRAL) << int32(0);
 
     // Towers/spires
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
@@ -331,28 +331,28 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
             bool damaged = tower->GetDestructibleState() == GO_DESTRUCTIBLE_DAMAGED;
             bool destroyed = tower->GetDestructibleState() == GO_DESTRUCTIBLE_DESTROYED;
 
-            packet.Worldstates.emplace_back(uint32(TBTowers[i].wsIntact[TEAM_ALLIANCE]), int32(!team && intact ? 1 : 0));
-            packet.Worldstates.emplace_back(uint32(TBTowers[i].wsDamaged[TEAM_ALLIANCE]), int32(!team && damaged ? 1 : 0));
-            packet.Worldstates.emplace_back(uint32(TBTowers[i].wsDestroyed), int32(destroyed ? 1 : 0));
-            packet.Worldstates.emplace_back(uint32(TBTowers[i].wsDamaged[TEAM_HORDE]), int32(team && damaged ? 1 : 0));
-            packet.Worldstates.emplace_back(uint32(TBTowers[i].wsIntact[TEAM_HORDE]), int32(team && intact ? 1 : 0));
+            data << uint32(TBTowers[i].wsIntact[TEAM_ALLIANCE]) << int32(!team && intact ? 1 : 0);
+            data << uint32(TBTowers[i].wsDamaged[TEAM_ALLIANCE]) << int32(!team && damaged ? 1 : 0);
+            data << uint32(TBTowers[i].wsDestroyed) << int32(destroyed ? 1 : 0);
+            data << uint32(TBTowers[i].wsDamaged[TEAM_HORDE]) << int32(team && damaged ? 1 : 0);
+            data << uint32(TBTowers[i].wsIntact[TEAM_HORDE]) << int32(team && intact ? 1 : 0);
         }
     }
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE_SHOW), int32(!IsWarTime() ? 1 : 0));
-    
-    packet.Worldstates.emplace_back(uint32(TB_WS_ALLIANCE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_HORDE_CONTROLS_SHOW), int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0));
+    data << uint32(TB_WS_TIME_NEXT_BATTLE_SHOW) << int32(!IsWarTime() ? 1 : 0);
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_BATTLE_END), int32(IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_TIME_NEXT_BATTLE), int32(!IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0));
+    data << uint32(TB_WS_ALLIANCE_CONTROLS_SHOW) << int32(!IsWarTime() && GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0);
+    data << uint32(TB_WS_HORDE_CONTROLS_SHOW) << int32(!IsWarTime() && GetDefenderTeam() == TEAM_HORDE ? 1 : 0);
+
+    data << uint32(TB_WS_TIME_BATTLE_END) << int32(IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0);
+    data << uint32(TB_WS_TIME_NEXT_BATTLE) << int32(!IsWarTime() ? time(NULL) + (m_Timer / 1000) : 0);
 
     // Not sure if TB
     //packet.Worldstates.emplace_back(uint32(TB_WS_65_UNKNOWN), int32(0));
     //packet.Worldstates.emplace_back(uint32(TB_WS_66_UNKNOWN), int32(0));
 
-    packet.Worldstates.emplace_back(uint32(TB_WS_KEEP_ALLIANCE), int32(GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0));
-    packet.Worldstates.emplace_back(uint32(TB_WS_KEEP_HORDE), int32(GetDefenderTeam() == TEAM_HORDE ? 1 : 0));    
+    data << uint32(TB_WS_KEEP_ALLIANCE) << int32(GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0);
+    data << uint32(TB_WS_KEEP_HORDE) << int32(GetDefenderTeam() == TEAM_HORDE ? 1 : 0);
 }
 
 void BattlefieldTB::SendInitWorldStatesTo(Player* player)
