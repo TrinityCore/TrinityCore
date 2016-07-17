@@ -21,6 +21,7 @@
 #include "blackfathom_deeps.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "SpellScript.h"
 
 enum Spells
 {
