@@ -119,7 +119,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
     SpellCastTargets targets(user, packet.Cast);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if (!sScriptMgr->OnItemUse(user, item, targets))
+    if (!sScriptMgr->OnItemUse(user, item, targets, packet.Cast.CastID))
     {
         // no script or script not process request by self
         user->CastItemUseSpell(item, targets, packet.Cast.CastID, packet.Cast.Misc);
