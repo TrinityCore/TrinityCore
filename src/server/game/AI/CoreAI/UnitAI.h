@@ -170,7 +170,7 @@ class TC_GAME_API UnitAI
             }
 
             if (position >= targetList.size())
-                return NULL;
+                return nullptr;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
                 targetList.sort(Trinity::ObjectDistanceOrderPred(me));
