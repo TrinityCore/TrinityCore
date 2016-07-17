@@ -167,6 +167,7 @@ bool DB2FileLoader::Load(char const* filename, DB2Meta const* meta)
 
     EndianConvert(metaFlags);
 
+    ASSERT((metaFlags & 0x1) == 0, "%s is a sparse storage, use DB2SparseStorage!", filename);
     ASSERT((meta->IndexField == -1) || (meta->IndexField == (metaFlags >> 16)));
 
     fields = new FieldEntry[fieldCount];
@@ -275,7 +276,8 @@ char* DB2FileLoader::AutoProduceData(uint32& records, char**& indexTable)
 
     for (uint32 y = 0; y < recordCount; y++)
     {
-        uint32 indexVal = meta->HasIndexFieldInData() ? getRecord(y).getUInt(indexField, 0) : ((uint32*)idTable)[y];
+        Record rec = getRecord(y);
+        uint32 indexVal = meta->HasIndexFieldInData() ? rec.getUInt(indexField, 0) : ((uint32*)idTable)[y];
 
         indexTable[indexVal] = &dataTable[offset];
 
@@ -285,7 +287,6 @@ char* DB2FileLoader::AutoProduceData(uint32& records, char**& indexTable)
             offset += 4;
         }
 
-        Record rec = getRecord(y);
         for (uint32 x = 0; x < fieldCount; ++x)
         {
             for (uint32 z = 0; z < meta->ArraySizes[x]; ++z)

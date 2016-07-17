@@ -165,6 +165,8 @@ bool DB2SparseFileLoader::Load(const char *filename, DB2Meta const* meta)
 
     EndianConvert(metaFlags);
 
+    ASSERT((metaFlags & 0x1) != 0, "%s is not a sparse storage, use DB2Storage!", filename);
+
     fields = new FieldEntry[fieldCount];
     if (fread(fields, fieldCount * sizeof(FieldEntry), 1, f) != 1)
     {
