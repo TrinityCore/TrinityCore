@@ -357,7 +357,7 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
 
 void BattlefieldTB::SendInitWorldStatesTo(Player* player)
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (Workshops.size() * 8));
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (3 * 8) + (3 * 8)); // Value of 3 from other projects, needs to verify.
     data << uint32(0);                                              // AreaId
     data << uint32(m_MapId);
     data << uint32(m_ZoneId);
