@@ -2,7 +2,7 @@
 #define _BOT_AI_H
 
 #include "ScriptedCreature.h"
-#include "EventProcessor.h"
+//#include "EventProcessor.h"
 /*
 NpcBot System by Graff (onlysuffering@gmail.com)
 Original patch from: LordPsyan https://bitbucket.org/lordpsyan/trinitycore-patches/src/3b8b9072280e/Individual/11185-BOTS-NPCBots.patch
@@ -405,7 +405,7 @@ class bot_ai : public ScriptedAI
         uint8 GetBotClass() const { return _botclass; }
         uint32 GetLastDiff() const { return lastdiff; }
         virtual void Reset() {}
-        virtual void EnterEvadeMode() {}
+		virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) {}
         virtual void JustDied(Unit*) {}
         virtual void EnterCombat(Unit*) {}
         virtual void MoveInLineOfSight(Unit*) {}
@@ -711,7 +711,7 @@ class bot_minion_ai : public bot_ai
         virtual ~bot_minion_ai();
         bot_minion_ai(Creature* creature);
         virtual void Reset() {}
-        virtual void EnterEvadeMode() { EnterEvadeMode(false); }
+		virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) { EnterEvadeMode(false); }
         void EnterEvadeMode(bool force);
         virtual void JustDied(Unit*);
         virtual void EnterCombat(Unit* u);

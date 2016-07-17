@@ -285,7 +285,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
         //thesawolf - TC commit 1ad73212dca0cf8a829d15ffdbcc4cd611e64d4e
         //		changed this, updating to new calls
         //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
-        teleHomeEvent->ScheduleAbort();
+        //teleHomeEvent->ScheduleAbort();
         teleHomeEvent->Execute(0,0);
     }
     else
@@ -8539,7 +8539,7 @@ bool bot_minion_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, f
         events.AddEvent(teleHomeEvent, events.CalculateTime(0)); //make sure event will be deleted
         //thesawolf - recent commit adjustment
         //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
-        teleHomeEvent->ScheduleAbort();
+        //teleHomeEvent->ScheduleAbort();
         teleHomeEvent->Execute(0,0);
         _evadeMode = false;
 
@@ -8580,14 +8580,14 @@ void bot_minion_ai::AbortTeleport()
     if (teleHomeEvent)
     {
         //teleHomeEvent->to_Abort = true; //thesawolf
-        teleHomeEvent->ScheduleAbort();
+        //teleHomeEvent->ScheduleAbort();
         teleHomeEvent = NULL;
     }
 
     if (teleFinishEvent)
     {
         //teleFinishEvent->to_Abort = true; //thesawolf
-        teleHomeEvent->ScheduleAbort();
+        //teleHomeEvent->ScheduleAbort();
         teleFinishEvent = NULL;
     }
 

@@ -46,6 +46,10 @@ public:
             { "lookup",     rbac::RBAC_PERM_COMMAND_NPCBOT_LOOKUP,                     false, &HandleNpcBotLookupCommand,              ""},
             { "revive",     rbac::RBAC_PERM_COMMAND_NPCBOT_REVIVE,                     false, &HandleNpcBotReviveCommand,              ""},
             { "cast",       rbac::RBAC_PERM_COMMAND_NPCBOT_CAST,                       false, &HandleNpcBotCastCustomSpell,            ""},
+			{ "info", 	    rbac::RBAC_PERM_COMMAND_NPCBOT_INFO,		       false, &HandleNpcBotInfoCommand,		       ""},
+            { "reset",	    rbac::RBAC_PERM_COMMAND_NPCBOT_RESET,		       false, &HandleNpcBotResetCommand,	       ""},
+            { "command",    rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND,		       false, &HandleNpcBotCommandCommand,	       ""},
+            { "distance",   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE,		       false, &HandleNpcBotDistanceCommand,	       ""},
         };
 
         static std::vector<ChatCommand> commandTable =
