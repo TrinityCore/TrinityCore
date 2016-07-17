@@ -134,43 +134,43 @@ class spell_warl_aftermath : public SpellScriptLoader
 // 710 - Banish
 class spell_warl_banish : public SpellScriptLoader
 {
-public:
-    spell_warl_banish() : SpellScriptLoader("spell_warl_banish") { }
-
-    class spell_warl_banish_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_banish_SpellScript);
-
     public:
-        spell_warl_banish_SpellScript() {}
+        spell_warl_banish() : SpellScriptLoader("spell_warl_banish") { }
 
-    private:
-        void CheckBanish()
+        class spell_warl_banish_SpellScript : public SpellScript
         {
-            /// Casting Banish on a banished target will cancel the effect
-            /// Check if the target already has Banish, if so, do nothing.
-            if (Unit* target = GetHitUnit())
+            PrepareSpellScript(spell_warl_banish_SpellScript);
+
+        public:
+            spell_warl_banish_SpellScript() {}
+
+        private:
+            void CheckBanish()
             {
-                if (Aura * banishAura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                // Casting Banish on a banished target will cancel the effect
+                // Check if the target already has Banish, if so, do nothing.
+                if (Unit* target = GetHitUnit())
                 {
-                    banishAura->Remove();
-                    PreventHitEffect(EFFECT_0);
-                    PreventHitEffect(EFFECT_1);
-                    PreventHitEffect(EFFECT_2);
+                    if (Aura * banishAura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
+                    {
+                        banishAura->Remove();
+                        PreventHitEffect(EFFECT_0);
+                        PreventHitEffect(EFFECT_1);
+                        PreventHitEffect(EFFECT_2);
+                    }
                 }
             }
-        }
 
-        void Register() override
+            void Register() override
+            {
+                BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::CheckBanish);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::CheckBanish);
+            return new spell_warl_banish_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warl_banish_SpellScript();
-    }
 };
 
 // 17962 - Conflagrate - Updated to 4.3.4
