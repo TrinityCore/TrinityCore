@@ -19297,7 +19297,7 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
         return true;
 
     // non-instances are always valid
-    Map* map = GetMap();
+    Map* map = FindMap();
     if (!map || !map->IsDungeon())
         return true;
 
