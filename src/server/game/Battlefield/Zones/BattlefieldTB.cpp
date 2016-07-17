@@ -357,14 +357,14 @@ void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
 
 void BattlefieldTB::SendInitWorldStatesTo(Player* player)
 {
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.AreaID = m_ZoneId;
-    packet.MapID = m_MapId;
-    packet.SubareaID = 0;
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (Workshops.size() * 8));
+    data << uint32(0);                                              // AreaId
+    data << uint32(m_MapId);
+    data << uint32(m_ZoneId);
 
-    FillInitialWorldStates(packet);
+    FillInitialWorldStates(data);
 
-    player->SendDirectMessage(packet.Write());
+    player->SendDirectMessage(&data);
 }
 
 void BattlefieldTB::SendInitWorldStatesToAll()
