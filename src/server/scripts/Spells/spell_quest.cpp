@@ -1080,9 +1080,7 @@ enum RedSnapperVeryTasty
     ITEM_RED_SNAPPER             = 23614,
 
     SPELL_CAST_NET               = 29866,
-    SPELL_NEW_SUMMON_TEST        = 49214,
-
-    GO_SCHOOL_OF_RED_SNAPPER     = 181616
+    SPELL_NEW_SUMMON_TEST        = 49214
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1097,15 +1095,6 @@ class spell_q9452_cast_net: public SpellScriptLoader
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            SpellCastResult CheckCast()
-            {
-                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
-                if (!go || go->GetRespawnTime())
-                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-                return SPELL_CAST_OK;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1127,7 +1116,6 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_q9452_cast_net_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
@@ -2482,6 +2470,33 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
         }
 };
 
+// herald of war and life without regret portal spells
+class spell_59064_59439_portals : public SpellScriptLoader
+{
+public:
+    spell_59064_59439_portals() : SpellScriptLoader("spell_59064_59439_portals") { }
+
+    class spell_59064_59439_portals_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_59064_59439_portals_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_59064_59439_portals_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_59064_59439_portals_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2542,4 +2557,5 @@ void AddSC_quest_spell_scripts()
     new spell_q10929_fumping();
     new spell_q12414_hand_over_reins();
     new spell_q13665_q13790_bested_trigger();
+    new spell_59064_59439_portals();
 }

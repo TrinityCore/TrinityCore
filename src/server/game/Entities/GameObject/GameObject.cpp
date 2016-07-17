@@ -1453,11 +1453,11 @@ void GameObject::Use(Unit* user)
 
                     TC_LOG_DEBUG("misc", "Fishing check (skill: %i zone min skill: %i chance %i roll: %i", skill, zone_skill, chance, roll);
 
-                    // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
+                    player->UpdateFishingSkill();
+
+                    // but you will likely cause junk in areas that require a high fishing skill
                     if (chance >= roll)
                     {
-                        player->UpdateFishingSkill();
-
                         /// @todo I do not understand this hack. Need some explanation.
                         // prevent removing GO at spell cancel
                         RemoveFromOwner();
@@ -2004,7 +2004,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
 
-            uint32 modelId = m_goInfo->building.damagedDisplayId;
+            uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
@@ -2032,7 +2032,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
 
-            uint32 modelId = m_goInfo->building.destroyedDisplayId;
+            uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
