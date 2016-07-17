@@ -18,11 +18,13 @@
 #ifndef TrinityCore_Banner_h__
 #define TrinityCore_Banner_h__
 
+#include "Define.h"
+
 namespace Trinity
 {
     namespace Banner
     {
-        void Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)());
+        TC_COMMON_API void Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)());
     }
 }
 
