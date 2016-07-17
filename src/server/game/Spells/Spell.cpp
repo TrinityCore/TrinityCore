@@ -2338,6 +2338,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
+    PrepareScriptHitHandlers();
+    CallScriptBeforeHitHandlers();
+
     if (spellHitTarget)
     {
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
@@ -2518,9 +2521,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
     if (!effectMask)
         return returnVal;
-
-    PrepareScriptHitHandlers();
-    CallScriptBeforeHitHandlers();
 
     if (Player* player = unit->ToPlayer())
     {
