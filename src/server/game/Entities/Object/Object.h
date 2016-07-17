@@ -110,7 +110,7 @@ namespace UpdateMask
 
     inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
     {
-        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * (3 - updateType /*this part evaluates to 0 if update type is not VALUES*/));
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType /*this part evaluates to 0 if update type is not VALUES*/) / 3));
     }
 
     template<typename T>
