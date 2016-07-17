@@ -24,6 +24,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "BattlefieldTB.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundScore.h"
@@ -1113,8 +1114,8 @@ void Player::Update(uint32 p_time)
                         m_swingErrorMsg = 1;
                     }
                 }
-                //120 degrees of radiant range
-                else if (!HasInArc(2 * float(M_PI) / 3, victim))
+                //120 degrees of radiant range, if player is not in boundary radius
+                else if (!IsWithinBoundaryRadius(victim) && !HasInArc(2 * float(M_PI) / 3, victim))
                 {
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -1142,8 +1143,10 @@ void Player::Update(uint32 p_time)
             {
                 if (!IsWithinMeleeRange(victim))
                     setAttackTimer(OFF_ATTACK, 100);
-                else if (!HasInArc(2 * float(M_PI) / 3, victim))
-                    setAttackTimer(OFF_ATTACK, 100);
+                else if (!IsWithinBoundaryRadius(victim) && !HasInArc(2 * float(M_PI) / 3, victim))
+                {
+                    setAttackTimer(BASE_ATTACK, 100);
+                }
                 else
                 {
                     // prevent base and off attack in same time, delay attack at 0.2 sec
@@ -5031,35 +5034,7 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 
 void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 {
-    float oldRating = m_baseRatingValue[combatRating];
     m_baseRatingValue[combatRating] += (apply ? value : -value);
-
-    // explicit affected values
-    float const multiplier = GetRatingMultiplier(combatRating);
-    float const oldVal = oldRating * multiplier;
-    float const newVal = m_baseRatingValue[combatRating] * multiplier;
-    switch (combatRating)
-    {
-        case CR_HASTE_MELEE:
-            ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
-            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
-                if (getClass() == CLASS_DEATH_KNIGHT)
-                    UpdateAllRunesRegen();
-            break;
-        case CR_HASTE_RANGED:
-            ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
-            break;
-        case CR_HASTE_SPELL:
-            ApplyCastTimePercentMod(oldVal, false);
-            ApplyCastTimePercentMod(newVal, true);
-            break;
-        default:
-            break;
-    }
-
     UpdateRating(combatRating);
 }
 
@@ -5070,10 +5045,18 @@ void Player::UpdateRating(CombatRating cr)
     // stat used stored in miscValueB for this aura
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if ((*i)->GetMiscValue() & (1<<cr))
+        if ((*i)->GetMiscValue() & (1 << cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
+    AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
+    for (AuraEffectList::const_iterator i = modRatingPct.begin(); i != modRatingPct.end(); ++i)
+        if ((*i)->GetMiscValue() & (1 << cr))
+            amount += int32(CalculatePct(amount, (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
+
+    uint32 oldRating = GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr);
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
@@ -5123,10 +5106,37 @@ void Player::UpdateRating(CombatRating cr)
         case CR_RESILIENCE_CRIT_TAKEN:
         case CR_LIFESTEAL:
             break;
-        case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
+        case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
+        {
+            // explicit affected values
+            float const multiplier = GetRatingMultiplier(cr);
+            float const oldVal = oldRating * multiplier;
+            float const newVal = amount * multiplier;
+            switch (cr)
+            {
+                case CR_HASTE_MELEE:
+                    ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
+                    ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+                    if (getClass() == CLASS_DEATH_KNIGHT)
+                        UpdateAllRunesRegen();
+                    break;
+                case CR_HASTE_RANGED:
+                    ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
+                    ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+                    break;
+                case CR_HASTE_SPELL:
+                    ApplyCastTimePercentMod(oldVal, false);
+                    ApplyCastTimePercentMod(newVal, true);
+                    break;
+                default:
+                    break;
+            }
             break;
+        }
         case CR_AVOIDANCE:
         case CR_STURDINESS:
         case CR_UNUSED_7:
@@ -9024,6 +9034,22 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_BFG)
                 bg->FillInitialWorldStates(packet);
             break;
+        // Tol Barad Peninsula
+        case 5389:
+            if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
+            {
+                packet.Worldstates.emplace_back(5385, sWorld->getWorldState(5385)); // TB_WS_ALLIANCE_CONTROLS_SHOW
+                packet.Worldstates.emplace_back(5384, sWorld->getWorldState(5384)); // TB_WS_HORDE_CONTROLS_SHOW
+                packet.Worldstates.emplace_back(5387, sWorld->getWorldState(5387)); // TB_WS_TIME_NEXT_BATTLE_SHOW
+                packet.Worldstates.emplace_back(5546, sWorld->getWorldState(5546)); // TB_WS_ALLIANCE_ATTACKING_SHOW
+                packet.Worldstates.emplace_back(5547, sWorld->getWorldState(5547)); // TB_WS_HORDE_ATTACKING_SHOW
+            }
+            break;
+        // Tol Barad
+        case 5095:
+            if (bf && bf->GetTypeId() == BATTLEFIELD_TB)
+                bf->FillInitialWorldStates(packet);
+            break;
         // Wintergrasp
         case 4197:
             if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
@@ -9067,6 +9093,17 @@ void Player::SendBattlefieldWorldStates() const
             SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, wg->IsWarTime() ? 0 : 1);
             uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
             SendUpdateWorldState(ClockWorldState[1], uint32(time(nullptr) + timer));
+        }
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
+    {
+        if (Battlefield* tb = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_TB))
+        {
+            SendUpdateWorldState(TB_WS_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
+            uint32 timer = tb->GetTimer() / 1000;
+            SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(time(nullptr) + timer) : 0));
+            SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(time(nullptr) + timer) : 0));
         }
     }
 }
@@ -15113,11 +15150,34 @@ void Player::FailQuest(uint32 questId)
         // Destroy quest items on quest failure.
         for (QuestObjective const& obj : quest->GetObjectives())
             if (obj.Type == QUEST_OBJECTIVE_ITEM)
-                DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+                if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
+                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                        DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+
         // Destroy items received during the quest.
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
-            if (quest->ItemDrop[i] && quest->ItemDropQuantity[i])
-                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
+                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+    }
+}
+
+void Player::AbandonQuest(uint32 questId)
+{
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    {
+        // Destroy quest items on quest abandon.
+        for (QuestObjective const& obj : quest->GetObjectives())
+            if (obj.Type == QUEST_OBJECTIVE_ITEM)
+                if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
+                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                        DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
+
+        // Destroy items received during the quest.
+        for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
+                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
 
@@ -18739,6 +18799,8 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
 
+            uint32 entranceId = fields[6].GetUInt32();
+
             bool deleteInstance = false;
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -18786,7 +18848,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             }
 
             // since non permanent binds are always solo bind, they can always be reset
-            if (InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, !perm, true))
+            if (InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, entranceId, !perm, true))
                BindToInstance(save, perm, extendState, true);
         }
         while (result->NextRow());

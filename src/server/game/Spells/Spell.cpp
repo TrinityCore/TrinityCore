@@ -5905,7 +5905,8 @@ SpellCastResult Spell::CheckRange(bool strict)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
+            (((m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
+                && !m_caster->IsWithinBoundaryRadius(target)))
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_UNIT_NOT_INFRONT : SPELL_FAILED_DONT_REPORT;
     }
 
@@ -7563,8 +7564,9 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else
     {
-        if (!_caster->isInFront(target, _coneAngle))
-            return false;
+        if (!_caster->IsWithinBoundaryRadius(target->ToUnit()))
+            if (!_caster->isInFront(target, _coneAngle))
+                return false;
     }
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }

@@ -35,6 +35,7 @@
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "dbcfile.h"
+#include "Banner.h"
 #include "StringFormat.h"
 
 #include "adt.h"
@@ -1179,8 +1180,7 @@ bool OpenCascStorage(int locale)
 
 int main(int argc, char * arg[])
 {
-    printf("Map & DBC Extractor\n");
-    printf("===================\n");
+    Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     boost::filesystem::path current(boost::filesystem::current_path());
     strcpy(input_path, current.string().c_str());
