@@ -145,7 +145,7 @@ class spell_warl_banish : public SpellScriptLoader
             spell_warl_banish_SpellScript() {}
 
         private:
-            void CheckBanish()
+            void HandleBanish()
             {
                 // Casting Banish on a banished target will cancel the effect
                 // Check if the target already has Banish, if so, do nothing.
@@ -163,7 +163,7 @@ class spell_warl_banish : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::CheckBanish);
+                BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::HandleBanish);
             }
         };
 
