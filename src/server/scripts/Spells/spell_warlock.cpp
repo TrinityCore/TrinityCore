@@ -147,17 +147,11 @@ class spell_warl_banish : public SpellScriptLoader
         private:
             void HandleBanish()
             {
-                // Casting Banish on a banished target will cancel the effect
-                // Check if the target already has Banish, if so, do nothing.
                 if (Unit* target = GetHitUnit())
                 {
+                    // Casting Banish on a banished target will remove applied aura
                     if (Aura * banishAura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                    {
                         banishAura->Remove();
-                        PreventHitEffect(EFFECT_0);
-                        PreventHitEffect(EFFECT_1);
-                        PreventHitEffect(EFFECT_2);
-                    }
                 }
             }
 
