@@ -11647,7 +11647,7 @@ float Unit::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spell
         return 0;
     if (spellInfo->RangeEntry->maxRangeFriend == spellInfo->RangeEntry->maxRangeHostile)
         return spellInfo->GetMaxRange();
-    if (target == NULL)
+    if (!target)
         return spellInfo->GetMaxRange(true);
     return spellInfo->GetMaxRange(!IsHostileTo(target));
 }
@@ -11658,6 +11658,8 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
         return 0;
     if (spellInfo->RangeEntry->minRangeFriend == spellInfo->RangeEntry->minRangeHostile)
         return spellInfo->GetMinRange();
+    if (!target)
+        return spellInfo->GetMinRange(true);
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
