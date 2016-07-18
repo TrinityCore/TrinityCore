@@ -29,11 +29,11 @@
 #include "mpqfile.h"
 
 using namespace std;
-extern uint16 *LiqType;
+extern std::vector<uint16> LiqType;
 
 WMORoot::WMORoot(std::string &filename)
-    : filename(filename), col(0), nTextures(0), nGroups(0), nP(0), nLights(0),
-    nModels(0), nDoodads(0), nDoodadSets(0), RootWMOID(0), liquidType(0)
+    : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
+    nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
@@ -67,17 +67,29 @@ bool WMORoot::open()
         {
             f.read(&nTextures, 4);
             f.read(&nGroups, 4);
-            f.read(&nP, 4);
+            f.read(&nPortals, 4);
             f.read(&nLights, 4);
-            f.read(&nModels, 4);
-            f.read(&nDoodads, 4);
+            f.read(&nDoodadNames, 4);
+            f.read(&nDoodadDefs, 4);
             f.read(&nDoodadSets, 4);
-            f.read(&col, 4);
+            f.read(&color, 4);
             f.read(&RootWMOID, 4);
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
-            f.read(&liquidType, 4);
+            f.read(&flags, 4);
             break;
+        }
+        else if (!strcmp(fourcc, "GFID"))
+        {
+            for (uint32 gp = 0; gp < nGroups; ++gp)
+            {
+                uint32 fileDataId;
+                f.read(&fileDataId, 4);
+                groupFileDataIDs.push_back(fileDataId);
+
+                if (flags & 16) // LOD related
+                    f.seekRelative(8);
+            }
         }
         /*
         else if (!strcmp(fourcc,"MOTX"))
@@ -409,7 +421,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         // according to WoW.Dev Wiki:
         uint32 liquidEntry;
-        if (rootWMO->liquidType & 4)
+        if (rootWMO->flags & 4)
             liquidEntry = liquidType;
         else if (liquidType == 15)
             liquidEntry = 0;
@@ -460,7 +472,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
         llog << filename;
-        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->liquidType << " group:" << liquidType << ")\n";
+        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->flags << " group:" << flags << ")\n";
         llog.close(); */
 
         fwrite(hlq, sizeof(WMOLiquidHeader), 1, output);

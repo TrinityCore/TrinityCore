@@ -507,7 +507,7 @@ static int LoadKeyMapping(PCASC_MAPPING_TABLE pKeyMapping, DWORD KeyIndex)
     {
         // Retrieve the file size
         FileStream_GetSize(pStream, &FileSize);
-        if(0 < FileSize && FileSize <= 0x100000)
+        if(0 < FileSize && FileSize <= 0x200000)
         {
             // WoW6 actually reads THE ENTIRE file to memory
             // Verified on Mac build (x64)
@@ -991,6 +991,7 @@ static TCascStorage * FreeCascStorage(TCascStorage * hs)
         FreeCascBlob(&hs->ArchivesGroup);
         FreeCascBlob(&hs->ArchivesKey);
         FreeCascBlob(&hs->PatchArchivesKey);
+        FreeCascBlob(&hs->PatchArchivesGroup);
         FreeCascBlob(&hs->RootKey);
         FreeCascBlob(&hs->PatchKey);
         FreeCascBlob(&hs->DownloadKey);

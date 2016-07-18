@@ -32,34 +32,11 @@ extern "C" {
 #define CASCLIB_VERSION                 0x0100  // Current version of CascLib (1.0)
 #define CASCLIB_VERSION_STRING          "1.00"  // String version of CascLib version
 
-#define ERROR_UNKNOWN_FILE_KEY           10001  // Returned by encrypted stream when can't find file key
-#define ERROR_FILE_INCOMPLETE            10006  // The required file part is missing
-
 // Values for CascOpenStorage
 #define CASC_STOR_XXXXX             0x00000001  // Not used
 
 // Values for CascOpenFile
 #define CASC_OPEN_BY_ENCODING_KEY   0x00000001  // The name is just the encoding key; skip ROOT file processing
-
-// Flags for file stream
-#define BASE_PROVIDER_FILE          0x00000000  // Base data source is a file
-#define BASE_PROVIDER_MAP           0x00000001  // Base data source is memory-mapped file
-#define BASE_PROVIDER_HTTP          0x00000002  // Base data source is a file on web server
-#define BASE_PROVIDER_MASK          0x0000000F  // Mask for base provider value
-
-#define STREAM_PROVIDER_FLAT        0x00000000  // Stream is linear with no offset mapping
-#define STREAM_PROVIDER_PARTIAL     0x00000010  // Stream is partial file (.part)
-#define STREAM_PROVIDER_ENCRYPTED   0x00000020  // Stream is an encrypted archive
-#define STREAM_PROVIDER_BLOCK4      0x00000030  // 0x4000 per block, text MD5 after each block, max 0x2000 blocks per file
-#define STREAM_PROVIDER_MASK        0x000000F0  // Mask for stream provider value
-
-#define STREAM_FLAG_READ_ONLY       0x00000100  // Stream is read only
-#define STREAM_FLAG_WRITE_SHARE     0x00000200  // Allow write sharing when open for write
-#define STREAM_FLAG_USE_BITMAP      0x00000400  // If the file has a file bitmap, load it and use it
-#define STREAM_OPTIONS_MASK         0x0000FF00  // Mask for stream options
-
-#define STREAM_PROVIDERS_MASK       0x000000FF  // Mask to get stream providers
-#define STREAM_FLAGS_MASK           0x0000FFFF  // Mask for all stream flags (providers+options)
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
 #define CASC_LOCALE_NONE            0x00000000
