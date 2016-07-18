@@ -95,6 +95,12 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#
+#    Don't change hostname unless you are hosting mysql on a different machine, if you need help
+#    with configuration allowing to connect from diferent machine than the one running server
+#    search for TCE00016 on forum.
+#    Don't open port on firewall to external connections (it belongs to mysql, not to wow server).
+#    The username you choose must have permisions to create/alter/rename tables.
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
@@ -3027,6 +3033,16 @@ Calculate.Gameoject.Zone.Area.Data = 0
 
 NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
+
+#
+#    PreventRenameCharacterOnCustomization
+#        Description: If option is set to 1, player can not rename the character in character customization.
+#                     Applies to all character customization commands.
+#        Default:     0 - (Disabled, character can be renamed in Character Customization)
+#                     1 - (Enabled, character can not be renamed in Character Customization)
+#
+
+PreventRenameCharacterOnCustomization = 0
 
 #
 ###################################################################################################
