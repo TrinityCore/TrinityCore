@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "DatabaseEnv.h"
 
 class SpellInfo;
