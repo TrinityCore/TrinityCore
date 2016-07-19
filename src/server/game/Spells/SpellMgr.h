@@ -35,6 +35,22 @@ class Player;
 class Unit;
 class ProcEventInfo;
 struct SkillLineAbilityEntry;
+struct SpellEntry;
+struct SpellAuraOptionsEntry;
+struct SpellAuraRestrictionsEntry;
+struct SpellCastingRequirementsEntry;
+struct SpellCategoriesEntry;
+struct SpellClassOptionsEntry;
+struct SpellCooldownsEntry;
+struct SpellEquippedItemsEntry;
+struct SpellInterruptsEntry;
+struct SpellLevelsEntry;
+struct SpellMiscEntry;
+struct SpellReagentsEntry;
+struct SpellScalingEntry;
+struct SpellShapeshiftEntry;
+struct SpellTargetRestrictionsEntry;
+struct SpellTotemsEntry;
 
 // only used in code
 enum SpellCategories
