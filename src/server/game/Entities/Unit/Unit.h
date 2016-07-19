@@ -192,6 +192,30 @@ enum UnitStandFlags
     UNIT_STAND_FLAGS_ALL          = 0xFF
 };
 
+enum UnitBytes0Offsets
+{
+    UNIT_BYTES_0_OFFSET_RACE        = 0,
+    UNIT_BYTES_0_OFFSET_CLASS       = 1,
+    UNIT_BYTES_0_OFFSET_GENDER      = 2,
+    UNIT_BYTES_0_OFFSET_POWER_TYPE  = 3,
+};
+
+enum UnitBytes1Offsets
+{
+    UNIT_BYTES_1_OFFSET_STAND_STATE = 0,
+    UNIT_BYTES_1_OFFSET_PET_TALENTS = 1,
+    UNIT_BYTES_1_OFFSET_VIS_FLAG    = 2,
+    UNIT_BYTES_1_OFFSET_ANIM_TIER   = 3
+};
+
+enum UnitBytes2Offsets
+{
+    UNIT_BYTES_2_OFFSET_SHEATH_STATE    = 0,
+    UNIT_BYTES_2_OFFSET_PVP_FLAG        = 1,
+    UNIT_BYTES_2_OFFSET_PET_FLAG        = 2,
+    UNIT_BYTES_2_OFFSET_SHAPESHIFT      = 3,
+};
+
 // byte flags value (UNIT_FIELD_BYTES_1, 3)
 enum UnitBytes1_Flags
 {
@@ -1332,11 +1356,11 @@ class Unit : public WorldObject
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
         void SetLevel(uint8 lvl);
-        uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, 0); }
+        uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
-        uint8 getClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, 1); }
+        uint8 getClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS); }
         uint32 getClassMask() const { return 1 << (getClass()-1); }
-        uint8 getGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, 2); }
+        uint8 getGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER); }
 
         float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0+stat, val); }
@@ -1365,7 +1389,7 @@ class Unit : public WorldObject
         int32 ModifyHealth(int32 val);
         int32 GetHealthGain(int32 dVal);
 
-        Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, 3)); }
+        Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE)); }
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }

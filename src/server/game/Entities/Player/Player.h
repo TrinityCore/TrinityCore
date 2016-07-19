@@ -542,6 +542,49 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK31                  = 0x80000000
 };
 
+enum PlayerBytesOffsets
+{
+    PLAYER_BYTES_OFFSET_SKIN_ID         = 0,
+    PLAYER_BYTES_OFFSET_FACE_ID         = 1,
+    PLAYER_BYTES_OFFSET_HAIR_STYLE_ID   = 2,
+    PLAYER_BYTES_OFFSET_HAIR_COLOR_ID   = 3
+};
+
+enum PlayerBytes2Offsets
+{
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
+    PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
+    PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
+    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
+};
+
+enum PlayerBytes3Offsets
+{
+    PLAYER_BYTES_3_OFFSET_GENDER        = 0,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION   = 1,
+    PLAYER_BYTES_3_OFFSET_PVP_TITLE     = 2,
+    PLAYER_BYTES_3_OFFSET_ARENA_FACTION = 3
+};
+
+enum PlayerFieldBytesOffsets
+{
+    PLAYER_FIELD_BYTES_OFFSET_FLAGS                 = 0,
+    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL   = 1,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES    = 2,
+    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK = 3
+};
+
+enum PlayerFieldBytes2Offsets
+{
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 0,    // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 2,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 3
+};
+
+static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
+
+#define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
+
 #define KNOWN_TITLES_SIZE   4
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE * 64)        // 4 uint64 fields
 
@@ -1321,8 +1364,8 @@ class Player : public Unit, public GridObject<Player>
         static bool IsBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
-        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
-        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -2088,7 +2131,7 @@ class Player : public Unit, public GridObject<Player>
         //End of PvP System
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
-        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_BYTES_3, 1); }
+        uint8 GetDrunkValue() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION); }
         static DrunkenState GetDrunkenstateByValue(uint8 value);
 
         uint32 GetDeathTimer() const { return m_deathTimer; }
