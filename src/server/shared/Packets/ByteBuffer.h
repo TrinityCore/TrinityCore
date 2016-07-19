@@ -24,6 +24,8 @@
 #include "ByteConverter.h"
 #include "Util.h"
 
+#include <cstring>
+
 class MessageBuffer;
 
 // Root of ByteBuffer exception hierarchy
