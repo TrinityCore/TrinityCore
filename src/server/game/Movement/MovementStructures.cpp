@@ -2906,6 +2906,171 @@ MovementStatusElements const MovementSetCanFlyAck[] =
     MSEEnd,
 };
 
+MovementStatusElements MoveForceSwimBackSpeedChangeAck[] =
+{
+    MSESpeedSwimBack,
+    MSEPositionX,
+    MSEPositionZ,
+    MSEPositionY,
+    MSECounter,
+    MSEHasGuidByte7,
+    MSEHasTransportData,
+    MSEHasGuidByte6,
+    MSEHasPitch,
+    MSEHasOrientation,
+    MSEHasGuidByte2,
+    MSEHasMovementFlags,
+    MSEHasGuidByte0,
+    MSEHasGuidByte5,
+    MSEHasGuidByte3,
+    MSEHasSpline,
+    MSEHasTimestamp,
+    MSEZeroBit,
+    MSEHasMovementFlags2,
+    MSEHasGuidByte4,
+    MSEHasGuidByte1,
+    MSEHasSplineElevation,
+    MSEHasFallData,
+
+    MSEHasTransportGuidByte6,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte0,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportGuidByte2,
+
+    MSEMovementFlags,
+
+    MSEMovementFlags2,
+
+    MSEHasFallDirection,
+
+    MSEGuidByte0,
+    MSEGuidByte7,
+    MSEGuidByte4,
+    MSEGuidByte6,
+    MSEGuidByte1,
+    MSEGuidByte2,
+    MSEGuidByte5,
+    MSEGuidByte3,
+
+    MSEFallSinAngle,
+    MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallVerticalSpeed,
+    MSEFallTime,
+
+    MSETransportGuidByte4,
+    MSETransportGuidByte6,
+    MSETransportGuidByte1,
+    MSETransportPositionY,
+    MSETransportOrientation,
+    MSETransportPositionZ,
+    MSETransportGuidByte7,
+    MSETransportTime3,
+    MSETransportTime,
+    MSETransportGuidByte3,
+    MSETransportGuidByte2,
+    MSETransportSeat,
+    MSETransportGuidByte0,
+    MSETransportTime2,
+    MSETransportPositionX,
+    MSETransportGuidByte5,
+
+    MSETimestamp,
+    MSESplineElevation,
+    MSEPitch,
+    MSEOrientation,
+    MSEEnd,
+};
+
+//4.3.4
+MovementStatusElements MoveForceFlightBackSpeedChangeAck[] =
+{
+    MSEPositionY,
+    MSEPositionZ,
+    MSECounter,
+    MSEPositionX,
+    MSESpeedFlightBack,
+    MSEHasSplineElevation,
+    MSEHasPitch,
+    MSEHasFallData,
+    MSEHasSpline,
+    MSEHasGuidByte7,
+    MSEHasGuidByte4,
+    MSEZeroBit,
+    MSEHasGuidByte1,
+    MSEHasOrientation,
+    MSEHasMovementFlags,
+    MSEHasGuidByte5,
+    MSEHasGuidByte3,
+    MSEHasTransportData,
+    MSEHasGuidByte6,
+    MSEHasMovementFlags2,
+    MSEHasGuidByte2,
+    MSEHasGuidByte0,
+    MSEHasTimestamp,
+
+    MSEHasTransportGuidByte2,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte0,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte4,
+
+    MSEMovementFlags2,
+
+    MSEMovementFlags,
+
+    MSEHasFallDirection,
+
+    MSEGuidByte7,
+    MSEGuidByte0,
+    MSEGuidByte5,
+    MSEGuidByte6,
+    MSEGuidByte3,
+    MSEGuidByte2,
+    MSEGuidByte4,
+    MSEGuidByte1,
+
+    MSETransportGuidByte2,
+    MSETransportGuidByte0,
+    MSETransportTime,
+    MSETransportGuidByte3,
+    MSETransportOrientation,
+    MSETransportGuidByte1,
+    MSETransportPositionX,
+    MSETransportPositionZ,
+    MSETransportGuidByte4,
+    MSETransportGuidByte7,
+    MSETransportTime3,
+    MSETransportGuidByte5,
+    MSETransportTime2,
+    MSETransportPositionY,
+    MSETransportSeat,
+    MSETransportGuidByte6,
+
+    MSEFallCosAngle,
+    MSEFallSinAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallVerticalSpeed,
+    MSEFallTime,
+
+    MSETimestamp,
+    MSEPitch,
+    MSEOrientation,
+    MSESplineElevation,
+    MSEEnd,
+};
+
 MovementStatusElements const MovementForceSwimSpeedChangeAck[] =
 {
     MSEPositionX,
@@ -2979,6 +3144,7 @@ MovementStatusElements const MovementForceSwimSpeedChangeAck[] =
     MSETimestamp,
     MSEEnd,
 };
+
 
 MovementStatusElements const MovementForceWalkSpeedChangeAck[] =
 {
@@ -3391,6 +3557,90 @@ MovementStatusElements const ForceMoveUnrootAck[] =
     MSESplineElevation,
     MSEOrientation,
     MSEPitch,
+    MSEEnd,
+};
+
+//4.3.4
+MovementStatusElements MoveUpdateSwimBackSpeed[] =
+{
+    MSEHasGuidByte7,
+    MSEHasGuidByte2,
+    MSEHasTransportData,
+    MSEHasGuidByte1,
+
+    MSEHasTransportGuidByte2,
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte0,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportTime3,
+
+    MSEHasPitch,
+    MSEHasOrientation,
+    MSEZeroBit,
+    MSEHasGuidByte5,
+    MSEHasGuidByte3,
+    MSEHasGuidByte6,
+    MSEHasGuidByte4,
+    MSEHasSpline,
+    MSEHasMovementFlags,
+    MSEHasGuidByte0,
+    MSEHasFallData,
+
+    MSEHasFallDirection,
+
+    MSEMovementFlags,
+
+    MSEHasTimestamp,
+    MSEHasSplineElevation,
+    MSEHasMovementFlags2,
+
+    MSEMovementFlags2,
+
+    MSEGuidByte0,
+    MSEGuidByte4,
+    MSEPositionY,
+
+    MSETransportGuidByte7,	
+    MSETransportTime3,
+    MSETransportGuidByte6,
+    MSETransportGuidByte4,
+    MSETransportGuidByte2,
+    MSETransportGuidByte3,
+    MSETransportOrientation,
+    MSETransportGuidByte5,
+    MSETransportTime,
+    MSETransportGuidByte0,
+    MSETransportGuidByte1,
+    MSETransportPositionX,
+    MSETransportPositionZ,
+    MSETransportTime2,
+    MSETransportPositionY,
+    MSETransportSeat,
+
+    MSEFallSinAngle,
+    MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallVerticalSpeed,
+    MSEFallTime,
+
+    MSEPitch,
+    MSEGuidByte2,
+    MSEGuidByte7,
+    MSESpeedSwimBack,
+    MSESplineElevation,
+    MSEPositionZ,
+    MSEGuidByte3,
+    MSEPositionX,
+    MSETimestamp,
+    MSEGuidByte5,
+    MSEOrientation,
+    MSEGuidByte6,
+    MSEGuidByte1,
     MSEEnd,
 };
 
@@ -5309,6 +5559,10 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return MovementForceRunSpeedChangeAck;
         case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:
             return MovementForceSwimSpeedChangeAck;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
+            return MoveForceSwimBackSpeedChangeAck;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
+            return MoveForceFlightBackSpeedChangeAck;
         case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:
             return MovementForceWalkSpeedChangeAck;
         case CMSG_MOVE_GRAVITY_DISABLE_ACK:
@@ -5347,6 +5601,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return MovementUpdateRunBackSpeed;
         case SMSG_MOVE_UPDATE_SWIM_SPEED:
             return MovementUpdateSwimSpeed;
+        case SMSG_MOVE_UPDATE_SWIM_BACK_SPEED:
+            return MoveUpdateSwimBackSpeed;
         case SMSG_MOVE_UPDATE_WALK_SPEED:
             return MovementUpdateWalkSpeed;
         case SMSG_SPLINE_MOVE_SET_WALK_SPEED:
