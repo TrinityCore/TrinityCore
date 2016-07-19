@@ -450,7 +450,7 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
-enum RuneType
+enum RuneType : uint8
 {
     RUNE_BLOOD      = 0,
     RUNE_UNHOLY     = 1,
@@ -665,7 +665,7 @@ enum PlayerSlots
 
 #define INVENTORY_SLOT_BAG_0    255
 
-enum EquipmentSlots                                         // 19 slots
+enum EquipmentSlots : uint8                                 // 19 slots
 {
     EQUIPMENT_SLOT_START        = 0,
     EQUIPMENT_SLOT_HEAD         = 0,
@@ -690,13 +690,13 @@ enum EquipmentSlots                                         // 19 slots
     EQUIPMENT_SLOT_END          = 19
 };
 
-enum InventorySlots                                         // 4 slots
+enum InventorySlots : uint8                                 // 4 slots
 {
     INVENTORY_SLOT_BAG_START    = 19,
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots                                     // 16 slots
+enum InventoryPackSlots : uint8                             // 16 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
     INVENTORY_SLOT_ITEM_END     = 39
@@ -971,7 +971,7 @@ enum ReferAFriendError
     ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S              = 0x0D
 };
 
-enum PlayerRestState
+enum PlayerRestState : uint8
 {
     REST_STATE_RESTED                                = 0x01,
     REST_STATE_NOT_RAF_LINKED                        = 0x02,
