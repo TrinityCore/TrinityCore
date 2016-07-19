@@ -304,6 +304,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             if (charInfo.Class == CLASS_DEMON_HUNTER)
                 charEnum.HasDemonHunterOnRealm = true;
+            if (charInfo.Level >= 70)
+                charEnum.HasLevel70OnRealm = true;
 
             charEnum.Characters.emplace_back(charInfo);
         }

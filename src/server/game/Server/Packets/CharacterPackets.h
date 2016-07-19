@@ -179,7 +179,7 @@ namespace WorldPackets
             bool IsDeletedCharacters    = false; ///< used for character undelete list
             bool IsDemonHunterCreationAllowed = false; ///< used for demon hunter early access
             bool HasDemonHunterOnRealm  = false;
-            bool HasLevel70OnAccount    = false;
+            bool HasLevel70OnRealm      = false;
             bool Unknown7x              = false;
 
             Optional<uint32> DisabledClassesMask;
