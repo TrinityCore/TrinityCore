@@ -18,11 +18,11 @@
 #ifndef DB2_FILE_LOADER_H
 #define DB2_FILE_LOADER_H
 
-#include "Define.h"
+#include "DB2Meta.h"
 #include "Utilities/ByteConverter.h"
 #include "Implementation/HotfixDatabase.h"
-#include <cassert>
-#include <list>
+#include "Errors.h"
+#include <vector>
 
 class TC_SHARED_API DB2FileLoader
 {
@@ -30,46 +30,101 @@ class TC_SHARED_API DB2FileLoader
     DB2FileLoader();
     ~DB2FileLoader();
 
-    bool Load(const char *filename, const char *fmt);
+    bool Load(char const* filename, DB2Meta const* meta);
 
     class Record
     {
     public:
-        float getFloat(size_t field) const
+        float getFloat(uint32 field, uint32 arrayIndex) const
         {
-            assert(field < file.fieldCount);
-            float val = *reinterpret_cast<float*>(offset + file.GetOffset(field));
+            ASSERT(field < file.fieldCount);
+            float val = *reinterpret_cast<float*>(offset + GetOffset(field) + arrayIndex * sizeof(float));
             EndianConvert(val);
             return val;
         }
-        uint32 getUInt(size_t field) const
+
+        uint32 getUInt(uint32 field, uint32 arrayIndex) const
         {
-            assert(field < file.fieldCount);
-            uint32 val = *reinterpret_cast<uint32*>(offset + file.GetOffset(field));
+            ASSERT(field < file.fieldCount);
+            return GetVarInt(field, GetByteSize(field), arrayIndex);
+        }
+
+        uint8 getUInt8(uint32 field, uint32 arrayIndex) const
+        {
+            ASSERT(field < file.fieldCount);
+            ASSERT(GetByteSize(field) == 1);
+            return *reinterpret_cast<uint8*>(offset + GetOffset(field) + arrayIndex * sizeof(uint8));
+        }
+
+        uint16 getUInt16(uint32 field, uint32 arrayIndex) const
+        {
+            ASSERT(field < file.fieldCount);
+            ASSERT(GetByteSize(field) == 2);
+            uint16 val = *reinterpret_cast<uint16*>(offset + GetOffset(field) + arrayIndex * sizeof(uint16));
             EndianConvert(val);
             return val;
         }
-        uint8 getUInt8(size_t field) const
+
+        char const* getString(uint32 field, uint32 arrayIndex) const
         {
-            assert(field < file.fieldCount);
-            return *reinterpret_cast<uint8*>(offset + file.GetOffset(field));
-        }
-        uint64 getUInt64(size_t field) const
-        {
-            assert(field < file.fieldCount);
-            uint64 val = *reinterpret_cast<uint64*>(offset + file.GetOffset(field));
-            EndianConvert(val);
-            return val;
-        }
-        const char *getString(size_t field) const
-        {
-            assert(field < file.fieldCount);
-            size_t stringOffset = getUInt(field);
-            assert(stringOffset < file.stringSize);
+            ASSERT(field < file.fieldCount);
+            uint32 stringOffset = *reinterpret_cast<uint32*>(offset + GetOffset(field) + arrayIndex * sizeof(uint32));
+            EndianConvert(stringOffset);
+            ASSERT(stringOffset < file.stringSize);
             return reinterpret_cast<char*>(file.stringTable + stringOffset);
         }
 
     private:
+        uint16 GetOffset(uint32 field) const
+        {
+            ASSERT(field < file.fieldCount);
+            return file.fields[field].Offset;
+        }
+
+        uint16 GetByteSize(uint32 field) const
+        {
+            ASSERT(field < file.fieldCount);
+            return 4 - file.fields[field].UnusedBits / 8;
+        }
+
+        uint32 GetVarInt(uint32 field, uint16 size, uint32 arrayIndex) const
+        {
+            ASSERT(field < file.fieldCount);
+            switch (size)
+            {
+                case 1:
+                {
+                    return *reinterpret_cast<uint8*>(offset + GetOffset(field) + arrayIndex * sizeof(uint8));
+                }
+                case 2:
+                {
+                    uint16 val = *reinterpret_cast<uint16*>(offset + GetOffset(field) + arrayIndex * sizeof(uint16));
+                    EndianConvert(val);
+                    return val;
+                }
+                case 3:
+                {
+#pragma pack(push, 1)
+                    struct dbcint24 { uint8 v[3]; };
+#pragma pack(pop)
+                    dbcint24 val = *reinterpret_cast<dbcint24*>(offset + GetOffset(field) + arrayIndex * sizeof(dbcint24));
+                    EndianConvert(val);
+                    return uint32(val.v[0]) | (uint32(val.v[1]) << 8) | (uint32(val.v[2]) << 16);
+                }
+                case 4:
+                {
+                    uint32 val = *reinterpret_cast<uint32*>(offset + GetOffset(field) + arrayIndex * sizeof(uint32));
+                    EndianConvert(val);
+                    return val;
+                }
+                default:
+                    break;
+            }
+
+            ASSERT(false, "GetByteSize(field) < 4");
+            return 0;
+        }
+
         Record(DB2FileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
         unsigned char *offset;
         DB2FileLoader &file;
@@ -79,52 +134,62 @@ class TC_SHARED_API DB2FileLoader
 
     // Get record by id
     Record getRecord(size_t id);
-    /// Get begin iterator over records
 
     uint32 GetNumRows() const { return recordCount;}
     uint32 GetCols() const { return fieldCount; }
-    uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
-    uint32 GetHash() const { return tableHash; }
+    uint32 GetTableHash() const { return tableHash; }
+    uint32 GetLayoutHash() const { return layoutHash; }
     bool IsLoaded() const { return (data != NULL); }
-    char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
-    char* AutoProduceStringsArrayHolders(const char* fmt, char* dataTable);
-    char* AutoProduceStrings(const char* fmt, char* dataTable, uint32 locale);
-    static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
-    static uint32 GetFormatStringFieldCount(const char * format);
-    static uint32 GetFormatLocalizedStringFieldCount(const char * format);
-private:
-    char const* fileName;
+    char* AutoProduceData(uint32& count, char**& indexTable);
+    char* AutoProduceStringsArrayHolders(char* dataTable);
+    char* AutoProduceStrings(char* dataTable, uint32 locale);
+    void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
 
+private:
+#pragma pack(push, 1)
+    struct FieldEntry
+    {
+        uint16 UnusedBits;
+        uint16 Offset;
+    };
+#pragma pack(pop)
+
+    char const* fileName;
+    DB2Meta const* meta;
+
+    // WDB2 / WCH2 fields
     uint32 recordSize;
     uint32 recordCount;
     uint32 fieldCount;
     uint32 stringSize;
-    uint32 *fieldsOffset;
-    unsigned char *data;
-    unsigned char *stringTable;
+    uint32 tableHash;
+    uint32 layoutHash;
+    uint32 minIndex;
+    uint32 maxIndex;
+    uint32 localeMask;
+    uint32 copyIdSize;
+    uint32 metaFlags;
 
-    // WDB2 / WCH2 fields
-    uint32 tableHash;    // WDB2
-    uint32 build;        // WDB2
-
-    int unk1;            // WDB2 (Unix time in WCH2)
-    int minIndex;        // WDB2
-    int maxIndex;        // WDB2 (index table)
-    int localeMask;      // WDB2
-    int unk5;            // WDB2
+    unsigned char* data;
+    unsigned char* stringTable;
+    unsigned char* idTable;
+    uint32 idTableSize;
+    unsigned char* copyTable;
+    FieldEntry* fields;
 };
 
 class TC_SHARED_API DB2DatabaseLoader
 {
 public:
-    explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
+    DB2DatabaseLoader(std::string const& storageName, DB2Meta const* meta) : _storageName(storageName), _meta(meta) { }
 
-    char* Load(const char* format, HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
-    void LoadStrings(const char* format, HotfixDatabaseStatements preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
+    char* Load(HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
+    void LoadStrings(HotfixDatabaseStatements preparedStatement, uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
     static char* AddString(char const** holder, std::string const& value);
 
 private:
     std::string _storageName;
+    DB2Meta const* _meta;
 };
 
 #endif

@@ -40,6 +40,7 @@ namespace WorldPackets
         struct ItemInstance
         {
             void Initialize(::Item const* item);
+            void Initialize(::ItemDynamicFieldGems const* gem);
             void Initialize(::LootItem const& lootItem);
             void Initialize(::VoidStorageItem const* voidItem);
 
@@ -51,6 +52,12 @@ namespace WorldPackets
 
             bool operator==(ItemInstance const& r) const;
             bool operator!=(ItemInstance const& r) const { return !(*this == r); }
+        };
+
+        struct ItemGemInstanceData
+        {
+            uint8 Slot;
+            ItemInstance Item;
         };
 
         class BuyBackItem final : public ClientPacket
@@ -129,7 +136,7 @@ namespace WorldPackets
 
         struct ItemPurchaseContents
         {
-            uint32 Money = 0;
+            uint64 Money = 0;
             ItemPurchaseRefundItem Items[5] = { };
             ItemPurchaseRefundCurrency Currencies[5] = { };
         };
@@ -360,9 +367,9 @@ namespace WorldPackets
         public:
             enum DisplayType
             {
-                DISPLAY_TYPE_ENCOUNTER_LOOT = 1,
-                DISPLAY_TYPE_NORMAL = 2,
-                DISPLAY_TYPE_HIDDEN = 3
+                DISPLAY_TYPE_HIDDEN = 0,
+                DISPLAY_TYPE_NORMAL = 1,
+                DISPLAY_TYPE_ENCOUNTER_LOOT = 2
             };
 
             ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT, 16 + 1 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 1 + 1 + 1 + 1) { }
@@ -373,11 +380,11 @@ namespace WorldPackets
             uint8 Slot                      = 0;
             int32 SlotInBag                 = 0;
             ItemInstance Item;
-            uint32 QuestLogItemID           = 0; // Item ID used for updating quest progress
+            int32 QuestLogItemID            = 0; // Item ID used for updating quest progress
                                                  // only set if different than real ID (similar to CreatureTemplate.KillCredit)
             int32 Quantity                  = 0;
             int32 QuantityInInventory       = 0;
-            uint32 DungeonEncounterID       = 0;
+            int32 DungeonEncounterID       = 0;
             int32 BattlePetBreedID          = 0;
             uint32 BattlePetBreedQuality    = 0;
             int32 BattlePetSpeciesID        = 0;
@@ -468,30 +475,6 @@ namespace WorldPackets
             uint32 Slot = 0;
         };
 
-        struct TransmogrifyItem
-        {
-            Optional<ObjectGuid> SrcItemGUID;
-            Optional<ObjectGuid> SrcVoidItemGUID;
-            ItemInstance Item;
-            uint32 Slot = 0;
-        };
-
-        class TransmogrifyItems final : public ClientPacket
-        {
-        public:
-            enum
-            {
-                MAX_TRANSMOGRIFY_ITEMS = 11
-            };
-
-            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Npc;
-            Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
-        };
-
         class UseCritterItem final : public ClientPacket
         {
         public:
@@ -545,8 +528,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Item;
-            int32 Sockets[MAX_GEM_SOCKETS] = {};
-            int32 SocketMatch = 0;
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
@@ -557,5 +538,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData const& itemGemInstanceData);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData& itemGemInstanceData);
 
 #endif // ItemPackets_h__

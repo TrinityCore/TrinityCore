@@ -171,7 +171,7 @@ public:
 
         uint32 soundId = atoi((char*)args);
 
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sSoundKitStore.LookupEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);
@@ -214,8 +214,8 @@ public:
         char* fail2 = strtok(NULL, " ");
         uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
 
-        WorldPackets::Spells::CastFailed castFailed(SMSG_CAST_FAILED);
-        castFailed.CastID = 0;
+        WorldPackets::Spells::CastFailed castFailed;
+        castFailed.CastID = ObjectGuid::Empty;
         castFailed.SpellID = 133;
         castFailed.Reason = failNum;
         castFailed.FailedArg1 = failArg1;
@@ -1540,11 +1540,11 @@ public:
         if (difficulty == -1)
             for (uint8 diff = 0; diff < MAX_DIFFICULTY; ++diff)
             {
-                if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
-                    sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));
+                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff)))
+                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff));
             }
         else
-            sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(difficulty));
+            sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         return true;
     }
 };

@@ -525,7 +525,7 @@ enum WorldStates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
 
-#define MAX_CHARACTERS_PER_REALM 11
+#define MAX_CHARACTERS_PER_REALM 12
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder

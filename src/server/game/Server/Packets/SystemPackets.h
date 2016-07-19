@@ -84,7 +84,9 @@ namespace WorldPackets
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
-            bool UnkBit61                            = false;
+            bool KioskModeEnabled                    = false;
+
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -101,7 +103,9 @@ namespace WorldPackets
             bool CommerceSystemEnabled               = false; // NYI
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI
-            bool IsExpansionPreorderInStore          = false;
+            bool IsExpansionPreorderInStore          = false; // NYI
+            bool KioskModeEnabled                    = false; // NYI
+            bool TrialBoostEnabled                   = false; // NYI
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
         };

@@ -702,9 +702,8 @@ void Creature::RegenerateMana()
     if (IsInCombat() || !GetCharmerOrOwnerGUID().IsEmpty())
     {
         float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-        float Spirit = GetStat(STAT_SPIRIT);
 
-        addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
+        addvalue = uint32((27.0f / 5.0f + 17.0f) * ManaIncreaseRate);
     }
     else
         addvalue = maxValue / 3;
@@ -737,12 +736,8 @@ void Creature::RegenerateHealth()
     if (!GetCharmerOrOwnerGUID().IsEmpty())
     {
         float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-        float Spirit = GetStat(STAT_SPIRIT);
 
-        if (GetPower(POWER_MANA) > 0)
-            addvalue = uint32(Spirit * 0.25 * HealthIncreaseRate);
-        else
-            addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
+        addvalue = 0.015f * ((float)GetMaxHealth()) * HealthIncreaseRate;
     }
     else
         addvalue = maxValue/3;
@@ -1059,7 +1054,7 @@ void Creature::SaveToDB()
         return;
     }
 
-    uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.mapID : GetMapId();
+    uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.SpawnMap : GetMapId();
     SaveToDB(mapId, data->spawnMask, GetPhaseMask());
 }
 

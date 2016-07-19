@@ -33,31 +33,54 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
 
     for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; j++)
     {
-        Enchants[j].Enchant = item->GetEnchantmentId((EnchantmentSlot)j);
-        Enchants[j].Duration = item->GetEnchantmentDuration((EnchantmentSlot)j);
-        Enchants[j].Charges = item->GetEnchantmentCharges((EnchantmentSlot)j);
+        if (!item->GetEnchantmentId((EnchantmentSlot)j))
+            continue;
+
+        MailAttachedItemEnchant enchant;
+        enchant.Enchant = item->GetEnchantmentId((EnchantmentSlot)j);
+        enchant.Duration = item->GetEnchantmentDuration((EnchantmentSlot)j);
+        enchant.Charges = item->GetEnchantmentCharges((EnchantmentSlot)j);
+        enchant.Slot = j;
+        Enchants.push_back(enchant);
+    }
+
+    uint8 i = 0;
+    for (ItemDynamicFieldGems const& gemData : item->GetGems())
+    {
+        if (gemData.ItemId)
+        {
+            WorldPackets::Item::ItemGemInstanceData gem;
+            gem.Slot = i;
+            gem.Item.Initialize(&gemData);
+            Gems.push_back(gem);
+        }
+        ++i;
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailAttachedItem const& att)
 {
     data << uint8(att.Position);
-    data << uint32(att.AttachID);
+    data << int32(att.AttachID);
+    data << int32(att.Count);
+    data << int32(att.Charges);
+    data << uint32(att.MaxDurability);
+    data << int32(att.Durability);
     data << att.Item;
+    data.WriteBits(att.Enchants.size(), 4);
+    data.WriteBits(att.Gems.size(), 2);
+    data.WriteBit(att.Unlocked);
+    data.FlushBits();
+
+    for (auto const& gem : att.Gems)
+        data << gem;
 
     for (auto const& en : att.Enchants)
     {
         data << int32(en.Enchant);
-        data << int32(en.Duration);
+        data << uint32(en.Duration);
         data << int32(en.Charges);
     }
-
-    data << int32(att.Count);
-    data << int32(att.Charges);
-    data << int32(att.MaxDurability);
-    data << int32(att.Durability);
-    data.WriteBit(att.Unlocked);
-    data.FlushBits();
 
     return data;
 }
@@ -100,25 +123,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
 {
     data << int32(entry.MailID);
     data << int8(entry.SenderType);
-
     data << int64(entry.Cod);
     data << int32(entry.StationeryID);
     data << int64(entry.SentMoney);
     data << int32(entry.Flags);
     data << float(entry.DaysLeft);
     data << int32(entry.MailTemplateID);
-
     data << int32(entry.Attachments.size());
-
-    for (auto const& att : entry.Attachments)
-        data << att;
-
     data.WriteBit(entry.SenderCharacter.is_initialized());
     data.WriteBit(entry.AltSenderID.is_initialized());
-
     data.WriteBits(entry.Subject.size(), 8);
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();
+
+    for (auto const& att : entry.Attachments)
+        data << att;
 
     if (entry.SenderCharacter)
         data << *entry.SenderCharacter;

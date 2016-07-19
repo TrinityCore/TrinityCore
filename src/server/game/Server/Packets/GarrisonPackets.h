@@ -22,7 +22,8 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
-#include "DB2Structure.h"
+
+struct GarrAbilityEntry;
 
 namespace WorldPackets
 {
@@ -84,9 +85,11 @@ namespace WorldPackets
             uint32 ItemLevelWeapon = 0;
             uint32 ItemLevelArmor = 0;
             uint32 Xp = 0;
+            uint32 Durability = 0;
             uint32 CurrentBuildingID = 0;
             uint32 CurrentMissionID = 0;
             std::list<GarrAbilityEntry const*> AbilityID;
+            uint32 ZoneSupportSpellID = 0;
             uint32 FollowerStatus = 0;
             std::string CustomName;
         };
@@ -101,12 +104,51 @@ namespace WorldPackets
             uint32 TravelDuration = 0;
             uint32 MissionDuration = 0;
             uint32 MissionState = 0;
+            uint32 Unknown1 = 0;
+            uint32 Unknown2 = 0;
+        };
+
+        struct GarrisonMissionReward
+        {
+            int32 ItemID = 0;
+            uint32 Quantity = 0;
+            int32 CurrencyID = 0;
+            uint32 CurrencyQuantity = 0;
+            uint32 FollowerXP = 0;
+            uint32 BonusAbilityID = 0;
+            int32 Unknown = 0;
         };
 
         struct GarrisonMissionAreaBonus
         {
             uint32 GarrMssnBonusAbilityID = 0;
             time_t StartTime = time_t(0);
+        };
+
+        struct GarrisonTalent
+        {
+            int32 GarrTalentID = 0;
+            time_t ResearchStartTime = time_t(0);
+            int32 Flags = 0;
+        };
+
+        struct GarrisonInfo
+        {
+            int32 GarrTypeID = 0;
+            uint32 GarrSiteID = 0;
+            uint32 GarrSiteLevelID = 0;
+            uint32 NumFollowerActivationsRemaining = 0;
+            uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
+            std::vector<GarrisonPlotInfo*> Plots;
+            std::vector<GarrisonBuildingInfo const*> Buildings;
+            std::vector<GarrisonFollower const*> Followers;
+            std::vector<GarrisonMission const*> Missions;
+            std::vector<std::vector<GarrisonMissionReward>> MissionRewards;
+            std::vector<std::vector<GarrisonMissionReward>> MissionOvermaxRewards;
+            std::vector<GarrisonMissionAreaBonus const*> MissionAreaBonuses;
+            std::vector<GarrisonTalent> Talents;
+            std::vector<bool> CanStartMission;
+            std::vector<int32> ArchivedMissions;
         };
 
         class GetGarrisonInfoResult final : public ServerPacket
@@ -116,17 +158,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 GarrSiteID = 0;
-            uint32 GarrSiteLevelID = 0;
             uint32 FactionIndex = 0;
-            uint32 NumFollowerActivationsRemaining = 0;
-            std::vector<GarrisonPlotInfo*> Plots;
-            std::vector<GarrisonBuildingInfo const*> Buildings;
-            std::vector<GarrisonFollower const*> Followers;
-            std::vector<GarrisonMission const*> Missions;
-            std::vector<GarrisonMissionAreaBonus const*> MissionAreaBonuses;
-            std::vector<bool> CanStartMission;
-            std::vector<int32> ArchivedMissions;
+            std::vector<GarrisonInfo> Garrisons;
         };
 
         struct GarrisonRemoteBuildingInfo
@@ -173,6 +206,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             uint32 Result = 0;
             GarrisonBuildingInfo BuildingInfo;
             bool PlayActivationCinematic = false;
@@ -196,6 +230,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             uint32 Result = 0;
             uint32 GarrPlotInstanceID = 0;
             uint32 GarrBuildingID = 0;
@@ -208,6 +243,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             uint32 BuildingID = 0;
             uint32 Result = 0;
         };
@@ -219,6 +255,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             uint32 BuildingID = 0;
             uint32 Result = 0;
         };
@@ -238,6 +275,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             std::unordered_set<uint32> const* SpecializationsKnown = nullptr;
             std::unordered_set<uint32> const* BlueprintsKnown = nullptr;
         };
@@ -276,6 +314,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             GarrisonPlotInfo* PlotInfo = nullptr;
         };
 
@@ -296,6 +335,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 GarrTypeID = 0;
             GarrisonFollower Follower;
             uint32 Result = 0;
         };
@@ -308,6 +348,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 FollowerDBID = 0;
+            int32 GarrTypeID = 0;
             uint32 Result = 0;
             uint32 Destroyed = 0;
         };

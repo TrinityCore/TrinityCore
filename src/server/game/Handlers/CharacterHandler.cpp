@@ -191,6 +191,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TRANSMOG_OUTFITS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CUF_PROFILES);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, stmt);
@@ -198,10 +202,6 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BGDATA);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BG_DATA, stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GLYPHS);
-    stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GLYPHS, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
     stmt->setUInt64(0, lowGuid);
@@ -267,6 +267,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
+    charEnum.IsDemonHunterCreationAllowed = true;
+    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     _legitCharacters.clear();
 
@@ -279,7 +281,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            if (!Player::ValidateAppearance(charInfo.Race, charInfo.Class, charInfo.Sex, charInfo.HairStyle, charInfo.HairColor, charInfo.Face, charInfo.FacialHair, charInfo.Skin))
+            if (!Player::ValidateAppearance(charInfo.Race, charInfo.Class, charInfo.Sex, charInfo.HairStyle, charInfo.HairColor, charInfo.Face, charInfo.FacialHair, charInfo.Skin, charInfo.CustomDisplay))
             {
                 TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
 
@@ -299,6 +301,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                 sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
+
+            if (charInfo.Class == CLASS_DEMON_HUNTER)
+                charEnum.HasDemonHunterOnRealm = true;
+            if (charInfo.Level >= 70)
+                charEnum.HasLevel70OnRealm = true;
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -333,6 +340,7 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = true;
+    charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     if (result)
     {
@@ -1253,22 +1261,6 @@ void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::
     _player->GetReputationMgr().SendForceReactions();
 }
 
-void WorldSession::HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet)
-{
-    if (packet.ShowHelm)
-        _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-    else
-        _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-}
-
-void WorldSession::HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet)
-{
-    if (packet.ShowCloak)
-        _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
-    else
-        _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
-}
-
 void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request)
 {
     if (!IsLegitCharacterForAccount(request.RenameInfo->Guid))
@@ -1437,12 +1429,25 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     if (bs_face && (bs_face->Type != 4 || bs_face->Race != _player->getRace() || bs_face->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
         return;
 
+    std::array<BarberShopStyleEntry const*, PLAYER_CUSTOM_DISPLAY_SIZE> customDisplayEntries;
+    std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> customDisplay;
+    for (std::size_t i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+    {
+        BarberShopStyleEntry const* bs_customDisplay = sBarberShopStyleStore.LookupEntry(packet.NewCustomDisplay[i]);
+        if (bs_customDisplay && (bs_customDisplay->Type != 5 + i || bs_customDisplay->Race != _player->getRace() || bs_customDisplay->Sex != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
+            return;
+
+        customDisplayEntries[i] = bs_customDisplay;
+        customDisplay[i] = bs_customDisplay->Data;
+    }
+
     if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
         bs_hair->Data,
         packet.NewHairColor,
         bs_face ? bs_face->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
         bs_facialHair->Data,
-        bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
+        bs_skinColor ? bs_skinColor->Data : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID),
+        customDisplay))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1458,7 +1463,7 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
         return;
     }
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face);
+    uint32 cost = _player->GetBarberShopCost(bs_hair, packet.NewHairColor, bs_facialHair, bs_skinColor, bs_face, customDisplayEntries);
 
     // 0 - ok
     // 1, 3 - not enough money
@@ -1485,28 +1490,6 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     _player->UpdateCriteria(CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
     _player->SetStandState(UNIT_STAND_STATE_STAND);
-}
-
-void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
-{
-    uint32 slot;
-    recvData >> slot;
-
-    if (slot >= MAX_GLYPH_SLOT_INDEX)
-    {
-        TC_LOG_DEBUG("network", "Client sent wrong glyph slot number in opcode CMSG_REMOVE_GLYPH %u", slot);
-        return;
-    }
-
-    if (uint32 glyph = _player->GetGlyph(_player->GetActiveTalentGroup(), slot))
-    {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
-        {
-            _player->RemoveAurasDueToSpell(gp->SpellID);
-            _player->SetGlyph(slot, 0);
-            _player->SendTalentsInfoData();
-        }
-    }
 }
 
 void WorldSession::HandleCharCustomizeOpcode(WorldPackets::Character::CharCustomize& packet)
@@ -1544,7 +1527,8 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
     uint8 plrGender = fields[3].GetUInt8();
     uint16 atLoginFlags = fields[4].GetUInt16();
 
-    if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyleID, customizeInfo->HairColorID, customizeInfo->FaceID, customizeInfo->FacialHairStyleID, customizeInfo->SkinID, true))
+    if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyleID, customizeInfo->HairColorID, customizeInfo->FaceID,
+        customizeInfo->FacialHairStyleID, customizeInfo->SkinID, customizeInfo->CustomDisplay))
     {
         SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
         return;
@@ -1606,7 +1590,10 @@ void WorldSession::HandleCharCustomizeCallback(PreparedQueryResult result, World
         stmt->setUInt8(3, customizeInfo->HairStyleID);
         stmt->setUInt8(4, customizeInfo->HairColorID);
         stmt->setUInt8(5, customizeInfo->FacialHairStyleID);
-        stmt->setUInt64(6, lowGuid);
+        stmt->setUInt8(6, customizeInfo->CustomDisplay[0]);
+        stmt->setUInt8(7, customizeInfo->CustomDisplay[1]);
+        stmt->setUInt8(8, customizeInfo->CustomDisplay[2]);
+        stmt->setUInt64(9, lowGuid);
 
         trans->Append(stmt);
     }
@@ -1641,29 +1628,86 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
     if (saveEquipmentSet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX) // client set slots amount
         return;
 
+    if (saveEquipmentSet.Set.Type > EquipmentSetInfo::TRANSMOG)
+        return;
+
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         if (!(saveEquipmentSet.Set.IgnoreMask & (1 << i)))
         {
-            ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
+            if (saveEquipmentSet.Set.Type == EquipmentSetInfo::EQUIPMENT)
+            {
+                saveEquipmentSet.Set.Appearances[i] = 0;
 
-            Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+                ObjectGuid const& itemGuid = saveEquipmentSet.Set.Pieces[i];
 
-            /// cheating check 1 (item equipped but sent empty guid)
-            if (!item && !itemGuid.IsEmpty())
-                return;
+                Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
-            /// cheating check 2 (sent guid does not match equipped item)
-            if (item && item->GetGUID() != itemGuid)
-                return;
+                /// cheating check 1 (item equipped but sent empty guid)
+                if (!item && !itemGuid.IsEmpty())
+                    return;
+
+                /// cheating check 2 (sent guid does not match equipped item)
+                if (item && item->GetGUID() != itemGuid)
+                    return;
+            }
+            else
+            {
+                saveEquipmentSet.Set.Pieces[i].Clear();
+                if (saveEquipmentSet.Set.Appearances[i])
+                {
+                    if (!sItemModifiedAppearanceStore.LookupEntry(saveEquipmentSet.Set.Appearances[i]))
+                        return;
+
+                    bool hasAppearance, isTemporary;
+                    std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(saveEquipmentSet.Set.Appearances[i]);
+                    if (!hasAppearance)
+                        return;
+                }
+            }
         }
         else
+        {
             saveEquipmentSet.Set.Pieces[i].Clear();
+            saveEquipmentSet.Set.Appearances[i] = 0;
+        }
     }
 
     saveEquipmentSet.Set.IgnoreMask &= 0x7FFFF; /// clear invalid bits (i > EQUIPMENT_SLOT_END)
+    if (saveEquipmentSet.Set.Type == EquipmentSetInfo::EQUIPMENT)
+    {
+        saveEquipmentSet.Set.Enchants[0] = 0;
+        saveEquipmentSet.Set.Enchants[1] = 0;
+    }
+    else
+    {
+        auto validateIllusion = [this](uint32 enchantId) -> bool
+        {
+            SpellItemEnchantmentEntry const* illusion = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+            if (!illusion)
+                return false;
 
-    _player->SetEquipmentSet(std::move(saveEquipmentSet.Set));
+            if (!illusion->ItemVisual || !(illusion->Flags & ENCHANTMENT_COLLECTABLE))
+                return false;
+
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->PlayerConditionID))
+                if (!sConditionMgr->IsPlayerMeetingCondition(_player, condition))
+                    return false;
+
+            if (illusion->ScalingClassRestricted > 0 && uint8(illusion->ScalingClassRestricted) != _player->getClass())
+                return false;
+
+            return true;
+        };
+
+        if (saveEquipmentSet.Set.Enchants[0] && !validateIllusion(saveEquipmentSet.Set.Enchants[0]))
+            return;
+
+        if (saveEquipmentSet.Set.Enchants[1] && !validateIllusion(saveEquipmentSet.Set.Enchants[1]))
+            return;
+    }
+
+    _player->SetEquipmentSet(saveEquipmentSet.Set);
 }
 
 void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& deleteEquipmentSet)
@@ -1866,29 +1910,17 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(PreparedQueryResult res
 
     // Customize
     {
-        if (!factionChangeInfo->SkinID)
-            factionChangeInfo->SkinID = fields[2].GetUInt8();
-
-        if (!factionChangeInfo->FaceID)
-            factionChangeInfo->FaceID = fields[3].GetUInt8();
-
-        if (!factionChangeInfo->HairStyleID)
-            factionChangeInfo->HairStyleID = fields[4].GetUInt8();
-
-        if (!factionChangeInfo->HairColorID)
-            factionChangeInfo->HairColorID = fields[5].GetUInt8();
-
-        if (!factionChangeInfo->FacialHairStyleID)
-            factionChangeInfo->FacialHairStyleID = fields[6].GetUInt8();
-
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
         stmt->setUInt8(0, factionChangeInfo->SexID);
-        stmt->setUInt8(1, *factionChangeInfo->SkinID);
-        stmt->setUInt8(2, *factionChangeInfo->FaceID);
-        stmt->setUInt8(3, *factionChangeInfo->HairStyleID);
-        stmt->setUInt8(4, *factionChangeInfo->HairColorID);
-        stmt->setUInt8(5, *factionChangeInfo->FacialHairStyleID);
-        stmt->setUInt64(6, lowGuid);
+        stmt->setUInt8(1, factionChangeInfo->SkinID);
+        stmt->setUInt8(2, factionChangeInfo->FaceID);
+        stmt->setUInt8(3, factionChangeInfo->HairStyleID);
+        stmt->setUInt8(4, factionChangeInfo->HairColorID);
+        stmt->setUInt8(5, factionChangeInfo->FacialHairStyleID);
+        stmt->setUInt8(6, factionChangeInfo->CustomDisplay[0]);
+        stmt->setUInt8(7, factionChangeInfo->CustomDisplay[1]);
+        stmt->setUInt8(8, factionChangeInfo->CustomDisplay[2]);
+        stmt->setUInt64(9, lowGuid);
 
         trans->Append(stmt);
     }
@@ -2544,12 +2576,13 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
         packet.Display = boost::in_place();
         packet.Display->Name = factionChangeInfo->Name;
         packet.Display->SexID = factionChangeInfo->SexID;
-        packet.Display->SkinID = *factionChangeInfo->SkinID;
-        packet.Display->HairColorID = *factionChangeInfo->HairColorID;
-        packet.Display->HairStyleID = *factionChangeInfo->HairStyleID;
-        packet.Display->FacialHairStyleID = *factionChangeInfo->FacialHairStyleID;
-        packet.Display->FaceID = *factionChangeInfo->FaceID;
+        packet.Display->SkinID = factionChangeInfo->SkinID;
+        packet.Display->HairColorID = factionChangeInfo->HairColorID;
+        packet.Display->HairStyleID = factionChangeInfo->HairStyleID;
+        packet.Display->FacialHairStyleID = factionChangeInfo->FacialHairStyleID;
+        packet.Display->FaceID = factionChangeInfo->FaceID;
         packet.Display->RaceID = factionChangeInfo->RaceID;
+        packet.Display->CustomDisplay = factionChangeInfo->CustomDisplay;
     }
 
     SendPacket(packet.Write());

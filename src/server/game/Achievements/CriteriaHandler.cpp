@@ -18,7 +18,6 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
@@ -780,7 +779,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
             if (_timeCriteriaTrees.find(tree->ID) == _timeCriteriaTrees.end() && !IsCompletedCriteriaTree(tree))
             {
                 // Start the timer
-                if (criteria->Entry->StartTimer * IN_MILLISECONDS > timeLost)
+                if (criteria->Entry->StartTimer * uint32(IN_MILLISECONDS) > timeLost)
                 {
                     _timeCriteriaTrees[tree->ID] = criteria->Entry->StartTimer * IN_MILLISECONDS - timeLost;
                     canStart = true;
@@ -1501,6 +1500,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
 
     switch (CriteriaAdditionalCondition(reqType))
     {
+        case CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
+        {
+            // miscValue1 is itemid
+            ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+            if (!item || item->GetBaseItemLevel() < reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY: // 4
             if (!unit || unit->GetEntry() != reqValue)
                 return false;
@@ -2258,4 +2265,13 @@ Criteria const* CriteriaMgr::GetCriteria(uint32 criteriaId) const
         return nullptr;
 
     return itr->second;
+}
+
+ModifierTreeNode const* CriteriaMgr::GetModifierTree(uint32 modifierTreeId) const
+{
+    auto itr = _criteriaModifiers.find(modifierTreeId);
+    if (itr != _criteriaModifiers.end())
+        return itr->second;
+
+    return nullptr;
 }

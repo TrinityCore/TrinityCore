@@ -696,7 +696,7 @@ static int LoadCdnConfigFile(TCascStorage * hs, void * pvListFile)
         szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "patch-archive-group");
         if(szVarBegin != NULL)
         {
-            LoadSingleBlob(&hs->PatchArchivesKey, szVarBegin, szLineEnd);
+            LoadSingleBlob(&hs->PatchArchivesGroup, szVarBegin, szLineEnd);
             continue;
         }
 

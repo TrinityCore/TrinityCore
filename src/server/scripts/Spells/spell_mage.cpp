@@ -745,6 +745,8 @@ class spell_mage_living_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
+                if (!spellInfo->GetEffect(EFFECT_1))
+                    return false;
                 if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->GetEffect(EFFECT_1)->CalcValue())))
                     return false;
                 return true;

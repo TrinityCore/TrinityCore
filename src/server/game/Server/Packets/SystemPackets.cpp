@@ -48,7 +48,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(UnkBit61);
+    _worldPacket.WriteBit(KioskModeEnabled);
+    _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
 
     _worldPacket.FlushBits();
 
@@ -72,14 +73,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
-    /*if (bit61)
+    if (RaceClassExpansionLevels)
     {
-        var int88 = packet.ReadInt32("int88");
-        for (int i = 0; i < int88; i++)
-            packet.ReadByte("byte23", i);
-    }*/
-
-    _worldPacket.FlushBits();
+        _worldPacket << uint32(RaceClassExpansionLevels->size());
+        if (!RaceClassExpansionLevels->empty())
+            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
+    }
 
     return &_worldPacket;
 }
@@ -94,6 +93,9 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(IsExpansionPreorderInStore);
+    _worldPacket.WriteBit(KioskModeEnabled);
+    _worldPacket.WriteBit(false); // not accessed in handler
+    _worldPacket.WriteBit(TrialBoostEnabled);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);

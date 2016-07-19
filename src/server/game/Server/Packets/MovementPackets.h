@@ -54,8 +54,8 @@ namespace WorldPackets
 
         struct MonsterSplineFilterKey
         {
-            int16 Idx   = 0;
-            int16 Speed = 0;
+            int16 Idx    = 0;
+            uint16 Speed = 0;
         };
 
         struct MonsterSplineFilter
@@ -68,13 +68,21 @@ namespace WorldPackets
             int16 AddedToStart          = 0;
         };
 
+        struct MonsterSplineSpellEffectExtraData
+        {
+            ObjectGuid field_1;
+            uint32 field_2;
+            uint32 field_3;
+            uint32 field_4;
+        };
+
         struct MovementSpline
         {
             uint32 Flags                = 0;    // Spline flags
             uint8 Face                  = 0;    // Movement direction (see MonsterMoveType enum)
             uint8 AnimTier              = 0;
             uint32 TierTransStartTime   = 0;
-            uint32 Elapsed              = 0;
+            int32 Elapsed               = 0;
             uint32 MoveTime             = 0;
             float JumpGravity           = 0.0f;
             uint32 SpecialTime          = 0;
@@ -82,9 +90,10 @@ namespace WorldPackets
             uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
             uint8 VehicleExitVoluntary  = 0;
             ObjectGuid TransportGUID;
-            uint8 VehicleSeat           = 255;
+            int8 VehicleSeat            = -1;
             std::vector<G3D::Vector3> PackedDeltas;
             Optional<MonsterSplineFilter> SplineFilter;
+            Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
             G3D::Vector3 FaceSpot;
@@ -95,6 +104,7 @@ namespace WorldPackets
             uint32 ID = 0;
             G3D::Vector3 Destination;
             bool CrzTeleport = false;
+            uint8 StopDistanceTolerance = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
             MovementSpline Move;
         };
 
@@ -194,25 +204,27 @@ namespace WorldPackets
         class TransferAborted final : public ServerPacket
         {
         public:
-            TransferAborted() : ServerPacket(SMSG_TRANSFER_ABORTED, 4 + 1 + 4) { }
+            TransferAborted() : ServerPacket(SMSG_TRANSFER_ABORTED, 4 + 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            uint32 TransfertAbort = 0;
-            uint8 Arg = 0;
             uint32 MapID = 0;
+            uint8 Arg = 0;
+            int32 MapDifficultyXConditionID;
+            uint32 TransfertAbort = 0;
         };
 
         class NewWorld final : public ServerPacket
         {
         public:
-            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 24) { }
+            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             int32 MapID = 0;
             uint32 Reason = 0;
             Position Pos;
+            Position MovementOffset;    // Adjusts all pending movement events by this offset
         };
 
         class WorldPortResponse final : public ClientPacket
@@ -243,11 +255,13 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             Optional<ObjectGuid> TransportGUID;
             float Facing = 0.0f;
+            uint8 PreloadWorld = 0;
         };
 
         struct MovementForce
         {
             ObjectGuid ID;
+            G3D::Vector3 Origin;
             G3D::Vector3 Direction;
             G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
@@ -273,6 +287,28 @@ namespace WorldPackets
             Optional<float> FlightBackSpeed;
             Optional<float> RunBackSpeed;
             Optional<float> PitchRate;
+        };
+
+        class MoveUpdateApplyMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateApplyMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_APPLY_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            MovementForce Force;
+        };
+
+        class MoveUpdateRemoveMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateRemoveMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_REMOVE_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+            ObjectGuid TriggerGUID;
         };
 
         class MoveTeleportAck final : public ClientPacket
@@ -452,6 +488,12 @@ namespace WorldPackets
         class SummonRequest final : public ServerPacket
         {
         public:
+            enum SummonReason : uint8
+            {
+                SPELL = 0,
+                SCENARIO = 1
+            };
+
             SummonRequest() : ServerPacket(SMSG_SUMMON_REQUEST, 16 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
@@ -459,6 +501,7 @@ namespace WorldPackets
             ObjectGuid SummonerGUID;
             uint32 SummonerVirtualRealmAddress = 0;
             int32 AreaID = 0;
+            SummonReason Reason = SPELL;
             bool SkipStartingArea = false;
         };
 

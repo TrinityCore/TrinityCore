@@ -20,7 +20,6 @@
 #include "ScriptReloadMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "ScriptSystem.h"
@@ -1497,13 +1496,13 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     return tmpscript->OnQuestAccept(player, item, quest);
 }
 
-bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& targets)
+bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId)
 {
     ASSERT(player);
     ASSERT(item);
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
-    return tmpscript->OnUse(player, item, targets);
+    return tmpscript->OnUse(player, item, targets, castId);
 }
 
 bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)

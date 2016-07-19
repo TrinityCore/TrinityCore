@@ -57,7 +57,7 @@ struct GameObjectTemplate
             uint32 closeTextID;                             // 5 closeTextID, References: BroadcastText, NoValue = 0
             uint32 IgnoredByPathing;                        // 6 Ignored By Pathing, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 7 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 EnablePortalsonopen;                     // 8 Enable Portals on open, enum { false, true, }; Default: false
+            uint32 DoorisOpaque;                            // 8 Door is Opaque (Disable portal on close), enum { false, true, }; Default: true
             uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
             uint32 InfiniteAOI;                             // 10 Infinite AOI, enum { false, true, }; Default: false
         } door;
@@ -112,9 +112,9 @@ struct GameObjectTemplate
             uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
             uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
-            int32 xpLevel;                                  // 18 xpLevel, int, Min value: -1, Max value: 100, Default value: 0
-            uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, Placeholder2, }; Default: No Exp
-            uint32 lootLevel;                               // 20 lootLevel, int, Min value: 0, Max value: 100, Default value: 0
+            int32 xpLevel;                                  // 18 xpLevel, int, Min value: -1, Max value: 123, Default value: 0
+            uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
+            uint32 lootLevel;                               // 20 lootLevel, int, Min value: 0, Max value: 123, Default value: 0
             uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
             uint32 DamageImmuneOK;                          // 22 Damage Immune OK, enum { false, true, }; Default: false
             uint32 trivialSkillLow;                         // 23 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
@@ -166,6 +166,7 @@ struct GameObjectTemplate
             uint32 conditionID1;                            // 15 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 playerCast;                              // 16 playerCast, enum { false, true, }; Default: false
             uint32 SummonerTriggered;                       // 17 Summoner Triggered, enum { false, true, }; Default: false
+            uint32 requireLOS;                              // 18 require LOS, enum { false, true, }; Default: false
         } trap;
         // 7 GAMEOBJECT_TYPE_CHAIR
         struct
@@ -222,7 +223,7 @@ struct GameObjectTemplate
             uint32 allowMounted;                            // 17 allowMounted, enum { false, true, }; Default: false
             uint32 floatingTooltip;                         // 18 floatingTooltip, enum { false, true, }; Default: false
             uint32 gossipID;                                // 19 gossipID, References: Gossip, NoValue = 0
-            uint32 WorldStateSetsState;                     // 20 WorldStateSetsState, enum { false, true, }; Default: false
+            uint32 AllowMultiInteract;                      // 20 Allow Multi-Interact, enum { false, true, }; Default: false
             uint32 floatOnWater;                            // 21 floatOnWater, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 22 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 playerCast;                              // 23 playerCast, enum { false, true, }; Default: false
@@ -233,6 +234,7 @@ struct GameObjectTemplate
             uint32 NeverUsableWhileMounted;                 // 28 Never Usable While Mounted, enum { false, true, }; Default: false
             uint32 SortFarZ;                                // 29 Sort Far Z, enum { false, true, }; Default: false
             uint32 SyncAnimationtoObjectLifetime;           // 30 Sync Animation to Object Lifetime (global track only), enum { false, true, }; Default: false
+            uint32 NoFuzzyHit;                              // 31 No Fuzzy Hit, enum { false, true, }; Default: false
         } goober;
         // 11 GAMEOBJECT_TYPE_TRANSPORT
         struct
@@ -242,7 +244,7 @@ struct GameObjectTemplate
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Reached1stfloor;                         // 3 Reached 1st floor, References: GameEvents, NoValue = 0
             uint32 Reached2ndfloor;                         // 4 Reached 2nd floor, References: GameEvents, NoValue = 0
-            int32 mapID;                                    // 5 mapID, References: Map, NoValue = -1
+            int32 SpawnMap;                                 // 5 Spawn Map, References: Map, NoValue = -1
             uint32 Timeto3rdfloor;                          // 6 Time to 3rd floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Reached3rdfloor;                         // 7 Reached 3rd floor, References: GameEvents, NoValue = 0
             uint32 Timeto4thfloor;                          // 8 Time to 4th floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
@@ -296,7 +298,7 @@ struct GameObjectTemplate
             uint32 startEventID;                            // 3 startEventID, References: GameEvents, NoValue = 0
             uint32 stopEventID;                             // 4 stopEventID, References: GameEvents, NoValue = 0
             uint32 transportPhysics;                        // 5 transportPhysics, References: TransportPhysics, NoValue = 0
-            int32 mapID;                                    // 6 mapID, References: Map, NoValue = -1
+            int32 SpawnMap;                                 // 6 Spawn Map, References: Map, NoValue = -1
             uint32 worldState1;                             // 7 worldState1, References: WorldState, NoValue = 0
             uint32 allowstopping;                           // 8 allow stopping, enum { false, true, }; Default: false
             uint32 InitStopped;                             // 9 Init Stopped, enum { false, true, }; Default: false
@@ -504,10 +506,11 @@ struct GameObjectTemplate
         // 35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
         {
-            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 AutoLink;                                // 0 Auto Link, enum { false, true, }; Default: false
             uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 BlocksPathsDown;                         // 3 Blocks Paths Down, enum { false, true, }; Default: false
+            uint32 PathBlockerBump;                         // 4 Path Blocker Bump (ft), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } trapdoor;
         // 36 GAMEOBJECT_TYPE_NEW_FLAG
         struct
@@ -534,13 +537,13 @@ struct GameObjectTemplate
         // 38 GAMEOBJECT_TYPE_GARRISON_BUILDING
         struct
         {
-            int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
+            int32 SpawnMap;                                 // 0 Spawn Map, References: Map, NoValue = -1
         } garrisonBuilding;
         // 39 GAMEOBJECT_TYPE_GARRISON_PLOT
         struct
         {
             uint32 PlotInstance;                            // 0 Plot Instance, References: GarrPlotInstance, NoValue = 0
-            int32 mapID;                                    // 1 mapID, References: Map, NoValue = -1
+            int32 SpawnMap;                                 // 1 Spawn Map, References: Map, NoValue = -1
         } garrisonPlot;
         // 40 GAMEOBJECT_TYPE_CLIENT_CREATURE
         struct
@@ -583,10 +586,10 @@ struct GameObjectTemplate
         // 43 GAMEOBJECT_TYPE_PHASEABLE_MO
         struct
         {
-            int32 mapID;                                    // 0 mapID, References: Map, NoValue = -1
-            int32 namedset;                                 // 1 named set (Area Names), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Primarydoodadset;                        // 2 Primary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
-            uint32 Secondarydoodadset;                      // 3 Secondary doodad set, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 SpawnMap;                                 // 0 Spawn Map, References: Map, NoValue = -1
+            uint32 AreaNameSet;                             // 1 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 DoodadSetA;                              // 2 Doodad Set A, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 DoodadSetB;                              // 3 Doodad Set B, int, Min value: 0, Max value: 2147483647, Default value: 0
         } phaseableMO;
         // 44 GAMEOBJECT_TYPE_GARRISON_MONUMENT
         struct
@@ -606,15 +609,59 @@ struct GameObjectTemplate
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
         } garrisonMonumentPlaque;
-        // 47 GAMEOBJECT_TYPE_DO_NOT_USE_3
+        // 47 GAMEOBJECT_TYPE_ARTIFACT_FORGE
         struct
         {
-        } DONOTUSE3;
+            uint32 conditionID1;                            // 0 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 LargeAOI;                                // 1 Large AOI, enum { false, true, }; Default: false
+            uint32 IgnoreBoundingBox;                       // 2 Ignore Bounding Box, enum { false, true, }; Default: false
+            uint32 CameraMode;                              // 3 Camera Mode, References: CameraMode, NoValue = 0
+            uint32 FadeRegionRadius;                        // 4 Fade Region Radius, int, Min value: 0, Max value: 2147483647, Default value: 0
+        } artifactForge;
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
         {
-            uint32 UILinkType;                              // 0 UI Link Type, Type id: 10
+            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, }; Default: Adventure Journal
+            uint32 allowMounted;                            // 1 allowMounted, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
+            uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
         } UILink;
+        // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
+        struct
+        {
+        } KeystoneReceptacle;
+        // 50 GAMEOBJECT_TYPE_GATHERING_NODE
+        struct
+        {
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 level;                                   // 2 level, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 notInCombat;                             // 3 notInCombat, enum { false, true, }; Default: false
+            uint32 trivialSkillLow;                         // 4 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 trivialSkillHigh;                        // 5 trivialSkillHigh, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 ObjectDespawnDelay;                      // 6 Object Despawn Delay, int, Min value: 0, Max value: 600, Default value: 15
+            uint32 triggeredEvent;                          // 7 triggeredEvent, References: GameEvents, NoValue = 0
+            uint32 requireLOS;                              // 8 require LOS, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 9 openTextID, References: BroadcastText, NoValue = 0
+            uint32 floatingTooltip;                         // 10 floatingTooltip, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 11 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 xpLevel;                                 // 12 xpLevel, int, Min value: -1, Max value: 123, Default value: 0
+            uint32 xpDifficulty;                            // 13 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
+            uint32 spell;                                   // 14 spell, References: Spell, NoValue = 0
+            uint32 GiganticAOI;                             // 15 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 LargeAOI;                                // 16 Large AOI, enum { false, true, }; Default: false
+            uint32 SpawnVignette;                           // 17 Spawn Vignette, References: vignette, NoValue = 0
+            uint32 MaxNumberofLoots;                        // 18 Max Number of Loots, int, Min value: 1, Max value: 40, Default value: 10
+            uint32 logloot;                                 // 19 log loot, enum { false, true, }; Default: false
+            uint32 linkedTrap;                              // 20 linkedTrap, References: GameObjects, NoValue = 0
+        } gatheringNode;
+        // 51 GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD
+        struct
+        {
+            uint32 chestLoot;                               // 0 chestLoot, References: Treasure, NoValue = 0
+            uint32 WhenAvailable;                           // 1 When Available, References: GameObjectDisplayInfo, NoValue = 0
+        } challengeModeReward;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];
@@ -1073,10 +1120,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
         Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
 
-        float GetStationaryX() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
-        float GetStationaryY() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
-        float GetStationaryZ() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
-        float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
+        float GetStationaryX() const override { return m_stationaryPosition.GetPositionX(); }
+        float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
+        float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
+        float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
 
         float GetInteractionDistance() const;

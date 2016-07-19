@@ -19,7 +19,6 @@
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
-#include "DBCStores.h"
 #include "AchievementMgr.h"
 
 // Supported shift-links (client generated and server side)
@@ -348,18 +347,23 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             return false;
         }
 
-        uint32 skillLineNameLength = strlen(skillLine->DisplayName_lang);
-        if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName_lang, buffer, skillLineNameLength) == 0)
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            // found the prefix, remove it to perform spellname validation below
-            // -2 = strlen(": ")
-            uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
-            memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+            uint32 skillLineNameLength = strlen(skillLine->DisplayName->Str[i]);
+            if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName->Str[i], buffer, skillLineNameLength) == 0)
+            {
+                // found the prefix, remove it to perform spellname validation below
+                // -2 = strlen(": ")
+                uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
+                memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+                break;
+            }
         }
     }
 
-    if (*_spell->SpellName && strcmp(_spell->SpellName, buffer) == 0)
-        return true;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        if (*_spell->SpellName->Str[i] && strcmp(_spell->SpellName->Str[i], buffer) == 0)
+            return true;
 
     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked spell (id: %u) name wasn't found in any localization", context, _spell->Id);
     return false;

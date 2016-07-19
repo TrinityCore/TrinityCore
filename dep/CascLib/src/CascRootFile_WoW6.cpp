@@ -381,7 +381,7 @@ static LPBYTE WowHandler_GetKey(TRootHandler_WoW6 * pRootHandler, const char * s
     BYTE FileDataIdLE[4];
 
     // Open by FileDataId. The file name must be as following:
-    // File########.xxx, where '#' are hexa-decimal numbers (case insensitive).
+    // File########.unk, where '#' are hexa-decimal numbers (case insensitive).
     // Extension is ignored in that case
     if(IsFileDataIdName(szFileName))
     {

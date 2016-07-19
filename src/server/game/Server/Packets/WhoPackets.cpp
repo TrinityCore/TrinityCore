@@ -34,8 +34,8 @@ WorldPacket const* WorldPackets::Who::WhoIsResponse::Write()
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoWord& word)
 {
-    data.ResetBitPos();
     word.Word = data.ReadString(data.ReadBits(7));
+    data.ResetBitPos();
 
     return data;
 }
@@ -68,15 +68,17 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
     request.ShowArenaPlayers = data.ReadBit();
     request.ExactName = data.ReadBit();
 
-    bool const hasWhoRequest = data.ReadBit();
+    bool hasWhoRequest = data.ReadBit();
+    data.ResetBitPos();
+
+    for (size_t i = 0; i < request.Words.size(); ++i)
+        data >> request.Words[i];
 
     request.Name = data.ReadString(nameLength);
     request.VirtualRealmName = data.ReadString(virtualRealmNameLength);
     request.Guild = data.ReadString(guildNameLength);
     request.GuildVirtualRealmName = data.ReadString(guildVirtualRealmNameLength);
 
-    for (size_t i = 0; i < request.Words.size(); ++i)
-        data >> request.Words[i];
     if (hasWhoRequest)
         data >> request.ServerInfo;
 

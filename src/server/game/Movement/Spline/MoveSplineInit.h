@@ -200,7 +200,7 @@ namespace Movement
         args.facing.f.x = finalSpot.x;
         args.facing.f.y = finalSpot.y;
         args.facing.f.z = finalSpot.z;
-        args.flags.EnableFacingPoint();
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

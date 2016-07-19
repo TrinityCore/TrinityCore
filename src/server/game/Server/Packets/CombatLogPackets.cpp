@@ -22,6 +22,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
     *this << Me;
     *this << CasterGUID;
+    *this << CastID;
     *this << int32(SpellID);
     *this << int32(Damage);
     *this << int32(Overkill);
@@ -30,11 +31,14 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << int32(Resisted);
     *this << int32(Absorbed);
     WriteBit(Periodic);
-    WriteBits(Flags, 8);
+    WriteBits(Flags, 7);
     WriteBit(false); // Debug info
     WriteLogDataBit();
+    WriteBit(SandboxScaling.is_initialized());
     FlushBits();
     WriteLogData();
+    if (SandboxScaling)
+        *this << *SandboxScaling;
 
     return &_worldPacket;
 }
@@ -117,10 +121,10 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     *this << int32(OverHeal);
     *this << int32(Absorbed);
     WriteBit(Crit);
-    WriteBit(Multistrike);
     WriteBit(CritRollMade.is_initialized());
     WriteBit(CritRollNeeded.is_initialized());
     WriteLogDataBit();
+    WriteBit(SandboxScaling.is_initialized());
     FlushBits();
 
     if (CritRollMade)
@@ -131,6 +135,9 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
 
     WriteLogData();
 
+    if (SandboxScaling)
+        *this << *SandboxScaling;
+
     return &_worldPacket;
 }
 
@@ -138,27 +145,31 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
 {
     *this << TargetGUID;
     *this << CasterGUID;
-    *this << SpellID;
+    *this << int32(SpellID);
     *this << uint32(Effects.size());
 
     for (SpellLogEffect const& effect : Effects)
     {
-        *this << effect.Effect;
+        *this << int32(effect.Effect);
         *this << int32(effect.Amount);
         *this << int32(effect.OverHealOrKill);
         *this << int32(effect.SchoolMaskOrPower);
         *this << int32(effect.AbsorbedOrAmplitude);
         *this << int32(effect.Resisted);
         WriteBit(effect.Crit);
-        WriteBit(effect.Multistrike);
+        WriteBit(effect.DebugInfo.is_initialized());
+        WriteBit(effect.SandboxScaling.is_initialized());
+        FlushBits();
 
-        if (WriteBit(effect.DebugInfo.is_initialized()))
+        if (effect.SandboxScaling)
+            *this << *effect.SandboxScaling;
+
+        if (effect.DebugInfo)
         {
             *this << float(effect.DebugInfo->CritRollMade);
             *this << float(effect.DebugInfo->CritRollNeeded);
         }
 
-        FlushBits();
     }
 
     WriteLogDataBit();
@@ -280,49 +291,59 @@ WorldPacket const* WorldPackets::CombatLog::SpellDamageShield::Write()
 WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
 {
     ByteBuffer attackRoundInfo;
-    attackRoundInfo << HitInfo;
+    attackRoundInfo << uint32(HitInfo);
     attackRoundInfo << AttackerGUID;
     attackRoundInfo << VictimGUID;
-    attackRoundInfo << Damage;
-    attackRoundInfo << OverDamage;
-
-    if (attackRoundInfo.WriteBit(SubDmg.is_initialized()))
+    attackRoundInfo << int32(Damage);
+    attackRoundInfo << int32(OverDamage);
+    attackRoundInfo << uint8(SubDmg.is_initialized());
+    if (SubDmg)
     {
-       attackRoundInfo << SubDmg->SchoolMask;
-       attackRoundInfo << SubDmg->FDamage;
-       attackRoundInfo << SubDmg->Damage;
+       attackRoundInfo << int32(SubDmg->SchoolMask);
+       attackRoundInfo << float(SubDmg->FDamage);
+       attackRoundInfo << int32(SubDmg->Damage);
         if (HitInfo & (HITINFO_FULL_ABSORB | HITINFO_PARTIAL_ABSORB))
-            attackRoundInfo << SubDmg->Absorbed;
+            attackRoundInfo << int32(SubDmg->Absorbed);
         if (HitInfo & (HITINFO_FULL_RESIST | HITINFO_PARTIAL_RESIST))
-            attackRoundInfo << SubDmg->Resisted;
+            attackRoundInfo << int32(SubDmg->Resisted);
     }
 
-    attackRoundInfo << VictimState;
-    attackRoundInfo << AttackerState;
-    attackRoundInfo << MeleeSpellID;
+    attackRoundInfo << uint8(VictimState);
+    attackRoundInfo << uint32(AttackerState);
+    attackRoundInfo << uint32(MeleeSpellID);
     if (HitInfo & HITINFO_BLOCK)
-        attackRoundInfo << BlockAmount;
+        attackRoundInfo << int32(BlockAmount);
 
     if (HitInfo & HITINFO_RAGE_GAIN)
-        attackRoundInfo << RageGained;
+        attackRoundInfo << int32(RageGained);
 
     if (HitInfo & HITINFO_UNK1)
     {
-        attackRoundInfo << UnkState.State1;
-        attackRoundInfo << UnkState.State2;
-        attackRoundInfo << UnkState.State3;
-        attackRoundInfo << UnkState.State4;
-        attackRoundInfo << UnkState.State5;
-        attackRoundInfo << UnkState.State6;
-        attackRoundInfo << UnkState.State7;
-        attackRoundInfo << UnkState.State8;
-        attackRoundInfo << UnkState.State9;
-        attackRoundInfo << UnkState.State10;
-        attackRoundInfo << UnkState.State11;
-        attackRoundInfo << UnkState.State12;
+        attackRoundInfo << uint32(UnkState.State1);
+        attackRoundInfo << float(UnkState.State2);
+        attackRoundInfo << float(UnkState.State3);
+        attackRoundInfo << float(UnkState.State4);
+        attackRoundInfo << float(UnkState.State5);
+        attackRoundInfo << float(UnkState.State6);
+        attackRoundInfo << float(UnkState.State7);
+        attackRoundInfo << float(UnkState.State8);
+        attackRoundInfo << float(UnkState.State9);
+        attackRoundInfo << float(UnkState.State10);
+        attackRoundInfo << float(UnkState.State11);
+        attackRoundInfo << uint32(UnkState.State12);
     }
+
     if (HitInfo & (HITINFO_BLOCK | HITINFO_UNK12))
-        attackRoundInfo << Unk;
+        attackRoundInfo << float(Unk);
+
+    attackRoundInfo << uint8(SandboxScaling.Type);
+    attackRoundInfo << uint8(SandboxScaling.TargetLevel);
+    attackRoundInfo << uint8(SandboxScaling.Expansion);
+    attackRoundInfo << uint8(SandboxScaling.Class);
+    attackRoundInfo << uint8(SandboxScaling.TargetMinScalingLevel);
+    attackRoundInfo << uint8(SandboxScaling.TargetMaxScalingLevel);
+    attackRoundInfo << int16(SandboxScaling.PlayerLevelDelta);
+    attackRoundInfo << int8(SandboxScaling.TargetScalingLevelDelta);
 
     WriteLogDataBit();
     FlushBits();
