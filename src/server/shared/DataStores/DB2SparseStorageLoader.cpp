@@ -283,7 +283,7 @@ char* DB2SparseFileLoader::AutoProduceData(IndexTable const& indexTable, uint32 
                     case FT_INT:
                     {
                         ASSERT(fieldBytes && fieldBytes <= 4);
-                        uint32 val;
+                        uint32 val = 0;
                         switch (fieldBytes)
                         {
                             case 1:
