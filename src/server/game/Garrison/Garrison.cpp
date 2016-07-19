@@ -47,7 +47,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         {
             fields = blueprints->Fetch();
             if (GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(fields[0].GetUInt32()))
-                _knownBuildings.insert(fields[0].GetUInt32());
+                _knownBuildings.insert(building->ID);
 
         } while (blueprints->NextRow());
     }

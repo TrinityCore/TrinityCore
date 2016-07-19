@@ -2054,8 +2054,7 @@ uint32 Item::GetVisibleEnchantmentId(Player const* owner) const
     if (HasFlag(ITEM_FIELD_MODIFIERS_MASK, IllusionModifierMaskSpecSpecific))
         illusionModifier = IllusionModifierSlotBySpec[owner->GetActiveTalentGroup()];
 
-    if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(illusionModifier)))
-        if (uint32 enchantIllusion = GetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS))
+    if (uint32 enchantIllusion = GetModifier(illusionModifier))
         return enchantIllusion;
 
     return GetEnchantmentId(PERM_ENCHANTMENT_SLOT);

@@ -133,6 +133,8 @@ struct LfgProposal;
 struct LfgProposalPlayer;
 struct LfgPlayerBoot;
 
+struct LfgDungeonsEntry;
+
 typedef std::map<uint8, LFGQueue> LfgQueueContainer;
 typedef std::multimap<uint32, LfgReward const*> LfgRewardContainer;
 typedef std::pair<LfgRewardContainer::const_iterator, LfgRewardContainer::const_iterator> LfgRewardContainerBounds;

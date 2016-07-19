@@ -331,6 +331,8 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             case ::Movement::MONSTER_MOVE_FACING_ANGLE:
                 data << moveSpline.facing.angle;    // FaceDirection
                 break;
+            default:
+                break;
         }
 
         if (HasJumpGravity)

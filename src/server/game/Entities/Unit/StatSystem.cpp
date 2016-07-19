@@ -91,9 +91,6 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
 
 bool Player::UpdateStats(Stats stat)
 {
-    if (stat >= MAX_STATS)
-        return false;
-
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
 
