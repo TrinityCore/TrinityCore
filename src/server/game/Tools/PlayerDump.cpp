@@ -552,11 +552,11 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 const char null[5] = "NULL";
-                if (!ChangeNth(line, 63, null))             // characters.deleteInfos_Account
+                if (!ChangeNth(line, 68, null))             // characters.deleteInfos_Account
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 64, null))             // characters.deleteInfos_Name
+                if (!ChangeNth(line, 69, null))             // characters.deleteInfos_Name
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 65, null))             // characters.deleteDate
+                if (!ChangeNth(line, 70, null))             // characters.deleteDate
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
