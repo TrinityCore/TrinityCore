@@ -28,6 +28,7 @@ class Group;
 class Player;
 class Quest;
 struct LfgDungeonsEntry;
+enum Difficulty : uint8;
 
 namespace lfg
 {
