@@ -234,7 +234,7 @@ void DatabaseWorkerPool<T>::EscapeString(std::string& str)
         return;
 
     char* buf = new char[str.size() * 2 + 1];
-    EscapeString(buf, str.c_str(), str.size());
+    EscapeString(buf, str.c_str(), uint32(str.size()));
     str = buf;
     delete[] buf;
 }

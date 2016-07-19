@@ -401,7 +401,7 @@ private:
         auto const milli_max = std::chrono::duration_cast<std::chrono::milliseconds>(max);
 
         // TC specific: use SFMT URandom
-        return std::chrono::milliseconds(urand(milli_min.count(), milli_max.count()));
+        return std::chrono::milliseconds(urand(uint32(milli_min.count()), uint32(milli_max.count())));
     }
 
     /// Dispatch remaining tasks
