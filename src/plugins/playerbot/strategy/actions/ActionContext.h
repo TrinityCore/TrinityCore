@@ -15,7 +15,6 @@
 #include "AttackAction.h"
 #include "CheckMailAction.h"
 #include "SayAction.h"
-#include "CheckMountStateAction.h"
 
 namespace ai
 {
@@ -66,7 +65,6 @@ namespace ai
             creators["drop target"] = &ActionContext::drop_target;
             creators["check mail"] = &ActionContext::check_mail;
             creators["say"] = &ActionContext::say;
-			creators["mount"] = &ActionContext::mount;
         }
 
     private:
@@ -110,7 +108,6 @@ namespace ai
         static Action* move_out_of_enemy_contact(PlayerbotAI* ai) { return new MoveOutOfEnemyContactAction(ai); }
         static Action* set_facing(PlayerbotAI* ai) { return new SetFacingTargetAction(ai); }
         static Action* say(PlayerbotAI* ai) { return new SayAction(ai); }
-		static Action* mount(PlayerbotAI *ai) { return new CastSpellAction(ai,"mount"); }
     };
 
 };

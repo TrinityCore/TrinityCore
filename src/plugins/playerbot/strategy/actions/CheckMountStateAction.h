@@ -12,6 +12,7 @@ namespace ai
 
         virtual bool Execute(Event event);
 
+    private:
         bool Mount();
     };
 

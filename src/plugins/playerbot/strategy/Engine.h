@@ -115,7 +115,6 @@ namespace ai
         std::string lastAction;
 
     public:
-		string testPrefix = "";
 		bool testMode;
 
     private:

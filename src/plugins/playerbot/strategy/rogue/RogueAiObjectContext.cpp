@@ -90,7 +90,6 @@ namespace ai
                 creators["backstab"] = &AiObjectContextInternal::backstab;
                 creators["expose armor"] = &AiObjectContextInternal::expose_armor;
                 creators["kick on enemy healer"] = &AiObjectContextInternal::kick_on_enemy_healer;
-				creators["stealth"] = &AiObjectContextInternal::stealth;
             }
 
         private:
@@ -108,7 +107,6 @@ namespace ai
             static Action* backstab(PlayerbotAI* ai) { return new CastBackstabAction(ai); }
             static Action* expose_armor(PlayerbotAI* ai) { return new CastExposeArmorAction(ai); }
             static Action* kick_on_enemy_healer(PlayerbotAI* ai) { return new CastKickOnEnemyHealerAction(ai); }
-			static Action* stealth(PlayerbotAI* ai) { return new CastStealthAction(ai); }
         };
     };
 };

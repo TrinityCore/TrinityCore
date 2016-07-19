@@ -1109,25 +1109,6 @@ void PlayerbotFactory::InitSpecialSpells()
         uint32 spellId = *i;
         bot->LearnSpell(spellId, false);
     }
-	//Mounts
-	if (bot->getLevel() > 20 && bot->GetTeamId()==TeamId::TEAM_ALLIANCE)
-	{
-		bot->LearnSpell(6899, false);
-	}
-	if (bot->getLevel() > 20 && bot->GetTeamId() == TeamId::TEAM_HORDE)
-	{
-		bot->LearnSpell(8395, false);
-
-	}
-	if (bot->getLevel() > 40 && bot->GetTeamId() == TeamId::TEAM_ALLIANCE)
-	{
-		bot->LearnSpell(23240, false);
-
-	}
-	if (bot->getLevel() > 40 && bot->GetTeamId() == TeamId::TEAM_HORDE)
-	{
-		bot->LearnSpell(23242, false);
-	}
 }
 
 void PlayerbotFactory::InitTalents(uint32 specNo)
