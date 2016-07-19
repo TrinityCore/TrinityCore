@@ -317,13 +317,13 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
                     break;
                 case DTT_CHARACTER:
                 {
-                    if (result->GetFieldCount() <= 64)          // avoid crashes on next check
+                    if (result->GetFieldCount() <= 69)          // avoid crashes on next check
                     {
                         TC_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
                         return false;
                     }
 
-                    if (result->Fetch()[64].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                    if (result->Fetch()[69].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
