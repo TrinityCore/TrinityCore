@@ -964,9 +964,6 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 
 bool Guardian::UpdateStats(Stats stat)
 {
-    if (stat >= MAX_STATS)
-        return false;
-
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
     ApplyStatBuffMod(stat, m_statFromOwner[stat], false);

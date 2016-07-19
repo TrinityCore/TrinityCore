@@ -5158,7 +5158,9 @@ void Player::UpdateRating(CombatRating cr)
         case CR_PVP_POWER:
         case CR_CLEAVE:
         case CR_VERSATILITY_DAMAGE_DONE:
+        case CR_VERSATILITY_HEALING_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
+        case CR_UNUSED_12:
             break;
     }
 }

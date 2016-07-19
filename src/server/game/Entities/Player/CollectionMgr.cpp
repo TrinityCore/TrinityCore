@@ -579,7 +579,7 @@ std::unordered_set<ObjectGuid> CollectionMgr::GetItemsProvidingTemporaryAppearan
     if (temporaryAppearance != _temporaryAppearances.end())
         return temporaryAppearance->second;
 
-    return{};
+    return std::unordered_set<ObjectGuid>();
 }
 
 void CollectionMgr::SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply)
