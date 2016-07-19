@@ -44,6 +44,8 @@ struct HeirloomData
 
 typedef std::map<uint32, bool> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
+typedef std::map<uint32, bool> MountContainer;
+typedef std::map<uint32, uint32> MountDefinitionMap;
 
 class TC_GAME_API CollectionMgr
 {
@@ -78,12 +80,24 @@ public:
     HeirloomContainer const& GetAccountHeirlooms() const { return _heirlooms; }
 
     // Account-wide mounts
+    void LoadMounts();
+    void LoadAccountMounts(PreparedQueryResult result);
+    void SaveAccountMounts(SQLTransaction& trans);
+    void MountSetFavorite(uint32 spellId, bool favorite);
+    void SendSingleMountUpdate(std::pair<uint32, bool> mount);
+
+    bool UpdateAccountMounts(uint32 spellId, bool isFavourite /*= false*/);
+    bool AddMount(uint32 spellId, bool isFavourite /*= false*/, bool factionMount = false, bool learned = false);
+    static void LoadMountDefinitions();
+ 
+    MountContainer const& GetAccountMounts() const { return _mounts; }
 
 private:
     WorldSession* _owner;
 
     ToyBoxContainer _toys;
     HeirloomContainer _heirlooms;
+    MountContainer _mounts;
 };
 
 #endif // CollectionMgr_h__
