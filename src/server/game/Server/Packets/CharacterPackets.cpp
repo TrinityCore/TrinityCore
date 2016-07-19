@@ -30,8 +30,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
     //  19                    20                      21                   22                   23                     24                   25
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  26                     27               28                      29
-    // "character_banned.guid, characters.slot, characters.logout_time, character_declinedname.genitive"
+    //  26                     27               28                      29                            30
+    // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
@@ -77,7 +77,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (fields[26].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[29].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[30].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -109,6 +109,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     Tokenizer equipment(fields[25].GetString(), ' ');
     ListPosition = fields[27].GetUInt8();
     LastPlayedTime = fields[28].GetUInt32();
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(Class, fields[29].GetUInt8()))
+        SpecID = spec->ID;
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -127,7 +129,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     _worldPacket.WriteBit(IsDeletedCharacters);
     _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
     _worldPacket.WriteBit(HasDemonHunterOnRealm);
-    _worldPacket.WriteBit(HasLevel70OnAccount);
+    _worldPacket.WriteBit(HasLevel70OnRealm);
     _worldPacket.WriteBit(Unknown7x);
     _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
     _worldPacket << uint32(Characters.size());
