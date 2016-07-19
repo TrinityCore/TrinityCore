@@ -98,6 +98,7 @@
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
+#include "Vehicle.h"
 #include "VehiclePackets.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
@@ -26967,6 +26968,9 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         if (check) \
             mi->RemoveMovementFlag((maskToRemove));
     #endif
+
+    if (!GetVehicleBase() || !(GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_FIXED_POSITION))
+        REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT), MOVEMENTFLAG_ROOT);
 
     /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
