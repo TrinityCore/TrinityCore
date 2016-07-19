@@ -29,7 +29,6 @@
 #include "SpellHistory.h"
 #include "SkillDiscovery.h"
 #include "Battleground.h"
-#include "DBCStores.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -2706,7 +2705,7 @@ public:
             if (Player* target = GetHitUnit()->ToPlayer())
             {
                 target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
-                if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender()))
+                if (EmotesTextSoundEntry const* soundEntry = sDB2Manager.GetTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender(), target->getClass()))
                     target->PlayDistanceSound(soundEntry->SoundId);
             }
         }

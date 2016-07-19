@@ -83,7 +83,7 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Duration = 0;
             int32 CategoryDuration = 0;
-            int Category = 0;
+            uint16 Category = 0;
         };
 
         struct PetSpellHistory
@@ -106,7 +106,7 @@ namespace WorldPackets
             uint32 TimeLimit = 0;
             uint8 ReactState = 0;
             uint8 CommandState = 0;
-            uint16 Flag = 0;
+            uint8 Flag = 0;
 
             std::array<int, 10> ActionButtons;
 
@@ -223,17 +223,6 @@ namespace WorldPackets
 
             ObjectGuid PetGUID;
             int32 SpellID = 0;
-        };
-
-        class LearnPetSpecializationGroup final : public ClientPacket
-        {
-        public:
-            LearnPetSpecializationGroup(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PET_SPECIALIZATION_GROUP, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid PetGUID;
-            uint32 SpecGroupIndex = 0;
         };
 
         class SetPetSpecialization final : public ServerPacket

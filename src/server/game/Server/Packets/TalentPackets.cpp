@@ -19,41 +19,31 @@
 
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
-    _worldPacket << Info.ActiveGroup;
+    _worldPacket << uint8(Info.ActiveGroup);
+    _worldPacket << uint32(Info.PrimarySpecialization);
     _worldPacket << uint32(Info.TalentGroups.size());
 
     for (auto& talentGroupInfo : Info.TalentGroups)
     {
-        _worldPacket << talentGroupInfo.SpecID;
+        _worldPacket << uint32(talentGroupInfo.SpecID);
         _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
-
-        for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            _worldPacket << talentGroupInfo.GlyphIDs[i];
+        _worldPacket << uint32(talentGroupInfo.PvPTalentIDs.size());
 
         for (uint16 talentID : talentGroupInfo.TalentIDs)
-            _worldPacket << talentID;
+            _worldPacket << uint16(talentID);
+
+        for (uint16 talentID : talentGroupInfo.PvPTalentIDs)
+            _worldPacket << uint16(talentID);
     }
 
     return &_worldPacket;
 }
 
-void WorldPackets::Talent::SetSpecialization::Read()
-{
-    _worldPacket >> SpecGroupIndex;
-}
-
-
 void WorldPackets::Talent::LearnTalents::Read()
 {
-    uint32 count;
-    _worldPacket >> count;
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        uint16 talent;
-        _worldPacket >> talent;
-        Talents.push_back(talent);
-    }
+    Talents.resize(_worldPacket.ReadBits(6));
+    for (uint32 i = 0; i < Talents.size(); ++i)
+        _worldPacket >> Talents[i];
 }
 
 WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()
@@ -68,4 +58,15 @@ void WorldPackets::Talent::ConfirmRespecWipe::Read()
 {
     _worldPacket >> RespecMaster;
     _worldPacket >> RespecType;
+}
+
+WorldPacket const* WorldPackets::Talent::LearnTalentsFailed::Write()
+{
+    _worldPacket.WriteBits(Reason, 4);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint32(Talents.size());
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
+
+    return &_worldPacket;
 }

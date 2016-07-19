@@ -21,7 +21,6 @@
 
 #include "Define.h"
 
-#include "DBCStructure.h"
 #include "GridDefines.h"
 #include "Cell.h"
 #include "Timer.h"
@@ -36,24 +35,28 @@
 #include <list>
 #include <memory>
 
-class Unit;
-class WorldPacket;
-class InstanceScript;
-class Group;
-class InstanceSave;
-class Object;
-class WorldObject;
-class TempSummon;
-class Player;
-class CreatureGroup;
-struct ScriptInfo;
-struct ScriptAction;
-struct Position;
 class Battleground;
-class MapInstanced;
 class BattlegroundMap;
+class CreatureGroup;
+class Group;
 class InstanceMap;
+class InstanceSave;
+class InstanceScript;
+class MapInstanced;
+class Object;
+class Player;
+class TempSummon;
+class Unit;
+class WorldObject;
+class WorldPacket;
+struct MapDifficultyEntry;
+struct MapEntry;
+struct Position;
+struct ScriptAction;
+struct ScriptInfo;
+struct SummonPropertiesEntry;
 class Transport;
+enum Difficulty : uint8;
 enum WeatherState : uint32;
 
 namespace Trinity { struct ObjectUpdater; }
@@ -322,8 +325,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             grid.ResetTimeTracker(time_t(float(i_gridExpiry)*factor));
         }
 
-        time_t GetGridExpiry(void) const { return i_gridExpiry; }
-        uint32 GetId(void) const { return i_mapEntry->ID; }
+        time_t GetGridExpiry() const { return i_gridExpiry; }
 
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
@@ -392,23 +394,19 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapDifficultyEntry const* GetMapDifficulty() const;
         uint32 GetDifficultyLootBonusTreeMod() const;
 
-        bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
-        bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
-        bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
-        bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
-        bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
+        uint32 GetId() const;
+        bool Instanceable() const;
+        bool IsDungeon() const;
+        bool IsNonRaidDungeon() const;
+        bool IsRaid() const;
+        bool IsRaidOrHeroicDungeon() const;
         bool IsHeroic() const;
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC); }   // since 25man difficulties are 1 and 3, we can check them like that
-        bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
-        bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
-        bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
-        bool IsGarrison() const { return i_mapEntry && i_mapEntry->IsGarrison(); }
-        bool GetEntrancePos(int32 &mapid, float &x, float &y)
-        {
-            if (!i_mapEntry)
-                return false;
-            return i_mapEntry->GetEntrancePos(mapid, x, y);
-        }
+        bool Is25ManRaid() const;   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsBattleground() const;
+        bool IsBattleArena() const;
+        bool IsBattlegroundOrArena() const;
+        bool IsGarrison() const;
+        bool GetEntrancePos(int32 &mapid, float &x, float &y);
 
         void AddObjectToRemoveList(WorldObject* obj);
         void AddObjectToSwitchList(WorldObject* obj, bool on);

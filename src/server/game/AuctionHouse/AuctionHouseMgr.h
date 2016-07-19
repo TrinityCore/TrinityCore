@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DBCStructure.h"
 #include "ObjectGuid.h"
 #include "AuctionHousePackets.h"
 #include <set>
@@ -79,11 +78,12 @@ struct TC_GAME_API AuctionEntry
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
+    uint32 houseId;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
 
     // helpers
-    uint32 GetHouseId() const { return auctionHouseEntry->ID; }
+    uint32 GetHouseId() const { return houseId; }
     uint32 GetHouseFaction() const { return auctionHouseEntry->FactionID; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
@@ -94,6 +94,24 @@ struct TC_GAME_API AuctionEntry
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
     static std::string BuildAuctionMailBody(uint64 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
 
+};
+
+struct AuctionSearchFilters
+{
+    enum FilterType : uint32
+    {
+        FILTER_SKIP_CLASS = 0,
+        FILTER_SKIP_SUBCLASS = 0xFFFFFFFF,
+        FILTER_SKIP_INVTYPE = 0xFFFFFFFF
+    };
+
+    struct SubclassFilter
+    {
+        uint32 SubclassMask = FILTER_SKIP_CLASS;
+        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes;
+    };
+
+    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes;
 };
 
 //this class is used as auctionhouse instance
@@ -140,8 +158,7 @@ class TC_GAME_API AuctionHouseObject
     void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player, uint32& totalcount);
     void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player, uint32& totalcount);
     void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
-        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
-        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32& totalcount);
+        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, bool usable, Optional<AuctionSearchFilters> const& filters, uint32 quality);
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& auctionReplicateResult, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);
 
@@ -188,7 +205,7 @@ class TC_GAME_API AuctionHouseMgr
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
-        static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
+        static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId);
 
     public:
 

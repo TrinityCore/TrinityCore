@@ -225,7 +225,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
     &Spell::EffectForceCast,                                //160 SPELL_EFFECT_FORCE_CAST_2
-    &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
+    &Spell::EffectNULL,                                     //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163  unused
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
@@ -316,6 +316,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
+    &Spell::EffectNULL,                                     //252 SPELL_EFFECT_252
+    &Spell::EffectNULL,                                     //253 SPELL_EFFECT_253
+    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_254
+    &Spell::EffectNULL,                                     //255 SPELL_EFFECT_255
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -391,7 +395,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     uint32 resist = 0;
 
     m_caster->CalcAbsorbResist(unitTarget, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
-    SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_spellInfo->GetSchoolMask());
+    SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_spellInfo->GetSchoolMask(), m_castId);
     log.damage = damage - absorb - resist;
     log.absorb = absorb;
     log.resist = resist;
@@ -1547,7 +1551,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        if (Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0], nullptr, ObjectGuid::Empty, m_castItemLevel))
+        if (Aura* aura = Aura::TryCreate(m_spellInfo, m_castId, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0], nullptr, ObjectGuid::Empty, m_castItemLevel))
         {
             m_spellAura = aura;
             m_spellAura->_RegisterForTargets();
@@ -1617,7 +1621,7 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
 
-    if (damage < 0 && power != POWER_ECLIPSE)
+    if (damage < 0 && power != POWER_LUNAR_POWER)
         return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
@@ -2033,7 +2037,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
     // and in spell attributes, possibly we need to add a table for those)
     // so here's a list of MiscValueB values, which is currently most generic check
-    switch (properties->ID)
+    switch (effectInfo->MiscValueB)
     {
         case 64:
         case 61:
@@ -2434,7 +2438,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
     if (!rcEntry)
         return;
 
@@ -3916,72 +3920,9 @@ void Spell::EffectApplyGlyph(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_misc.GlyphSlot >= MAX_GLYPH_SLOT_INDEX)
-        return;
-
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
-
-    // glyph sockets level requirement
-    uint8 minLevel = 0;
-    switch (m_misc.GlyphSlot)
-    {
-        case 0:
-        case 1:
-        case 6: minLevel = 25; break;
-        case 2:
-        case 3:
-        case 7: minLevel = 50; break;
-        case 4:
-        case 5:
-        case 8: minLevel = 75; break;
-    }
-
-    if (minLevel && m_caster->getLevel() < minLevel)
-    {
-        SendCastResult(SPELL_FAILED_GLYPH_SOCKET_LOCKED);
-        return;
-    }
-
-    // apply new one
-    if (uint32 newGlyph = effectInfo->MiscValue)
-    {
-        if (GlyphPropertiesEntry const* newGlyphProperties = sGlyphPropertiesStore.LookupEntry(newGlyph))
-        {
-            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_misc.GlyphSlot)))
-            {
-                if (newGlyphProperties->Type != newGlyphSlot->Type)
-                {
-                    SendCastResult(SPELL_FAILED_INVALID_GLYPH);
-                    return;                                 // glyph slot mismatch
-                }
-            }
-
-            // remove old glyph
-            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_misc.GlyphSlot))
-            {
-                if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
-                {
-                    player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
-                    player->SetGlyph(m_misc.GlyphSlot, 0);
-                }
-            }
-
-            player->CastSpell(m_caster, newGlyphProperties->SpellID, true);
-            player->SetGlyph(m_misc.GlyphSlot, newGlyph);
-            player->SendTalentsInfoData();
-        }
-    }
-    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveTalentGroup(), m_misc.GlyphSlot)) // Removing the glyph, get the old one
-    {
-        if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
-        {
-            player->RemoveAurasDueToSpell(oldGlyphProperties->SpellID);
-            player->SetGlyph(m_misc.GlyphSlot, 0);
-            player->SendTalentsInfoData();
-        }
-    }
 }
 
 void Spell::EffectEnchantHeldItem(SpellEffIndex /*effIndex*/)
@@ -5166,7 +5107,7 @@ void Spell::EffectQuestStart(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectActivateRune(SpellEffIndex effIndex)
+void Spell::EffectActivateRune(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
@@ -5183,52 +5124,24 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     m_runesState = m_caster->ToPlayer()->GetRunesState();
 
     uint32 count = damage;
-    if (count == 0) count = 1;
-    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+    if (count == 0)
+        count = 1;
+
+    // first restore fully depleted runes
+    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
-        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(effectInfo->MiscValue))
+        if (player->GetRuneCooldown(j) == player->GetRuneBaseCooldown())
         {
-            if (m_spellInfo->Id == 45529)
-                if (player->GetBaseRune(j) != RuneType(effectInfo->MiscValueB))
-                    continue;
             player->SetRuneCooldown(j, 0);
             --count;
         }
     }
 
-    // Blood Tap
-    if (m_spellInfo->Id == 45529 && count > 0)
+    // then the rest if we still got something left
+    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
     {
-        for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
-        {
-            // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetCurrentRune(l) == RuneType(effectInfo->MiscValueB)) && (player->GetRuneCooldown(l + 1) && player->GetCurrentRune(l + 1) == RuneType(effectInfo->MiscValueB)))
-            {
-                // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
-                    l++;
-                player->SetRuneCooldown(l, 0);
-                --count;
-                // is needed to push through to the client that the rune is active
-                player->ResyncRunes(MAX_RUNES);
-            }
-            else
-                break;
-        }
-    }
-
-    // Empower rune weapon
-    if (m_spellInfo->Id == 47568)
-    {
-        // Need to do this just once
-        if (effIndex != 0)
-            return;
-
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-        {
-            if (player->GetRuneCooldown(i) && (player->GetCurrentRune(i) == RUNE_FROST ||  player->GetCurrentRune(i) == RUNE_DEATH))
-                player->SetRuneCooldown(i, 0);
-        }
+        player->SetRuneCooldown(j, 0);
+        --count;
     }
 }
 
@@ -5308,7 +5221,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
     FactionTemplateEntry const* casterFaction = caster->GetFactionTemplateEntry();
     FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
-    if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(*targetFaction)))
+    if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(targetFaction)))
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
 }
 
@@ -5424,24 +5337,13 @@ void Spell::EffectPlayMusic(SpellEffIndex /*effIndex*/)
 
     uint32 soundid = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundid))
+    if (!sSoundKitStore.LookupEntry(soundid))
     {
         TC_LOG_ERROR("spells", "EffectPlayMusic: Sound (Id: %u) does not exist in spell %u.", soundid, m_spellInfo->Id);
         return;
     }
 
     unitTarget->ToPlayer()->GetSession()->SendPacket(WorldPackets::Misc::PlayMusic(soundid).Write());
-}
-
-void Spell::EffectSpecCount(SpellEffIndex /*effIndex*/)
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    unitTarget->ToPlayer()->UpdateTalentGroupCount(damage);
 }
 
 void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
@@ -5452,7 +5354,7 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateTalentGroup(damage-1);  // damage is 1 or 2, spec is 0 or 1
+    unitTarget->ToPlayer()->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(m_misc.SpecializationId));
 }
 
 void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)
@@ -5478,7 +5380,7 @@ void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)
 
     uint32 soundId = effectInfo->MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundId))
+    if (!sSoundKitStore.LookupEntry(soundId))
     {
         TC_LOG_ERROR("spells", "EffectPlaySound: Sound (Id: %u) does not exist in spell %u.", soundId, m_spellInfo->Id);
         return;
@@ -5900,9 +5802,9 @@ void Spell::EffectApplyEnchantIllusion(SpellEffIndex /*effIndex*/)
         return;
 
     itemTarget->SetState(ITEM_CHANGED, player);
-    itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION, effectInfo->MiscValue);
+    itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, effectInfo->MiscValue);
     if (itemTarget->IsEquipped())
-        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual());
+        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual(player));
 
     player->RemoveTradeableItem(itemTarget);
     itemTarget->ClearSoulboundTradeable(player);

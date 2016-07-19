@@ -34,15 +34,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectEnchantDa
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
-    data << itemData.Item;
     data << uint8(itemData.Index);
+    data << itemData.Item;
+    data.WriteBit(itemData.Usable);
+    data.WriteBits(itemData.Enchants.size(), 4);
+    data.WriteBits(itemData.Gems.size(), 2);
+    data.FlushBits();
 
-    data << uint32(itemData.Enchants.size());
+    for (auto const& gem : itemData.Gems)
+        data << gem;
+
     for (size_t i = 0; i < itemData.Enchants.size(); ++i)
         data << itemData.Enchants[i];
-
-    data.WriteBit(itemData.Usable);
-    data.FlushBits();
 
     return data;
 }
@@ -65,35 +68,45 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
     Usable = true; /// @todo
 
     for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
-    {
         if (uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(i)))
             Enchants.emplace_back(enchId, i);
+
+    uint8 i = 0;
+    for (ItemDynamicFieldGems const& gemData : item->GetGems())
+    {
+        if (gemData.ItemId)
+        {
+            WorldPackets::Item::ItemGemInstanceData gem;
+            gem.Slot = i;
+            gem.Item.Initialize(&gemData);
+            Gems.push_back(gem);
+        }
+        ++i;
     }
 }
 
 WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
 {
     _worldPacket << InspecteeGUID;
-
     _worldPacket << uint32(Items.size());
     _worldPacket << uint32(Glyphs.size());
     _worldPacket << uint32(Talents.size());
-
+    _worldPacket << uint32(PvpTalents.size());
     _worldPacket << int32(ClassID);
     _worldPacket << int32(SpecializationID);
     _worldPacket << int32(GenderID);
-
-    for (size_t i = 0; i < Items.size(); ++i)
-        _worldPacket << Items[i];
-
-    for (size_t i = 0; i < Glyphs.size(); ++i)
-        _worldPacket << uint16(Glyphs[i]);
-
-    for (size_t i = 0; i < Talents.size(); ++i)
-        _worldPacket << uint16(Talents[i]);
+    if (!Glyphs.empty())
+        _worldPacket.append(Glyphs.data(), Glyphs.size());
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
+    if (!PvpTalents.empty())
+        _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
     _worldPacket.WriteBit(GuildData.is_initialized());
     _worldPacket.FlushBits();
+
+    for (size_t i = 0; i < Items.size(); ++i)
+        _worldPacket << Items[i];
 
     if (GuildData)
         _worldPacket << *GuildData;

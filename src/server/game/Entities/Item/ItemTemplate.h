@@ -152,7 +152,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK11         = 0x00010000,
     ITEM_FIELD_FLAG_UNK12         = 0x00020000,
     ITEM_FIELD_FLAG_UNK13         = 0x00040000,
-    ITEM_FIELD_FLAG_UNK14         = 0x00080000,
+    ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
     ITEM_FIELD_FLAG_UNK16         = 0x00200000,
     ITEM_FIELD_FLAG_UNK17         = 0x00400000,
@@ -164,9 +164,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK23         = 0x10000000,
     ITEM_FIELD_FLAG_UNK24         = 0x20000000,
     ITEM_FIELD_FLAG_UNK25         = 0x40000000,
-    ITEM_FIELD_FLAG_UNK26         = 0x80000000,
-
-    ITEM_FIELD_FLAG_MAIL_TEXT_MASK = ITEM_FIELD_FLAG_READABLE | ITEM_FIELD_FLAG_UNK13 | ITEM_FIELD_FLAG_UNK14
+    ITEM_FIELD_FLAG_UNK26         = 0x80000000
 };
 
 enum ItemFlags : uint32
@@ -218,7 +216,7 @@ enum ItemFlags2 : uint32
     ITEM_FLAG2_NEED_ROLL_DISABLED     = 0x00000100,
     ITEM_FLAG2_CASTER_WEAPON          = 0x00000200,
     ITEM_FLAG2_UNK6                   = 0x00000400,
-    ITEM_FLAG2_UNK7                   = 0x00000800,
+    ITEM_FLAG2_UNAVAILABLE_FOR_PLAYERS= 0x00000800,
     ITEM_FLAG2_UNK8                   = 0x00001000,
     ITEM_FLAG2_UNK9                   = 0x00002000,
     ITEM_FLAG2_HAS_NORMAL_PRICE       = 0x00004000,
@@ -318,15 +316,29 @@ enum BAG_FAMILY_MASK
 
 enum SocketColor
 {
-    SOCKET_COLOR_META                           = 1,
-    SOCKET_COLOR_RED                            = 2,
-    SOCKET_COLOR_YELLOW                         = 4,
-    SOCKET_COLOR_BLUE                           = 8,
-    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
-    SOCKET_COLOR_COGWHEEL                       = 32,
+    SOCKET_COLOR_META                           = 0x00001,
+    SOCKET_COLOR_RED                            = 0x00002,
+    SOCKET_COLOR_YELLOW                         = 0x00004,
+    SOCKET_COLOR_BLUE                           = 0x00008,
+    SOCKET_COLOR_HYDRAULIC                      = 0x00010, // not used
+    SOCKET_COLOR_COGWHEEL                       = 0x00020,
+    SOCKET_COLOR_PRISMATIC                      = 0x0000E,
+    SOCKET_COLOR_RELIC_IRON                     = 0x00040,
+    SOCKET_COLOR_RELIC_BLOOD                    = 0x00080,
+    SOCKET_COLOR_RELIC_SHADOW                   = 0x00100,
+    SOCKET_COLOR_RELIC_FEL                      = 0x00200,
+    SOCKET_COLOR_RELIC_ARCANE                   = 0x00400,
+    SOCKET_COLOR_RELIC_FROST                    = 0x00800,
+    SOCKET_COLOR_RELIC_FIRE                     = 0x01000,
+    SOCKET_COLOR_RELIC_WATER                    = 0x02000,
+    SOCKET_COLOR_RELIC_LIFE                     = 0x04000,
+    SOCKET_COLOR_RELIC_WIND                     = 0x08000,
+    SOCKET_COLOR_RELIC_HOLY                     = 0x10000
 };
 
-#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
+extern uint32 const SocketColorToGemTypeMask[19];
+
+#define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
 enum InventoryType
 {
@@ -373,7 +385,7 @@ enum ItemClass : uint8
     ITEM_CLASS_REAGENT                          = 5,
     ITEM_CLASS_PROJECTILE                       = 6,
     ITEM_CLASS_TRADE_GOODS                      = 7,
-    ITEM_CLASS_GENERIC                          = 8,  // OBSOLETE
+    ITEM_CLASS_ITEM_ENHANCEMENT                 = 8,
     ITEM_CLASS_RECIPE                           = 9,
     ITEM_CLASS_MONEY                            = 10, // OBSOLETE
     ITEM_CLASS_QUIVER                           = 11,
@@ -381,10 +393,12 @@ enum ItemClass : uint8
     ITEM_CLASS_KEY                              = 13,
     ITEM_CLASS_PERMANENT                        = 14, // OBSOLETE
     ITEM_CLASS_MISCELLANEOUS                    = 15,
-    ITEM_CLASS_GLYPH                            = 16
+    ITEM_CLASS_GLYPH                            = 16,
+    ITEM_CLASS_BATTLE_PETS                      = 17,
+    ITEM_CLASS_WOW_TOKEN                        = 18
 };
 
-#define MAX_ITEM_CLASS                            17
+#define MAX_ITEM_CLASS                            19
 
 enum ItemSubclassConsumable
 {
@@ -396,10 +410,11 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_FOOD_DRINK                    = 5,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
     ITEM_SUBCLASS_BANDAGE                       = 7,
-    ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8
+    ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8,
+    ITEM_SUBCLASS_VANTUS_RUNE                   = 9
 };
 
-#define MAX_ITEM_SUBCLASS_CONSUMABLE              9
+#define MAX_ITEM_SUBCLASS_CONSUMABLE              10
 
 enum ItemSubclassContainer
 {
@@ -429,7 +444,7 @@ enum ItemSubclassWeapon
     ITEM_SUBCLASS_WEAPON_POLEARM                = 6,
     ITEM_SUBCLASS_WEAPON_SWORD                  = 7,  // One-Handed Swords
     ITEM_SUBCLASS_WEAPON_SWORD2                 = 8,  // Two-Handed Swords
-    ITEM_SUBCLASS_WEAPON_Obsolete               = 9,
+    ITEM_SUBCLASS_WEAPON_WARGLAIVES             = 9,
     ITEM_SUBCLASS_WEAPON_STAFF                  = 10,
     ITEM_SUBCLASS_WEAPON_EXOTIC                 = 11, // One-Handed Exotics
     ITEM_SUBCLASS_WEAPON_EXOTIC2                = 12, // Two-Handed Exotics
@@ -451,20 +466,21 @@ enum ItemSubclassWeapon
 
 enum ItemSubclassGem
 {
-    ITEM_SUBCLASS_GEM_RED                       = 0,
-    ITEM_SUBCLASS_GEM_BLUE                      = 1,
-    ITEM_SUBCLASS_GEM_YELLOW                    = 2,
-    ITEM_SUBCLASS_GEM_PURPLE                    = 3,
-    ITEM_SUBCLASS_GEM_GREEN                     = 4,
-    ITEM_SUBCLASS_GEM_ORANGE                    = 5,
-    ITEM_SUBCLASS_GEM_META                      = 6,
-    ITEM_SUBCLASS_GEM_SIMPLE                    = 7,
-    ITEM_SUBCLASS_GEM_PRISMATIC                 = 8,
-    ITEM_SUBCLASS_GEM_HYDRAULIC                 = 9,
-    ITEM_SUBCLASS_GEM_COGWHEEL                  = 10
+    ITEM_SUBCLASS_GEM_INTELLECT                 = 0,
+    ITEM_SUBCLASS_GEM_AGILITY                   = 1,
+    ITEM_SUBCLASS_GEM_STRENGTH                  = 2,
+    ITEM_SUBCLASS_GEM_STAMINA                   = 3,
+    ITEM_SUBCLASS_GEM_SPIRIT                    = 4,
+    ITEM_SUBCLASS_GEM_CRITICAL_STRIKE           = 5,
+    ITEM_SUBCLASS_GEM_MASTERY                   = 6,
+    ITEM_SUBCLASS_GEM_HASTE                     = 7,
+    ITEM_SUBCLASS_GEM_VERSATILITY               = 8,
+    ITEM_SUBCLASS_GEM_OTHER                     = 9,
+    ITEM_SUBCLASS_GEM_MULTIPLE_STATS            = 10,
+    ITEM_SUBCLASS_GEM_ARTIFACT_RELIC            = 11
 };
 
-#define MAX_ITEM_SUBCLASS_GEM                     11
+#define MAX_ITEM_SUBCLASS_GEM                     12
 
 enum ItemSubclassArmor
 {
@@ -473,7 +489,7 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_LEATHER                 = 2,
     ITEM_SUBCLASS_ARMOR_MAIL                    = 3,
     ITEM_SUBCLASS_ARMOR_PLATE                   = 4,
-    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 5, // OBSOLETE
+    ITEM_SUBCLASS_ARMOR_COSMETIC                = 5,
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
@@ -486,10 +502,11 @@ enum ItemSubclassArmor
 
 enum ItemSubclassReagent
 {
-    ITEM_SUBCLASS_REAGENT                       = 0
+    ITEM_SUBCLASS_REAGENT                       = 0,
+    ITEM_SUBCLASS_KEYSTONE                      = 1
 };
 
-#define MAX_ITEM_SUBCLASS_REAGENT                 1
+#define MAX_ITEM_SUBCLASS_REAGENT                 2
 
 enum ItemSubclassProjectile
 {
@@ -519,16 +536,32 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ENCHANTING                    = 12,
     ITEM_SUBCLASS_MATERIAL                      = 13,
     ITEM_SUBCLASS_ENCHANTMENT                   = 14,
+    ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15,
+    ITEM_SUBCLASS_INSCRIPTION                   = 16,
+    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             15
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             18
 
-enum ItemSubclassGeneric
+enum ItemSubclassItemEnhancement
 {
-    ITEM_SUBCLASS_GENERIC                       = 0  // OBSOLETE
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_HEAD                 = 0,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_NECK                 = 1,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHOULDER             = 2,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_CLOAK                = 3,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_CHEST                = 4,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WRIST                = 5,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_HANDS                = 6,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WAIST                = 7,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_LEGS                 = 8,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_FEET                 = 9,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_FINGER               = 10,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_WEAPON               = 11,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_TWO_HANDED_WEAPON    = 12,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13
 };
 
-#define MAX_ITEM_SUBCLASS_GENERIC                 1
+#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                14
 
 enum ItemSubclassRecipe
 {
@@ -551,10 +584,9 @@ enum ItemSubclassRecipe
 enum ItemSubclassMoney
 {
     ITEM_SUBCLASS_MONEY                         = 0,  // OBSOLETE
-    ITEM_SUBCLASS_MONEY_UNK_7                   = 7,  // OBSOLETE, 1 item (41749)
 };
 
-#define MAX_ITEM_SUBCLASS_MONEY                   8
+#define MAX_ITEM_SUBCLASS_MONEY                   1
 
 enum ItemSubclassQuiver
 {
@@ -592,16 +624,15 @@ enum ItemSubclassPermanent
 
 enum ItemSubclassJunk
 {
-    ITEM_SUBCLASS_JUNK                          = 0,
-    ITEM_SUBCLASS_JUNK_REAGENT                  = 1,
-    ITEM_SUBCLASS_JUNK_PET                      = 2,
-    ITEM_SUBCLASS_JUNK_HOLIDAY                  = 3,
-    ITEM_SUBCLASS_JUNK_OTHER                    = 4,
-    ITEM_SUBCLASS_JUNK_MOUNT                    = 5,
-    ITEM_SUBCLASS_JUNK_UNK12                    = 12, // 1 item (37677)
+    ITEM_SUBCLASS_MISCELLANEOUS_JUNK                 = 0,
+    ITEM_SUBCLASS_MISCELLANEOUS_REAGENT         = 1,
+    ITEM_SUBCLASS_MISCELLANEOUS_COMPANION_PET             = 2,
+    ITEM_SUBCLASS_MISCELLANEOUS_HOLIDAY         = 3,
+    ITEM_SUBCLASS_MISCELLANEOUS_OTHER           = 4,
+    ITEM_SUBCLASS_MISCELLANEOUS_MOUNT           = 5,
 };
 
-#define MAX_ITEM_SUBCLASS_JUNK                    13
+#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           6
 
 enum ItemSubclassGlyph
 {
@@ -614,10 +645,26 @@ enum ItemSubclassGlyph
     ITEM_SUBCLASS_GLYPH_SHAMAN                  = 7,
     ITEM_SUBCLASS_GLYPH_MAGE                    = 8,
     ITEM_SUBCLASS_GLYPH_WARLOCK                 = 9,
-    ITEM_SUBCLASS_GLYPH_DRUID                   = 11
+    ITEM_SUBCLASS_GLYPH_MONK                    = 10,
+    ITEM_SUBCLASS_GLYPH_DRUID                   = 11,
+    ITEM_SUBCLASS_GLYPH_DEMON_HUNTER            = 12
 };
 
-#define MAX_ITEM_SUBCLASS_GLYPH                   12
+#define MAX_ITEM_SUBCLASS_GLYPH                   13
+
+enum ItemSubclassBattlePet
+{
+    ITEM_SUBCLASS_BATTLE_PET                    = 0
+};
+
+#define MAX_ITEM_SUBCLASS_BATTLE_PET              1
+
+enum ItemSubclassWowToken
+{
+    ITEM_SUBCLASS_WOW_TOKEN                     = 0
+};
+
+#define MAX_ITEM_SUBCLASS_WOW_TOKEN               1
 
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
@@ -629,16 +676,20 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_REAGENT,
     MAX_ITEM_SUBCLASS_PROJECTILE,
     MAX_ITEM_SUBCLASS_TRADE_GOODS,
-    MAX_ITEM_SUBCLASS_GENERIC,
+    MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT,
     MAX_ITEM_SUBCLASS_RECIPE,
     MAX_ITEM_SUBCLASS_MONEY,
     MAX_ITEM_SUBCLASS_QUIVER,
     MAX_ITEM_SUBCLASS_QUEST,
     MAX_ITEM_SUBCLASS_KEY,
     MAX_ITEM_SUBCLASS_PERMANENT,
-    MAX_ITEM_SUBCLASS_JUNK,
-    MAX_ITEM_SUBCLASS_GLYPH
+    MAX_ITEM_SUBCLASS_MISCELLANEOUS,
+    MAX_ITEM_SUBCLASS_GLYPH,
+    MAX_ITEM_SUBCLASS_BATTLE_PET,
+    MAX_ITEM_SUBCLASS_WOW_TOKEN
 };
+
+#define MAX_ITEM_SUBCLASS_TOTAL 21
 
 #define MIN_ITEM_LEVEL 1
 #define MAX_ITEM_LEVEL 1000
@@ -660,7 +711,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
     float GetUnk1() const { return ExtendedData->Unk1; }
     float GetUnk2() const { return ExtendedData->Unk2; }
-    uint32 GetBuyCount() const { return std::max(ExtendedData->BuyCount, 1u); }
+    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->BuyCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     InventoryType GetInventoryType() const { return InventoryType(ExtendedData->InventoryType); }
@@ -719,6 +770,7 @@ struct TC_GAME_API ItemTemplate
     uint32 FlagsCu;
     float SpellPPMRate;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[2];  // one set for 1-40 level range and another for 41-100
+    uint32 ItemSpecClassMask;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
@@ -735,6 +787,7 @@ struct TC_GAME_API ItemTemplate
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
+    bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_CRAFTING_MATERIAL) != 0; }
 
     bool IsRangedWeapon() const
     {

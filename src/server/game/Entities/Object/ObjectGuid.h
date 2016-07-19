@@ -106,6 +106,7 @@ enum class HighGuid
     BattlePet        = 44,
     CommerceObj      = 45,
     ClientSession    = 46,
+    Cast             = 47,
 
     Count,
 };
@@ -179,6 +180,7 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::CallForHelp)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AIResource)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILock)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::AILockTicket)
+GUID_TRAIT_MAP_SPECIFIC(HighGuid::Cast)
 
 // Special case
 // Global transports are loaded from `transports` table, RealmSpecific part is used for them.
@@ -218,6 +220,9 @@ class TC_GAME_API ObjectGuid
 
         template<HighGuid type>
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
+
+        template<HighGuid type>
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
 
@@ -271,6 +276,7 @@ class TC_GAME_API ObjectGuid
         bool IsGuild()             const { return GetHigh() == HighGuid::Guild; }
         bool IsSceneObject()       const { return GetHigh() == HighGuid::SceneObject; }
         bool IsConversation()      const { return GetHigh() == HighGuid::Conversation; }
+        bool IsCast()              const { return GetHigh() == HighGuid::Cast; }
 
         static TypeID GetTypeId(HighGuid high)
         {

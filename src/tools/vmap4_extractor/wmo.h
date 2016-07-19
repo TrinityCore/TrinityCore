@@ -23,6 +23,7 @@
 
 #include <string>
 #include <set>
+#include <vector>
 #include "vec3d.h"
 #include "mpqfile.h"
 
@@ -47,10 +48,12 @@ class WMORoot
 private:
     std::string filename;
 public:
-    unsigned int col;
-    uint32 nTextures, nGroups, nP, nLights, nModels, nDoodads, nDoodadSets, RootWMOID, liquidType;
+    unsigned int color;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID, flags;
     float bbcorn1[3];
     float bbcorn2[3];
+
+    std::vector<uint32> groupFileDataIDs;
 
     WMORoot(std::string& filename);
 

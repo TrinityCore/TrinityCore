@@ -561,12 +561,12 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberStats partyMemberStats;
+    WorldPackets::Party::PartyMemberState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     if (!player)
     {
-        partyMemberStats.MemberStats.GUID = packet.TargetGUID;
+        partyMemberStats.MemberGuid = packet.TargetGUID;
         partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
     }
     else

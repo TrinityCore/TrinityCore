@@ -28,6 +28,86 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellLogPowerData
+        {
+            SpellLogPowerData(int32 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
+
+            int32 PowerType = 0;
+            int32 Amount = 0;
+            int32 Cost = 0;
+        };
+
+        struct SpellCastLogData
+        {
+            int64 Health = 0;
+            int32 AttackPower = 0;
+            int32 SpellPower = 0;
+            std::vector<SpellLogPowerData> PowerData;
+
+            void Initialize(Unit const* unit);
+            void Initialize(Spell const* spell);
+        };
+    }
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
+
+namespace WorldPackets
+{
+    namespace CombatLog
+    {
+        class CombatLogServerPacket : public ServerPacket
+        {
+        public:
+            CombatLogServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
+                : ServerPacket(opcode, initialSize, connection), _fullLogPacket(opcode, initialSize, connection) { }
+
+            WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
+            WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
+
+            Spells::SpellCastLogData LogData;
+
+        protected:
+            template<typename T>
+            void operator<<(T const& val)
+            {
+                _worldPacket << val;
+                _fullLogPacket << val;
+            }
+
+            void WriteLogDataBit()
+            {
+                _worldPacket.WriteBit(false);
+                _fullLogPacket.WriteBit(true);
+            }
+
+            void FlushBits()
+            {
+                _worldPacket.FlushBits();
+                _fullLogPacket.FlushBits();
+            }
+
+            bool WriteBit(bool bit)
+            {
+                _worldPacket.WriteBit(bit);
+                _fullLogPacket.WriteBit(bit);
+                return bit;
+            }
+
+            void WriteBits(uint32 value, uint32 bitCount)
+            {
+                _worldPacket.WriteBits(value, bitCount);
+                _fullLogPacket.WriteBits(value, bitCount);
+            }
+
+            ByteBuffer& WriteLogData() { return _fullLogPacket << LogData; }
+
+            WorldPacket _fullLogPacket;
+        };
+    }
+
+    namespace Spells
+    {
         class CancelAura final : public ClientPacket
         {
         public:
@@ -120,6 +200,7 @@ namespace WorldPackets
 
             bool InitialLogin = false;
             std::vector<uint32> KnownSpells;
+            std::vector<uint32> FavoriteSpells;         // tradeskill recipes
         };
 
         class UpdateActionButtons final : public ServerPacket
@@ -163,28 +244,23 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
-        struct SpellLogPowerData
+        struct SandboxScalingData
         {
-            SpellLogPowerData(int32 powerType, int32 amount) : PowerType(powerType), Amount(amount) { }
-
-            int32 PowerType = 0;
-            int32 Amount    = 0;
-        };
-
-        struct SpellCastLogData
-        {
-            int32 Health        = 0;
-            int32 AttackPower   = 0;
-            int32 SpellPower    = 0;
-            std::vector<SpellLogPowerData> PowerData;
-
-            void Initialize(Unit const* unit);
+            uint32 Type = 0;
+            int16 PlayerLevelDelta = 0;
+            uint8 TargetLevel = 0;
+            uint8 Expansion = 0;
+            uint8 Class = 1;
+            uint8 TargetMinScalingLevel = 1;
+            uint8 TargetMaxScalingLevel = 1;
+            int8 TargetScalingLevelDelta = 1;
         };
 
         struct AuraDataInfo
         {
+            ObjectGuid CastID;
             int32 SpellID = 0;
-            uint32 SpellXSpellVisualID = 0;
+            int32 SpellXSpellVisualID = 0;
             uint8 Flags = 0;
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
@@ -192,8 +268,10 @@ namespace WorldPackets
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
+            Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
+            Optional<SandboxScalingData> SandboxScaling;
         };
 
         struct AuraInfo
@@ -228,6 +306,7 @@ namespace WorldPackets
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
             Optional<float> Orientation;
+            Optional<int32> MapID;
             std::string Name;
         };
 
@@ -246,7 +325,7 @@ namespace WorldPackets
 
         struct SpellCastRequest
         {
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             int32 SpellID = 0;
             uint32 SpellXSpellVisualID = 0;
             uint8 SendCastFlags = 0;
@@ -290,6 +369,17 @@ namespace WorldPackets
             uint8 Slot = 0;
             ObjectGuid CastItem;
             SpellCastRequest Cast;
+        };
+
+        class SpellPrepare final : public ServerPacket
+        {
+        public:
+            SpellPrepare() : ServerPacket(SMSG_SPELL_PREPARE, 16 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ClientCastID;
+            ObjectGuid ServerCastID;
         };
 
         struct SpellMissStatus
@@ -340,7 +430,8 @@ namespace WorldPackets
         {
             ObjectGuid CasterGUID;
             ObjectGuid CasterUnit;
-            uint8 CastID        = 0;
+            ObjectGuid CastID;
+            ObjectGuid OriginalCastID;
             int32 SpellID       = 0;
             uint32 SpellXSpellVisualID = 0;
             uint32 CastFlags    = 0;
@@ -360,14 +451,13 @@ namespace WorldPackets
             SpellHealPrediction Predict;
         };
 
-        class SpellGo final : public ServerPacket
+        class SpellGo final : public CombatLog::CombatLogServerPacket
         {
         public:
-            SpellGo() : ServerPacket(SMSG_SPELL_GO) { }
+            SpellGo() : CombatLog::CombatLogServerPacket(SMSG_SPELL_GO) { }
 
             WorldPacket const* Write() override;
 
-            Optional<SpellCastLogData> LogData;
             SpellCastData Cast;
         };
 
@@ -389,6 +479,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<int32> SpellID;
+            std::vector<int32> FavoriteSpellID;
             bool SuppressMessaging = false;
         };
 
@@ -401,6 +492,7 @@ namespace WorldPackets
 
             std::vector<int32> SpellID;
             std::vector<int32> Superceded;
+            std::vector<int32> FavoriteSpellID;
         };
 
         class SpellFailure final : public ServerPacket
@@ -414,7 +506,7 @@ namespace WorldPackets
             uint32 SpellID  = 0;
             uint32 SpelXSpellVisualID = 0;
             uint16 Reason   = 0;
-            uint8 CastID    = 0;
+            ObjectGuid CastID;
         };
 
         class SpellFailedOther final : public ServerPacket
@@ -426,22 +518,38 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
+            uint32 SpelXSpellVisualID = 0;
             uint8 Reason    = 0;
-            uint8 CastID    = 0;
+            ObjectGuid CastID;
         };
 
         class TC_GAME_API CastFailed final : public ServerPacket
         {
         public:
-            CastFailed(OpcodeServer opcode) : ServerPacket(opcode, 4+4+4+4+1) { }
+            CastFailed() : ServerPacket(SMSG_CAST_FAILED, 4 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            int32 Reason        = 0;
-            int32 FailedArg1    = -1;
-            int32 FailedArg2    = -1;
-            int32 SpellID       = 0;
-            uint8 CastID        = 0;
+            ObjectGuid CastID;
+            int32 SpellID             = 0;
+            int32 SpellXSpellVisualID = 0;
+            int32 Reason              = 0;
+            int32 FailedArg1          = -1;
+            int32 FailedArg2          = -1;
+        };
+
+        class TC_GAME_API PetCastFailed final : public ServerPacket
+        {
+        public:
+            PetCastFailed() : ServerPacket(SMSG_PET_CAST_FAILED, 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CastID;
+            int32 SpellID = 0;
+            int32 Reason = 0;
+            int32 FailedArg1 = -1;
+            int32 FailedArg2 = -1;
         };
 
         struct SpellModifierData
@@ -670,7 +778,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SpellID = 0;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
         };
 
         class OpenItem final : public ClientPacket
@@ -774,7 +882,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
-            uint32 DisplayID = 0;
+            int32 DisplayID = 0;
             uint8 RaceID = 0;
             uint8 Gender = 0;
             uint8 ClassID = 0;
@@ -783,9 +891,10 @@ namespace WorldPackets
             uint8 HairVariation = 0;
             uint8 HairColor = 0;
             uint8 BeardVariation = 0;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
             ObjectGuid GuildGUID;
 
-            std::vector<uint32> ItemDisplayID;
+            std::vector<int32> ItemDisplayID;
         };
 
         class MirrorImageCreatureData final : public ServerPacket
@@ -796,7 +905,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
-            uint32 DisplayID = 0;
+            int32 DisplayID = 0;
         };
 
         class SpellClick final : public ClientPacket
@@ -810,31 +919,14 @@ namespace WorldPackets
             bool TryAutoDismount = false;
         };
 
-        class ConvertRune final : public ServerPacket
-        {
-        public:
-            ConvertRune() : ServerPacket(SMSG_CONVERT_RUNE, 1 + 1) { }
-
-            WorldPacket const* Write() override;
-
-            uint8 Index = 0;
-            uint8 Rune = 0;
-        };
-
         class ResyncRunes final : public ServerPacket
         {
         public:
-            struct ResyncRune
-            {
-                uint8 RuneType = 0;
-                uint8 Cooldown = 0;
-            };
-
-            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * size) { }
+            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 1 + 1 + 4 + size) { }
 
             WorldPacket const* Write() override;
 
-            std::vector<ResyncRune> Runes;
+            RuneData Runes;
         };
 
         class MissileTrajectoryCollision final : public ClientPacket
@@ -846,7 +938,7 @@ namespace WorldPackets
 
             ObjectGuid Target;
             int32 SpellID = 0;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             G3D::Vector3 CollisionPos;
         };
 
@@ -858,7 +950,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Caster;
-            uint8 CastID = 0;
+            ObjectGuid CastID;
             G3D::Vector3 CollisionPos;
         };
 
@@ -905,7 +997,7 @@ namespace WorldPackets
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
 ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData);
 
 #endif // SpellPackets_h__

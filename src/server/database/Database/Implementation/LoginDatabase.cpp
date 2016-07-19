@@ -156,4 +156,12 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(LOGIN_SEL_ACCOUNT_HEIRLOOMS, "SELECT itemId, flags FROM battlenet_account_heirlooms WHERE accountId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_REP_ACCOUNT_HEIRLOOMS, "REPLACE INTO battlenet_account_heirlooms (accountId, itemId, flags) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+
+    // Transmog collection
+    PrepareStatement(LOGIN_SEL_BNET_ITEM_APPEARANCES, "SELECT blobIndex, appearanceMask FROM battlenet_item_appearances WHERE battlenetAccountId = ? ORDER BY blobIndex DESC", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BNET_ITEM_APPEARANCES, "INSERT INTO battlenet_item_appearances (battlenetAccountId, blobIndex, appearanceMask) VALUES (?, ?, ?) "
+        "ON DUPLICATE KEY UPDATE appearanceMask = appearanceMask | VALUES(appearanceMask)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_ITEM_FAVORITE_APPEARANCES, "SELECT itemModifiedAppearanceId FROM battlenet_item_favorite_appearances WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BNET_ITEM_FAVORITE_APPEARANCE, "INSERT INTO battlenet_item_favorite_appearances (battlenetAccountId, itemModifiedAppearanceId) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_BNET_ITEM_FAVORITE_APPEARANCE, "DELETE FROM battlenet_item_favorite_appearances WHERE battlenetAccountId = ? AND itemModifiedAppearanceId = ?", CONNECTION_ASYNC);
 }

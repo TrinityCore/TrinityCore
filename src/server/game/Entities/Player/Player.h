@@ -19,7 +19,6 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "GroupReference.h"
 #include "MapReference.h"
@@ -446,7 +445,8 @@ struct Areas
     float y2;
 };
 
-#define MAX_RUNES       6
+#define MAX_RUNES 7
+#define MAX_RECHARGING_RUNES 3
 
 enum RuneCooldowns
 {
@@ -454,36 +454,13 @@ enum RuneCooldowns
     RUNE_MISS_COOLDOWN  = 1500     // cooldown applied on runes when the spell misses
 };
 
-enum RuneType : uint8
-{
-    RUNE_BLOOD      = 0,
-    RUNE_UNHOLY     = 1,
-    RUNE_FROST      = 2,
-    RUNE_DEATH      = 3,
-    NUM_RUNE_TYPES  = 4
-};
-
-struct RuneInfo
-{
-    RuneType BaseRune;
-    RuneType CurrentRune;
-    uint32 Cooldown;
-    AuraEffect const* ConvertAura;
-};
-
 struct Runes
 {
-    RuneInfo runes[MAX_RUNES];
-    uint8 runeState;                                        // mask of available runes
-    RuneType lastUsedRune;
+    std::deque<uint8> CooldownOrder;
+    uint32 Cooldown[MAX_RUNES];
+    uint8 RuneState;                                        // mask of available runes
 
-    void SetRuneState(uint8 index, bool set = true)
-    {
-        if (set)
-            runeState |= (1 << index);                      // usable
-        else
-            runeState &= ~(1 << index);                     // on cooldown
-    }
+    void SetRuneState(uint8 index, bool set = true);
 };
 
 struct EnchantDuration
@@ -574,26 +551,32 @@ enum PlayerBytesOffsets
 
 enum PlayerBytes2Offsets
 {
-    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
-    PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
-    PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
-    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
+    PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION = 0, // 3 bytes
+    PLAYER_BYTES_2_OFFSET_FACIAL_STYLE          = 3,
 };
+
+#define PLAYER_CUSTOM_DISPLAY_SIZE 3
 
 enum PlayerBytes3Offsets
 {
-    PLAYER_BYTES_3_OFFSET_GENDER        = 0,
-    PLAYER_BYTES_3_OFFSET_INEBRIATION   = 1,
-    PLAYER_BYTES_3_OFFSET_PVP_TITLE     = 2,
-    PLAYER_BYTES_3_OFFSET_ARENA_FACTION = 3
+    PLAYER_BYTES_3_OFFSET_PARTY_TYPE        = 0,
+    PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS    = 1,
+    PLAYER_BYTES_3_OFFSET_GENDER            = 2,
+    PLAYER_BYTES_3_OFFSET_INEBRIATION       = 3,
+};
+
+enum PlayerBytes4Offsets
+{
+    PLAYER_BYTES_4_OFFSET_PVP_TITLE     = 0,
+    PLAYER_BYTES_4_OFFSET_ARENA_FACTION = 1
 };
 
 enum PlayerFieldBytesOffsets
 {
-    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL   = 0,
-    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES    = 1,
-    PLAYER_FIELD_BYTES_OFFSET_PVP_RANK              = 2,
-    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK = 3
+    PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL       = 0,
+    PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES        = 1,
+    PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK     = 2,
+    PLAYER_FIELD_BYTES_OFFSET_MAX_ARTIFACT_POWER_RANKS  = 3,
 };
 
 enum PlayerFieldBytes2Offsets
@@ -622,6 +605,16 @@ enum PlayerFieldKillsOffsets
 {
     PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS     = 0,
     PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS = 1
+};
+
+enum PlayerRestInfoOffsets
+{
+    REST_STATE_XP       = 0,
+    REST_RESTED_XP      = 1,
+    REST_STATE_HONOR    = 2,
+    REST_RESTED_HONOR   = 3,
+
+    MAX_REST_INFO
 };
 
 enum MirrorTimerType
@@ -687,7 +680,7 @@ enum QuestSlotOffsets
 };
 
 #define MAX_QUEST_COUNTS 24
-#define MAX_QUEST_OFFSET 15
+#define MAX_QUEST_OFFSET 16
 
 enum QuestSlotStateMask
 {
@@ -733,7 +726,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 184,
+    PLAYER_SLOT_END             = 187,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -804,6 +797,12 @@ enum ReagentSlots
     REAGENT_SLOT_END            = 184,
 };
 
+enum ChildEquipmentSlots
+{
+    CHILD_EQUIPMENT_SLOT_START   = 184,
+    CHILD_EQUIPMENT_SLOT_END     = 187,
+};
+
 enum EquipmentSetUpdateState
 {
     EQUIPMENT_SET_UNCHANGED = 0,
@@ -814,24 +813,33 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSetInfo
 {
+    enum EquipmentSetType : int32
+    {
+        EQUIPMENT = 0,
+        TRANSMOG = 1
+    };
+
     /// Data sent in EquipmentSet related packets
     struct EquipmentSetData
     {
+        EquipmentSetType Type = EQUIPMENT;
         uint64 Guid       = 0; ///< Set Identifier
         uint32 SetID      = 0; ///< Index
         uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
         std::string SetName;
         std::string SetIcon;
-        ObjectGuid Pieces[EQUIPMENT_SLOT_END];
+        std::array<ObjectGuid, EQUIPMENT_SLOT_END> Pieces;
+        std::array<int32, EQUIPMENT_SLOT_END> Appearances;  ///< ItemModifiedAppearanceID
+        std::array<int32, 2> Enchants;  ///< SpellItemEnchantmentID
     } Data;
 
     /// Server-side data
     EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
 };
 
-#define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
+#define MAX_EQUIPMENT_SET_INDEX 20                          // client limit
 
-typedef std::map<uint32, EquipmentSetInfo> EquipmentSetContainer;
+typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
 struct ItemPosCount
 {
@@ -961,8 +969,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS,
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
-    PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
@@ -1143,43 +1151,38 @@ struct ResurrectionData
     uint32 Aura;
 };
 
+enum TalentLearnResult
+{
+    TALENT_LEARN_OK                                     = 0,
+    TALENT_FAILED_UNKNOWN                               = 1,
+    TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE    = 2,
+    TALENT_FAILED_NO_PRIMARY_TREE_SELECTED              = 3,
+    TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW                = 4,
+    TALENT_FAILED_AFFECTING_COMBAT                      = 5,
+    TALENT_FAILED_CANT_REMOVE_TALENT                    = 6,
+    TALENT_FAILED_CANT_DO_THAT_CHALLENGE_MODE_ACTIVE    = 7,
+    TALENT_FAILED_REST_AREA                             = 8
+};
+
 static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
+static uint32 const DHTalentRowLevels[MAX_TALENT_TIERS] = { 99, 100, 102, 104, 106, 108, 110 };
 
 struct TC_GAME_API PlayerTalentInfo
 {
-    PlayerTalentInfo() :
-        ResetTalentsCost(0), ResetTalentsTime(0),
-        ActiveGroup(0), GroupsCount(1)
+    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), PrimarySpecialization(0), ActiveGroup(0)
     {
-        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-        {
-            GroupInfo[i].Talents = new PlayerTalentMap();
-            memset(GroupInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
-            GroupInfo[i].SpecId = 0;
-        }
     }
 
-    ~PlayerTalentInfo()
-    {
-        for (uint8 i = 0; i < MAX_TALENT_GROUPS; ++i)
-            delete GroupInfo[i].Talents;
-    }
-
-    struct TalentGroupInfo
-    {
-        PlayerTalentMap* Talents;
-        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
-        uint32 SpecId;
-    } GroupInfo[MAX_TALENT_GROUPS];
-
+    PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
+    uint32 PrimarySpecialization;
     uint8 ActiveGroup;
-    uint8 GroupsCount;
 
 private:
-    PlayerTalentInfo(PlayerTalentInfo const&);
+    PlayerTalentInfo(PlayerTalentInfo const&) = delete;
+    PlayerTalentInfo& operator=(PlayerTalentInfo const&) = delete;
 };
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
@@ -1238,7 +1241,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetChatFlags() const;
         std::string autoReplyMsg;
 
-        uint32 GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin = nullptr, BarberShopStyleEntry const* newFace = nullptr) const;
+        uint32 GetBarberShopCost(BarberShopStyleEntry const* newHairStyle, uint8 newHairColor, BarberShopStyleEntry const* newFacialHair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* newFace, std::array<BarberShopStyleEntry const*, PLAYER_CUSTOM_DISPLAY_SIZE> const& newCustomDisplay) const;
 
         PlayerSocial* GetSocial() const { return m_social; }
         void RemoveSocial();
@@ -1328,6 +1331,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Bag*  GetBagByPos(uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
         Item* GetShield(bool useable = false) const;
+        Item* GetChildItemByGuid(ObjectGuid guid) const;
         static uint8 GetAttackBySlot(uint8 slot, InventoryType inventoryType);        // MAX_ATTACK if not weapon slot
         std::vector<Item*> &GetItemUpdateQueue() { return m_itemUpdateQueue; }
         static bool IsInventoryPos(uint16 pos) { return IsInventoryPos(pos >> 8, pos & 255); }
@@ -1337,10 +1341,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
+        static bool IsChildEquipmentPos(uint16 pos) { return IsChildEquipmentPos(pos >> 8, pos & 255); }
+        static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
-        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS); }
-        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS, count); }
+        uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS); }
+        void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS, count); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1354,6 +1360,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16& dest, Item* pItem, bool swap, bool not_loading = true) const;
 
+        // This method must be called before equipping parent item!
+        InventoryResult CanEquipChildItem(Item* parentItem) const;
+
         InventoryResult CanEquipUniqueItem(Item* pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
@@ -1363,11 +1372,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId = 0, GuidSet const& allowedLooters = GuidSet(), std::vector<int32> const& bonusListIDs = std::vector<int32>());
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId = 0, GuidSet const& allowedLooters = GuidSet(), std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
         void AutoUnequipOffhandIfNeed(bool force = false);
+        void EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem);
+        void AutoUnequipChildItem(Item* parentItem);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
@@ -1586,7 +1597,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver) const;
         void SendPushToPartyResponse(Player* player, QuestPushReason reason) const;
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count) const;
-        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount, uint32 required) const;
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
 
         ObjectGuid GetDivider() const { return m_divider; }
         void SetDivider(ObjectGuid guid) { m_divider = guid; }
@@ -1627,7 +1638,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
         static bool IsValidClass(uint8 Class) { return ((1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE) != 0; }
         static bool IsValidRace(uint8 Race) { return ((1 << (Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0; }
-        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
+        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create = false);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -1757,39 +1768,28 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         time_t GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint32 GetSpecId(uint8 group) const { return _talentMgr->GroupInfo[group].SpecId; }
-        void SetSpecId(uint8 group, uint32 tree) { _talentMgr->GroupInfo[group].SpecId = tree; }
+        uint32 GetPrimarySpecialization() const { return _talentMgr->PrimarySpecialization; }
+        void SetPrimarySpecialization(uint32 spec) { _talentMgr->PrimarySpecialization = spec; }
         uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
-        uint8 GetTalentGroupsCount() const { return _talentMgr->GroupsCount; }
-        void SetTalentGroupsCount(uint8 count) { _talentMgr->GroupsCount = count; }
         uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void SendTalentsInfoData();
-        bool LearnTalent(uint32 talentId);
+        TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         void RemoveTalent(TalentEntry const* talent);
         uint32 CalculateTalentsTiers() const;
-        void LearnTalentSpecialization(uint32 talentSpec);
         void ResetTalentSpecialization();
 
         // Dual Spec
-        void UpdateTalentGroupCount(uint8 count);
-        void ActivateTalentGroup(uint8 group);
+        void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
-        void InitGlyphsForLevel();
-        void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
-
-        uint32 GetGlyphSlot(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
-        void SetGlyph(uint8 slot, uint32 glyph);
-        uint32 GetGlyph(uint8 group, uint8 slot) const { return _talentMgr->GroupInfo[group].Glyphs[slot]; }
-
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->GroupInfo[spec].Talents; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->GroupInfo[spec].Talents; }
+        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_talentMgr->Talents[spec]; }
+        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_talentMgr->Talents[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
@@ -1936,10 +1936,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
         void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
-        float GetMeleeCritFromAgility() const;
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
-        float GetSpellCritFromIntellect() const;
-        float OCTRegenMPPerSpirit() const;
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
 
@@ -1964,7 +1961,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
-        void UpdateRuneRegen(RuneType rune);
         uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
         void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
         uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
@@ -2158,11 +2154,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateItemSetAuras(bool formChange = false);
 
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
-        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 castCount, int32* misc);
+        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc);
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
-        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
+        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& newEqSet);
         void DeleteEquipmentSet(uint64 id);
 
         void SendInitWorldStates(uint32 zone, uint32 area);
@@ -2400,24 +2396,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool isAllowedToLoot(const Creature* creature);
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
-        uint8 GetRunesState() const { return m_runes->runeState; }
-        RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
-        RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
-        uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
-        uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
-        bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
-        RuneType GetLastUsedRune() const { return m_runes->lastUsedRune; }
-        void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
-        void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
-        void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
+        uint8 GetRunesState() const { return m_runes->RuneState; }
+        uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
+        uint32 GetRuneBaseCooldown() const;
         void SetRuneCooldown(uint8 index, uint32 cooldown, bool casted = false);
-        void SetRuneConvertAura(uint8 index, AuraEffect const* aura);
-        void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura);
-        void RemoveRunesByAuraEffect(AuraEffect const* aura);
-        void RestoreBaseRune(uint8 index);
-        void ConvertRune(uint8 index, RuneType newType);
-        void ResyncRunes(uint8 count) const;
+        void ResyncRunes() const;
         void AddRunePower(uint8 index) const;
         void InitRunes();
 
@@ -2430,6 +2413,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
         void CompletedAchievement(AchievementEntry const* entry);
+        bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
         bool HasTitle(uint32 bitIndex) const;
         bool HasTitle(CharTitlesEntry const* title) const { return HasTitle(title->MaskID); }
@@ -2533,7 +2517,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
-        void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
@@ -2555,8 +2538,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadDeclinedNames(PreparedQueryResult result);
         void _LoadArenaTeamInfo(PreparedQueryResult result);
         void _LoadEquipmentSets(PreparedQueryResult result);
+        void _LoadTransmogOutfits(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
-        void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
@@ -2580,7 +2563,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveSpells(SQLTransaction& trans);
         void _SaveEquipmentSets(SQLTransaction& trans);
         void _SaveBGData(SQLTransaction& trans);
-        void _SaveGlyphs(SQLTransaction& trans) const;
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans) const;
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);

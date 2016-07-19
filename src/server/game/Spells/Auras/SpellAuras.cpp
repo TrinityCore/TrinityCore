@@ -198,9 +198,12 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     if (remove)
         return;
 
+    auraInfo.AuraData = boost::in_place();
+
     Aura const* aura = GetBase();
 
-    WorldPackets::Spells::AuraDataInfo auraData;
+    WorldPackets::Spells::AuraDataInfo& auraData = auraInfo.AuraData.get();
+    auraData.CastID = aura->GetCastGUID();
     auraData.SpellID = aura->GetId();
     auraData.SpellXSpellVisualID = aura->GetSpellXSpellVisualId();
     auraData.Flags = GetFlags();
@@ -232,8 +235,6 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
             if (effect && HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
                 auraData.Points[effect->GetEffIndex()] = float(effect->GetAmount());
     }
-
-    auraInfo.AuraData = auraData;
 }
 
 void AuraApplication::ClientUpdate(bool remove)
@@ -279,7 +280,7 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     return effMask & avalibleEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -303,10 +304,10 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMa
         return foundAura;
     }
     else
-        return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
+        return Create(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
 }
 
-Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, int32 castItemLevel /*= -1*/)
+Aura* Aura::TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -315,10 +316,10 @@ Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObjec
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
         return NULL;
-    return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
+    return Create(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
 }
 
-Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
+Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
 {
     ASSERT(effMask);
     ASSERT(spellproto);
@@ -348,10 +349,10 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
+            aura = new UnitAura(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
             break;
         case TYPEID_DYNAMICOBJECT:
-            aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
+            aura = new DynObjAura(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
             break;
         default:
             ABORT();
@@ -363,8 +364,8 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
     return aura;
 }
 
-Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel) :
-m_spellInfo(spellproto), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
+Aura::Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel) :
+m_spellInfo(spellproto), m_castGuid(castId), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_castItemLevel(castItemLevel), m_spellXSpellVisualId(caster ? caster->GetCastSpellXSpellVisualId(spellproto) : spellproto->GetSpellXSpellVisualId()),
 m_applyTime(time(NULL)), m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
@@ -1517,21 +1518,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAura(61988);
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
-                // Blood of the North
-                // Reaping
-                // Death Rune Mastery
-                if (GetSpellInfo()->SpellIconID == 3041 || GetSpellInfo()->SpellIconID == 22 || GetSpellInfo()->SpellIconID == 2622)
-                {
-                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
-                        break;
-                    if (target->GetTypeId() != TYPEID_PLAYER)
-                        break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                        break;
-
-                     // aura removed - remove death runes
-                    target->ToPlayer()->RemoveRunesByAuraEffect(GetEffect(0));
-                }
                 break;
             case SPELLFAMILY_HUNTER:
                 // Glyph of Freezing Trap
@@ -2339,8 +2325,8 @@ void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
     }
 }
 
-UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
-    : Aura(spellproto, owner, caster, castItem, casterGUID, castItemLevel)
+UnitAura::UnitAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
+    : Aura(spellproto, castId, owner, caster, castItem, casterGUID, castItemLevel)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
     LoadScripts();
@@ -2442,8 +2428,8 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
     }
 }
 
-DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
-    : Aura(spellproto, owner, caster, castItem, casterGUID, castItemLevel)
+DynObjAura::DynObjAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel)
+    : Aura(spellproto, castId, owner, caster, castItem, casterGUID, castItemLevel)
 {
     LoadScripts();
     ASSERT(GetDynobjOwner());

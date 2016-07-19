@@ -41,6 +41,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameTables.h"
 #include "GarrisonMgr.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -1480,7 +1481,7 @@ void World::SetInitialWorldSettings()
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
     {
-        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
         vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
     }
 
@@ -1530,8 +1531,6 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     TC_LOG_INFO("server.loading", "Initialize data stores...");
-    ///- Load DBCs
-    LoadDBCStores(m_dataPath, m_defaultDbcLocale);
     ///- Load DB2s
     sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
     TC_LOG_INFO("misc", "Loading hotfix info...");
@@ -1539,7 +1538,7 @@ void World::SetInitialWorldSettings()
     ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
     ///- Load GameTables
-    LoadGameTables(m_dataPath, m_defaultDbcLocale);
+    LoadGameTables(m_dataPath);
 
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
@@ -1953,9 +1952,6 @@ void World::SetInitialWorldSettings()
 
     /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sSupportMgr->LoadSurveys();*/
-
-    TC_LOG_INFO("server.loading", "Loading client addons...");
-    AddonMgr::LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading garrison info...");
     sGarrisonMgr.Initialize();

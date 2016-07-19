@@ -107,9 +107,7 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
                     // For others recalculate it from:
-                    float CritSpell = 0.0f;
-                    // Crit from Intellect
-                    CritSpell += owner->GetSpellCritFromIntellect();
+                    float CritSpell = 5.0f;
                     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                     CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -126,9 +124,7 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
                     // For others recalculate it from:
-                    float CritMelee = 0.0f;
-                    // Crit from Agility
-                    CritMelee += owner->GetMeleeCritFromAgility();
+                    float CritMelee = 5.0f;
                     // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                     CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -676,9 +672,7 @@ public:
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritSpell = 0.0f;
-                // Crit from Intellect
-                CritSpell += owner->GetSpellCritFromIntellect();
+                float CritSpell = 5.0f;
                 // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                 CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -698,9 +692,7 @@ public:
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritMelee = 0.0f;
-                // Crit from Agility
-                CritMelee += owner->GetMeleeCritFromAgility();
+                float CritMelee = 5.0f;
                 // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                 CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -1266,9 +1258,7 @@ public:
             if (GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritSpell = 0.0f;
-                // Crit from Intellect
-                // CritSpell += owner->GetSpellCritFromIntellect();
+                float CritSpell = 5.0f;
                 // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                 // CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -1287,9 +1277,7 @@ public:
             if (GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritMelee = 0.0f;
-                // Crit from Agility
-                // CritMelee += owner->GetMeleeCritFromAgility();
+                float CritMelee = 5.0f;
                 // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                 // CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT

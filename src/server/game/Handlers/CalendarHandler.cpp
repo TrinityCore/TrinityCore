@@ -54,8 +54,6 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
     time_t currTime = time(NULL);
 
     WorldPackets::Calendar::CalendarSendCalendar packet;
-    packet.ServerNow = currTime;
-    packet.RaidOrigin = 1135753200; // Constant date, unk (28.12.2005 07:00)
     packet.ServerTime = currTime;
 
     CalendarInviteStore playerInvites = sCalendarMgr->GetPlayerInvites(guid);
@@ -108,27 +106,6 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
                 packet.RaidLockouts.push_back(lockoutInfo);
             }
         }
-    }
-
-    std::set<uint32> sentMaps;
-    ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
-    for (auto const& reset : resets)
-    {
-        uint32 mapID = PAIR64_LOPART(reset.first);
-        if (sentMaps.find(mapID) != sentMaps.end())
-            continue;
-
-        MapEntry const* mapEntry = sMapStore.LookupEntry(mapID);
-        if (!mapEntry || !mapEntry->IsRaid())
-            continue;
-
-        sentMaps.insert(mapID);
-        WorldPackets::Calendar::CalendarSendCalendarRaidResetInfo resetInfo;
-        resetInfo.MapID = mapID;
-        resetInfo.Duration = reset.second - currTime;
-        resetInfo.Offset = 0; // Never seen anything else in sniffs - still unknown
-
-        packet.RaidResets.push_back(resetInfo);
     }
 
     SendPacket(packet.Write());

@@ -142,7 +142,10 @@ enum InventoryResult
     EQUIP_ERR_ITEM_IS_BATTLE_PAY_LOCKED                    = 94, // Your purchased item is still waiting to be unlocked
     EQUIP_ERR_REAGENT_BANK_FULL                            = 95, // Your reagent bank is full
     EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96,
-    EQUIP_ERR_WRONG_BAG_TYPE_3                             = 97
+    EQUIP_ERR_WRONG_BAG_TYPE_3                             = 97,
+    EQUIP_ERR_CANT_USE_ITEM                                = 98, // You can't use that item.
+    EQUIP_ERR_CANT_BE_OBLITERATED                          = 99, // You can't obliterate that item
+    EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 100,// You cannot store conjured items in the guild bank
 };
 
 enum BuyResult
@@ -205,10 +208,12 @@ enum EnchantmentOffset
 
 enum EnchantmentSlotMask
 {
-    ENCHANTMENT_CAN_SOULBOUND  = 0x01,
-    ENCHANTMENT_UNK1           = 0x02,
-    ENCHANTMENT_UNK2           = 0x04,
-    ENCHANTMENT_UNK3           = 0x08
+    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
+    ENCHANTMENT_UNK1                    = 0x02,
+    ENCHANTMENT_UNK2                    = 0x04,
+    ENCHANTMENT_UNK3                    = 0x08,
+    ENCHANTMENT_COLLECTABLE             = 0x100,
+    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
 };
 
 enum ItemUpdateState
@@ -221,14 +226,29 @@ enum ItemUpdateState
 
 enum ItemModifier
 {
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD   = 0,
-    ITEM_MODIFIER_TRANSMOG_ITEM_ID          = 1,
-    ITEM_MODIFIER_UPGRADE_ID                = 2,
-    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID     = 3,
-    ITEM_MODIFIER_BATTLE_PET_BREED_DATA     = 4, // (breedId) | (breedQuality << 24)
-    ITEM_MODIFIER_BATTLE_PET_LEVEL          = 5,
-    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID     = 6,
-    ITEM_MODIFIER_ENCHANT_ILLUSION          = 7,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS         = 0,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1            = 1,
+    ITEM_MODIFIER_UPGRADE_ID                            = 2,
+    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID                 = 3,
+    ITEM_MODIFIER_BATTLE_PET_BREED_DATA                 = 4, // (breedId) | (breedQuality << 24)
+    ITEM_MODIFIER_BATTLE_PET_LEVEL                      = 5,
+    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID                 = 6,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS            = 7,
+    ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID                = 8,
+    ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL = 9,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1               = 10,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3            = 13,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 13,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4            = 15,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4               = 16,
+    ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID       = 17,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL              = 18,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1         = 19,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2         = 20,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3         = 21,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED         = 22,
 
     MAX_ITEM_MODIFIERS
 };
@@ -236,6 +256,8 @@ enum ItemModifier
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
+extern ItemModifier const AppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS];
+extern ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS];
 
 struct BonusData
 {
@@ -255,6 +277,16 @@ struct BonusData
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
+
+#pragma pack(push, 1)
+struct ItemDynamicFieldGems
+{
+    uint32 ItemId;
+    uint16 BonusListIDs[16];
+    uint8 Context;
+    uint8 Padding[3];
+};
+#pragma pack(pop)
 
 class TC_GAME_API Item : public Object
 {
@@ -351,6 +383,9 @@ class TC_GAME_API Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        DynamicFieldStructuredView<ItemDynamicFieldGems> GetGems() const;
+        ItemDynamicFieldGems const* GetGem(uint16 slot) const;
+        void SetGem(uint16 slot, ItemDynamicFieldGems const* gem);
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
@@ -394,12 +429,13 @@ class TC_GAME_API Item : public Object
         uint32 GetAppearanceModId() const { return _bonusData.AppearanceModID; }
         uint32 GetArmor(Player const* owner) const { return GetTemplate()->GetArmor(GetItemLevel(owner)); }
         void GetDamage(Player const* owner, float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(owner), minDamage, maxDamage); }
-        uint32 GetDisplayId() const;
+        uint32 GetDisplayId(Player const* owner) const;
+        ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
         uint32 GetScalingStatDistribution() const { return _bonusData.ScalingStatDistribution; }
 
         // Item Refund system
-        void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
+        void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);
         void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
@@ -425,22 +461,24 @@ class TC_GAME_API Item : public Object
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
         bool IsValidTransmogrificationTarget() const;
-        static bool IsValidTransmogrificationSource(WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
         bool HasStats() const;
         static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
-        static bool CanTransmogrifyItemWithItem(Item const* transmogrified, WorldPackets::Item::ItemInstance const& transmogrifier, BonusData const* bonus);
+        static bool CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
-        uint32 GetVisibleEntry() const;
-        uint16 GetVisibleAppearanceModId() const;
-        uint32 GetVisibleEnchantmentId() const;
-        uint16 GetVisibleItemVisual() const;
+        uint32 GetVisibleEntry(Player const* owner) const;
+        uint16 GetVisibleAppearanceModId(Player const* owner) const;
+        uint32 GetVisibleEnchantmentId(Player const* owner) const;
+        uint16 GetVisibleItemVisual(Player const* owner) const;
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
         uint32 GetModifier(ItemModifier modifier) const;
         void SetModifier(ItemModifier modifier, uint32 value);
+
+        ObjectGuid GetChildItem() const { return m_childItem; }
+        void SetChildItem(ObjectGuid childItem) { m_childItem = childItem; }
 
     protected:
         BonusData _bonusData;
@@ -457,5 +495,6 @@ class TC_GAME_API Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
+        ObjectGuid m_childItem;
 };
 #endif

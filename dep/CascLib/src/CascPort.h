@@ -216,6 +216,11 @@
   #define ERROR_HANDLE_EOF               1002        // No such error code under Linux
   #define ERROR_CAN_NOT_COMPLETE         1003        // No such error code under Linux
   #define ERROR_FILE_CORRUPT             1004        // No such error code under Linux
+  #define ERROR_FILE_ENCRYPTED           1005        // Returned by encrypted stream when can't find file key
+#endif
+
+#ifndef ERROR_FILE_INCOMPLETE
+#define ERROR_FILE_INCOMPLETE            1006        // The required file part is missing
 #endif
 
 //-----------------------------------------------------------------------------
