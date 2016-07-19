@@ -109,11 +109,12 @@ struct MapMeta
 enum Extract
 {
     EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2
+    EXTRACT_DBC = 2,
+    EXTRACT_GT  = 8
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_GT;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -176,7 +177,7 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path (max %d characters)\n"\
         "-o set output path (max %d characters)\n"\
-        "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
+        "-e extract only MAP(1)/DBC(2)/gt(8) - standard: all(11)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
@@ -226,7 +227,7 @@ void HandleArgs(int argc, char* arg[])
                 if (c + 1 < argc)                            // all ok
                 {
                     CONF_extract = atoi(arg[c++ + 1]);
-                    if (!(CONF_extract > 0 && CONF_extract < 4))
+                    if (!(CONF_extract > 0 && CONF_extract < 12))
                         Usage(arg[0]);
                 }
                 else
@@ -1203,6 +1204,79 @@ void ExtractDBFilesClient(int l)
     printf("Extracted %u files\n\n", count);
 }
 
+void ExtractGameTables()
+{
+    printf("Extracting game tables...\n");
+
+    std::string outputPath = output_path;
+    outputPath += "/gt/";
+
+    CreateDir(outputPath);
+
+    printf("output path %s\n", outputPath.c_str());
+
+    char const* GameTables[] =
+    {
+        "GameTables\\ArmorMitigationByLvl.txt",
+        "GameTables\\artifactLevelXP.txt",
+        "GameTables\\BarberShopCostBase.txt",
+        "GameTables\\BaseMp.txt",
+        "GameTables\\BattlePetTypeDamageMod.txt",
+        "GameTables\\battlePetXP.txt",
+        "GameTables\\ChallengeModeDamage.txt",
+        "GameTables\\ChallengeModeHealth.txt",
+        "GameTables\\CombatRatings.txt",
+        "GameTables\\CombatRatingsMultByILvl.txt",
+        "GameTables\\HonorLevel.txt",
+        "GameTables\\HpPerSta.txt",
+        "GameTables\\ItemSocketCostPerLevel.txt",
+        "GameTables\\NpcDamageByClass.txt",
+        "GameTables\\NpcDamageByClassExp1.txt",
+        "GameTables\\NpcDamageByClassExp2.txt",
+        "GameTables\\NpcDamageByClassExp3.txt",
+        "GameTables\\NpcDamageByClassExp4.txt",
+        "GameTables\\NpcDamageByClassExp5.txt",
+        "GameTables\\NpcDamageByClassExp6.txt",
+        "GameTables\\NpcManaCostScaler.txt",
+        "GameTables\\NpcTotalHp.txt",
+        "GameTables\\NpcTotalHpExp1.txt",
+        "GameTables\\NpcTotalHpExp2.txt",
+        "GameTables\\NpcTotalHpExp3.txt",
+        "GameTables\\NpcTotalHpExp4.txt",
+        "GameTables\\NpcTotalHpExp5.txt",
+        "GameTables\\NpcTotalHpExp6.txt",
+        "GameTables\\SandboxScaling.txt",
+        "GameTables\\SpellScaling.txt",
+        "GameTables\\xp.txt",
+        nullptr
+    };
+
+    uint32 index = 0;
+    uint32 count = 0;
+    char const* fileName = GameTables[index];
+    HANDLE dbcFile;
+    while (fileName)
+    {
+        std::string filename = fileName;
+        if (CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_NONE, 0, &dbcFile))
+        {
+            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+
+            if (!boost::filesystem::exists(filename))
+                if (ExtractFile(dbcFile, filename))
+                    ++count;
+
+            CascCloseFile(dbcFile);
+        }
+        else
+            printf("Unable to open file %s in the archive: %s\n", fileName, HumanReadableCASCError(GetLastError()));
+
+        fileName = GameTables[++index];
+    }
+
+    printf("Extracted %u files\n\n", count);
+}
+
 bool OpenCascStorage(int locale)
 {
     try
@@ -1284,6 +1358,13 @@ int main(int argc, char * arg[])
     {
         printf("No locales detected\n");
         return 0;
+    }
+
+    if (CONF_extract & EXTRACT_GT)
+    {
+        OpenCascStorage(FirstLocale);
+        ExtractGameTables();
+        CascCloseStorage(CascStorage);
     }
 
     if (CONF_extract & EXTRACT_MAP)
