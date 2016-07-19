@@ -319,6 +319,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         #define SpellEffectFn(F, I, N) EffectHandlerFunction(&F, I, N)
 
         // example: BeforeHit += BeforeSpellHitFn(class::function);
+        // where function is void function(SpellMissInfo missInfo)
         HookList<BeforeHitHandler> BeforeHit;
         #define BeforeSpellHitFn(F) BeforeHitHandlerFunction(&F)
 
