@@ -291,8 +291,6 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
     if (hasSplineMove)                                                          // MovementSplineMove
     {
-        ::Movement::MoveSplineFlag const& splineFlags = moveSpline.splineflags;
-
         data << uint32(moveSpline.splineflags.raw());                           // SplineFlags
         data << int32(moveSpline.timePassed());                                 // Elapsed
         data << uint32(moveSpline.Duration());                                  // Duration
