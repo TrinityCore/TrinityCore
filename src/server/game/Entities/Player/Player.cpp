@@ -4868,7 +4868,7 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
     return m_auraBaseMod[modGroup][FLAT_MOD] * m_auraBaseMod[modGroup][PCT_MOD];
 }
 
-void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
+void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing*/) const
 {
     //// Table for base dodge values
     //const float dodge_base[MAX_CLASSES] =

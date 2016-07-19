@@ -685,7 +685,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
-            _phasesByGroup[group->PhaseGroupID].insert(group->PhaseID);
+            _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
     for (PvPDifficultyEntry const* entry : sPvpDifficultyStore)
     {

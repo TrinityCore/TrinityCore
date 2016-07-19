@@ -21,6 +21,8 @@
 #include "WorldSession.h"
 #include <boost/dynamic_bitset.hpp>
 
+struct ItemModifiedAppearanceEntry;
+
 enum HeirloomPlayerFlags
 {
     HEIRLOOM_FLAG_NONE                    = 0x00,

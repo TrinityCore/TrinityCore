@@ -77,7 +77,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
 
         ++end;
 
-        ASSERT(std::distance(values.begin(), end) == columnDefs.size(), SZFMTD " == " SZFMTD, std::distance(values.begin(), end), columnDefs.size());
+        ASSERT(std::size_t(std::distance(values.begin(), end)) == columnDefs.size(), SZFMTD " == " SZFMTD, std::size_t(std::distance(values.begin(), end)), columnDefs.size());
 
         // client ignores id column - CombatRatings has copypasted rows for levels > 110
         //ASSERT(strtol(values[0], nullptr, 10) == data.size(),

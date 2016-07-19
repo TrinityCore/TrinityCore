@@ -245,7 +245,7 @@ enum Stats : uint16
 
 #define MAX_STATS                        4
 
-enum Powers // (6.0)
+enum Powers : uint8
 {
     POWER_MANA                          = 0,
     POWER_RAGE                          = 1,
@@ -268,7 +268,7 @@ enum Powers // (6.0)
     POWER_PAIN                          = 18,
     MAX_POWERS                          = 19,
     POWER_ALL                           = 127,          // default for class?
-    POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+    POWER_HEALTH                        = 0xFE          // (-2 as signed value)
 };
 
 #define MAX_POWERS_PER_CLASS            6
