@@ -18187,7 +18187,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         BonusData bonus;
         bonus.Initialize(voidInstance);
 
-        GetSession()->GetCollectionMgr()->AddItemAppearance(itemId, bonus.AppearanceModID);
+        GetSession()->GetCollectionMgr()->AddItemAppearance(itemEntry, bonus.AppearanceModID);
     }
     while (result->NextRow());
 }
