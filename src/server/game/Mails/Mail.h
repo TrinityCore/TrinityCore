@@ -90,6 +90,7 @@ class MailSender
         MailSender(CalendarEvent* sender);
         MailSender(AuctionEntry* sender);
         MailSender(Player* sender);
+        MailSender(uint32 senderEntry);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }
         ObjectGuid::LowType GetSenderId() const { return m_senderId; }
