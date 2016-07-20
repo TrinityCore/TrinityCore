@@ -92,7 +92,6 @@ class PlayerAI : public UnitAI
         void CancelAllShapeshifts();
 
     private:
-        bool _isSelfHealer;
         uint8 const _selfSpec;
         bool const _isSelfHealer;
         bool _isSelfRangedAttacker;
