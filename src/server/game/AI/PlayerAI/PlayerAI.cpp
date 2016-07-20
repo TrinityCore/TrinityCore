@@ -116,7 +116,7 @@ enum Spells
     SPELL_SPELL_REFLECTION  = 23920,
 
     /* Paladin - Generic */
-    SPELL_AURA_MASTERY          = 31821,
+    SPELL_AURA_MASTERY_PALADIN  = 31821,
     SPELL_LAY_ON_HANDS          = 48788,
     SPELL_BLESSING_OF_MIGHT     = 48932,
     SPELL_AVENGING_WRATH        = 31884,
@@ -808,7 +808,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             }
             break;
         case CLASS_PALADIN:
-            VerifyAndPushSpellCast(spells, SPELL_AURA_MASTERY, TARGET_NONE, 3);
+            VerifyAndPushSpellCast(spells, SPELL_AURA_MASTERY_PALADIN, TARGET_NONE, 3);
             VerifyAndPushSpellCast(spells, SPELL_LAY_ON_HANDS, TARGET_CHARMER, 8);
             VerifyAndPushSpellCast(spells, SPELL_BLESSING_OF_MIGHT, TARGET_CHARMER, 8);
             VerifyAndPushSpellCast(spells, SPELL_AVENGING_WRATH, TARGET_NONE, 5);
