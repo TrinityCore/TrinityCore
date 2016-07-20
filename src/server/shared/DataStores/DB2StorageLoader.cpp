@@ -168,7 +168,7 @@ bool DB2FileLoader::Load(char const* filename, DB2Meta const* meta)
     EndianConvert(metaFlags);
 
     ASSERT((metaFlags & 0x1) == 0, "%s is a sparse storage, use DB2SparseStorage!", filename);
-    ASSERT((meta->IndexField == -1) || (meta->IndexField == (metaFlags >> 16)));
+    ASSERT((meta->IndexField == -1) || (meta->IndexField == int32(metaFlags >> 16)));
 
     fields = new FieldEntry[fieldCount];
     if (fread(fields, fieldCount * sizeof(FieldEntry), 1, f) != 1)

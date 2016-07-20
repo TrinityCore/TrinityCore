@@ -45,6 +45,11 @@ ReputationRank ReputationMgr::ReputationToRank(int32 standing)
     return MIN_REPUTATION_RANK;
 }
 
+FactionState const* ReputationMgr::GetState(FactionEntry const* factionEntry) const
+{
+    return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : NULL;
+}
+
 bool ReputationMgr::IsAtWar(uint32 faction_id) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
@@ -125,6 +130,11 @@ ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) cons
 {
     int32 reputation = GetBaseReputation(factionEntry);
     return ReputationToRank(reputation);
+}
+
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
+{
+    return GetForcedRankIfAny(factionTemplateEntry->Faction);
 }
 
 void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply)

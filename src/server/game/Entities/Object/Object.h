@@ -98,6 +98,7 @@ namespace UpdateMask
 
     enum DynamicFieldChangeType : uint16
     {
+        UNCHANGED               = 0,
         VALUE_CHANGED           = 0x7FFF,
         VALUE_AND_SIZE_CHANGED  = 0x8000
     };
