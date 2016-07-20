@@ -148,10 +148,11 @@ class spell_warl_banish : public SpellScriptLoader
             }
 
         private:
-            void HandleBanish()
+            void HandleBanish(SpellMissInfo missInfo)
             {
-                /// Casting Banish on a banished target will cancel the effect
-                /// Check if the target already has Banish, if so, do nothing.
+                if (missInfo != SPELL_MISS_IMMUNE)
+                    return;
+
                 if (Unit* target = GetHitUnit())
                 {
                     if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, flag128(0, 0x08000000, 0)))
@@ -173,7 +174,7 @@ class spell_warl_banish : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::HandleBanish);
+                BeforeHit += BeforeSpellHitFn(spell_warl_banish_SpellScript::HandleBanish);
                 AfterHit += SpellHitFn(spell_warl_banish_SpellScript::RemoveAura);
             }
 
