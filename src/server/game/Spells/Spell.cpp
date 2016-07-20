@@ -2993,14 +2993,19 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         }
 
     // don't allow channeled spells / spells with cast time to be cast while moving
+    // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
     if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving() &&
         m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
-        SendCastResult(SPELL_FAILED_MOVING);
-        finish(false);
-        return;
+        // 1. Is a channel spell, 2. Has no casttime, 3. And has flag to allow movement during channel
+        if (!(m_spellInfo->IsChanneled() && !m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)))
+        {
+            SendCastResult(SPELL_FAILED_MOVING);
+            finish(false);
+            return;
+        }
     }
 
     // set timer base at cast time
@@ -3541,12 +3546,12 @@ void Spell::update(uint32 difftime)
     // check if the player caster has moved before the spell finished
     // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
-        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
-        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
+        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT &&
+        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR))) &&
         !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
         // don't cancel for melee, autorepeat, triggered and instant spells
-        if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered())
+        if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered() && !(IsChannelActive() && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)))
             cancel();
     }
 
