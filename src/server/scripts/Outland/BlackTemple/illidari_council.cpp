@@ -231,6 +231,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
         }
 
         void Initialize()
@@ -257,7 +258,7 @@ public:
         {
             Initialize();
 
-            Creature* pMember = NULL;
+            Creature* pMember = nullptr;
             for (uint8 i = 0; i < 4; ++i)
             {
                 pMember = ObjectAccessor::GetCreature((*me), Council[i]);
@@ -330,16 +331,16 @@ public:
                     if (DeathCount > 3)
                     {
                         if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
-                            VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                            VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                         instance->SetBossState(DATA_ILLIDARI_COUNCIL, DONE);
                         //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                         return;
                     }
 
                     Creature* pMember = (ObjectAccessor::GetCreature(*me, Council[DeathCount]));
                     if (pMember && pMember->IsAlive())
-                        pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        pMember->DealDamage(pMember, pMember->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     ++DeathCount;
                     EndEventTimer = 1500;
                 } else EndEventTimer -= diff;
@@ -922,7 +923,7 @@ public:
             if (dmgInfo.GetAttacker() == target)
                 return;
             int32 bp = absorbAmount / 2;
-            target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, NULL, NULL, true, NULL, aurEff);
+            target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, nullptr, nullptr, true, nullptr, aurEff);
         }
 
         void Register() override
