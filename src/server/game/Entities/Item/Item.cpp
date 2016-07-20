@@ -493,6 +493,10 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt64(0, GetGUID().GetCounter());
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_TRANSMOG);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
@@ -605,8 +609,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[11].GetUInt32());
     SetText(fields[12].GetString());
 
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[19].GetUInt32());
-    uint32 upgradeId = fields[14].GetUInt32();
+    uint32 upgradeId = fields[13].GetUInt32();
     ItemUpgradeEntry const* rulesetUpgrade = sItemUpgradeStore.LookupEntry(sDB2Manager.GetRulesetItemUpgrade(entry));
     ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(upgradeId);
     if (!rulesetUpgrade || !upgrade || rulesetUpgrade->ItemUpgradePathID != upgrade->ItemUpgradePathID)

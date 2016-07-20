@@ -38,6 +38,7 @@ struct SpellRangeEntry;
 struct SpellRadiusEntry;
 struct SpellEntry;
 struct SpellCastTimesEntry;
+struct SpellEffectScalingEntry;
 struct Condition;
 
 enum SpellCastTargetFlags
