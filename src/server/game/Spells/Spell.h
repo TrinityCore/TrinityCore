@@ -218,6 +218,8 @@ enum SpellEffectHandleMode
 
 typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
 
+static const uint32 SPELL_INTERRUPT_NONPLAYER = 32747;
+
 class Spell
 {
     friend void Unit::SetCurrentCastSpell(Spell* pSpell);
