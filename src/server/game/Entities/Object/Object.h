@@ -96,10 +96,11 @@ namespace UpdateMask
 {
     typedef uint32 BlockType;
 
-    enum DynamicFieldChangeType : uint8
+    enum DynamicFieldChangeType : uint16
     {
-        VALUE_CHANGED           = 0x7F,
-        VALUE_AND_SIZE_CHANGED  = 0x80
+        UNCHANGED               = 0,
+        VALUE_CHANGED           = 0x7FFF,
+        VALUE_AND_SIZE_CHANGED  = 0x8000
     };
 
     inline std::size_t GetBlockCount(std::size_t bitCount)
@@ -121,6 +122,33 @@ namespace UpdateMask
         data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
     }
 }
+
+// Helper class used to iterate object dynamic fields while interpreting them as a structure instead of raw int array
+template<class T>
+class DynamicFieldStructuredView
+{
+public:
+    explicit DynamicFieldStructuredView(std::vector<uint32> const& data) : _data(data) { }
+
+    T const* begin() const
+    {
+        return reinterpret_cast<T const*>(_data.data());
+    }
+
+    T const* end() const
+    {
+        return reinterpret_cast<T const*>(_data.data() + _data.size());
+    }
+
+    std::size_t size() const
+    {
+        using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+        return _data.size() / BlockCount::value;
+    }
+
+private:
+    std::vector<uint32> const& _data;
+};
 
 class TC_GAME_API Object
 {
@@ -198,11 +226,45 @@ class TC_GAME_API Object
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
-        uint32 GetDynamicValue(uint16 index, uint8 offset) const;
+        uint32 GetDynamicValue(uint16 index, uint16 offset) const;
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
-        void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
+        void SetDynamicValue(uint16 index, uint16 offset, uint32 value);
+
+        template<class T>
+        DynamicFieldStructuredView<T> GetDynamicStructuredValues(uint16 index) const
+        {
+            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+            std::vector<uint32> const& values = _dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            return DynamicFieldStructuredView<T>(values);
+        }
+
+        template<class T>
+        T const* GetDynamicStructuredValue(uint16 index, uint16 offset) const
+        {
+            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+            std::vector<uint32> const& values = _dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            if (offset * BlockCount::value >= values.size())
+                return nullptr;
+            return reinterpret_cast<T const*>(&values[offset * BlockCount::value]);
+        }
+
+        template<class T>
+        void SetDynamicStructuredValue(uint16 index, uint16 offset, T const* value)
+        {
+            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
 
         void ClearUpdateMask(bool remove);
 

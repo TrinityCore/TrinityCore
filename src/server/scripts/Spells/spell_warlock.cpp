@@ -145,8 +145,11 @@ class spell_warl_banish : public SpellScriptLoader
             spell_warl_banish_SpellScript() {}
 
         private:
-            void HandleBanish()
+            void HandleBanish(SpellMissInfo missInfo)
             {
+                if (missInfo != SPELL_MISS_IMMUNE)
+                    return;
+
                 if (Unit* target = GetHitUnit())
                 {
                     // Casting Banish on a banished target will remove applied aura
@@ -157,7 +160,7 @@ class spell_warl_banish : public SpellScriptLoader
 
             void Register() override
             {
-                BeforeHit += SpellHitFn(spell_warl_banish_SpellScript::HandleBanish);
+                BeforeHit += BeforeSpellHitFn(spell_warl_banish_SpellScript::HandleBanish);
             }
         };
 
@@ -774,7 +777,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 if (Player* modOwner = caster->GetSpellModOwner())
                     modOwner->ApplySpellMod(GetId(), SPELLMOD_COST, damage);
 
-                SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask, GetAura()->GetCastGUID());
                 damageInfo.periodicLog = true;
                 damageInfo.damage = damage;
                 caster->DealSpellDamage(&damageInfo, false);

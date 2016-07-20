@@ -98,12 +98,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool SuppressChatLog = false;
-            Optional<int32> TrackedQuantity;
+            int32 Type = 0;
             int32 Quantity = 0;
             uint32 Flags = 0;
-            int32 Type = 0;
             Optional<int32> WeeklyQuantity;
+            Optional<int32> TrackedQuantity;
+            Optional<int32> MaxQuantity;
+            bool SuppressChatLog = false;
         };
 
         class SetSelection final : public ClientPacket
@@ -126,6 +127,7 @@ namespace WorldPackets
                 Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
+                Optional<int32> MaxQuantity;
                 uint8 Flags = 0;                      // 0 = none,
             };
 
@@ -236,14 +238,12 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
-            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
-            Optional<uint32> InstanceGroupSize;
+            uint32 DifficultyID     = 0;
             uint8 IsTournamentRealm = 0;
+            bool XRealmPvpAlert     = false;
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
-            uint32 DifficultyID     = 0;
-            bool XRealmPvpAlert     = false;
+            Optional<uint32> InstanceGroupSize;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -758,6 +758,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
+            int32 LfgDungeonID;
         };
 
         class AccountHeirloomUpdate final : public ServerPacket

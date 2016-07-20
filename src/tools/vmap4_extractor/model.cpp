@@ -45,16 +45,24 @@ bool Model::open()
 
     _unload();
 
+    uint32 m2start = 0;
+    char const* ptr = f.getBuffer();
+    while (m2start + 4 < f.getSize() && *reinterpret_cast<uint32 const*>(ptr) != '02DM')
+    {
+        ++m2start;
+        ++ptr;
+    }
+
     memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
     if (header.nBoundingTriangles > 0)
     {
-        f.seek(0);
+        f.seek(m2start);
         f.seekRelative(header.ofsBoundingVertices);
         vertices = new Vec3D[header.nBoundingVertices];
         f.read(vertices,header.nBoundingVertices*12);
         for (uint32 i=0; i<header.nBoundingVertices; i++)
             vertices[i] = fixCoordSystem(vertices[i]);
-        f.seek(0);
+        f.seek(m2start);
         f.seekRelative(header.ofsBoundingTriangles);
         indices = new uint16[header.nBoundingTriangles];
         f.read(indices,header.nBoundingTriangles*2);

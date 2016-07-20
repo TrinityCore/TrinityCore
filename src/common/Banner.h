@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,26 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SERVERPKTHDR_H__
-#define __SERVERPKTHDR_H__
+#ifndef TrinityCore_Banner_h__
+#define TrinityCore_Banner_h__
 
-#pragma pack(push, 1)
+#include "Define.h"
 
-union ServerPktHeader
+namespace Trinity
 {
-    struct
+    namespace Banner
     {
-        uint16 Size;
-        uint16 Command;
-    } Setup;
+        TC_COMMON_API void Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)());
+    }
+}
 
-    struct
-    {
-        uint32 Size;
-        uint16 Command;
-    } Normal;
-};
-
-#pragma pack(pop)
-
-#endif
+#endif // TrinityCore_Banner_h__

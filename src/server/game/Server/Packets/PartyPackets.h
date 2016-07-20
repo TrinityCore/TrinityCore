@@ -61,13 +61,14 @@ namespace WorldPackets
             PartyInvite() : ServerPacket(SMSG_PARTY_INVITE, 55) { }
 
             WorldPacket const* Write() override;
+
             void Initialize(Player* const inviter, int32 proposedRoles, bool canAccept);
 
             bool MightCRZYou = false;
             bool MustBeBNetFriend = false;
             bool AllowMultipleRoles = false;
             bool Unk2 = false;
-            int16 Unk1 = 0;
+            uint16 Unk1 = 0;
 
             bool CanAccept = false;
 
@@ -134,28 +135,28 @@ namespace WorldPackets
             ObjectGuid TargetGUID;
         };
 
-        struct GroupPhase
+        struct PartyMemberPhase
         {
             uint16 Flags = 0u;
             uint16 Id = 0u;
         };
 
-        struct GroupPhases
+        struct PartyMemberPhaseStates
         {
-            int32 PhaseShiftFlags = 0;
+            uint32 PhaseShiftFlags = 0;
             ObjectGuid PersonalGUID;
-            std::vector<GroupPhase> List;
+            std::vector<PartyMemberPhase> List;
         };
 
-        struct GroupAura
+        struct PartyMemberAuraStates
         {
-            uint32 SpellId = 0u;
-            uint8 Scalings = 0;
-            uint32 EffectMask = 0u;
-            std::vector<float> EffectScales;
+            int32 SpellID = 0;
+            uint8 Flags = 0;
+            uint32 ActiveFlags = 0u;
+            std::vector<float> Points;
         };
 
-        struct GroupPetStats
+        struct PartyMemberPetStats
         {
             ObjectGuid GUID;
             std::string Name;
@@ -164,50 +165,50 @@ namespace WorldPackets
             int32 CurrentHealth = 0;
             int32 MaxHealth = 0;
 
-            std::vector<GroupAura> AuraList;
+            std::vector<PartyMemberAuraStates> Auras;
         };
 
-        struct GroupMemberStats
+        struct PartyMemberStats
         {
-            ObjectGuid GUID;
-            int16 Level = 0;
-            int16 Status = 0;
+            uint16 Level = 0;
+            uint16 Status = 0;
 
             int32 CurrentHealth = 0;
-            int32 MaxHealth;
+            int32 MaxHealth = 0;
 
             uint8 PowerType = 0u;
-            int16 CurrentPower = 0;
-            int16 MaxPower = 0;
+            uint16 CurrentPower = 0;
+            uint16 MaxPower = 0;
 
-            int16 ZoneID = 0;
+            uint16 ZoneID = 0;
             int16 PositionX = 0;
             int16 PositionY = 0;
             int16 PositionZ = 0;
 
             int32 VehicleSeat = 0;
 
-            GroupPhases Phases;
-            std::vector<GroupAura> AuraList;
-            Optional<GroupPetStats> PetStats;
+            PartyMemberPhaseStates Phases;
+            std::vector<PartyMemberAuraStates> Auras;
+            Optional<PartyMemberPetStats> PetStats;
 
-            int16 Unk322 = 0;
-            int16 Unk200000 = 0;
-            int16 Unk2000000 = 0;
-            int32 Unk4000000 = 0;
-            int8 Unk704[2];
+            uint16 PowerDisplayID = 0;
+            uint16 SpecID = 0;
+            uint16 WmoGroupID = 0;
+            uint32 WmoDoodadPlacementID = 0;
+            int8 PartyType[2];
         };
 
-        class PartyMemberStats final : public ServerPacket
+        class PartyMemberState final : public ServerPacket
         {
         public:
-            PartyMemberStats() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 80) { }
+            PartyMemberState() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 80) { }
 
             WorldPacket const* Write() override;
             void Initialize(Player const* player);
 
-            GroupMemberStats MemberStats;
             bool ForEnemy = false;
+            ObjectGuid MemberGuid;
+            PartyMemberStats MemberStats;
         };
 
         class SetPartyLeader final : public ClientPacket
@@ -481,7 +482,7 @@ namespace WorldPackets
             std::string Name;
         };
 
-        struct GroupPlayerInfos
+        struct PartyPlayerInfo
         {
             ObjectGuid GUID;
             std::string Name;
@@ -493,32 +494,28 @@ namespace WorldPackets
             uint8 RolesAssigned = 0u;
         };
 
-        struct GroupLfgInfos
+        struct PartyLFGInfo
         {
-            int32 Slot = 0u;
-            int8 BootCount = 0;
-
+            uint8 MyFlags = 0;
+            uint32 Slot = 0;
+            uint8 BootCount = 0;
+            uint32 MyRandomSlot = 0;
             bool Aborted = false;
-
-            int32 MyRandomSlot = 0;
-            uint8 MyFlags = 0u;
-            uint8 MyPartialClear = 0u;
-            float MyGearDiff = 0.f;
-
-            int8 MyStrangerCount = 0;
-            int8 MyKickVoteCount = 0;
-
+            uint8 MyPartialClear = 0;
+            float MyGearDiff = 0.0f;
+            uint8 MyStrangerCount = 0;
+            uint8 MyKickVoteCount = 0;
             bool MyFirstReward = false;
         };
 
-        struct GroupLootSettings
+        struct PartyLootSettings
         {
             uint8 Method = 0u;
             ObjectGuid LootMaster;
             uint8 Threshold = 0u;
         };
 
-        struct GroupDifficultySettings
+        struct PartyDifficultySettings
         {
             uint32 DungeonDifficultyID = 0u;
             uint32 RaidDifficultyID = 0u;
@@ -532,9 +529,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 PartyFlags = 0;
-            int8 PartyIndex = 0;
-            int8 PartyType = 0;
+            uint16 PartyFlags = 0;
+            uint8 PartyIndex = 0;
+            uint8 PartyType = 0;
 
             ObjectGuid PartyGUID;
             ObjectGuid LeaderGUID;
@@ -542,11 +539,11 @@ namespace WorldPackets
             int32 MyIndex = 0;
             int32 SequenceNum = 0;
 
-            std::vector<GroupPlayerInfos> PlayerList;
+            std::vector<PartyPlayerInfo> PlayerList;
 
-            Optional<GroupLfgInfos> LfgInfos;
-            Optional<GroupLootSettings> LootSettings;
-            Optional<GroupDifficultySettings> DifficultySettings;
+            Optional<PartyLFGInfo> LfgInfos;
+            Optional<PartyLootSettings> LootSettings;
+            Optional<PartyDifficultySettings> DifficultySettings;
         };
 
         class SetEveryoneIsAssistant final : public ClientPacket
@@ -619,21 +616,5 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPhase const& phase);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPhases const& phases);
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupAura const& aura);
-ByteBuffer& operator<<(ByteBuffer& data, std::vector<WorldPackets::Party::GroupAura> const& auraList);
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPetStats const& petStats);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupMemberStats const& memberStats);
-
-ByteBuffer& operator<<(ByteBuffer& data, std::vector<WorldPackets::Party::GroupPlayerInfos> const& playerList);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPlayerInfos const& playerInfos);
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupLfgInfos const& lfgInfos);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupLootSettings const& lootSettings);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupDifficultySettings const& difficultySettings);
 
 #endif // PartyPackets_h__

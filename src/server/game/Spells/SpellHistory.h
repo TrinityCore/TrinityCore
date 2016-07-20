@@ -132,13 +132,13 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
-    bool ConsumeCharge(SpellCategoryEntry const* chargeCategoryEntry);
-    void RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry);
-    void ResetCharges(SpellCategoryEntry const* chargeCategoryEntry);
+    bool ConsumeCharge(uint32 chargeCategoryId);
+    void RestoreCharge(uint32 chargeCategoryId);
+    void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
-    bool HasCharge(SpellCategoryEntry const* chargeCategoryEntry) const;
-    int32 GetMaxCharges(SpellCategoryEntry const* chargeCategoryEntry) const;
-    int32 GetChargeRecoveryTime(SpellCategoryEntry const* chargeCategoryEntry) const;
+    bool HasCharge(uint32 chargeCategoryId) const;
+    int32 GetMaxCharges(uint32 chargeCategoryId) const;
+    int32 GetChargeRecoveryTime(uint32 chargeCategoryId) const;
 
     // Global cooldown
     bool HasGlobalCooldown(SpellInfo const* spellInfo) const;

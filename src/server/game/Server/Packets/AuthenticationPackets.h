@@ -92,7 +92,6 @@ namespace WorldPackets
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
-            ByteBuffer AddonInfo;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
 
@@ -242,6 +241,14 @@ namespace WorldPackets
 
         private:
             void Read() override;
+        };
+
+        class EnableEncryption final : public ServerPacket
+        {
+        public:
+            EnableEncryption() : ServerPacket(SMSG_ENABLE_ENCRYPTION, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

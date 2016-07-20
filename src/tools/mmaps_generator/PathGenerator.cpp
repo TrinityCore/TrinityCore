@@ -19,6 +19,7 @@
 #include "PathCommon.h"
 #include "MapBuilder.h"
 #include "Timer.h"
+#include "Banner.h"
 
 using namespace MMAP;
 
@@ -242,6 +243,8 @@ int finish(const char* message, int returnValue)
 
 int main(int argc, char** argv)
 {
+    Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
+
     int threads = 3, mapnum = -1;
     float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
