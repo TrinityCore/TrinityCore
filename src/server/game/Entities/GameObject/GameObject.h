@@ -58,6 +58,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //4 can be used to replace castBarCaption?
             uint32 closeTextID;                             //5
             uint32 ignoredByPathing;                        //6
+            uint32 conditionID1;                            //7
         } door;
         //1 GAMEOBJECT_TYPE_BUTTON
         struct
@@ -71,6 +72,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //6 can be used to replace castBarCaption?
             uint32 closeTextID;                             //7
             uint32 losOK;                                   //8
+            uint32 conditionID1;                            //9
         } button;
         //2 GAMEOBJECT_TYPE_QUESTGIVER
         struct
@@ -85,6 +87,7 @@ struct GameObjectTemplate
             uint32 losOK;                                   //7
             uint32 allowMounted;                            //8 Is usable while on mount/vehicle. (0/1)
             uint32 large;                                   //9
+            uint32 conditionID1;                            //10
         } questgiver;
         //3 GAMEOBJECT_TYPE_CHEST
         struct
@@ -106,6 +109,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //14 can be used to replace castBarCaption?
             uint32 groupLootRules;                          //15
             uint32 floatingTooltip;                         //16
+            uint32 conditionID1;                            //17
         } chest;
         //4 GAMEOBJECT_TYPE_BINDER - empty
         //5 GAMEOBJECT_TYPE_GENERIC
@@ -118,6 +122,7 @@ struct GameObjectTemplate
             uint32 floatOnWater;                            //4
             int32 questID;                                  //5
         } _generic;
+            uint32 conditionID1;                            //6
         //6 GAMEOBJECT_TYPE_TRAP
         struct
         {
@@ -136,6 +141,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //12 can be used to replace castBarCaption?
             uint32 closeTextID;                             //13
             uint32 ignoreTotems;                            //14
+            uint32 conditionID1;                            //15
         } trap;
         //7 GAMEOBJECT_TYPE_CHAIR
         struct
@@ -144,6 +150,7 @@ struct GameObjectTemplate
             uint32 height;                                  //1
             uint32 onlyCreatorUse;                          //2
             uint32 triggeredEvent;                          //3
+            uint32 conditionID1;                            //4
         } chair;
         //8 GAMEOBJECT_TYPE_SPELL_FOCUS
         struct
@@ -155,6 +162,8 @@ struct GameObjectTemplate
             uint32 questID;                                 //4
             uint32 large;                                   //5
             uint32 floatingTooltip;                         //6
+            uint32 floatOnWater;                            //7
+            uint32 conditionID1;                            //8
         } spellFocus;
         //9 GAMEOBJECT_TYPE_TEXT
         struct
@@ -163,6 +172,7 @@ struct GameObjectTemplate
             uint32 language;                                //1
             uint32 pageMaterial;                            //2
             uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
+            uint32 conditionID1;                            //4
         } text;
         //10 GAMEOBJECT_TYPE_GOOBER
         struct
@@ -188,6 +198,8 @@ struct GameObjectTemplate
             uint32 floatingTooltip;                         //18
             uint32 gossipID;                                //19
             uint32 WorldStateSetsState;                     //20
+            uint32 floatOnWater;                            //21
+            uint32 conditionID1;                            //22
         } goober;
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
@@ -223,6 +235,7 @@ struct GameObjectTemplate
             uint32 cinematicId;                             //1
             uint32 eventID;                                 //2
             uint32 openTextID;                              //3 can be used to replace castBarCaption?
+            uint32 conditionID1;                            //4
         } camera;
         //14 GAMEOBJECT_TYPE_MAPOBJECT - empty
         //15 GAMEOBJECT_TYPE_MO_TRANSPORT
@@ -252,8 +265,12 @@ struct GameObjectTemplate
             uint32 castersGrouped;                          //6
             uint32 ritualNoTargetCheck;                     //7
         } summoningRitual;
-        //19 GAMEOBJECT_TYPE_MAILBOX - empty
-        //20 GAMEOBJECT_TYPE_DONOTUSE - empty
+        //19 GAMEOBJECT_TYPE_MAILBOX
+        struct
+        {
+            uint32 conditionID1;                            //0
+        } mailbox;
+        //20 GAMEOBJECT_TYPE_DO_NOT_USE - empty
         //21 GAMEOBJECT_TYPE_GUARDPOST
         struct
         {
@@ -268,6 +285,7 @@ struct GameObjectTemplate
             uint32 partyOnly;                               //2
             uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
             uint32 large;                                   //4
+            uint32 conditionID1;                            //5
         } spellcaster;
         //23 GAMEOBJECT_TYPE_MEETINGSTONE
         struct
@@ -365,21 +383,21 @@ struct GameObjectTemplate
         {
             uint32 intactNumHits;                           //0
             uint32 creditProxyCreature;                     //1
-            uint32 state1Name;                              //2
+            uint32 empty1;                                  //2
             uint32 intactEvent;                             //3
-            uint32 damagedDisplayId;                        //4
+            uint32 empty2;                                  //4
             uint32 damagedNumHits;                          //5
             uint32 empty3;                                  //6
             uint32 empty4;                                  //7
             uint32 empty5;                                  //8
             uint32 damagedEvent;                            //9
-            uint32 destroyedDisplayId;                      //10
+            uint32 empty6;                                  //10
             uint32 empty7;                                  //11
             uint32 empty8;                                  //12
             uint32 empty9;                                  //13
             uint32 destroyedEvent;                          //14
             uint32 empty10;                                 //15
-            uint32 debuildingTimeSecs;                      //16
+            uint32 rebuildingTimeSecs;                      //16
             uint32 empty11;                                 //17
             uint32 destructibleData;                        //18
             uint32 rebuildingEvent;                         //19
@@ -388,7 +406,11 @@ struct GameObjectTemplate
             uint32 damageEvent;                             //22
             uint32 empty14;                                 //23
         } building;
-        //34 GAMEOBJECT_TYPE_GUILDBANK - empty
+        //34 GAMEOBJECT_TYPE_GUILDBANK
+        struct
+        {
+            uint32 conditionID1;                            //0
+        } guildbank;
         //35 GAMEOBJECT_TYPE_TRAPDOOR
         struct
         {
