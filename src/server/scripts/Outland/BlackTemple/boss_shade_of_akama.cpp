@@ -78,11 +78,6 @@ enum Spells
 enum Creatures
 {
     NPC_ASHTONGUE_CHANNELER          = 23421,
-    NPC_ASHTONGUE_SORCERER           = 23215,
-    NPC_ASHTONGUE_DEFENDER           = 23216,
-    NPC_ASHTONGUE_ELEMENTALIST       = 23523,
-    NPC_ASHTONGUE_ROGUE              = 23318,
-    NPC_ASHTONGUE_SPIRITBINDER       = 23524,
     NPC_ASHTONGUE_BROKEN             = 23319,
     NPC_CREATURE_SPAWNER_AKAMA       = 23210
 };
@@ -219,6 +214,7 @@ public:
         void Initialize()
         {
             _spawners.clear();
+            _isInPhaseOne = true;
         }
 
         void Reset() override
@@ -258,10 +254,11 @@ public:
                 DoCastSelf(SPELL_AKAMA_SOUL_EXPEL_CHANNEL);
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MovementInform(uint32 motionType, uint32 /*pointId*/) override
         {
-            if (who->GetGUID() == instance->GetGuidData(DATA_AKAMA_SHADE) && me->IsWithinMeleeRange(who))
+            if (_isInPhaseOne && motionType == CHASE_MOTION_TYPE)
             {
+                _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
@@ -333,11 +330,11 @@ public:
                     }
                     case EVENT_ADD_THREAT:
                         DoCast(SPELL_THREAT);
-                        events.ScheduleEvent(EVENT_ADD_THREAT, Seconds(3) + Milliseconds(500));
+                        events.Repeat(Seconds(3) + Milliseconds(500));
                         break;
                     case EVENT_EVADE_CHECK:
                         EnterEvadeModeIfNeeded();
-                        events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
+                        events.Repeat(Seconds(10));
                         break;
                     default:
                         break;
@@ -349,6 +346,7 @@ public:
 
         private:
             GuidVector _spawners;
+            bool _isInPhaseOne;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -491,11 +489,11 @@ public:
                         break;
                     case EVENT_CHAIN_LIGHTNING:
                         DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
                         break;
                     case EVENT_DESTRUCTIVE_POISON:
                         DoCastSelf(SPELL_DESTRUCTIVE_POISON);
-                        _events.ScheduleEvent(EVENT_DESTRUCTIVE_POISON, randtime(Seconds(3), Seconds(7)));
+                        _events.Repeat(randtime(Seconds(3), Seconds(7)));
                         break;
                     case EVENT_START_SOUL_EXPEL:
                         DoCast(SPELL_AKAMA_SOUL_EXPEL);
@@ -525,8 +523,8 @@ public:
                     case EVENT_BROKEN_FREE_4:
                         _summons.DoAction(ACTION_BROKEN_HAIL, _pred);
                         break;
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
@@ -689,15 +687,15 @@ public:
                 {
                     case EVENT_SPAWN_WAVE_B:
                         DoCastSelf(SPELL_ASHTONGUE_WAVE_B);
-                        _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, randtime(Seconds(50), Seconds(60)));
+                        _events.Repeat(randtime(Seconds(50), Seconds(60)));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_SORCERER: // left
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_SORCERER);
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, randtime(Seconds(30), Seconds(35)));
+                        _events.Repeat(randtime(Seconds(30), Seconds(35)));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_DEFENDER: // right
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_DEFENDER);
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, randtime(Seconds(30), Seconds(40)));
+                        _events.Repeat(randtime(Seconds(30), Seconds(40)));
                         break;
                     default:
                         break;
@@ -870,19 +868,19 @@ public:
                 {
                     case EVENT_DEBILITATING_STRIKE:
                         DoCastVictim(SPELL_DEBILITATING_STRIKE);
-                        _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, randtime(Seconds(20), Seconds(25)));
+                        _events.Repeat(randtime(Seconds(20), Seconds(25)));
                         break;
                     case EVENT_HEROIC_STRIKE:
                         DoCastSelf(SPELL_HEROIC_STRIKE);
-                        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, randtime(Seconds(5), Seconds(15)));
+                        _events.Repeat(randtime(Seconds(5), Seconds(15)));
                         break;
                     case EVENT_SHIELD_BASH:
                         DoCastVictim(SPELL_SHIELD_BASH);
-                        _events.ScheduleEvent(EVENT_SHIELD_BASH, randtime(Seconds(10), Seconds(20)));
+                        _events.Repeat(randtime(Seconds(10), Seconds(20)));
                         break;
                     case EVENT_WINDFURY:
                         DoCastVictim(SPELL_WINDFURY);
-                        _events.ScheduleEvent(EVENT_WINDFURY, randtime(Seconds(6), Seconds(8)));
+                        _events.Repeat(randtime(Seconds(6), Seconds(8)));
                         break;
                     default:
                         break;
@@ -947,11 +945,11 @@ public:
                 {
                     case EVENT_DEBILITATING_POISON:
                         DoCastVictim(SPELL_DEBILITATING_POISON);
-                        _events.ScheduleEvent(EVENT_DEBILITATING_POISON, randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
                         break;
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
-                        _events.ScheduleEvent(EVENT_EVISCERATE, randtime(Seconds(12), Seconds(20)));
+                        _events.Repeat(randtime(Seconds(12), Seconds(20)));
                         break;
                     default:
                         break;
@@ -1016,11 +1014,11 @@ public:
                 {
                     case EVENT_RAIN_OF_FIRE:
                         DoCastVictim(SPELL_RAIN_OF_FIRE);
-                        _events.ScheduleEvent(EVENT_RAIN_OF_FIRE, randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
                         break;
                     case EVENT_LIGHTNING_BOLT:
                         DoCastVictim(SPELL_LIGHTNING_BOLT);
-                        _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
                         break;
                     default:
                         break;
@@ -1110,7 +1108,7 @@ public:
                 {
                     case EVENT_SPIRIT_HEAL:
                         DoCastSelf(SPELL_SPIRITBINDER_SPIRIT_HEAL);
-                        _events.ScheduleEvent(EVENT_SPIRIT_HEAL, randtime(Seconds(13), Seconds(16)));
+                        _events.Repeat(randtime(Seconds(13), Seconds(16)));
                         break;
                     case EVENT_SPIRIT_MEND_RESET:
                         _spiritMend = false;
