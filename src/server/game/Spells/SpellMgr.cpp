@@ -3359,6 +3359,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 8983:  // Druid - Bash  - R3
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
                 break;
+            case 42490: // Energized!
+            case 42492: // Cast Energized
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
             case 85123: // Siege Cannon (Tol Barad)
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
