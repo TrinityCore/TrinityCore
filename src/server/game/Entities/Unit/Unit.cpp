@@ -12815,7 +12815,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
 
-        Milliseconds cooldown = Milliseconds::zero();
+        //Milliseconds cooldown = Milliseconds::zero(); // temp revert. dig for the 3.3.5a commit changing this.
+        uint32 cooldown = 0;
         if (prepare && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = i->spellProcEvent->cooldown;
 
