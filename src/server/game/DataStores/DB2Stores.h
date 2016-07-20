@@ -22,7 +22,6 @@
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 #include <boost/regex.hpp>
-#include <array>
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -190,9 +189,6 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
-
-#define TaxiMaskSize 236
-typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sOldContinentsNodesMask;

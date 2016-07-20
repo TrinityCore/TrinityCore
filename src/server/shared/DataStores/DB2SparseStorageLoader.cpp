@@ -206,7 +206,6 @@ static char const* const nullStr = "";
 
 char* DB2SparseFileLoader::AutoProduceData(IndexTable const& indexTable, uint32 locale, std::vector<char*>& stringPool)
 {
-    typedef char* ptr;
     if (meta->FieldCount != fieldCount)
         return NULL;
 

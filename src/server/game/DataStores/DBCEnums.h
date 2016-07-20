@@ -20,6 +20,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
+#include <array>
 
 #pragma pack(push, 1)
 
@@ -709,6 +710,9 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
+
+#define TaxiMaskSize 236
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {

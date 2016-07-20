@@ -19,6 +19,7 @@
 #define _SPELLINFO_H
 
 #include "SharedDefines.h"
+#include "DB2Structure.h"
 #include "Util.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
@@ -31,14 +32,8 @@ class SpellInfo;
 class WorldObject;
 class AuraEffect;
 struct SpellChainNode;
-struct SpellTargetPosition;
-struct SpellDurationEntry;
 struct SpellModifier;
-struct SpellRangeEntry;
-struct SpellRadiusEntry;
-struct SpellEntry;
-struct SpellCastTimesEntry;
-struct SpellEffectScalingEntry;
+struct SpellTargetPosition;
 struct Condition;
 
 enum SpellCastTargetFlags
@@ -384,14 +379,13 @@ public:
     SpellRangeEntry const* RangeEntry;
     float  Speed;
     uint32 StackAmount;
-    uint32 Totem[2];
+    uint32 Totem[MAX_SPELL_TOTEMS];
     int32  Reagent[MAX_SPELL_REAGENTS];
     uint32 ReagentCount[MAX_SPELL_REAGENTS];
     int32  EquippedItemClass;
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
-    uint32 TotemCategory[2];
-    uint32 SpellVisual[2];
+    uint32 TotemCategory[MAX_SPELL_TOTEMS];
     uint32 SpellIconID;
     uint32 ActiveIconID;
     LocalizedString const* SpellName;
