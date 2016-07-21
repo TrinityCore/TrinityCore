@@ -10,7 +10,6 @@
 #include "GuildTaskMgr.h"
 #include "../../game/Battlegrounds/Battleground.h"
 
-
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
     sPlayerbotCommandServer.Start();
@@ -143,11 +142,11 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 	if (player->InBattleground() && player->isDead())
 	{
 		Battleground *bg = player->GetBattleground();
-		const WorldSafeLocsEntry *pos = bg->GetClosestGraveYard(player);
-		if (!player->IsWithinDist3d(pos->x, pos->y, pos->z, 3.0))
+		const WorldSafeLocsEntry *pos= bg->GetClosestGraveYard(player);
+		if (!player->IsWithinDist3d(pos->x,pos->y,pos->z,3.0))
 		{
 			// Special handle for battleground maps
-				sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
+			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
 			SetEventValue(bot, "dead", 1, 5);
 			//this is spirit release confirm?
 			player->RemoveGhoul();
@@ -161,7 +160,7 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 		}
 		return false;
 	}
-	
+
 	if (player->InBattleground())
 	{
 		return false;
