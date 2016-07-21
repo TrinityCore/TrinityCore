@@ -39,7 +39,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
         return;
 
-    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+    if (i_target.getTarget()->GetTypeId() == TYPEID_UNIT && !((Unit *)i_target.getTarget())->isInAccessiblePlaceFor(owner->ToCreature()))
     {
         owner->ToCreature()->SetCannotReachTarget(true);
         return;
@@ -104,9 +104,13 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     // allow pets to use shortcut if no path found when following their master
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet()
         && owner->HasUnitState(UNIT_STATE_FOLLOW));
-
+	bool warsongFlag = false;
+	if (i_target->GetName() == "Warsong Flag")
+	{
+		warsongFlag = true;
+	}
     bool result = i_path->CalculatePath(x, y, z, forceDest);
-    if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
+    if (!result || (!warsongFlag && (i_path->GetPathType() & PATHFIND_NOPATH)))
     {
         // can't reach target
         i_recalculateTravel = true;
@@ -216,10 +220,13 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
 template<class T>
 void ChaseMovementGenerator<T>::_reachTarget(T* owner)
 {
-    if (owner->IsWithinMeleeRange(this->i_target.getTarget()))
-        owner->Attack(this->i_target.getTarget(), true);
-    if (owner->GetTypeId() == TYPEID_UNIT)
-        owner->ToCreature()->SetCannotReachTarget(false);
+	if (this->GetTarget()!=NULL && this->GetTarget()->GetTypeId() == TYPEID_UNIT)
+	{
+		if (((Unit *)owner)->IsWithinMeleeRange((Unit *)this->i_target.getTarget()))
+			((Unit *)owner)->Attack((Unit *)this->i_target.getTarget(), true);
+	}
+	if (((Unit *)owner)->GetTypeId() == TYPEID_UNIT)
+		((Unit *)owner)->ToCreature()->SetCannotReachTarget(false);
 }
 
 template<>
@@ -264,7 +271,7 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* unit)
 template<>
 bool FollowMovementGenerator<Creature>::EnableWalking() const
 {
-    return i_target.isValid() && i_target->IsWalking();
+    return i_target.isValid() && i_target->GetTypeId()==TypeID::TYPEID_PLAYER && ((Unit *)i_target.getTarget())->IsWalking();
 }
 
 template<>
