@@ -86,13 +86,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 {
     int tab = GetPlayerSpecTab(player);
 
-	if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
-	{
-		engine->addStrategies("grind","warsong", "attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
-	}
-	else {
-		engine->addStrategies("attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
-	}
+    engine->addStrategies("attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
 
     switch (player->getClass())
     {
@@ -154,8 +148,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             engine->addStrategies("dps", "bdps", "threat", NULL);
             if (player->getLevel() > 19)
                 engine->addStrategy("dps debuff");
-			engine->addStrategy("flee");
-			break;
+            break;
         case CLASS_ROGUE:
             engine->addStrategies("dps", "threat", NULL);
             break;
@@ -202,22 +195,10 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             else
                 nonCombatEngine->addStrategy("bmana");
             break;
-		case CLASS_ROGUE:
-			nonCombatEngine->addStrategy("stealth");
-			break;
-		case CLASS_DRUID:
-			if (tab == 2)
-				nonCombatEngine->addStrategy("stealth");
     }
-	if (player->InBattleground())
-	{
-		nonCombatEngine->addStrategies("grind","warsong", "nc", "attack weak", "food", "chat",
-			"default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", NULL);
-	}
-	else {
-		nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
-			"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", "bg", NULL);
-	}
+	nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
+		"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", NULL);
+
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
     {
         nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);

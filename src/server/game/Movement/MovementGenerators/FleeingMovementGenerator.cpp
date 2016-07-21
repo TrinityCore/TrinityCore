@@ -183,28 +183,28 @@ template void FleeingMovementGenerator<Creature>::DoReset(Creature*);
 template bool FleeingMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
-void TimedFleeingMovementGenerator::Finalize(WorldObject* owner)
+void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 {
-	((Unit *)owner)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-	((Unit *)owner)->ClearUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
-	if (Unit* victim = ((Unit *)owner)->GetVictim())
+    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
+    if (Unit* victim = owner->GetVictim())
     {
-		if (((Unit *)owner)->IsAlive())
+        if (owner->IsAlive())
         {
-			((Unit *)owner)->AttackStop();
-			((Unit *)owner)->ToCreature()->AI()->AttackStart(victim);
+            owner->AttackStop();
+            owner->ToCreature()->AI()->AttackStart(victim);
         }
     }
 }
 
-bool TimedFleeingMovementGenerator::Update(WorldObject* owner, uint32 time_diff)
+bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 time_diff)
 {
-	if (!((Unit *)owner)->IsAlive())
+    if (!owner->IsAlive())
         return false;
 
-	if (((Unit *)owner)->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
-		((Unit *)owner)->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
+        owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
         return true;
     }
 

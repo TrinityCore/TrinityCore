@@ -25,10 +25,10 @@ class IdleMovementGenerator : public MovementGenerator
 {
     public:
 
-		void Initialize(WorldObject*) override;
-		void Finalize(WorldObject*) override {  }
-		void Reset(WorldObject*) override;
-		bool Update(WorldObject*, uint32) override { return true; }
+        void Initialize(Unit*) override;
+        void Finalize(Unit*) override {  }
+        void Reset(Unit*) override;
+        bool Update(Unit*, uint32) override { return true; }
         MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
 };
 
@@ -39,10 +39,10 @@ class RotateMovementGenerator : public MovementGenerator
     public:
         explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) { }
 
-		void Initialize(WorldObject*) override;
-		void Finalize(WorldObject*) override;
-		void Reset(WorldObject* owner) override { Initialize(owner); }
-		bool Update(WorldObject*, uint32) override;
+        void Initialize(Unit*) override;
+        void Finalize(Unit*) override;
+        void Reset(Unit* owner) override { Initialize(owner); }
+        bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return ROTATE_MOTION_TYPE; }
 
     private:
@@ -55,10 +55,10 @@ class DistractMovementGenerator : public MovementGenerator
     public:
         explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) { }
 
-		void Initialize(WorldObject*) override;
-		void Finalize(WorldObject*) override;
-		void Reset(WorldObject* owner) override { Initialize(owner); }
-		bool Update(WorldObject*, uint32) override;
+        void Initialize(Unit*) override;
+        void Finalize(Unit*) override;
+        void Reset(Unit* owner) override { Initialize(owner); }
+        bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
 
     private:
@@ -72,7 +72,7 @@ class AssistanceDistractMovementGenerator : public DistractMovementGenerator
             DistractMovementGenerator(timer) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
-		void Finalize(WorldObject*) override;
+        void Finalize(Unit*) override;
 };
 
 #endif
