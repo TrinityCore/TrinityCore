@@ -138,24 +138,22 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 
 	if (player->InBattleground() && player->isDead())
 	{
-		if (!GetEventValue(bot, "dead"))
+		if (!GetEventValue(bot, "revive"))
 		{
 			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
-			SetEventValue(bot, "dead", 1, 20);
-			SetEventValue(bot, "revive", 1, 10);
+			SetEventValue(bot, "revive", 1, 15);
 			//this is spirit release confirm?
 			player->RemoveGhoul();
 			player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 			player->BuildPlayerRepop();
 			player->RepopAtGraveyard();
-			return false;
 		}
-		if (!GetEventValue(bot, "revive"))
-		{
+		else {
+			if (player->getDeathState() == JUST_DIED)
+			{
+				player->KillPlayer();
+			}
 			player->ResurrectPlayer(100, false);
-			SetEventValue(bot, "dead", 0, 0);
-			SetEventValue(bot, "revive", 0, 0);
-			return false;
 		}
 		return false;
 	}
