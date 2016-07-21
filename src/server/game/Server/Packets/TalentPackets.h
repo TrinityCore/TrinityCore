@@ -19,6 +19,7 @@
 #define TalentPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "Player.h"
 
 namespace WorldPackets
@@ -27,14 +28,15 @@ namespace WorldPackets
     {
         struct TalentGroupInfo
         {
-            uint32 SpecID;
+            uint32 SpecID = 0;
             std::vector<uint16> TalentIDs;
-            uint16 GlyphIDs[MAX_GLYPH_SLOT_INDEX];
+            std::vector<uint16> PvPTalentIDs;
         };
 
         struct TalentInfoUpdate
         {
-            uint8 ActiveGroup;
+            uint8 ActiveGroup = 0;
+            uint32 PrimarySpecialization = 0;
             std::vector<TalentGroupInfo> TalentGroups;
         };
 
@@ -48,26 +50,13 @@ namespace WorldPackets
             TalentInfoUpdate Info;
         };
 
-        class SetSpecialization final : public ClientPacket
-        {
-        public:
-            SetSpecialization(WorldPacket&& packet) : ClientPacket(CMSG_SET_SPECIALIZATION, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 SpecGroupIndex = 0;
-        };
-
         class LearnTalents final : public ClientPacket
         {
         public:
-            LearnTalents(WorldPacket&& packet) : ClientPacket(std::move(packet))
-            {
-                ASSERT(packet.GetOpcode() == CMSG_LEARN_TALENTS);
-            }
+            LearnTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENTS, std::move(packet)) { }
 
             void Read() override;
-            std::vector<uint16> Talents;
+            Array<uint16, MAX_TALENT_TIERS> Talents;
         };
 
         class RespecWipeConfirm final : public ServerPacket
@@ -93,6 +82,17 @@ namespace WorldPackets
             uint8 RespecType = 0;
         };
 
+        class LearnTalentsFailed final : public ServerPacket
+        {
+        public:
+            LearnTalentsFailed() : ServerPacket(SMSG_LEARN_TALENTS_FAILED, 1 + 4 + 4 + 2 * MAX_TALENT_TIERS) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            int32 SpellID = 0;
+            std::vector<uint16> Talents;
+        };
     }
 }
 

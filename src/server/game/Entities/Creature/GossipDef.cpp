@@ -365,8 +365,9 @@ void PlayerMenu::SendQuestGiverQuestList(ObjectGuid guid)
                 AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             bool repeatable = false; // NYI
+            bool ignored = false; // NYI
 
-            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title));
+            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, ignored, title));
         }
     }
 
@@ -510,17 +511,22 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
     packet.Info.RewardMoneyMultiplier = quest->GetMoneyMultiplier();
     packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
-    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();
+    for (uint8 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
+        packet.Info.RewardDisplaySpell[i] = quest->RewardDisplaySpell[i];
+
     packet.Info.RewardSpell = quest->GetRewSpell();
 
     packet.Info.RewardHonor = quest->GetRewHonor();
     packet.Info.RewardKillHonor = quest->GetRewKillHonor();
 
+    packet.Info.RewardArtifactXPDifficulty = quest->GetArtifactXPDifficulty();
+    packet.Info.RewardArtifactXPMultiplier = quest->GetArtifactXPMultiplier();
+    packet.Info.RewardArtifactCategoryID = quest->GetArtifactCategoryId();
+
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
     packet.Info.FlagsEx = quest->GetFlagsEx();
     packet.Info.RewardTitle = quest->GetRewTitle();
-    packet.Info.RewardTalents = quest->GetBonusTalents();
     packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
     packet.Info.RewardSkillLineID = quest->GetRewardSkillId();
     packet.Info.RewardNumSkillUps = quest->GetRewardSkillPoints();
@@ -553,6 +559,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         packet.Info.RewardFactionID[i] = quest->RewardFactionId[i];
         packet.Info.RewardFactionValue[i] = quest->RewardFactionValue[i];
         packet.Info.RewardFactionOverride[i] = quest->RewardFactionOverride[i];
+        packet.Info.RewardFactionCapIn[i] = quest->RewardFactionCapIn[i];
     }
 
     packet.Info.POIContinent = quest->GetPOIContinent();
@@ -569,6 +576,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.AreaDescription = areaDescription;
     packet.Info.QuestCompletionLog = questCompletionLog;
     packet.Info.AllowableRaces = quest->GetAllowableRaces();
+    packet.Info.QuestRewardID = quest->GetRewardId();
 
     for (QuestObjective const& questObjective : quest->GetObjectives())
     {
@@ -720,7 +728,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         switch (obj.Type)
         {
             case QUEST_OBJECTIVE_ITEM:
-                packet.Collect.push_back(WorldPackets::Quest::QuestObjectiveCollect(obj.ObjectID, obj.Amount));
+                packet.Collect.push_back(WorldPackets::Quest::QuestObjectiveCollect(obj.ObjectID, obj.Amount, obj.Flags));
                 break;
             case QUEST_OBJECTIVE_CURRENCY:
                 packet.Currency.push_back(WorldPackets::Quest::QuestCurrency(obj.ObjectID, obj.Amount));

@@ -32,8 +32,9 @@ namespace WorldPackets
         struct MailAttachedItemEnchant
         {
             int32 Enchant = 0;
-            int32 Duration = 0;
+            uint32 Duration = 0;
             int32 Charges = 0;
+            uint8 Slot = 0;
         };
 
         struct MailAttachedItem
@@ -45,10 +46,11 @@ namespace WorldPackets
             Item::ItemInstance Item;
             int32 Count = 0;
             int32 Charges = 0;
-            int32 MaxDurability = 0;
+            uint32 MaxDurability = 0;
             int32 Durability = 0;
             bool Unlocked = false;
-            MailAttachedItemEnchant Enchants[8];
+            std::vector<MailAttachedItemEnchant> Enchants;
+            std::vector<Item::ItemGemInstanceData> Gems;
         };
 
         struct MailListEntry

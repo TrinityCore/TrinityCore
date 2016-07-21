@@ -20,6 +20,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
+#include <array>
 
 #pragma pack(push, 1)
 
@@ -57,7 +58,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 10,
+    BG_BRACKET_ID_LAST           = 11,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -428,29 +429,59 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERATOR_ANY                      = 8
 };
 
+enum CharSectionFlags
+{
+    SECTION_FLAG_PLAYER = 0x01,
+    SECTION_FLAG_DEATH_KNIGHT = 0x04,
+    SECTION_FLAG_DEMON_HUNTER = 0x20
+};
+
+enum CharSectionType
+{
+    SECTION_TYPE_SKIN_LOW_RES = 0,
+    SECTION_TYPE_FACE_LOW_RES = 1,
+    SECTION_TYPE_FACIAL_HAIR_LOW_RES = 2,
+    SECTION_TYPE_HAIR_LOW_RES = 3,
+    SECTION_TYPE_UNDERWEAR_LOW_RES = 4,
+    SECTION_TYPE_SKIN = 5,
+    SECTION_TYPE_FACE = 6,
+    SECTION_TYPE_FACIAL_HAIR = 7,
+    SECTION_TYPE_HAIR = 8,
+    SECTION_TYPE_UNDERWEAR = 9,
+    SECTION_TYPE_CUSTOM_DISPLAY_1_LOW_RES = 10,
+    SECTION_TYPE_CUSTOM_DISPLAY_1 = 11,
+    SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES = 12,
+    SECTION_TYPE_CUSTOM_DISPLAY_2 = 13,
+    SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES = 14,
+    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
+};
+
 enum Difficulty : uint8
 {
-    DIFFICULTY_NONE           = 0,
-    DIFFICULTY_NORMAL         = 1,
-    DIFFICULTY_HEROIC         = 2,
-    DIFFICULTY_10_N           = 3,
-    DIFFICULTY_25_N           = 4,
-    DIFFICULTY_10_HC          = 5,
-    DIFFICULTY_25_HC          = 6,
-    DIFFICULTY_LFR            = 7,
-    DIFFICULTY_CHALLENGE      = 8,
-    DIFFICULTY_40             = 9,
-    DIFFICULTY_HC_SCENARIO    = 11,
-    DIFFICULTY_N_SCENARIO     = 12,
-    DIFFICULTY_NORMAL_RAID    = 14,
-    DIFFICULTY_HEROIC_RAID    = 15,
-    DIFFICULTY_MYTHIC_RAID    = 16,
-    DIFFICULTY_LFR_NEW        = 17,
-    DIFFICULTY_EVENT_RAID     = 18,
-    DIFFICULTY_EVENT_DUNGEON  = 19,
-    DIFFICULTY_EVENT_SCENARIO = 20,
-    DIFFICULTY_MYTHIC         = 23,
-    DIFFICULTY_TIMEWALKER     = 24,
+    DIFFICULTY_NONE                 = 0,
+    DIFFICULTY_NORMAL               = 1,
+    DIFFICULTY_HEROIC               = 2,
+    DIFFICULTY_10_N                 = 3,
+    DIFFICULTY_25_N                 = 4,
+    DIFFICULTY_10_HC                = 5,
+    DIFFICULTY_25_HC                = 6,
+    DIFFICULTY_LFR                  = 7,
+    DIFFICULTY_CHALLENGE            = 8,
+    DIFFICULTY_40                   = 9,
+    DIFFICULTY_3_MAN_SCENARIO_HC    = 11,
+    DIFFICULTY_3_MAN_SCENARIO_N     = 12,
+    DIFFICULTY_NORMAL_RAID          = 14,
+    DIFFICULTY_HEROIC_RAID          = 15,
+    DIFFICULTY_MYTHIC_RAID          = 16,
+    DIFFICULTY_LFR_NEW              = 17,
+    DIFFICULTY_EVENT_RAID           = 18,
+    DIFFICULTY_EVENT_DUNGEON        = 19,
+    DIFFICULTY_EVENT_SCENARIO       = 20,
+    DIFFICULTY_MYTHIC               = 23,
+    DIFFICULTY_TIMEWALKER           = 24,
+    DIFFICULTY_PVP_SCENARIO         = 25,
+    DIFFICULTY_5_MAN_SCENARIO_N     = 26,
+    DIFFICULTY_20_MAN_SCENARIO_N    = 27,
 
     MAX_DIFFICULTY
 };
@@ -578,6 +609,11 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
+enum ItemSetFlags
+{
+    ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
+};
+
 enum ItemSpecStat
 {
     ITEM_SPEC_STAT_INTELLECT        = 0,
@@ -608,8 +644,20 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_HASTE            = 25,
     ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
     ITEM_SPEC_STAT_CLOAK            = 27,
+    ITEM_SPEC_STAT_WARGLAIVES       = 28,
+    ITEM_SPEC_STAT_RELIC_IRON       = 29,
+    ITEM_SPEC_STAT_RELIC_BLOOD      = 30,
+    ITEM_SPEC_STAT_RELIC_SHADOW     = 31,
+    ITEM_SPEC_STAT_RELIC_FEL        = 32,
+    ITEM_SPEC_STAT_RELIC_ARCANE     = 33,
+    ITEM_SPEC_STAT_RELIC_FROST      = 34,
+    ITEM_SPEC_STAT_RELIC_FIRE       = 35,
+    ITEM_SPEC_STAT_RELIC_WATER      = 36,
+    ITEM_SPEC_STAT_RELIC_LIFE       = 37,
+    ITEM_SPEC_STAT_RELIC_WIND       = 38,
+    ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
-    ITEM_SPEC_STAT_NONE             = 28
+    ITEM_SPEC_STAT_NONE             = 40
 };
 
 enum MountCapabilityFlags
@@ -662,6 +710,9 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
+
+#define TaxiMaskSize 236
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {

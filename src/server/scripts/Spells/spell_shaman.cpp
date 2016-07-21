@@ -1008,7 +1008,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
             void ResetCooldown()
             {
-                GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST)->ChargeCategoryEntry);
+                GetCaster()->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST)->ChargeCategoryId);
             }
 
             void Register() override

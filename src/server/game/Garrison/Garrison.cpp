@@ -219,9 +219,11 @@ void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
 
 bool Garrison::Create(uint32 garrSiteId)
 {
-    _siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
-    if (!_siteLevel)
+    GarrSiteLevelEntry const* siteLevel = sGarrisonMgr.GetGarrSiteLevelEntry(garrSiteId, 1);
+    if (!siteLevel)
         return false;
+
+    _siteLevel = siteLevel;
 
     InitializePlots();
 
@@ -337,6 +339,7 @@ Garrison::Plot const* Garrison::GetPlot(uint32 garrPlotInstanceId) const
 void Garrison::LearnBlueprint(uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonLearnBlueprintResult learnBlueprintResult;
+    learnBlueprintResult.GarrTypeID = GARRISON_TYPE_GARRISON;
     learnBlueprintResult.BuildingID = garrBuildingId;
     learnBlueprintResult.Result = GARRISON_SUCCESS;
 
@@ -353,6 +356,7 @@ void Garrison::LearnBlueprint(uint32 garrBuildingId)
 void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonUnlearnBlueprintResult unlearnBlueprintResult;
+    unlearnBlueprintResult.GarrTypeID = GARRISON_TYPE_GARRISON;
     unlearnBlueprintResult.BuildingID = garrBuildingId;
     unlearnBlueprintResult.Result = GARRISON_SUCCESS;
 
@@ -369,6 +373,7 @@ void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
 void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonPlaceBuildingResult placeBuildingResult;
+    placeBuildingResult.GarrTypeID = GARRISON_TYPE_GARRISON;
     placeBuildingResult.Result = CheckBuildingPlacement(garrPlotInstanceId, garrBuildingId);
     if (placeBuildingResult.Result == GARRISON_SUCCESS)
     {
@@ -401,6 +406,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         if (oldBuildingId)
         {
             WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
+            buildingRemoved.GarrTypeID = GARRISON_TYPE_GARRISON;
             buildingRemoved.Result = GARRISON_SUCCESS;
             buildingRemoved.GarrPlotInstanceID = garrPlotInstanceId;
             buildingRemoved.GarrBuildingID = oldBuildingId;
@@ -416,6 +422,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
 void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
 {
     WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
+    buildingRemoved.GarrTypeID = GARRISON_TYPE_GARRISON;
     buildingRemoved.Result = CheckBuildingRemoval(garrPlotInstanceId);
     if (buildingRemoved.Result == GARRISON_SUCCESS)
     {
@@ -439,13 +446,14 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
         if (constructing->Level > 1)
         {
             // Restore previous level building
-            GarrBuildingEntry const* restored = sGarrisonMgr.GetPreviousLevelBuilding(constructing->Type, constructing->Level);
+            uint32 restored = sGarrisonMgr.GetPreviousLevelBuildingId(constructing->Type, constructing->Level);
             ASSERT(restored);
 
             WorldPackets::Garrison::GarrisonPlaceBuildingResult placeBuildingResult;
+            placeBuildingResult.GarrTypeID = GARRISON_TYPE_GARRISON;
             placeBuildingResult.Result = GARRISON_SUCCESS;
             placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
-            placeBuildingResult.BuildingInfo.GarrBuildingID = restored->ID;
+            placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
             placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
             placeBuildingResult.BuildingInfo.Active = true;
 
@@ -485,6 +493,7 @@ void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
 void Garrison::AddFollower(uint32 garrFollowerId)
 {
     WorldPackets::Garrison::GarrisonAddFollowerResult addFollowerResult;
+    addFollowerResult.GarrTypeID = GARRISON_TYPE_GARRISON;
     GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId);
     if (_followerIds.count(garrFollowerId) || !followerEntry)
     {
@@ -505,7 +514,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     follower.PacketInfo.Xp = 0;
     follower.PacketInfo.CurrentBuildingID = 0;
     follower.PacketInfo.CurrentMissionID = 0;
-    follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
+    follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
     follower.PacketInfo.FollowerStatus = 0;
 
     addFollowerResult.Follower = follower.PacketInfo;
@@ -526,20 +535,24 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
 void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
-    garrisonInfo.GarrSiteID = _siteLevel->SiteID;
-    garrisonInfo.GarrSiteLevelID = _siteLevel->ID;
     garrisonInfo.FactionIndex = GetFaction();
-    garrisonInfo.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
+    garrisonInfo.Garrisons.emplace_back();
+
+    WorldPackets::Garrison::GarrisonInfo& garrison = garrisonInfo.Garrisons.back();
+    garrison.GarrTypeID = GARRISON_TYPE_GARRISON;
+    garrison.GarrSiteID = _siteLevel->SiteID;
+    garrison.GarrSiteLevelID = _siteLevel->ID;
+    garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
     for (auto& p : _plots)
     {
         Plot& plot = p.second;
-        garrisonInfo.Plots.push_back(&plot.PacketInfo);
+        garrison.Plots.push_back(&plot.PacketInfo);
         if (plot.BuildingInfo.PacketInfo)
-            garrisonInfo.Buildings.push_back(plot.BuildingInfo.PacketInfo.get_ptr());
+            garrison.Buildings.push_back(plot.BuildingInfo.PacketInfo.get_ptr());
     }
 
     for (auto const& p : _followers)
-        garrisonInfo.Followers.push_back(&p.second.PacketInfo);
+        garrison.Followers.push_back(&p.second.PacketInfo);
 
     _owner->SendDirectMessage(garrisonInfo.Write());
 }
@@ -565,6 +578,7 @@ void Garrison::SendRemoteInfo() const
 void Garrison::SendBlueprintAndSpecializationData()
 {
     WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationDataResult data;
+    data.GarrTypeID = GARRISON_TYPE_GARRISON;
     data.BlueprintsKnown = &_knownBuildings;
     _owner->SendDirectMessage(data.Write());
 }
@@ -742,9 +756,9 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         }
     }
 
-    if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
+    if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.SpawnMap)
     {
-        for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
+        for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.SpawnMap, map->GetSpawnMode()))
         {
             for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
                 if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
@@ -795,6 +809,7 @@ void Garrison::Plot::DeleteGameObject(Map* map)
 void Garrison::Plot::ClearBuildingInfo(Player* owner)
 {
     WorldPackets::Garrison::GarrisonPlotPlaced plotPlaced;
+    plotPlaced.GarrTypeID = GARRISON_TYPE_GARRISON;
     plotPlaced.PlotInfo = &PacketInfo;
     owner->SendDirectMessage(plotPlaced.Write());
 

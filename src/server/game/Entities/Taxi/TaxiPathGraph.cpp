@@ -18,7 +18,6 @@
 #include "TaxiPathGraph.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Config.h"
 #include "Util.h"
@@ -108,8 +107,8 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             uint32 map1, map2;
             DBCPosition2D pos1, pos2;
 
-            DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
-            DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
 
             if (map1 != map2)
                 continue;

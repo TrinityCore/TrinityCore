@@ -780,12 +780,6 @@ namespace WorldPackets
 
         struct GuildBankItemInfo
         {
-            struct GuildBankSocketEnchant
-            {
-                int32 SocketIndex = 0;
-                int32 SocketEnchantID = 0;
-            };
-
             WorldPackets::Item::ItemInstance Item;
             int32 Slot = 0;
             int32 Count = 0;
@@ -794,7 +788,7 @@ namespace WorldPackets
             int32 OnUseEnchantmentID = 0;
             int32 Flags = 0;
             bool Locked = false;
-            std::vector<GuildBankSocketEnchant> SocketEnchant;
+            std::vector<Item::ItemGemInstanceData> SocketEnchant;
         };
 
         struct GuildBankTabInfo
@@ -972,7 +966,7 @@ namespace WorldPackets
         class GuildChallengeUpdate final : public ServerPacket
         {
         public:
-            GuildChallengeUpdate() : ServerPacket(SMSG_GUILD_CHALLENGE_UPDATE, 120) { }
+            GuildChallengeUpdate() : ServerPacket(SMSG_GUILD_CHALLENGE_UPDATE, 96) { }
 
             WorldPacket const* Write() override;
 

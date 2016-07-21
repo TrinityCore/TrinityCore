@@ -19,6 +19,9 @@
 #define CollectionMgr_h__
 
 #include "WorldSession.h"
+#include <boost/dynamic_bitset.hpp>
+
+struct ItemModifiedAppearanceEntry;
 
 enum HeirloomPlayerFlags
 {
@@ -48,7 +51,7 @@ typedef std::map<uint32, HeirloomData> HeirloomContainer;
 class TC_GAME_API CollectionMgr
 {
 public:
-    explicit CollectionMgr(WorldSession* owner) : _owner(owner) { }
+    explicit CollectionMgr(WorldSession* owner);
 
     WorldSession* GetOwner() const { return _owner; }
 
@@ -63,6 +66,8 @@ public:
     bool HasToy(uint32 itemId) const { return _toys.count(itemId) > 0; }
 
     ToyBoxContainer const& GetAccountToys() const { return _toys; }
+
+    void OnItemAdded(Item* item);
 
     // Account-wide heirlooms
     void LoadHeirlooms();
@@ -79,11 +84,39 @@ public:
 
     // Account-wide mounts
 
+    // Appearances
+    void LoadItemAppearances();
+    void LoadAccountItemAppearances(PreparedQueryResult knownAppearances, PreparedQueryResult favoriteAppearances);
+    void SaveAccountItemAppearances(SQLTransaction& trans);
+    void AddItemAppearance(Item* item);
+    void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
+    void RemoveTemporaryAppearance(Item* item);
+    // returns pair<hasAppearance, isTemporary>
+    std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;
+    std::unordered_set<ObjectGuid> GetItemsProvidingTemporaryAppearance(uint32 itemModifiedAppearanceId) const;
+
+    enum class FavoriteAppearanceState
+    {
+        New,
+        Removed,
+        Unchanged
+    };
+
+    void SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, bool apply);
+    void SendFavoriteAppearances() const;
+
 private:
+    bool CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const;
+    void AddItemAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance);
+    void AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
+
     WorldSession* _owner;
 
     ToyBoxContainer _toys;
     HeirloomContainer _heirlooms;
+    boost::dynamic_bitset<uint32> _appearances;
+    std::unordered_map<uint32, std::unordered_set<ObjectGuid>> _temporaryAppearances;
+    std::unordered_map<uint32, FavoriteAppearanceState> _favoriteAppearances;
 };
 
 #endif // CollectionMgr_h__

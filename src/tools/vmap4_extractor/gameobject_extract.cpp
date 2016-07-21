@@ -16,28 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DB2.h"
 #include "model.h"
-#include "dbcfile.h"
 #include "adtfile.h"
 #include "vmapexport.h"
+#include "StringFormat.h"
 
 #include <algorithm>
 #include <stdio.h>
 
-bool ExtractSingleModel(std::string& fname)
+bool ExtractSingleModel(std::string& name)
 {
-    if (fname.substr(fname.length() - 4, 4) == ".mdx")
-    {
-        fname.erase(fname.length() - 2, 2);
-        fname.append("2");
-    }
-
-    std::string originalName = fname;
-
-    char* name = GetPlainName((char*)fname.c_str());
-    FixNameCase(name, strlen(name));
-    FixNameSpaces(name, strlen(name));
-
     std::string output(szWorkDirWmo);
     output += "/";
     output += name;
@@ -45,7 +34,7 @@ bool ExtractSingleModel(std::string& fname)
     if (FileExists(output.c_str()))
         return true;
 
-    Model mdl(originalName);
+    Model mdl(name);
     if (!mdl.open())
         return false;
 
@@ -54,26 +43,64 @@ bool ExtractSingleModel(std::string& fname)
 
 extern HANDLE CascStorage;
 
+struct GameObjectDisplayInfoMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "ifffh";
+        static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
+        static DB2Meta instance(-1, 5, 0xDD4432B9, types, arraySizes);
+        return &instance;
+    }
+};
+
+struct CascFileHandleDeleter
+{
+    typedef HANDLE pointer;
+    void operator()(HANDLE handle) const { CascCloseFile(handle); }
+};
+
+enum ModelTypes : uint32
+{
+    MODEL_MD20 = '02DM',
+    MODEL_MD21 = '12DM',
+    MODEL_WMO  = 'REVM'
+};
+
+uint32 GetHeaderMagic(std::string const& fileName)
+{
+    HANDLE file;
+    if (!CascOpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
+        return 0;
+
+    std::unique_ptr<HANDLE, CascFileHandleDeleter> modelFile(file);
+    uint32 magic = 0;
+    DWORD bytesRead = 0;
+    if (!CascReadFile(file, &magic, 4, &bytesRead) || bytesRead != 4)
+        return 0;
+
+    return magic;
+}
+
 void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...");
-    DBCFile dbc(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.dbc");
-    if(!dbc.open())
+    HANDLE dbcFile;
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2", CASC_LOCALE_NONE, 0, &dbcFile))
     {
-        printf("Fatal error: Invalid GameObjectDisplayInfo.dbc file format!\n");
+        printf("Fatal error: Cannot find GameObjectDisplayInfo.db2 in archive!\n");
         exit(1);
     }
 
-    DBCFile fileData(CascStorage, "DBFilesClient\\FileData.dbc");
-    if (!fileData.open())
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, GameObjectDisplayInfoMeta::Instance()))
     {
-        printf("Fatal error: Invalid FileData.dbc file format!\n");
+        printf("Fatal error: Invalid GameObjectDisplayInfo.db2 file format!\n");
         exit(1);
     }
 
     std::string basepath = szWorkDirWmo;
     basepath += "/";
-    std::string path;
 
     std::string modelListPath = basepath + "temp_gameobject_models";
     FILE* model_list = fopen(modelListPath.c_str(), "wb");
@@ -83,62 +110,30 @@ void ExtractGameobjectModels()
         return;
     }
 
-    size_t maxFileId = fileData.getMaxId() + 1;
-    uint32* fileDataIndex = new uint32[maxFileId];
-    memset(fileDataIndex, 0, maxFileId * sizeof(uint32));
-    size_t files = fileData.getRecordCount();
-    for (uint32 i = 0; i < files; ++i)
-        fileDataIndex[fileData.getRecord(i).getUInt(0)] = i;
-
-    for (DBCFile::Iterator it = dbc.begin(); it != dbc.end(); ++it)
+    for (uint32 rec = 0; rec < db2.GetNumRows(); ++rec)
     {
-        uint32 fileId = it->getUInt(1);
+        uint32 fileId = db2.getRecord(rec).getUInt(0, 0);
         if (!fileId)
             continue;
 
-        uint32 fileIndex = fileDataIndex[fileId];
-        if (!fileIndex)
-            continue;
-
-        std::string filename = fileData.getRecord(fileIndex).getString(1);
-        std::string filepath = fileData.getRecord(fileIndex).getString(2);
-
-        path = filepath + filename;
-
-        if (path.length() < 4)
-            continue;
-
-        FixNameCase((char*)path.c_str(), path.size());
-        char * name = GetPlainName((char*)path.c_str());
-        FixNameSpaces(name, strlen(name));
-
-        char * ch_ext = GetExtension(name);
-        if (!ch_ext)
-            continue;
-
-        strToLower(ch_ext);
-
+        std::string fileName = Trinity::StringFormat("FILE%08X", fileId);
         bool result = false;
-        if (!strcmp(ch_ext, ".wmo"))
-            result = ExtractSingleWmo(path);
-        else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
-            continue;
-        else if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
-            result = ExtractSingleModel(path);
+        if (GetHeaderMagic(fileName) == MODEL_WMO)
+            result = ExtractSingleWmo(fileName);
+        else
+            result = ExtractSingleModel(fileName);
 
         if (result)
         {
-            uint32 displayId = it->getUInt(0);
-            uint32 path_length = strlen(name);
+            uint32 displayId = db2.getId(rec);
+            uint32 path_length = fileName.length();
             fwrite(&displayId, sizeof(uint32), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
-            fwrite(name, sizeof(char), path_length, model_list);
+            fwrite(fileName.c_str(), sizeof(char), path_length, model_list);
         }
     }
 
     fclose(model_list);
-
-    delete[] fileDataIndex;
 
     printf("Done!\n");
 }

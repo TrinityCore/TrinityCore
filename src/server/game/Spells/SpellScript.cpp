@@ -206,6 +206,16 @@ void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex ef
     (spellScript->*pEffectHandlerScript)(effIndexToHandle);
 }
 
+SpellScript::BeforeHitHandler::BeforeHitHandler(SpellBeforeHitFnType pBeforeHitHandlerScript)
+{
+    _pBeforeHitHandlerScript = pBeforeHitHandlerScript;
+}
+
+void SpellScript::BeforeHitHandler::Call(SpellScript* spellScript, SpellMissInfo missInfo)
+{
+    (spellScript->*_pBeforeHitHandlerScript)(missInfo);
+}
+
 SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript)
 {
     pHitHandlerScript = _pHitHandlerScript;

@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include <atomic>
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -62,10 +62,12 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
+struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
 struct ItemTemplate;
+struct MapEntry;
 struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
@@ -367,7 +369,7 @@ class TC_GAME_API ItemScript : public ScriptObject
         virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player uses the item.
-        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) { return false; }
 
         // Called when the item expires (is destroyed).
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
@@ -875,6 +877,9 @@ class TC_GAME_API ScriptMgr
         /// calls for better performance (bulk changes).
         void SwapScriptContext(bool initialize = false);
 
+        /// Returns the context name of the static context provided by the worldserver
+        static std::string const& GetNameOfStaticContext();
+
         /// Acquires a strong module reference to the module containing the given script name,
         /// which prevents the shared library which contains the script from unloading.
         /// The shared library is lazy unloaded as soon as all references to it are released.
@@ -939,7 +944,7 @@ class TC_GAME_API ScriptMgr
 
         bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
-        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
+        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
         bool OnItemRemove(Player* player, Item* item);
 
