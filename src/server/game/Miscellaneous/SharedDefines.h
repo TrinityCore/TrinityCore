@@ -4688,6 +4688,8 @@ enum ResponseCodes
     CHAR_NAME_INVALID_SPACE                                = 85,
     CHAR_NAME_CONSECUTIVE_SPACES                           = 86,
     CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 87,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 88,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 89,
 };
 
 enum CharacterUndeleteResult
