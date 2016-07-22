@@ -264,6 +264,7 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
+    uint32 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
@@ -303,8 +304,13 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                 sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
 
             if (charInfo.Class == CLASS_DEMON_HUNTER)
+                demonHunterCount++;
+            if (demonHunterCount >= sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM))
                 charEnum.HasDemonHunterOnRealm = true;
-            if (charInfo.Level >= 70)
+            else
+                charEnum.HasDemonHunterOnRealm = false;
+
+            if (charInfo.Level >= sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER))
                 charEnum.HasLevel70OnRealm = true;
 
             charEnum.Characters.emplace_back(charInfo);

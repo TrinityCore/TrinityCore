@@ -813,14 +813,6 @@ HeroicCharactersPerRealm = 1
 CharacterCreating.MinLevelForHeroicCharacter = 55
 
 #
-#    SkipCinematics
-#        Description: Disable cinematic intro at first login after character creation.
-#                     Prevents buggy intros in case of custom start location coordinates.
-#        Default:     0 - (Show intro for each new character)
-#                     1 - (Show intro only for first character of selected race)
-#                     2 - (Disable intro for all classes)
-
-#
 #    DemonHuntersPerRealm
 #        Description: Limit number of demon hunter characters per account on this realm.
 #        Range:       1-10
@@ -829,14 +821,22 @@ CharacterCreating.MinLevelForHeroicCharacter = 55
 DemonHuntersPerRealm = 1
 
 #
-#    CharacterCreating.MinLevelForHeroicCharacter
+#    CharacterCreating.MinLevelForDemonHunter
 #        Description: Limit creating heroic characters only for account with another
-#                     character of specific level (ignored for GM accounts).
+#                     character of specific level.
 #        Default:     70 - (Enabled, Requires at least another level 70 character)
 #                     0  - (Disabled)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForDemonHunter = 70
+
+#
+#    SkipCinematics
+#        Description: Disable cinematic intro at first login after character creation.
+#                     Prevents buggy intros in case of custom start location coordinates.
+#        Default:     0 - (Show intro for each new character)
+#                     1 - (Show intro only for first character of selected race)
+#                     2 - (Disable intro for all classes)
 
 SkipCinematics = 0
 
