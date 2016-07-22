@@ -11096,6 +11096,8 @@ int32 Unit::GetCreatePowers(Powers power) const
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
+        case POWER_FURY:
+        case POWER_PAIN:
             return 100;
         case POWER_COMBO_POINTS:
             return 5;
