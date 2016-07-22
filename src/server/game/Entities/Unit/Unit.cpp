@@ -9255,7 +9255,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
         AuraEffectList const& critChanceForCaster = victim->GetAuraEffectsByType(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER);
         for (AuraEffect const* aurEff : critChanceForCaster)
         {
-            if (aurEff->GetCasterGUID() != GetGUID() || !aurEff->IsAffectedOnSpell(spellProto))
+            if (aurEff->GetCasterGUID() != GetGUID() || !aurEff->IsAffectingSpell(spellProto))
                 continue;
 
             crit_chance += aurEff->GetAmount();
