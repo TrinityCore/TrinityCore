@@ -656,7 +656,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
                         if (freeDemonHunterSlots == 0)
                         {
-                            SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
+                            SendCharCreate(CHAR_CREATE_FAILED);
                             _charCreateCallback.Reset();
                             return;
                         }
@@ -733,7 +733,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
                             if (freeDemonHunterSlots == 0)
                             {
-                                SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
+                                SendCharCreate(CHAR_CREATE_FAILED);
                                 _charCreateCallback.Reset();
                                 return;
                             }
