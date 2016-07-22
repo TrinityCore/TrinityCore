@@ -816,6 +816,17 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForHeroicCharacter", 55);
 
+    m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
+    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 10)
+    {
+        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
+        m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = 1;
+    }
+
+    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDemonHunter", 70);
+
+    m_int_configs[CONFIG_DEMON_HUNTER_CREATION_LEVEL] = sConfigMgr->GetIntDefault("CharacterCreating.CreationLevelForDemonHunter", 98);
+
     m_int_configs[CONFIG_SKIP_CINEMATICS] = sConfigMgr->GetIntDefault("SkipCinematics", 0);
     if (int32(m_int_configs[CONFIG_SKIP_CINEMATICS]) < 0 || m_int_configs[CONFIG_SKIP_CINEMATICS] > 2)
     {
