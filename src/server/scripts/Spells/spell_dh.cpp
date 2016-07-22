@@ -28,44 +28,6 @@
 #include "SpellHistory.h"
 #include "Containers.h"
 
-enum DemonHunterSpells
-{
-    SPELL_CHAOS_STRIKE_MAINHAND = 199547,
-    SPELL_CHAOS_STRIKE_OFFHAND  = 222031,
-};
-
-// 197125 - Chaos Strike
-class spell_dh_chaos_strike : public SpellScriptLoader
-{
-public:
-    spell_dh_chaos_strike() : SpellScriptLoader("spell_dh_chaos_strike") { }
-
-    class spell_dh_chaos_strike_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dh_chaos_strike_AuraScript);
-
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-
-            if (Unit* caster = GetCaster())
-                if (eventInfo.GetSpellInfo() && eventInfo.GetHitMask() & PROC_HIT_CRITICAL && (eventInfo.GetSpellInfo()->Id == SPELL_CHAOS_STRIKE_MAINHAND ||
-                    eventInfo.GetSpellInfo()->Id == SPELL_CHAOS_STRIKE_OFFHAND))
-                    caster->SetPower(POWER_FURY, caster->GetPower(POWER_FURY) + aurEff->GetBaseAmount());
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-        }
-    };
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dh_chaos_strike_AuraScript();
-    }
-};
-
 void AddSC_demon_hunter_spell_scripts()
 {
-    new spell_dh_chaos_strike();
 }
