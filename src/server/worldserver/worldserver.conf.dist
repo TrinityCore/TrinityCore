@@ -822,7 +822,7 @@ DemonHuntersPerRealm = 1
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
-#        Description: Limit creating heroic characters only for account with another
+#        Description: Limit creating demon hunters only for account with another
 #                     character of specific level.
 #        Default:     70 - (Enabled, Requires at least another level 70 character)
 #                     0  - (Disabled)
@@ -874,7 +874,7 @@ StartHeroicPlayerLevel = 55
 
 #
 #    StartHeroicPlayerLevel
-#        Description: Staring level for heroic class characters after creation.
+#        Description: Staring level for demon hunters after creation.
 #        Range:       98-MaxPlayerLevel
 #        Default:     98
 
