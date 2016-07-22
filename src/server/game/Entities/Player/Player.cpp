@@ -11935,7 +11935,8 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
     {
         pItem->SetBinding(true);
-        GetSession()->GetCollectionMgr()->AddItemAppearance(pItem);
+        if (IsInWorld())
+            GetSession()->GetCollectionMgr()->AddItemAppearance(pItem);
     }
 
     TC_LOG_DEBUG("entities.player.items", "Player::SetVisibleItemSlot: Player '%s' (%s), Slot: %u, Item: %u",
