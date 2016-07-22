@@ -676,7 +676,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 6
+Expansion = 5
 
 #
 #    MinPlayerName
@@ -797,7 +797,7 @@ CharactersPerRealm = 12
 #
 #    HeroicCharactersPerRealm
 #        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
+#        Range:       1-12
 #        Default:     1
 
 HeroicCharactersPerRealm = 1
@@ -815,7 +815,7 @@ CharacterCreating.MinLevelForHeroicCharacter = 55
 #
 #    DemonHuntersPerRealm
 #        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-10
+#        Range:       1-12
 #        Default:     1
 
 DemonHuntersPerRealm = 1

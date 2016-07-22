@@ -319,7 +319,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm || charEnum.HasLevel70OnRealm)
+    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm || charEnum.HasLevel70OnRealm);
 
     SendPacket(charEnum.Write());
 }
@@ -593,7 +593,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CREATE_INFO);
                 stmt->setUInt32(0, GetAccountId());
-                stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT || createInfo->Class == CLASS_DEMON_HUNTER) ? 10 : 1);
+                stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT || createInfo->Class == CLASS_DEMON_HUNTER) ? 12 : 1);
                 _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
                 _charCreateCallback.NextStage();
                 return;
