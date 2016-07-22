@@ -264,12 +264,11 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    uint32 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
+    uint8 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
     bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
-    charEnum.IsDemonHunterCreationAllowed = true;
     charEnum.DisabledClassesMask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
 
     _legitCharacters.clear();
@@ -318,6 +317,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         }
         while (result->NextRow());
     }
+
+    charEnum.IsDemonHunterCreationAllowed = (charEnum.HasDemonHunterOnRealm || !charEnum.HasLevel70OnRealm) ? false : true;
 
     SendPacket(charEnum.Write());
 }
