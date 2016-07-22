@@ -914,6 +914,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsInWater() const override { return m_isInWater; }
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
+        bool IsInAreaTriggerRadius(uint32 areaTriggerId) const;
         bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
 
         void SendInitialPacketsBeforeAddToMap();

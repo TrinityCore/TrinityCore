@@ -621,26 +621,26 @@ void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger)
         return;
 
     //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
+    ObjectGuid buff_guid;
     switch (trigger)
     {
-        case 3686:                                          // Alliance elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground::Update().
-            //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
+        case 3686:                                          // Alliance elixir of speed spawn.
+            buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_1];
             break;
-        case 3687:                                          // Horde elixir of speed spawn. Trigger not working, because located inside other areatrigger, can be replaced by IsWithinDist(object, dist) in Battleground::Update().
-            //buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_2];
+        case 3687:                                          // Horde elixir of speed spawn.
+            buff_guid = BgObjects[BG_WS_OBJECT_SPEEDBUFF_2];
             break;
         case 3706:                                          // Alliance elixir of regeneration spawn
-            //buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_1];
+            buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_1];
             break;
         case 3708:                                          // Horde elixir of regeneration spawn
-            //buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_2];
+            buff_guid = BgObjects[BG_WS_OBJECT_REGENBUFF_2];
             break;
         case 3707:                                          // Alliance elixir of berserk spawn
-            //buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_1];
+            buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_1];
             break;
         case 3709:                                          // Horde elixir of berserk spawn
-            //buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_2];
+            buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_2];
             break;
         case 3646:                                          // Alliance Flag spawn
             if (_flagState[TEAM_HORDE] && !_flagState[TEAM_ALLIANCE])
@@ -662,8 +662,8 @@ void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger)
             break;
     }
 
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, player);
+    if (buff_guid)
+        HandleTriggerBuff(buff_guid, player);
 }
 
 bool BattlegroundWS::SetupBattleground()

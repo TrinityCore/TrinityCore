@@ -2357,6 +2357,12 @@ void Player::SetInWater(bool apply)
     RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 }
 
+bool Player::IsInAreaTriggerRadius(uint32 areaTriggerId) const
+{
+    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(areaTriggerId);
+    return IsInAreaTriggerRadius(atEntry);
+}
+
 bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
 {
     if (!trigger || GetMapId() != trigger->ContinentID)

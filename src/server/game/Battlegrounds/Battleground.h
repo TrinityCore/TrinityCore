@@ -449,7 +449,7 @@ class TC_GAME_API Battleground
         virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
-        void HandleTriggerBuff(ObjectGuid go_guid);
+        void HandleTriggerBuff(ObjectGuid go_guid, Player* player);
         void SetHoliday(bool is_holiday);
 
         /// @todo make this protected:

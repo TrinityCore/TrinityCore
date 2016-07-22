@@ -963,6 +963,44 @@ namespace Trinity
             float i_range;
     };
 
+    class NearestAttackableNoTotemUnitInObjectExactRangeCheck
+    {
+    public:
+        NearestAttackableNoTotemUnitInObjectExactRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) { }
+
+        bool operator()(Unit* u)
+        {
+            if (!u->IsAlive())
+                return false;
+
+            if (u->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
+                return false;
+
+            if (u->GetTypeId() == TYPEID_UNIT && u->ToCreature()->IsTotem())
+                return false;
+
+            if (!u->isTargetableForAttack(false))
+                return false;
+
+            if (!i_obj->IsInMap(u) || !i_obj->InSamePhase(u))
+                return false;
+
+            if (!i_obj->IsValidAttackTarget(u))
+                return false;
+
+            float range = i_obj->GetExactDist(u);
+            if (range >= i_range)
+                return false;
+
+            i_range = range;
+            return true;
+        }
+
+    private:
+        WorldObject const* i_obj;
+        float i_range;
+    };
+
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:

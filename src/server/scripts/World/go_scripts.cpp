@@ -34,6 +34,7 @@ go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "DBCStores.h"
 #include "DBCStructure.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -793,24 +794,52 @@ public:
 
 class go_massive_seaforium_charge : public GameObjectScript
 {
-    public:
-        go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
+public:
+    go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
 
-        struct go_massive_seaforium_chargeAI : public GameObjectAI
+    struct go_massive_seaforium_chargeAI : public GameObjectAI
+    {
+        go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool OnGossipHello(Player* player) override
         {
-            go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool OnGossipHello(Player* /*player*/) override
+            me->SetLootState(GO_JUST_DEACTIVATED);
+            if (LockEntry const* lockEntry = sLockStore.LookupEntry(me->GetGOInfo()->trap.lockId))
             {
-                me->SetLootState(GO_JUST_DEACTIVATED);
-                return true;
+                for (uint8 i = 0; i < MAX_LOCK_CASE; i++)
+                {
+                    if (lockEntry->Type[i] == 3)
+                    {
+                        player->CastSpell(me, lockEntry->Index[i], false);
+                        break;
+                    }
+                }
             }
-        };
 
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_massive_seaforium_chargeAI(go);
+            return true;
         }
+
+        void Reset() override
+        {
+            _scheduler.Schedule(10s, [this](TaskContext /*context*/)
+            {
+                me->SetLootState(GO_ACTIVATED);
+            });
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_massive_seaforium_chargeAI(go);
+    }
 };
 
 /*######

@@ -22,12 +22,15 @@
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
+
+uint32 constexpr AREA_TRIGGER_BLACKSMITH_BUFF = 3870;
 
 void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data)
 {
@@ -183,6 +186,16 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
             EndBattleground(ALLIANCE);
         else if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(HORDE);
+
+        /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            {
+                if (player->IsInAreaTriggerRadius(AREA_TRIGGER_BLACKSMITH_BUFF))
+                    HandleAreaTrigger(player, AREA_TRIGGER_BLACKSMITH_BUFF);
+            }
+        }
     }
 }
 
@@ -238,6 +251,8 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    ObjectGuid buffGuid;
+
     switch (trigger)
     {
         case 3948:                                          // Arathi Basin Alliance Exit.
@@ -253,10 +268,35 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
                 player->LeaveBattleground();
             break;
         case 3866:                                          // Stables
+            for (uint16 i = BG_AB_OBJECT_SPEEDBUFF_STABLES; i <= BG_AB_OBJECT_BERSERKBUFF_STABLES; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 3869:                                          // Gold Mine
+            for (uint16 i = BG_AB_OBJECT_SPEEDBUFF_GOLD_MINE; i <= BG_AB_OBJECT_BERSERKBUFF_GOLD_MINE; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 3867:                                          // Farm
+            for (uint16 i = BG_AB_OBJECT_SPEEDBUFF_FARM; i <= BG_AB_OBJECT_BERSERKBUFF_FARM; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 3868:                                          // Lumber Mill
-        case 3870:                                          // Black Smith
+            for (uint16 i = BG_AB_OBJECT_SPEEDBUFF_LUMBER_MILL; i <= BG_AB_OBJECT_BERSERKBUFF_LUMBER_MILL; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
+        case AREA_TRIGGER_BLACKSMITH_BUFF:                                          // Black Smith
+            for (uint16 i = BG_AB_OBJECT_SPEEDBUFF_BLACKSMITH; i <= BG_AB_OBJECT_BERSERKBUFF_BLACKSMITH; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 4020:                                          // Unk1
         case 4021:                                          // Unk2
         case 4674:                                          // Unk3
@@ -265,6 +305,9 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
             Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+
+    if (buffGuid)
+        HandleTriggerBuff(buffGuid, player);
 }
 
 /*  type: 0-neutral, 1-contested, 3-occupied

@@ -29,6 +29,8 @@
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
+uint32 constexpr AREA_TRIGGER_FEL_REAVER_BUFF = 4569;
+
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
 {
@@ -117,6 +119,16 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
             CheckSomeoneLeftPoint();
             UpdatePointStatuses();
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
+        }
+
+        /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            {
+                if (player->IsInAreaTriggerRadius(AREA_TRIGGER_FEL_REAVER_BUFF))
+                    HandleAreaTrigger(player, AREA_TRIGGER_FEL_REAVER_BUFF);
+            }
         }
     }
 }
@@ -396,6 +408,7 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
     if (!player->IsAlive())                                  //hack code, must be removed later
         return;
 
+    ObjectGuid buffGuid;
     switch (trigger)
     {
         case TR_BLOOD_ELF_POINT:
@@ -424,16 +437,40 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4519:
         case 4530:
         case 4531:
+            break;
         case 4568:
-        case 4569:
+            for (uint16 i = BG_EY_OBJECT_SPEEDBUFF_BLOOD_ELF; i <= BG_EY_OBJECT_BERSERKBUFF_BLOOD_ELF; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
+        case AREA_TRIGGER_FEL_REAVER_BUFF:
+            for (uint16 i = BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER; i <= BG_EY_OBJECT_BERSERKBUFF_FEL_REAVER; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 4570:
+            for (uint16 i = BG_EY_OBJECT_SPEEDBUFF_MAGE_TOWER; i <= BG_EY_OBJECT_BERSERKBUFF_MAGE_TOWER; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 4571:
+            for (uint16 i = BG_EY_OBJECT_SPEEDBUFF_DRAENEI_RUINS; i <= BG_EY_OBJECT_BERSERKBUFF_DRAENEI_RUINS; i++)
+                if (GameObject* go = GetBGObject(i))
+                    if (go->isSpawned())
+                        buffGuid = go->GetGUID();
+            break;
         case 5866:
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+
+    if (buffGuid)
+        HandleTriggerBuff(buffGuid, player);
 }
 
 bool BattlegroundEY::SetupBattleground()

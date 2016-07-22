@@ -1617,7 +1617,7 @@ void Battleground::EndNow()
 // IMPORTANT NOTICE:
 // buffs aren't spawned/despawned when players captures anything
 // buffs are in their positions when battleground starts
-void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
+void Battleground::HandleTriggerBuff(ObjectGuid go_guid, Player* player)
 {
     if (!FindBgMap())
     {
@@ -1639,6 +1639,8 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
             go_guid.ToString().c_str(), obj->GetEntry(), obj->GetGoType(), m_MapId, m_InstanceID);
         return;
     }
+
+    obj->CastSpell(player, obj->GetGOInfo()->trap.spellId);
 
     // Randomly select new buff
     uint8 buff = urand(0, 2);
