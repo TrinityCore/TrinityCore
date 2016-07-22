@@ -873,7 +873,7 @@ StartPlayerLevel = 1
 StartHeroicPlayerLevel = 55
 
 #
-#    StartHeroicPlayerLevel
+#    StartDemonHunterPlayerLevel
 #        Description: Staring level for demon hunters after creation.
 #        Range:       98-MaxPlayerLevel
 #        Default:     98
