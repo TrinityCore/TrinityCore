@@ -659,7 +659,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
                     {
                         uint8 accLevel = field[0].GetUInt8();
                         if (accLevel >= demonHunterReqLevel)
-                            demonHunterReqLevel = true;
+                            hasDemonHunterReqLevel = true;
                     }
                 }
 
@@ -736,7 +736,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
                         {
                             uint8 accLevel = field[0].GetUInt8();
                             if (accLevel >= demonHunterReqLevel)
-                                demonHunterReqLevel = true;
+                                hasDemonHunterReqLevel = true;
                         }
                     }
                 }
