@@ -19,3 +19,7 @@ INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `typ
 (10, 12, 2, 162794, 0),
 (10, 12, 9, 202719, 0),
 (10, 12, 10, 188501, 0);
+
+DELETE FROM `spell_script_names` WHERE `spell_id`= 197125;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(197125, 'spell_dh_chaos_strike');
