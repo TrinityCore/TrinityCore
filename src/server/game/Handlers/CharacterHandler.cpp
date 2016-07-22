@@ -266,7 +266,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint8 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
     bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
-    bool hitDemonHuntercap = false;
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
