@@ -880,6 +880,14 @@ StartPlayerLevel = 1
 StartHeroicPlayerLevel = 55
 
 #
+#    StartHeroicPlayerLevel
+#        Description: Staring level for heroic class characters after creation.
+#        Range:       98-MaxPlayerLevel
+#        Default:     98
+
+StartDemonHunterPlayerLevel = 98
+
+#
 #    StartPlayerMoney
 #        Description: Amount of money (in Copper) that a character has after creation.
 #        Default:     0
