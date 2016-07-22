@@ -668,14 +668,15 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     5 - (Expansion 5)
+#        Default:     6 - (Expansion 6)
+#                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
 #                     3 - (Expansion 3)
 #                     2 - (Expansion 2)
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 5
+Expansion = 6
 
 #
 #    MinPlayerName
