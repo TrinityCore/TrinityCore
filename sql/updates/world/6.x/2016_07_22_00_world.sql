@@ -4,8 +4,8 @@ INSERT INTO `class_expansion_requirement` (`classID`, `expansion`) VALUES
 
 DELETE FROM `playercreateinfo` WHERE `class`= 12;
 INSERT INTO `playercreateinfo` (`race`, `class`, `map`, `zone`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES
-(4, 12, 1481, 6383, 1180.81079, 3303.86035, 74.4226, 1.0),
-(10, 12, 1481, 6383, 1180.81079, 3303.86035, 74.4226, 1.0);
+(4, 12, 1481, 6383, 1180.64, 3284.96, 70.34837, 4.761345),
+(10, 12, 1481, 6383, 1180.64, 3284.96, 70.34837, 4.761345);
 
 DELETE FROM `playercreateinfo_action` WHERE `class`= 12;
 INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES
