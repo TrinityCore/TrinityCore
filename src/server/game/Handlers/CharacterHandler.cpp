@@ -319,7 +319,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm || charEnum.HasLevel70OnRealm);
+    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm);
 
     SendPacket(charEnum.Write());
 }
