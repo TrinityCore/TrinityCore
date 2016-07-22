@@ -16,17 +16,10 @@
  */
 
 /*
- * Scripts for spells with SPELLFAMILY_DEATHKNIGHT and SPELLFAMILY_GENERIC spells used by deathknight players.
+ * Scripts for spells with SPELLFAMILY_DEMONHUNTER and SPELLFAMILY_GENERIC spells used by deathknight players.
  * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_dk_".
+ * Scriptnames of files in this file should be prefixed with "spell_dh_".
  */
-
-#include "Player.h"
-#include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "SpellHistory.h"
-#include "Containers.h"
 
 void AddSC_demon_hunter_spell_scripts()
 {
