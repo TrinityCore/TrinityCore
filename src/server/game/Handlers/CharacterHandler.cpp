@@ -265,6 +265,7 @@ bool LoginQueryHolder::Initialize()
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint32 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
+    bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
@@ -305,7 +306,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
             if (charInfo.Class == CLASS_DEMON_HUNTER)
                 demonHunterCount++;
-            if (demonHunterCount >= sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM))
+            if (demonHunterCount >= sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM) && !canAlwaysCreateDemonHunter)
                 charEnum.HasDemonHunterOnRealm = true;
             else
                 charEnum.HasDemonHunterOnRealm = false;
@@ -610,7 +611,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
             bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER);
-            bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER;
+            bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
             if (result)
             {
