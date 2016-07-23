@@ -30,7 +30,6 @@ enum DemonHunterSpells
 {
     SPELL_FEL_RUSH_GROUND   = 197922,
     SPELL_FEL_RUSH_AIR      = 197923,
-    SPELL_FEL_RUSH_HOVER    = 199737,
     SPELL_FEL_RUSH_DAMAGE   = 192611,
 
     SPELL_CHAOS_STRIKE_PROC = 193840,
@@ -39,130 +38,130 @@ enum DemonHunterSpells
 // 197125 - Chaos Strike
 class spell_dh_chaos_strike : public SpellScriptLoader
 {
-public:
-    spell_dh_chaos_strike() : SpellScriptLoader("spell_dh_chaos_strike") { }
+    public:
+        spell_dh_chaos_strike() : SpellScriptLoader("spell_dh_chaos_strike") { }
 
-    class spell_dh_chaos_strike_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dh_chaos_strike_AuraScript);
-
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        class spell_dh_chaos_strike_AuraScript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_dh_chaos_strike_AuraScript);
 
-            if (Unit* caster = GetCaster())
-                caster->CastCustomSpell(SPELL_CHAOS_STRIKE_PROC, SPELLVALUE_BASE_POINT0, aurEff->GetBaseAmount(), caster);
-        }
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
 
-        void Register() override
+                if (Unit* caster = GetCaster())
+                    caster->CastCustomSpell(SPELL_CHAOS_STRIKE_PROC, SPELLVALUE_BASE_POINT0, aurEff->GetBaseAmount(), caster);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+        AuraScript* GetAuraScript() const override
         {
-            OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_dh_chaos_strike_AuraScript();
         }
-    };
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dh_chaos_strike_AuraScript();
-    }
 };
 
 // 195072 - Fel Rush
 class spell_dh_fel_rush : public SpellScriptLoader
 {
-public:
-    spell_dh_fel_rush() : SpellScriptLoader("spell_dh_fel_rush") { }
+    public:
+        spell_dh_fel_rush() : SpellScriptLoader("spell_dh_fel_rush") { }
 
-    class spell_dh_fel_rush_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dh_fel_rush_SpellScript);
-
-        void HandleDashGround(SpellEffIndex /*effIndex*/)
+        class spell_dh_fel_rush_SpellScript : public SpellScript
         {
-            if (Unit* caster = GetCaster())
-                if (!caster->IsFalling() || caster->IsInWater())
-                {
-                    caster->CastSpell(caster, SPELL_FEL_RUSH_GROUND, true);
+            PrepareSpellScript(spell_dh_fel_rush_SpellScript);
 
-                    // Since there is no spell for selecting targets, probably because of the line form, we have to select thing in this ugly way.
-                    std::list<Unit*> TargetList;
-                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
-                    caster->VisitNearbyObject(10.0f, searcher);
-                    for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+            void HandleDashGround(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (!caster->IsFalling() || caster->IsInWater())
                     {
-                        Unit* target = *itr;
-                        if (!target || !target->IsAlive())
-                            continue;
+                        caster->CastSpell(caster, SPELL_FEL_RUSH_GROUND, true);
 
-                        if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
-                            if (caster->IsValidAttackTarget(target))
-                                caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
+                        // Since there is no spell for selecting targets, probably because of the line form, we have to select thing in this ugly way.
+                        std::list<Unit*> TargetList;
+                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
+                        caster->VisitNearbyObject(10.0f, searcher);
+                        for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+                        {
+                            Unit* target = *itr;
+                            if (!target || !target->IsAlive())
+                                continue;
+
+                            if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
+                                if (caster->IsValidAttackTarget(target))
+                                    caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
+                        }
                     }
-                }
-        }
+            }
 
-        void HandleDashAir(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (caster->IsFalling())
-                {
-                    caster->SetDisableGravity(true);
-                    caster->CastSpell(caster, SPELL_FEL_RUSH_AIR, true);
-
-                    std::list<Unit*> TargetList;
-                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
-                    caster->VisitNearbyObject(10.0f, searcher);
-                    for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+            void HandleDashAir(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->IsFalling())
                     {
-                        Unit* target = *itr;
-                        if (!target || !target->IsAlive())
-                            continue;
+                        caster->SetDisableGravity(true);
+                        caster->CastSpell(caster, SPELL_FEL_RUSH_AIR, true);
 
-                        if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
-                            if (caster->IsValidAttackTarget(target))
-                                caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
+                        std::list<Unit*> TargetList;
+                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
+                        caster->VisitNearbyObject(10.0f, searcher);
+                        for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+                        {
+                            Unit* target = *itr;
+                            if (!target || !target->IsAlive())
+                                continue;
+
+                            if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
+                                if (caster->IsValidAttackTarget(target))
+                                    caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
+                        }
                     }
-                }
-        }
+            }
 
-        void Register() override
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush_SpellScript::HandleDashGround, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush_SpellScript::HandleDashAir, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush_SpellScript::HandleDashGround, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnEffectHitTarget += SpellEffectFn(spell_dh_fel_rush_SpellScript::HandleDashAir, EFFECT_1, SPELL_EFFECT_DUMMY);
+            return new spell_dh_fel_rush_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dh_fel_rush_SpellScript();
-    }
 };
 
 // 197923 - Fel Rush (air cast)
 class spell_dh_fel_rush_aura : public SpellScriptLoader
 {
-public:
-    spell_dh_fel_rush_aura() : SpellScriptLoader("spell_dh_fel_rush_aura") { }
+    public:
+        spell_dh_fel_rush_aura() : SpellScriptLoader("spell_dh_fel_rush_aura") { }
 
-    class spell_dh_fel_rush_aura_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dh_fel_rush_aura_AuraScript);
-
-        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        class spell_dh_fel_rush_aura_AuraScript : public AuraScript
         {
-            if (Unit* caster = GetCaster())
-                caster->SetDisableGravity(false);
-        }
+            PrepareAuraScript(spell_dh_fel_rush_aura_AuraScript);
 
-        void Register() override
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->SetDisableGravity(false);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_aura_AuraScript::AfterRemove, EFFECT_7, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+        AuraScript* GetAuraScript() const override
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dh_fel_rush_aura_AuraScript::AfterRemove, EFFECT_7, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_dh_fel_rush_aura_AuraScript();
         }
-    };
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dh_fel_rush_aura_AuraScript();
-    }
 };
 
 void AddSC_demon_hunter_spell_scripts()
