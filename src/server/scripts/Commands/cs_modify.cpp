@@ -415,10 +415,10 @@ public:
         if (CheckModifySpeed(handler, args, target, allSpeed, 0.1f, 50.0f))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_ASPEED, LANG_YOURS_ASPEED_CHANGED, allSpeed);
-            target->SetSpeed(MOVE_WALK, allSpeed);
-            target->SetSpeed(MOVE_RUN, allSpeed);
-            target->SetSpeed(MOVE_SWIM, allSpeed);
-            target->SetSpeed(MOVE_FLIGHT, allSpeed);
+            target->SetSpeedRate(MOVE_WALK, allSpeed);
+            target->SetSpeedRate(MOVE_RUN, allSpeed);
+            target->SetSpeedRate(MOVE_SWIM, allSpeed);
+            target->SetSpeedRate(MOVE_FLIGHT, allSpeed);
             return true;
         }
         return false;
@@ -432,7 +432,7 @@ public:
         if (CheckModifySpeed(handler, args, target, Speed, 0.1f, 50.0f))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_SPEED, LANG_YOURS_SPEED_CHANGED, Speed);
-            target->SetSpeed(MOVE_RUN, Speed);
+            target->SetSpeedRate(MOVE_RUN, Speed);
             return true;
         }
         return false;
@@ -446,7 +446,7 @@ public:
         if (CheckModifySpeed(handler, args, target, swimSpeed, 0.1f, 50.0f))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_SWIM_SPEED, LANG_YOURS_SWIM_SPEED_CHANGED, swimSpeed);
-            target->SetSpeed(MOVE_SWIM, swimSpeed);
+            target->SetSpeedRate(MOVE_SWIM, swimSpeed);
             return true;
         }
         return false;
@@ -460,7 +460,7 @@ public:
         if (CheckModifySpeed(handler, args, target, backSpeed, 0.1f, 50.0f))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_BACK_SPEED, LANG_YOURS_BACK_SPEED_CHANGED, backSpeed);
-            target->SetSpeed(MOVE_RUN_BACK, backSpeed);
+            target->SetSpeedRate(MOVE_RUN_BACK, backSpeed);
             return true;
         }
         return false;
@@ -474,7 +474,7 @@ public:
         if (CheckModifySpeed(handler, args, target, flySpeed, 0.1f, 50.0f, false))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_FLY_SPEED, LANG_YOURS_FLY_SPEED_CHANGED, flySpeed);
-            target->SetSpeed(MOVE_FLIGHT, flySpeed);
+            target->SetSpeedRate(MOVE_FLIGHT, flySpeed);
             return true;
         }
         return false;
@@ -787,7 +787,6 @@ public:
             if (newmoney <= 0)
             {
                 NotifyModification(handler, target, LANG_YOU_TAKE_ALL_MONEY, LANG_YOURS_ALL_MONEY_GONE);
-
                 target->SetMoney(0);
             }
             else
