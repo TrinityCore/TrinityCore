@@ -8,7 +8,7 @@
 #include "Field.h"
 #include "GameEventMgr.h"
 #include "Item.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectGuid.h"
