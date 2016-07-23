@@ -7,7 +7,7 @@
 #include "EventProcessor.h"
 #include "GossipDef.h"
 #include "Item.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "ObjectGuid.h"
 #include "ObjectMgr.h"
 #include "Player.h"
