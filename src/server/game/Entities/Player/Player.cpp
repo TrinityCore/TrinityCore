@@ -27635,6 +27635,46 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     return true;
 }
 
+struct CategoryCooldownInfo
+{
+    CategoryCooldownInfo(uint32 category, int32 cooldown)
+        : Category(category), ModCooldown(cooldown) { }
+
+    uint32 Category = 0; ///< SpellCategory Id
+    int32 ModCooldown = 0; ///< Reduced Cooldown in ms
+};
+
+void Player::SendSpellCategoryCooldowns() const
+{
+    std::vector<CategoryCooldownInfo> CategoryCooldowns;
+    Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
+    for (AuraEffect const* aurEff : categoryCooldownAuras)
+    {
+        uint32 categoryId = aurEff->GetMiscValue();
+        auto cItr = std::find_if(CategoryCooldowns.begin(), CategoryCooldowns.end(),
+            [categoryId](CategoryCooldownInfo const& cooldown)
+        {
+            return cooldown.Category == categoryId;
+        });
+
+        if (cItr == CategoryCooldowns.end())
+            CategoryCooldowns.emplace_back(categoryId, -aurEff->GetAmount());
+        else
+            cItr->ModCooldown -= aurEff->GetAmount();
+    }
+
+    WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 11);
+    data.WriteBits(CategoryCooldowns.size(), 21);
+    data.FlushBits();
+    for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
+    {
+        data << uint32(cooldown.Category);
+        data << int32(cooldown.ModCooldown);
+    }
+
+    SendDirectMessage(&data);
+}
+
 void Player::SetRestFlag(RestFlag restFlag, uint32 triggerId /*= 0*/)
 {
     uint32 oldRestMask = _restFlagMask;
