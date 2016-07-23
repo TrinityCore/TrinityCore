@@ -41,8 +41,6 @@ class instance_firelands : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-
-                BalerocGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -55,38 +53,6 @@ class instance_firelands : public InstanceMapScript
                         break;
                     case NPC_BALEROC:
                         BalerocGUID = creature->GetGUID();
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch(go->GetEntry())
-                {
-                    case GO_LORD_RHYOLITH_BRIDGE:
-                    case GO_BETH_TILAC_DOOR:
-                    //case GO_BALEROC_FIREWALL:
-                    case GO_MAJORDOMO_FIREWALL:
-                    case GO_RAGNAROS_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_LORD_RHYOLITH_BRIDGE:
-                    case GO_BETH_TILAC_DOOR:
-                    //case GO_BALEROC_FIREWALL:
-                    case GO_MAJORDOMO_FIREWALL:
-                    case GO_RAGNAROS_DOOR:
-                        AddDoor(go, false);
-                        break;
-                    default:
                         break;
                 }
             }

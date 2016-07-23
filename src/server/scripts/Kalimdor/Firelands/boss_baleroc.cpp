@@ -20,10 +20,9 @@
 ***
 ***Implement Vital Spark - http://www.wowhead.com/spell=99262
 ***Implement Vital Flame - http://www.wowhead.com/spell=99263
-***
-***Redesign achievement data storage system
 */
 
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -59,6 +58,8 @@ enum Spells
     SPELL_COUNTDOWN_4               = 99518,
     SPELL_COUNTDOWN_5               = 99519,
 
+    SPELL_SMOULDERING               = 101093,
+
     SPELL_BERSERK                   = 26662
 };
 
@@ -89,15 +90,13 @@ enum Emotes
     ABILITY_DECIMATION_BLADE        = 9
 };
 
-enum Guids
-{
-    GUID_TORMENTED    = 1
-};
-
 enum Misc
 {
     EQUIP_DECIMATION_BLADE          = 71082,
     EQUIP_INFERNO_BLADE             = 71138,
+
+    GUID_TORMENTED                  = 1,
+    DATA_SHARE_THE_PAIN             = 5830
 };
 
 class boss_baleroc : public CreatureScript
@@ -107,7 +106,7 @@ class boss_baleroc : public CreatureScript
 
         struct boss_balerocAI : public BossAI
         {
-            boss_balerocAI(Creature* creature) : BossAI(creature, DATA_BALEROC) {}
+            boss_balerocAI(Creature* creature) : BossAI(creature, DATA_BALEROC) { }
 
             bool _canYellKilledPlayer;
 
@@ -126,13 +125,13 @@ class boss_baleroc : public CreatureScript
                     case SPELL_INFERNO_BLADE:
                         SetEquipmentSlots(false, EQUIP_INFERNO_BLADE, EQUIP_UNEQUIP);
                         me->SetCanDualWield(false);
-                        events.ScheduleEvent(EVENT_RESTORE_WEAPONS, 15*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_RESTORE_WEAPONS, 15 * IN_MILLISECONDS);
                         break;
                     case SPELL_DECIMATION_BLADE:
                     case SPELL_DECIMATION_BLADE_2:
                         SetEquipmentSlots(false, EQUIP_DECIMATION_BLADE, EQUIP_UNEQUIP);
                         me->SetCanDualWield(false);
-                        events.ScheduleEvent(EVENT_RESTORE_WEAPONS, 15*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_RESTORE_WEAPONS, 15 * IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -145,18 +144,14 @@ class boss_baleroc : public CreatureScript
                 Talk(EMOTE_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 8.5*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 5 * IN_MILLISECONDS);
                 if (me->GetMap()->IsHeroic())
-                    events.ScheduleEvent(EVENT_COUNTDOWN, 26*IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_COUNTDOWN, 26 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BLADE, 30.5*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BERSERK, 6*MINUTE*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE*IN_MILLISECONDS);
 
                 //Reset our achievement list. We do this here and not in reset, as the debuff may have been spread after the boss has reset.
-                for (int i = 0; i < 25; i++)
-                {
-                    _sharedThePain[i].player = 0;
-                    _sharedThePain[i].tormented = 0;
-                }
+                _sharedThePain.clear();
             }
 
             void KilledUnit(Unit* who) override
@@ -176,16 +171,16 @@ class boss_baleroc : public CreatureScript
                 SetEquipmentSlots(true);
                 me->SetCanDualWield(true);;
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Map* map = me->GetMap())
+
+                Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+                for (auto const& playerRef : playerList)
                 {
-                    Map::PlayerList const &PlayerList = map->GetPlayers();
-                    if (!PlayerList.isEmpty())
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (i->GetSource()->ToPlayer()->HasQuestForItem(69848))
-                            {
-                                DoCast(101093);
-                                break;
-                            }
+                    Player* player = playerRef.GetSource();
+                    if (player->HasQuestForItem(69848))
+                    {
+                        DoCastAOE(SPELL_SMOULDERING);
+                        break;
+                    }
                 }
             }
 
@@ -198,7 +193,7 @@ class boss_baleroc : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void DoMeleeAttackIfReady()
+            void DoBalerocAttackIfReady()
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -232,9 +227,8 @@ class boss_baleroc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->IsAlive())
-                    if (!UpdateVictim())
-                        return;
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(diff);
 
@@ -259,7 +253,7 @@ class boss_baleroc : public CreatureScript
                                     Talk(ABILITY_DECIMATION_BLADE);
                                     break;
                             }
-                            events.ScheduleEvent(EVENT_BLADE, 47*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_BLADE, 47 * IN_MILLISECONDS);
                             break;
                         case EVENT_RESTORE_WEAPONS:
                             SetEquipmentSlots(true);
@@ -276,11 +270,11 @@ class boss_baleroc : public CreatureScript
                         case EVENT_SHARDS_OF_TORMENT:
                             Talk(EMOTE_SHARDS_OF_TORMENT);
                             DoCast(SPELL_SHARDS_OF_TORMENT);
-                            events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 34*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 34 * IN_MILLISECONDS);
                             break;
                         case EVENT_COUNTDOWN:
                             DoCast(SPELL_COUNTDOWN);
-                            events.ScheduleEvent(EVENT_COUNTDOWN, 48*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_COUNTDOWN, 48 * IN_MILLISECONDS);
                             break;
                         case EVENT_BERSERK:
                             DoCast(SPELL_BERSERK);
@@ -294,7 +288,8 @@ class boss_baleroc : public CreatureScript
                             break;
                     }
                 }
-                DoMeleeAttackIfReady();
+
+                DoBalerocAttackIfReady();
             }
 
             void SetGUID(ObjectGuid guid, int32 type = 0) override
@@ -302,41 +297,35 @@ class boss_baleroc : public CreatureScript
                 switch (type)
                 {
                     case GUID_TORMENTED:
-                        for (int i = 0; i < 25; i++)
-                        {
-                            if (_sharedThePain[i].player == guid)
-                            {
-                                _sharedThePain[i].tormented++;
-                                break;
-                            }
-                            else if (_sharedThePain[i].player == 0)
-                            {
-                                _sharedThePain[i].player = guid;
-                                _sharedThePain[i].tormented++;
-                                break;
-                            }
-                        }
+                    {
+                        auto itr = _sharedThePain.find(guid);
+                        if (itr == _sharedThePain.end())
+                            _sharedThePain.emplace(guid, 1);
+                        else
+                            ++itr->second;
                         break;
+                    }
                     default:
                         break;
                 }
             }
 
-            bool SharedThePain()
+            uint32 GetData(uint32 type) const override
             {
-                for (int i = 0; _sharedThePain[i].player != 0; i++)
-                    if (_sharedThePain[i].tormented > 3)
-                        return false;
-                return true;
+                if (type != DATA_SHARE_THE_PAIN)
+                    return 0;
+
+                for (auto const& pair : _sharedThePain)
+                {
+                    if (pair.second > 3)
+                        return 0;
+                }
+
+                return 1;
             }
 
             private:
-                struct _sharedThePain
-                {
-                    uint64 player;
-                    uint32 tormented;
-                }
-                _sharedThePain[25];
+                std::unordered_map<ObjectGuid, uint32> _sharedThePain;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -386,7 +375,7 @@ class npc_shard_of_torment : public CreatureScript
                         _baleroc->AI()->KilledUnit(who);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 _events.Update(diff);
 
@@ -412,7 +401,7 @@ class npc_shard_of_torment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_shard_of_tormentAI(creature);
+            return GetFirelandsAI<npc_shard_of_tormentAI>(creature);
         }
 };
 
@@ -425,7 +414,7 @@ class spell_countdown_p1 : public SpellScriptLoader
         {
             PrepareSpellScript(spell_countdown_p1_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -561,14 +550,14 @@ class spell_decimating_strike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_decimating_strike_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return false;
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DECIMATING_STRIKE))
                     return false;
@@ -589,13 +578,13 @@ class spell_decimating_strike : public SpellScriptLoader
                     SetHitDamage(uint32(250000));
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_decimating_strike_SpellScript::ChangeDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_decimating_strike_SpellScript();
         }
@@ -610,7 +599,7 @@ class spell_shards_of_torment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shards_of_torment_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -675,7 +664,7 @@ class spell_baleroc_torment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_torment_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
@@ -747,17 +736,12 @@ class spell_baleroc_tormented : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_baleroc_tormented_SpellScript::ChangeDamage);
             }
 
         };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_baleroc_tormented_SpellScript();
-        }
 
         class spell_baleroc_tormented_AuraScript : public AuraScript
         {
@@ -779,6 +763,11 @@ class spell_baleroc_tormented : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_baleroc_tormented_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_baleroc_tormented_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const override
         {
@@ -823,7 +812,7 @@ class spell_baleroc_tormented_heroic : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_tormented_heroic_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -854,13 +843,10 @@ class achievement_share_the_pain : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            if (!target)
+            if (!target || !target->IsAIEnabled)
                 return false;
 
-            if (BalerocAI* balerocAI = CAST_AI(BalerocAI, target->GetAI()))
-                return balerocAI->SharedThePain();
-
-            return false;
+            return target->GetAI()->GetData(DATA_SHARE_THE_PAIN) != 0;
         }
 };
 
