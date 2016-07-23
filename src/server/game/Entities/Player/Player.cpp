@@ -25589,9 +25589,9 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     {
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)              // Loop through all talents.
         {
-            if (const TalentEntry* tmpTalent = sTalentStore.LookupEntry(i)) // Someday, someone needs to revamp the way talents are tracked
+            if (TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i)) // Someday, someone needs to revamp the way talents are tracked
             {
-                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+                for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
                 {
                     if (tmpTalent->RankID[rank] != 0)
                     {
