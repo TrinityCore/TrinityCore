@@ -144,11 +144,11 @@ class boss_altairus : public CreatureScript
                         if (Creature* twister = me->SummonCreature(NPC_TWISTER, TwisterSpawnPoints[i]))
                             twister->GetMotionMaster()->MoveRandom(10.0f);
             }
-            
+
             void CheckPlatform()
             {
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
-	
+
                 if (!playerList.isEmpty())
                     for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         if (Player* player = itr->GetSource())
@@ -182,8 +182,8 @@ class boss_altairus : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_BLAST:
                             CheckPlatform();
-	                        events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 5000);
-                             break;
+                            events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 5000);
+                            break;
                         default:
                             break;
                     }
@@ -202,216 +202,216 @@ class boss_altairus : public CreatureScript
 // 47305 - Air Current
 class npc_air_current : public CreatureScript
 {
-public:
-    npc_air_current() : CreatureScript("npc_air_current") { }
+    public:
+        npc_air_current() : CreatureScript("npc_air_current") { }
 
-    struct npc_air_currentAI : public ScriptedAI
-    {
-        npc_air_currentAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_air_currentAI : public ScriptedAI
         {
-            me->SetDisableGravity(true);
-        }
-
-        void SpellHit(Unit* /*unit*/, const SpellInfo* spellInfo) override
-        {
-            if (spellInfo->Id != SPELL_CALL_THE_WIND)
-                return;
-
-            DoCast(me, SPELL_CALL_THE_WIND_AURA);
-
-            events.ScheduleEvent(EVENT_SET_FACING, 400);
-            events.ScheduleEvent(EVENT_CAST_VISUAL, 1600);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            npc_air_currentAI(Creature* creature) : ScriptedAI(creature)
             {
-                switch (eventId)
+                me->SetDisableGravity(true);
+            }
+
+            void SpellHit(Unit* /*unit*/, const SpellInfo* spellInfo) override
+            {
+                if (spellInfo->Id != SPELL_CALL_THE_WIND)
+                    return;
+
+                DoCast(me, SPELL_CALL_THE_WIND_AURA);
+
+                events.ScheduleEvent(EVENT_SET_FACING, 400);
+                events.ScheduleEvent(EVENT_CAST_VISUAL, 1600);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (events.Empty())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_SET_FACING:
-                        if (Creature* invisibleStalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER, 100.0f))
-                        {
-                            invisibleStalker->CastStop();
-                            invisibleStalker->SetFacingToObject(me);
-                        }
-                        break;
-                    case EVENT_CAST_VISUAL:
-                        if (Creature* invisibleStalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER, 100.0f))
-                            invisibleStalker->CastSpell(me, SPELL_CALL_THE_WIND_CHANNEL);
-                        break;
-                    default:
-                        break;
+                    switch (eventId)
+                    {
+                        case EVENT_SET_FACING:
+                            if (Creature* invisibleStalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER, 100.0f))
+                            {
+                                invisibleStalker->CastStop();
+                                invisibleStalker->SetFacingToObject(me);
+                            }
+                            break;
+                        case EVENT_CAST_VISUAL:
+                            if (Creature* invisibleStalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER, 100.0f))
+                                invisibleStalker->CastSpell(me, SPELL_CALL_THE_WIND_CHANNEL);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
+
+        private:
+            EventMap events;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetInstanceAI<npc_air_currentAI>(creature);
         }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_air_currentAI>(creature);
-    }
 };
 
 // 88276 - Call The Wind
 class spell_call_the_wind : public SpellScriptLoader
 {
-public:
-    spell_call_the_wind() : SpellScriptLoader("spell_call_the_wind") { }
+    public:
+        spell_call_the_wind() : SpellScriptLoader("spell_call_the_wind") { }
 
-    class spell_call_the_wind_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_call_the_wind_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_call_the_wind_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CALL_THE_WIND_AURA))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_call_the_wind_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CALL_THE_WIND_AURA))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_CALL_THE_WIND_AURA));
+                Trinity::Containers::RandomResizeList(targets, 1);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CALL_THE_WIND_AURA);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_call_the_wind_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffectHitTarget += SpellEffectFn(spell_call_the_wind_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            if (targets.empty())
-                return;
-
-            targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_CALL_THE_WIND_AURA));
-            Trinity::Containers::RandomResizeList(targets, 1);
+            return new spell_call_the_wind_SpellScript();
         }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CALL_THE_WIND_AURA);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_call_the_wind_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            OnEffectHitTarget += SpellEffectFn(spell_call_the_wind_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_call_the_wind_SpellScript();
-    }
 };
 
 // 88282 - Upwind of Altairus
 class spell_upwind_of_altairus : public SpellScriptLoader
 {
-public:
-    spell_upwind_of_altairus() : SpellScriptLoader("spell_upwind_of_altairus") { }
+    public:
+        spell_upwind_of_altairus() : SpellScriptLoader("spell_upwind_of_altairus") { }
 
-    class spell_upwind_of_altairus_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_upwind_of_altairus_SpellScript);
-
-        void GetDistance()
+        class spell_upwind_of_altairus_SpellScript : public SpellScript
         {
-            Unit* caster = GetCaster();
-            if (InstanceScript* instance = caster->GetInstanceScript())
-                if (Creature* altairus = instance->GetCreature(DATA_ALTAIRUS))
-                    upwindDistance = caster->GetExactDist(altairus);
-        }
+            PrepareSpellScript(spell_upwind_of_altairus_SpellScript);
 
-        void CheckDistance(SpellEffIndex /*effIndex*/)
-        {
-            Unit* target = GetHitUnit();
-            if (GetCaster()->GetExactDist(target) < upwindDistance)
+            void GetDistance()
             {
-                // Upwind of Altairus (applied by default effects)
-                if (target->HasAura(SPELL_DOWNWIND_OF_ALTAIRUS))
-                    target->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
+                Unit* caster = GetCaster();
+                if (InstanceScript* instance = caster->GetInstanceScript())
+                    if (Creature* altairus = instance->GetCreature(DATA_ALTAIRUS))
+                        upwindDistance = caster->GetExactDist(altairus);
             }
-            else
+
+            void CheckDistance(SpellEffIndex /*effIndex*/)
             {
-                // Downwind of Altairus
-                PreventHitDefaultEffect(EFFECT_0);
-                PreventHitDefaultEffect(EFFECT_1);
-                if (target->HasAura(SPELL_UPWIND_OF_ALTAIRUS))
-                    target->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
-                target->CastSpell(target, SPELL_DOWNWIND_OF_ALTAIRUS, true);
+                Unit* target = GetHitUnit();
+                if (GetCaster()->GetExactDist(target) < upwindDistance)
+                {
+                    // Upwind of Altairus (applied by default effects)
+                    if (target->HasAura(SPELL_DOWNWIND_OF_ALTAIRUS))
+                        target->RemoveAurasDueToSpell(SPELL_DOWNWIND_OF_ALTAIRUS);
+                }
+                else
+                {
+                    // Downwind of Altairus
+                    PreventHitDefaultEffect(EFFECT_0);
+                    PreventHitDefaultEffect(EFFECT_1);
+                    if (target->HasAura(SPELL_UPWIND_OF_ALTAIRUS))
+                        target->RemoveAurasDueToSpell(SPELL_UPWIND_OF_ALTAIRUS);
+                    target->CastSpell(target, SPELL_DOWNWIND_OF_ALTAIRUS, true);
+                }
             }
-        }
 
-        void Register() override
+            void Register() override
+            {
+                BeforeCast += SpellCastFn(spell_upwind_of_altairus_SpellScript::GetDistance);
+                OnEffectHitTarget += SpellEffectFn(spell_upwind_of_altairus_SpellScript::CheckDistance, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+
+        private:
+            float upwindDistance;
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            BeforeCast += SpellCastFn(spell_upwind_of_altairus_SpellScript::GetDistance);
-            OnEffectHitTarget += SpellEffectFn(spell_upwind_of_altairus_SpellScript::CheckDistance, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            return new spell_upwind_of_altairus_SpellScript();
         }
-
-    private:
-        float upwindDistance;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_upwind_of_altairus_SpellScript();
-    }
 };
 
 // 88772 - Call the Wind (visual, channeling on Air Current with Call The Wind aura)
 class spell_call_the_wind_channel : public SpellScriptLoader
 {
-public:
-    spell_call_the_wind_channel() : SpellScriptLoader("spell_call_the_wind_channel") { }
+    public:
+        spell_call_the_wind_channel() : SpellScriptLoader("spell_call_the_wind_channel") { }
 
-    class spell_call_the_wind_channel_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_call_the_wind_channel_AuraScript);
-
-        void RemoveCallTheWindAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_call_the_wind_channel_AuraScript : public AuraScript
         {
-            if (Creature* creature = GetOwner()->ToCreature())
-                creature->RemoveAurasDueToSpell(SPELL_CALL_THE_WIND_AURA);
-        }
+            PrepareAuraScript(spell_call_the_wind_channel_AuraScript);
 
-        void Register() override
+            void RemoveCallTheWindAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* creature = GetOwner()->ToCreature())
+                    creature->RemoveAurasDueToSpell(SPELL_CALL_THE_WIND_AURA);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_call_the_wind_channel_AuraScript::RemoveCallTheWindAura, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_call_the_wind_channel_AuraScript::RemoveCallTheWindAura, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_call_the_wind_channel_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_call_the_wind_channel_AuraScript();
-    }
 };
 
 // 88322 - Chilling Breath
 class spell_chilling_breath : public SpellScriptLoader
 {
-public:
-    spell_chilling_breath() : SpellScriptLoader("spell_chilling_breath") { }
+    public:
+        spell_chilling_breath() : SpellScriptLoader("spell_chilling_breath") { }
 
-    class spell_chilling_breath_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_chilling_breath_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        class spell_chilling_breath_SpellScript : public SpellScript
         {
-            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
-        }
+            PrepareSpellScript(spell_chilling_breath_SpellScript);
 
-        void Register() override
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_chilling_breath_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_chilling_breath_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_chilling_breath_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_chilling_breath_SpellScript();
-    }
 };
 
 void AddSC_boss_altairus()
