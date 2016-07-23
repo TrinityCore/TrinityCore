@@ -418,7 +418,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_6:
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT)))
                             {
-                                tyrannus->SetSpeed(MOVE_FLIGHT, 3.5f, true);
+                                tyrannus->SetSpeedRate(MOVE_FLIGHT, 3.5f);
                                 tyrannus->GetMotionMaster()->MovePoint(1, outroPos[4]);
                                 _tyrannusGUID = tyrannus->GetGUID();
                             }

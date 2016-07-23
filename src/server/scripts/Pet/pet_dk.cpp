@@ -103,8 +103,8 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
                 // Fly Away
                 me->SetCanFly(true);
-                me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
-                me->SetSpeed(MOVE_RUN, 0.75f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 0.75f);
+                me->SetSpeedRate(MOVE_RUN, 0.75f);
                 float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
                 float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
                 float z = me->GetPositionZ() + 40;

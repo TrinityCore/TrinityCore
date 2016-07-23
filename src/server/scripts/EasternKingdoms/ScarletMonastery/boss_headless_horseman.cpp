@@ -450,7 +450,7 @@ public:
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetDisableGravity(true);
-            me->SetSpeed(MOVE_WALK, 5.0f, true);
+            me->SetSpeedRate(MOVE_WALK, 5.0f);
             wp_reached = false;
             count = 0;
             say_timer = 3000;

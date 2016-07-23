@@ -703,7 +703,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                         if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
                             turret->KillSelf();
 
-                        me->SetSpeed(MOVE_RUN, 1.5f, true);
+                        me->SetSpeedRate(MOVE_RUN, 1.5f);
                         me->GetMotionMaster()->MovePoint(WP_MKII_P1_IDLE, VehicleRelocation[WP_MKII_P1_IDLE]);
                     }
                     else if (events.IsInPhase(PHASE_VOL7RON))
