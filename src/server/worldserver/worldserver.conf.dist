@@ -3953,7 +3953,7 @@ VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,
 #
 #    Transmogrification.TransmogNpcText
 #        Description: The npc_text entry of the info menu for transmogrification
-#        Default:    50000
+#        Default:    65000
 #
 #    Transmogrification.Allowed
 #        Description: A list of item entries that are allowed for transmogrification (skips quality and CanUseItem check)
@@ -3968,7 +3968,7 @@ VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,
 Logger.custom.transmog = 3, Console Server
 
 Transmogrification.EnableTransmogInfo = 1
-Transmogrification.TransmogNpcText = 50000
+Transmogrification.TransmogNpcText = 65000
 
 Transmogrification.Allowed = ""
 Transmogrification.NotAllowed = ""
@@ -4121,7 +4121,7 @@ Transmogrification.IgnoreReqStats = 0
 #
 #    Transmogrification.SetNpcText
 #        Description: The npc_text entry of the info menu for the set feature
-#        Default:    50001
+#        Default:    65001
 #
 #    Transmogrification.SetCostModifier
 #        Description: A multiplier for the default gold cost (all costs summed together) (change to 0 for no default cost)
@@ -4135,7 +4135,7 @@ Transmogrification.EnableSets = 1
 Transmogrification.MaxSets = 10
 
 Transmogrification.EnableSetInfo = 1
-Transmogrification.SetNpcText = 50001
+Transmogrification.SetNpcText = 65001
 
 Transmogrification.SetCostModifier = 3.0
 Transmogrification.SetCopperCost = 0
