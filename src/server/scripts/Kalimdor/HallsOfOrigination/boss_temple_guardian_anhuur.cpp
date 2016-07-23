@@ -219,7 +219,10 @@ public:
 
         uint32 GetData(uint32 type) const override
         {
-            return type == DATA_I_HATE_THAT_SONG ? _achievement : 0;
+            if (type == DATA_I_HATE_THAT_SONG)
+                return _achievement ? 1 : 0;
+
+            return 0;
         }
 
         void UpdateAI(uint32 diff) override
@@ -427,16 +430,12 @@ class achievement_hate_that_song : public AchievementCriteriaScript
     public:
         achievement_hate_that_song() : AchievementCriteriaScript("achievement_hate_that_song") { }
 
-        bool OnCheck(Player* /*source*/, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            if (!target)
+            if (!target || !target->IsAIEnabled)
                 return false;
 
-            if (target->GetMap()->IsHeroic())
-                if (target->ToCreature())
-                    return target->ToCreature()->AI()->GetData(DATA_I_HATE_THAT_SONG);
-
-            return false;
+            return target->GetMap()->IsHeroic() && target->GetAI()->GetData(DATA_I_HATE_THAT_SONG);
         }
 };
 
