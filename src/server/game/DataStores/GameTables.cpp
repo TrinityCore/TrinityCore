@@ -63,7 +63,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
-        Tokenizer values(line, '\t', columnDefs.size());
+        Tokenizer values(line, '\t', uint32(columnDefs.size()));
         if (!values.size())
             break;
 
@@ -102,9 +102,9 @@ void LoadGameTables(std::string const& dataPath)
     gtPath /= "gt";
 
     std::vector<std::string> bad_gt_files;
-    uint32 gameTableCount = 0;
+    uint32 gameTableCount = 0, expectedGameTableCount = 0;
 
-#define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file)
+#define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
     LOAD_GT(sArmorMitigationByLvlGameTable, "ArmorMitigationByLvl.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
@@ -133,13 +133,13 @@ void LoadGameTables(std::string const& dataPath)
 #undef LOAD_GT
 
     // error checks
-    if (!bad_gt_files.empty())
+    if (gameTableCount != expectedGameTableCount)
     {
         std::ostringstream str;
         for (std::string const& err  : bad_gt_files)
             str << err << std::endl;
 
-        WPFatal("misc", "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
+        WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
     }
 
     TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
