@@ -19,7 +19,7 @@
 #define AUCTION_HOUSE_BOT_SELLER_H
 
 #include "Define.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "AuctionHouseBot.h"
 
 struct ItemToSell
