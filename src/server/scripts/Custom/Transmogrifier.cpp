@@ -26,7 +26,7 @@ Cant transmogrify rediculus items // Foereaper: would be fun to stab people with
 #include "GameEventMgr.h"
 #include "GossipDef.h"
 #include "Item.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
