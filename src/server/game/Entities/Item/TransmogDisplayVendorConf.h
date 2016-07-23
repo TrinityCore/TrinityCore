@@ -18,7 +18,7 @@ http://rochet2.github.io/Transmogrification
 // Note! If you use both, set this to true (1) and in scriptloader make transmog load first
 
 #include "Define.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "SharedDefines.h"
 #include <set>
 #include <vector>

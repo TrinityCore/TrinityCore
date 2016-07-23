@@ -18,7 +18,7 @@ http://rochet2.github.io/Transmogrification
 #include "Field.h"
 #include "DBCStructure.h"
 #include "Item.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
