@@ -668,7 +668,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     5 - (Expansion 5)
+#        Default:     6 - (Expansion 6)
+#                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
 #                     3 - (Expansion 3)
 #                     2 - (Expansion 2)
@@ -796,7 +797,7 @@ CharactersPerRealm = 12
 #
 #    HeroicCharactersPerRealm
 #        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
+#        Range:       1-12
 #        Default:     1
 
 HeroicCharactersPerRealm = 1
@@ -810,6 +811,24 @@ HeroicCharactersPerRealm = 1
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForHeroicCharacter = 55
+
+#
+#    DemonHuntersPerRealm
+#        Description: Limit number of demon hunter characters per account on this realm.
+#        Range:       1-12
+#        Default:     1
+
+DemonHuntersPerRealm = 1
+
+#
+#    CharacterCreating.MinLevelForDemonHunter
+#        Description: Limit creating demon hunters only for account with another
+#                     character of specific level.
+#        Default:     70 - (Enabled, Requires at least another level 70 character)
+#                     0  - (Disabled)
+#                     1  - (Enabled, Requires at least another level 1 character)
+
+CharacterCreating.MinLevelForDemonHunter = 70
 
 #
 #    SkipCinematics
@@ -852,6 +871,14 @@ StartPlayerLevel = 1
 #        Default:     55
 
 StartHeroicPlayerLevel = 55
+
+#
+#    StartDemonHunterPlayerLevel
+#        Description: Staring level for demon hunters after creation.
+#        Range:       98-MaxPlayerLevel
+#        Default:     98
+
+StartDemonHunterPlayerLevel = 98
 
 #
 #    StartPlayerMoney
