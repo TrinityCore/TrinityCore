@@ -20,7 +20,6 @@
 #include "SpellAuraEffects.h"
 
 static const uint8 NUM_TALENT_TREES = 3;
-static const uint8 NUM_SPEC_ICONICS = 3;
 
 enum Specs
 {
@@ -428,86 +427,17 @@ enum Spells
     SPELL_LIFEBLOOM           = 48451
 };
 
-// As it turns out, finding out "how many points does the player have in spec X" is actually really expensive to do frequently
-// So instead, we just check for a handful of spells that, realistically, no spec is gonna go without (and "has spell" is cheap!)
-// Can players deliberately trick this check? Yes.
-// Is it worth doing? No.
-// Close enough.
-static const uint32 SPEC_ICONICS[MAX_CLASSES][NUM_TALENT_TREES][NUM_SPEC_ICONICS] = {
-    { // CLASS_NONE
-        {0,0,0},
-        {0,0,0},
-        {0,0,0}
-    },
-    { // CLASS_WARRIOR
-        {SPELL_BLADESTORM, SPELL_MORTAL_STRIKE, SPELL_SWEEPING_STRIKES}, // Arms
-        {PASSIVE_TITANS_GRIP, SPELL_BLOODTHIRST, SPELL_DEATH_WISH}, // Fury
-        {SPELL_SHOCKWAVE, SPELL_DEVASTATE, SPELL_VIGILANCE} // Protection
-    },
-    { // CLASS_PALADIN
-        {SPELL_BEACON_OF_LIGHT, SPELL_HOLY_SHOCK, PASSIVE_ILLUMINATION}, // Holy
-        {SPELL_HAMMER_OF_RIGHTEOUS, SPELL_HOLY_SHIELD, SPELL_BLESS_OF_SANC}, // Protection
-        {SPELL_DIVINE_STORM, SPELL_CRUSADER_STRIKE, SPELL_SEAL_OF_COMMAND} // Retribution
-    },
-    { // CLASS_HUNTER
-        {PASSIVE_BEAST_MASTERY, PASSIVE_BEAST_WITHIN, SPELL_BESTIAL_WRATH}, // Beast Mastery
-        {SPELL_CHIMERA_SHOT, PASSIVE_TRUESHOT_AURA, SPELL_AIMED_SHOT}, // Marksmanship
-        {SPELL_EXPLOSIVE_SHOT, SPELL_WYVERN_STING, PASSIVE_LOCK_AND_LOAD} // Survival
-    },
-    { // CLASS_ROGUE
-        {SPELL_HUNGER_FOR_BLOOD, SPELL_MUTILATE, SPELL_COLD_BLOOD}, // Assassination
-        {SPELL_KILLING_SPREE, SPELL_ADRENALINE_RUSH, SPELL_BLADE_FLURRY}, // Combat
-        {SPELL_SHADOW_DANCE, SPELL_PREMEDITATION, SPELL_HEMORRHAGE} // Sublety
-    },
-    { // CLASS_PRIEST
-        {SPELL_PENANCE, SPELL_POWER_INFUSION, PASSIVE_SOUL_WARDING}, // Discipline
-        {SPELL_GUARDIAN_SPIRIT, PASSIVE_SPIRIT_REDEMPTION, SPELL_DESPERATE_PRAYER}, // Holy
-        {SPELL_VAMPIRIC_TOUCH, SPELL_SHADOWFORM, SPELL_VAMPIRIC_EMBRACE} // Shadow
-    },
-    { // CLASS_DEATH_KNIGHT
-        {SPELL_HEART_STRIKE, SPELL_HYSTERIA, SPELL_RUNE_TAP}, // Blood
-        {SPELL_HOWLING_BLAST, SPELL_FROST_STRIKE, PASSIVE_ICY_TALONS}, // Frost
-        {SPELL_SCOURGE_STRIKE, PASSIVE_MASTER_OF_GHOUL, PASSIVE_UNHOLY_BLIGHT} // Unholy
-    },
-    { // CLASS_SHAMAN
-        {SPELL_THUNDERSTORM, SPELL_TOTEM_OF_WRATH, PASSIVE_ELEMENTAL_FOCUS}, // Elemental
-        {SPELL_FERAL_SPIRIT, SPELL_LAVA_LASH, PASSIVE_SPIRIT_WEAPONS}, // Enhancement
-        {SPELL_RIPTIDE, SPELL_MANA_TIDE_TOTEM, SPELL_SHA_NATURE_SWIFT} // Restoration
-    },
-    { // CLASS_MAGE
-        {SPELL_ARCANE_BARRAGE, SPELL_ARCANE_POWER, SPELL_FOCUS_MAGIC}, // Arcane
-        {SPELL_LIVING_BOMB, SPELL_COMBUSTION, SPELL_PYROBLAST}, // Fire
-        {SPELL_DEEP_FREEZE, SPELL_ICE_BARRIER, SPELL_ICY_VEINS} // Frost
-    },
-    { // CLASS_WARLOCK
-        {SPELL_HAUNT, SPELL_UNSTABLE_AFFLICTION, PASSIVE_SIPHON_LIFE}, // Affliction
-        {SPELL_METAMORPHOSIS, SPELL_DEMONIC_EMPOWERMENT, SPELL_SOUL_LINK}, // Demonology
-        {SPELL_CHAOS_BOLT, SPELL_CONFLAGRATE, SPELL_SHADOWBURN} // Destruction
-    },
-    { // CLASS_UNK
-        {0,0,0},
-        {0,0,0},
-        {0,0,0}
-    },
-    { // CLASS_DRUID
-        {SPELL_STARFALL, SPELL_MOONKIN_FORM, SPELL_INSECT_SWARM}, // Balance
-        {SPELL_BERSERK, SPELL_MANGLE, SPELL_SURVIVAL_INSTINCTS}, // Feral
-        {SPELL_WILD_GROWTH, SPELL_TREE_OF_LIFE, SPELL_SWIFTMEND} // Restoration
-    }
-};
-
 uint8 PlayerAI::GetPlayerSpec(Player const* who)
 {
     if (!who)
         return 0;
 
-    uint8 wClass = who->getClass();
-    for (uint8 tier = 0; tier < NUM_SPEC_ICONICS; ++tier)
-        for (uint8 tree = 0; tree < NUM_TALENT_TREES; ++tree)
-            if (SPEC_ICONICS[wClass][tree][tier] && who->HasSpell(SPEC_ICONICS[wClass][tree][tier]))
-                return tree;
+    uint32 tabId = who->GetPrimaryTalentTree(who->GetActiveSpec());
+    TalentTabEntry const* tabEntry = sTalentTabStore.LookupEntry(tabId);
+    if (!tabEntry)
+        return 0;
 
-    return 0;
+    return tabEntry->tabpage;
 }
 
 bool PlayerAI::IsPlayerHealer(Player const* who)
