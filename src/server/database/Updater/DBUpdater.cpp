@@ -415,7 +415,10 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (ret != EXIT_SUCCESS)
     {
         TC_LOG_FATAL("sql.updates", "Applying of file \'%s\' to database \'%s\' failed!" \
-            " If you are a user, pull the latest revision from the repository. If you are a developer, fix your sql query.",
+            " If you are a user, please pull the latest revision from the repository. "
+            "Also make sure you have not applied any of the databases with your sql client. "
+            "You cannot use auto-update system and import sql files from TrinityCore repository with your sql client. "
+            "If you are a developer, please fix your sql query.",
             path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
 
         throw UpdateException("update failed");
