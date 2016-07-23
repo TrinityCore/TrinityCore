@@ -11090,12 +11090,14 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_MANA:
             return GetCreateMana();
         case POWER_RAGE:
+        case POWER_PAIN:
             return 1000;
         case POWER_FOCUS:
             if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
                 return 100;
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
+        case POWER_FURY:
             return 100;
         case POWER_COMBO_POINTS:
             return 5;

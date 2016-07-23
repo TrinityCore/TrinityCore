@@ -482,9 +482,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
 
     // set starting level
-    uint32 start_level = getClass() != CLASS_DEATH_KNIGHT
-        ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-        : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+    uint32 start_level = sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL);
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        start_level = sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+    else if (getClass() == CLASS_DEMON_HUNTER)
+        start_level = sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL);
 
     if (m_session->HasPermission(rbac::RBAC_PERM_USE_START_GM_LEVEL))
     {
@@ -11933,7 +11935,8 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
     {
         pItem->SetBinding(true);
-        GetSession()->GetCollectionMgr()->AddItemAppearance(pItem);
+        if (IsInWorld())
+            GetSession()->GetCollectionMgr()->AddItemAppearance(pItem);
     }
 
     TC_LOG_DEBUG("entities.player.items", "Player::SetVisibleItemSlot: Player '%s' (%s), Slot: %u, Item: %u",
@@ -26710,6 +26713,7 @@ uint32 Player::CalculateTalentsTiers() const
             break;
         case CLASS_DEMON_HUNTER:
             rowLevels = DHTalentRowLevels;
+            break;
         default:
             rowLevels = DefaultTalentRowLevels;
             break;
