@@ -3188,6 +3188,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;
+            case 46867: // Wrecking Crew
+            case 56611:
+            case 56612:
+                spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x02000000, 0, 0);
+                break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
