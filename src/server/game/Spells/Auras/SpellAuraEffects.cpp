@@ -2050,13 +2050,15 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
 
                     // Polymorph (sheep)
                     if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellInfo()->SpellIconID == 82 && GetSpellInfo()->SpellVisual[0] == 12978)
+                    {
                         if (Unit* caster = GetCaster())
                         {
                             if (caster->HasAura(52648))         // Glyph of the Penguin
                                 model_id = 26452;
                             else if (caster->HasAura(57927))	// Glyph of the Monkey 
-                                model_id = 21362; 
+                                model_id = 21362;
                         }
+                    }
 
                     target->SetDisplayId(model_id);
 
