@@ -381,10 +381,10 @@ void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) co
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const
 {
-    std::string questTitle            = quest->GetTitle();
-    std::string questDetails          = quest->GetDetails();
-    std::string questObjectives       = quest->GetObjectives();
-    std::string questAreaDescription  = quest->GetAreaDescription();
+    std::string questTitle           = quest->GetTitle();
+    std::string questDetails         = quest->GetDetails();
+    std::string questObjectives      = quest->GetObjectives();
+    std::string questAreaDescription = quest->GetAreaDescription();
     std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
     std::string questGiverTargetName = quest->GetQuestGiverTargetName();
     std::string questTurnTextWindow  = quest->GetQuestTurnTextWindow();
@@ -409,10 +409,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
-    uint8 ExtraQuestWindow = 0;
-    if (quest->HasFlag(QUEST_FLAGS_AUTO_ACCEPT) && !quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_AUTO_ACCEPT))
-        ExtraQuestWindow = 1;
-	
     WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
     data << uint64(npcGUID);
     data << uint64(_session->GetPlayer()->GetDivider());
@@ -430,7 +426,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());
     data << uint8(0);                                       // IsFinished? value is sent back to server in quest accept packet
-    data << uint8(ExtraQuestWindow); 						//  "0 = normal, 1 = gives extra ! symbol (Quest window on right side"
+    data << uint8(quest->IsStartAtAreaTrigger() ? 1 : 0);   // 4.x Starts at AreaTrigger?
     data << uint32(quest->GetRequiredSpell());              // 4.x
 
     quest->BuildExtraQuestInfo(data, _session->GetPlayer());

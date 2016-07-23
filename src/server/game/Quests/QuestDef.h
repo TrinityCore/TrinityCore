@@ -304,6 +304,7 @@ class Quest
         bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
         bool   CanIncreaseRewardedQuestCounters() const;
+        bool   IsStartAtAreaTrigger() const { return StartsAtAreaTrigger; }
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
@@ -409,6 +410,9 @@ class Quest
         std::string QuestTurnTargetName;
         uint32 SoundAccept;
         uint32 SoundTurnIn;
+        bool StartsAtAreaTrigger;
+
+        void SetStartAtAreaTrigger() { StartsAtAreaTrigger = true; }
 
         // quest_template_addon table (custom data)
         uint32 MaxLevel              = 0;

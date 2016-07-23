@@ -162,6 +162,8 @@ Quest::Quest(Field* questRecord)
     QuestTurnTargetName = questRecord[129].GetString();
     SoundAccept = questRecord[130].GetUInt16();
     SoundTurnIn = questRecord[131].GetUInt16();
+
+    StartsAtAreaTrigger = false;
 }
 
 void Quest::LoadQuestDetails(Field* fields)

@@ -5805,6 +5805,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
         }
 
         _questAreaTriggerStore[trigger_ID] = quest_ID;
+        const_cast<Quest*>(quest)->SetStartAtAreaTrigger();
 
     } while (result->NextRow());
 
