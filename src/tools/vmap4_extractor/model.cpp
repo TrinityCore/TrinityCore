@@ -45,7 +45,7 @@ bool Model::open()
 
     _unload();
 
-    int32 m2start = 0;
+    uint32 m2start = 0;
     char const* ptr = f.getBuffer();
     while (m2start + 4 < f.getSize() && *reinterpret_cast<uint32 const*>(ptr) != '02DM')
     {
