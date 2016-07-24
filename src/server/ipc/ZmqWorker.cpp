@@ -27,7 +27,6 @@ ZmqWorker::~ZmqWorker()
 {
     delete _taskQueue;
     delete _results;
-    delete _inproc;
 }
 
 void ZmqWorker::HandleOpen()
