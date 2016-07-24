@@ -86,7 +86,6 @@ enum MovementStatusElements
     MSETransportSeat,
     MSETransportTime,
     MSETransportTime2,
-    MSETransportTime3,
     MSETransportVehicleId,
     MSEPitch,
     MSEFallTime,
@@ -97,17 +96,6 @@ enum MovementStatusElements
     MSESplineElevation,
 
     MSECounter,
-
-    // Speed
-    MSESpeedWalk,
-    MSESpeedRun,
-    MSESpeedRunBack,
-    MSESpeedSwim,
-    MSESpeedSwimBack,
-    MSESpeedTurnRate,
-    MSESpeedFlight,
-    MSESpeedFlightBack,
-    MSESpeedPitchRate,
 
     // Special
     MSEZeroBit,         // writes bit value 1 or skips read bit
