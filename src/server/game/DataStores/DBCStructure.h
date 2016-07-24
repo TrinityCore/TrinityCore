@@ -486,6 +486,82 @@ struct AchievementCriteriaEntry
             uint64  killCount;                              // 4
         } honorable_kill;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS = 124
+        struct
+        {
+            uint32 unused;
+            uint32 goldCount;
+        } spent_gold_guild_repairs;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL    = 125
+        struct
+        {
+            uint32 unused;
+            uint32  level;
+        } reach_guild_level;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD = 126
+        struct
+        {
+            uint32 unused;
+            uint32 itemsCount;
+        } craft_items_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL = 127
+        struct
+        {
+            uint32 unused;
+            uint32 catchCount;
+        } catch_from_pool;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS = 128
+        struct
+        {
+            uint32 unused;
+            uint32 slotsCount;
+        } buy_guild_bank_slots;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS = 129
+        struct
+        {
+            uint32 unused;
+            uint32  pointsCount;
+        } earn_guild_achievement_points;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND = 130
+        struct
+        {
+            uint32 unused;
+            uint32 winCount;
+        } win_rated_battleground;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD = 134
+        struct
+        {
+            uint32 unused;
+            uint32 questCount;
+        } complete_quests_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD = 135
+        struct
+        {
+            uint32 unused;
+            uint32 killCount;
+        } honorable_kills_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD = 136
+        struct
+        {
+            uint32 unused;
+            uint32 count;
+        } kill_creature_type_guild;
+
+        struct
+        {
+            uint32 unused;       // 3
+            uint32 goldInCopper; // 4
+        } guild_gold_repairs;
+
         struct
         {
             uint32  unused;
