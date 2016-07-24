@@ -1,4 +1,4 @@
-CREATE TABLE `creature_template_outfits` (
+CREATE TABLE IF NOT EXISTS `creature_template_outfits` (
 	`entry` INT(10) UNSIGNED NOT NULL,
 	`race` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1',
 	`gender` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT '0 for male, 1 for female',

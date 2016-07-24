@@ -592,7 +592,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
                 data << uint32(display);                // displayId
                 data << uint8(it->second.race);         // race
                 data << uint8(it->second.gender);       // gender
-                data << uint8(1);                       // class
+                data << uint8(it->second.Class);        // class
                 data << uint8(it->second.skin);         // skin
                 data << uint8(it->second.face);         // face
                 data << uint8(it->second.hair);         // hair

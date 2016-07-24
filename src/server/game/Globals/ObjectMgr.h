@@ -140,6 +140,7 @@ typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 struct CreatureOutfit
 {
     uint8 race;
+    uint8 Class;
     uint8 gender;
     uint8 face;
     uint8 skin;

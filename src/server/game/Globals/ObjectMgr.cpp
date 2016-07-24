@@ -7966,9 +7966,7 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();   // for reload case (test only)
 
-    //                                                 0     1      2      3     4     5       6           7
-    QueryResult result = WorldDatabase.Query("SELECT entry, race, gender, skin, face, hair, haircolor, facialhair, "
-        //8       9        10    11     12     13    14     15     16     17     18
+    QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, "
         "head, shoulders, body, chest, waist, legs, feet, wrists, hands, back, tabard FROM creature_template_outfits");
 
     if (!result)
@@ -7993,6 +7991,14 @@ void ObjectMgr::LoadCreatureOutfits()
         if (!rEntry)
         {
             TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has incorrect race (%u).", entry, uint32(co.race));
+            continue;
+        }
+
+        co.Class = fields[i++].GetUInt8();
+        const ChrClassesEntry* cEntry = sChrClassesStore.LookupEntry(co.Class);
+        if (!cEntry)
+        {
+            TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has incorrect class (%u).", entry, uint32(co.Class));
             continue;
         }
 
