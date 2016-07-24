@@ -19,8 +19,6 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 
-static const uint8 NUM_TALENT_TREES = 3;
-
 enum Specs
 {
     SPEC_WARRIOR_ARMS = 0,
