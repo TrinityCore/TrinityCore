@@ -45,10 +45,15 @@ class spell_dh_chaos_strike : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dh_chaos_strike_AuraScript);
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                PreventDefaultAction();
+                if (!sSpellMgr->GetSpellInfo(SPELL_CHAOS_STRIKE_PROC))
+                    return false;
+                return true;
+            }
 
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
                 if (Unit* caster = GetCaster())
                     caster->CastCustomSpell(SPELL_CHAOS_STRIKE_PROC, SPELLVALUE_BASE_POINT0, aurEff->GetBaseAmount(), caster);
             }
@@ -74,28 +79,22 @@ class spell_dh_fel_rush : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dh_fel_rush_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FEL_RUSH_GROUND))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_FEL_RUSH_AIR))
+                    return false;
+                return true;
+            }
+
             void HandleDashGround(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     if (!caster->IsFalling() || caster->IsInWater())
                     {
                         caster->CastSpell(caster, SPELL_FEL_RUSH_GROUND, true);
-
-                        // Since there is no spell for selecting targets, probably because of the line form, we have to select thing in this ugly way.
-                        std::list<Unit*> TargetList;
-                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
-                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
-                        caster->VisitNearbyObject(10.0f, searcher);
-                        for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
-                        {
-                            Unit* target = *itr;
-                            if (!target || !target->IsAlive())
-                                continue;
-
-                            if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
-                                if (caster->IsValidAttackTarget(target))
-                                    caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
-                        }
+                        caster->CastSpell(caster, SPELL_FEL_RUSH_DAMAGE, true);
                     }
             }
 
@@ -106,21 +105,7 @@ class spell_dh_fel_rush : public SpellScriptLoader
                     {
                         caster->SetDisableGravity(true);
                         caster->CastSpell(caster, SPELL_FEL_RUSH_AIR, true);
-
-                        std::list<Unit*> TargetList;
-                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(caster, caster, 10.0f);
-                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, TargetList, checker);
-                        caster->VisitNearbyObject(10.0f, searcher);
-                        for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
-                        {
-                            Unit* target = *itr;
-                            if (!target || !target->IsAlive())
-                                continue;
-
-                            if (caster->HasInLine(target, caster->GetObjectSize() + target->GetObjectSize()))
-                                if (caster->IsValidAttackTarget(target))
-                                    caster->CastSpell(target, SPELL_FEL_RUSH_DAMAGE, true);
-                        }
+                        caster->CastSpell(caster, SPELL_FEL_RUSH_DAMAGE, true);
                     }
             }
 
