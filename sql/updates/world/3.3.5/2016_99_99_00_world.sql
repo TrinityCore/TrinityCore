@@ -96,7 +96,7 @@ INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES
 
 DELETE FROM `spell_custom_attr` WHERE `entry`=48642;
 INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
-(48642, 32768); -- SPELL_ATTR0_CU_IGNORE_ARMOR 
+(48642, 32768); -- SPELL_ATTR0_CU_IGNORE_ARMOR
 
 DELETE FROM `spell_script_names` where `ScriptName` IN ('spell_skadi_poisoned_spear','spell_freezing_cloud_area_right','spell_freezing_cloud_area_left','spell_summon_gauntlet_mobs_periodic','spell_skadi_launch_harpoon','spell_skadi_reset_check');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES

@@ -76,7 +76,7 @@ enum Emotes
 
 enum Data
 {
-    
+
     DATA_LOVE_TO_SKADI                   = 0,
     FIRST_WAVE_MAX_WARRIORS              = 10,
     FIRST_WAVE_SIZE                      = 13,
@@ -203,7 +203,7 @@ public:
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
             if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
-            
+
             firstWaveSummoned = true;
         }
 
@@ -318,7 +318,7 @@ public:
         uint8 loveSkadi;
         bool firstWaveSummoned;
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_skadiAI>(creature);
@@ -490,7 +490,7 @@ struct npc_skadi_trashAI : public ScriptedAI
         if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             skadi->AI()->JustSummoned(me);
     }
-    
+
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type != POINT_MOTION_TYPE)
