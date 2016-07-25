@@ -683,6 +683,12 @@ enum QuestPackageFilter
     QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
 };
 
+enum ScenarioStepFlags
+{
+    SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
+    SCENARIO_STEP_FLAG_SCENARIO_NOT_DONE    = 0x2 // Guessing that this indicates it can only be completed if the scenario has not yet ended (Only applies when used in conjunction with SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,

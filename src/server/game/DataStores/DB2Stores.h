@@ -130,6 +130,9 @@ TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortSt
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
 TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
+TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
+TC_GAME_API extern DB2Storage<ScenarioEventEntry>                   sScenarioEventEntryStore;
+TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
 TC_GAME_API extern DB2Storage<SkillLineEntry>                       sSkillLineStore;
 TC_GAME_API extern DB2Storage<SkillLineAbilityEntry>                sSkillLineAbilityStore;
 TC_GAME_API extern DB2Storage<SkillRaceClassInfoEntry>              sSkillRaceClassInfoStore;
