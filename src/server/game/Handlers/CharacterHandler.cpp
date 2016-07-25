@@ -266,6 +266,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint8 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
     bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
+    if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER) == 0) // char level = 0 means this check is disabled, so always true
+        canAlwaysCreateDemonHunter = true;
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
@@ -319,7 +321,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm);
+    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm) || canAlwaysCreateDemonHunter;
 
     SendPacket(charEnum.Write());
 }
