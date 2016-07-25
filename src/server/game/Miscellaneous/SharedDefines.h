@@ -2265,7 +2265,7 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_NO_ACTIONS    = 4
 };
 
-enum GameobjectTypes : uint8 // (6.0.3.19103)
+enum GameobjectTypes : uint8
 {
     GAMEOBJECT_TYPE_DOOR                        = 0,
     GAMEOBJECT_TYPE_BUTTON                      = 1,
@@ -2314,11 +2314,14 @@ enum GameobjectTypes : uint8 // (6.0.3.19103)
     GAMEOBJECT_TYPE_GARRISON_MONUMENT           = 44,
     GAMEOBJECT_TYPE_GARRISON_SHIPMENT           = 45,
     GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE    = 46,
-    GAMEOBJECT_TYPE_DO_NOT_USE_3                = 47,
-    GAMEOBJECT_TYPE_UI_LINK                     = 48
+    GAMEOBJECT_TYPE_ARTIFACT_FORGE              = 47,
+    GAMEOBJECT_TYPE_UI_LINK                     = 48,
+    GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE         = 49,
+    GAMEOBJECT_TYPE_GATHERING_NODE              = 50,
+    GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD       = 51
 };
 
-#define MAX_GAMEOBJECT_TYPE                  49             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  52             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
