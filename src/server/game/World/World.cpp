@@ -59,7 +59,6 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "GitRevision.h"
-#include "ScenarioMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
@@ -2142,10 +2141,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
     BattlePetMgr::Initialize();
-
-    TC_LOG_INFO("server.loading", "Loading scenarios");
-    sScenarioMgr->LoadDBCData();
-    sScenarioMgr->LoadDBData();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))

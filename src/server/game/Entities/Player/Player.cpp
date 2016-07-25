@@ -58,7 +58,6 @@
 #include "GuildMgr.h"
 #include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
-#include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "ItemPackets.h"
 #include "KillRewarder.h"
@@ -23038,10 +23037,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     // worldServerInfo.XRealmPvpAlert;  /// @todo
     SendDirectMessage(worldServerInfo.Write());
-
-    if (InstanceMap* instanceMap = GetMap()->ToInstanceMap())
-        if (InstanceScenario* scenario = instanceMap->GetInstanceScenario())
-            scenario->SendScenarioState(this);
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
     // SMSG_ACCOUNT_TOYS_UPDATE
