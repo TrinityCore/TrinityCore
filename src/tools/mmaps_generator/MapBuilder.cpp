@@ -897,6 +897,7 @@ namespace MMAP
                 case 571:
                 case 870:
                 case 1116:
+                case 1220:
                     return true;
                 default:
                     break;
@@ -920,7 +921,33 @@ namespace MMAP
                 case 1181:  // PattyMackTestGarrisonBldgMap.wdt
                 case 1264:  // Propland-DevOnly.wdt
                 case 1270:  // devland3.wdt
+                case 1310:  // Expansion5QAModelMap.wdt
+                case 1407:  // GorgrondFinaleScenarioMap.wdt (zzzOld)
                 case 1427:  // PattyMackTestGarrisonBldgMap2.wdt
+                case 1451:  // TanaanLegionTest.wdt
+                case 1454:  // ArtifactAshbringerOrigin.wdt
+                case 1457:  // FXlDesignLand-DevOnly.wdt
+                case 1471:  // 1466.wdt (Dungeon Test Map 1466)
+                case 1499:  // Artifact-Warrior Fury Acquisition.wdt (oldArtifact - Warrior Fury Acquisition)
+                case 1537:  // BoostExperience.wdt (zzOLD - Boost Experience)
+                case 1538:  // Karazhan Scenario.wdt (test)
+                case 1549:  // TechTestSeamlessWorldTransitionA.wdt
+                case 1550:  // TechTestSeamlessWorldTransitionB.wdt
+                case 1555:  // TransportBoostExperienceAllianceGunship.wdt
+                case 1556:  // TransportBoostExperienceHordeGunship.wdt
+                case 1561:  // TechTestCosmeticParentPerformance.wdt
+                case 1582:  // Artifact�DalaranVaultAcquisition.wdt // no, this weird symbol is not an encoding error.
+                case 1584:  // JulienTestLand-DevOnly.wdt
+                case 1586:  // AssualtOnStormwind.wdt (Assault on Stormwind - Dev Map)
+                case 1588:  // DevMapA.wdt
+                case 1589:  // DevMapB.wdt
+                case 1590:  // DevMapC.wdt
+                case 1591:  // DevMapD.wdt
+                case 1592:  // DevMapE.wdt
+                case 1593:  // DevMapF.wdt
+                case 1594:  // DevMapG.wdt
+                case 1603:  // AbyssalMaw_Interior_Scenario.wdt
+                case 1670:  // BrokenshorePristine.wdt
                     return true;
                 default:
                     if (isTransportMap(mapID))
@@ -1012,6 +1039,19 @@ namespace MMAP
             case 1173:
             case 1192:
             case 1231:
+            case 1459:
+            case 1476:
+            case 1484:
+            case 1555:
+            case 1556:
+            case 1559:
+            case 1560:
+            case 1628:
+            case 1637:
+            case 1638:
+            case 1639:
+            case 1649:
+            case 1650:
                 return true;
             default:
                 return false;

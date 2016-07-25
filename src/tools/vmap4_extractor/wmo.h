@@ -49,9 +49,10 @@ private:
     std::string filename;
 public:
     unsigned int color;
-    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID, flags;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID;
     float bbcorn1[3];
     float bbcorn2[3];
+    uint16 flags, numLod;
 
     std::vector<uint32> groupFileDataIDs;
 
