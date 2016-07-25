@@ -18,8 +18,8 @@
 #include "ZmqWorker.h"
 #include "ZmqContext.h"
 
-ZmqWorker::ZmqWorker(std::string task_uri, std::string res_uri) :
-    _taskUri(task_uri), _resultsUri(res_uri)
+ZmqWorker::ZmqWorker(std::string const& taskUri, std::string const& resUri) :
+    _taskUri(taskUri), _resultsUri(resUri)
 {
 }
 
