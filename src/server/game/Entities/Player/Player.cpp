@@ -23446,7 +23446,7 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 
 void Player::SendAurasForTarget(Unit* target) const
 {
-    if (!target || target->GetVisibleAuras()->empty())                  // speedup things
+    if (!target || target->GetVisibleAuras().empty())                  // speedup things
         return;
 
     /*! Blizz sends certain movement packets sometimes even before CreateObject
@@ -23461,16 +23461,15 @@ void Player::SendAurasForTarget(Unit* target) const
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
-    Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
+    Unit::VisibleAuraContainer const& visibleAuras = target->GetVisibleAuras();
 
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = true;
     update.UnitGUID = target->GetGUID();
-    update.Auras.reserve(visibleAuras->size());
+    update.Auras.reserve(visibleAuras.size());
 
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
+    for (AuraApplication* auraApp : visibleAuras)
     {
-        AuraApplication* auraApp = itr->second;
         WorldPackets::Spells::AuraInfo auraInfo;
         auraApp->BuildUpdatePacket(auraInfo, false);
         update.Auras.push_back(auraInfo);
