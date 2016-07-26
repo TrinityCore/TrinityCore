@@ -484,6 +484,31 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
     sScriptMgr->OnGroupRemoveMember(this, guid, method, kicker, reason);
 
+    // As of Patch 2.1, "The soulstone buff will now be removed if the target or caster leaves the party or raid."
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    if (player)
+    {
+        // Soulstone Resurrection
+        if (Aura* aura = player->GetAuraOfRankedSpell(20707))
+        {
+            if (aura->GetCasterGUID() != guid)
+                player->RemoveAura(aura);
+        }
+
+        if (player->getClass() == CLASS_WARLOCK)
+        {
+            for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
+            {
+                if (witr->guid == guid)
+                    continue;
+
+                if (Player* groupMember = ObjectAccessor::FindConnectedPlayer(witr->guid))
+                    if (Aura* aura = groupMember->GetAuraOfRankedSpell(20707, guid))
+                        groupMember->RemoveAura(aura);
+            }
+        }
+    }
+
     // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return !m_memberSlots.empty();
@@ -491,7 +516,6 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
-        Player* player = ObjectAccessor::FindConnectedPlayer(guid);
         if (player)
         {
             // Battleground group handling
