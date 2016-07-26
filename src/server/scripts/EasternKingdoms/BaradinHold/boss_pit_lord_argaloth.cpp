@@ -47,7 +47,22 @@ class boss_pit_lord_argaloth : public CreatureScript
 
         struct boss_pit_lord_argalothAI : public BossAI
         {
-            boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH) { }
+            boss_pit_lord_argalothAI(Creature* creature) : BossAI(creature, DATA_ARGALOTH)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                first_fel_firestorm = false;
+                second_fel_firestorm = false;
+            }
+
+            void Reset() override
+            {
+                _Reset();
+                Initialize();
+            }
 
             void EnterCombat(Unit* /*who*/) override
             {
@@ -69,13 +84,12 @@ class boss_pit_lord_argaloth : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HealthBelowPctDamaged(66,damage) && !first_fel_firestorm)
+                if (me->HealthBelowPctDamaged(66, damage) && !first_fel_firestorm)
                 {
                     first_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
                 }
-                else
-                if(me->HealthBelowPctDamaged(33,damage) && !second_fel_firestorm)
+                else if (me->HealthBelowPctDamaged(33, damage) && !second_fel_firestorm)
                 {
                     second_fel_firestorm = true;
                     DoCastAOE(SPELL_FEL_FIRESTORM);
@@ -120,6 +134,7 @@ class boss_pit_lord_argaloth : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
         private:
             bool first_fel_firestorm;
             bool second_fel_firestorm;

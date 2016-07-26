@@ -883,10 +883,14 @@ public:
     {
         PrepareSpellScript(spell_grounding_field_SpellScript);
 
-        void GetNearbyGroundFields()
+        bool Load() override
         {
             prevent = false;
+            return true;
+        }
 
+        void GetNearbyGroundFields()
+        {
             std::list<Creature*> groundingFields;
             GetCaster()->GetCreatureListWithEntryInGrid(groundingFields, NPC_GROUNDING_FIELD, 60.0f);
 
