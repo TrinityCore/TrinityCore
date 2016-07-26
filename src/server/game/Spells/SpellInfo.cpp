@@ -1131,6 +1131,14 @@ bool SpellInfo::IsAllowingDeadTarget() const
     return HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD) || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
 }
 
+bool SpellInfo::IsRaidMemberTarget() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].IsEffect() && (Effects[i].TargetA.GetTarget() & (TARGET_UNIT_CASTER_AREA_RAID | TARGET_UNIT_TARGET_RAID | TARGET_UNIT_TARGET_AREA_RAID_CLASS)))
+            return true;
+    return false;
+}
+
 bool SpellInfo::CanBeUsedInCombat() const
 {
     return !HasAttribute(SPELL_ATTR0_CANT_USED_IN_COMBAT);

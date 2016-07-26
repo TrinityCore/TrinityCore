@@ -485,27 +485,37 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
     sScriptMgr->OnGroupRemoveMember(this, guid, method, kicker, reason);
 
-    // As of Patch 2.1, "The soulstone buff will now be removed if the target or caster leaves the party or raid."
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     if (player)
     {
-        // Soulstone Resurrection
-        if (Aura* aura = player->GetAuraOfRankedSpell(20707))
+        Unit::AuraMap const& ownedAuras = player->GetOwnedAuras();
+        for (Unit::AuraMap::const_iterator itr = ownedAuras.begin(); itr != ownedAuras.end(); ++itr)
         {
-            if (aura->GetCasterGUID() != guid)
+            Aura* aura = itr->second;
+            if (!aura->GetApplicationOfTarget(player->GetGUID()))
+                continue;
+
+            if (aura->GetSpellInfo()->IsRaidMemberTarget() && aura->GetCasterGUID() != guid)
                 player->RemoveAura(aura);
         }
 
-        if (player->getClass() == CLASS_WARLOCK)
+        for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
         {
-            for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
-            {
-                if (witr->guid == guid)
-                    continue;
+            if (witr->guid == guid)
+                continue;
 
-                if (Player* groupMember = ObjectAccessor::FindConnectedPlayer(witr->guid))
-                    if (Aura* aura = groupMember->GetAuraOfRankedSpell(20707, guid))
+            if (Player* groupMember = ObjectAccessor::FindConnectedPlayer(witr->guid))
+            {
+                Unit::AuraMap const& memberAuras = groupMember->GetOwnedAuras();
+                for (Unit::AuraMap::const_iterator itr = memberAuras.begin(); itr != memberAuras.end(); ++itr)
+                {
+                    Aura* aura = itr->second;
+                    if (!aura->GetApplicationOfTarget(groupMember->GetGUID()))
+                        continue;
+
+                    if (aura->GetSpellInfo()->IsRaidMemberTarget() && aura->GetCasterGUID() == guid)
                         groupMember->RemoveAura(aura);
+                }
             }
         }
     }
