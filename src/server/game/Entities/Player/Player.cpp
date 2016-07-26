@@ -4211,7 +4211,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // close player ticket if any
     GmTicket* ticket = sTicketMgr->GetTicketByPlayer(playerguid);
     if (ticket)
-        ticket->SetClosedBy(playerguid);
+        sTicketMgr->CloseTicket(ticket->GetId(), playerguid);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
