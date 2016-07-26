@@ -63,6 +63,9 @@ uint32 AchievementMgr::GetAchievementPoints() const
 
 bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
 {
+    if (!tree->Achievement)
+        return false;
+
     if (HasAchieved(tree->Achievement->ID))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Achievement already earned",
