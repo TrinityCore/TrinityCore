@@ -45,72 +45,37 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
 {
     ASSERT(GetTarget() && GetBase());
 
-    if (GetBase()->CanBeSentToClient())
+    // Try find slot for aura
+    uint8 slot = 0;
+    // lookup for free slots in units visibleAuras
+    for (AuraApplication* visibleAura : GetTarget()->GetVisibleAuras())
     {
-        // Try find slot for aura
-        uint8 slot = MAX_AURAS;
-        // Lookup for auras already applied from spell
-        if (AuraApplication * foundAura = GetTarget()->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCasterGUID(), GetBase()->GetCastItemGUID()))
-        {
-            // allow use single slot only by auras from same caster
-            slot = foundAura->GetSlot();
-        }
-        else
-        {
-            Unit::VisibleAuraMap const* visibleAuras = GetTarget()->GetVisibleAuras();
-            // lookup for free slots in units visibleAuras
-            Unit::VisibleAuraMap::const_iterator itr = visibleAuras->find(0);
-            for (uint32 freeSlot = 0; freeSlot < MAX_AURAS; ++itr, ++freeSlot)
-            {
-                if (itr == visibleAuras->end() || itr->first != freeSlot)
-                {
-                    slot = freeSlot;
-                    break;
-                }
-            }
-        }
+        if (slot < visibleAura->GetSlot())
+            break;
 
-        // Register Visible Aura
-        if (slot < MAX_AURAS)
-        {
-            _slot = slot;
-            GetTarget()->SetVisibleAura(slot, this);
-            SetNeedClientUpdate();
-            TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
-        }
-        else
-            TC_LOG_DEBUG("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+        ++slot;
     }
+
+    // Register Visible Aura
+    if (slot < MAX_AURAS)
+    {
+        _slot = slot;
+        GetTarget()->SetVisibleAura(this);
+        _needClientUpdate = true;
+        TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+    }
+    else
+        TC_LOG_DEBUG("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
 
     _InitFlags(caster, effMask);
 }
 
 void AuraApplication::_Remove()
 {
-    uint8 slot = GetSlot();
-
-    if (slot >= MAX_AURAS)
-        return;
-
-    if (AuraApplication * foundAura = _target->GetAuraApplication(GetBase()->GetId(), GetBase()->GetCasterGUID(), GetBase()->GetCastItemGUID()))
-    {
-        // Reuse visible aura slot by aura which is still applied - prevent storing dead pointers
-        if (slot == foundAura->GetSlot())
-        {
-            if (GetTarget()->GetVisibleAura(slot) == this)
-            {
-                GetTarget()->SetVisibleAura(slot, foundAura);
-                foundAura->SetNeedClientUpdate();
-            }
-            // set not valid slot for aura - prevent removing other visible aura
-            slot = MAX_AURAS;
-        }
-    }
-
     // update for out of range group members
-    if (slot < MAX_AURAS)
+    if (GetSlot() < MAX_AURAS)
     {
-        GetTarget()->RemoveVisibleAura(slot);
+        GetTarget()->RemoveVisibleAura(this);
         ClientUpdate(true);
     }
 }
@@ -190,9 +155,18 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove) const
+void AuraApplication::SetNeedClientUpdate()
 {
-    ASSERT((_target->GetVisibleAura(_slot) != nullptr) ^ remove);
+    if (_needClientUpdate || GetRemoveMode() != AURA_REMOVE_NONE)
+        return;
+
+    _needClientUpdate = true;
+    _target->SetVisibleAuraUpdate(this);
+}
+
+void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove)
+{
+    ASSERT(_target->HasVisibleAura(this) != remove);
 
     auraInfo.Slot = GetSlot();
     if (remove)
@@ -1077,16 +1051,6 @@ bool Aura::CanBeSaved() const
         return false;
 
     return true;
-}
-
-bool Aura::CanBeSentToClient() const
-{
-    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect(GetOwner() ? GetOwner()->GetMap()->GetDifficultyID() : DIFFICULTY_NONE)
-        || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)
-        || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)
-        || HasEffectType(SPELL_AURA_MOD_MAX_CHARGES)
-        || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)
-        || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
 }
 
 bool Aura::IsSingleTargetWith(Aura const* aura) const
