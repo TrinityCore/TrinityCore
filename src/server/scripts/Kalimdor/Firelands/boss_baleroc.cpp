@@ -72,8 +72,7 @@ enum Events
     EVENT_COUNTDOWN                 = 5,
     EVENT_BERSERK                   = 6,
 
-    EVENT_SHARD_SPAWN_EFFECT        = 7,
-    EVENT_UNLOCK_YELLSPAM           = 8
+    EVENT_SHARD_SPAWN_EFFECT        = 7
 };
 
 enum Emotes
@@ -107,8 +106,6 @@ class boss_baleroc : public CreatureScript
         struct boss_balerocAI : public BossAI
         {
             boss_balerocAI(Creature* creature) : BossAI(creature, DATA_BALEROC) { }
-
-            bool _canYellKilledPlayer;
 
             void Reset() override
             {
@@ -156,12 +153,11 @@ class boss_baleroc : public CreatureScript
 
             void KilledUnit(Unit* who) override
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && _canYellKilledPlayer)
-                {
-                    _canYellKilledPlayer = false;
-                    events.ScheduleEvent(EVENT_UNLOCK_YELLSPAM, 8000);
+                if (who->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (!(rand32() % 5))
                     Talk(EMOTE_KILL);
-                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -281,9 +277,6 @@ class boss_baleroc : public CreatureScript
                             Talk(EMOTE_ENRAGE);
                             Talk(EMOTE_ENRAGE_2);
                             break;
-                        case EVENT_UNLOCK_YELLSPAM:
-                            _canYellKilledPlayer = true;
-                            break;
                         default:
                             break;
                     }
@@ -362,7 +355,6 @@ class npc_shard_of_torment : public CreatureScript
                     DoCast(SPELL_TORMENT_COSMETIC_1);
                     _events.ScheduleEvent(EVENT_SHARD_SPAWN_EFFECT, 5000);
                     me->SetInCombatWithZone();
-                    _baleroc = summoner->ToCreature();
                 }
                 else
                     me->DespawnOrUnsummon();
@@ -371,8 +363,8 @@ class npc_shard_of_torment : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    if (_baleroc)
-                        _baleroc->AI()->KilledUnit(who);
+                    if (Creature* baleroc = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BALEROC)))
+                        baleroc->AI()->KilledUnit(who);
             }
 
             void UpdateAI(uint32 diff) override
@@ -396,7 +388,6 @@ class npc_shard_of_torment : public CreatureScript
             private:
                 InstanceScript* _instance;
                 EventMap _events;
-                Creature* _baleroc;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -416,6 +407,8 @@ class spell_countdown_p1 : public SpellScriptLoader
 
             bool Load() override
             {
+                target1 = nullptr;
+                target2 = nullptr;
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
@@ -433,10 +426,9 @@ class spell_countdown_p1 : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-
                 //Remove current tank if we have one
-                if (GetCaster()->GetVictim())
-                    targets.remove(GetCaster()->ToCreature()->GetVictim());
+                if (Unit* victim = GetCaster()->GetVictim())
+                    targets.remove(victim);
 
                 if (targets.size() < 2)
                 {
@@ -445,11 +437,8 @@ class spell_countdown_p1 : public SpellScriptLoader
                 }
 
                 Trinity::Containers::RandomResizeList(targets, 2);
-
-                std::list<WorldObject*>::const_iterator itr = targets.begin();
-                target1 = (*itr);
-                itr++;
-                target2 = (*itr);
+                target1 = targets.front();
+                target2 = targets.back();
             }
 
             void Register() override
@@ -676,24 +665,26 @@ class spell_baleroc_torment : public SpellScriptLoader
                 if (targets.empty())
                 {
                     //No targets found, start pulsating immediately.
-                    GetCaster()->ToCreature()->AI()->DoCast(SPELL_WAVE_OF_TORMENT);
+                    GetCaster()->GetAI()->DoCast(SPELL_WAVE_OF_TORMENT);
                     return;
                 }
 
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
-                targets.resize(1);
+                WorldObject* target = targets.front();
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-                if ((*targets.begin())->GetDistance2d(GetCaster()) > 15.0f)
-                    GetCaster()->ToCreature()->AI()->DoCast(SPELL_WAVE_OF_TORMENT);
+                if (target->GetDistance2d(GetCaster()) > 15.0f)
+                    GetCaster()->GetAI()->DoCast(SPELL_WAVE_OF_TORMENT);
                 else
                 {
-                    if ((*targets.begin())->ToPlayer()->GetAura(SPELL_TORMENT_PERIODIC))
-                        if ((*targets.begin())->ToPlayer()->GetAura(SPELL_TORMENT_PERIODIC)->GetCaster() != GetCaster())
-                            GetCaster()->CastSpell((*targets.begin())->ToPlayer(), SPELL_TORMENT_PERIODIC, false);
-                        else{
-                        }
+                    if (Aura* torment = target->ToPlayer()->GetAura(SPELL_TORMENT_PERIODIC))
+                    {
+                        if (torment->GetCaster() != GetCaster())
+                            GetCaster()->CastSpell(target->ToPlayer(), SPELL_TORMENT_PERIODIC, false);
+                    }
                     else
-                        GetCaster()->CastSpell((*targets.begin())->ToPlayer(), SPELL_TORMENT_PERIODIC, false);
+                        GetCaster()->CastSpell(target->ToPlayer(), SPELL_TORMENT_PERIODIC, false);
                 }
             }
 

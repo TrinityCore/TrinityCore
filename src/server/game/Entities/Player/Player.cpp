@@ -18534,10 +18534,10 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
                 if (uint32 talents = quest->GetBonusTalents())
                     AddQuestRewardedTalentCount(talents);
-            }
 
-            if (quest->CanIncreaseRewardedQuestCounters())
-                m_RewardedQuests.insert(quest_id);
+                if (quest->CanIncreaseRewardedQuestCounters())
+                    m_RewardedQuests.insert(quest_id);
+            }
         }
         while (result->NextRow());
     }
@@ -25207,7 +25207,7 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 areaid) const
         case 530: // Outland
             // Draenei and blood elves starting zones belong to Outland map, but are not flyable
             // These zones don't have flag AREA_FLAG_OUTLAND2
-            if (sAreaTableStore.LookupEntry(areaid)->flags & AREA_FLAG_OUTLAND2)
+            if (sAreaTableStore.AssertEntry(areaid)->flags & AREA_FLAG_OUTLAND2)
                 can_fly = true;
         default:
             break;

@@ -101,65 +101,67 @@ enum Events
 
 enum Points
 {
-    POINT_STORM_A,
+    POINT_STORM_A   = 1,
     POINT_STORM_B,
     POINT_STORM_C,
 };
 
+float const TRIANGLE_Z = 646.7143f;
+
 uint32 const StormTargetPositions = 39;
 Position const StormTargetPositionData[StormTargetPositions] =
 {
-    { -633.771f, 490.976f, 646.7143f, 3.141593f }, // 56889
-    { -625.688f, 501.934f, 646.7143f, 3.141593f }, // 56890
-    { -620.226f, 490.892f, 646.7143f, 3.141593f }, // 56891
+    { -633.771f, 490.976f, TRIANGLE_Z, 3.141593f }, // 56889
+    { -625.688f, 501.934f, TRIANGLE_Z, 3.141593f }, // 56890
+    { -620.226f, 490.892f, TRIANGLE_Z, 3.141593f }, // 56891
 
-    { -649.906f, 494.905f, 646.7143f, 3.141593f }, // 56892
-    { -643.214f, 503.953f, 646.7143f, 3.141593f }, // 56893
-    { -640.542f, 487.474f, 646.7143f, 3.141593f }, // 56894
+    { -649.906f, 494.905f, TRIANGLE_Z, 3.141593f }, // 56892
+    { -643.214f, 503.953f, TRIANGLE_Z, 3.141593f }, // 56893
+    { -640.542f, 487.474f, TRIANGLE_Z, 3.141593f }, // 56894
 
-    { -637.839f, 516.186f, 646.7143f, 1.099557f }, // 56895
-    { -634.068f, 507.51f,  646.7143f, 1.099557f }, // 56896
-    { -650.894f, 509.323f, 646.7143f, 1.099557f }, // 56897
+    { -637.839f, 516.186f, TRIANGLE_Z, 1.099557f }, // 56895
+    { -634.068f, 507.51f,  TRIANGLE_Z, 1.099557f }, // 56896
+    { -650.894f, 509.323f, TRIANGLE_Z, 1.099557f }, // 56897
 
-    { -637.01f,  530.09f,  646.7143f, 1.099557f }, // 56898
-    { -632.167f, 521.153f, 646.7143f, 1.099557f }, // 56899
-    { -646.939f, 519.566f, 646.7143f, 1.099557f }, // 56900
+    { -637.01f,  530.09f,  TRIANGLE_Z, 1.099557f }, // 56898
+    { -632.167f, 521.153f, TRIANGLE_Z, 1.099557f }, // 56899
+    { -646.939f, 519.566f, TRIANGLE_Z, 1.099557f }, // 56900
 
-    { -628.512f, 516.988f, 646.7143f, 1.099557f }, // 56901
-    { -622.184f, 507.908f, 646.7143f, 1.099557f }, // 56902
-    { -633.148f, 499.762f, 646.7143f, 1.099557f }, // 56903
+    { -628.512f, 516.988f, TRIANGLE_Z, 1.099557f }, // 56901
+    { -622.184f, 507.908f, TRIANGLE_Z, 1.099557f }, // 56902
+    { -633.148f, 499.762f, TRIANGLE_Z, 1.099557f }, // 56903
 
-    { -615.528f, 515.944f, 646.7143f, 1.099557f }, // 56904
-    { -609.41f,  504.675f, 646.7143f, 1.099557f }, // 56905
-    { -618.748f, 501.946f, 646.7143f, 1.099557f }, // 56906
+    { -615.528f, 515.944f, TRIANGLE_Z, 1.099557f }, // 56904
+    { -609.41f,  504.675f, TRIANGLE_Z, 1.099557f }, // 56905
+    { -618.748f, 501.946f, TRIANGLE_Z, 1.099557f }, // 56906
 
-    { -600.986f, 522.576f, 646.7143f, 1.099557f }, // 56907
-    { -594.96f,  507.582f, 646.7143f, 1.099557f }, // 56908
-    { -605.094f, 509.141f, 646.7143f, 1.099557f }, // 56909
+    { -600.986f, 522.576f, TRIANGLE_Z, 1.099557f }, // 56907
+    { -594.96f,  507.582f, TRIANGLE_Z, 1.099557f }, // 56908
+    { -605.094f, 509.141f, TRIANGLE_Z, 1.099557f }, // 56909
 
-    { -617.269f, 521.168f, 646.7143f, 0.0f }, // 56910
-    { -606.75f,  530.002f, 646.7143f, 0.0f }, // 56911
-    { -608.832f, 515.175f, 646.7143f, 0.0f }, // 56912
+    { -617.269f, 521.168f, TRIANGLE_Z, 0.0f }, // 56910
+    { -606.75f,  530.002f, TRIANGLE_Z, 0.0f }, // 56911
+    { -608.832f, 515.175f, TRIANGLE_Z, 0.0f }, // 56912
 
-    { -627.957f, 529.927f, 646.7143f, 0.0f }, // 56913
-    { -616.997f, 530.564f, 646.7143f, 0.0f }, // 56914
-    { -621.91f,  517.644f, 646.7143f, 0.0f }, // 56915
+    { -627.957f, 529.927f, TRIANGLE_Z, 0.0f }, // 56913
+    { -616.997f, 530.564f, TRIANGLE_Z, 0.0f }, // 56914
+    { -621.91f,  517.644f, TRIANGLE_Z, 0.0f }, // 56915
 
-    { -604.839f, 485.186f, 646.7143f, 3.141593f }, // 56916
-    { -616.885f, 496.186f, 646.7143f, 3.141593f }, // 56917
-    { -606.833f, 500.078f, 646.7143f, 3.141593f }, // 56918
+    { -604.839f, 485.186f, TRIANGLE_Z, 3.141593f }, // 56916
+    { -616.885f, 496.186f, TRIANGLE_Z, 3.141593f }, // 56917
+    { -606.833f, 500.078f, TRIANGLE_Z, 3.141593f }, // 56918
 
-    { -600.387f, 482.604f, 646.7143f, 3.141593f }, // 56919
-    { -602.899f, 497.245f, 646.7143f, 3.141593f }, // 56920
-    { -592.599f, 500.392f, 646.7143f, 3.141593f }, // 56921
+    { -600.387f, 482.604f, TRIANGLE_Z, 3.141593f }, // 56919
+    { -602.899f, 497.245f, TRIANGLE_Z, 3.141593f }, // 56920
+    { -592.599f, 500.392f, TRIANGLE_Z, 3.141593f }, // 56921
 
-    { -622.946f, 483.113f, 646.7143f, 3.141593f }, // 56922
-    { -613.104f, 488.776f, 646.7143f, 3.141593f }, // 56923
-    { -606.915f, 477.097f, 646.7143f, 3.141593f }, // 56924
+    { -622.946f, 483.113f, TRIANGLE_Z, 3.141593f }, // 56922
+    { -613.104f, 488.776f, TRIANGLE_Z, 3.141593f }, // 56923
+    { -606.915f, 477.097f, TRIANGLE_Z, 3.141593f }, // 56924
 
-    { -640.717f, 480.623f, 646.7143f, 3.141593f }, // 56925
-    { -627.049f, 486.917f, 646.7143f, 3.141593f }, // 56926
-    { -623.059f, 476.104f, 646.7143f, 3.141593f }, // 56927
+    { -640.717f, 480.623f, TRIANGLE_Z, 3.141593f }, // 56925
+    { -627.049f, 486.917f, TRIANGLE_Z, 3.141593f }, // 56926
+    { -623.059f, 476.104f, TRIANGLE_Z, 3.141593f }, // 56927
 };
 
 class boss_asaad : public CreatureScript
@@ -169,11 +171,15 @@ class boss_asaad : public CreatureScript
 
         struct boss_asaadAI : public BossAI
         {
-            boss_asaadAI(Creature* creature) : BossAI(creature, DATA_ASAAD) { }
+            boss_asaadAI(Creature* creature) : BossAI(creature, DATA_ASAAD)
+            {
+                stormTargetGUIDs.reserve(StormTargetPositions);
+            }
 
             void Reset() override
             {
                 _Reset();
+                stormTargetGUIDs.clear();
 
                 me->SetReactState(REACT_AGGRESSIVE);
 
@@ -191,7 +197,7 @@ class boss_asaad : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 // Spawn Storm Targets
-                for (uint32 i = 0; i < StormTargetPositions; i++)
+                for (uint32 i = 0; i < StormTargetPositions; ++i)
                     if (Creature* stormTarget = me->SummonCreature(NPC_STORM_TARGET, StormTargetPositionData[i]))
                         stormTargetGUIDs.push_back(stormTarget->GetGUID());
             }
@@ -213,19 +219,25 @@ class boss_asaad : public CreatureScript
                 if (spellInfo->Id != SPELL_SOTS_TARGETING || target->GetEntry() != NPC_STORM_TARGET)
                     return;
 
-                stormTargetA = target->ToCreature();
+                selectedStormTargets[0] = target->GetGUID();
+                auto itr = std::find(stormTargetGUIDs.begin(), stormTargetGUIDs.end(), target->GetGUID());
+                ASSERT(itr != stormTargetGUIDs.end());
 
-                for (uint32 i = 0; i < StormTargetPositions; i++)
+                uint8 index = uint8(std::distance(stormTargetGUIDs.begin(), itr));
+                switch (index % 3)
                 {
-                    if (stormTargetGUIDs[i] != target->GetGUID())
-                        continue;
-
-                    stormTargetB = ObjectAccessor::GetCreature(*me, stormTargetGUIDs[i % 3 == 0 ? i + 1 : (i % 3 == 1 ? i - 1 : i - 2)]);
-                    stormTargetC = ObjectAccessor::GetCreature(*me, stormTargetGUIDs[i % 3 == 0 ? i + 2 : (i % 3 == 1 ? i + 1 : i - 1)]);
-
-                    ASSERT(stormTargetB);
-                    ASSERT(stormTargetC);
-                    break;
+                    case 0:
+                        selectedStormTargets[1] = stormTargetGUIDs.at(index + 1);
+                        selectedStormTargets[2] = stormTargetGUIDs.at(index + 2);
+                        break;
+                    case 1:
+                        selectedStormTargets[1] = stormTargetGUIDs.at(index - 1);
+                        selectedStormTargets[2] = stormTargetGUIDs.at(index + 1);
+                        break;
+                    case 2:
+                        selectedStormTargets[1] = stormTargetGUIDs.at(index - 2);
+                        selectedStormTargets[2] = stormTargetGUIDs.at(index - 1);
+                        break;
                 }
             }
 
@@ -305,38 +317,55 @@ class boss_asaad : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            Creature* GetSelectedStormTarget(uint32 point)
+            ObjectGuid GetGUID(int32 type) const override
             {
-                if (point == POINT_STORM_A)
-                    return stormTargetA;
-                if (point == POINT_STORM_B)
-                    return stormTargetB;
-                if (point == POINT_STORM_C)
-                    return stormTargetC;
-                return NULL;
+                switch (type)
+                {
+                    case POINT_STORM_A:
+                    case POINT_STORM_B:
+                    case POINT_STORM_C:
+                        return selectedStormTargets[type - POINT_STORM_A];
+                    default:
+                        break;
+                }
+
+                return ObjectGuid::Empty;
             }
 
-            Position GetTriangleCenterPosition()
+            Position GetTriangleCenterPosition() const
             {
                 Position pos;
-                pos.m_positionX = (stormTargetA->GetPositionX() + stormTargetB->GetPositionX() + stormTargetC->GetPositionX()) / 3;
-                pos.m_positionY = (stormTargetA->GetPositionY() + stormTargetB->GetPositionY() + stormTargetC->GetPositionY()) / 3;
-                pos.m_positionZ = stormTargetA->GetPositionZ() + 8.0f;
+                pos.m_positionZ = TRIANGLE_Z + 8.f;
+
+                for (uint8 i = 0; i < 3; ++i)
+                {
+                    if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
+                    {
+                        pos.m_positionX += stormTarget->m_positionX;
+                        pos.m_positionY += stormTarget->m_positionY;
+                    }
+                }
+
+                pos.m_positionX /= 3.f;
+                pos.m_positionY /= 3.f;
                 return pos;
             }
 
             void ResetStormTargets()
             {
-                stormTargetA->CastStop();
-                stormTargetB->CastStop();
-                stormTargetC->CastStop();
+                for (uint8 i = 0; i < 3; ++i)
+                {
+                    if (Creature* stormTarget = ObjectAccessor::GetCreature(*me, selectedStormTargets[i]))
+                        stormTarget->CastStop();
+
+                    selectedStormTargets[i].Clear();
+                }
             }
 
         private:
+
             GuidVector stormTargetGUIDs;
-            Creature* stormTargetA;
-            Creature* stormTargetB;
-            Creature* stormTargetC;
+            std::array<ObjectGuid, 3> selectedStormTargets;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -362,24 +391,23 @@ public:
             if (action != ACTION_SOTS_TARGET)
                 return;
 
-            events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
+            _events.ScheduleEvent(EVENT_SOTS_SUMMON, 400);
         }
 
         void JustSummoned(Creature* creature) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-                if (Creature* asaad = instance->GetCreature(DATA_ASAAD))
-                    ENSURE_AI(AsaadAI, asaad->AI())->JustSummoned(creature);
+            if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                asaad->AI()->JustSummoned(creature);
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (events.Empty())
+            if (_events.Empty())
                 return;
 
-            events.Update(diff);
+            _events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -393,7 +421,8 @@ public:
         }
 
     private:
-        EventMap events;
+        EventMap _events;
+        InstanceScript* _instance;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -410,14 +439,10 @@ public:
 
     struct npc_unstable_grounding_fieldAI : public ScriptedAI
     {
-        npc_unstable_grounding_fieldAI(Creature* creature) : ScriptedAI(creature)
+        npc_unstable_grounding_fieldAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-                if (Creature* asaad = instance->GetCreature(DATA_ASAAD))
-                    asaadAI = CAST_AI(AsaadAI, asaad->AI());
-
             me->SetWalk(true);
-            events.ScheduleEvent(EVENT_STORM_ASSAD_CHANNEL, 400);
+            _events.ScheduleEvent(EVENT_STORM_ASSAD_CHANNEL, 400);
         }
 
         void MovementInform(uint32 movementType, uint32 pointId) override
@@ -425,27 +450,32 @@ public:
             if (movementType != POINT_MOTION_TYPE)
                 return;
 
+            Creature* asaad = _instance->GetCreature(DATA_ASAAD);
+            if (!asaad)
+                return;
+
             switch (pointId)
             {
                 case POINT_STORM_B:
-                    if (Creature* stormTargetB = asaadAI->GetSelectedStormTarget(POINT_STORM_B))
+                    if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
                         stormTargetB->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_A);
-                    events.ScheduleEvent(EVENT_STORM_MOVE_C, 1200);
+                    _events.ScheduleEvent(EVENT_STORM_MOVE_C, 1200);
                     break;
                 case POINT_STORM_C:
-                    if (Creature* stormTargetB = asaadAI->GetSelectedStormTarget(POINT_STORM_C))
-                        stormTargetB->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_B);
-                    events.ScheduleEvent(EVENT_STORM_MOVE_A, 1200);
+                    if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
+                        stormTargetC->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_B);
+                    _events.ScheduleEvent(EVENT_STORM_MOVE_A, 1200);
                     break;
                 case POINT_STORM_A:
                 {
-                    if (Creature* stormTargetB = asaadAI->GetSelectedStormTarget(POINT_STORM_A))
-                        stormTargetB->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_C);
+                    if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
+                        stormTargetA->CastSpell((Unit*)NULL, SPELL_STORM_RUNE_BEAM_C);
 
                     DoCast(me, SPELL_STORM_SUMMON_GROUNDING_FIELD);
-                    Position pos = asaadAI->GetTriangleCenterPosition();
+
+                    Position pos = ENSURE_AI(AsaadAI, asaad->AI())->GetTriangleCenterPosition();
                     me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_STORM_SUMMON_GROUNDING_FIELD, true);
-                    events.ScheduleEvent(EVENT_STORM_ASAAD_TELEPORT, 500);
+                    _events.ScheduleEvent(EVENT_STORM_ASAAD_TELEPORT, 500);
                     break;
                 }
                 default:
@@ -455,40 +485,44 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (events.Empty())
+            if (_events.Empty())
                 return;
 
-            events.Update(diff);
+            _events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_STORM_ASSAD_CHANNEL:
                         DoCast(me, SPELL_SOTS_TRIGGER);
-                        events.ScheduleEvent(EVENT_STORM_RUNE_BEAM_AA, 400);
+                        _events.ScheduleEvent(EVENT_STORM_RUNE_BEAM_AA, 400);
                         break;
                     case EVENT_STORM_RUNE_BEAM_AA:
                         DoCast(me, SPELL_STORM_RUNE_BEAM_AA);
-                        events.ScheduleEvent(EVENT_STORM_MOVE_B, 800);
+                        _events.ScheduleEvent(EVENT_STORM_MOVE_B, 800);
                         break;
                     case EVENT_STORM_MOVE_B:
-                        if (Creature* stormTargetB = asaadAI->GetSelectedStormTarget(POINT_STORM_B))
-                            me->GetMotionMaster()->MovePoint(POINT_STORM_B, stormTargetB->GetPosition());
+                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                            if (Creature* stormTargetB = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_B)))
+                                me->GetMotionMaster()->MovePoint(POINT_STORM_B, stormTargetB->GetPosition());
                         break;
                     case EVENT_STORM_MOVE_C:
                         DoCast(me, SPELL_STORM_RUNE_BEAM_B);
-                        if (Creature* stormTargetC = asaadAI->GetSelectedStormTarget(POINT_STORM_C))
-                            me->GetMotionMaster()->MovePoint(POINT_STORM_C, stormTargetC->GetPosition());
+                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                            if (Creature* stormTargetC = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_C)))
+                                me->GetMotionMaster()->MovePoint(POINT_STORM_C, stormTargetC->GetPosition());
                         break;
                     case EVENT_STORM_MOVE_A:
                         me->CastStop();
                         DoCast(me, SPELL_STORM_RUNE_BEAM_C);
-                        if (Creature* stormTargetA = asaadAI->GetSelectedStormTarget(POINT_STORM_A))
-                            me->GetMotionMaster()->MovePoint(POINT_STORM_A, stormTargetA->GetPosition());
+                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                            if (Creature* stormTargetA = ObjectAccessor::GetCreature(*me, asaad->AI()->GetGUID(POINT_STORM_A)))
+                                me->GetMotionMaster()->MovePoint(POINT_STORM_A, stormTargetA->GetPosition());
                         break;
                     case EVENT_STORM_ASAAD_TELEPORT:
-                        asaadAI->DoAction(ACTION_SUPREMACY_OF_THE_STORM);
+                        if (Creature* asaad = _instance->GetCreature(DATA_ASAAD))
+                            asaad->AI()->DoAction(ACTION_SUPREMACY_OF_THE_STORM);
                         me->DespawnOrUnsummon(700);
                         break;
                     default:
@@ -498,8 +532,8 @@ public:
         }
 
     private:
-        AsaadAI* asaadAI;
-        EventMap events;
+        EventMap _events;
+        InstanceScript* _instance;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -648,13 +682,13 @@ public:
             {
                 case SPELL_STORM_RUNE_BEAM_AA:
                 case SPELL_STORM_RUNE_BEAM_A:
-                    target = ENSURE_AI(AsaadAI, asaad->AI())->GetSelectedStormTarget(POINT_STORM_A);
+                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
                     break;
                 case SPELL_STORM_RUNE_BEAM_B:
-                    target = ENSURE_AI(AsaadAI, asaad->AI())->GetSelectedStormTarget(POINT_STORM_B);
+                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
                     break;
                 case SPELL_STORM_RUNE_BEAM_C:
-                    target = ENSURE_AI(AsaadAI, asaad->AI())->GetSelectedStormTarget(POINT_STORM_C);
+                    target = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
                     break;
                 default:
                     break;
@@ -706,12 +740,14 @@ public:
         }
 
     private:
+
         Creature* GetStormTarget(uint32 point)
         {
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 if (Creature* asaad = instance->GetCreature(DATA_ASAAD))
-                    return ENSURE_AI(AsaadAI, asaad->AI())->GetSelectedStormTarget(point);
-            return NULL;
+                    ObjectAccessor::GetCreature(*GetCaster(), asaad->AI()->GetGUID(point));
+
+            return nullptr;
         }
     };
 
@@ -741,12 +777,14 @@ public:
             if (!asaad)
                 return;
 
-            AsaadAI* asaadAI = CAST_AI(AsaadAI, asaad->AI());
+            Creature* stormTargetA = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_A));
+            Creature* stormTargetB = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_B));
+            Creature* stormTargetC = ObjectAccessor::GetCreature(*asaad, asaad->AI()->GetGUID(POINT_STORM_C));
 
-            if (Creature* stormTargetA = asaadAI->GetSelectedStormTarget(POINT_STORM_A))
-                if (Creature* stormTargetB = asaadAI->GetSelectedStormTarget(POINT_STORM_B))
-                    if (Creature* stormTargetC = asaadAI->GetSelectedStormTarget(POINT_STORM_C))
-                        targets.remove_if(TargetInTriangleCheck(false, stormTargetA->GetPosition(), stormTargetB->GetPosition(), stormTargetC->GetPosition()));
+            if (!stormTargetA || !stormTargetB || !stormTargetC)
+                return;
+
+            targets.remove_if(TargetInTriangleCheck(false, stormTargetA->GetPosition(), stormTargetB->GetPosition(), stormTargetC->GetPosition()));
         }
 
         void Register() override

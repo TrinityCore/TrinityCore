@@ -3365,6 +3365,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42490: // Energized!
             case 42492: // Cast Energized
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                break;
             case 85123: // Siege Cannon (Tol Barad)
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);

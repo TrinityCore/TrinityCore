@@ -350,7 +350,7 @@ class spell_upwind_of_altairus : public SpellScriptLoader
             }
 
         private:
-            float upwindDistance;
+            float upwindDistance = 0.f;
         };
 
         SpellScript* GetSpellScript() const override

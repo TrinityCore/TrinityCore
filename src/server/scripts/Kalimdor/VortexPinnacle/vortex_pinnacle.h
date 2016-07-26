@@ -80,31 +80,32 @@ class TargetInTriangleCheck
 {
 public:
     TargetInTriangleCheck(bool negate, Position positionA, Position positionB, Position positionC)
-        : negate(negate), positionA(positionA), positionB(positionB), positionC(positionC) { }
+        : _negate(negate), _positionA(positionA), _positionB(positionB), _positionC(positionC) { }
 
     bool operator()(WorldObject* target) const
     {
-        return negate != IsInTriangle(target);
+        return _negate != IsInTriangle(target);
     }
 
 private:
+
     bool IsInTriangle(WorldObject* target) const
     {
-        G3D::Triangle const triangle(PositionToVector3(positionA), PositionToVector3(positionB), PositionToVector3(positionC));
-        G3D::Vector3 const vector(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-        float b[3];
-        return G3D::CollisionDetection::isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), vector, b, triangle.primaryAxis());
+        G3D::Triangle const triangle(PositionToVector3(_positionA), PositionToVector3(_positionB), PositionToVector3(_positionC));
+        G3D::Vector3 const vector(PositionToVector3(*target));
+
+        return G3D::CollisionDetection::isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), vector, triangle.primaryAxis());
     }
 
-    G3D::Vector3 PositionToVector3(Position const& position) const
+    inline static G3D::Vector3 PositionToVector3(Position const& position)
     {
         return G3D::Vector3(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
     }
 
-    bool const negate;
-    Position const positionA;
-    Position const positionB;
-    Position const positionC;
+    bool _negate;
+    Position _positionA;
+    Position _positionB;
+    Position _positionC;
 };
 
 #endif // DEF_VORTEX_PINNACLE_H
