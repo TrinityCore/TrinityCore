@@ -1134,8 +1134,17 @@ bool SpellInfo::IsAllowingDeadTarget() const
 bool SpellInfo::IsGroupBuff() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].TargetA.GetCheckType() & (TARGET_CHECK_PARTY | TARGET_CHECK_RAID | TARGET_CHECK_RAID_CLASS))
-            return true;
+    {
+        switch (Effects[i].TargetA.GetCheckType())
+        {
+            case TARGET_CHECK_PARTY:
+            case TARGET_CHECK_RAID:
+            case TARGET_CHECK_RAID_CLASS:
+                return true;
+            default:
+                break;
+        }
+    }
 
     return false;
 }
