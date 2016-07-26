@@ -488,34 +488,15 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     if (player)
     {
-        Unit::AuraMap const& ownedAuras = player->GetOwnedAuras();
-        for (Unit::AuraMap::const_iterator itr = ownedAuras.begin(); itr != ownedAuras.end(); ++itr)
+        for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
         {
-            Aura* aura = itr->second;
-            if (!aura->GetApplicationOfTarget(player->GetGUID()))
-                continue;
-
-            if (aura->GetSpellInfo()->IsRaidMemberTarget() && aura->GetCasterGUID() != guid)
-                player->RemoveAura(aura);
-        }
-
-        for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
-        {
-            if (witr->guid == guid)
-                continue;
-
-            if (Player* groupMember = ObjectAccessor::FindConnectedPlayer(witr->guid))
+            if (Player* groupMember = itr->GetSource())
             {
-                Unit::AuraMap const& memberAuras = groupMember->GetOwnedAuras();
-                for (Unit::AuraMap::const_iterator itr = memberAuras.begin(); itr != memberAuras.end(); ++itr)
-                {
-                    Aura* aura = itr->second;
-                    if (!aura->GetApplicationOfTarget(groupMember->GetGUID()))
-                        continue;
+                if (groupMember->GetGUID() == guid)
+                    continue;
 
-                    if (aura->GetSpellInfo()->IsRaidMemberTarget() && aura->GetCasterGUID() == guid)
-                        groupMember->RemoveAura(aura);
-                }
+                groupMember->RemoveAllGroupBuffsFromCaster(guid);
+                player->RemoveAllGroupBuffsFromCaster(groupMember->GetGUID());
             }
         }
     }
