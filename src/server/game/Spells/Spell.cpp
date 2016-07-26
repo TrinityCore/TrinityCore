@@ -7623,7 +7623,7 @@ WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(float range, Un
 bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target)
 {
    if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
-            return false;
+        return false;
 
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }
