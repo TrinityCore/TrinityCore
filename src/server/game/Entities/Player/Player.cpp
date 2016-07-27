@@ -14885,7 +14885,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
             if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            {
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
+            }
             else if (quest->RequiredItemId[i])
                      DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
     }
@@ -14893,7 +14895,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
             if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            {
                 DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
+            }
             else if (quest->ItemDrop[i])
                      DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
