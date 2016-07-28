@@ -287,7 +287,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_GRID                                = 380,
     RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
     RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
-    // 383 reuse
+    // 383 3.3.5a only
     RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
     RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
     RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
@@ -647,11 +647,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TELE_NAME                              = 740,
     RBAC_PERM_COMMAND_TELE_GROUP                             = 741,
     RBAC_PERM_COMMAND_TICKET                                 = 742,
-    // 743 - 752 reuse
+    // 743 - 752 3.3.5a only
     RBAC_PERM_COMMAND_TICKET_RESET                           = 753,
-    // 754 - 756 reuse
+    // 754 - 756 3.3.5a only
     RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM                    = 757,
-    // 758 - 760 reuse
+    // 758 - 760 3.3.5a only
     RBAC_PERM_COMMAND_TITLES                                 = 761,
     RBAC_PERM_COMMAND_TITLES_ADD                             = 762,
     RBAC_PERM_COMMAND_TITLES_CURRENT                         = 763,
