@@ -170,9 +170,9 @@ public:
 
                     for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
                     {
-                        if (target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                            if (!target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
-                                target_list.push_back(target);
+                        target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
+                        if (target && !target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
+                            target_list.push_back(target);
 
                         target = nullptr;
                     }
