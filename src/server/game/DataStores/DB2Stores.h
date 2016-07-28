@@ -21,7 +21,7 @@
 #include "DB2Store.h"
 #include "DB2Structure.h"
 #include "SharedDefines.h"
-#include <boost/regex.hpp>
+#include <regex>
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -241,7 +241,7 @@ public:
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
-    typedef std::array<std::vector<boost::regex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
+    typedef std::array<std::vector<std::regex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
