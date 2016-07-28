@@ -223,14 +223,14 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     }
 
     SetWorldRotation(rotation);
+    GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(GetSpawnId());
 
     // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
-    G3D::Quat transportRotation;
+    G3D::Quat parentRotation;
+    if (gameObjectAddon)
+        parentRotation = gameObjectAddon->ParentRotation;
 
-    if (GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(guidlow))
-        transportRotation = gameObjectAddon->PathRotation;
-
-    SetTransportPathRotation(transportRotation);
+    SetParentRotation(parentRotation);
 
     SetObjectScale(goinfo->size);
 
@@ -290,13 +290,10 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
             break;
     }
 
-    if (GameObjectAddon const* addon = sObjectMgr->GetGameObjectAddon(GetSpawnId()))
+    if (gameObjectAddon && gameObjectAddon->InvisibilityValue)
     {
-        if (addon->InvisibilityValue)
-        {
-            m_invisibility.AddFlag(addon->invisibilityType);
-            m_invisibility.AddValue(addon->invisibilityType, addon->InvisibilityValue);
-        }
+        m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
+        m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
@@ -1925,7 +1922,7 @@ void GameObject::SetWorldRotation(G3D::Quat const& rot)
     UpdatePackedRotation();
 }
 
-void GameObject::SetTransportPathRotation(G3D::Quat const& rotation)
+void GameObject::SetParentRotation(G3D::Quat const& rotation)
 {
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, rotation.x);
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, rotation.y);

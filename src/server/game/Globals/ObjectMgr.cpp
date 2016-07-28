@@ -1074,7 +1074,7 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.PathRotation = G3D::Quat(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+        gameObjectAddon.ParentRotation = G3D::Quat(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
 
@@ -1091,10 +1091,10 @@ void ObjectMgr::LoadGameObjectAddons()
             gameObjectAddon.InvisibilityValue = 1;
         }
 
-        if (!gameObjectAddon.PathRotation.isUnit())
+        if (!gameObjectAddon.ParentRotation.isUnit())
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid path rotation", guid);
-            gameObjectAddon.PathRotation = G3D::Quat();
+            gameObjectAddon.ParentRotation = G3D::Quat();
         }
 
         ++count;
