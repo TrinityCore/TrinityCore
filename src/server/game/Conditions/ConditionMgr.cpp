@@ -57,7 +57,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Npc Vendor",
     "Spell Proc",
     "Terrain Swap",
-    "Phase"
+    "Phase",
     "Quest Available"
 };
 
