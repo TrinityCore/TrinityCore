@@ -152,11 +152,17 @@ public:
                         summon->SetHealth(me->GetHealth());
 
                     summon->AI()->DoZoneInCombat();
+                    summon->AI()->SetGUID(_midnightGUID, NPC_MIDNIGHT);
                 }
+
+            BossAI::JustSummoned(summon);
         }
 
         void IsSummonedBy(Unit* summoner) override
         {
+            if (summoner->GetEntry() == NPC_MIDNIGHT)
+                _phase = PHASE_ATTUMEN_ENGAGES;
+
             if (summoner->GetEntry() == NPC_ATTUMEN_UNMOUNTED)
             {
                 _phase = PHASE_MOUNTED;
@@ -204,10 +210,7 @@ public:
         void SetGUID(ObjectGuid guid, int32 data) override
         {
             if (data == NPC_MIDNIGHT)
-            {
                 _midnightGUID = guid;
-                _phase = PHASE_ATTUMEN_ENGAGES;
-            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -329,6 +332,8 @@ public:
                 summon->AI()->AttackStart(me->GetVictim());
                 summon->AI()->Talk(SAY_APPEAR);
             }
+
+            BossAI::JustSummoned(summon);
         }
 
         void EnterCombat(Unit* who) override
