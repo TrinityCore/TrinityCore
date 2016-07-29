@@ -146,22 +146,25 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             return;
         }
 
-        if (_player->GetBattlegroundQueueIndex(bgQueueTypeIdRandom) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+        if (!sWorld->getBoolConfig(CONFIG_BATTLEGROUND_ALLOW_QUEUE_RBG_AND_NORMAL))
         {
-            // player is already in random queue
-            WorldPacket data;
-            sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_IN_RANDOM_BG);
-            _player->GetSession()->SendPacket(&data);
-            return;
-        }
+            if (_player->GetBattlegroundQueueIndex(bgQueueTypeIdRandom) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+            {
+                // player is already in random queue
+                WorldPacket data;
+                sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_IN_RANDOM_BG);
+                _player->GetSession()->SendPacket(&data);
+                return;
+            }
 
-        if (_player->InBattlegroundQueue() && bgTypeId == BATTLEGROUND_RB)
-        {
-            // player is already in queue, can't start random queue
-            WorldPacket data;
-            sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_IN_NON_RANDOM_BG);
-            _player->GetSession()->SendPacket(&data);
-            return;
+            if (_player->InBattlegroundQueue() && bgTypeId == BATTLEGROUND_RB)
+            {
+                // player is already in queue, can't start random queue
+                WorldPacket data;
+                sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_IN_NON_RANDOM_BG);
+                _player->GetSession()->SendPacket(&data);
+                return;
+            }
         }
 
         // check if already in queue
