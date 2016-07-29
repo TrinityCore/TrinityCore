@@ -199,7 +199,7 @@ public:
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
-        msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
+        std::string msg = handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
         return true;
