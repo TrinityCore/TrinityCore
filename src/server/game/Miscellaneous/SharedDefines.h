@@ -1024,7 +1024,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
     SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused (4.3.4)
-    SPELL_EFFECT_TELEPORT_UNITS                     = 5,
+    SPELL_EFFECT_TELEPORT_UNITS_OLD                 = 5, // Unused (7.0.3)
     SPELL_EFFECT_APPLY_AURA                         = 6,
     SPELL_EFFECT_ENVIRONMENTAL_DAMAGE               = 7,
     SPELL_EFFECT_POWER_DRAIN                        = 8,
@@ -1246,7 +1246,7 @@ enum SpellEffectName
     SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING         = 224,
     SPELL_EFFECT_GRANT_BATTLEPET_LEVEL              = 225,
     SPELL_EFFECT_226                                = 226,
-    SPELL_EFFECT_227                                = 227,
+    SPELL_EFFECT_TELEPORT_TO_LFG_DUNGEON            = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_SET_FOLLOWER_QUALITY               = 229,
     SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL       = 230,
@@ -1259,22 +1259,22 @@ enum SpellEffectName
     SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS       = 237,
     SPELL_EFFECT_INCREASE_SKILL                     = 238,
     SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION = 239, // Instantly finishes building construction
-    SPELL_EFFECT_240                                = 240,
+    SPELL_EFFECT_GIVE_ARTIFACT_POWER                = 240,
     SPELL_EFFECT_241                                = 241,
-    SPELL_EFFECT_242                                = 242,
+    SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS       = 242, // Unaffected by Artifact Knowledge
     SPELL_EFFECT_APPLY_ENCHANT_ILLUSION             = 243,
     SPELL_EFFECT_LEARN_FOLLOWER_ABILITY             = 244,
     SPELL_EFFECT_UPGRADE_HEIRLOOM                   = 245,
     SPELL_EFFECT_FINISH_GARRISON_MISSION            = 246,
     SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
-    SPELL_EFFECT_249                                = 249,
+    SPELL_EFFECT_CREATE_ARTIFACT                    = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
-    SPELL_EFFECT_252                                = 252,
-    SPELL_EFFECT_253                                = 253,
+    SPELL_EFFECT_TELEPORT_UNITS                     = 252,
+    SPELL_EFFECT_GIVE_HONOR                         = 253,
     SPELL_EFFECT_254                                = 254,
-    SPELL_EFFECT_255                                = 255,
+    SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
     TOTAL_SPELL_EFFECTS                             = 256,
 };
 
