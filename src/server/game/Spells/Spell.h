@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "PathGenerator.h"
+#include <boost/any.hpp>
 
 namespace WorldPackets
 {
@@ -654,6 +655,16 @@ class TC_GAME_API Spell
 
         int32 GetTimer() const { return m_timer; }
 
+        template<typename T>
+        T const* GetCastExtraParam(std::string const& key) const
+        {
+            auto itr = m_castExtraParams.find(key);
+            if (itr != m_castExtraParams.end())
+                return boost::any_cast<T>(&itr->second);
+            return nullptr;
+        }
+        void SetCastExtraParam(std::string const& keyVal, boost::any&& value) { m_castExtraParams[keyVal] = value; }
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -690,6 +701,9 @@ class TC_GAME_API Spell
             m_delayAtDamageCount++;
             return false;
         }
+
+        // Used to store extra parameters for a spell, eg. data across different spells
+        std::unordered_map<std::string, boost::any> m_castExtraParams;
 
         // Delayed spells system
         uint64 m_delayStart;                                // time of spell delay start, filled by event handler, zero = just started
