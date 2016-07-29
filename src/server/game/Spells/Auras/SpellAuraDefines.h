@@ -484,7 +484,7 @@ enum AuraType
     SPELL_AURA_424                                          = 424,
     SPELL_AURA_425                                          = 425,
     SPELL_AURA_426                                          = 426,
-    SPELL_AURA_427                                          = 427,
+    SPELL_AURA_SCALE_PLAYER_LEVEL                           = 427,  // NYI
     SPELL_AURA_428                                          = 428,
     SPELL_AURA_429                                          = 429,
     SPELL_AURA_430                                          = 430,
@@ -493,9 +493,9 @@ enum AuraType
     SPELL_AURA_433                                          = 433,
     SPELL_AURA_434                                          = 434,
     SPELL_AURA_435                                          = 435,
-    SPELL_AURA_436                                          = 436,
+    SPELL_AURA_MOD_ENVIRONMENTAL_DAMAGE_TAKEN               = 436,  // NYI
     SPELL_AURA_437                                          = 437,
-    SPELL_AURA_438                                          = 438,
+    SPELL_AURA_PRELOAD_PHASE                                = 438,  // NYI
     SPELL_AURA_439                                          = 439,
     SPELL_AURA_MOD_MULTISTRIKE_DAMAGE                       = 440,  // NYI
     SPELL_AURA_MOD_MULTISTRIKE_CHANCE                       = 441,  // NYI
@@ -530,7 +530,7 @@ enum AuraType
     SPELL_AURA_470                                          = 470,
     SPELL_AURA_MOD_VERSATILITY                              = 471,  // NYI
     SPELL_AURA_472                                          = 472,
-    SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473, // Prevents durability loss from dealing/taking damage
+    SPELL_AURA_PREVENT_DURABILITY_LOSS_FROM_COMBAT          = 473,  // Prevents durability loss from dealing/taking damage
     SPELL_AURA_474                                          = 474,
     SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED        = 475,
     SPELL_AURA_MOD_CURRENCY_GAIN_LOOTED                     = 476,
@@ -540,7 +540,7 @@ enum AuraType
     SPELL_AURA_480                                          = 480,
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
-    SPELL_AURA_483                                          = 483,
+    SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
     SPELL_AURA_484                                          = 484,
     SPELL_AURA_485                                          = 485,
     SPELL_AURA_486                                          = 486,
