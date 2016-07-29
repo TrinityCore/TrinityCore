@@ -7,7 +7,7 @@ INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, 
 (28553, 53063, 0, 90, 0, 1, 1, 1, 1, 'Gameobject Mountain Trout School contains Loot item Mountain Trout');
  
 -- Add items to gameobject_loot_template
-DELETE FROM `gameobject_loot_template` WHERE `Entry`=207734 AND `Item`=38652;
+DELETE FROM `gameobject_loot_template` WHERE `Entry`=38652 AND `Item`=38652;
 INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
 (38652, 52325, 0, 100, 0, 1, 0, 1, 1, 'Gameobject Pool of Fire contains Loot item Volatile Fire');
  
