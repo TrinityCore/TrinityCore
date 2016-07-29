@@ -59,4 +59,4 @@ INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, 
 (38644, 46109, 0, 0.01, 0, 1, 1, 1, 1, 'Gameobject Shipwreck Debris contains Loot item Sea Turtle'),
 (38644, 52326, 0, 9.99, 0, 1, 1, 1, 1, 'Gameobject Shipwreck Debris contains Loot item Volatile Water'),
 (38644, 67597, 0, 9.99, 0, 1, 1, 1, 1, 'Gameobject Shipwreck Debris contains Loot item Sealed Crate'),
-(38644, 52985, 0, 80, 0, 1, 1, 1, 1, 'Gameobject Shipwreck Debris contains Loot item Azshara's Veil');
+(38644, 52985, 0, 80, 0, 1, 1, 1, 1, 'Gameobject Shipwreck Debris contains Loot item Azshara''s Veil');
