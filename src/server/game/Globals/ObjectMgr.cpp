@@ -1050,8 +1050,8 @@ void ObjectMgr::LoadGameObjectAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1               2               3               4               5                 6
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_rotation0, path_rotation1, path_rotation2, path_rotation3, invisibilityType, invisibilityValue FROM gameobject_addon");
+    //                                               0     1                 2                 3                 4                 5                 6
+    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue FROM gameobject_addon");
 
     if (!result)
     {
@@ -1066,7 +1066,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         ObjectGuid::LowType guid = fields[0].GetUInt32();
 
-        const GameObjectData* goData = GetGOData(guid);
+        GameObjectData const* goData = GetGOData(guid);
         if (!goData)
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) does not exist but has a record in `gameobject_addon`", guid);
@@ -1080,7 +1080,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid InvisibilityType in `gameobject_addon`", guid);
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid InvisibilityType in `gameobject_addon`, disabled invisibility", guid);
             gameObjectAddon.invisibilityType = INVISIBILITY_GENERAL;
             gameObjectAddon.InvisibilityValue = 0;
         }
@@ -1093,7 +1093,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         if (!gameObjectAddon.ParentRotation.isUnit())
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid path rotation", guid);
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid path rotation, set to default", guid);
             gameObjectAddon.ParentRotation = G3D::Quat();
         }
 
