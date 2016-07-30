@@ -697,10 +697,8 @@ INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, 
 (39342, 41777, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Etched Twilight Opal'),
 (39342, 41780, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Champion''s Monarch Topaz'),
 (39342, 41784, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Sovereign Twilight Opal'),
-(39342, 41784, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Sovereign Twilight Opal'),
 (39342, 41786, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Destructive Skyflare Diamond'),
 (39342, 41788, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Beaming Earthsiege Diamond'),
-(39342, 41789, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Inscribed Monarch Topaz'),
 (39342, 41789, 0, 25, 0, 0, 3, 1, 1, 'Level 70 Treasure Chest contains Design: Inscribed Monarch Topaz');
 
 -- Add items to gameobject_loot_template for Level 75 Treasure Chest
