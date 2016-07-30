@@ -5870,35 +5870,23 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
 {
     Unit* target = m_targets.GetUnitTarget();
     float rangeMod = 0.0f;
-    if (strict && IsNextMeleeSwingSpell()) {
+    if (strict && IsNextMeleeSwingSpell()) 
+    {
         *maxRange = 100.0f;
         return;
     }
+
     if (m_spellInfo->RangeEntry)
     {
         if (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
         {
-            rangeMod = m_caster->GetCombatReach() + 4.0f / 3.0f;
-            if (target)
-                rangeMod += target->GetCombatReach();
-            else
-                rangeMod += m_caster->GetCombatReach();
-
-            rangeMod = std::max(rangeMod, NOMINAL_MELEE_RANGE);
+            rangeMod = GetMeleeRange(m_caster, target);
         }
         else
         {
             float meleeRange = 0.0f;
             if (m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED)
-            {
-                meleeRange = m_caster->GetCombatReach() + 4.0f / 3.0f;
-                if (target)
-                    meleeRange += target->GetCombatReach();
-                else
-                    meleeRange += m_caster->GetCombatReach();
-
-                meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
-            }
+                meleeRange = GetMeleeRange(m_caster, target);
 
             *minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
             *maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
@@ -5927,6 +5915,17 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
 
     *maxRange += rangeMod;
+}
+
+float Spell::GetMeleeRange(Unit* caster, Unit* target)
+{
+    float range = caster->GetCombatReach() +  4.0f / 3.0f;
+    if (target)
+        range += target->GetCombatReach();
+    else
+        range += caster->GetCombatReach();
+
+    return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
 SpellCastResult Spell::CheckPower()
