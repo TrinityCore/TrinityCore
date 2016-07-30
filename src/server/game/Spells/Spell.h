@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "PathGenerator.h"
-#include <boost/any.hpp>
 
 namespace WorldPackets
 {
