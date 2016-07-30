@@ -595,7 +595,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     if (flags & UPDATEFLAG_ROTATION)
-        *data << uint64(ToGameObject()->GetRotation());
+        *data << uint64(ToGameObject()->GetPackedWorldRotation());
 
     if (flags & UPDATEFLAG_UNK5)
     {
@@ -2194,7 +2194,8 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), x, y, z, ang, G3D::Quat(rotation0, rotation1, rotation2, rotation3), 100, GO_STATE_READY))
+
     {
         delete go;
         return NULL;
