@@ -106,8 +106,12 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, damage, (Unit*)NULL, true, NULL, aurEff);
+                // No heal from this talent
+                if (eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL)
+                    return;
+                int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage() + eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+                if (bp0)
+                    eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetActor(), true, NULL, aurEff);
             }
 
             void Register() override
@@ -143,7 +147,8 @@ class spell_sha_ancestral_guidance_heal : public SpellScriptLoader
 
             void ResizeTargets(std::list<WorldObject*>& targets)
             {
-                targets.resize(3);
+                if (targets.size() > 3)
+                    targets.resize(3);
             }
 
             void Register() override
