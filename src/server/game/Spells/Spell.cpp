@@ -5834,10 +5834,47 @@ SpellCastResult Spell::CheckRange(bool strict)
     Unit* target = m_targets.GetUnitTarget();
     float minRange = 0.0f;
     float maxRange = 0.0f;
+    
+    GetMinMaxRange(strict, &minRange, &maxRange);
+
+    // get square values for sqr distance checks
+    minRange *= minRange;
+    maxRange *= maxRange;
+
+    Unit* target = m_targets.GetUnitTarget();
+    if (target && target != m_caster)
+    {
+        if (m_caster->GetExactDistSq(target) > maxRange)
+            return SPELL_FAILED_OUT_OF_RANGE;
+
+        if (minRange > 0.0f && m_caster->GetExactDistSq(target) < minRange)
+            return SPELL_FAILED_OUT_OF_RANGE;
+
+        if (m_caster->GetTypeId() == TYPEID_PLAYER &&
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
+            return SPELL_FAILED_UNIT_NOT_INFRONT;
+    }
+
+    if (m_targets.HasDst() && !m_targets.HasTraj())
+    {
+        if (m_caster->GetExactDistSq(m_targets.GetDstPos()) > maxRange)
+            return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
+        if (minRange > 0.0f && m_caster->GetExactDistSq(m_targets.GetDstPos()) < minRange)
+            return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
+    }
+
+    return SPELL_CAST_OK;
+}
+
+void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
+{
+    Unit* target = m_targets.GetUnitTarget();
     float rangeMod = 0.0f;
-    if (strict && IsNextMeleeSwingSpell())
-        maxRange = 100.0f;
-    else if (m_spellInfo->RangeEntry)
+    if (strict && IsNextMeleeSwingSpell()) {
+        *maxRange = 100.0f;
+        return;
+    }
+    if (m_spellInfo->RangeEntry)
     {
         if (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
         {
@@ -5863,8 +5900,8 @@ SpellCastResult Spell::CheckRange(bool strict)
                 meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
             }
 
-            minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
-            maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
+            *minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
+            *maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
 
             if (target || m_targets.GetCorpseTarget())
             {
@@ -5872,8 +5909,8 @@ SpellCastResult Spell::CheckRange(bool strict)
                 if (target)
                     rangeMod += target->GetCombatReach();
 
-                if (minRange > 0.0f && !(m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
-                    minRange += rangeMod;
+                if (*minRange > 0.0f && !(m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
+                    *minRange += rangeMod;
             }
         }
 
@@ -5884,38 +5921,12 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* ranged = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK, true))
-            maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
+            *maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
 
-    maxRange += rangeMod;
-
-    minRange *= minRange;
-    maxRange *= maxRange;
-
-    if (target && target != m_caster)
-    {
-        if (m_caster->GetExactDistSq(target) > maxRange)
-            return SPELL_FAILED_OUT_OF_RANGE;
-
-        if (minRange > 0.0f && m_caster->GetExactDistSq(target) < minRange)
-            return SPELL_FAILED_OUT_OF_RANGE;
-
-        if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
-            return SPELL_FAILED_UNIT_NOT_INFRONT;
-    }
-
-    if (m_targets.HasDst() && !m_targets.HasTraj())
-    {
-        if (m_caster->GetExactDistSq(m_targets.GetDstPos()) > maxRange)
-            return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
-        if (minRange > 0.0f && m_caster->GetExactDistSq(m_targets.GetDstPos()) < minRange)
-            return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
-    }
-
-    return SPELL_CAST_OK;
+    *maxRange += rangeMod;
 }
 
 SpellCastResult Spell::CheckPower()
