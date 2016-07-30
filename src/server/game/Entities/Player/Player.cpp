@@ -11023,7 +11023,7 @@ InventoryResult Player::CanEquipChildItem(Item* parentItem) const
         return EQUIP_ERR_OK;
 
     ItemChildEquipmentEntry const* childEquipement = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry());
-    if (!childItem)
+    if (!childEquipement)
         return EQUIP_ERR_OK;
 
     Item* dstItem = GetItemByPos(INVENTORY_SLOT_BAG_0, childEquipement->AltEquipmentSlot);
