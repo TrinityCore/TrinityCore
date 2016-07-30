@@ -51,7 +51,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_cooldownTime = 0;
     m_goInfo = nullptr;
     m_goData = nullptr;
-    m_packedRotation = 0.f;
+    m_packedRotation = 0;
 
     m_spawnId = 0;
 
