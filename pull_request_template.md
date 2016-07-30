@@ -4,7 +4,7 @@
 - -
 - -
 
-**Target branch(es):** 335/6x
+**Target branch(es):** 3.3.5/6.x
 
 **Issues addressed:** Closes #
 
