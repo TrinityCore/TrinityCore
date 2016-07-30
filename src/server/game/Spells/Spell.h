@@ -508,7 +508,6 @@ class TC_GAME_API Spell
 
         void SendLoot(ObjectGuid guid, LootType loottype);
         void GetMinMaxRange(bool strict, float* minRange, float* maxRange);
-        float GetMeleeRange(Unit* caster, Unit* target);
 
         Unit* const m_caster;
 

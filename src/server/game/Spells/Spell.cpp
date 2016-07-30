@@ -5880,13 +5880,13 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
     {
         if (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
         {
-            rangeMod = GetMeleeRange(m_caster, target);
+            rangeMod = m_caster->GetMeleeRange(target);
         }
         else
         {
             float meleeRange = 0.0f;
             if (m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED)
-                meleeRange = GetMeleeRange(m_caster, target);
+                meleeRange = m_caster->GetMeleeRange(target);
 
             *minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
             *maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
@@ -5915,17 +5915,6 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
 
     *maxRange += rangeMod;
-}
-
-float Spell::GetMeleeRange(Unit* caster, Unit* target)
-{
-    float range = caster->GetCombatReach() +  4.0f / 3.0f;
-    if (target)
-        range += target->GetCombatReach();
-    else
-        range += caster->GetCombatReach();
-
-    return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
 SpellCastResult Spell::CheckPower()
