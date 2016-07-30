@@ -103,19 +103,24 @@ class spell_sha_ancestral_guidance : public SpellScriptLoader
                 return true;
             }
 
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL)
+                    return false;
+                return true;
+            }
+
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                // No heal from this talent
-                if (eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL)
-                    return;
-                int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage() + eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+                int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
                 if (bp0)
                     eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetActor(), true, NULL, aurEff);
             }
 
             void Register() override
             {
+                DoCheckProc += AuraCheckProcFn(spell_sha_ancestral_guidance_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
@@ -147,8 +152,7 @@ class spell_sha_ancestral_guidance_heal : public SpellScriptLoader
 
             void ResizeTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.size() > 3)
-                    targets.resize(3);
+                Trinity::Containers::RandomResizeList(targets, 3);
             }
 
             void Register() override
