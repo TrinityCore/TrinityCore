@@ -5912,7 +5912,7 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
             *maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, *maxRange, this);
 
     *maxRange += rangeMod;
 }
