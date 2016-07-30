@@ -828,7 +828,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z
 
     // Create gameobject
     GameObject* go = new GameObject;
-    if (!go->Create(entry, map, PHASEMASK_NORMAL, x, y, z, o, G3D::Quat(), 100, GO_STATE_READY))
+    if (!go->Create(entry, map, PHASEMASK_NORMAL, Position(x, y, z, o), G3D::Quat(), 255, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
         delete go;

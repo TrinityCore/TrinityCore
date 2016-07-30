@@ -754,9 +754,9 @@ class npc_tirion_toc : public CreatureScript
                             _instance->SetData(TYPE_EVENT, 0);
                             break;
                         case 6000:
-                            me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0].GetPositionX(), EndSpawnLoc[0].GetPositionY(), EndSpawnLoc[0].GetPositionZ());
-                            me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1].GetPositionX(), EndSpawnLoc[1].GetPositionY(), EndSpawnLoc[1].GetPositionZ());
-                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2].GetPositionX(), EndSpawnLoc[2].GetPositionY(), EndSpawnLoc[2].GetPositionZ(), 5, 0, 0, 0, 0, 0);
+                            me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0]);
+                            me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1]);
+                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], G3D::Quat(), 0);
                             _updateTimer = 20*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 6005);
                             break;

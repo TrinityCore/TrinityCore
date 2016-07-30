@@ -139,14 +139,10 @@ public:
         }
 
         Player* player = handler->GetSession()->GetPlayer();
-        float x = float(player->GetPositionX());
-        float y = float(player->GetPositionY());
-        float z = float(player->GetPositionZ());
-        float o = float(player->GetOrientation());
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        if (!object->Create(objectInfo->entry, map, 0, x, y, z, o, G3D::Quat(), 0, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, 0, *player, G3D::Quat(), 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -179,7 +175,7 @@ public:
         /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGOData(spawnId)));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), spawnId, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), spawnId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -201,14 +197,7 @@ public:
         if (spawntime)
             spawntm = atoi((char*)spawntime);
 
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float ang = player->GetOrientation();
-
-        float rot2 = std::sin(ang/2);
-        float rot3 = std::cos(ang/2);
-
+        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoi(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -218,7 +207,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
+        player->SummonGameObject(objectId, *player, rotation, spawntm);
 
         return true;
     }

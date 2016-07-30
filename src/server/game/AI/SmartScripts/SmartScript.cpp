@@ -1264,18 +1264,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ObjectList* targets = GetTargets(e, unit);
             if (targets)
             {
-                float x, y, z, o;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
                     if (!IsUnit(*itr))
                         continue;
 
-                    (*itr)->GetPosition(x, y, z, o);
-                    x += e.target.x;
-                    y += e.target.y;
-                    z += e.target.z;
-                    o += e.target.o;
-                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, x, y, z, o, 0, 0, 0, 0, e.action.summonGO.despawnTime);
+                    Position pos = (*itr)->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
+                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, G3D::Quat(), e.action.summonGO.despawnTime);
                 }
 
                 delete targets;
@@ -1284,7 +1279,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, e.target.x, e.target.y, e.target.z, e.target.o, 0, 0, 0, 0, e.action.summonGO.despawnTime);
+            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), G3D::Quat(), e.action.summonGO.despawnTime);
             break;
         }
         case SMART_ACTION_KILL_UNIT:
