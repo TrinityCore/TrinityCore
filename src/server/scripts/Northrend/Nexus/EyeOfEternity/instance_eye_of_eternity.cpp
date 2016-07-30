@@ -86,7 +86,7 @@ public:
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject();
-            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), G3D::Quat(), 120, GO_STATE_READY))
+            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos, G3D::Quat(), 255, GO_STATE_READY))
             {
                 delete go;
                 return;

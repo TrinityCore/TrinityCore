@@ -140,9 +140,9 @@ const Position AnubarakLoc[]=
 
 const Position EndSpawnLoc[]=
 {
-    {648.9167f, 131.0208f, 141.6161f, 0}, // 0 - Highlord Tirion Fordring
-    {649.1614f, 142.0399f, 141.3057f, 0}, // 1 - Argent Mage
-    {644.6250f, 149.2743f, 140.6015f, 0}  // 2 - Portal to Dalaran
+    {648.9167f, 131.0208f, 141.6161f, 0.f}, // 0 - Highlord Tirion Fordring
+    {649.1614f, 142.0399f, 141.3057f, 0.f}, // 1 - Argent Mage
+    {644.6250f, 149.2743f, 140.6015f, 5.f}  // 2 - Portal to Dalaran
 };
 
 enum TCRWorldStateIds
