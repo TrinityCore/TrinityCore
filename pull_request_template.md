@@ -15,6 +15,7 @@
 - [ ] 
 - [ ] 
 
-**NOTE** If your Pull Request is SQL only create a ticket instead
+**NOTE** If your Pull Request is ONLY SQL create an issue instead!
+**NOTE** You no longer need to squash your commits, on merge we will squash it for you. (GitHub added a new feature)
 
-**SUGESTION** If your Pull Request contains SQL give it one imposible date, for example 9999_99_99_99_database.sql on that way it will be free on merge.
+**SUGGESTION** If your Pull Request contains SQL give it an impossible date, for example 9999_99_99_99_database.sql. This way it will be free on merge.
