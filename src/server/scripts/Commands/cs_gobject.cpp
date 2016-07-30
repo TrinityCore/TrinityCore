@@ -442,7 +442,7 @@ public:
         object->SetWorldRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().GetCounter(), o);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().GetCounter(), oz);
 
         return true;
     }
