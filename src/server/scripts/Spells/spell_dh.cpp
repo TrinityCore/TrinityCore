@@ -132,7 +132,7 @@ class spell_dh_fel_rush_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dh_fel_rush_aura_AuraScript);
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->SetDisableGravity(false);
