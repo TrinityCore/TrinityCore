@@ -1,16 +1,16 @@
-**Changes proposed**:
+**Changes proposed:**
 
 - 
 - 
 - 
 
-**Target branch(es)**: 335/6x
+**Target branch(es):** 335/6x
 
-**Issues addressed**: Closes #
+**Issues addressed:** Closes #
 
-**Tests performed**: (Does it build, tested in-game, etc)
+**Tests performed:** (Does it build, tested in-game, etc)
 
-**Known issues and TODO list**:
+**Known issues and TODO list:**
 
 - [ ] 
 - [ ] 
