@@ -566,9 +566,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT            = 659,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT              = 660,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION      = 661,
-    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 662,
+    // 662 3.3.5a only
     RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME           = 663,
-    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 664,
+    // 664 3.3.5a only
     RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT               = 665,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST      = 666,
     RBAC_PERM_COMMAND_RELOAD_QUEST_LOCALE                    = 667,
@@ -596,7 +596,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS                   = 689,
     RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED                  = 690,
     RBAC_PERM_COMMAND_RELOAD_SPELL_AREA                      = 691,
-    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 692,
+    // 692 3.3.5a only
     RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP                     = 693,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL               = 694,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
@@ -666,8 +666,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775,
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776,
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
     RBAC_PERM_COMMAND_AHBOT                                  = 778,
     RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
@@ -728,6 +728,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_QUEST                               = 834,
     RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
     RBAC_PERM_COMMAND_DEBUG_BOUNDARY                         = 836,
+    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 837,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 838,
+    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 839,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
