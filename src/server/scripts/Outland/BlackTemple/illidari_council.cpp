@@ -163,7 +163,7 @@ public:
                 Council[1] = instance->GetGuidData(DATA_VERAS_DARKSHADOW);
                 Council[2] = instance->GetGuidData(DATA_LADY_MALANDE);
                 Council[3] = instance->GetGuidData(DATA_HIGH_NETHERMANCER_ZEREVOR);
-            } else TC_LOG_ERROR("scripts", "SD2 ERROR: Instance Data for Black Temple not correctly set; Illidari Council event will not function properly.");
+            }
         }
 
         void EnterCombat(Unit* /*who*/) override { }
