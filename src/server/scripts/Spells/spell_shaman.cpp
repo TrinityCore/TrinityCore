@@ -874,22 +874,22 @@ class spell_sha_lava_burst : public SpellScriptLoader
 {
     public:
         spell_sha_lava_burst() : SpellScriptLoader("spell_sha_lava_burst") { }
-    
+
         class spell_sha_lava_burst_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
-    
+
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST))
                     return false;
-				if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
-					return false;
-				if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD))
-					return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD))
+                    return false;
                 return true;
             }
-    
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
@@ -897,13 +897,13 @@ class spell_sha_lava_burst : public SpellScriptLoader
                         if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
                             caster->CastSpell(target, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, true);
             }
-    
+
             void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
-    
+
         SpellScript* GetSpellScript() const override
         {
             return new spell_sha_lava_burst_SpellScript();
@@ -1153,11 +1153,11 @@ class spell_sha_path_of_flames_spread : public SpellScriptLoader
 {
     public:
         spell_sha_path_of_flames_spread() : SpellScriptLoader("spell_sha_path_of_flames_spread") { }
-    
+
         class spell_sha_path_of_flames_spread_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sha_path_of_flames_spread_SpellScript);
-    
+
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
@@ -1166,13 +1166,13 @@ class spell_sha_path_of_flames_spread : public SpellScriptLoader
                     return false;
                 return true;
             }
-    
+
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove(GetExplTargetUnit());
                 Trinity::Containers::RandomResizeList(targets, 1);
             }
-    
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* mainTarget = GetExplTargetUnit())
@@ -1183,14 +1183,14 @@ class spell_sha_path_of_flames_spread : public SpellScriptLoader
                             newAura->SetMaxDuration(flameShock->GetDuration());
                         }
             }
-    
+
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_path_of_flames_spread_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_path_of_flames_spread_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
-    
+
         SpellScript* GetSpellScript() const override
         {
             return new spell_sha_path_of_flames_spread_SpellScript();
