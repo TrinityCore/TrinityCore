@@ -507,7 +507,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
-        void GetMinMaxRange(bool strict, float* minRange, float* maxRange);
+        void GetMinMaxRange(bool strict, float& minRange, float& maxRange);
 
         Unit* const m_caster;
 

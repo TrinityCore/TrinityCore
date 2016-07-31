@@ -5835,7 +5835,7 @@ SpellCastResult Spell::CheckRange(bool strict)
     float minRange = 0.0f;
     float maxRange = 0.0f;
     
-    GetMinMaxRange(strict, &minRange, &maxRange);
+    GetMinMaxRange(strict, minRange, maxRange);
 
     // get square values for sqr distance checks
     minRange *= minRange;
@@ -5866,13 +5866,13 @@ SpellCastResult Spell::CheckRange(bool strict)
     return SPELL_CAST_OK;
 }
 
-void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
+void Spell::GetMinMaxRange(bool strict, float& minRange, float& maxRange)
 {
     Unit* target = m_targets.GetUnitTarget();
     float rangeMod = 0.0f;
     if (strict && IsNextMeleeSwingSpell()) 
     {
-        *maxRange = 100.0f;
+        maxRange = 100.0f;
         return;
     }
 
@@ -5888,15 +5888,16 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
             if (m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED)
                 meleeRange = m_caster->GetMeleeRange(target);
 
-            *minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
-            *maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
+            minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
+            maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
 
             if (target || m_targets.GetCorpseTarget())
             {
                 rangeMod = m_caster->GetCombatReach() + (target ? target->GetCombatReach() : m_caster->GetCombatReach());
 
-                if (*minRange > 0.0f && !(m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
-                    *minRange += rangeMod;
+
+                if (minRange > 0.0f && !(m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
+                    minRange += rangeMod;
             }
         }
 
@@ -5907,12 +5908,12 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* ranged = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK, true))
-            *maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
+            maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, *maxRange, this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
 
-    *maxRange += rangeMod;
+    maxRange += rangeMod;
 }
 
 SpellCastResult Spell::CheckPower()
