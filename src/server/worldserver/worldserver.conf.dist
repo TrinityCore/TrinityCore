@@ -3780,6 +3780,7 @@ Logger.mmaps=3,Server
 #Logger.bg.arena=3,Console Server
 #Logger.bg.battlefield=3,Console Server
 #Logger.bg.battleground=3,Console Server
+#Logger.bg.reportpvpafk=3,Console Server
 #Logger.chat.log=3,Console Server
 #Logger.calendar=3,Console Server
 #Logger.chat.system=3,Console Server
