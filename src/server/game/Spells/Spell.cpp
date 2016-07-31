@@ -5880,13 +5880,13 @@ void Spell::GetMinMaxRange(bool strict, float& minRange, float& maxRange)
     {
         if (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
         {
-            rangeMod = m_caster->GetMeleeRange(target);
+            rangeMod = m_caster->GetMeleeRange(target ? target : m_caster); // when the target is not a unit, take the caster's combat reach as the target's combat reach.
         }
         else
         {
             float meleeRange = 0.0f;
             if (m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED)
-                meleeRange = m_caster->GetMeleeRange(target);
+                meleeRange = m_caster->GetMeleeRange(target ? target : m_caster); // when the target is not a unit, take the caster's combat reach as the target's combat reach.
 
             minRange = m_caster->GetSpellMinRangeForTarget(target, m_spellInfo) + meleeRange;
             maxRange = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);

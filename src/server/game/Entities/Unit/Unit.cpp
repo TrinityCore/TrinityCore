@@ -492,12 +492,7 @@ bool Unit::IsWithinMeleeRange(Unit const* obj) const
 
 float Unit::GetMeleeRange(Unit const* target) const
 {
-    float range = this->GetCombatReach() + 4.0f / 3.0f;
-    if (target)
-        range += target->GetCombatReach();
-    else
-        range += this->GetCombatReach();
-
+    float range = this->GetCombatReach() + target->GetCombatReach() + 4.0f / 3.0f;
     return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
