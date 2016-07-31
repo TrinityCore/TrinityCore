@@ -341,15 +341,8 @@ class spell_sha_earthen_rage_proc_aura : public SpellScriptLoader
                 }
             }
 
-            void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& /*isPeriodic*/, int32& amplitude)
-            {
-                // On retail there have been 1-6 procs randomly distributed over the duration
-                amplitude = urand(1000, 4000);
-            }
-
             void Register() override
             {
-                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_sha_earthen_rage_proc_aura_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthen_rage_proc_aura_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
