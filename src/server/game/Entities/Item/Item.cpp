@@ -778,8 +778,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
 
     if (randomPropId > 0)
     {
-        ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(-randomPropId);
-        if (sItemRandomPropertiesStore.LookupEntry(randomPropId))
+        if (ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId))
         {
             if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != randomPropId)
             {
@@ -792,8 +791,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
     }
     else
     {
-        ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId);
-        if (item_rand)
+        if (ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId))
         {
             if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != randomPropId || !GetItemSuffixFactor())
             {
