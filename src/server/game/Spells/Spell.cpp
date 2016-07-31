@@ -5893,9 +5893,7 @@ void Spell::GetMinMaxRange(bool strict, float* minRange, float* maxRange)
 
             if (target || m_targets.GetCorpseTarget())
             {
-                rangeMod = m_caster->GetCombatReach();
-                if (target)
-                    rangeMod += target->GetCombatReach();
+                rangeMod = m_caster->GetCombatReach() + (target ? target->GetCombatReach() : m_caster->GetCombatReach());
 
                 if (*minRange > 0.0f && !(m_spellInfo->RangeEntry->type & SPELL_RANGE_RANGED))
                     *minRange += rangeMod;
