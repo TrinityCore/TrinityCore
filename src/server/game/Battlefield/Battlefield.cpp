@@ -826,9 +826,12 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z
         return nullptr;
     }
 
+    // Calculate rotation
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+
     // Create gameobject
     GameObject* go = new GameObject;
-    if (!go->Create(entry, map, PHASEMASK_NORMAL, Position(x, y, z, o), G3D::Quat(), 255, GO_STATE_READY))
+    if (!go->Create(entry, map, PHASEMASK_NORMAL, Position(x, y, z, o), rot, 255, GO_STATE_READY))
     {
         TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
         delete go;

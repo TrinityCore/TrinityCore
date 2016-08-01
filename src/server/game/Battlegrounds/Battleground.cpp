@@ -1458,11 +1458,22 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     Map* map = FindBgMap();
     if (!map)
         return false;
+
+    G3D::Quat rot(rotation0, rotation1, rotation2, rotation3);
+    // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
+    if (!rotation0 && !rotation1 && !rotation2 && !rotation3)
+    {
+        TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: %u, object type: %u] for BG (map: %u) has zeroed rotation fields, "
+            "orientation used temporally, but please fix the spawn", entry, type, m_MapId);
+
+        rot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+    }
+
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
     GameObject* go = new GameObject;
-    if (!go->Create(entry, GetBgMap(), PHASEMASK_NORMAL, Position(x, y, z, o), G3D::Quat(rotation0, rotation1, rotation2, rotation3), 255, goState))
+    if (!go->Create(entry, GetBgMap(), PHASEMASK_NORMAL, Position(x, y, z, o), rot, 255, goState))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
                 entry, m_MapId, m_InstanceID);
