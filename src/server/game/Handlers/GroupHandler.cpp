@@ -115,7 +115,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
     if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID().GetCounter()) && player->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
+        SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
         return;
     }
 
