@@ -290,8 +290,12 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
         m_ValidStartPositionTimer = 0;
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             {
+                if (player->IsGameMaster())
+                    continue;
+
                 Position pos = player->GetPosition();
                 Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
                 if (pos.GetExactDistSq(startPos) > maxDist)
@@ -300,6 +304,7 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
                     player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
                 }
             }
+        }
     }
 }
 
