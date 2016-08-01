@@ -17114,3 +17114,18 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
     target->SendDirectMessage(&data);
 }
+
+SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
+{
+    Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    if (!swaps2.empty())
+        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
+
+    for (AuraEffect const* aurEff : swaps)
+        if (aurEff->IsAffectingSpell(spellInfo))
+            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(aurEff->GetAmount()))
+                return newInfo;
+
+    return spellInfo;
+}
