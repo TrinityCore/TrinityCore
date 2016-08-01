@@ -30,7 +30,7 @@ ScenarioMgr* ScenarioMgr::Instance()
     return &instance;
 }
 
-InstanceScenario* ScenarioMgr::CreateMapScenario(Map* map, Player* triggeringPlayer)
+InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map* map, TeamId team)
 {
     ScenarioDBData const* scenarioData = nullptr;
     for (ScenarioDBData const* data : _scenarioDBData)
@@ -46,10 +46,17 @@ InstanceScenario* ScenarioMgr::CreateMapScenario(Map* map, Player* triggeringPla
         return nullptr;
 
     uint32 scenarioID = 0;
-    if (triggeringPlayer->GetTeamId() == TEAM_ALLIANCE)
-        scenarioID = scenarioData->Scenario_A;
-    else if (triggeringPlayer->GetTeamId() == TEAM_HORDE)
-        scenarioID = scenarioData->Scenario_H;
+    switch (team)
+    {
+        case TEAM_ALLIANCE:
+            scenarioID = scenarioData->Scenario_A;
+            break;
+        case TEAM_HORDE:
+            scenarioID = scenarioData->Scenario_H;
+            break;
+        default:
+            break;
+    }
 
     ScenarioDataContainer::iterator itr = _scenarioData.find(scenarioID);
     if (itr == _scenarioData.end())

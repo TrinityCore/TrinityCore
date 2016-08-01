@@ -35,6 +35,7 @@ namespace WorldPackets
             uint32 TimeStart = 0;
             uint32 TimeCreate = 0;
 			uint32 Flags = 0;
+            uint16 Unk1 = 0; // Seems to be 16 bit size, not sure if two 8 bits or its purpose.
         };
 		
 		struct BonusObjectiveData
@@ -43,6 +44,12 @@ namespace WorldPackets
 			bool ObjectiveCompleted = false;
         };
 		
+        struct UnkScenarioStateData1
+        {
+            uint32 Unk1 = 0;
+            bool Unk2 = true;
+        };
+
         class ScenarioState final : public WorldPackets::ServerPacket
         {
             public:
@@ -58,7 +65,9 @@ namespace WorldPackets
 				int32 TimerDuration = 0;
                 std::vector<CriteriaProgress> CriteriaProgress;
                 std::vector<BonusObjectiveData> BonusObjectiveData;
-				bool ScenarioCompleted = false;
+                std::vector<uint32> TotalSteps; // Speculated data
+                std::vector<UnkScenarioStateData1> UnkData;
+                bool ScenarioCompleted = false;
         };
 
         class ScenarioProgressUpdate final : public WorldPackets::ServerPacket

@@ -61,7 +61,7 @@ public:
     void LoadDBData();
     void LoadDBCData();
 
-    InstanceScenario* CreateMapScenario(Map* map, Player* triggeringPlayer);
+    InstanceScenario* CreateInstanceScenario(Map* map, TeamId team);
 
 private:
     ScenarioDataContainer _scenarioData;

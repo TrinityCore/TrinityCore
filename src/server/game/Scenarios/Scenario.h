@@ -38,11 +38,11 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void Reset() override;
 
         void AdvanceStep();
-        void SetStep(int8 step);
+        void SetStep(ScenarioStepEntry const* step);
         void SetDisableRewards() { _canReward = false; }
         void SetEnableRewards() { _canReward = true; }
 
-        virtual void CompleteStep(uint8 step);
+        virtual void CompleteStep(ScenarioStepEntry const* step);
         virtual void CompleteScenario();
         
         virtual void OnPlayerEnter(Player* player);
@@ -50,9 +50,9 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32) { }
         
         bool IsComplete() const { return _complete; }
-        uint8 GetStep() const { return _currentstep; }
-        uint8 GetFirstStep() const { return _firstStep; }
-        uint8 GetLastStep() const { return _lastStep; }
+        ScenarioStepEntry const* GetStep() const { return _currentstep; }
+        ScenarioStepEntry const* GetFirstStep() const { return _firstStep; }
+        ScenarioStepEntry const* GetLastStep() const { return _lastStep; }
 
         void SendScenarioState(Player* player);
         void SendBootPlayer(Player* player) const;
@@ -76,15 +76,16 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
         std::vector<WorldPackets::Scenario::BonusObjectiveData> GetBonusObjectivesData();
         std::vector<WorldPackets::Scenario::CriteriaProgress> GetCriteriasProgress();
+        std::vector<uint32> GetTotalSteps();
 
         std::string GetOwnerInfo() const override;
         CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
         ScenarioData const* _data;
 
     private:
-        int8 _currentstep;
-        int8 _lastStep;
-        int8 _firstStep;
+        ScenarioStepEntry const* _currentstep;
+        ScenarioStepEntry const* _lastStep;
+        ScenarioStepEntry const* _firstStep;
         bool _complete;
         bool _canReward;
 };

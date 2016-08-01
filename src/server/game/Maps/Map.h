@@ -768,6 +768,7 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetScriptId() const { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
+        void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
         void PermBindAllPlayers(Player* source);
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
