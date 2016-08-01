@@ -43,7 +43,7 @@ struct GameObjectTemplate
     uint32  faction;
     uint32  flags;
     float   size;
-    int32   unkInt32;
+    int32   RequiredLevel;
     union
     {
         // 0 GAMEOBJECT_TYPE_DOOR
