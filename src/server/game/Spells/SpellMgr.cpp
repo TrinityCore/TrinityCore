@@ -3073,6 +3073,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 53480: // Roar of Sacrifice
+                // missing spell effect 2 data, taken from 4.3.4
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[EFFECT_1].MiscValue = 127;
+                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
+                break;
             case 42005: // Bloodboil
             case 38296: // Spitfire Totem
             case 37676: // Insidious Whisper

@@ -242,8 +242,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     switch (type)
     {
         case CHAT_MSG_SAY:
-        case CHAT_MSG_EMOTE:
-        case CHAT_MSG_YELL:
         {
             // Prevent cheating
             if (!sender->IsAlive())
@@ -255,30 +253,50 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
-            if (type == CHAT_MSG_SAY)
-            {
 #ifdef ELUNA
-                if (!sEluna->OnChat(sender, type, lang, msg))
-                    return;
+            if (!sEluna->OnChat(sender, type, lang, msg))
+                return;
 #endif
-                sender->Say(msg, Language(lang));
-            }
-            else if (type == CHAT_MSG_EMOTE)
+
+            sender->Say(msg, Language(lang));
+        }
+        case CHAT_MSG_EMOTE:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ))
             {
-#ifdef ELUNA
-                if (!sEluna->OnChat(sender, type, LANG_UNIVERSAL, msg))
-                    return;
-#endif
-                sender->TextEmote(msg);
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ));
+                return;
             }
-            else if (type == CHAT_MSG_YELL)
+
+#ifdef ELUNA
+            if (!sEluna->OnChat(sender, type, LANG_UNIVERSAL, msg))
+                return;
+#endif
+
+            sender->TextEmote(msg);
+        }
+        case CHAT_MSG_YELL:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ))
             {
-#ifdef ELUNA
-                if (!sEluna->OnChat(sender, type, lang, msg))
-                    return;
-#endif
-                sender->Yell(msg, Language(lang));
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ));
+                return;
             }
+
+#ifdef ELUNA
+            if (!sEluna->OnChat(sender, type, lang, msg))
+                return;
+#endif
+
+            sender->Yell(msg, Language(lang));
         } break;
         case CHAT_MSG_WHISPER:
         {

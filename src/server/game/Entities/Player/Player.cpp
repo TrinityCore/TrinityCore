@@ -4214,7 +4214,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // close player ticket if any
     GmTicket* ticket = sTicketMgr->GetTicketByPlayer(playerguid);
     if (ticket)
-        ticket->SetClosedBy(playerguid);
+        sTicketMgr->CloseTicket(ticket->GetId(), playerguid);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
@@ -5183,71 +5183,67 @@ void Player::UpdateLocalChannels(uint32 newZone)
         return;
 
     std::string current_zone_name = current_zone->area_name[GetSession()->GetSessionDbcLocale()];
-
     for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
     {
-        if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i))
+        ChatChannelsEntry const* channelEntry = sChatChannelsStore.LookupEntry(i);
+        if (!channelEntry)
+            continue;
+
+        Channel* usedChannel = nullptr;
+        for (Channel* channel : m_channels)
         {
-            Channel* usedChannel = nullptr;
-
-            for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
+            if (channel->GetChannelId() == i)
             {
-                if ((*itr)->GetChannelId() == i)
-                {
-                    usedChannel = *itr;
-                    break;
-                }
+                usedChannel = channel;
+                break;
             }
+        }
 
-            Channel* removeChannel = nullptr;
-            Channel* joinChannel = nullptr;
-            bool sendRemove = true;
+        Channel* removeChannel = nullptr;
+        Channel* joinChannel = nullptr;
+        bool sendRemove = true;
 
-            if (CanJoinConstantChannelInZone(channel, current_zone))
+        if (CanJoinConstantChannelInZone(channelEntry, current_zone))
+        {
+            if (!(channelEntry->flags & CHANNEL_DBC_FLAG_GLOBAL))
             {
-                if (!(channel->flags & CHANNEL_DBC_FLAG_GLOBAL))
-                {
-                    if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
-                        continue;                            // Already on the channel, as city channel names are not changing
+                if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                    continue;                            // Already on the channel, as city channel names are not changing
 
-                    char new_channel_name_buf[100];
-                    char const* currentNameExt;
-
-                    if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
-                    else
-                        currentNameExt = current_zone_name.c_str();
-
-                    snprintf(new_channel_name_buf, 100, channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt);
-
-                    joinChannel = cMgr->GetJoinChannel(new_channel_name_buf, channel->ChannelID);
-                    if (usedChannel)
-                    {
-                        if (joinChannel != usedChannel)
-                        {
-                            removeChannel = usedChannel;
-                            sendRemove = false;              // Do not send leave channel, it already replaced at client
-                        }
-                        else
-                            joinChannel = nullptr;
-                    }
-                }
+                std::string currentNameExt;
+                if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
+                    currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
-                    joinChannel = cMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
+                    currentNameExt = current_zone_name;
+
+                std::string newChannelName = Trinity::StringFormat(channelEntry->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str());
+                joinChannel = cMgr->GetJoinChannel(newChannelName, channelEntry->ChannelID);
+                if (usedChannel)
+                {
+                    if (joinChannel != usedChannel)
+                    {
+                        removeChannel = usedChannel;
+                        sendRemove = false;              // Do not send leave channel, it already replaced at client
+                    }
+                    else
+                        joinChannel = nullptr;
+                }
             }
             else
-                removeChannel = usedChannel;
+                joinChannel = cMgr->GetJoinChannel(channelEntry->pattern[m_session->GetSessionDbcLocale()], channelEntry->ChannelID);
+        }
+        else
+            removeChannel = usedChannel;
 
-            if (joinChannel)
-                joinChannel->JoinChannel(this, "");          // Changed Channel: ... or Joined Channel: ...
+        if (joinChannel)
+            joinChannel->JoinChannel(this, "");          // Changed Channel: ... or Joined Channel: ...
 
-            if (removeChannel)
-            {
-                removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
-                std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
-                LeftChannel(removeChannel);                  // Remove from player's channel list
-                cMgr->LeftChannel(name);                     // Delete if empty
-            }
+        if (removeChannel)
+        {
+            removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+            std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
+            LeftChannel(removeChannel);                  // Remove from player's channel list
+            cMgr->LeftChannel(name);                     // Delete if empty
         }
     }
 }
@@ -14037,8 +14033,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     break;
                 case GOSSIP_OPTION_TRAINER:
                     if (getClass() != creature->GetCreatureTemplate()->trainer_class && creature->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS)
+                    {
                         TC_LOG_ERROR("sql.sql", "GOSSIP_OPTION_TRAINER:: Player %s (GUID: %u) requested wrong gossip menu: %u with wrong class: %u at Creature: %s (Entry: %u, Trainer Class: %u)",
-                        GetName().c_str(), GetGUID().GetCounter(), menu->GetGossipMenu().GetMenuId(), getClass(), creature->GetName().c_str(), creature->GetEntry(), creature->GetCreatureTemplate()->trainer_class);
+                            GetName().c_str(), GetGUID().GetCounter(), menu->GetGossipMenu().GetMenuId(), getClass(), creature->GetName().c_str(), creature->GetEntry(), creature->GetCreatureTemplate()->trainer_class);
+                        canTalk = false;
+                    }
                     // no break;
                 case GOSSIP_OPTION_GOSSIP:
                 case GOSSIP_OPTION_SPIRITGUIDE:
@@ -14906,15 +14905,23 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     uint32 quest_id = quest->GetQuestId();
 
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        if (quest->RequiredItemId[i])
-            DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true);
-
+    {
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
+        {
+            if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+                DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
+            else 
+                DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
+        }
+    }
     for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
     {
-        if (quest->ItemDrop[i])
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            uint32 count = quest->ItemDropQuantity[i];
-            DestroyItemCount(quest->ItemDrop[i], count ? count : 9999, true);
+            if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+                DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
+            else
+                DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
         }
     }
 
@@ -15010,7 +15017,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         /// @todo Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        MailDraft(mail_template_id).SendMailTo(trans, this, questGiver, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
+        if (uint32 questMailSender = quest->GetRewMailSenderEntry())
+            MailDraft(mail_template_id).SendMailTo(trans, this, questMailSender, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
+        else
+            MailDraft(mail_template_id).SendMailTo(trans, this, questGiver, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
         CharacterDatabase.CommitTransaction(trans);
     }
 
@@ -15124,12 +15134,12 @@ void Player::FailQuest(uint32 questId)
         for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
                 if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
-                    DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
+                    DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
 
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
                 if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
-                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+                    DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
     }
 }
 
@@ -15141,12 +15151,12 @@ void Player::AbandonQuest(uint32 questId)
         for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
                 if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
-                    DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
+                    DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
 
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
                 if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
-                    DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+                    DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
     }
 }
 
@@ -18875,7 +18885,7 @@ bool Player::CheckInstanceValidity(bool /*isLogin*/)
         return true;
 
     // non-instances are always valid
-    Map* map = GetMap();
+    Map* map = FindMap();
     if (!map || !map->IsDungeon())
         return true;
 
@@ -22039,8 +22049,8 @@ void Player::ReportedAfkBy(Player* reporter)
     if (m_bgData.bgAfkReporter.find(reporter->GetGUID().GetCounter()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
     {
         m_bgData.bgAfkReporter.insert(reporter->GetGUID().GetCounter());
-        // 3 players have to complain to apply debuff
-        if (m_bgData.bgAfkReporter.size() >= 3)
+        // by default 3 players have to complain to apply debuff
+        if (m_bgData.bgAfkReporter.size() >= sWorld->getIntConfig(CONFIG_BATTLEGROUND_REPORT_AFK))
         {
             // cast 'Idle' spell
             CastSpell(this, 43680, true);
@@ -22963,6 +22973,24 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
             m_DailyQuestChanged = true;
         }
     }
+}
+
+bool Player::IsDailyQuestDone(uint32 quest_id)
+{
+    bool found = false;
+    if (sObjectMgr->GetQuestTemplate(quest_id))
+    {
+        for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
+        {
+            if (GetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1 + quest_daily_idx) == quest_id)
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    return found;
 }
 
 void Player::SetWeeklyQuestStatus(uint32 quest_id)
