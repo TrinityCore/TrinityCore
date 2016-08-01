@@ -1804,6 +1804,15 @@ ChatLevelReq.Whisper = 1
 ChatLevelReq.Say = 1
 
 #
+#    PartyLevelReq
+#        Description: Minimum level at which players can invite to group, even if they aren't on
+#                     the invitee friends list. (Players who are on that friend list can always
+#                     invite despite having lower level)
+#        Default:     1
+
+PartyLevelReq = 1
+
+#
 #    PreserveCustomChannels
 #        Description: Store custom chat channel settings like password, automatic ownership handout
 #                     or ban list in the database. Needs to be enabled to save custom
