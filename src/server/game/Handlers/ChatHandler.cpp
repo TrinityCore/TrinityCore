@@ -251,7 +251,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sender->Say(msg, Language(lang));
-        }
+        } break;
         case CHAT_MSG_EMOTE:
         {
             // Prevent cheating
@@ -265,7 +265,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sender->TextEmote(msg);
-        }
+        } break;
         case CHAT_MSG_YELL:
         {
             // Prevent cheating
