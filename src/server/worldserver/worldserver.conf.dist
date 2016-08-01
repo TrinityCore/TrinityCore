@@ -1762,8 +1762,9 @@ ChatLevelReq.Say = 1
 
 #
 #    PartyLevelReq
-#        Description: Level requirement for characters to be able to invite members to party
-#                     unless it's friend.
+#        Description: Minimum level at which players can invite to group, even if they aren't on
+#                     the invitee friends list. (Players who are on that friend list can always
+#                     invite despite having lower level)
 #        Default:     1
 
 PartyLevelReq = 1
