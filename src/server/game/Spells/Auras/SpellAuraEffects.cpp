@@ -2419,13 +2419,13 @@ void AuraEffect::HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mod
         // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
         for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
-                if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
+                if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_NO_ACTIONS)
                     // Stop spells on prepare or casting state
                     target->InterruptSpell(CurrentSpellTypes(i), false);
     }
     else
     {
-        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit
         if (target->HasAuraType(SPELL_AURA_MOD_NO_ACTIONS))
             return;
 
