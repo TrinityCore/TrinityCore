@@ -158,7 +158,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
                 stats.QuestItems.push_back(item);
 
         memcpy(stats.Data, gameObjectInfo->raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
-        stats.Expansion = gameObjectInfo->unkInt32;
+        stats.RequiredLevel = gameObjectInfo->RequiredLevel;
     }
 
     SendPacket(response.Write());

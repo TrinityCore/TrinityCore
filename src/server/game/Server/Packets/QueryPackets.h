@@ -237,7 +237,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 Expansion = 0;
+            uint32 RequiredLevel = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket

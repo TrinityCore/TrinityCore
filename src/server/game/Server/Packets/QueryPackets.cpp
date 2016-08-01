@@ -325,7 +325,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
         for (int32 questItem : Stats.QuestItems)
             statsData << int32(questItem);
 
-        statsData << int32(Stats.Expansion);
+        statsData << int32(Stats.RequiredLevel);
     }
 
     _worldPacket << uint32(statsData.size());

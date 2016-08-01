@@ -6617,7 +6617,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         go.size = db2go->Size;
         memset(go.raw.data, 0, sizeof(go.raw.data));
         memcpy(go.raw.data, db2go->Data, std::min(sizeof(db2go->Data), sizeof(go.raw.data)));
-        go.unkInt32 = 0;
+        go.RequiredLevel = 0;
         go.ScriptId = 0;
     }
 
@@ -6628,7 +6628,7 @@ void ObjectMgr::LoadGameObjectTemplate()
     //                                        23      24      25      26      27      28      29      30      31      32      33      34      35      36      37      38
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
     //                                        39      40       41     42      43        44      45
-                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName "
+                                             "Data29, Data30, Data31, Data32, RequiredLevel, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6661,7 +6661,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
             got.raw.data[i] = fields[10 + i].GetUInt32();
 
-        got.unkInt32 = fields[43].GetInt32();
+        got.RequiredLevel = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
         got.ScriptId = GetScriptId(fields[45].GetString());
 
