@@ -249,6 +249,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
                 return;
             }
+
             sender->Say(msg, Language(lang));
         }
         case CHAT_MSG_EMOTE:
@@ -262,6 +263,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ));
                 return;
             }
+
             sender->TextEmote(msg);
         }
         case CHAT_MSG_YELL:
@@ -275,6 +277,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ));
                 return;
             }
+
             sender->Yell(msg, Language(lang));
         } break;
         case CHAT_MSG_WHISPER:
