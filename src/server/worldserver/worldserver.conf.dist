@@ -1762,7 +1762,8 @@ ChatLevelReq.Say = 1
 
 #
 #    PartyLevelReq
-#        Description: Level requirement for characters to be able to create party.
+#        Description: Level requirement for characters to be able to invite members to party
+#                     unless it's friend.
 #        Default:     1
 
 PartyLevelReq = 1
