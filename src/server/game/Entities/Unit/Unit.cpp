@@ -17118,14 +17118,16 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
 SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
 {
     Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED);
     if (!swaps2.empty())
         swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
 
-    for (AuraEffect const* aurEff : swaps)
-        if (aurEff->IsAffectingSpell(spellInfo))
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(aurEff->GetAmount()))
+    for (AuraEffect const* auraEffect : swaps)
+    {
+        if (uint32(auraEffect->GetMiscValue()) == spellInfo->Id || auraEffect->IsAffectingSpell(spellInfo))
+            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
                 return newInfo;
+    }
 
     return spellInfo;
 }
