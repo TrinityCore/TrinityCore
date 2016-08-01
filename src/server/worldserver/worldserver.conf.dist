@@ -1784,24 +1784,18 @@ Channel.RestrictedLfg = 1
 
 #
 #    ChatLevelReq.Channel
-#        Description: Level requirement for characters to be able to write in chat channels.
+#    ChatLevelReq.Whisper
+#    ChatLevelReq.Emote
+#    ChatLevelReq.Say
+#    ChatLevelReq.Yell
+#        Description: Level requirement for characters to be able to use chats.
 #        Default:     1
 
 ChatLevelReq.Channel = 1
-
-#
-#    ChatLevelReq.Whisper
-#        Description: Level requirement for characters to be able to whisper other characters.
-#        Default:     1
-
 ChatLevelReq.Whisper = 1
-
-#
-#    ChatLevelReq.Say
-#        Description: Level requirement for characters to be able to use say/yell/emote.
-#        Default:     1
-
+ChatLevelReq.Emote = 1
 ChatLevelReq.Say = 1
+ChatLevelReq.Yell = 1
 
 #
 #    PartyLevelReq
