@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "utgarde_pinnacle.h"
 #include "GridNotifiers.h"
@@ -709,6 +710,36 @@ public:
     }
 };
 
+class spell_freezing_cloud_damage : public SpellScriptLoader
+{
+    public:
+        spell_freezing_cloud_damage() : SpellScriptLoader("spell_freezing_cloud_damage") { }
+
+        class spell_freezing_cloud_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_freezing_cloud_damage_AuraScript);
+
+            bool CanBeAppliedOn(Unit* target)
+            {
+                if (Aura* aur = target->GetAura(GetId()))
+                    if (aur->GetOwner() != GetOwner())
+                        return false;
+
+                return true;
+            }
+
+            void Register() override
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_freezing_cloud_damage_AuraScript::CanBeAppliedOn);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_freezing_cloud_damage_AuraScript();
+        }
+};
+
 class spell_skadi_reset_check : public SpellScriptLoader
 {
     public:
@@ -935,6 +966,7 @@ void AddSC_boss_skadi()
     new npc_ymirjar_harpooner();
     new spell_freezing_cloud_area_left();
     new spell_freezing_cloud_area_right();
+    new spell_freezing_cloud_damage();
     new spell_skadi_reset_check();
     new spell_skadi_launch_harpoon();
     new spell_skadi_poisoned_spear();

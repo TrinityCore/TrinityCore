@@ -98,12 +98,14 @@ DELETE FROM `spell_custom_attr` WHERE `entry`=48642;
 INSERT INTO `spell_custom_attr` (`entry`, `attributes`) VALUES
 (48642, 32768); -- SPELL_ATTR0_CU_IGNORE_ARMOR
 
-DELETE FROM `spell_script_names` where `ScriptName` IN ('spell_skadi_poisoned_spear','spell_freezing_cloud_area_right','spell_freezing_cloud_area_left','spell_summon_gauntlet_mobs_periodic','spell_skadi_launch_harpoon','spell_skadi_reset_check');
+DELETE FROM `spell_script_names` where `ScriptName` IN ('spell_skadi_poisoned_spear','spell_freezing_cloud_area_right','spell_freezing_cloud_area_left','spell_summon_gauntlet_mobs_periodic','spell_skadi_launch_harpoon','spell_skadi_reset_check','spell_freezing_cloud_damage');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (50255, 'spell_skadi_poisoned_spear'),
 (59331, 'spell_skadi_poisoned_spear'),
 (47594, 'spell_freezing_cloud_area_right'),
 (47574, 'spell_freezing_cloud_area_left'),
+(47579, 'spell_freezing_cloud_damage'),
+(60020, 'spell_freezing_cloud_damage'),
 (59275, 'spell_summon_gauntlet_mobs_periodic'),
 (48642, 'spell_skadi_launch_harpoon'),
 (49308, 'spell_skadi_reset_check');
