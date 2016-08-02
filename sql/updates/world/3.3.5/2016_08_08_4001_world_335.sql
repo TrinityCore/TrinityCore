@@ -13,7 +13,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 DELETE FROM `creature_text` WHERE `entry` = @Kharan;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(@Kharan,0,0,'HEY! HEY YOU! $R! Get me out of here!',12,0,100,0,0,0,4725,0,'Kharan Mighthammer - SAY_GET_ME_OUT_OF_HERE');
+(@Kharan,0,0,'HEY! HEY YOU! $R! Get me out of here!',12,0,100,0,0,0,4725,0,'Kharan Mighthammer');
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN 1821 AND 1839;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
@@ -50,7 +50,11 @@ INSERT INTO `gossip_menu` (`entry`,`text_id`,`VerifiedBuild`) VALUES
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14,15) AND `SourceGroup`= 1822 AND `SourceEntry` IN (0,1,2473,2474) AND `SourceId`= 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(14,1822,2473,0,1,9,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 text id 2473 if quest 'What Is Going On?' has been taken. -OR-"),
-(15,1822,   1,0,0,9,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 option id 1 if quest 'What Is Going On?' has been taken."),
-(14,1822,2474,0,2,9,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has been taken. -OR-"),
-(15,1822,   0,0,0,9,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 option id 0 if quest 'Kharan's Tale' has been taken.");
+(14,1822,2473,0,1, 9,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 text id 2473 if quest 'What Is Going On?' has been taken. -OR-"),
+(14,1822,2474,0,2,14,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'What Is Going On?' has not been taken. -OR-"),
+(14,1822,2474,0,3,28,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'What Is Going On?' has been completed. -OR-"),
+(15,1822,   1,0,0, 9,0,4001,0,0,0,0,0,'', "Show gossip menu 1822 option id 1 if quest 'What Is Going On?' has been taken."),
+(14,1822,2474,0,4, 9,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has been taken. -OR-"),
+(14,1822,2474,0,5,14,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has not been taken. -OR-"),
+(14,1822,2474,0,6,28,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has been completed. -OR-"),
+(15,1822,   0,0,0, 9,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 option id 0 if quest 'Kharan's Tale' has been taken.");
