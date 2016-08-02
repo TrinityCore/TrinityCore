@@ -626,3 +626,19 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
+{
+    _worldPacket << uint32(Error);
+    _worldPacket.WriteBit(Arg.is_initialized());
+    _worldPacket.WriteBit(Arg2.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (Arg)
+        _worldPacket << int32(*Arg);
+
+    if (Arg2)
+        _worldPacket << int32(*Arg2);
+
+    return &_worldPacket;
+}
