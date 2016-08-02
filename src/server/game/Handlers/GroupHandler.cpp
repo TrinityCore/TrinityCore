@@ -82,6 +82,13 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         return;
     }
 
+    // player trying to invite himself (most likely cheating)
+    if (player == GetPlayer())
+    {
+        SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
+        return;
+    }
+
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->IsGameMaster() && player->IsGameMaster())
     {
@@ -110,6 +117,12 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
     {
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
+        return;
+    }
+
+    if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID().GetCounter()) && GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    {
+        SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
         return;
     }
 
@@ -170,6 +183,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         }
         if (!group->AddInvite(player))
         {
+            group->RemoveAllInvites();
             delete group;
             return;
         }

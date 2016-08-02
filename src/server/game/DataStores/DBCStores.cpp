@@ -25,7 +25,7 @@
 #include "Timer.h"
 #include "ObjectDefines.h"
 
-#include <boost/regex.hpp>
+#include <regex>
 #include <map>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
@@ -145,7 +145,7 @@ DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
 DBCStorage<NamesProfanityEntry> sNamesProfanityStore(NamesProfanityEntryfmt);
 DBCStorage<NamesReservedEntry> sNamesReservedStore(NamesReservedEntryfmt);
-typedef std::array<std::vector<boost::regex>, TOTAL_LOCALES> NameValidationRegexContainer;
+typedef std::array<std::vector<std::regex>, TOTAL_LOCALES> NameValidationRegexContainer;
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
 
@@ -411,10 +411,10 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
     }
 
     for (uint32 i = 0; i < sNamesReservedStore.GetNumRows(); ++i)
@@ -425,10 +425,10 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesReserved->Language < TOTAL_LOCALES || namesReserved->Language == -1);
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                NamesReservedValidators[i].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
     }
 
 
@@ -1005,13 +1005,13 @@ ResponseCodes ValidateName(std::string const& name, LocaleConstant locale)
     if (locale >= TOTAL_LOCALES)
         return RESPONSE_FAILURE;
 
-    for (boost::regex const& regex : NamesProfaneValidators[locale])
-        if (boost::regex_search(name, regex))
+    for (std::regex const& regex : NamesProfaneValidators[locale])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (boost::regex const& regex : NamesReservedValidators[locale])
-        if (boost::regex_search(name, regex))
+    for (std::regex const& regex : NamesReservedValidators[locale])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;
