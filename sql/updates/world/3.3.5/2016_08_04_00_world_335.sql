@@ -5,15 +5,18 @@ UPDATE `creature_template` SET `AIName`= 'SmartAI', `ScriptName`= '' WHERE `entr
 
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = @Kharan);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@Kharan,0, 0,0, 10,0,100,0,   0,20,0,0,  1,   0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - Within 0-20 Range Out of Combat LoS - Say Line 0'),
-(@Kharan,0, 1,2, 62,0,100,0,1823, 0,0,0, 72,   0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - on Gossip option 0 selected - Close Gossip'),
-(@Kharan,0, 2,0, 61,0,100,0,   0, 0,0,0, 15,4342,0,0,0,0,0,7,0,0,0,0,0,0,0,"Kharan Mighthammer - on Gossip option 0 selected - Quest Credit 'Kharan's Tale'"),
-(@Kharan,0, 3,4, 62,0,100,0,1839, 0,0,0, 72,   0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - on Gossip option 0 selected - Close Gossip'),
-(@Kharan,0, 4,0, 61,0,100,0,   0, 0,0,0, 15,4001,0,0,0,0,0,7,0,0,0,0,0,0,0,"Kharan Mighthammer - on Gossip option 0 selected - Credit Quest 'What Is Going On?'");
+(@Kharan,0,0,0, 10,0,100,0,   0,20,0,0,  1,   0,3000,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - Within 0-20 Range Out of Combat LoS - Say Line 0'),
+(@Kharan,0,1,2, 62,0,100,0,1823, 0,0,0, 72,   0,   0,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - on Gossip option 0 selected - Close Gossip'),
+(@Kharan,0,2,0, 61,0,100,0,   0, 0,0,0, 15,4342,   0,0,0,0,0,7,0,0,0,0,0,0,0,"Kharan Mighthammer - on Gossip option 0 selected - Quest Credit 'Kharan's Tale'"),
+(@Kharan,0,3,4, 62,0,100,0,1839, 0,0,0, 72,   0,   0,0,0,0,0,7,0,0,0,0,0,0,0,'Kharan Mighthammer - on Gossip option 0 selected - Close Gossip'),
+(@Kharan,0,4,0, 61,0,100,0,   0, 0,0,0, 15,4001,   0,0,0,0,0,7,0,0,0,0,0,0,0,"Kharan Mighthammer - on Gossip option 0 selected - Credit Quest 'What Is Going On?'");
 
 DELETE FROM `creature_text` WHERE `entry` = @Kharan;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(@Kharan,0,0,'HEY! HEY YOU! $R! Get me out of here!',12,0,100,0,0,0,4725,0,'Kharan Mighthammer');
+(@Kharan,0,0,'Key... get the key... Gerstahn has... key.',                                              12,0,100,0,0,0,4723,0,'Kharan Mighthammer'),
+(@Kharan,0,1,'Try and make yourself useful, $r. GET ME OUT OF HERE! The High Interrogator has the key.',12,0,100,0,0,0,4724,0,'Kharan Mighthammer'),
+(@Kharan,0,2,'HEY! HEY YOU! $R! Get me out of here!',                                                   12,0,100,0,0,0,4725,0,'Kharan Mighthammer'),
+(@Kharan,0,3,'%s groans.',                                                                              16,0,100,0,0,0,4726,0,'Kharan Mighthammer');
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN 1821 AND 1839;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
