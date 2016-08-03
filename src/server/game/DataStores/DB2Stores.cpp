@@ -652,8 +652,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (NamesProfanityEntry const* namesProfanity : sNamesProfanityStore)
     {
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesProfanity->Name, name));
         if (namesProfanity->Language != -1)
-            _nameValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
+            _nameValidators[namesProfanity->Language].emplace_back(name, std::regex::icase | std::regex::optimize);
         else
         {
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
@@ -661,24 +663,30 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 if (i == LOCALE_none)
                     continue;
 
-                _nameValidators[i].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
             }
         }
     }
 
     for (NamesReservedEntry const* namesReserved : sNamesReservedStore)
-        _nameValidators[TOTAL_LOCALES].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
+    {
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesReserved->Name, name));
+        _nameValidators[TOTAL_LOCALES].emplace_back(name, std::regex::icase | std::regex::optimize);
+    }
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
     {
         ASSERT(!(namesReserved->LocaleMask & ~((1 << TOTAL_LOCALES) - 1)));
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesReserved->Name, name));
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (i == LOCALE_none)
                 continue;
 
             if (namesReserved->LocaleMask & (1 << i))
-                _nameValidators[i].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
         }
     }
 
@@ -1260,14 +1268,14 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
     return data->Str[sWorld->GetDefaultDbcLocale()];
 }
 
-ResponseCodes DB2Manager::ValidateName(std::string const& name, LocaleConstant locale) const
+ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const
 {
-    for (std::regex const& regex : _nameValidators[locale])
+    for (std::wregex const& regex : _nameValidators[locale])
         if (std::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (std::regex const& regex : _nameValidators[TOTAL_LOCALES])
+    for (std::wregex const& regex : _nameValidators[TOTAL_LOCALES])
         if (std::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 

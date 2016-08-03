@@ -241,7 +241,7 @@ public:
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
-    typedef std::array<std::vector<std::regex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
+    typedef std::array<std::vector<std::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
@@ -297,7 +297,7 @@ public:
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
-    ResponseCodes ValidateName(std::string const& name, LocaleConstant locale) const;
+    ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     static PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);

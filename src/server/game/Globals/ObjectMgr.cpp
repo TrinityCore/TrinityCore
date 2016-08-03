@@ -7638,7 +7638,7 @@ ResponseCodes ObjectMgr::CheckPlayerName(std::string const& name, LocaleConstant
         if (wname[i] == wname[i-1] && wname[i] == wname[i-2])
             return CHAR_NAME_THREE_CONSECUTIVE;
 
-    return sDB2Manager.ValidateName(name, locale);
+    return sDB2Manager.ValidateName(wname, locale);
 }
 
 bool ObjectMgr::IsValidCharterName(const std::string& name)
