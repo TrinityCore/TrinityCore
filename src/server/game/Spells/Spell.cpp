@@ -5831,7 +5831,6 @@ SpellCastResult Spell::CheckRange(bool strict)
     if (!strict && m_casttime == 0)
         return SPELL_CAST_OK;
 
-    Unit* target = m_targets.GetUnitTarget();
     float minRange = 0.0f;
     float maxRange = 0.0f;
     
