@@ -117,7 +117,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     // player trying to invite himself (most likely cheating)
     if (player == GetPlayer())
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_BAD_PLAYER_NAME_S);
         return;
     }
 
@@ -154,7 +154,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
     if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID().GetCounter()) && GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
+        SendPartyResult(PARTY_OP_INVITE, memberName, ERR_INVITE_RESTRICTED);
         return;
     }
 
