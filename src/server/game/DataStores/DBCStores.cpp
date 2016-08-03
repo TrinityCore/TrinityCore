@@ -145,7 +145,7 @@ DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
 DBCStorage<NamesProfanityEntry> sNamesProfanityStore(NamesProfanityEntryfmt);
 DBCStorage<NamesReservedEntry> sNamesReservedStore(NamesReservedEntryfmt);
-typedef std::array<std::vector<std::regex>, TOTAL_LOCALES> NameValidationRegexContainer;
+typedef std::array<std::vector<std::wregex>, TOTAL_LOCALES> NameValidationRegexContainer;
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
 
@@ -410,11 +410,14 @@ void LoadDBCStores(const std::string& dataPath)
             continue;
 
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
+        std::wstring wname;
+        ASSERT(Utf8toWStr(namesProfanity->Name, wname));
+
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(wname, std::regex::icase | std::regex::optimize);
     }
 
     for (uint32 i = 0; i < sNamesReservedStore.GetNumRows(); ++i)
@@ -424,11 +427,14 @@ void LoadDBCStores(const std::string& dataPath)
             continue;
 
         ASSERT(namesReserved->Language < TOTAL_LOCALES || namesReserved->Language == -1);
+        std::wstring wname;
+        ASSERT(Utf8toWStr(namesReserved->Name, wname));
+
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(wname, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
+                NamesReservedValidators[i].emplace_back(wname, std::regex::icase | std::regex::optimize);
     }
 
 
@@ -1000,17 +1006,17 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
     return NULL;
 }
 
-ResponseCodes ValidateName(std::string const& name, LocaleConstant locale)
+ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)
 {
     if (locale >= TOTAL_LOCALES)
         return RESPONSE_FAILURE;
 
-    for (std::regex const& regex : NamesProfaneValidators[locale])
+    for (std::wregex const& regex : NamesProfaneValidators[locale])
         if (std::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (std::regex const& regex : NamesReservedValidators[locale])
+    for (std::wregex const& regex : NamesReservedValidators[locale])
         if (std::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
