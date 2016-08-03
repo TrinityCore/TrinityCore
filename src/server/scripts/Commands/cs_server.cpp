@@ -198,10 +198,14 @@ public:
         return true;
     }
 
-    static inline bool IsOnlyUser(WorldSession* mySession)
+    static bool AlwaysForceShutdown(WorldSession* mySession)
     {
+        // if mySession is null then the shutdown command was issued from console (local or remote), always shutdown in this case
+        if (!mySession)
+            return true;
+
         // check if there is any session connected from a different address
-        std::string myAddr = mySession ? mySession->GetRemoteAddress() : "";
+        std::string myAddr = mySession->GetRemoteAddress();
         SessionMap const& sessions = sWorld->GetAllSessions();
         for (SessionMap::value_type const& session : sessions)
             if (session.second && myAddr != session.second->GetRemoteAddress())
@@ -210,12 +214,12 @@ public:
     }
     static bool HandleServerShutDownCommand(ChatHandler* handler, char const* args)
     {
-        return ShutdownServer(args, IsOnlyUser(handler->GetSession()) ? SHUTDOWN_MASK_FORCE : 0, SHUTDOWN_EXIT_CODE);
+        return ShutdownServer(args, AlwaysForceShutdown(handler->GetSession()) ? SHUTDOWN_MASK_FORCE : 0, SHUTDOWN_EXIT_CODE);
     }
 
     static bool HandleServerRestartCommand(ChatHandler* handler, char const* args)
     {
-        return ShutdownServer(args, IsOnlyUser(handler->GetSession()) ? (SHUTDOWN_MASK_FORCE | SHUTDOWN_MASK_RESTART) : SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+        return ShutdownServer(args, AlwaysForceShutdown(handler->GetSession()) ? (SHUTDOWN_MASK_FORCE | SHUTDOWN_MASK_RESTART) : SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
     }
 
     static bool HandleServerForceShutDownCommand(ChatHandler* /*handler*/, char const* args)
