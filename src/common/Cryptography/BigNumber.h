@@ -77,7 +77,8 @@ class BigNumber
             return t %= bn;
         }
 
-        bool isZero() const;
+        bool IsZero() const;
+        bool IsNegative() const;
 
         BigNumber ModExp(BigNumber const& bn1, BigNumber const& bn2);
         BigNumber Exp(BigNumber const&);
