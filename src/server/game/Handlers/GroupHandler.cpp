@@ -145,6 +145,12 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID().GetCounter()) && player->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    {
+        SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
+        return;
+    }
+
     ObjectGuid invitedGuid = player->GetGUID();
 
     Group* group = GetPlayer()->GetGroup();
