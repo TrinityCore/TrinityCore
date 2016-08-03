@@ -22,7 +22,6 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -46,11 +45,11 @@ namespace MMAP
                 dtFreeNavMesh(navMesh);
         }
 
-        dtNavMesh* navMesh;
-
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
         NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+
+        dtNavMesh* navMesh;
+        MMapTileSet loadedTileRefs;        // maps [map grid coords] to [dtTile]
     };
 
 
