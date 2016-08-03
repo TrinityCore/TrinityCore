@@ -1,4 +1,5 @@
 SET @OGUID:=74772;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 (@OGUID+0 , 188691, 571, 1, 1, 4049.076, -3725.035, 222.8353, 5.811947, 0, 0, 0, 1, 120, 255, 1), -- 188691 (Area: 395) -- Vordrassil's Seed
 (@OGUID+1 , 188691, 571, 1, 1, 4001.214, -3765.898, 114.5079, 5.811947, 0, 0, 0, 1, 120, 255, 1), -- 188691 (Area: 395)
