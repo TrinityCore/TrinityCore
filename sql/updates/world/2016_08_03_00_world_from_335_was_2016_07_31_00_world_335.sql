@@ -1,3 +1,4 @@
+/*
 -- SmartAI script for creature entry 9528 Arathandris Silversky and 9529 Maybess Riverbreeze
 SET @Arathandris := 9528;
 SET @Riverbreeze := 9529;
@@ -45,3 +46,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`= 15 AND `SourceGroup` I
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15, 2208,0,0,0, 2,0, 11511,1, 0,1,0,0,'','Do not show gossip menu 2208 option id 0 if player has 1 of Cenarion Beacon in bags or bank.'),
 (15,21400,0,0,0, 2,0, 11511,1, 0,1,0,0,'','Do not show gossip menu 21400 option id 0 if player has 1 of Cenarion Beacon in bags or bank.');
+*/
