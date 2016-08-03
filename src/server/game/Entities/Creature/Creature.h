@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Unit.h"
 #include "UpdateMask.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
 #include "Cell.h"
@@ -67,15 +67,16 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
-#define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
+static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+static const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
-#define MAX_KILL_CREDIT 2
-#define MAX_CREATURE_MODELS 4
-#define MAX_CREATURE_QUEST_ITEMS 6
-#define CREATURE_MAX_SPELLS 8
+static const uint8 MAX_KILL_CREDIT = 2;
+static const uint32 MAX_CREATURE_MODELS = 4;
+static const uint32 MAX_CREATURE_QUEST_ITEMS = 6;
+static const uint32 MAX_CREATURE_SPELLS = 8;
 
 // from `creature_template` table
-struct CreatureTemplate
+struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
     uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
@@ -106,7 +107,7 @@ struct CreatureTemplate
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  dynamicflags;
-    uint32  family;                                         // enum CreatureFamily values (optional)
+    CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_spell;
     uint32  trainer_class;
@@ -117,7 +118,7 @@ struct CreatureTemplate
     uint32  pickpocketLootId;
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[CREATURE_MAX_SPELLS];
+    uint32  spells[MAX_CREATURE_SPELLS];
     uint32  PetSpellDataId;
     uint32  VehicleId;
     uint32  mingold;
@@ -145,11 +146,11 @@ struct CreatureTemplate
     // helpers
     SkillType GetRequiredLootSkill() const
     {
-        if (type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
+        if (type_flags & CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL)
             return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL)
             return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
             return SKILL_ENGINEERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -157,12 +158,12 @@ struct CreatureTemplate
 
     bool IsExotic() const
     {
-        return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
+        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
     }
 
     bool IsTameable(bool canTameExotic) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_PET) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
@@ -179,7 +180,7 @@ typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;
 #pragma pack(push, 1)
 
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
-struct CreatureBaseStats
+struct TC_GAME_API CreatureBaseStats
 {
     uint32 BaseHealth[MAX_EXPANSIONS];
     uint32 BaseMana;
@@ -293,7 +294,8 @@ enum InhabitTypeValues
     INHABIT_GROUND = 1,
     INHABIT_WATER  = 2,
     INHABIT_AIR    = 4,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
+    INHABIT_ROOT   = 8,
+    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -401,7 +403,7 @@ struct TrainerSpell
 
 typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 
-struct TrainerSpellData
+struct TC_GAME_API TrainerSpellData
 {
     TrainerSpellData() : trainerType(0) { }
     ~TrainerSpellData() { spellList.clear(); }
@@ -421,7 +423,7 @@ struct TrainerSpellData
 typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
 
-class Creature : public Unit, public GridObject<Creature>, public MapObject
+class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
@@ -475,7 +477,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
+        bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
+        bool AIM_Destroy();
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();
 
@@ -566,7 +570,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         SpellInfo const* reachWithSpellAttack(Unit* victim);
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
-        uint32 m_spells[CREATURE_MAX_SPELLS];
+        uint32 m_spells[MAX_CREATURE_SPELLS];
 
         bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
@@ -594,6 +598,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void RemoveCorpse(bool setSpawnTime = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(Milliseconds const& time) { DespawnOrUnsummon(uint32(time.count())); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -630,6 +635,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
+
+        void SetCannotReachTarget(bool cannotReach)
+        {
+            if (cannotReach == m_cannotReachTarget)
+                return;
+            m_cannotReachTarget = cannotReach;
+            m_cannotReachTimer = 0;
+        }
+        bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetPosition(float x, float y, float z, float o);
         void SetPosition(const Position &pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
@@ -718,6 +732,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
         bool m_regenHealth;
+        bool m_cannotReachTarget;
+        uint32 m_cannotReachTimer;
         bool m_AI_locked;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
@@ -746,15 +762,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         //Formation var
         CreatureGroup* m_formation;
-        bool TriggerJustRespawned;
+        bool m_TriggerJustRespawned;
 
-        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
-        uint32 _focusDelay;
+        Spell const* m_focusSpell;   ///> Locks the target during spell cast for proper facing
+        uint32 m_focusDelay;
 
         CreatureTextRepeatGroup m_textRepeat;
 };
 
-class AssistDelayEvent : public BasicEvent
+class TC_GAME_API AssistDelayEvent : public BasicEvent
 {
     public:
         AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
@@ -769,7 +785,7 @@ class AssistDelayEvent : public BasicEvent
         Unit&             m_owner;
 };
 
-class ForcedDespawnDelayEvent : public BasicEvent
+class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
 {
     public:
         ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }

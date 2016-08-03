@@ -34,7 +34,7 @@ class Quest;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ChatLink - abstract base class for various links
-class ChatLink
+class TC_GAME_API ChatLink
 {
 public:
     ChatLink() : _color(0), _startPos(0), _endPos(0) { }
@@ -44,7 +44,7 @@ public:
     void SetBounds(std::istringstream::pos_type startPos, std::istringstream::pos_type endPos) { _startPos = startPos; _endPos = endPos; }
 
     virtual bool Initialize(std::istringstream& iss) = 0;
-    virtual bool ValidateName(char* buffer, const char* context) = 0;
+    virtual bool ValidateName(char* buffer, char const* context) = 0;
 
 protected:
     uint32 _color;
@@ -54,15 +54,15 @@ protected:
 };
 
 // ItemChatLink - link to item
-class ItemChatLink : public ChatLink
+class TC_GAME_API ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL)
+    ItemChatLink() : ChatLink(), _item(nullptr), _suffix(nullptr), _property(nullptr)
     {
         memset(_data, 0, sizeof(_data));
     }
     virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    virtual bool ValidateName(char* buffer, char const* context) override;
 
 protected:
     std::string FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const;
@@ -74,12 +74,12 @@ protected:
 };
 
 // QuestChatLink - link to quest
-class QuestChatLink : public ChatLink
+class TC_GAME_API QuestChatLink : public ChatLink
 {
 public:
     QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
     virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    virtual bool ValidateName(char* buffer, char const* context) override;
 
 protected:
     Quest const* _quest;
@@ -87,27 +87,27 @@ protected:
 };
 
 // SpellChatLink - link to quest
-class SpellChatLink : public ChatLink
+class TC_GAME_API SpellChatLink : public ChatLink
 {
 public:
     SpellChatLink() : ChatLink(), _spell(nullptr) { }
     virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    virtual bool ValidateName(char* buffer, char const* context) override;
 
 protected:
     SpellInfo const* _spell;
 };
 
 // AchievementChatLink - link to quest
-class AchievementChatLink : public ChatLink
+class TC_GAME_API AchievementChatLink : public ChatLink
 {
 public:
-    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL)
+    AchievementChatLink() : ChatLink(), _guid(0), _achievement(nullptr)
     {
         memset(_data, 0, sizeof(_data));
     }
     virtual bool Initialize(std::istringstream& iss) override;
-    virtual bool ValidateName(char* buffer, const char* context) override;
+    virtual bool ValidateName(char* buffer, char const* context) override;
 
 protected:
     uint32 _guid;
@@ -116,7 +116,7 @@ protected:
 };
 
 // TradeChatLink - link to trade info
-class TradeChatLink : public SpellChatLink
+class TC_GAME_API TradeChatLink : public SpellChatLink
 {
 public:
     TradeChatLink() : SpellChatLink(), _minSkillLevel(0), _maxSkillLevel(0), _guid(0) { }
@@ -129,7 +129,7 @@ private:
 };
 
 // TalentChatLink - link to talent
-class TalentChatLink : public SpellChatLink
+class TC_GAME_API TalentChatLink : public SpellChatLink
 {
 public:
     TalentChatLink() : SpellChatLink(), _talentId(0), _rankId(0) { }
@@ -141,7 +141,7 @@ private:
 };
 
 // EnchantmentChatLink - link to enchantment
-class EnchantmentChatLink : public SpellChatLink
+class TC_GAME_API EnchantmentChatLink : public SpellChatLink
 {
 public:
     EnchantmentChatLink() : SpellChatLink() { }
@@ -149,20 +149,20 @@ public:
 };
 
 // GlyphChatLink - link to glyph
-class GlyphChatLink : public SpellChatLink
+class TC_GAME_API GlyphChatLink : public SpellChatLink
 {
 public:
-    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
+    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(nullptr) { }
     virtual bool Initialize(std::istringstream& iss) override;
 private:
     uint32 _slotId;
     GlyphPropertiesEntry const* _glyph;
 };
 
-class LinkExtractor
+class TC_GAME_API LinkExtractor
 {
 public:
-    explicit LinkExtractor(const char* msg);
+    explicit LinkExtractor(char const* msg);
     ~LinkExtractor();
 
     bool IsValidMessage();

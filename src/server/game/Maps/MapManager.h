@@ -28,14 +28,10 @@
 class Transport;
 struct TransportCreatureProto;
 
-class MapManager
+class TC_GAME_API MapManager
 {
     public:
-        static MapManager* instance()
-        {
-            static MapManager instance;
-            return &instance;
-        }
+        static MapManager* instance();
 
         Map* CreateBaseMap(uint32 mapId);
         Map* FindBaseNonInstanceMap(uint32 mapId) const;
@@ -130,6 +126,11 @@ class MapManager
         template<typename Worker>
         void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
 
+        void IncreaseScheduledScriptsCount() { ++_scheduledScripts; }
+        void DecreaseScheduledScriptCount() { --_scheduledScripts; }
+        void DecreaseScheduledScriptCount(std::size_t count) { _scheduledScripts -= count; }
+        bool IsScriptScheduled() const { return _scheduledScripts > 0; }
+
     private:
         typedef std::unordered_map<uint32, Map*> MapMapType;
         typedef std::vector<bool> InstanceIds;
@@ -154,6 +155,9 @@ class MapManager
         InstanceIds _instanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
+
+        // atomic op counter for active scripts amount
+        std::atomic<std::size_t> _scheduledScripts;
 };
 
 template<typename Worker>

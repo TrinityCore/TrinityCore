@@ -1373,7 +1373,7 @@ struct OpcodeHandler
     void (WorldSession::*handler)(WorldPacket& recvPacket);
 };
 
-extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];
+TC_GAME_API extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];
 
 #pragma pack(pop)
 

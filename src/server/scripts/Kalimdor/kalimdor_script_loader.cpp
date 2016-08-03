@@ -47,6 +47,7 @@ void AddSC_boss_meathook();
 void AddSC_culling_of_stratholme();
 void AddSC_instance_culling_of_stratholme();
 void AddSC_instance_dire_maul();             //Dire Maul
+void AddSC_instance_ragefire_chasm();        //Ragefire Chasm
 void AddSC_boss_celebras_the_cursed();       //Maraudon
 void AddSC_boss_landslide();
 void AddSC_boss_noxxion();
@@ -143,6 +144,7 @@ void AddKalimdorScripts()
     AddSC_culling_of_stratholme();
     AddSC_instance_culling_of_stratholme();
     AddSC_instance_dire_maul();             //Dire Maul
+    AddSC_instance_ragefire_chasm();        //Ragefire Chasm
     AddSC_boss_celebras_the_cursed();       //Maraudon
     AddSC_boss_landslide();
     AddSC_boss_noxxion();

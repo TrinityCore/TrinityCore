@@ -79,7 +79,7 @@ enum RotateDirection
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
-class MotionMaster //: private std::stack<MovementGenerator *>
+class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
 {
     private:
         //typedef std::stack<MovementGenerator *> Impl;
@@ -172,6 +172,12 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
             { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath); }
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
+
+        /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
+            Only works in 2D.
+            This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
+        */
+        void MoveCloserAndStop(uint32 id, Unit* target, float distance);
 
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);

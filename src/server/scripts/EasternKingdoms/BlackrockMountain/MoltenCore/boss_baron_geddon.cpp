@@ -27,6 +27,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Emotes
 {
@@ -36,9 +38,10 @@ enum Emotes
 enum Spells
 {
     SPELL_INFERNO       = 19695,
+    SPELL_INFERNO_DMG   = 19698,
     SPELL_IGNITE_MANA   = 19659,
     SPELL_LIVING_BOMB   = 20475,
-    SPELL_ARMAGEDDON    = 20479,
+    SPELL_ARMAGEDDON    = 20478,
 };
 
 enum Events
@@ -119,7 +122,36 @@ class boss_baron_geddon : public CreatureScript
         }
 };
 
+class spell_baron_geddon_inferno : public SpellScriptLoader
+{
+    public:
+        spell_baron_geddon_inferno() : SpellScriptLoader("spell_baron_geddon_inferno") { }
+
+        class spell_baron_geddon_inferno_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_baron_geddon_inferno_AuraScript);
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+                int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
+                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_baron_geddon_inferno_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_baron_geddon_inferno_AuraScript();
+        }
+};
+
 void AddSC_boss_baron_geddon()
 {
     new boss_baron_geddon();
+    new spell_baron_geddon_inferno();
 }

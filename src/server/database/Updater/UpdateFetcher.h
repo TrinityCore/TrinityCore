@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-class UpdateFetcher
+class TC_DATABASE_API UpdateFetcher
 {
     typedef boost::filesystem::path Path;
 
@@ -112,7 +112,6 @@ private:
     AppliedFileStorage ReceiveAppliedFiles() const;
 
     std::string ReadSQLUpdate(Path const& file) const;
-    std::string CalculateHash(std::string const& query) const;
 
     uint32 Apply(Path const& path) const;
 

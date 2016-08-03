@@ -230,6 +230,9 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
 
+    if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
+        map->LoadAllCells();
+
     m_InstancedMaps[InstanceId] = map;
     return map;
 }

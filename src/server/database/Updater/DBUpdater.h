@@ -23,7 +23,7 @@
 #include <string>
 #include <boost/filesystem.hpp>
 
-class UpdateException : public std::exception
+class TC_DATABASE_API UpdateException : public std::exception
 {
 public:
     UpdateException(std::string const& msg) : _msg(msg) { }
@@ -41,7 +41,7 @@ enum BaseLocation
     LOCATION_DOWNLOAD
 };
 
-struct UpdateResult
+struct TC_DATABASE_API UpdateResult
 {
     UpdateResult()
         : updated(0), recent(0), archived(0) { }
@@ -66,7 +66,7 @@ private:
 };
 
 template <class T>
-class DBUpdater
+class TC_DATABASE_API DBUpdater
 {
 public:
     using Path = boost::filesystem::path;

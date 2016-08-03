@@ -36,12 +36,14 @@
 #include "GitRevision.h"
 #include "Util.h"
 #include <iostream>
+#include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
+namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
@@ -69,18 +71,19 @@ void StopDB();
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
 void BanExpiryHandler(boost::system::error_code const& error);
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
 boost::asio::io_service* _ioService;
 boost::asio::deadline_timer* _dbPingTimer;
 uint32 _dbPingInterval;
 boost::asio::deadline_timer* _banExpiryCheckTimer;
 uint32 _banExpiryCheckInterval;
-LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
-    std::string configFile = _TRINITY_REALM_CONFIG;
+    signal(SIGABRT, &Trinity::AbortHandler);
+
+    auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help or version is enabled
@@ -97,7 +100,9 @@ int main(int argc, char** argv)
 #endif
 
     std::string configError;
-    if (!sConfigMgr->LoadInitial(configFile, configError))
+    if (!sConfigMgr->LoadInitial(configFile.generic_string(),
+                                 std::vector<std::string>(argv, argv + argc),
+                                 configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
@@ -108,7 +113,7 @@ int main(int argc, char** argv)
 
     TC_LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
     TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.authserver", "Using configuration file %s.", configFile.c_str());
+    TC_LOG_INFO("server.authserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
     TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
@@ -134,7 +139,7 @@ int main(int argc, char** argv)
     // Get the list of realms for the server
     sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
-    if (sRealmList->size() == 0)
+    if (sRealmList->GetRealms().empty())
     {
         TC_LOG_ERROR("server.authserver", "No valid realms specified.");
         StopDB();
@@ -193,6 +198,8 @@ int main(int argc, char** argv)
     _dbPingTimer->cancel();
 
     sAuthSocketMgr.StopNetwork();
+
+    sRealmList->Close();
 
     // Close the Database Pool and library
     StopDB();
@@ -283,13 +290,14 @@ void ServiceStatusWatcher(boost::system::error_code const& error)
 }
 #endif
 
-variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
 {
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_REALM_CONFIG), "use <arg> as configuration file")
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_REALM_CONFIG)),
+                     "use <arg> as configuration file")
         ;
 #if PLATFORM == PLATFORM_WINDOWS
     options_description win("Windows platform specific options");

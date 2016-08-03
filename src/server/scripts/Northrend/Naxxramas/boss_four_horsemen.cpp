@@ -285,7 +285,7 @@ struct boss_four_horsemen_baseAI : public BossAI
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (instance->GetBossState(BOSS_HORSEMEN) != NOT_STARTED) // another horseman already did it
+            if (instance->GetBossState(BOSS_HORSEMEN) == IN_PROGRESS || instance->GetBossState(BOSS_HORSEMEN) == DONE) // another horseman already did it
                 return;
             Talk(SAY_AGGRO);
             BeginEncounter();
@@ -411,9 +411,9 @@ class boss_four_horsemen_baron : public CreatureScript
                 else
                     AttackStart(threat.getHostilTarget());
 
-                events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_MARK, 24 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_UNHOLYSHADOW, urandms(3,7));
+                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_UNHOLYSHADOW, randtime(Seconds(3), Seconds(7)));
             }
 
             void _UpdateAI(uint32 diff) override
@@ -431,11 +431,11 @@ class boss_four_horsemen_baron : public CreatureScript
                             break;
                         case EVENT_MARK:
                             DoCastAOE(SPELL_BARON_MARK, true);
-                            events.ScheduleEvent(EVENT_MARK, 12 * IN_MILLISECONDS);
+                            events.Repeat(Seconds(12));
                             break;
                         case EVENT_UNHOLYSHADOW:
                             DoCastVictim(SPELL_UNHOLY_SHADOW);
-                            events.ScheduleEvent(EVENT_UNHOLYSHADOW, urandms(10,30));
+                            events.Repeat(randtime(Seconds(10), Seconds(30)));
                             break;
                     }
                 }
@@ -484,9 +484,9 @@ class boss_four_horsemen_thane : public CreatureScript
                 else
                     AttackStart(threat.getHostilTarget());
 
-                events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_MARK, 24 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_METEOR, urandms(10,15));
+                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_METEOR, randtime(Seconds(10), Seconds(25)));
             }
             void _UpdateAI(uint32 diff) override
             {
@@ -503,7 +503,7 @@ class boss_four_horsemen_thane : public CreatureScript
                             break;
                         case EVENT_MARK:
                             DoCastAOE(SPELL_THANE_MARK, true);
-                            events.ScheduleEvent(EVENT_MARK, 12 * IN_MILLISECONDS);
+                            events.Repeat(Seconds(12));
                             break;
                         case EVENT_METEOR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
@@ -511,7 +511,7 @@ class boss_four_horsemen_thane : public CreatureScript
                                 DoCast(target, SPELL_METEOR);
                                 _shouldSay = true;
                             }
-                            events.ScheduleEvent(EVENT_METEOR, urandms(13,17));
+                            events.Repeat(randtime(Seconds(13), Seconds(17)));
                             break;
                     }
                 }
@@ -550,9 +550,9 @@ class boss_four_horsemen_lady : public CreatureScript
             boss_four_horsemen_ladyAI(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_MARK, 24 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_VOIDZONE, urandms(5,10));
+                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_VOIDZONE, randtime(Seconds(5), Seconds(10)));
             }
 
             void _UpdateAI(uint32 diff) override
@@ -578,7 +578,7 @@ class boss_four_horsemen_lady : public CreatureScript
                             break;
                         case EVENT_MARK:
                             DoCastAOE(SPELL_LADY_MARK, true);
-                            events.ScheduleEvent(EVENT_MARK, 15 * IN_MILLISECONDS);
+                            events.Repeat(Seconds(15));
                             break;
                         case EVENT_VOIDZONE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
@@ -586,7 +586,7 @@ class boss_four_horsemen_lady : public CreatureScript
                                 DoCast(target, SPELL_VOID_ZONE, true);
                                 Talk(SAY_SPECIAL);
                             }
-                            events.ScheduleEvent(EVENT_VOIDZONE, urandms(12, 18));
+                            events.Repeat(randtime(Seconds(12), Seconds(18)));
                             break;
                     }
                 }
@@ -620,9 +620,9 @@ class boss_four_horsemen_sir : public CreatureScript
             boss_four_horsemen_sirAI(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_MARK, 24 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_HOLYWRATH, urandms(13,18));
+                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_HOLYWRATH, randtime(Seconds(13), Seconds(18)));
             }
 
             void _UpdateAI(uint32 diff) override
@@ -648,7 +648,7 @@ class boss_four_horsemen_sir : public CreatureScript
                             break;
                         case EVENT_MARK:
                             DoCastAOE(SPELL_SIR_MARK, true);
-                            events.ScheduleEvent(EVENT_MARK, 15 * IN_MILLISECONDS);
+                            events.Repeat(Seconds(15));
                             break;
                         case EVENT_HOLYWRATH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
@@ -656,7 +656,7 @@ class boss_four_horsemen_sir : public CreatureScript
                                 DoCast(target, SPELL_HOLY_WRATH, true);
                                 _shouldSay = true;
                             }
-                            events.ScheduleEvent(EVENT_HOLYWRATH, urandms(10,18));
+                            events.Repeat(randtime(Seconds(10), Seconds(18)));
                             break;
                     }
                 }

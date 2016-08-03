@@ -160,7 +160,7 @@ class StandUpEvent : public BasicEvent
     public:
         StandUpEvent(Creature& owner) : BasicEvent(), _owner(owner) { }
 
-        bool Execute(uint64 /*eventTime*/, uint32 /*diff*/)
+        bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
         {
             _owner.HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
             _owner.SetReactState(REACT_AGGRESSIVE);
@@ -1069,7 +1069,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                             if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
                             {
                                 summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
-                                summon->SetSpeed(MOVE_FLIGHT, 0.15f, true); // todo: creature is swimming, check if this is blizzlike or not.
+                                summon->SetSpeedRate(MOVE_FLIGHT, 0.15f); // todo: creature is swimming, check if this is blizzlike or not.
                                 summon->GetMotionMaster()->MovePoint(0, triggerEndPos);
                             }
                         }

@@ -29,6 +29,7 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
@@ -116,6 +117,42 @@ class spell_mage_blast_wave : public SpellScriptLoader
         }
 };
 
+// -31641 - Blazing Speed
+class spell_mage_blazing_speed : public SpellScriptLoader
+{
+public:
+    spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
+
+    class spell_mage_blazing_speed_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_blazing_speed_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BLAZING_SPEED))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            if (Unit* target = eventInfo.GetActionTarget())
+                target->CastSpell(target, SPELL_MAGE_BLAZING_SPEED, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_mage_blazing_speed_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_blazing_speed_AuraScript();
+    }
+};
+
 // -44449 - Burnout
 class spell_mage_burnout : public SpellScriptLoader
 {
@@ -180,7 +217,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
             {
                 GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
                     return spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
                         spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0;
                 }, true);
@@ -405,7 +442,7 @@ class spell_mage_ignite : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                SpellInfo const* igniteDot = sSpellMgr->EnsureSpellInfo(SPELL_MAGE_IGNITE);
+                SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE);
                 int32 pct = 8 * GetSpellInfo()->GetRank();
 
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
@@ -647,6 +684,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
+    new spell_mage_blazing_speed();
     new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_fire_frost_ward();

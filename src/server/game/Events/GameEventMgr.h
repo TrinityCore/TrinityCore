@@ -93,18 +93,14 @@ class Player;
 class Creature;
 class Quest;
 
-class GameEventMgr
+class TC_GAME_API GameEventMgr
 {
     private:
         GameEventMgr();
         ~GameEventMgr() { }
 
     public:
-        static GameEventMgr* instance()
-        {
-            static GameEventMgr instance;
-            return &instance;
-        }
+        static GameEventMgr* instance();
 
         typedef std::set<uint16> ActiveEvents;
         typedef std::vector<GameEventData> GameEventDataMap;
@@ -186,8 +182,8 @@ class GameEventMgr
 
 #define sGameEventMgr GameEventMgr::instance()
 
-bool IsHolidayActive(HolidayIds id);
-bool IsEventActive(uint16 event_id);
+TC_GAME_API bool IsHolidayActive(HolidayIds id);
+TC_GAME_API bool IsEventActive(uint16 event_id);
 
 #endif
 

@@ -203,7 +203,7 @@ class DaranavanMoveEvent : public BasicEvent
     public:
         DaranavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _darnavan.GetMotionMaster()->MovePoint(POINT_DESPAWN, SummonPositions[6]);
             return true;
@@ -421,7 +421,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if ((!UpdateVictim() && !events.IsInPhase(PHASE_INTRO)))
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);

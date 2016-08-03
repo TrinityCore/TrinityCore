@@ -700,7 +700,7 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
         InstancePlayerBind* instanceBind = player->GetBoundInstance(mapId, Difficulty(difficulty), toggleExtend == 1); // include expired instances if we are toggling extend on
         if (!instanceBind || !instanceBind->save || !instanceBind->perm)
             return;
-        
+
         BindExtensionState newState;
         if (!toggleExtend || instanceBind->extendState == EXTEND_STATE_EXPIRED)
             newState = EXTEND_STATE_NORMAL;

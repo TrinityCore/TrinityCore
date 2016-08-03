@@ -30,6 +30,8 @@
           Destroying of Toasty Fires
 */
 
+/* @todo Hodir aggro behavior is wonky. He gets set to _PASSIVE, but never to _AGGRESSIVE unless you kill an ice block which doesn't spawn unless you have*/
+
 enum HodirYells
 {
     SAY_AGGRO                                    = 0,
@@ -184,7 +186,7 @@ class npc_flash_freeze : public CreatureScript
                 Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
             }
 
             void Initialize()
@@ -259,7 +261,7 @@ class npc_ice_block : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
             }
 
             InstanceScript* instance;
@@ -269,7 +271,7 @@ class npc_ice_block : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 targetGUID = summoner->GetGUID();
-                summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetInCombatWith(summoner);
                 me->AddThreat(summoner, 250.0f);
                 summoner->AddThreat(me, 250.0f);
@@ -285,7 +287,7 @@ class npc_ice_block : public CreatureScript
             {
                 if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                    Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
 
                     if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
                     {
@@ -375,7 +377,7 @@ class boss_hodir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -388,7 +390,7 @@ class boss_hodir : public CreatureScript
                     me->RemoveAllAttackers();
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -402,6 +404,12 @@ class boss_hodir : public CreatureScript
                     me->DespawnOrUnsummon(10000);
 
                     _JustDied();
+                }
+                else if (!me->IsInCombat())
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->AI()->DoZoneInCombat();
+                    me->AI()->AttackStart(who);
                 }
             }
 
@@ -539,7 +547,7 @@ class npc_icicle : public CreatureScript
             {
                 Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -593,7 +601,7 @@ class npc_snowpacked_icicle : public CreatureScript
             {
                 Initialize();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_PASSIVE);
             }
 

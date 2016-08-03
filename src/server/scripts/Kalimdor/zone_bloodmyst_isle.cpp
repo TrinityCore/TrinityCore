@@ -240,11 +240,6 @@ class npc_sironas : public CreatureScript
 public:
     npc_sironas() : CreatureScript("npc_sironas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_sironasAI(creature);
-    }
-
     struct npc_sironasAI : public ScriptedAI
     {
         npc_sironasAI(Creature* creature) : ScriptedAI(creature) { }
@@ -343,6 +338,11 @@ public:
         GuidList _beamGuidList;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_sironasAI(creature);
+    }
 };
 
 /*######
@@ -353,11 +353,6 @@ class npc_demolitionist_legoso : public CreatureScript
 {
 public:
     npc_demolitionist_legoso() : CreatureScript("npc_demolitionist_legoso") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_demolitionist_legosoAI(creature);
-    }
 
     struct npc_demolitionist_legosoAI : public npc_escortAI
     {
@@ -513,7 +508,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i].m_positionX, ExplosivesPos[0][i].m_positionY, ExplosivesPos[0][i].m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], G3D::Quat(), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -609,7 +604,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i].m_positionX, ExplosivesPos[1][i].m_positionY, ExplosivesPos[1][i].m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], G3D::Quat(), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);
@@ -812,6 +807,11 @@ public:
         GuidList _explosivesGuids;
         EventMap _events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_demolitionist_legosoAI(creature);
+    }
 };
 
 void AddSC_bloodmyst_isle()

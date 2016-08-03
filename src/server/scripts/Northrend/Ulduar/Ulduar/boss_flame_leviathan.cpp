@@ -334,7 +334,8 @@ class boss_flame_leviathan : public CreatureScript
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
-                    ASSERT_NOTNULL(me->GetVehicleKit())->InstallAllAccessories(false);
+                    if (Vehicle* vehicleKit = me->GetVehicleKit())
+                        vehicleKit->InstallAllAccessories(false);
 
                 if (spell->Id == SPELL_ELECTROSHOCK)
                     me->InterruptSpell(CURRENT_CHANNELED_SPELL);

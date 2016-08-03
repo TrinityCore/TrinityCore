@@ -29,6 +29,7 @@
 
 enum PriestSpells
 {
+    SPELL_PRIEST_BLESSED_RECOVERY_R1                = 27813,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
@@ -86,6 +87,50 @@ class RaidCheck
 
     private:
         Unit const* _caster;
+};
+
+// -27811 - Blessed Recovery
+class spell_pri_blessed_recovery : public SpellScriptLoader
+{
+public:
+    spell_pri_blessed_recovery() : SpellScriptLoader("spell_pri_blessed_recovery") { }
+
+    class spell_pri_blessed_recovery_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_blessed_recovery_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BLESSED_RECOVERY_R1))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+            {
+                if (Unit* target = eventInfo.GetActionTarget())
+                {
+                    uint32 triggerSpell = sSpellMgr->GetSpellWithRank(SPELL_PRIEST_BLESSED_RECOVERY_R1, aurEff->GetSpellInfo()->GetRank());
+                    uint32 bp = CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()) / 3;
+                    bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
+                    target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pri_blessed_recovery_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_blessed_recovery_AuraScript();
+    }
 };
 
 // -34861 - Circle of Healing
@@ -236,7 +281,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                SpellInfo const* triggeredSpellInfo = sSpellMgr->EnsureSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL);
+                SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL);
                 int32 heal = int32(CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
                 GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
@@ -869,6 +914,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_blessed_recovery();
     new spell_pri_circle_of_healing();
     new spell_pri_divine_aegis();
     new spell_pri_divine_hymn();

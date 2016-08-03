@@ -36,6 +36,7 @@
 #include "MMapFactory.h"
 #include "DisableMgr.h"
 #include "SpellHistory.h"
+#include "Transport.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -237,6 +238,10 @@ public:
             areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
+        if (Transport* transport = object->GetTransport())
+            handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
+                transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
+                transport->GetEntry(), transport->GetName().c_str());
         handler->PSendSysMessage(LANG_GRID_POSITION,
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
             zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
@@ -698,7 +703,7 @@ public:
 
     static bool HandleCooldownCommand(ChatHandler* handler, char const* args)
     {
-        Player* target = handler->getSelectedPlayerOrSelf();
+        Unit* target = handler->getSelectedUnit();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -706,7 +711,14 @@ public:
             return false;
         }
 
-        std::string nameLink = handler->GetNameLink(target);
+        Player* owner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (!owner)
+        {
+            owner = handler->GetSession()->GetPlayer();
+            target = owner;
+        }
+
+        std::string nameLink = handler->GetNameLink(owner);
 
         if (!*args)
         {
@@ -723,13 +735,13 @@ public:
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellIid);
             if (!spellInfo)
             {
-                handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
+                handler->PSendSysMessage(LANG_UNKNOWN_SPELL, owner == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             target->GetSpellHistory()->ResetCooldown(spellIid, true);
-            handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
+            handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, owner == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
         }
         return true;
     }
@@ -791,7 +803,7 @@ public:
             target->CleanupAfterTaxiFlight();
         }
 
-        target->TeleportTo(target->m_recallMap, target->m_recallX, target->m_recallY, target->m_recallZ, target->m_recallO);
+        target->Recall();
         return true;
     }
 
@@ -1588,7 +1600,7 @@ public:
 
         // Query the prepared statement for login data
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt->setInt32(0, int32(realmID));
+        stmt->setInt32(0, int32(realm.Id.Realm));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -1964,7 +1976,7 @@ public:
             return false;
 
         std::string accountName = nameStr;
-        if (!AccountMgr::normalizeString(accountName))
+        if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
             handler->SetSentErrorMessage(true);
@@ -2119,17 +2131,9 @@ public:
         }
         return true;
     }
-    /*
-    ComeToMe command REQUIRED for 3rd party scripting library to have access to PointMovementGenerator
-    Without this function 3rd party scripting library will get linking errors (unresolved external)
-    when attempting to use the PointMovementGenerator
-    */
-    static bool HandleComeToMeCommand(ChatHandler* handler, char const* args)
-    {
-        char const* newFlagStr = strtok((char*)args, " ");
-        if (!newFlagStr)
-            return false;
 
+    static bool HandleComeToMeCommand(ChatHandler* handler, char const* /*args*/)
+    {
         Creature* caster = handler->getSelectedCreature();
         if (!caster)
         {

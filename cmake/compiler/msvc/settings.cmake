@@ -18,11 +18,6 @@ if(PLATFORM EQUAL 64)
   add_definitions("-D_WIN64")
   message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0)
-    #Enable extended object support for debug compiles on X64 (not required on X86)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-    message(STATUS "MSVC: Enabled increased number of sections in object files")
-  endif()
 else()
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -36,10 +31,22 @@ else()
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+# msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
+if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+  add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
+else()
+  # while all make-like generators do (nmake, ninja)
+  add_definitions(-D_BUILD_DIRECTIVE=\\"${CMAKE_BUILD_TYPE}\\")
+endif()
 
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR BUILD_SHARED_LIBS)
+  # Enable extended object support
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+  message(STATUS "MSVC: Enabled increased number of sections in object files")
+endif()
 
 # /Zc:throwingNew.
 # When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
@@ -47,9 +54,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 # and can omit all of these extra null checks from your program.
 # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
 if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
-  # also enable /bigobj for ALL builds under visual studio 2015, increased number of templates in standard library 
   # makes this flag a requirement to build TC at all
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:throwingNew /bigobj")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:throwingNew")
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
@@ -74,6 +80,13 @@ if(NOT WITH_WARNINGS)
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
+if (BUILD_SHARED_LIBS)
+  # C4251: needs to have dll-interface to be used by clients of class '...'
+  # C4275: non dll-interface class ...' used as base for dll-interface class '...'
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251 /wd4275")
+  message(STATUS "MSVC: Enabled shared linking")
+endif()
+
 # Specify the maximum PreCompiled Header memory allocation limit
 # Fixes a compiler-problem when using PCH - the /Ym flag is adjusted by the compiler in MSVC2012, hence we need to set an upper limit with /Zm to avoid discrepancies)
 # (And yes, this is a verified , unresolved bug with MSVC... *sigh*)
@@ -84,3 +97,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500")
 # 'function' : member function does not override any base class virtual member function
 # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4263 /we4264")
+
+# Disable incremental linking in debug builds.
+# To prevent linking getting stuck (which might be fixed in a later VS version).
+macro(DisableIncrementalLinking variable)
+  string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
+  set(${variable} "${${variable}} /INCREMENTAL:NO")
+endmacro()
+
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO)

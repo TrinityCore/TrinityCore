@@ -33,8 +33,20 @@ void OutdoorPvPMgr::Die()
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
         delete *itr;
 
+    m_OutdoorPvPSet.clear();
+
     for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
         delete itr->second;
+
+    m_OutdoorPvPDatas.clear();
+
+    m_OutdoorPvPMap.clear();
+}
+
+OutdoorPvPMgr* OutdoorPvPMgr::instance()
+{
+    static OutdoorPvPMgr instance;
+    return &instance;
 }
 
 void OutdoorPvPMgr::InitOutdoorPvP()

@@ -35,6 +35,12 @@ ArenaTeamMgr::~ArenaTeamMgr()
         delete itr->second;
 }
 
+ArenaTeamMgr* ArenaTeamMgr::instance()
+{
+    static ArenaTeamMgr instance;
+    return &instance;
+}
+
 // Arena teams collection
 ArenaTeam* ArenaTeamMgr::GetArenaTeamById(uint32 arenaTeamId) const
 {
@@ -93,7 +99,7 @@ void ArenaTeamMgr::LoadArenaTeams()
     uint32 oldMSTime = getMSTime();
 
     // Clean out the trash before loading anything
-    CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query
+    CharacterDatabase.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query
 
     //                                                        0        1         2         3          4              5            6            7           8
     QueryResult result = CharacterDatabase.Query("SELECT arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, "

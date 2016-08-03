@@ -51,12 +51,15 @@ enum HunterSpells
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED       = 54045,
+    SPELL_HUNTER_PIERCING_SHOTS                     = 63468,
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_VICIOUS_VIPER                      = 61609,
     SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
-    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543
+    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
 // 13161 - Aspect of the Beast
@@ -193,8 +196,8 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                 {
                     uint32 spellId = 0;
                     int32 basePoint = 0;
-                    Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
+                    Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
+                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
                     {
                         Aura* aura = i->second->GetBase();
                         if (aura->GetCasterGUID() != caster->GetGUID())
@@ -318,12 +321,15 @@ class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
             {
                 if (Unit* procTarget = eventInfo.GetProcTarget())
                 {
-                    Unit::AuraApplicationMap& auras = procTarget->GetAppliedAuras();
+                    Unit::AuraApplicationMap const& auras = procTarget->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
                     {
-                        SpellInfo const* spellInfo = i->second->GetBase()->GetSpellInfo();
+                        Aura const* aura = i->second->GetBase();
+                        if (aura->GetCasterGUID() != GetTarget()->GetGUID())
+                            continue;
                         // Search only Serpent Sting, Viper Sting, Scorpid Sting, Wyvern Sting
-                        if (spellInfo->SpellFamilyFlags.HasFlag(0xC000, 0x1080) && spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER)
+                        if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_HUNTER
+                            && aura->GetSpellInfo()->SpellFamilyFlags.HasFlag(0xC000, 0x1080))
                             return true;
                     }
                 }
@@ -701,6 +707,63 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
         }
 };
 
+// -53234  - Piercing Shots
+class spell_hun_piercing_shots : public SpellScriptLoader
+{
+public:
+    spell_hun_piercing_shots() : SpellScriptLoader("spell_hun_piercing_shots") { }
+
+    class spell_hun_piercing_shots_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_piercing_shots_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PIERCING_SHOTS))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetActionTarget())
+                return true;
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            Unit* caster = eventInfo.GetActor();
+            Unit* target = eventInfo.GetActionTarget();
+
+            if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+            {
+                SpellInfo const* piercingShots = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_PIERCING_SHOTS);
+                int32 duration = piercingShots->GetMaxDuration();
+                uint32 amplitude = piercingShots->Effects[EFFECT_0].Amplitude;
+                uint32 dmg = dmgInfo->GetDamage();
+
+                uint32 bp = CalculatePct(int32(dmg), aurEff->GetAmount()) / (duration / int32(amplitude));
+                bp += target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_HUNTER_PIERCING_SHOTS, SPELL_AURA_PERIODIC_DAMAGE);
+
+                caster->CastCustomSpell(SPELL_HUNTER_PIERCING_SHOTS, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_hun_piercing_shots_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_hun_piercing_shots_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hun_piercing_shots_AuraScript();
+    }
+};
+
 // 56654, 58882 - Rapid Recuperation
 class spell_hun_rapid_recuperation : public SpellScriptLoader
 {
@@ -760,7 +823,7 @@ class spell_hun_readiness : public SpellScriptLoader
                 // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                 GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->EnsureSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
 
                     ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
@@ -782,6 +845,49 @@ class spell_hun_readiness : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_readiness_SpellScript();
+        }
+};
+
+// 53480 - Roar of Sacrifice
+class spell_hun_roar_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_hun_roar_of_sacrifice() : SpellScriptLoader("spell_hun_roar_of_sacrifice") { }
+
+        class spell_hun_roar_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_roar_of_sacrifice_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROAR_OF_SACRIFICE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetCaster() && (eventInfo.GetDamageInfo()->GetSchoolMask() & GetEffect(EFFECT_1)->GetMiscValue()) != 0;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                eventInfo.GetActor()->CastCustomSpell(SPELL_ROAR_OF_SACRIFICE_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, GetCaster(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_roar_of_sacrifice_AuraScript();
         }
 };
 
@@ -964,6 +1070,51 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+// 67151   - T9 4P Bonus
+class spell_hun_t9_4p_bonus : public SpellScriptLoader
+{
+public:
+    spell_hun_t9_4p_bonus() : SpellScriptLoader("spell_hun_t9_4p_bonus") { }
+
+    class spell_hun_t9_4p_bonus_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_t9_4p_bonus_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_T9_4P_GREATNESS))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && eventInfo.GetActor()->ToPlayer()->GetPet())
+                return true;
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            Unit* caster = eventInfo.GetActor();
+
+            caster->CastSpell(caster->ToPlayer()->GetPet(), SPELL_HUNTER_T9_4P_GREATNESS, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_hun_t9_4p_bonus_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_hun_t9_4p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hun_t9_4p_bonus_AuraScript();
+    }
+};
+
 // 60144 - Viper Attack Speed
 class spell_hun_viper_attack_speed : public SpellScriptLoader
 {
@@ -1022,11 +1173,14 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection_proc();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
+    new spell_hun_piercing_shots();
     new spell_hun_rapid_recuperation();
     new spell_hun_readiness();
+    new spell_hun_roar_of_sacrifice();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
+    new spell_hun_t9_4p_bonus();
     new spell_hun_viper_attack_speed();
 }

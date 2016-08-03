@@ -23,7 +23,7 @@
 #include "ByteBuffer.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 

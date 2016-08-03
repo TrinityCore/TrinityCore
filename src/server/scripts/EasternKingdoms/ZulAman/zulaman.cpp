@@ -162,7 +162,7 @@ class npc_zulaman_hostage : public CreatureScript
                 {
                     if (HostageEntry[i] == entry)
                     {
-                        creature->SummonGameObject(ChestEntry[i], x-2, y, z, 0, 0, 0, 0, 0, 0);
+                        creature->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), G3D::Quat(), 0);
                         break;
                     }
                 }

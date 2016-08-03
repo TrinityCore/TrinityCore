@@ -25,7 +25,7 @@
 #include "Timer.h"
 #include "ObjectDefines.h"
 
-#include <boost/regex.hpp>
+#include <regex>
 #include <map>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
@@ -73,6 +73,7 @@ DBCStorage <CharTitlesEntry> sCharTitlesStore(CharTitlesEntryfmt);
 DBCStorage <ChatChannelsEntry> sChatChannelsStore(ChatChannelsEntryfmt);
 DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
 DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
+DBCStorage <CinematicCameraEntry> sCinematicCameraStore(CinematicCameraEntryfmt);
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
@@ -144,7 +145,7 @@ DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
 DBCStorage<NamesProfanityEntry> sNamesProfanityStore(NamesProfanityEntryfmt);
 DBCStorage<NamesReservedEntry> sNamesReservedStore(NamesReservedEntryfmt);
-typedef std::array<std::vector<boost::regex>, TOTAL_LOCALES> NameValidationRegexContainer;
+typedef std::array<std::vector<std::regex>, TOTAL_LOCALES> NameValidationRegexContainer;
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
 
@@ -263,7 +264,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
         if (FILE* f = fopen(dbcFilename.c_str(), "rb"))
         {
             std::ostringstream stream;
-            stream << dbcFilename << " exists, and has " << storage.GetFieldCount() << " field(s) (expected " << strlen(storage.GetFormat()) << "). Extracted file might be from wrong client version or a database-update has been forgotten.";
+            stream << dbcFilename << " exists, and has " << storage.GetFieldCount() << " field(s) (expected " << strlen(storage.GetFormat()) << "). Extracted file might be from wrong client version or a database-update has been forgotten. Search on forum for TCE00008 for more info.";
             std::string buf = stream.str();
             errors.push_back(buf);
             fclose(f);
@@ -311,6 +312,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sChatChannelsStore,           dbcPath, "ChatChannels.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrClassesStore,             dbcPath, "ChrClasses.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrRacesStore,               dbcPath, "ChrRaces.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicCameraStore,        dbcPath, "CinematicCamera.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoStore,    dbcPath, "CreatureDisplayInfo.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoExtraStore, dbcPath, "CreatureDisplayInfoExtra.dbc");
@@ -409,10 +411,10 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(namesProfanity->Name, std::regex::icase | std::regex::optimize);
     }
 
     for (uint32 i = 0; i < sNamesReservedStore.GetNumRows(); ++i)
@@ -423,10 +425,10 @@ void LoadDBCStores(const std::string& dataPath)
 
         ASSERT(namesReserved->Language < TOTAL_LOCALES || namesReserved->Language == -1);
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                NamesReservedValidators[i].emplace_back(namesReserved->Name, std::regex::icase | std::regex::optimize);
     }
 
 
@@ -1003,13 +1005,13 @@ ResponseCodes ValidateName(std::string const& name, LocaleConstant locale)
     if (locale >= TOTAL_LOCALES)
         return RESPONSE_FAILURE;
 
-    for (boost::regex const& regex : NamesProfaneValidators[locale])
-        if (boost::regex_search(name, regex))
+    for (std::regex const& regex : NamesProfaneValidators[locale])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (boost::regex const& regex : NamesReservedValidators[locale])
-        if (boost::regex_search(name, regex))
+    for (std::regex const& regex : NamesReservedValidators[locale])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;
@@ -1017,5 +1019,6 @@ ResponseCodes ValidateName(std::string const& name, LocaleConstant locale)
 
 EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender)
 {
-    return sEmotesTextSoundMap[EmotesTextSoundKey(emote, race, gender)];
+    auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
+    return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }

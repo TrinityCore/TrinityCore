@@ -42,7 +42,7 @@ enum ColorTypes
 
 const uint8 MaxColors = uint8(WHITE) + 1;
 
-class AppenderConsole : public Appender
+class TC_COMMON_API AppenderConsole : public Appender
 {
     public:
         typedef std::integral_constant<AppenderType, APPENDER_CONSOLE>::type TypeIndex;

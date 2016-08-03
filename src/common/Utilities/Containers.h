@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Random.h"
+#include "Util.h"
 #include <algorithm>
 #include <functional>
 #include <list>
@@ -30,9 +31,9 @@ namespace Trinity
     namespace Containers
     {
         template<class T>
-        void RandomResizeList(std::list<T> &list, uint32 size)
+        void RandomResizeList(std::list<T>& list, uint32 size)
         {
-            size_t list_size = list.size();
+            uint32 list_size = uint32(list.size());
 
             while (list_size > size)
             {
@@ -55,7 +56,7 @@ namespace Trinity
             if (size)
                 RandomResizeList(listCopy, size);
 
-            list = listCopy;
+            list = std::move(listCopy);
         }
 
         /*
@@ -67,7 +68,7 @@ namespace Trinity
         typename C::value_type const& SelectRandomContainerElement(C const& container)
         {
             typename C::const_iterator it = container.begin();
-            std::advance(it, urand(0, container.size() - 1));
+            std::advance(it, urand(0, uint32(container.size()) - 1));
             return *it;
         }
 
@@ -117,6 +118,19 @@ namespace Trinity
         }
 
         /**
+         * @fn void Trinity::Containers::RandomShuffle(C& container)
+         *
+         * @brief Reorder the elements of the container randomly.
+         *
+         * @param container Container to reorder
+         */
+        template <class C>
+        void RandomShuffle(C& container)
+        {
+            std::shuffle(container.begin(), container.end(), SFMTEngine::Instance());
+        }
+
+        /**
         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
         *
         * @brief Checks if two SORTED containers have a common element
@@ -156,7 +170,6 @@ namespace Trinity
                     ++itr;
             }
         }
-
     }
     //! namespace Containers
 }

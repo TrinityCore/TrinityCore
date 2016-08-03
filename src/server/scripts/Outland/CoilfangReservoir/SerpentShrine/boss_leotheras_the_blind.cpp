@@ -244,7 +244,7 @@ public:
             CheckChannelers();
             Initialize();
             me->SetCanDualWield(true);
-            me->SetSpeed(MOVE_RUN, 2.0f, true);
+            me->SetSpeedRate(MOVE_RUN, 2.0f);
             me->SetDisplayId(MODEL_NIGHTELF);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);

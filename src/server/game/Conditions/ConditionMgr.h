@@ -71,8 +71,10 @@ enum ConditionTypes
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_REALM_ACHIEVEMENT     = 39,                   // achievement_id   0              0                  true if realm achievement is complete
     CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
-    CONDITION_STAND_STATE           = 41,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_MAX                   = 42                    // MAX
+    CONDITION_TERRAIN_SWAP          = 41,                   //                                                    only for 6.x
+    CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
+    CONDITION_DAILY_QUEST_DONE      = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
+    CONDITION_MAX                   = 44                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
@@ -129,8 +131,9 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
     CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
-    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 25, // only 4.3.4
-    CONDITION_SOURCE_TYPE_MAX                            = 26  // MAX
+    CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25, // only 6.x
+    CONDITION_SOURCE_TYPE_PHASE                          = 26, // only 6.x
+    CONDITION_SOURCE_TYPE_MAX                            = 27  // MAX
 };
 
 enum RelationType
@@ -157,7 +160,7 @@ enum MaxConditionTargets
     MAX_CONDITION_TARGETS = 3
 };
 
-struct ConditionSourceInfo
+struct TC_GAME_API ConditionSourceInfo
 {
     WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
     Condition const* mLastFailedCondition;
@@ -170,7 +173,7 @@ struct ConditionSourceInfo
     }
 };
 
-struct Condition
+struct TC_GAME_API Condition
 {
     ConditionSourceType     SourceType;        //SourceTypeOrReferenceId
     uint32                  SourceGroup;
@@ -222,18 +225,14 @@ typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreat
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 
-class ConditionMgr
+class TC_GAME_API ConditionMgr
 {
     private:
         ConditionMgr();
         ~ConditionMgr();
 
     public:
-        static ConditionMgr* instance()
-        {
-            static ConditionMgr instance;
-            return &instance;
-        }
+        static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond) const;

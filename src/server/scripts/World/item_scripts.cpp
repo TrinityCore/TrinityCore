@@ -57,18 +57,18 @@ public:
         //for special scripts
         switch (itemId)
         {
-           case 24538:
+            case 24538:
                 if (player->GetAreaId() != 3628)
                     disabled = true;
-                    break;
-           case 34489:
+                break;
+            case 34489:
                 if (player->GetZoneId() != 4080)
                     disabled = true;
-                    break;
-           case 34475:
-                if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                break;
+            case 34475:
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
                     Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
-                    break;
+                break;
         }
 
         // allow use in flight only
@@ -241,7 +241,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, G3D::Quat(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);

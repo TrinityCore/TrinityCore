@@ -8,42 +8,33 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-file(GLOB_RECURSE sources_Common Common.cpp Common.h)
-file(GLOB_RECURSE sources_Collision Collision/*.cpp Collision/*.h)
-file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
-file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h)
-file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
-file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
-if (SERVERS)
-  file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
-endif (SERVERS)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
+  ${CMAKE_CURRENT_SOURCE_DIR}/Platform
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 # Manually set sources for Debugging directory as we don't want to include WheatyExceptionReport in common project
 # It needs to be included both in authserver and worldserver for the static global variable to be properly initialized
 # and to handle crash logs on windows
-set(sources_Debugging Debugging/Errors.cpp Debugging/Errors.h)
-file(GLOB sources_localdir *.cpp *.h)
+list(APPEND PRIVATE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Errors.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Errors.h)
 
 if (USE_COREPCH)
-  set(common_STAT_PCH_HDR PrecompiledHeaders/commonPCH.h)
-  set(common_STAT_PCH_SRC PrecompiledHeaders/commonPCH.cpp)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/commonPCH.h)
+  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/commonPCH.cpp)
 endif (USE_COREPCH)
 
-set(common_STAT_SRCS
-  ${common_STAT_SRCS}
-  ${sources_Common}
-  ${sources_Collision}
-  ${sources_Threading}
-  ${sources_Utilities}
-  ${sources_Debugging}
-  ${sources_Configuration}
-  ${sources_Logging}
-  ${sources_Cryptography}
-  ${sources_localdir}
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_definitions(-DTRINITY_API_EXPORT_COMMON)
+
+add_library(common
+  ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES}
 )
 
 # Do NOT add any extra include directory here, as we don't want the common
@@ -55,37 +46,55 @@ set(common_STAT_SRCS
 # linkage (enums, defines...) it is discouraged to do so unless necessary, as it will pullute
 # include_directories leading to further unnoticed dependency aditions
 # Linker Depencency requirements: none
-include_directories(
-  ${CMAKE_BINARY_DIR}
+CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Collision
-  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Management
-  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Maps
-  ${CMAKE_CURRENT_SOURCE_DIR}/Collision/Models
-  ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
-  ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
-  ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
-  ${CMAKE_CURRENT_SOURCE_DIR}/Logging
-  ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
-  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
-  ${CMAKE_SOURCE_DIR}/dep/SFMT
-  ${CMAKE_SOURCE_DIR}/dep/utf8cpp
-  ${OPENSSL_INCLUDE_DIR}
-  ${VALGRIND_INCLUDE_DIR}
-)
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(common
+  PUBLIC
+    # Provide the binary dir for all child targets
+    ${CMAKE_BINARY_DIR}
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(common STATIC
-  ${common_STAT_SRCS}
-  ${common_STAT_PCH_SRC}
-)
+target_link_libraries(common
+  PUBLIC
+    boost
+    cppformat
+    g3dlib
+    Detour
+    sfmt
+    utf8cpp
+    openssl
+    valgrind
+    threads
+    jemalloc
+  PRIVATE
+    process)
 
 add_dependencies(common revision_data.h)
 
+set_target_properties(common
+    PROPERTIES
+      FOLDER
+        "server")
+
+if( BUILD_SHARED_LIBS )
+  if( UNIX )
+    install(TARGETS common
+      LIBRARY
+        DESTINATION lib)
+  elseif( WIN32 )
+    install(TARGETS common
+      RUNTIME
+        DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
+endif()
+
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(common ${common_STAT_PCH_HDR} ${common_STAT_PCH_SRC})
+  add_cxx_pch(common ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
 endif ()

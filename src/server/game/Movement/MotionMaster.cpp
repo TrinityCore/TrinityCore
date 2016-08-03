@@ -241,7 +241,7 @@ void MotionMaster::MoveConfused()
 void MotionMaster::MoveChase(Unit* target, float dist, float angle)
 {
     // ignore movement request if target not exist
-    if (!target || target == _owner || _owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (!target || target == _owner)
         return;
 
     //_owner->ClearUnitState(UNIT_STATE_FOLLOW);
@@ -266,7 +266,7 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
 void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot)
 {
     // ignore movement request if target not exist
-    if (!target || target == _owner || _owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (!target || target == _owner)
         return;
 
     //_owner->AddUnitState(UNIT_STATE_FOLLOW);
@@ -299,6 +299,27 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) targeted point (ID: %u X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), id, x, y, z);
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath), MOTION_SLOT_ACTIVE);
+    }
+}
+
+void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
+{
+    float distanceToTravel = _owner->GetExactDist2d(target) - distance;
+    if (distanceToTravel > 0.0f)
+    {
+        float angle = _owner->GetAngle(target);
+        float destx = _owner->GetPositionX() + distanceToTravel * std::cos(angle);
+        float desty = _owner->GetPositionY() + distanceToTravel * std::sin(angle);
+        MovePoint(id, destx, desty, target->GetPositionZ());
+    }
+    else
+    {
+        // we are already close enough. We just need to turn toward the target without changing position.
+        Movement::MoveSplineInit init(_owner);
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZMinusOffset());
+        init.SetFacing(target);
+        init.Launch();
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -458,11 +479,12 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
 
+    _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    _owner->m_movementInfo.SetFallTime(0);
+
+    // don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        _owner->m_movementInfo.SetFallTime(0);
-    }
+        return;
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
@@ -513,6 +535,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
         TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) seek assistance (X: %f Y: %f Z: %f)",
             _owner->GetEntry(), _owner->GetGUID().GetCounter(), x, y, z);
         _owner->AttackStop();
+        _owner->CastStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
         Mutate(new AssistanceMovementGenerator(x, y, z), MOTION_SLOT_ACTIVE);
     }

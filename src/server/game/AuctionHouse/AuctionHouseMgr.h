@@ -70,7 +70,7 @@ enum AuctionHouses
     AUCTIONHOUSE_NEUTRAL        = 7
 };
 
-struct AuctionEntry
+struct TC_GAME_API AuctionEntry
 {
     uint32 Id;
     uint8 houseId;
@@ -101,7 +101,7 @@ struct AuctionEntry
 };
 
 //this class is used as auctionhouse instance
-class AuctionHouseObject
+class TC_GAME_API AuctionHouseObject
 {
   public:
     ~AuctionHouseObject()
@@ -146,18 +146,14 @@ class AuctionHouseObject
 
 };
 
-class AuctionHouseMgr
+class TC_GAME_API AuctionHouseMgr
 {
     private:
         AuctionHouseMgr();
         ~AuctionHouseMgr();
 
     public:
-        static AuctionHouseMgr* instance()
-        {
-            static AuctionHouseMgr instance;
-            return &instance;
-        }
+        static AuctionHouseMgr* instance();
 
         typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
         typedef std::vector<AuctionEntry*> PlayerAuctions;

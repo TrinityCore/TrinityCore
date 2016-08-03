@@ -26,11 +26,7 @@
 class AddonHandler
 {
     public:
-        static AddonHandler* instance()
-        {
-            static AddonHandler instance;
-            return &instance;
-        }
+        static AddonHandler* instance();
 
         bool BuildAddonPacket(WorldPacket* Source, WorldPacket* Target);
 

@@ -79,6 +79,12 @@ std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
     return "";
 }
 
+GuildMgr* GuildMgr::instance()
+{
+    static GuildMgr instance;
+    return &instance;
+}
+
 Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
 {
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)

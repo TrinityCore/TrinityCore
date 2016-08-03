@@ -1,12 +1,3 @@
-# Package overloads - Linux
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  if (NOT NOJEM)
-    set(JEMALLOC_LIBRARY "jemalloc")
-    add_definitions(-DNO_BUFFERPOOL)
-    message(STATUS "UNIX: Using jemalloc")
-  endif()
-endif()
-
 # set default configuration directory
 if( NOT CONF_DIR )
   set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
@@ -38,7 +29,7 @@ if(CMAKE_C_COMPILER MATCHES "gcc" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
 elseif(CMAKE_C_COMPILER MATCHES "icc")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/icc/settings.cmake)
-elseif(CMAKE_C_COMPILER MATCHES "clang" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+elseif(CMAKE_C_COMPILER MATCHES "clang" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/clang/settings.cmake)
 else()
   add_definitions(-D_BUILD_DIRECTIVE='"${CMAKE_BUILD_TYPE}"')
