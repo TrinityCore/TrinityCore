@@ -410,7 +410,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void Reset()
+        void Reset() override
         {
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetReactState(REACT_AGGRESSIVE);

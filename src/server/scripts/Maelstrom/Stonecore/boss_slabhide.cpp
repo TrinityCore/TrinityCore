@@ -119,7 +119,7 @@ class boss_slabhide : public CreatureScript
                 _isFlying = false;
             }
 
-            void Reset()
+            void Reset() override
             {
                 if (instance->GetData(DATA_SLABHIDE_INTRO) == NOT_STARTED)
                     return;
