@@ -22,48 +22,79 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
+HomeMovementGenerator<Creature>::~HomeMovementGenerator()
+{
+    delete m_path;
+}
+
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
-    _setTargetLocation(owner);
+    SetTargetLocation(owner);
 }
 
 void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
-    if (arrived)
+    if (!m_despawnEvent)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
-        owner->SetWalk(true);
-        owner->LoadCreaturesAddon();
-        owner->AI()->JustReachedHome();
+        bool movementInform = owner->movespline->Finalized();
+        owner->StopMoving();
+        if (movementInform)
+        {
+            owner->SetWalk(true);
+            owner->LoadCreaturesAddon();
+            owner->AI()->JustReachedHome();
+        }
     }
 }
 
-void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
-
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
+void HomeMovementGenerator<Creature>::DoReset(Creature* owner)
 {
-    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    SetTargetLocation(owner);
+}
+
+void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
+{
+    m_travelInitialized = true;
+    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
+
+    float x, y, z, o = 0.0f;
+
+    if (!m_path)
+        m_path = new PathGenerator(owner);
+
+    // try to get a reset position placed by any other Movement
+    if (owner->GetMotionMaster()->empty() || !owner->GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
+        owner->GetHomePosition(x, y, z, o);
+
+    bool result = m_path->CalculatePath(x, y, z);
+    if (!result || !(m_path->GetPathType() & PATHFIND_NORMAL))
+    {
+        // Cant reach home
+        m_despawnEvent = true;
         return;
+    }
 
     Movement::MoveSplineInit init(owner);
-    float x, y, z, o;
-    // at apply we can select more nice return points base at current movegen
-    if (owner->GetMotionMaster()->empty() || !owner->GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
-    {
-        owner->GetHomePosition(x, y, z, o);
-        init.SetFacing(o);
-    }
-    init.MoveTo(x, y, z);
+    init.SetFacing(o);
+    init.MovebyPath(m_path->GetPath());
     init.SetWalk(false);
     init.Launch();
-
-    arrived = false;
-
-    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
 }
 
 bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
-    arrived = owner->movespline->Finalized();
-    return !arrived;
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
+        return true;
+
+    if (!m_travelInitialized)
+        SetTargetLocation(owner);
+
+    if (m_despawnEvent)
+    {
+        owner->m_Events.AddEvent(new EvadeDespawner(owner), owner->m_Events.CalculateTime(3000));
+        return false;
+    }
+
+    return !owner->movespline->Finalized();
 }

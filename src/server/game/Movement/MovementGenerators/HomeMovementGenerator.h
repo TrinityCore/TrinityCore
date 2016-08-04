@@ -21,18 +21,15 @@
 
 #include "MovementGenerator.h"
 
-class Creature;
-
-template < class T >
+template <class T>
 class HomeMovementGenerator;
 
 template <>
 class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
 {
     public:
-
-        HomeMovementGenerator() : arrived(false) { }
-        ~HomeMovementGenerator() { }
+        HomeMovementGenerator() : m_path(nullptr), m_travelInitialized(false), m_despawnEvent(false) { }
+        ~HomeMovementGenerator();
 
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);
@@ -41,7 +38,10 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
         MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
 
     private:
-        void _setTargetLocation(Creature*);
-        bool arrived;
+        void SetTargetLocation(Creature*);
+
+        PathGenerator* m_path;
+        bool m_travelInitialized;
+        bool m_despawnEvent;
 };
 #endif
