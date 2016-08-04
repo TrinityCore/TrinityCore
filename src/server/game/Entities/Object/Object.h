@@ -474,7 +474,7 @@ class WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
-        virtual bool SetInPhase(uint32 id, bool update, bool apply);
+        virtual bool SetInPhase(uint32 id, bool update, bool apply) override;
         void CopyPhaseFrom(WorldObject* obj, bool update = false);
         void UpdateAreaPhase();
         void ClearPhases(bool update = false);
