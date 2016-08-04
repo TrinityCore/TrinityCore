@@ -110,7 +110,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Talk(AGGRO_YELL_AQUE, who);
         }
@@ -196,7 +196,7 @@ public:
     {
         npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -263,7 +263,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
