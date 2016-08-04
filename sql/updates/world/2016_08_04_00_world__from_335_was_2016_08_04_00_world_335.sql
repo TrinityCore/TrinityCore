@@ -1,3 +1,4 @@
+/*
 -- NPC ID 9021 Kharan Mighthammer, Quest ID 4001 'What Is Going On?' and 4342 'Kharan's Tale'
 SET @Kharan := 9021;
 
@@ -61,3 +62,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (14,1822,2474,0,5,14,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has not been taken. -OR-"),
 (14,1822,2474,0,6,28,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 text id 2474 if quest 'Kharan's Tale' has been completed. -OR-"),
 (15,1822,   0,0,0, 9,0,4342,0,0,0,0,0,'', "Show gossip menu 1822 option id 0 if quest 'Kharan's Tale' has been taken.");
+*/
