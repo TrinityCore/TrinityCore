@@ -1460,7 +1460,7 @@ bool DB2Manager::IsToyItem(uint32 toy) const
 
 WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
 {
-    auto i = _wmoAreaTableLookup.find(WMOAreaTableKey(int8(rootId), int16(adtId), groupId));
+    auto i = _wmoAreaTableLookup.find(WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
     if (i != _wmoAreaTableLookup.end())
         return i->second;
 
