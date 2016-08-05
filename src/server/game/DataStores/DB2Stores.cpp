@@ -100,8 +100,8 @@ DB2Storage<ItemArmorTotalEntry>                 sItemArmorTotalStore("ItemArmorT
 DB2Storage<ItemBagFamilyEntry>                  sItemBagFamilyStore("ItemBagFamily.db2", ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY);
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
-DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
 DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
+DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST);
 DB2Storage<ItemDamageAmmoEntry>                 sItemDamageAmmoStore("ItemDamageAmmo.db2", ItemDamageAmmoMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_AMMO);
 DB2Storage<ItemDamageOneHandEntry>              sItemDamageOneHandStore("ItemDamageOneHand.db2", ItemDamageOneHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND);
@@ -120,7 +120,7 @@ DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRand
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", ItemSearchNameMeta::Instance(), HOTFIX_SEL_ITEM_SEARCH_NAME);
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", ItemSetMeta::Instance(), HOTFIX_SEL_ITEM_SET);
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", ItemSetSpellMeta::Instance(), HOTFIX_SEL_ITEM_SET_SPELL);
-DB2SparseStorage<ItemSparseEntry>               sItemSparseStore("Item-sparse.db2", ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE);
+DB2Storage<ItemSparseEntry>                     sItemSparseStore("Item-sparse.db2", ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE);
 DB2Storage<ItemSpecEntry>                       sItemSpecStore("ItemSpec.db2", ItemSpecMeta::Instance(), HOTFIX_SEL_ITEM_SPEC);
 DB2Storage<ItemSpecOverrideEntry>               sItemSpecOverrideStore("ItemSpecOverride.db2", ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE);
 DB2Storage<ItemUpgradeEntry>                    sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeMeta::Instance(), HOTFIX_SEL_ITEM_UPGRADE);
@@ -362,8 +362,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemBagFamilyStore);
     LOAD_DB2(sItemBonusStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
-    LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemChildEquipmentStore);
+    LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);

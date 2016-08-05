@@ -108,7 +108,7 @@ TC_GAME_API extern DB2Storage<ItemRandomSuffixEntry>                sItemRandomS
 TC_GAME_API extern DB2Storage<ItemSearchNameEntry>                  sItemSearchNameStore;
 TC_GAME_API extern DB2Storage<ItemSetEntry>                         sItemSetStore;
 TC_GAME_API extern DB2Storage<ItemSetSpellEntry>                    sItemSetSpellStore;
-TC_GAME_API extern DB2SparseStorage<ItemSparseEntry>                sItemSparseStore;
+TC_GAME_API extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
 TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
 TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
 TC_GAME_API extern DB2Storage<ItemUpgradeEntry>                     sItemUpgradeStore;
@@ -304,7 +304,8 @@ public:
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     uint32 GetRulesetItemUpgrade(uint32 itemId) const;
-    SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);    std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
+    SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
+    std::vector<SpecializationSpellsEntry const*> const* GetSpecializationSpells(uint32 specId) const;
     std::vector<SpellPowerEntry const*> GetSpellPowers(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE, bool* hasDifficultyPowers = nullptr) const;
     std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
