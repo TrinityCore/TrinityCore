@@ -142,7 +142,7 @@ class SmartScript
             ObjectListMap::iterator itr = mTargetStorage->find(id);
             if (itr != mTargetStorage->end())
                 return (*itr).second->GetObjectList();
-            return NULL;
+            return nullptr;
         }
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset)
