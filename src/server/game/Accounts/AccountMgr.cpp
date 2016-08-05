@@ -132,6 +132,10 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     stmt->setUInt32(0, accountId);
     trans->Append(stmt);
 
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTED);
+    stmt->setUInt32(0, accountId);
+    trans->Append(stmt);
+
     LoginDatabase.CommitTransaction(trans);
 
     return AccountOpResult::AOR_OK;
