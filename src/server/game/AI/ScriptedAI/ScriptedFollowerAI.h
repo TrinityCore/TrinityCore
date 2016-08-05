@@ -69,7 +69,7 @@ class TC_GAME_API FollowerAI : public ScriptedAI
         void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
         void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
 
-        bool AssistPlayerInCombat(Unit* who);
+        bool AssistPlayerInCombatAgainst(Unit* who);
 
         ObjectGuid m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;
