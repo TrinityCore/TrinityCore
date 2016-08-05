@@ -378,12 +378,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS_TREE_NODE, "SELECT ID, BonusTreeID, SubTreeID, BonusListID, BonusTreeModID FROM item_bonus_tree_node"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemChildEquipment.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ItemID, AltItemID, AltEquipmentSlot FROM item_child_equipment ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemClass.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, PriceMod, Name, Flags FROM item_class ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, Name_lang FROM item_class_locale WHERE locale = ?", CONNECTION_SYNCH);
-
-    // ItemChildEquipment.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ItemID, AltItemID, AltEquipmentSlot FROM item_child_equipment ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemId FROM item_currency_cost ORDER BY ID DESC", CONNECTION_SYNCH);
