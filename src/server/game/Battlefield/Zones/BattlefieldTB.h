@@ -675,7 +675,7 @@ class TC_GAME_API BattlefieldTB : public Battlefield
 
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data) override;
         void UpdateWorldStates();
 
         void HandleKill(Player* killer, Unit* victim) override;

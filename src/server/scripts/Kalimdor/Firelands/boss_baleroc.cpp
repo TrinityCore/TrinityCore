@@ -495,7 +495,7 @@ class spell_countdown_p3 : public SpellScriptLoader
         {
             PrepareSpellScript(spell_countdown_p3_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
