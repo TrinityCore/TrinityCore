@@ -34,19 +34,19 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = NULL);
+        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr);
         void GetScript();
         void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at);
 
-        void ProcessEventsFor(SMART_EVENT e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
-        void ProcessEvent(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr);
+        void ProcessEvent(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr);
         bool CheckTimer(SmartScriptHolder const& e) const;
         void RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max);
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
-        void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
-        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
-        ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
+        void ProcessAction(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr);
+        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr);
+        ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = nullptr);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
         SmartScriptHolder CreateEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask = 0);
@@ -55,7 +55,7 @@ class TC_GAME_API SmartScript
         uint32 GetPathId() const { return mPathId; }
         WorldObject* GetBaseObject()
         {
-            WorldObject* obj = NULL;
+            WorldObject* obj = nullptr;
             if (me)
                 obj = me;
             else if (go)
@@ -108,7 +108,7 @@ class TC_GAME_API SmartScript
             (*mTargetStorage)[id] = new ObjectGuidList(targets, GetBaseObject());
         }
 
-        bool IsSmart(Creature* c = NULL)
+        bool IsSmart(Creature* c = nullptr)
         {
             bool smart = true;
             if (c && c->GetAIName() != "SmartAI")
@@ -123,7 +123,7 @@ class TC_GAME_API SmartScript
             return smart;
         }
 
-        bool IsSmartGO(GameObject* g = NULL)
+        bool IsSmartGO(GameObject* g = nullptr)
         {
             bool smart = true;
             if (g && g->GetAIName() != "SmartGameObjectAI")
@@ -142,7 +142,7 @@ class TC_GAME_API SmartScript
             ObjectListMap::iterator itr = mTargetStorage->find(id);
             if (itr != mTargetStorage->end())
                 return (*itr).second->GetObjectList();
-            return NULL;
+            return nullptr;
         }
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset)
@@ -214,14 +214,14 @@ class TC_GAME_API SmartScript
                     if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
                     {
                         me = m;
-                        go = NULL;
+                        go = nullptr;
                     }
                 }
                 if (!goOrigGUID.IsEmpty())
                 {
                     if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
                     {
-                        me = NULL;
+                        me = nullptr;
                         go = o;
                     }
                 }
