@@ -93,7 +93,7 @@ public:
     ~DB2FileLoaderSparseImpl();
 
     bool Load(char const* filename, FILE* file, DB2Meta const* meta, DB2Header const* header) override;
-    char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool);
+    char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
 
