@@ -1815,7 +1815,7 @@ class OpcodeTable
         }
 
     private:
-        template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
+        template<typename Handler, Handler HandlerFunction>
         void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
 
         void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);
