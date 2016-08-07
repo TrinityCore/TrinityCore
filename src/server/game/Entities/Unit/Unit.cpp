@@ -16201,6 +16201,7 @@ void Unit::SetNextSpellCrit(Unit* target, uint32 spellId, bool crit)
     if (itr == m_spellCritMap.end())
         m_spellCritMap.emplace(std::pair<Unit*, uint32>(target, spellId), crit);
 }
+
 bool Unit::HasNextSpellCritData(Unit* target, uint32 spellId) const
 {
     auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
@@ -16212,8 +16213,6 @@ void Unit::RemoveNextSpellCritData(Unit* target, uint32 spellId)
 {
     auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
 
-    if (itr != m_spellCritMap.end() && !m_spellCritMap.empty()) {
-
+    if (itr != m_spellCritMap.end() && !m_spellCritMap.empty())
         m_spellCritMap.erase(std::pair<Unit*, uint32>(target, spellId));
-    }
 }
