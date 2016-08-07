@@ -8156,6 +8156,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
     // not critting spell
     if ((spellProto->HasAttribute(SPELL_ATTR2_CANT_CRIT)))
         return 0.0f;
+	
+    if (victim && HasNextSpellCritData(victim, spellProto->Id))
+    {
+        float nextSpellCritChance = IsNextSpellACrit(victim, spellProto->Id) ? 100.0f : 0.0f;
+        const_cast<Unit*>(this)->RemoveNextSpellCritData(victim, spellProto->Id);
+        return nextSpellCritChance;
+    }
 
     float crit_chance = 0.0f;
     switch (spellProto->DmgClass)
@@ -16178,4 +16185,35 @@ void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* 
 bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplication* right) const
 {
     return left->GetSlot() < right->GetSlot();
+}
+
+bool Unit::IsNextSpellACrit(Unit* target, uint32 spellId) const
+{
+    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+
+    return itr != m_spellCritMap.end() && itr->second == true;
+}
+
+void Unit::SetNextSpellCrit(Unit* target, uint32 spellId, bool crit)
+{
+    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+
+    if (itr == m_spellCritMap.end())
+        m_spellCritMap.emplace(std::pair<Unit*, uint32>(target, spellId), crit);
+}
+bool Unit::HasNextSpellCritData(Unit* target, uint32 spellId) const
+{
+    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+
+    return itr != m_spellCritMap.end();
+}
+
+void Unit::RemoveNextSpellCritData(Unit* target, uint32 spellId)
+{
+    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+
+    if (itr != m_spellCritMap.end() && !m_spellCritMap.empty()) {
+
+        m_spellCritMap.erase(std::pair<Unit*, uint32>(target, spellId));
+    }
 }

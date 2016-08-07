@@ -455,6 +455,8 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         // Returns SpellInfo from the spell that triggered the current one
         SpellInfo const* GetTriggeringSpell();
+		
+        bool IsSpellCrit(Unit* target) const;
 
         // finishes spellcast prematurely with selected error message
         void FinishCast(SpellCastResult result);

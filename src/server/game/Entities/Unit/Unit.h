@@ -1323,6 +1323,8 @@ class TC_GAME_API Unit : public WorldObject
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
+		
+        typedef std::unordered_map<std::pair<Unit* /*target*/, uint32 /*spellId*/>, bool /*IsSpellCrit*/> NextSpellCritMap;
 
         typedef std::multimap<uint32, Aura*> AuraMap;
         typedef std::pair<AuraMap::const_iterator, AuraMap::const_iterator> AuraMapBounds;
@@ -1957,6 +1959,11 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInFeralForm() const;
 
         bool IsInDisallowedMountForm() const;
+		
+        bool IsNextSpellACrit(Unit* target, uint32 spellId) const;
+        void SetNextSpellCrit(Unit* target, uint32 spellId, bool crit);
+        bool HasNextSpellCritData(Unit* target, uint32 spellId) const;
+        void RemoveNextSpellCritData(Unit* target, uint32 spellId);
 
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
@@ -2392,6 +2399,8 @@ class TC_GAME_API Unit : public WorldObject
         time_t _lastDamagedTime; // Part of Evade mechanics
 
         SpellHistory* _spellHistory;
+		
+        NextSpellCritMap m_spellCritMap;
 };
 
 namespace Trinity

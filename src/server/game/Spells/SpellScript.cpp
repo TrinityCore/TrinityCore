@@ -651,6 +651,17 @@ SpellInfo const* SpellScript::GetTriggeringSpell()
     return m_spell->m_triggeredByAuraSpell;
 }
 
+bool SpellScript::IsSpellCrit(Unit* target) const
+{
+    for (auto itr : m_spell->m_UniqueTargetInfo)
+    {
+        if (itr.targetGUID == target->GetGUID())
+            return itr.crit;
+    }
+
+    return false;
+}
+
 void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);
