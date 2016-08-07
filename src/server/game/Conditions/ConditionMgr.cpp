@@ -104,7 +104,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "In Water",            false, false, false },
     { "Terrain Swap",         true, false, false },
     { "Sit/stand state",      true,  true, false },
-    { "Daily Quest Completed",true, false, false }
+    { "Daily Quest Completed",true, false, false },
+    { "Charmed",             false, false, false }
 };
 
 // Checks if object meets the condition
@@ -460,6 +461,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = player->IsDailyQuestDone(ConditionValue1);
             break;
         }
+        case CONDITION_CHARMED:
+        {
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->IsCharmed();
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -643,6 +650,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_DAILY_QUEST_DONE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_CHARMED:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2222,8 +2232,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_IN_WATER:
-            break;
         case CONDITION_STAND_STATE:
         {
             bool valid = false;
@@ -2246,6 +2254,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_IN_WATER:
+        case CONDITION_CHARMED:
         default:
             break;
     }
