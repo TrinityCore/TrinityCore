@@ -75,8 +75,9 @@ enum ConditionTypes
     CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
     CONDITION_DAILY_QUEST_DONE      = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
     CONDITION_CHARMED               = 44,                   // 0                0              0                  true if unit is currently charmed
-    CONDITION_MAX                   = 45                    // MAX
-};
+    CONDITION_PET_TYPE              = 45,                   // mask             0              0                  true if player has a pet of given type(s)
+    CONDITION_MAX                   = 46                    // MAX
+}; 
 
 /*! Documentation on implementing a new ConditionSourceType:
     Step 1: Check for the lowest free ID. Look for CONDITION_SOURCE_TYPE_UNUSED_XX in the enum.

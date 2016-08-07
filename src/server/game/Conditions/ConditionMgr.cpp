@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Pet.h"
 #include "ReputationMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -105,7 +106,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Terrain Swap",         true, false, false },
     { "Sit/stand state",      true,  true, false },
     { "Daily Quest Completed",true, false, false },
-    { "Charmed",             false, false, false }
+    { "Charmed",             false, false, false },
+    { "Pet type",             true, false, false }
 };
 
 // Checks if object meets the condition
@@ -467,6 +469,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = unit->IsCharmed();
             break;
         }
+        case CONDITION_PET_TYPE:
+        {
+            if (Player* player = object->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -653,6 +662,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_CHARMED:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_PET_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2254,6 +2266,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_PET_TYPE:
+            if (cond->ConditionValue1 >= (1 << MAX_PET_TYPE))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         default:
