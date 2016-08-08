@@ -18,8 +18,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseWorker.h"
 #include "SQLOperation.h"
-#include "MySQLConnection.h"
-#include "MySQLThreading.h"
 #include "ProducerConsumerQueue.h"
 
 DatabaseWorker::DatabaseWorker(ProducerConsumerQueue<SQLOperation*>* newQueue, MySQLConnection* connection)
