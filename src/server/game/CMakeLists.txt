@@ -44,7 +44,6 @@ target_include_directories(game
 target_link_libraries(game
   PUBLIC
     ipc
-    Detour)
     shared
     Detour
   PRIVATE
