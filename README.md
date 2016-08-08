@@ -36,7 +36,7 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
-+ MS Visual Studio ≥ 12 (2013) update 4 (Windows only)
++ MS Visual Studio ≥ 14 (2015) (Windows only)
 + ZeroMQ:
 + apt-get install libzmq-dev (Linux only)
 + x64 - http://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
