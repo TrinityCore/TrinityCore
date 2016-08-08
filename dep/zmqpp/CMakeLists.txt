@@ -10,22 +10,28 @@
 
 file(GLOB_RECURSE sources_zmqpp zmqpp/*.cpp zmqpp/*.hpp zmqpp/*.h)
 
-set(zmqpp_STAT_SRCS
-  ${sources_zmqpp}
-)
-
 include_directories(${ZMQ_INCLUDE_DIR})
 
 add_library(zmqpp STATIC
-  ${zmqpp_STAT_SRCS}
+  ${sources_zmqpp}
 )
 
-if (WIN32)
-  add_definitions(-DBUILD_VERSION=\\"3.2.0\\")
-else()
-  add_definitions(-DBUILD_VERSION='"3.2.0"')
-endif()
+target_link_libraries(zmqpp
+  PUBLIC
+    zmq)
 
-add_definitions(-DBUILD_VERSION_MAJOR=3)
-add_definitions(-DBUILD_VERSION_MINOR=2)
-add_definitions(-DBUILD_VERSION_REVISION=0)
+target_include_directories(zmqpp
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_target_properties(zmqpp
+  PROPERTIES
+    FOLDER
+      "dep")
+
+target_compile_definitions(zmqpp
+  PRIVATE
+    -DBUILD_VERSION_MAJOR=3
+    -DBUILD_VERSION_MINOR=2
+    -DBUILD_VERSION_REVISION=0
+    -DBUILD_VERSION="3.2.0")
