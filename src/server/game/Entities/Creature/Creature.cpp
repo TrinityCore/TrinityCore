@@ -1449,7 +1449,7 @@ void Creature::SetSpawnHealth()
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     }
 
-    SetHealth(m_deathState == ALIVE ? curhealth : 0);
+    SetHealth((m_deathState == ALIVE || m_deathState == JUST_RESPAWNED) ? curhealth : 0);
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
