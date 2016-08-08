@@ -40,7 +40,7 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API DefaultTargetSelector : public std::unary_function<Unit*, bool>
 {
     const Unit* me;
     float m_dist;
@@ -90,7 +90,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 
 // Target selector for spell casts checking range, auras and attributes
 /// @todo Add more checks from Spell::CheckCast
-struct SpellTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API SpellTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
         SpellTargetSelector(Unit* caster, uint32 spellId);
@@ -104,7 +104,7 @@ struct SpellTargetSelector : public std::unary_function<Unit*, bool>
 // Very simple target selector, will just skip main target
 // NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
 //       because tank will not be in the temporary list
-struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, bool>
 {
     public:
         NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
@@ -115,7 +115,7 @@ struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
         bool _playerOnly;
 };
 
-class UnitAI
+class TC_GAME_API UnitAI
 {
     protected:
         Unit* const me;

@@ -29,7 +29,7 @@ struct VehicleEntry;
 class Unit;
 class VehicleJoinEvent;
 
-class Vehicle : public TransportBase
+class TC_GAME_API Vehicle : public TransportBase
 {
     protected:
         friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
@@ -118,7 +118,7 @@ class Vehicle : public TransportBase
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
 };
 
-class VehicleJoinEvent : public BasicEvent
+class TC_GAME_API VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:

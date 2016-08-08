@@ -277,7 +277,7 @@ const uint32 GuildChallengeXPReward[GUILD_CHALLENGES_TYPES]           = { 0, 300
 const uint32 GuildChallengesPerWeek[GUILD_CHALLENGES_TYPES]           = { 0, 7,      1,       3 };
 
 // Emblem info
-class EmblemInfo
+class TC_GAME_API EmblemInfo
 {
 public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
@@ -333,7 +333,7 @@ typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
 
 typedef std::set <uint8> SlotIds;
 
-class Guild
+class TC_GAME_API Guild
 {
 private:
     // Class representing guild member

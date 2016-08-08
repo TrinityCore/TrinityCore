@@ -29,7 +29,7 @@ class Group;
 namespace lfg
 {
 
-class LFGPlayerScript : public PlayerScript
+class TC_GAME_API LFGPlayerScript : public PlayerScript
 {
     public:
         LFGPlayerScript();
@@ -40,7 +40,7 @@ class LFGPlayerScript : public PlayerScript
         void OnMapChanged(Player* player) override;
 };
 
-class LFGGroupScript : public GroupScript
+class TC_GAME_API LFGGroupScript : public GroupScript
 {
     public:
         LFGGroupScript();

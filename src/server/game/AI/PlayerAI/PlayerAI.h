@@ -23,7 +23,7 @@
 #include "Spell.h"
 #include "Creature.h"
 
-class PlayerAI : public UnitAI
+class TC_GAME_API PlayerAI : public UnitAI
 {
     public:
         explicit PlayerAI(Player* player) : UnitAI(static_cast<Unit*>(player)), me(player), _selfSpec(PlayerAI::GetPlayerSpec(player)), _isSelfHealer(PlayerAI::IsPlayerHealer(player)), _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player)) { }

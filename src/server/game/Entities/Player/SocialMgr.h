@@ -99,7 +99,7 @@ enum FriendsResult
 #define SOCIALMGR_FRIEND_LIMIT  50
 #define SOCIALMGR_IGNORE_LIMIT  50
 
-class PlayerSocial
+class TC_GAME_API PlayerSocial
 {
     friend class SocialMgr;
     public:
