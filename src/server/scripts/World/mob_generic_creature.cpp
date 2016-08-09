@@ -27,7 +27,10 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 
-#define GENERIC_CREATURE_COOLDOWN   5000
+enum GenericCreature
+{
+    GENERIC_CREATURE_COOLDOWN = 5000
+};
 
 class generic_creature : public CreatureScript
 {
