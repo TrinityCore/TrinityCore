@@ -1033,7 +1033,7 @@ enum SpellEffectName
     SPELL_EFFECT_BIND                               = 11,
     SPELL_EFFECT_PORTAL                             = 12,
     SPELL_EFFECT_RITUAL_BASE                        = 13, // Unused (4.3.4)
-    SPELL_EFFECT_RITUAL_SPECIALIZE                  = 14, // Unused (4.3.4)
+    SPELL_EFFECT_INCREASE_CURRENCY_CAP              = 14,
     SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL             = 15, // Unused (4.3.4)
     SPELL_EFFECT_QUEST_COMPLETE                     = 16,
     SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL             = 17,
@@ -1071,7 +1071,7 @@ enum SpellEffectName
     SPELL_EFFECT_DETECT                             = 49,
     SPELL_EFFECT_TRANS_DOOR                         = 50,
     SPELL_EFFECT_FORCE_CRITICAL_HIT                 = 51, // Unused (4.3.4)
-    SPELL_EFFECT_GUARANTEE_HIT                      = 52, // Unused (4.3.4)
+    SPELL_EFFECT_SET_MAX_BATTLE_PET_COUNT           = 52,
     SPELL_EFFECT_ENCHANT_ITEM                       = 53,
     SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY             = 54,
     SPELL_EFFECT_TAMECREATURE                       = 55,
@@ -1100,7 +1100,7 @@ enum SpellEffectName
     SPELL_EFFECT_ATTACK                             = 78,
     SPELL_EFFECT_SANCTUARY                          = 79,
     SPELL_EFFECT_ADD_COMBO_POINTS                   = 80,
-    SPELL_EFFECT_CREATE_HOUSE                       = 81,
+    SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR         = 81,
     SPELL_EFFECT_BIND_SIGHT                         = 82,
     SPELL_EFFECT_DUEL                               = 83,
     SPELL_EFFECT_STUCK                              = 84,
@@ -1124,15 +1124,15 @@ enum SpellEffectName
     SPELL_EFFECT_DISMISS_PET                        = 102,
     SPELL_EFFECT_REPUTATION                         = 103,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT1                = 104,
-    SPELL_EFFECT_SUMMON_OBJECT_SLOT2                = 105,
+    SPELL_EFFECT_SURVEY                             = 105,
     SPELL_EFFECT_CHANGE_RAID_MARKER                 = 106,
-    SPELL_EFFECT_SUMMON_OBJECT_SLOT4                = 107,
+    SPELL_EFFECT_SHOW_CORPSE_LOOT                   = 107,
     SPELL_EFFECT_DISPEL_MECHANIC                    = 108,
     SPELL_EFFECT_RESURRECT_PET                      = 109,
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
     SPELL_EFFECT_DURABILITY_DAMAGE                  = 111,
     SPELL_EFFECT_112                                = 112,
-    SPELL_EFFECT_RESURRECT_NEW                      = 113,
+    SPELL_EFFECT_113                                = 113,
     SPELL_EFFECT_ATTACK_ME                          = 114,
     SPELL_EFFECT_DURABILITY_DAMAGE_PCT              = 115,
     SPELL_EFFECT_SKIN_PLAYER_CORPSE                 = 116,
@@ -1182,7 +1182,7 @@ enum SpellEffectName
     SPELL_EFFECT_FORCE_CAST_2                       = 160,
     SPELL_EFFECT_TALENT_SPEC_COUNT                  = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
-    SPELL_EFFECT_163                                = 163, // Unused (4.3.4)
+    SPELL_EFFECT_OBLITERATE_ITEM                    = 163,
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_GIVE_CURRENCY                      = 166,
@@ -1201,7 +1201,7 @@ enum SpellEffectName
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // NYI
     SPELL_EFFECT_REMOVE_TALENT                      = 181,
-    SPELL_EFFECT_182                                = 182,
+    SPELL_EFFECT_DESPAWN_AREATRIGGER                = 182,
     SPELL_EFFECT_183                                = 183,
     SPELL_EFFECT_REPUTATION_2                       = 184, // NYI
     SPELL_EFFECT_185                                = 185,
@@ -1268,7 +1268,7 @@ enum SpellEffectName
     SPELL_EFFECT_FINISH_GARRISON_MISSION            = 246,
     SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
-    SPELL_EFFECT_CREATE_ARTIFACT                    = 249,
+    SPELL_EFFECT_FORCE_EQUIP_ITEM                   = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
     SPELL_EFFECT_TELEPORT_UNITS                     = 252,
