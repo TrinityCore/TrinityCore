@@ -867,6 +867,15 @@ class TC_GAME_API ScriptMgr
         void IncrementScriptCount() { ++_scriptCount; }
         uint32 GetScriptCount() const { return _scriptCount; }
 
+        typedef void(*ScriptLoaderCallbackType)();
+
+        /// Sets the script loader callback which is invoked to load scripts
+        /// (Workaround for circular dependency game <-> scripts)
+        void SetScriptLoader(ScriptLoaderCallbackType script_loader_callback)
+        {
+            _script_loader_callback = script_loader_callback;
+        }
+
     public: /* Unloading */
 
         void Unload();
@@ -1102,6 +1111,8 @@ class TC_GAME_API ScriptMgr
 
         //atomic op counter for active scripts amount
         std::atomic<uint32> _scheduledScripts;
+
+        ScriptLoaderCallbackType _script_loader_callback;
 };
 
 #endif

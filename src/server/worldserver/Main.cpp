@@ -35,6 +35,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include "ScriptLoader.h"
 #include "OutdoorPvP/OutdoorPvPMgr.h"
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
@@ -192,6 +193,7 @@ extern int main(int argc, char** argv)
     LoadRealmInfo();
 
     // Initialize the World
+    sScriptMgr->SetScriptLoader(AddScripts);
     sWorld->SetInitialWorldSettings();
 
     // Launch CliRunnable thread

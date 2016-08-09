@@ -22,10 +22,10 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "SmartAI.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "GossipDef.h"
@@ -240,7 +240,8 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-ScriptMgr::ScriptMgr() : _scriptCount(0), _scheduledScripts(0)
+ScriptMgr::ScriptMgr()
+  : _scriptCount(0), _scheduledScripts(0), _script_loader_callback(nullptr)
 {
 }
 
@@ -261,7 +262,13 @@ void ScriptMgr::Initialize()
     TC_LOG_INFO("server.loading", "Loading C++ scripts");
 
     FillSpellSummary();
-    AddScripts();
+
+    AddSC_SmartScripts();
+
+    ASSERT(_script_loader_callback,
+           "Script loader callback wasn't registered!");
+
+    _script_loader_callback();
 
 #ifdef SCRIPTS
     for (std::string const& scriptName : UnusedScriptNames)

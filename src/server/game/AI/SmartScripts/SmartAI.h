@@ -257,4 +257,8 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
     private:
         SmartScript mScript;
 };
+
+/// Registers scripts required by the SAI scripting system
+void AddSC_SmartScripts();
+
 #endif
