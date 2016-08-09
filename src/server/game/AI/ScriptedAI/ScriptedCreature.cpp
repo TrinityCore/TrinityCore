@@ -507,6 +507,14 @@ void BossAI::_EnterCombat()
     ScheduleTasks();
 }
 
+bool BossAI::CanRespawn()
+{
+    if (instance && instance->GetBossState(_bossId) == DONE)
+        return false;
+
+    return true;
+}
+
 void BossAI::TeleportCheaters()
 {
     float x, y, z;

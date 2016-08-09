@@ -33,4 +33,4 @@ enum NavTerrain
     // we only have 8 bits
 };
 
-#endif
+#endif /* _MAPDEFINES_H */
