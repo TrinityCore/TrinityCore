@@ -10,69 +10,29 @@
 
 ########### authserver ###############
 
-file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
-file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
-file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
-file(GLOB sources_localdir *.cpp *.h)
-
-if (USE_COREPCH)
-  set(authserver_PCH_HDR PrecompiledHeaders/authPCH.h)
-  set(authserver_PCH_SRC PrecompiledHeaders/authPCH.cpp)
-endif()
-
-set(authserver_SRCS
-  ${authserver_SRCS}
-  ${sources_authentication}
-  ${sources_realms}
-  ${sources_server}
-  ${sources_localdir}
-)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 if( WIN32 )
-  set(authserver_SRCS
-    ${authserver_SRCS}
-    ${sources_windows}
-  )
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
   if ( MSVC )
-    set(authserver_SRCS
-      ${authserver_SRCS}
-      authserver.rc
-    )
-  endif ()
+    list(APPEND PRIVATE_SOURCES authserver.rc)
+  endif()
 endif()
 
-include_directories(
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
-  ${CMAKE_CURRENT_SOURCE_DIR}/Realms
-  ${CMAKE_CURRENT_SOURCE_DIR}/Server
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/src/common/
-  ${CMAKE_SOURCE_DIR}/src/common/Configuration
-  ${CMAKE_SOURCE_DIR}/src/common/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging
-  ${CMAKE_SOURCE_DIR}/src/common/Logging
-  ${CMAKE_SOURCE_DIR}/src/common/Threading
-  ${CMAKE_SOURCE_DIR}/src/common/Utilities
-  ${CMAKE_SOURCE_DIR}/src/common/Platform
-  ${CMAKE_SOURCE_DIR}/src/server/database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Database
-  ${CMAKE_SOURCE_DIR}/src/server/database/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/database/Updater
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Networking
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Service
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-  ${VALGRIND_INCLUDE_DIR}
-)
+if (USE_COREPCH)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/authPCH.h)
+  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/authPCH.cpp)
+endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(authserver
-  ${authserver_SRCS}
-  ${authserver_PCH_SRC}
+  ${PRIVATE_SOURCES}
+  ${PRIVATE_PCH_SOURCE}
 )
 
 if( NOT WIN32 )
@@ -82,15 +42,25 @@ if( NOT WIN32 )
 endif()
 
 target_link_libraries(authserver
-  shared
-  database
-  common
-  cppformat
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-)
+  PUBLIC
+    shared)
+
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+target_include_directories(authserver
+  PUBLIC
+    ${PUBLIC_INCLUDES}
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(authserver
+    PROPERTIES
+      FOLDER
+        "server")
 
 if( WIN32 )
   if ( MSVC )
@@ -116,5 +86,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(authserver ${authserver_PCH_HDR} ${authserver_PCH_SRC})
+  add_cxx_pch(authserver ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
 endif()
