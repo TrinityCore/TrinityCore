@@ -691,8 +691,11 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21
 
-#define MIN_ITEM_LEVEL 1
-#define MAX_ITEM_LEVEL 1000
+enum ItemLevelConstants : uint32
+{
+    MIN_ITEM_LEVEL = 1,
+    MAX_ITEM_LEVEL = 1300
+};
 
 class Player;
 struct ChrSpecializationEntry;

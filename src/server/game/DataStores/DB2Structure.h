@@ -628,6 +628,13 @@ struct CurrencyTypesEntry
     uint32 SpellWeight;
 };
 
+struct CurveEntry
+{
+    uint32 ID;
+    uint8 Type;
+    uint8 Unused;
+};
+
 struct CurvePointEntry
 {
     uint32 ID;

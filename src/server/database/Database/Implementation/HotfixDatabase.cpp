@@ -183,6 +183,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "CategoryID, SpellCategory, Quality, SpellWeight FROM currency_types ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CURRENCY_TYPES, "SELECT ID, Name_lang, Description_lang FROM currency_types_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // Curve.db2
+    PrepareStatement(HOTFIX_SEL_CURVE, "SELECT ID, Type, Unused FROM curve ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CurvePoint.db2
     PrepareStatement(HOTFIX_SEL_CURVE_POINT, "SELECT ID, X, Y, CurveID, `Index` FROM curve_point ORDER BY ID DESC", CONNECTION_SYNCH);
 
