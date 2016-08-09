@@ -8,7 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES
@@ -24,28 +23,37 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DTRINITY_API_EXPORT_GAME)
 
-add_library(game
-  ${PRIVATE_SOURCES}
-  ${PRIVATE_PCH_SOURCE}
-)
-
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC_INCLUDES
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
+# Provide an interface target for the game project to allow
+# dependent projects to build meanwhile.
+add_library(game-interface INTERFACE)
+
+target_include_directories(game-interface
+  INTERFACE
+    ${PUBLIC_INCLUDES})
+
+target_link_libraries(game-interface
+  INTERFACE
+    shared
+    Detour)
+
+add_library(game
+  ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES})
+
 target_include_directories(game
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(game
   PUBLIC
     ipc
-    shared
-    Detour
+    game-interface
   PRIVATE
     efsw)
 
