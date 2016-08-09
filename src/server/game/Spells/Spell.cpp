@@ -6621,46 +6621,19 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
         return true;
 
     /// @todo shit below shouldn't be here, but it's temporary
-    //Check targets for LOS visibility (except spells without range limitations)
-    switch (effect->Effect)
+    //Check targets for LOS visibility
+    if (losPosition)
+        return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
+    else
     {
-        case SPELL_EFFECT_RESURRECT_NEW:
-            // player far away, maybe his corpse near?
-            if (target != m_caster && !target->IsWithinLOSInMap(m_caster))
-            {
-                if (!m_targets.GetCorpseTargetGUID())
-                    return false;
-
-                Corpse* corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
-                if (!corpse)
-                    return false;
-
-                if (target->GetGUID() != corpse->GetOwnerGUID())
-                    return false;
-
-                if (!corpse->IsWithinLOSInMap(m_caster))
-                    return false;
-            }
-
-            // all ok by some way or another, skip normal check
-            break;
-        default:                                            // normal case
-        {
-            if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
-            else
-            {
-                // Get GO cast coordinates if original caster -> GO
-                WorldObject* caster = NULL;
-                if (m_originalCasterGUID.IsGameObject())
-                    caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
-                if (!caster)
-                    caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster))
-                    return false;
-            }
-            break;
-        }
+        // Get GO cast coordinates if original caster -> GO
+        WorldObject* caster = NULL;
+        if (m_originalCasterGUID.IsGameObject())
+            caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
+        if (!caster)
+            caster = m_caster;
+        if (target != m_caster && !target->IsWithinLOSInMap(caster))
+            return false;
     }
 
     return true;
