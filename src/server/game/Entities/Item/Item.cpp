@@ -654,9 +654,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
         gemData[i].ItemId = fields[29 + i * MAX_GEM_SOCKETS].GetUInt32();
-        Tokenizer bonusListIDs(fields[30 + i * MAX_GEM_SOCKETS].GetString(), ' ');
+        Tokenizer gemBonusListIDs(fields[30 + i * MAX_GEM_SOCKETS].GetString(), ' ');
         uint32 b = 0;
-        for (char const* token : bonusListIDs)
+        for (char const* token : gemBonusListIDs)
             if (uint32 bonusListID = atoul(token))
                 gemData[i].BonusListIDs[b++] = bonusListID;
 
@@ -1106,8 +1106,8 @@ bool Item::GemsFitSockets() const
     uint32 gemSlot = 0;
     for (ItemDynamicFieldGems const& gemData : GetGems())
     {
-        uint8 SocketColor = GetTemplate()->GetSocketColor(gemSlot);
-        if (!SocketColor) // no socket slot
+        SocketColor color = GetTemplate()->GetSocketColor(gemSlot);
+        if (!color) // no socket slot
             continue;
 
         uint32 GemColor = 0;
@@ -1120,7 +1120,7 @@ bool Item::GemsFitSockets() const
                 GemColor = gemProperty->Type;
         }
 
-        if (!(GemColor & SocketColorToGemTypeMask[SocketColor])) // bad gem color on this socket
+        if (!(GemColor & SocketColorToGemTypeMask[color])) // bad gem color on this socket
             return false;
     }
     return true;
@@ -1128,22 +1128,22 @@ bool Item::GemsFitSockets() const
 
 uint8 Item::GetGemCountWithID(uint32 GemID) const
 {
-    return std::count_if(GetGems().begin(), GetGems().end(), [GemID](ItemDynamicFieldGems const& gemData)
+    return uint8(std::count_if(GetGems().begin(), GetGems().end(), [GemID](ItemDynamicFieldGems const& gemData)
     {
         return gemData.ItemId == GemID;
-    });
+    }));
 }
 
 uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 {
-    return std::count_if(GetGems().begin(), GetGems().end(), [limitCategory](ItemDynamicFieldGems const& gemData)
+    return uint8(std::count_if(GetGems().begin(), GetGems().end(), [limitCategory](ItemDynamicFieldGems const& gemData)
     {
         ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemData.ItemId);
         if (!gemProto)
             return false;
 
         return gemProto->GetItemLimitCategory() == limitCategory;
-    });
+    }));
 }
 
 bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const
@@ -1972,7 +1972,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
 
     uint32 itemLevel = stats->GetBaseItemLevel();
     if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
-        if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+        if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, owner->getLevel())))
             itemLevel = heirloomIlvl;
 
     if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))

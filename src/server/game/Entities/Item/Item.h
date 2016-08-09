@@ -224,7 +224,7 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
-enum ItemModifier
+enum ItemModifier : uint16
 {
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS         = 0,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1            = 1,
