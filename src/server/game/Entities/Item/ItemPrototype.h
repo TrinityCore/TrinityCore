@@ -704,25 +704,7 @@ struct ItemTemplate
     uint32 FlagsCu;
 
     // helpers
-    bool CanChangeEquipStateInCombat() const
-    {
-        switch (InventoryType)
-        {
-            case INVTYPE_RELIC:
-            case INVTYPE_SHIELD:
-            case INVTYPE_HOLDABLE:
-                return true;
-        }
-
-        switch (Class)
-        {
-            case ITEM_CLASS_WEAPON:
-            case ITEM_CLASS_PROJECTILE:
-                return true;
-        }
-
-        return false;
-    }
+    bool CanChangeEquipStateInCombat() const;
 
     bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
@@ -731,28 +713,9 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    float GetItemLevelIncludingQuality() const
-    {
-        float itemLevel = (float)ItemLevel;
-        switch (Quality)
-        {
-            case ITEM_QUALITY_POOR:
-            case ITEM_QUALITY_NORMAL:
-            case ITEM_QUALITY_UNCOMMON:
-            case ITEM_QUALITY_ARTIFACT:
-            case ITEM_QUALITY_HEIRLOOM:
-                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
-                break;
-            case ITEM_QUALITY_RARE:
-                itemLevel -= 13;
-                break;
-            case ITEM_QUALITY_EPIC:
-            case ITEM_QUALITY_LEGENDARY:
-            default:
-                break;
-        }
-        return std::max<float>(0.f, itemLevel);
-    }
+    float GetItemLevelIncludingQuality() const;
+
+    uint32 GetSkill() const;
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
