@@ -26,8 +26,8 @@ endif()
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(shared
-  ${PRIVATE_SOURCES}
   ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES}
 )
 
 CollectIncludeDirectories(

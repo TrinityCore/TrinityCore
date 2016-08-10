@@ -31,8 +31,8 @@ endif (USE_COREPCH)
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(common
-  ${PRIVATE_SOURCES}
   ${PRIVATE_PCH_SOURCE}
+  ${PRIVATE_SOURCES}
 )
 
 # Do NOT add any extra include directory here, as we don't want the common

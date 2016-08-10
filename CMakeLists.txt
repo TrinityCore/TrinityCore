@@ -18,7 +18,11 @@ project(TrinityCore)
 cmake_policy(SET CMP0005 OLD)
 if(POLICY CMP0043)
   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
-endif(POLICY CMP0043)
+endif()
+
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
+endif()
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
