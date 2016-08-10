@@ -37,33 +37,6 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
     return false;
 }
 
-
-float ItemTemplate::getDPS() const
-{
-    if (!Delay)
-        return 0.f;
-
-    float temp = 0.f;
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-        temp += Damage[i].DamageMin + Damage[i].DamageMax;
-
-    return temp * 500.f / Delay;
-}
-
-int32 ItemTemplate::getFeralBonus(int32 extraDPS /*= 0*/) const
-{
-    // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-    if (Class == ITEM_CLASS_WEAPON && (1 << SubClass) & 0x02A5F3)
-    {
-        int32 bonus = int32((extraDPS + getDPS()) * 14.0f) - 767;
-        if (bonus < 0)
-            return 0;
-        return bonus;
-    }
-
-    return 0;
-}
-
 float ItemTemplate::GetItemLevelIncludingQuality() const
 {
     float itemLevel(ItemLevel);

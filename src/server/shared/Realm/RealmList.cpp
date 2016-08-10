@@ -82,7 +82,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    std::map<RealmHandle, std::string> existingRealms;
+    std::map<Battlenet::RealmHandle, std::string> existingRealms;
     for (auto const& p : _realms)
         existingRealms[p.first] = p.second.Name;
 

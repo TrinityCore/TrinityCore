@@ -22,7 +22,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "DBCfmt.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "Timer.h"
 #include "ObjectDefines.h"
 
