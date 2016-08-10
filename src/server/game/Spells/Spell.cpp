@@ -5831,10 +5831,8 @@ SpellCastResult Spell::CheckRange(bool strict)
     if (!strict && m_casttime == 0)
         return SPELL_CAST_OK;
 
-    float minRange = 0.0f;
-    float maxRange = 0.0f;
-    
-    GetMinMaxRange(strict, minRange, maxRange);
+    float minRange, maxRange;
+    std::tie(minRange, maxRange) = GetMinMaxRange(strict);
 
     // get square values for sqr distance checks
     minRange *= minRange;
@@ -5865,18 +5863,21 @@ SpellCastResult Spell::CheckRange(bool strict)
     return SPELL_CAST_OK;
 }
 
-void Spell::GetMinMaxRange(bool strict, float& minRange, float& maxRange)
+std::pair<float, float> Spell::GetMinMaxRange(bool strict)
 {
-    Unit* target = m_targets.GetUnitTarget();
     float rangeMod = 0.0f;
+    float minRange = 0.0f;
+    float maxRange = 0.0f;
+
     if (strict && IsNextMeleeSwingSpell()) 
     {
         maxRange = 100.0f;
-        return;
+        return std::pair<float, float>(minRange, maxRange);
     }
 
     if (m_spellInfo->RangeEntry)
     {
+        Unit* target = m_targets.GetUnitTarget();
         if (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE)
         {
             rangeMod = m_caster->GetMeleeRange(target ? target : m_caster); // when the target is not a unit, take the caster's combat reach as the target's combat reach.
@@ -5913,6 +5914,8 @@ void Spell::GetMinMaxRange(bool strict, float& minRange, float& maxRange)
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, this);
 
     maxRange += rangeMod;
+
+    return std::pair<float, float>(minRange, maxRange);
 }
 
 SpellCastResult Spell::CheckPower()
