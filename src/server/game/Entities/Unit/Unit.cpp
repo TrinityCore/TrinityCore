@@ -2707,6 +2707,12 @@ void Unit::_UpdateSpells(uint32 time)
         }
     }
 
+    for (auto nexctSpellCrit : m_spellCritMap)
+    {
+        if (!nexctSpellCrit.first.first)
+            m_spellCritMap.erase(nexctSpellCrit.first);
+    }
+
     _spellHistory->Update();
 }
 
@@ -16189,30 +16195,30 @@ bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplica
 
 bool Unit::IsNextSpellACrit(Unit* target, uint32 spellId) const
 {
-    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+    auto itr = m_spellCritMap.find(std::make_pair(target, spellId));
 
     return itr != m_spellCritMap.end() && itr->second == true;
 }
 
 void Unit::SetNextSpellCrit(Unit* target, uint32 spellId, bool crit)
 {
-    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+    auto itr = m_spellCritMap.find(std::make_pair(target, spellId));
 
     if (itr == m_spellCritMap.end())
-        m_spellCritMap.emplace(std::pair<Unit*, uint32>(target, spellId), crit);
+        m_spellCritMap.emplace(std::make_pair(target, spellId), crit);
 }
 
 bool Unit::HasNextSpellCritData(Unit* target, uint32 spellId) const
 {
-    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+    auto itr = m_spellCritMap.find(std::make_pair(target, spellId));
 
     return itr != m_spellCritMap.end();
 }
 
 void Unit::RemoveNextSpellCritData(Unit* target, uint32 spellId)
 {
-    auto itr = m_spellCritMap.find(std::pair<Unit*, uint32>(target, spellId));
+    auto itr = m_spellCritMap.find(std::make_pair(target, spellId));
 
     if (itr != m_spellCritMap.end() && !m_spellCritMap.empty())
-        m_spellCritMap.erase(std::pair<Unit*, uint32>(target, spellId));
+        m_spellCritMap.erase(std::make_pair(target, spellId));
 }
