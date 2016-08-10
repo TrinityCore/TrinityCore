@@ -239,7 +239,7 @@ public:
     }
 };
 
-TC_COMMON_API std::shared_ptr<AsyncProcessResult>
+std::shared_ptr<AsyncProcessResult>
     StartAsyncProcess(std::string executable, std::vector<std::string> args,
                       std::string logger, std::string input_file, bool secure)
 {
