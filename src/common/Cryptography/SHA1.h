@@ -25,7 +25,7 @@
 
 class BigNumber;
 
-class SHA1Hash
+class TC_COMMON_API SHA1Hash
 {
     public:
         SHA1Hash();

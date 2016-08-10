@@ -24,7 +24,7 @@
 
 class BigNumber;
 
-class SHA256Hash
+class TC_COMMON_API SHA256Hash
 {
     public:
         SHA256Hash();

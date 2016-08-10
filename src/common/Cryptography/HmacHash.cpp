@@ -62,5 +62,5 @@ uint8* HmacHash<HashCreator, DigestLength>::ComputeHash(BigNumber* bn)
     return _digest;
 }
 
-template class HmacHash<EVP_sha1, SHA_DIGEST_LENGTH>;
-template class HmacHash<EVP_sha256, SHA256_DIGEST_LENGTH>;
+template class TC_COMMON_API HmacHash<EVP_sha1, SHA_DIGEST_LENGTH>;
+template class TC_COMMON_API HmacHash<EVP_sha256, SHA256_DIGEST_LENGTH>;
