@@ -35,7 +35,7 @@ if( WITH_COREDEBUG )
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
 
-if (WITH_DYNAMIC_LINKING)
+if (BUILD_SHARED_LIBS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -fvisibility=hidden -Wno-attributes")
 
