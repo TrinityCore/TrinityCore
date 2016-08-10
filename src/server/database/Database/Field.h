@@ -271,7 +271,6 @@ class TC_DATABASE_API Field
             }
             #endif
             return static_cast<char const*>(data.value);
-
         }
 
         std::string GetString() const
@@ -284,6 +283,17 @@ class TC_DATABASE_API Field
                 return "";
 
             return std::string(string, data.length);
+        }
+
+        std::vector<uint8> GetBinary() const
+        {
+            std::vector<uint8> result;
+            if (!data.value || !data.length)
+                return result;
+
+            result.resize(data.length);
+            memcpy(result.data(), data.value, data.length);
+            return result;
         }
 
         bool IsNull() const
