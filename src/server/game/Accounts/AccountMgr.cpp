@@ -254,7 +254,10 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     std::string username;
 
     if (!GetName(accountId, username))
+    {
+        sScriptMgr->OnFailedEmailChange(accountId);
         return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
+    }
 
     if (utf8length(newEmail) > MAX_EMAIL_STR)
     {
