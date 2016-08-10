@@ -78,7 +78,7 @@ enum RealmType
 };
 
 // Storage object for a realm
-struct Realm
+struct TC_SHARED_API Realm
 {
     Battlenet::RealmHandle Id;
     uint32 Build;
