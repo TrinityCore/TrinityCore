@@ -271,26 +271,26 @@ void Channel::LeaveChannel(Player* player, bool send)
         UpdateChannelUseageInDB();
 
         // If the channel owner left and there are players still inside, pick a new owner
-        // do not pick invisible gm owner unless there only invisible gms in that channel (rare)
+        // do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
         if (changeowner && _ownershipEnabled && !_playersStore.empty())
         {
-            bool found = false;
             PlayerContainer::iterator itr;
             for (itr = _playersStore.begin(); itr != _playersStore.end(); ++itr)
             {
                 if (!itr->second.IsInvisible())
-                {
-                    found = true;
                     break;
-                }
             }
 
-            auto itr2 = found ? itr : _playersStore.begin();
-            ObjectGuid newOwner = itr2->first;
-            itr2->second.SetModerator(true);
+            if (itr == _playersStore.end())
+                itr = _playersStore.begin();
+
+            ObjectGuid newOwner = itr->first;
+            itr->second.SetModerator(true);
 
             SetOwner(newOwner);
-            if (!found) // new owner is invisible gm, set flag to automatically choose a new owner
+
+            // if the new owner is invisible gm, set flag to automatically choose a new owner
+            if (itr->second.IsInvisible())
                 _isOwnerInvisible = true;
         }
     }
