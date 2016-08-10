@@ -684,6 +684,11 @@ SpellValue const* SpellScript::GetSpellValue()
     return m_spell->m_spellValue;
 }
 
+void SpellScript::SetSpellValue(SpellValueMod mod, int32 value)
+{
+    m_spell->SetSpellValue(mod, value);
+}
+
 SpellEffectInfo const* SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
 {
     return m_spell->GetEffect(effIndex);

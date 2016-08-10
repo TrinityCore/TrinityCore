@@ -162,7 +162,8 @@ enum SpellValueMod
     SPELLVALUE_BASE_POINT_END,
     SPELLVALUE_RADIUS_MOD,
     SPELLVALUE_MAX_TARGETS,
-    SPELLVALUE_AURA_STACK
+    SPELLVALUE_AURA_STACK,
+    SPELLVALUE_CRIT_FLAG,
 };
 
 class CustomSpellValues
@@ -1323,7 +1324,7 @@ class TC_GAME_API Unit : public WorldObject
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
-		
+
         typedef std::unordered_map<std::pair<Unit* /*target*/, uint32 /*spellId*/>, bool /*IsSpellCrit*/> NextSpellCritMap;
 
         typedef std::multimap<uint32, Aura*> AuraMap;
@@ -1959,7 +1960,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInFeralForm() const;
 
         bool IsInDisallowedMountForm() const;
-		
+
         bool IsNextSpellACrit(Unit* target, uint32 spellId) const;
         void SetNextSpellCrit(Unit* target, uint32 spellId, bool crit);
         bool HasNextSpellCritData(Unit* target, uint32 spellId) const;
@@ -2399,7 +2400,7 @@ class TC_GAME_API Unit : public WorldObject
         time_t _lastDamagedTime; // Part of Evade mechanics
 
         SpellHistory* _spellHistory;
-		
+
         NextSpellCritMap m_spellCritMap;
 };
 

@@ -372,6 +372,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         Unit* GetOriginalCaster();
         SpellInfo const* GetSpellInfo();
         SpellValue const* GetSpellValue();
+        void SetSpellValue(SpellValueMod mod, int32 value);
         SpellEffectInfo const* GetEffectInfo(SpellEffIndex) const;
 
         // methods useable after spell is prepared
@@ -455,7 +456,7 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         // Returns SpellInfo from the spell that triggered the current one
         SpellInfo const* GetTriggeringSpell();
-		
+
         bool IsSpellCrit(Unit* target) const;
 
         // finishes spellcast prematurely with selected error message
