@@ -22,7 +22,7 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-class DB2FileLoader
+class TC_SHARED_API DB2FileLoader
 {
     public:
     DB2FileLoader();
