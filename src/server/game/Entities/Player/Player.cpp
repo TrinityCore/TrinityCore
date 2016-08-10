@@ -14885,7 +14885,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
         {
-            if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            if (quest->RequiredItemCount[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && !quest->IsRepeatable() && !HasQuestForItem(quest->RequiredItemId[i], quest_id)))
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
             else 
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
@@ -14895,7 +14895,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            if (quest->ItemDropQuantity[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && !quest->IsRepeatable() && !HasQuestForItem(quest->RequiredItemId[i], quest_id)))
                 DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
             else
                 DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
@@ -16426,12 +16426,12 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
     }
 }
 
-bool Player::HasQuestForItem(uint32 itemid) const
+bool Player::HasQuestForItem(uint32 itemid, uint32 excludequestid) const
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
-        if (questid == 0)
+        if (questid == 0 || questid == excludequestid)
             continue;
 
         QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questid);
