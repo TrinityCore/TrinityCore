@@ -128,8 +128,8 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 {
     TC_LOG_DEBUG("network", "WORLD: SendTrainerList");
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    if (!trainer)
     {
         TC_LOG_DEBUG("network", "WORLD: SendTrainerList - %s not found or you can not interact with him.", guid.ToString().c_str());
         return;
@@ -251,8 +251,20 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    // check race for mount trainers
+    if (trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_MOUNTS)
+    {
+        if (uint32 trainerRace = trainer->GetCreatureTemplate()->trainer_race)
+            if (_player->getRace() != trainerRace)
+                return;
+    }
+
+    // check class for class trainers
+    if (_player->getClass() != trainer->GetCreatureTemplate()->trainer_class && trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS)
+        return;
+
     // check present spell in trainer spell list
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
+    TrainerSpellData const* trainer_spells = trainer->GetTrainerSpells();
     if (!trainer_spells)
     {
         SendTrainerBuyFailed(guid, spellId, 0);
@@ -275,7 +287,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     }
 
     // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(trainer)));
 
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
@@ -286,8 +298,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    trainer->SendPlaySpellVisual(179); // 53 SpellCastDirected
+    trainer->SendPlaySpellImpact(_player->GetGUID(), 362); // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainer_spell->IsCastable())
