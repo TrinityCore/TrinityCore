@@ -887,9 +887,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void UpdateModelPosition();
 
-        uint16 GetAIAnimKitId() const override { return _animKitId; }
-        void SetAnimKitId(uint16 animKitId, bool oneshot);
-
         void AIM_Destroy();
         bool AIM_Initialize();
 
