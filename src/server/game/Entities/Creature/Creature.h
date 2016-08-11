@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Unit.h"
 #include "UpdateMask.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
 #include "Cell.h"
@@ -442,6 +442,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool LoadCreaturesAddon();
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
+        void SetSpawnHealth();
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
