@@ -14895,7 +14895,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            if (quest->RequiredItemCount[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->ItemDrop[i], quest_id))))
+            if (quest->ItemDropQuantity[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->ItemDrop[i], quest_id))))
                 DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
             else
                 DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
