@@ -1800,20 +1800,6 @@ namespace LuaUnit
         return 0;
     }
 
-    /**
-     * Sets the [Unit]'s phase mask.
-     *
-     * @param uint32 phaseMask
-     * @param bool update = true : update visibility to nearby objects
-     */
-    int SetPhaseMask(Eluna* /*E*/, lua_State* L, Unit* unit)
-    {
-        uint32 phaseMask = Eluna::CHECKVAL<uint32>(L, 2);
-        bool update = Eluna::CHECKVAL<bool>(L, 3, true);
-        unit->SetPhaseMask(phaseMask, update);
-        return 0;
-    }
-
     int SetCritterGUID(Eluna* /*E*/, lua_State* L, Unit* unit)
     {
         uint64 guid = Eluna::CHECKVAL<uint64>(L, 2);

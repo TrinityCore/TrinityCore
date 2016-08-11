@@ -193,6 +193,7 @@ ElunaRegister<WorldObject> WorldObjectMethods[] =
     { "GetMap", &LuaWorldObject::GetMap },
 #if (!defined(TBC) && !defined(CLASSIC))
     { "GetPhaseMask", &LuaWorldObject::GetPhaseMask },
+    { "SetPhaseMask", &LuaWorldObject::SetPhaseMask },
 #endif
     { "GetInstanceId", &LuaWorldObject::GetInstanceId },
     { "GetAreaId", &LuaWorldObject::GetAreaId },
@@ -296,9 +297,6 @@ ElunaRegister<Unit> UnitMethods[] =
     { "SetNativeDisplayId", &LuaUnit::SetNativeDisplayId },
     { "SetFacing", &LuaUnit::SetFacing },
     { "SetFacingToObject", &LuaUnit::SetFacingToObject },
-#if (!defined(TBC) && !defined(CLASSIC))
-    { "SetPhaseMask", &LuaUnit::SetPhaseMask },
-#endif
     { "SetSpeed", &LuaUnit::SetSpeed },
     // {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned([enable]) - UNDOCUMENTED - Stuns or removes stun
     {"SetRooted", &LuaUnit::SetRooted},

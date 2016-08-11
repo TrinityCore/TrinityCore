@@ -1590,6 +1590,9 @@ void ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32
 {
     ASSERT(player);
     ASSERT(item);
+#ifdef ELUNA
+    sEluna->HandleGossipSelectOption(player, item, sender, action, "");
+#endif
 
     GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
     tmpscript->OnGossipSelect(player, item, sender, action);
@@ -1599,6 +1602,9 @@ void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, ui
 {
     ASSERT(player);
     ASSERT(item);
+#ifdef ELUNA
+    sEluna->HandleGossipSelectOption(player, item, sender, action, code);
+#endif
 
     GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
     tmpscript->OnGossipSelectCode(player, item, sender, action, code);
@@ -2423,11 +2429,17 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
 
 void ScriptMgr::OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action)
 {
+#ifdef ELUNA
+    sEluna->HandleGossipSelectOption(player, menu_id, sender, action, "");
+#endif
     FOREACH_SCRIPT(PlayerScript)->OnGossipSelect(player, menu_id, sender, action);
 }
 
 void ScriptMgr::OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code)
 {
+#ifdef ELUNA
+    sEluna->HandleGossipSelectOption(player, menu_id, sender, action, code);
+#endif
     FOREACH_SCRIPT(PlayerScript)->OnGossipSelectCode(player, menu_id, sender, action, code);
 }
 
