@@ -119,12 +119,10 @@ GameObject * GOMove::CreateTemp(Player * obj, uint32 entry, float x, float y, fl
     if (!goinfo)
         return nullptr;
 
-    float rotation2 = std::sin(o / 2);
-    float rotation3 = std::cos(o / 2);
-
     Map* map = obj->GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(0, entry, map, p, x, y, z, o, 0, 0, rotation2, rotation3, 100, GO_STATE_READY))
+    G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+    if (!go->Create(0, entry, map, p, Position(x, y, z, o), rotation, 100, GO_STATE_READY))
     {
         delete go;
         return nullptr;
@@ -200,12 +198,14 @@ void GOMove::SaveGameObject(Player * player, uint32 GObjectID, bool isHex)
         return;
     }
 
+    float x, y, z, o;
+    object->GetPosition(x, y, z, o);
+    G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+
     Map* map = player->GetMap();
     GameObject* saved = new GameObject();
     uint32 guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
-    float x, y, z, o;
-    object->GetPosition(x, y, z, o);
-    if (!saved->Create(guidLow, object->GetEntry(), map, object->GetPhaseMask(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+    if (!saved->Create(guidLow, object->GetEntry(), map, object->GetPhaseMask(), Position(x, y, z, o), rotation, 0, GO_STATE_READY))
     {
         delete saved;
         return;
