@@ -39,7 +39,7 @@ void Field::SetByteValue(void* newValue, enum_field_types newType, uint32 length
     data.raw = true;
 }
 
-void Field::SetStructuredValue(char* newValue, enum_field_types newType)
+void Field::SetStructuredValue(char* newValue, enum_field_types newType, uint32 length)
 {
     if (data.value)
         CleanUp();
