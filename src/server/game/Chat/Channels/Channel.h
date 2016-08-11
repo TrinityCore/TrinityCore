@@ -118,7 +118,6 @@ class TC_GAME_API Channel
 {
     struct PlayerInfo
     {
-        ObjectGuid player;
         uint8 flags;
 
         bool HasFlag(uint8 flag) const { return (flags & flag) != 0; }
@@ -287,6 +286,7 @@ class TC_GAME_API Channel
             }
         }
 
+        typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
         typedef GuidUnorderedSet BannedContainer;
 
         bool _announceEnabled;          //< Whether we should broadcast a packet whenever a player joins/exits the channel
