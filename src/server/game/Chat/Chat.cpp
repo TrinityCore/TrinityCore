@@ -130,7 +130,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     return false;
 }
 
-bool ChatHandler::hasStringAbbr(const char* name, const char* part)
+bool ChatHandler::hasStringAbbr(char const* name, char const* part)
 {
     // non "" command
     if (*name)
@@ -167,7 +167,7 @@ void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
     {
         size_t startPos = 0;
         std::ostringstream o;
-        while (const char* charPos = strchr(str + startPos, '|'))
+        while (char const* charPos = strchr(str + startPos, '|'))
         {
             o.write(str + startPos, charPos - str - startPos);
             o << "||";
@@ -233,7 +233,7 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(GetTrinityString(entry));
 }
 
-bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd)
+bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd)
 {
     char const* oldtext = text;
     std::string cmd = "";
@@ -525,7 +525,7 @@ bool ChatHandler::ShowHelpForSubCommands(std::vector<ChatCommand> const& table, 
     return true;
 }
 
-bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd)
+bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char const* cmd)
 {
     if (*cmd)
     {
@@ -1239,7 +1239,7 @@ bool CliHandler::needReportToTarget(Player* /*chr*/) const
     return true;
 }
 
-bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline)
+bool ChatHandler::GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline)
 {
     player = nullptr;
     guid.Clear();
