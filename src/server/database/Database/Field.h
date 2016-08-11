@@ -323,7 +323,7 @@ class TC_DATABASE_API Field
         #pragma pack(pop)
 
         void SetByteValue(void* newValue, enum_field_types newType, uint32 length);
-        void SetStructuredValue(char* newValue, enum_field_types newType);
+        void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length);
 
         void CleanUp()
         {
