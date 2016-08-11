@@ -61,6 +61,7 @@ public:
             { "rename",        rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          true,  &HandleCharacterRenameCommand,         "", },
             { "reputation",    rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      true,  &HandleCharacterReputationCommand,     "", },
             { "titles",        rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          true,  &HandleCharacterTitlesCommand,         "", },
+            { "masquerade",    rbac::RBAC_PERM_COMMAND_CHARACTER_MASQUERADE,      true,  &HandleCharacterMasqueradeCommand,     "", },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -293,6 +294,39 @@ public:
         }
 
         return true;
+    }
+
+    static bool HandleCharacterMasqueradeCommand(ChatHandler* handler, char const* args)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_ENABLE_RACE_MASQUERADE))
+        {
+            handler->SendSysMessage(LANG_MASQUERADE_SYSTEM_DISABLED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayerOrSelf();
+        if (!target)
+            return false;
+
+        char* raceStr = strtok((char*)args, " ");
+        if (raceStr)
+        {
+            if (!isNumeric(raceStr))
+                return false;
+
+            Races race = Races(atoi(raceStr));
+            if (race && !((1<<(race-1)) & RACEMASK_ALL_PLAYABLE))
+                return false;
+            
+            target->SetMasqueradeRace(race);
+            return true;
+        }
+
+        return false;
     }
 
     //rename characters

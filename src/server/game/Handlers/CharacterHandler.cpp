@@ -229,7 +229,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (Player::BuildEnumData(result, &data))
             {
                 // Do not allow banned characters to log in
-                if (!(*result)[23].GetUInt32())
+                if (!(*result)[24].GetUInt32())
                     _legitCharacters.insert(guid);
 
                 if (!sWorld->HasCharacterInfo(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
@@ -1251,20 +1251,20 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
 
-    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->getRace() || bs_hair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
+    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->GetMasqueradeRace() || bs_hair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
 
-    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
+    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->GetMasqueradeRace() || bs_facialHair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
 
-    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
+    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->GetMasqueradeRace() || bs_skinColor->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
         return;
 
-    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
+    if (!Player::ValidateAppearance(_player->GetMasqueradeRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
         bs_hair->hair_id,
         Color,
         _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
@@ -1368,11 +1368,14 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     Field* fields = result->Fetch();
     uint8 plrRace = fields[0].GetUInt8();
+    uint8 plrDisplayRace = sWorld->getBoolConfig(CONFIG_ENABLE_RACE_MASQUERADE) ? fields[5].GetUInt8() : 0;
+    if (!plrDisplayRace)
+        plrDisplayRace = plrRace;
     uint8 plrClass = fields[1].GetUInt8();
     uint8 plrGender = fields[2].GetUInt8();
     std::string oldName = fields[4].GetString();
 
-    if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
+    if (!Player::ValidateAppearance(plrDisplayRace, plrClass, plrGender, customizeInfo.HairStyle, customizeInfo.HairColor, customizeInfo.Face, customizeInfo.FacialHair, customizeInfo.Skin, true))
     {
         SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo);
         return;

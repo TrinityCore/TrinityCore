@@ -2597,7 +2597,13 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
     //we must build packets for all visible players
     cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
 
+    bool hadDisplayId = _changesMask.GetBit(UNIT_FIELD_DISPLAYID);
     ClearUpdateMask(false);
+
+    // Masquerade system - ensure client gets actual race data again now that display id has returned to normal (prevent client bugs for invalid class/race combination)
+    if (Player* player = ToPlayer())
+        if (hadDisplayId && player->IsMasqueradingRace() && player->GetDisplayId() == player->GetNativeDisplayId())
+            player->NotifyMasqueradeRaceDirty();
 }
 
 void WorldObject::AddToObjectUpdate()
