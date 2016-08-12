@@ -421,7 +421,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (!_player->IsInRaidWith(target) || !_player->IsInMap(target))
     {
         _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
-        TC_LOG_INFO("loot", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
+        TC_LOG_INFO("entities.player.cheat", "MasterLootItem: Player %s tried to give an item to ineligible player %s !", GetPlayer()->GetName().c_str(), target->GetName().c_str());
         return;
     }
 
@@ -449,7 +449,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     if (slotid >= loot->items.size() + loot->quest_items.size())
     {
-        TC_LOG_DEBUG("loot", "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
+        TC_LOG_INFO("entities.player.cheat", "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
             GetPlayer()->GetName().c_str(), slotid, (unsigned long)loot->items.size());
         return;
     }

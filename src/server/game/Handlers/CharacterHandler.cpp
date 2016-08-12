@@ -348,7 +348,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     // prevent character creating Expansion race without Expansion account
     if (raceEntry->expansion > Expansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, createInfo.Race);
+        TC_LOG_INFO("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", Expansion(), GetAccountId(), raceEntry->expansion, createInfo.Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
@@ -356,7 +356,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     // prevent character creating Expansion class without Expansion account
     if (classEntry->expansion > Expansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, createInfo.Class);
+        TC_LOG_INFO("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", Expansion(), GetAccountId(), classEntry->expansion, createInfo.Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -384,7 +384,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     // prevent character creating with invalid name
     if (!normalizePlayerName(createInfo.Name))
     {
-        TC_LOG_ERROR("network", "Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
+        TC_LOG_INFO("entities.player.cheat", "Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
         SendCharCreate(CHAR_NAME_NO_NAME);
         return;
     }
@@ -1434,7 +1434,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     recvData >> customizeInfo.Guid;
     if (!IsLegitCharacterForAccount(customizeInfo.Guid))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to customise %s, but it does not belong to their account!",
+        TC_LOG_INFO("entities.player.cheat", "Account %u, IP: %s tried to customise %s, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), customizeInfo.Guid.ToString().c_str());
         recvData.rfinish();
         KickPlayer();
@@ -1681,7 +1681,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!IsLegitCharacterForAccount(factionChangeInfo.Guid))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to factionchange character %s, but it does not belong to their account!",
+        TC_LOG_INFO("entities.player.cheat", "Account %u, IP: %s tried to factionchange character %s, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), factionChangeInfo.Guid.ToString().c_str());
         recvData.rfinish();
         KickPlayer();
