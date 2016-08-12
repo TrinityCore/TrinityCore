@@ -61,7 +61,7 @@ namespace MMAP
 
     typedef std::unordered_map<uint32, TerrainSet> TerrainSetMap;
 
-    class MMapData
+    class TC_COMMON_API MMapData
     {
     public:
         MMapData(dtNavMesh* mesh, uint32 mapId);

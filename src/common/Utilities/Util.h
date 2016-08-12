@@ -356,7 +356,7 @@ class HookList
         }
 };
 
-class flag96
+class TC_COMMON_API flag96
 {
 private:
     uint32 part[3];
