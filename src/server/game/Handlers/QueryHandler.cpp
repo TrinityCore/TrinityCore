@@ -142,6 +142,15 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << float(creatureInfo->ModHealth);                       // dmg/hp modifier
         data << float(creatureInfo->ModMana);                         // dmg/mana modifier
         data << uint8(creatureInfo->RacialLeader);                    // RacialLeader
+
+        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(entry);
+        if (items)
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                data << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+        else
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                data << uint32(0);
+
         data << uint32(creatureInfo->movementId);                     // CreatureMovementInfo.dbc
         data << uint32(creatureInfo->expansionUnknown);               // unknown meaning
 
@@ -203,6 +212,16 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         data << float(info->size);                          // go size
 
         data << int32(info->unkInt32);                      // 4.x, unknown
+
+
+        GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
+        if (items)
+            for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+                data << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+        else
+            for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+                data << uint32(0);
+
         SendPacket(&data);
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
