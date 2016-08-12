@@ -5224,14 +5224,14 @@ void Player::UpdateLocalChannels(uint32 newZone)
             {
                 if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
                     continue;                            // Already on the channel, as city channel names are not changing
-  
+
                 std::string currentNameExt;
                 if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                     currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
                     currentNameExt = current_zone_name;
 
-                std::string newChannelName = Trinity::StringFormat(channelEntry->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str());
+                std::string newChannelName = Trinity::StringFormat(channelEntry->pattern, currentNameExt.c_str());
                 joinChannel = cMgr->GetJoinChannel(newChannelName, channelEntry->ChannelID);
                 if (usedChannel)
                 {
@@ -5245,7 +5245,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 }
             }
             else
-                joinChannel = cMgr->GetJoinChannel(channel->pattern, channel->ChannelID);
+                joinChannel = cMgr->GetJoinChannel(channelEntry->pattern, channelEntry->ChannelID);
         }
         else
             removeChannel = usedChannel;

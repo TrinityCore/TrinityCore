@@ -139,7 +139,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
+    TrainerSpellData const* trainer_spells = trainer->GetTrainerSpells();
     if (!trainer_spells)
     {
         TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for %s", guid.ToString().c_str());
@@ -155,7 +155,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     data << uint32(trainer_spells->spellList.size());
 
     // reputation discount
-    float fDiscountMod = _player->GetReputationPriceDiscount(unit);
+    float fDiscountMod = _player->GetReputationPriceDiscount(trainer);
     bool can_learn_primary_prof = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
 
     uint32 count = 0;
@@ -240,8 +240,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
     recvData >> guid >> trainerId >> spellId;
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL %s, learn spell id is: %u", guid.ToString().c_str(), spellId);
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    if (!trainer)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
         return;
@@ -298,8 +298,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recvData)
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    trainer->SendPlaySpellVisual(179); // 53 SpellCastDirected
-    trainer->SendPlaySpellImpact(_player->GetGUID(), 362); // 113 EmoteSalute
+    trainer->SendPlaySpellVisualKit(179,0); // 53 SpellCastDirected
+    trainer->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainer_spell->IsCastable())
