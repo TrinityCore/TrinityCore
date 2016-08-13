@@ -28,8 +28,7 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
+#include "Packet.h"
 #include "Cryptography/BigNumber.h"
 #include "AccountMgr.h"
 #include <unordered_set>
@@ -70,6 +69,9 @@ namespace rbac
 class RBACData;
 }
 
+namespace WorldPackets
+{
+}
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
