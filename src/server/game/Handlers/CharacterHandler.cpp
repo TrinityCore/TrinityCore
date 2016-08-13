@@ -297,6 +297,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             {
                 TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
 
+                // Make sure customization always works properly - send all zeroes instead
+                charInfo.Skin = 0, charInfo.Face = 0, charInfo.HairStyle = 0, charInfo.HairColor = 0, charInfo.FacialHair = 0;
+
                 if (!(charInfo.CustomizationFlag == CHAR_CUSTOMIZE_FLAG_CUSTOMIZE))
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
