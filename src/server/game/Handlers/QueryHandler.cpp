@@ -99,7 +99,9 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.EnergyMulti = creatureInfo->ModMana;
 
         stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+        stats.RequiredExpansion = creatureInfo->RequiredExpansion;
+        stats.RequiredExpansion = creatureInfo->HealthScalingExpansion;
+        stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
         //stats.TitleAlt = ;
