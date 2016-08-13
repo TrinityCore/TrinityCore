@@ -92,7 +92,9 @@ struct TC_GAME_API CreatureTemplate
     int16   minlevel;
     int16   maxlevel;
     int32   expansion;
-    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
+    uint32  HealthScalingExpansion;
+    uint32  RequiredExpansion;
+    uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;
