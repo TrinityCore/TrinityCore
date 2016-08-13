@@ -123,6 +123,9 @@ class instance_naxxramas : public InstanceMapScript
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
                 playerDied              = 0;
+
+                nextFroggerWave         = 0;
+                events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, Seconds(1));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -152,6 +155,9 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case NPC_SIR:
                         SirGUID = creature->GetGUID();
+                        break;
+                    case NPC_GLUTH:
+                        GluthGUID = creature->GetGUID();
                         break;
                     case NPC_HEIGAN:
                         HeiganGUID = creature->GetGUID();
@@ -327,6 +333,8 @@ class instance_naxxramas : public InstanceMapScript
                         return SirGUID;
                     case DATA_HEIGAN:
                         return HeiganGUID;
+                    case DATA_GLUTH:
+                        return GluthGUID;
                     case DATA_FEUGEN:
                         return FeugenGUID;
                     case DATA_STALAGG:
@@ -472,6 +480,16 @@ class instance_naxxramas : public InstanceMapScript
                                 kelthuzad->AI()->Talk(CurrentWingTaunt);
                             ++CurrentWingTaunt;
                             break;
+                        case EVENT_SUMMON_FROGGER_WAVE:
+                        {
+                            std::list<TempSummon*> spawns;
+                            instance->SummonCreatureGroup(nextFroggerWave, &spawns);
+                            if (!spawns.empty())
+                                (*spawns.begin())->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                            events.Repeat(Seconds(1) + Milliseconds(666));
+                            nextFroggerWave = (nextFroggerWave+1) % 3;
+                            break;
+                        }
                         case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD:
                             if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
                                 kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD);
@@ -582,6 +600,8 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid HorsemenChestGUID;
 
             /* The Construct Quarter */
+            // Gluth
+            ObjectGuid GluthGUID;
             // Thaddius
             ObjectGuid ThaddiusGUID;
             ObjectGuid FeugenGUID;
@@ -605,6 +625,8 @@ class instance_naxxramas : public InstanceMapScript
 
             /* The Immortal / The Undying */
             uint32 playerDied;
+
+            int8 nextFroggerWave;
 
             EventMap events;
         };

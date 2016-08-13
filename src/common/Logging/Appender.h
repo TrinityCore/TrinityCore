@@ -41,7 +41,7 @@ enum LogLevel
 
 const uint8 MaxLogLevels = 6;
 
-enum AppenderType
+enum AppenderType : uint8
 {
     APPENDER_NONE,
     APPENDER_CONSOLE,

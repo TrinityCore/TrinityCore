@@ -43,7 +43,7 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
     std::string name;
     recvPacket >> name;
 
-    TC_LOG_ERROR("guild", "CMSG_GUILD_CREATE: Possible hacking-attempt: %s tried to create a guild [Name: %s] using cheats", GetPlayerInfo().c_str(), name.c_str());
+    TC_LOG_ERROR("entities.player.cheat", "CMSG_GUILD_CREATE: Possible hacking-attempt: %s tried to create a guild [Name: %s] using cheats", GetPlayerInfo().c_str(), name.c_str());
 }
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
@@ -178,7 +178,7 @@ void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPacket& recvPacket)
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, playerName, note, true);
+            guild->HandleSetMemberNote(this, playerName, note, false);
 }
 
 void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
@@ -192,7 +192,7 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, playerName, note, false);
+            guild->HandleSetMemberNote(this, playerName, note, true);
 }
 
 void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)

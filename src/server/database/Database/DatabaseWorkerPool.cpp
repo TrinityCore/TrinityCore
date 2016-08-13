@@ -28,7 +28,7 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
     WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s).",
+    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Search on forum for TCE00011.",
         mysql_get_client_info(), MYSQL_SERVER_VERSION);
 }
 
@@ -234,7 +234,7 @@ void DatabaseWorkerPool<T>::EscapeString(std::string& str)
         return;
 
     char* buf = new char[str.size() * 2 + 1];
-    EscapeString(buf, str.c_str(), str.size());
+    EscapeString(buf, str.c_str(), uint32(str.size()));
     str = buf;
     delete[] buf;
 }

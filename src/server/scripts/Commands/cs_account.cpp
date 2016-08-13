@@ -121,8 +121,14 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email);
-        switch (result)
+        if (strchr(accountName, '@'))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_USE_BNET_COMMANDS);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        switch (sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
@@ -135,7 +141,11 @@ public:
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
-                handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
+                handler->SendSysMessage(LANG_ACCOUNT_NAME_TOO_LONG);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_PASS_TOO_LONG:
+                handler->SendSysMessage(LANG_ACCOUNT_PASS_TOO_LONG);
                 handler->SetSentErrorMessage(true);
                 return false;
             case AccountOpResult::AOR_NAME_ALREADY_EXIST:

@@ -38,6 +38,12 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
+    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    {
+        owner->CastStop();
+        return;
+    }
+
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
     float x, y, z;

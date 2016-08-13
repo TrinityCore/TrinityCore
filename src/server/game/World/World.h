@@ -28,7 +28,7 @@
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "QueryResult.h"
-#include "Callback.h"
+#include "QueryCallback.h"
 #include "Realm/Realm.h"
 
 #include <atomic>
@@ -56,7 +56,8 @@ enum ServerMessageType
 enum ShutdownMask
 {
     SHUTDOWN_MASK_RESTART = 1,
-    SHUTDOWN_MASK_IDLE    = 2
+    SHUTDOWN_MASK_IDLE    = 2,
+    SHUTDOWN_MASK_FORCE   = 4
 };
 
 enum ShutdownExitCode
@@ -81,6 +82,7 @@ enum WorldTimers
     WUPDATE_DELETECHARS,
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
+    WUPDATE_CHECK_FILECHANGES,
     WUPDATE_COUNT
 };
 
@@ -167,6 +169,13 @@ enum WorldBoolConfigs
     CONFIG_RESET_DUEL_HEALTH_MANA,
     CONFIG_BASEMAP_LOAD_GRIDS,
     CONFIG_INSTANCEMAP_LOAD_GRIDS,
+    CONFIG_HOTSWAP_ENABLED,
+    CONFIG_HOTSWAP_RECOMPILER_ENABLED,
+    CONFIG_HOTSWAP_EARLY_TERMINATION_ENABLED,
+    CONFIG_HOTSWAP_BUILD_FILE_RECREATION_ENABLED,
+    CONFIG_HOTSWAP_INSTALL_ENABLED,
+    CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED,
+    CONFIG_PREVENT_RENAME_CUSTOMIZATION,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -175,7 +184,6 @@ enum WorldFloatConfigs
     CONFIG_GROUP_XP_DISTANCE = 0,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
     CONFIG_SIGHT_MONSTER,
-    CONFIG_SIGHT_GUARDER,
     CONFIG_LISTEN_RANGE_SAY,
     CONFIG_LISTEN_RANGE_TEXTEMOTE,
     CONFIG_LISTEN_RANGE_YELL,
@@ -245,6 +253,7 @@ enum WorldIntConfigs
     CONFIG_GM_LEVEL_IN_GM_LIST,
     CONFIG_GM_LEVEL_IN_WHO_LIST,
     CONFIG_START_GM_LEVEL,
+    CONFIG_FORCE_SHUTDOWN_THRESHOLD,
     CONFIG_GROUP_VISIBILITY,
     CONFIG_MAIL_DELIVERY_DELAY,
     CONFIG_UPTIME_UPDATE,
@@ -272,7 +281,10 @@ enum WorldIntConfigs
     CONFIG_CHAT_STRICT_LINK_CHECKING_KICK,
     CONFIG_CHAT_CHANNEL_LEVEL_REQ,
     CONFIG_CHAT_WHISPER_LEVEL_REQ,
+    CONFIG_CHAT_EMOTE_LEVEL_REQ,
     CONFIG_CHAT_SAY_LEVEL_REQ,
+    CONFIG_CHAT_YELL_LEVEL_REQ,
+    CONFIG_PARTY_LEVEL_REQ,
     CONFIG_TRADE_LEVEL_REQ,
     CONFIG_TICKET_LEVEL_REQ,
     CONFIG_AUCTION_LEVEL_REQ,
@@ -288,6 +300,7 @@ enum WorldIntConfigs
     CONFIG_BATTLEGROUND_INVITATION_TYPE,
     CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER,
     CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH,
+    CONFIG_BATTLEGROUND_REPORT_AFK,
     CONFIG_ARENA_MAX_RATING_DIFFERENCE,
     CONFIG_ARENA_RATING_DISCARD_TIMER,
     CONFIG_ARENA_RATED_UPDATE_TIMER,
@@ -350,6 +363,7 @@ enum WorldIntConfigs
     CONFIG_BG_REWARD_LOSER_HONOR_LAST,
     CONFIG_BIRTHDAY_TIME,
     CONFIG_CREATURE_PICKPOCKET_REFILL,
+    CONFIG_CREATURE_STOP_FOR_PLAYER,
     CONFIG_AHBOT_UPDATE_INTERVAL,
     CONFIG_CHARTER_COST_GUILD,
     CONFIG_CHARTER_COST_ARENA_2v2,
@@ -650,7 +664,7 @@ class TC_GAME_API World
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
         uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
-        void ShutdownCancel();
+        uint32 ShutdownCancel();
         void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }

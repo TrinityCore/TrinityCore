@@ -143,11 +143,7 @@ enum Spells
     SPELL_RING_OF_BLUE_FLAMES                   = 45825  //Cast this spell when the go is activated
 };
 
-/*** Error messages ***/
-#define ERROR_KJ_NOT_SUMMONED "TSCR ERROR: Unable to summon Kil'Jaeden for some reason"
-
 /*** Others ***/
-#define FLOOR_Z         28.050388f
 #define SHIELD_ORB_Z    45.000f
 
 enum Phase
@@ -1365,7 +1361,7 @@ public:
                         DoCastVictim(SPELL_SR_SHOOT, false);
                         uiTimer[2] = urand(4000, 6000);
                     }
-                    if (me->IsWithinMeleeRange(me->GetVictim(), 6))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         if (uiTimer[0] <= diff)
                         {

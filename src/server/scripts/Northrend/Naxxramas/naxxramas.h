@@ -68,6 +68,7 @@ enum Data64
     DATA_LADY,
     DATA_BARON,
     DATA_SIR,
+    DATA_GLUTH,
     DATA_THADDIUS,
     DATA_HEIGAN,
     DATA_FEUGEN,
@@ -92,6 +93,7 @@ enum CreaturesIds
     NPC_LADY                    = 16065,
     NPC_BARON                   = 30549,
     NPC_SIR                     = 16063,
+    NPC_GLUTH                   = 15932,
     NPC_HEIGAN                  = 15936,
     NPC_THADDIUS                = 15928,
     NPC_FEUGEN                  = 15930,
@@ -105,7 +107,8 @@ enum CreaturesIds
     NPC_DK_UNDERSTUDY           = 16803,
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
-    NPC_OLD_WORLD_TRIGGER       = 15384
+    NPC_OLD_WORLD_TRIGGER       = 15384,
+    NPC_FROGGER                 = 16027
 };
 
 enum GameObjectsIds
@@ -172,6 +175,9 @@ enum InstanceEvents
 
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
+
+    // Periodic Frogger summon
+    EVENT_SUMMON_FROGGER_WAVE,
 
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,

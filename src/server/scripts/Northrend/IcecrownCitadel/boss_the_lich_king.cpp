@@ -528,6 +528,7 @@ class boss_the_lich_king : public CreatureScript
             void SetupEncounter()
             {
                 _Reset();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
@@ -763,7 +764,7 @@ class boss_the_lich_king : public CreatureScript
                     {
                         summons.Summon(summon);
                         summon->SetReactState(REACT_PASSIVE);
-                        summon->SetSpeed(MOVE_FLIGHT, 0.5f);
+                        summon->SetSpeedRate(MOVE_FLIGHT, 0.5f);
                         summon->GetMotionMaster()->MoveRandom(10.0f);
                         if (!events.IsInPhase(PHASE_FROSTMOURNE))
                             summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15000));
@@ -1448,7 +1449,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _events.Reset();
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
-                me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
+                me->SetSpeedRate(MOVE_FLIGHT, 0.642857f);
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override

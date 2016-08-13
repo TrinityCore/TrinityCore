@@ -150,7 +150,7 @@ public:
                         DoCast(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GO_NAJENTUS_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, G3D::Quat(), 30);
                         Talk(SAY_NEEDLE);
                         events.DelayEvents(1500, GCD_CAST);
                         events.DelayEvents(15000, GCD_YELL);

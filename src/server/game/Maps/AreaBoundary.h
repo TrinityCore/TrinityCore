@@ -40,7 +40,7 @@ class TC_GAME_API AreaBoundary
         {
             double d_positionX, d_positionY, d_positionZ;
             DoublePosition(double x = 0.0, double y = 0.0, double z = 0.0, float o = 0.0f)
-                : Position(x, y, z, o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
+                : Position(float(x), float(y), float(z), o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
             DoublePosition(float x, float y = 0.0f, float z = 0.0f, float o = 0.0f)
                 : Position(x, y, z, o), d_positionX(x), d_positionY(y), d_positionZ(z) { }
             DoublePosition(const Position& pos)
