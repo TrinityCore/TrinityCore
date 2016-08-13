@@ -30,7 +30,6 @@ typedef std::set<uint32> BattlegroundClientIdsContainer;
 typedef std::unordered_map<uint32, BattlegroundTypeId> BattleMastersMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
-#define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
 
 struct BattlegroundData
 {
