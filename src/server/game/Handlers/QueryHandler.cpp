@@ -100,7 +100,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 
         stats.CreatureMovementInfoID = creatureInfo->movementId;
         stats.RequiredExpansion = creatureInfo->RequiredExpansion;
-        stats.RequiredExpansion = creatureInfo->HealthScalingExpansion;
+        stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
         stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
