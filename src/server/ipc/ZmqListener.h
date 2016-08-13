@@ -21,7 +21,7 @@
 #include "ZMQTask.h"
 #include <zmqpp/zmqpp.hpp>
 
-class ZmqListener : public ZMQTask
+class TC_IPC_API ZmqListener : public ZMQTask
 {
 /*
  * Read broadcasts from remote PUB socket, and forward them to 

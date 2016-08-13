@@ -29,7 +29,7 @@ struct FlyByCamera
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;
 
-extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
+TC_GAME_API extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 void LoadM2Cameras(std::string const& dataPath);
 

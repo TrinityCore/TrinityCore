@@ -25,6 +25,12 @@ ZmqContext::~ZmqContext()
 {
 }
 
+ZmqContext* ZmqContext::Instance()
+{
+    static ZmqContext instance;
+    return &instance;
+}
+
 zmqpp::socket* ZmqContext::CreateNewSocket(zmqpp::socket_type type)
 {
     std::unique_lock<std::mutex> lock(_mutex);

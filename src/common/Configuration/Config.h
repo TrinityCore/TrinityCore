@@ -23,6 +23,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <mutex>
 #include <boost/property_tree/ptree.hpp>
 
@@ -35,7 +36,8 @@ class TC_COMMON_API ConfigMgr
 
 public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
-    bool LoadInitial(std::string const& file, std::string& error);
+    bool LoadInitial(std::string const& file, std::vector<std::string> args,
+        std::string& error);
 
     static ConfigMgr* instance();
 
@@ -47,10 +49,12 @@ public:
     float GetFloatDefault(std::string const& name, float def) const;
 
     std::string const& GetFilename();
+    std::vector<std::string> const& GetArguments() const { return _args; }
     std::list<std::string> GetKeysByString(std::string const& name);
 
 private:
     std::string _filename;
+    std::vector<std::string> _args;
     boost::property_tree::ptree _config;
     std::mutex _configLock;
 
