@@ -335,7 +335,7 @@ void OpcodeTable::Initialize()
     /*0x0D9*/ DEFINE_HANDLER(MSG_MOVE_TOGGLE_COLLISION_CHEAT,              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x0DA*/ DEFINE_HANDLER(MSG_MOVE_SET_FACING,                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     /*0x0DB*/ DEFINE_HANDLER(MSG_MOVE_SET_PITCH,                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
-    /*0x0DC*/ DEFINE_HANDLER(MSG_MOVE_WORLDPORT_ACK,                       STATUS_TRANSFER, PROCESS_THREADUNSAFE, static_cast<void(WorldSession::*)(WorldPacket&)>(&WorldSession::HandleMoveWorldportAckOpcode)    );
+    /*0x0DC*/ DEFINE_HANDLER(MSG_MOVE_WORLDPORT_ACK,                       STATUS_TRANSFER, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode    );
     /*0x0DD*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_MONSTER_MOVE,              STATUS_NEVER);
     /*0x0DE*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_MOVE_WATER_WALK,           STATUS_NEVER);
     /*0x0DF*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_MOVE_LAND_WALK,            STATUS_NEVER);

@@ -560,7 +560,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
 
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
-        void HandleMoveWorldportAckOpcode();                // for server-side calls
+        void HandleMoveWorldportAck();                // for server-side calls
 
         void HandleMovementOpcodes(WorldPacket& recvPacket);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
