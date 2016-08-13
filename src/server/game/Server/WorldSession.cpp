@@ -192,16 +192,8 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
-    if (packet->GetOpcode() == NULL_OPCODE)
-    {
-        TC_LOG_ERROR("network.opcode", "Prevented sending of NULL_OPCODE to %s", GetPlayerInfo().c_str());
-        return;
-    }
-    else if (packet->GetOpcode() == UNKNOWN_OPCODE)
-    {
-        TC_LOG_ERROR("network.opcode", "Prevented sending of UNKNOWN_OPCODE to %s", GetPlayerInfo().c_str());
-        return;
-    }
+    ASSERT(packet->GetOpcode() != NULL_OPCODE);
+    ASSERT(packet->GetOpcode() != UNKNOWN_OPCODE);
 
     if (!m_Socket)
         return;
