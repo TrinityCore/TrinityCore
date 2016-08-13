@@ -23,7 +23,7 @@
 
 class BigNumber;
 
-class WorldPacketCrypt : public PacketCrypt
+class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
 {
     public:
         WorldPacketCrypt();

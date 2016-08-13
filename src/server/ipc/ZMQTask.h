@@ -27,7 +27,7 @@
   This class serves as a base for all long running tasks
   It is set up to terminate its running task upon receiving "kill" command
 */
-class ZMQTask
+class TC_IPC_API ZMQTask
 {
 public:
     ZMQTask();

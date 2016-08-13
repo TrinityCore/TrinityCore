@@ -92,7 +92,7 @@ class ZoneScript;
 
 typedef TC_GAME_API std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
-class Object
+class TC_GAME_API Object
 {
     public:
         virtual ~Object();
