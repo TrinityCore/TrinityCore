@@ -532,6 +532,7 @@ enum RealmZone
 
 enum WorldStates
 {
+    WS_CURRENCY_RESET_TIME      = 20001,                     // Next currency reset time
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
