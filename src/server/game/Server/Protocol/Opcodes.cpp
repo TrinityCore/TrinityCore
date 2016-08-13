@@ -112,9 +112,6 @@ void OpcodeTable::Initialize()
 #define DEFINE_HANDLER(opcode, status, processing, handler) \
     ValidateAndSetClientOpcode<decltype(handler), handler>(opcode, #opcode, status, processing)
 
-#define DEFINE_OPCODE_HANDLER_OLD(opcode, status, processing, handler) \
-    DEFINE_HANDLER(opcode, status, processing, WorldPacket, handler)
-
 #define DEFINE_SERVER_OPCODE_HANDLER(opcode, status) \
     static_assert(status == STATUS_NEVER || status == STATUS_UNHANDLED, "Invalid status for server opcode"); \
     ValidateAndSetServerOpcode(opcode, #opcode, status)
@@ -1431,8 +1428,6 @@ void OpcodeTable::Initialize()
     /*0x51E*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_MULTIPLE_MOVES,   STATUS_NEVER);
 
 #undef DEFINE_HANDLER
-
-#undef DEFINE_OPCODE_HANDLER_OLD
 
 #undef DEFINE_SERVER_OPCODE_HANDLER
 };
