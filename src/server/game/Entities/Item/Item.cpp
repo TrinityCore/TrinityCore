@@ -2004,7 +2004,8 @@ uint32 Item::GetDisplayId(Player const* owner) const
         transmogModifier = AppearanceModifierSlotBySpec[owner->GetActiveTalentGroup()];
 
     if (ItemModifiedAppearanceEntry const* transmog = sItemModifiedAppearanceStore.LookupEntry(GetModifier(transmogModifier)))
-        return sDB2Manager.GetItemDisplayId(transmog->ItemID, transmog->AppearanceModID);
+        if (ItemAppearanceEntry const* itemAppearance = sItemAppearanceStore.LookupEntry(transmog->AppearanceID))
+            return itemAppearance->DisplayID;
 
     return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
@@ -2101,6 +2102,9 @@ void BonusData::Initialize(ItemTemplate const* proto)
         SocketColor[i] = proto->GetSocketColor(i);
 
     AppearanceModID = 0;
+    if (ItemModifiedAppearanceEntry const* defaultAppearance = sDB2Manager.GetDefaultItemModifiedAppearance(proto->GetId()))
+        AppearanceModID = defaultAppearance->AppearanceModID;
+
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
 }

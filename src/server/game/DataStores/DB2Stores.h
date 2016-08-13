@@ -284,6 +284,7 @@ public:
     bool HasItemCurrencyCost(uint32 itemId) const { return _itemsWithCurrencyCost.count(itemId) > 0; }
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const;
+    ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
     std::vector<ItemSetSpellEntry const*> const* GetItemSetSpells(uint32 itemSetId) const;
     std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
     static LfgDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
@@ -335,6 +336,7 @@ private:
     ItemChildEquipmentContainer _itemChildEquipment;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
+    ItemModifiedAppearanceByItemContainer _itemDefaultAppearancesByItem;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
