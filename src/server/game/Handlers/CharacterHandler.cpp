@@ -618,7 +618,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
                 newChar.setCinematic(1);                          // not show intro
 
-            newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+            newChar.AddAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
             // Player created, save it now
             newChar.SaveToDB(true);
@@ -1140,24 +1140,37 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     Field* fields = result->Fetch();
 
-    ObjectGuid::LowType guidLow      = fields[0].GetUInt32();
+    ObjectGuid::LowType guidLow = fields[0].GetUInt32();
     std::string oldName = fields[1].GetString();
+    uint16 atLogin = fields[2].GetUInt16();
+    atLogin &= uint16(~AT_LOGIN_RENAME);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Update name and at_login flag in the db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME);
-
     stmt->setString(0, renameInfo->Name);
-    stmt->setUInt16(1, AT_LOGIN_RENAME);
-    stmt->setUInt32(2, guidLow);
+    stmt->setUInt32(1, guidLow);
+    trans->Append(stmt);
 
-    CharacterDatabase.Execute(stmt);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+    stmt->setUInt32(0, guidLow);
+    trans->Append(stmt);
+
+    if (atLogin)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, guidLow);
+        stmt->setUInt16(1, atLogin);
+        trans->Append(stmt);
+    }
 
     // Removed declined name from db
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
-
     stmt->setUInt32(0, guidLow);
+    trans->Append(stmt);
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.CommitTransaction(trans);
 
     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] (%s) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), renameInfo->Guid.ToString().c_str(), renameInfo->Name.c_str());
 
@@ -1378,7 +1391,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
         return;
     }
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AT_LOGIN_FLAG);
 
     stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
     // TODO: Make async with callback
@@ -1391,7 +1404,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     fields = result->Fetch();
-    uint32 at_loginFlags = fields[0].GetUInt16();
+    uint16 at_loginFlags = fields[0].GetUInt16();
 
     if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
     {
@@ -1399,6 +1412,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
         return;
     }
 
+    at_loginFlags &= uint16(~AT_LOGIN_CUSTOMIZE);
     // prevent character rename
     if (sWorld->getBoolConfig(CONFIG_PREVENT_RENAME_CUSTOMIZATION) && (customizeInfo.Name != oldName))
     {
@@ -1441,16 +1455,25 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     Player::Customize(&customizeInfo, trans);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME);
     stmt->setString(0, customizeInfo.Name);
-    stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
-    stmt->setUInt32(2, customizeInfo.Guid.GetCounter());
-
+    stmt->setUInt32(1, customizeInfo.Guid.GetCounter());
     trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AT_LOGIN_FLAG);
+    stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
+    trans->Append(stmt);
+
+    if (at_loginFlags)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AT_LOGIN_FLAG);
+        stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
+        stmt->setUInt16(1, at_loginFlags);
+        trans->Append(stmt);
+    }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
     stmt->setUInt32(0, customizeInfo.Guid.GetCounter());
-
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);

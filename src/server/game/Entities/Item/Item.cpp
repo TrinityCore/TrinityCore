@@ -319,42 +319,58 @@ void Item::SaveToDB(SQLTransaction& trans)
         trans = CharacterDatabase.BeginTransaction();
 
     ObjectGuid::LowType guid = GetGUID().GetCounter();
+
+    // Common part, we should delete from aux tables first, for new or update case we can't rely on having data previously
+    // as fields are now optimized
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_ENCHANTMENTS);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_CHARGES);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_CREATOR);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_TEXT);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_DURATION);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_RANDOMPROPERTYID);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_PLAYEDTIME);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+    }
+
     switch (uState)
     {
         case ITEM_NEW:
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
+            // no break
+        }
         case ITEM_CHANGED:
         {
             uint8 index = 0;
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_INS_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
             stmt->setUInt32(++index, GetOwnerGUID().GetCounter());
-            stmt->setUInt32(++index, GetGuidValue(ITEM_FIELD_CREATOR).GetCounter());
-            stmt->setUInt32(++index, GetGuidValue(ITEM_FIELD_GIFTCREATOR).GetCounter());
             stmt->setUInt32(++index, GetCount());
-            stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURATION));
-
-            std::ostringstream ssSpells;
-            for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-                ssSpells << GetSpellCharges(i) << ' ';
-            stmt->setString(++index, ssSpells.str());
-
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_FLAGS));
-
-            std::ostringstream ssEnchants;
-            for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
-            {
-                ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << ' ';
-                ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << ' ';
-            }
-            stmt->setString(++index, ssEnchants.str());
-
-            stmt->setInt16 (++index, GetItemRandomPropertyId());
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
-            stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
-            stmt->setString(++index, m_text);
             stmt->setUInt32(++index, guid);
-
             trans->Append(stmt);
 
             if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
@@ -362,6 +378,97 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
                 stmt->setUInt32(0, GetOwnerGUID().GetCounter());
                 stmt->setUInt32(1, guid);
+                trans->Append(stmt);
+            }
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_ENCHANTMENTS);
+            bool append = false;
+            index = 0;
+            for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i, ++index)
+            {
+                uint32 enchId = GetEnchantmentId(EnchantmentSlot(i));
+                uint32 enchDuration = GetEnchantmentDuration(EnchantmentSlot(i));
+                uint32 enchCharges = GetEnchantmentCharges(EnchantmentSlot(i));
+
+                stmt->setUInt32(  index, enchId);
+                stmt->setUInt32(++index, enchDuration);
+                stmt->setUInt32(++index, enchCharges);
+
+                if (append)
+                    continue;
+
+                append = append || enchId || enchDuration || enchCharges;
+            }
+            stmt->setUInt32(index, guid);
+
+            if (append)
+                trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_CHARGES);
+            append = false;
+            index = 0;
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i, ++index)
+            {
+                int32 spellCharges = GetSpellCharges(i);
+                stmt->setInt32(index, spellCharges);
+
+                if (append)
+                    continue;
+
+                append = append || spellCharges;
+            }
+            stmt->setUInt32(index, guid);
+
+            if (append)
+                trans->Append(stmt);
+
+            uint32 creator = GetGuidValue(ITEM_FIELD_CREATOR).GetCounter();
+            uint32 giftCreator = GetGuidValue(ITEM_FIELD_GIFTCREATOR).GetCounter();
+            append = creator || giftCreator;
+            if (append)
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_CREATOR);
+                stmt->setUInt32(  index, creator);
+                stmt->setUInt32(++index, giftCreator);
+                stmt->setUInt32(++index, guid);
+                trans->Append(stmt);
+            }
+
+            append = !m_text.empty();
+            if (append)
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_TEXT);
+                stmt->setString(  index, m_text);
+                stmt->setUInt32(++index, guid);
+                trans->Append(stmt);
+            }
+
+            if (uint32 duration = GetUInt32Value(ITEM_FIELD_DURATION))
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_DURATION);
+                stmt->setUInt32(  index, duration);
+                stmt->setUInt32(++index, guid);
+                trans->Append(stmt);
+            }
+
+            if (int32 randProp = GetItemRandomPropertyId())
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_RANDOMPROPERTYID);
+                stmt->setInt16 (  index, randProp);
+                stmt->setUInt32(++index, guid);
+                trans->Append(stmt);
+            }
+
+            if (uint32 playedTime = GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME))
+            {
+                index = 0;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_PLAYEDTIME);
+                stmt->setUInt32(  index, playedTime);
+                stmt->setUInt32(++index, guid);
                 trans->Append(stmt);
             }
             break;
@@ -401,8 +508,14 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
-    //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                                    0                1      2         3        4      5           6        7        8        9     10                    11                12                    13                14
+    //                                   "SELECT creatorGuid, giftCreatorGuid, count, duration, charge_1, charge_2, charge_3, charge_4, charge_5, flags, EnchantmentID_1, EnchantmentDuration_1, EnchantmentCharges_1, EnchantmentID_2, EnchantmentDuration_2, "
+    //                                             15                16            17                    18                    19               20                    21                     22                23                   24                     25                 26
+    //                                   "EnchantmentCharges_2, EnchantmentID_3, EnchantmentDuration_3, EnchantmentCharges_3, EnchantmentID_4, EnchantmentDuration_4, EnchantmentCharges_4, EnchantmentID_5, EnchantmentDuration_5, EnchantmentCharges_5, EnchantmentID_6, EnchantmentDuration_6, "
+    //                                             27               28              29                  30                    31                32                      33                    34              35                     36                     37              38
+    //                                   "EnchantmentCharges_6, EnchantmentID_7, EnchantmentDuration_7, EnchantmentCharges_7, EnchantmentID_8, EnchantmentDuration_8, EnchantmentCharges_8, EnchantmentID_9, EnchantmentDuration_9, EnchantmentCharges_9, EnchantmentID_10, EnchantmentDuration_10, "
+    //                                             39               40              41                     42                      43                44                       45                     46                47          48        49
+    //                                   "EnchantmentCharges_10, EnchantmentID_11, EnchantmentDuration_11, EnchantmentCharges_11, EnchantmentID_12, EnchantmentDuration_12, EnchantmentCharges_12, randomPropertyId, durability, playedTime, text"
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -434,12 +547,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    Tokenizer tokens(fields[4].GetString(), ' ', MAX_ITEM_PROTO_SPELLS);
-    if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            SetSpellCharges(i, atoi(tokens[i]));
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        SetSpellCharges(i, fields[4 + i].GetInt32());
 
-    SetUInt32Value(ITEM_FIELD_FLAGS, fields[5].GetUInt32());
+    SetUInt32Value(ITEM_FIELD_FLAGS, fields[9].GetUInt32());
     // Remove bind flag for items vs NO_BIND set
     if (IsSoulBound() && proto->Bonding == NO_BIND)
     {
@@ -447,13 +558,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    _LoadIntoDataField(fields[6].GetString(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
-    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
+    for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET; ++i)
+        SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + i, fields[10 + i].GetUInt32());
+
+    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[46].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
         UpdateItemSuffixFactor();
 
-    uint32 durability = fields[8].GetUInt16();
+    uint32 durability = fields[47].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
@@ -463,17 +576,32 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[9].GetUInt32());
-    SetText(fields[10].GetString());
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[48].GetUInt32());
+    SetText(fields[49].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
-        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURATION));
-        stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_FLAGS));
-        stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-        stmt->setUInt32(3, guid);
-        CharacterDatabase.Execute(stmt);
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_FLAGS_DURABILITY);
+        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_FLAGS));
+        stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_DURABILITY));
+        stmt->setUInt32(2, guid);
+        trans->Append(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_DURATION);
+        stmt->setUInt32(0, guid);
+        trans->Append(stmt);
+
+        if (uint32 itemDuration = GetUInt32Value(ITEM_FIELD_DURATION))
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_DURATION);
+            stmt->setUInt32(0, itemDuration);
+            stmt->setUInt32(1, guid);
+            trans->Append(stmt);
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
     }
 
     return true;
@@ -482,7 +610,35 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 /*static*/
 void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_ENCHANTMENTS);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_CHARGES);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_CREATOR);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_TEXT);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_DURATION);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_RANDOMPROPERTYID);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_PLAYEDTIME);
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
 }

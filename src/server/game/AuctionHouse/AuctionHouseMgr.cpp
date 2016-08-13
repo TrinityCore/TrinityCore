@@ -317,8 +317,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[11].GetUInt32();
-        uint32 itemEntry    = fields[12].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[50].GetUInt32();
+        uint32 itemEntry    = fields[51].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)

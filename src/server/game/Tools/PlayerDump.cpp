@@ -25,7 +25,7 @@
 #include "AccountMgr.h"
 #include "World.h"
 
-#define DUMP_TABLE_COUNT 27
+#define DUMP_TABLE_COUNT 44
 struct DumpTable
 {
     char const* name;
@@ -34,33 +34,50 @@ struct DumpTable
 
 static DumpTable dumpTables[DUMP_TABLE_COUNT] =
 {
-    { "characters",                       DTT_CHARACTER  },
-    { "character_account_data",           DTT_CHAR_TABLE },
-    { "character_achievement",            DTT_CHAR_TABLE },
-    { "character_achievement_progress",   DTT_CHAR_TABLE },
-    { "character_action",                 DTT_CHAR_TABLE },
-    { "character_aura",                   DTT_CHAR_TABLE },
-    { "character_declinedname",           DTT_CHAR_TABLE },
-    { "character_equipmentsets",          DTT_EQSET_TABLE},
-    { "character_glyphs",                 DTT_CHAR_TABLE },
-    { "character_homebind",               DTT_CHAR_TABLE },
-    { "character_inventory",              DTT_INVENTORY  },
-    { "character_pet",                    DTT_PET        },
-    { "character_pet_declinedname",       DTT_PET        },
-    { "character_queststatus",            DTT_CHAR_TABLE },
-    { "character_queststatus_rewarded",   DTT_CHAR_TABLE },
-    { "character_reputation",             DTT_CHAR_TABLE },
-    { "character_skills",                 DTT_CHAR_TABLE },
-    { "character_spell",                  DTT_CHAR_TABLE },
-    { "character_spell_cooldown",         DTT_CHAR_TABLE },
-    { "character_talent",                 DTT_CHAR_TABLE },
-    { "mail",                             DTT_MAIL       },
-    { "mail_items",                       DTT_MAIL_ITEM  }, // must be after mail
-    { "pet_aura",                         DTT_PET_TABLE  }, // must be after character_pet
-    { "pet_spell",                        DTT_PET_TABLE  }, // must be after character_pet
-    { "pet_spell_cooldown",               DTT_PET_TABLE  }, // must be after character_pet
-    { "item_instance",                    DTT_ITEM       }, // must be after character_inventory and mail_items
-    { "character_gifts",                  DTT_ITEM_GIFT  }, // must be after item_instance
+    { "characters",                       DTT_CHARACTER    },
+    { "characters_deleted",               DTT_CHAR_DELETED },
+    { "characters_trans",                 DTT_CHAR_TABLE   },
+    { "characters_at_login",              DTT_CHAR_ATLF    },
+    { "characters_drunk",                 DTT_CHAR_TABLE   },
+    { "characters_grantableLevels",       DTT_CHAR_TABLE   },
+    { "characters_stable_slots",          DTT_CHAR_TABLE   },
+    { "characters_taxi_path",             DTT_CHAR_TABLE   },
+    { "characters_resettalents",          DTT_CHAR_TABLE   },
+    { "characters_title",                 DTT_CHAR_TABLE   },
+    { "characters_pvp_stats",             DTT_CHAR_TABLE   },
+    { "character_account_data",           DTT_CHAR_TABLE   },
+    { "character_achievement",            DTT_CHAR_TABLE   },
+    { "character_achievement_progress",   DTT_CHAR_TABLE   },
+    { "character_action",                 DTT_CHAR_TABLE   },
+    { "character_aura",                   DTT_CHAR_TABLE   },
+    { "character_declinedname",           DTT_CHAR_TABLE   },
+    { "character_equipmentsets",          DTT_EQSET_TABLE  },
+    { "character_glyphs",                 DTT_CHAR_TABLE   },
+    { "character_homebind",               DTT_CHAR_TABLE   },
+    { "character_inventory",              DTT_INVENTORY    },
+    { "character_pet",                    DTT_PET          },
+    { "character_pet_declinedname",       DTT_PET          },
+    { "character_queststatus",            DTT_CHAR_TABLE   },
+    { "character_queststatus_rewarded",   DTT_CHAR_TABLE   },
+    { "character_reputation",             DTT_CHAR_TABLE   },
+    { "character_skills",                 DTT_CHAR_TABLE   },
+    { "character_spell",                  DTT_CHAR_TABLE   },
+    { "character_spell_cooldown",         DTT_CHAR_TABLE   },
+    { "character_talent",                 DTT_CHAR_TABLE   },
+    { "mail",                             DTT_MAIL         },
+    { "mail_items",                       DTT_MAIL_ITEM    }, // must be after mail
+    { "pet_aura",                         DTT_PET_TABLE    }, // must be after character_pet
+    { "pet_spell",                        DTT_PET_TABLE    }, // must be after character_pet
+    { "pet_spell_cooldown",               DTT_PET_TABLE    }, // must be after character_pet
+    { "item_instance",                    DTT_ITEM         }, // must be after character_inventory and mail_items
+    { "item_instance_enchantments",       DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_charges",            DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_creator",            DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_text",               DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_duration",           DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_randomPropertyId",   DTT_ITEM_AUX     }, // must be after item_instance
+    { "item_instance_played_time",        DTT_ITEM_AUX     }, // must be after item_instance
+    { "character_gifts",                  DTT_ITEM_GIFT    }, // must be after item_instance
 };
 
 // Low level functions
@@ -265,7 +282,8 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
 
     switch (type)
     {
-        case DTT_ITEM:      fieldname = "guid";      guids = &items; break;
+        case DTT_ITEM:
+        case DTT_ITEM_AUX:  fieldname = "guid";      guids = &items; break;
         case DTT_ITEM_GIFT: fieldname = "item_guid"; guids = &items; break;
         case DTT_PET:       fieldname = "owner";                     break;
         case DTT_PET_TABLE: fieldname = "guid";      guids = &pets;  break;
@@ -294,7 +312,30 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
 
         QueryResult result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
         if (!result)
+        {
+            switch (type)                                       // special cases, always dump this tables
+            {
+                case  DTT_CHAR_ATLF:
+                {
+                    std::ostringstream ss;
+                    ss << "INSERT INTO " << _TABLE_SIM_ << tableTo << _TABLE_SIM_ << " VALUES ('" << guid << "', '0');";
+                    dump += ss.str();
+                    dump += "\n";
+                    break;
+                }
+                case DTT_CHAR_DELETED:
+                {
+                    std::ostringstream ss;
+                    ss << "INSERT INTO " << _TABLE_SIM_ << tableTo << _TABLE_SIM_ << " VALUES ('" << guid << "', 'NULL', 'NULL', 'NULL');";
+                    dump += ss.str();
+                    dump += "\n";
+                    break;
+                }
+                default:
+                    break;
+            }
             return true;
+        }
 
         do
         {
@@ -313,12 +354,15 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, ch
                 case DTT_MAIL_ITEM:
                     StoreGUID(result, 1, items);                // item guid collection (mail_items.item_guid)
                     break;
-                case DTT_CHARACTER:
+                case DTT_CHAR_DELETED:
                 {
-                    if (result->GetFieldCount() <= 73)          // avoid crashes on next check
+                    if (result->GetFieldCount() <= 1)           // avoid crashes on next check
+                    {
                         TC_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
+                        return false;
+                    }
 
-                    if (result->Fetch()[73].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                    if (result->Fetch()[1].GetUInt32())        // characters.deleteInfos_Account - if filled error
                         return false;
                     break;
                 }
@@ -501,21 +545,14 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         }
 
         DumpTableType type = DumpTableType(0);
-        uint8 i;
-        for (i = 0; i < DUMP_TABLE_COUNT; ++i)
-        {
-            if (tn == dumpTables[i].name)
-            {
-                type = dumpTables[i].type;
-                break;
-            }
-        }
-
-        if (i == DUMP_TABLE_COUNT)
+        DumpTable const* i = std::find_if(&dumpTables[0], &dumpTables[DUMP_TABLE_COUNT], [tn](DumpTable const& dt) { return tn == dt.name; });
+        if (i == &dumpTables[DUMP_TABLE_COUNT])
         {
             TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
+        else
+            type = i->type;
 
         // change the data to server values
         switch (type)
@@ -542,19 +579,37 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
                     if (result)
-                        if (!ChangeNth(line, 37, "1"))      // characters.at_login set to "rename on login"
-                            ROLLBACK(DUMP_FILE_BROKEN);
+                        forceNameChange = true;             // characters_at_login will read this flag
                 }
                 else if (!ChangeNth(line, 3, name.c_str())) // characters.name
                     ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_CHAR_DELETED:
+            {
+                static const char null[5] = "NULL";
+                if (!ChangeNth(line, 1, newguid))           // characters_deleted.guid update
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, 2, null))              // characters_deleted.deleteInfos_Account
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, 3, null))              // characters_deleted.deleteInfos_Name
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                if (!ChangeNth(line, 4, null))              // characters_deleted.deleteDate
+                    ROLLBACK(DUMP_FILE_BROKEN);
 
-                const char null[5] = "NULL";
-                if (!ChangeNth(line, 74, null))             // characters.deleteInfos_Account
+                continue;                                   // do not insert a row with null values
+            }
+            case DTT_CHAR_ATLF:
+            {
+                if (!ChangeNth(line, 1, newguid))           // characters_at_login.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 75, null))             // characters.deleteInfos_Name
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                if (!ChangeNth(line, 76, null))             // characters.deleteDate
-                    ROLLBACK(DUMP_FILE_BROKEN);
+
+                if (forceNameChange)
+                    if (!ChangeNth(line, 2, "1"))           // characters_at_login.at_login set to "rename on login"
+                        ROLLBACK(DUMP_FILE_BROKEN);
+
+                if (GetNth(line, 2) == "0")                 // do not insert a row with 0 value
+                    continue;
                 break;
             }
             case DTT_CHAR_TABLE:
@@ -614,6 +669,13 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                    ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
                 if (!ChangeNth(line, 3, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_ITEM_AUX:
+            {
+                // item, data field:item guid
+                if (!ChangeGuid(line, 1, items, itemLowGuidOffset))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // item_instance_*.guid update
                 break;
             }
             case DTT_ITEM_GIFT:
