@@ -2229,8 +2229,8 @@ namespace Trinity
 
 void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
 {
-    x = GetPositionX() + (GetObjectSize() + distance2d) * std::cos(absAngle);
-    y = GetPositionY() + (GetObjectSize() + distance2d) * std::sin(absAngle);
+    x = GetPositionX() + distance2d * std::cos(absAngle);
+    y = GetPositionY() + distance2d * std::sin(absAngle);
 
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
@@ -2238,7 +2238,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 
 void WorldObject::GetNearPoint(float &x, float &y, float &z, float distance2d, float absAngle) const
 {
-    GetNearPoint2D(x, y, distance2d, absAngle);
+    GetNearPoint2D(x, y, GetObjectSize() + distance2d, absAngle);
     z = GetPositionZ();
     // Should "searcher" be used instead of "this" when updating z coordinate ?
     UpdateAllowedPositionZ(x, y, z);
@@ -2259,7 +2259,7 @@ void WorldObject::GetNearPoint(float &x, float &y, float &z, float distance2d, f
     // loop in a circle to look for a point in LoS using small steps
     for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
-        GetNearPoint2D(x, y, distance2d, absAngle + angle);
+        GetNearPoint2D(x, y, GetObjectSize() + distance2d, absAngle + angle);
         z = GetPositionZ();
         UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
