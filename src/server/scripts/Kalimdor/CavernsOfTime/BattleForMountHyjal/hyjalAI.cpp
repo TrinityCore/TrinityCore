@@ -988,7 +988,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
                     (*itr)->GetMotionMaster()->Initialize();
                     float range = 10;
                     if (me->GetEntry() == THRALL)range = 20;
-                    me->GetNearPoint(x, y, z, range, me->GetAngle((*itr)));
+                    me->GetNearPoint(x, y, z, me->GetObjectSize() + range, me->GetAngle((*itr)));
                     (*itr)->GetMotionMaster()->MovePoint(0, x+irand(-5, 5), y+irand(-5, 5), me->GetPositionZ());
                 }
             }
