@@ -539,6 +539,7 @@ enum WorldStates
     WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
+    WS_CURRENCY_RESET_TIME      = 20051,                     // Custom worldstate
 };
 
 /// Storage class for commands issued for delayed execution
