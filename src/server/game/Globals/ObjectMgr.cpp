@@ -500,14 +500,14 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.trainer_class          = uint32(fields[38].GetUInt8());
     creatureTemplate.trainer_race           = uint32(fields[39].GetUInt8());
     creatureTemplate.type                   = uint32(fields[40].GetUInt8());
-    creatureTemplate.type_flags             = fields[42].GetUInt32();
-    creatureTemplate.type_flags2            = fields[43].GetUInt32();
-    creatureTemplate.lootid                 = fields[44].GetUInt32();
-    creatureTemplate.pickpocketLootId       = fields[45].GetUInt32();
-    creatureTemplate.SkinLootId             = fields[46].GetUInt32();
+    creatureTemplate.type_flags             = fields[41].GetUInt32();
+    creatureTemplate.type_flags2            = fields[42].GetUInt32();
+    creatureTemplate.lootid                 = fields[43].GetUInt32();
+    creatureTemplate.pickpocketLootId       = fields[44].GetUInt32();
+    creatureTemplate.SkinLootId             = fields[45].GetUInt32();
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        creatureTemplate.resistance[i]      = fields[47 + i - 1].GetInt16();
+        creatureTemplate.resistance[i]      = fields[46 + i - 1].GetInt16();
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         creatureTemplate.spells[i]          = fields[52 + i].GetUInt32();
