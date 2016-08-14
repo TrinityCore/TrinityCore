@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "SpellAuras.h"
 #include "PartyPackets.h"
 #include "LootPackets.h"
 
@@ -536,6 +537,22 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
     sScriptMgr->OnGroupRemoveMember(this, guid, method, kicker, reason);
 
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    if (player)
+    {
+        for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            if (Player* groupMember = itr->GetSource())
+            {
+                if (groupMember->GetGUID() == guid)
+                    continue;
+
+                groupMember->RemoveAllGroupBuffsFromCaster(guid);
+                player->RemoveAllGroupBuffsFromCaster(groupMember->GetGUID());
+            }
+        }
+    }
+
     // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return !m_memberSlots.empty();
@@ -543,7 +560,6 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
-        Player* player = ObjectAccessor::FindConnectedPlayer(guid);
         if (player)
         {
             // Battleground group handling
