@@ -80,7 +80,7 @@ TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty diffic
 
 uint32 GetDefaultMapLight(uint32 mapId);
 
-std::set<uint32> const& GetPhasesForGroup(uint32 group);
+TC_GAME_API std::set<uint32> const& GetPhasesForGroup(uint32 group);
 
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;

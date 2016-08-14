@@ -26,7 +26,7 @@
  * Multiplexes zmq messages from many threads, 
  * and then passes them to another socket.
  */
-class ZmqMux : public ZMQTask
+class TC_IPC_API ZmqMux : public ZMQTask
 {
 public:
     ZmqMux(std::string from, std::string to);

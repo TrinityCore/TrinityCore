@@ -51,7 +51,7 @@ public:
     ~ByteBufferPositionException() throw() { }
 };
 
-class ByteBufferSourceException : public ByteBufferException
+class TC_SHARED_API ByteBufferSourceException : public ByteBufferException
 {
 public:
     ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);

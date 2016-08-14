@@ -128,6 +128,12 @@
 #  define TC_SHARED_API TC_API_IMPORT
 #endif
 
+#ifdef TRINITY_API_EXPORT_IPC
+#  define TC_IPC_API TC_API_EXPORT
+#else
+#  define TC_IPC_API TC_API_IMPORT
+#endif
+
 #ifdef TRINITY_API_EXPORT_GAME
 #  define TC_GAME_API TC_API_EXPORT
 #else
