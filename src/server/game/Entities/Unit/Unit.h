@@ -31,6 +31,7 @@
 #include <boost/container/flat_set.hpp>
 
 #define WORLD_TRIGGER   12999
+#define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
 
 enum SpellInterruptFlags
 {
@@ -773,7 +774,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_SPELLCLICK            = 0x0001000000,     // cause client to send 1015 opcode (spell click)
     UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x0002000000,     // players with mounts that have vehicle data should have it set
     UNIT_NPC_FLAG_MAILBOX               = 0x0004000000,     // mailbox
-    UNIT_NPC_FLAG_REFORGER              = 0x0008000000,     // reforging
+    UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC = 0x0008000000,     // artifact powers reset
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x0010000000,     // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x0020000000,     // void storage
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market

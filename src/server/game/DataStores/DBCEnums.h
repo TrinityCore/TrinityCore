@@ -138,6 +138,15 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum ArtifactPowerFlag : uint8
+{
+    ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
+    ARTIFACT_POWER_FLAG_FIRST                       = 0x02,
+    ARTIFACT_POWER_FLAG_FINAL                       = 0x04,
+    ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS      = 0x08,
+    ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
+};
+
 enum ChrSpecializationFlag
 {
     CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
@@ -456,6 +465,11 @@ enum CharSectionType
     SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
 };
 
+enum Curves
+{
+    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS = 1718
+};
+
 enum Difficulty : uint8
 {
     DIFFICULTY_NONE                 = 0,
@@ -566,15 +580,19 @@ enum GlyphSlotType
 
 enum ItemEnchantmentType
 {
-    ITEM_ENCHANTMENT_TYPE_NONE             = 0,
-    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL     = 1,
-    ITEM_ENCHANTMENT_TYPE_DAMAGE           = 2,
-    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL      = 3,
-    ITEM_ENCHANTMENT_TYPE_RESISTANCE       = 4,
-    ITEM_ENCHANTMENT_TYPE_STAT             = 5,
-    ITEM_ENCHANTMENT_TYPE_TOTEM            = 6,
-    ITEM_ENCHANTMENT_TYPE_USE_SPELL        = 7,
-    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET = 8
+    ITEM_ENCHANTMENT_TYPE_NONE                              = 0,
+    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL                      = 1,
+    ITEM_ENCHANTMENT_TYPE_DAMAGE                            = 2,
+    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL                       = 3,
+    ITEM_ENCHANTMENT_TYPE_RESISTANCE                        = 4,
+    ITEM_ENCHANTMENT_TYPE_STAT                              = 5,
+    ITEM_ENCHANTMENT_TYPE_TOTEM                             = 6,
+    ITEM_ENCHANTMENT_TYPE_USE_SPELL                         = 7,
+    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET                  = 8,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE = 9,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID   = 10,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_ID                     = 11,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12
 };
 
 enum ItemExtendedCostFlags
@@ -853,6 +871,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_CONQUEST_META_ARENA   = 483,
     CURRENCY_TYPE_CONQUEST_META_RBG     = 484,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
 };
 
 #endif

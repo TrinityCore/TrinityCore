@@ -80,6 +80,13 @@ namespace WorldPackets
         class GuildSetFocusedAchievement;
     }
 
+    namespace Artifact
+    {
+        class ArtifactAddPower;
+        class ArtifactSetAppearance;
+        class ConfirmArtifactRespec;
+    }
+
     namespace AuctionHouse
     {
         class AuctionHelloRequest;
@@ -1717,6 +1724,11 @@ class TC_GAME_API WorldSession
         void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
 
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
+
+        // Artifact
+        void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
+        void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
+        void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
 
         union ConnectToKey
         {

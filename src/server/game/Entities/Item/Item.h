@@ -249,6 +249,7 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2         = 20,
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3         = 21,
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED         = 22,
+    ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL              = 23,
 
     MAX_ITEM_MODIFIERS
 };
@@ -273,12 +274,22 @@ struct BonusData
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
 
+    uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
+
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
 
 #pragma pack(push, 1)
+struct ItemDynamicFieldArtifactPowers
+{
+    uint32 ArtifactPowerId;
+    uint8 PurchasedRank;
+    uint8 CurrentRankWithBonus;
+    uint16 Padding;
+};
+
 struct ItemDynamicFieldGems
 {
     uint32 ItemId;
@@ -313,6 +324,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
+        void LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
 
         void AddBonuses(uint32 bonusListID);
 
@@ -426,7 +438,8 @@ class TC_GAME_API Item : public Object
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         int32 GetItemStatValue(uint32 index, Player const* owner) const;
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
-        uint32 GetAppearanceModId() const { return _bonusData.AppearanceModID; }
+        uint32 GetAppearanceModId() const { return GetUInt32Value(ITEM_FIELD_APPEARANCE_MOD_ID); }
+        void SetAppearanceModId(uint32 appearanceModId) { SetUInt32Value(ITEM_FIELD_APPEARANCE_MOD_ID, appearanceModId); }
         uint32 GetArmor(Player const* owner) const { return GetTemplate()->GetArmor(GetItemLevel(owner)); }
         void GetDamage(Player const* owner, float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(owner), minDamage, maxDamage); }
         uint32 GetDisplayId(Player const* owner) const;
@@ -480,6 +493,16 @@ class TC_GAME_API Item : public Object
         ObjectGuid GetChildItem() const { return m_childItem; }
         void SetChildItem(ObjectGuid childItem) { m_childItem = childItem; }
 
+        DynamicFieldStructuredView<ItemDynamicFieldArtifactPowers> GetArtifactPowers() const;
+        ItemDynamicFieldArtifactPowers const* GetArtifactPower(uint32 artifactPowerId) const;
+        void SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower, bool createIfMissing = false);
+
+        void InitArtifactPowers(uint8 artifactId);
+        uint32 GetTotalPurchasedArtifactPowers() const;
+        void ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Player* owner);
+        void CopyArtifactDataFromParent(Item* parent);
+
+        void GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId);
     protected:
         BonusData _bonusData;
 
@@ -496,5 +519,6 @@ class TC_GAME_API Item : public Object
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
         ObjectGuid m_childItem;
+        std::unordered_map<uint32, uint16> m_artifactPowerIdToIndex;
 };
 #endif
