@@ -2747,7 +2747,7 @@ public:
             return GetOwner()->GetTypeId() == TYPEID_PLAYER;
         }
 
-        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
                 amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
@@ -2784,7 +2784,7 @@ public:
             return GetOwner()->GetTypeId() == TYPEID_PLAYER;
         }
 
-        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
                 amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
