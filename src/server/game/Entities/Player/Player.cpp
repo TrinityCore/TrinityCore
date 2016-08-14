@@ -1619,7 +1619,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     uint8 face = fields[6].GetUInt8();
     uint8 hairStyle = fields[7].GetUInt8();
     uint8 hairColor = fields[8].GetUInt8();
-    uint8 facialHair = fields[9].GetUInt8();
+    uint8 facialStyle = fields[9].GetUInt8();
     uint8 level = fields[10].GetUInt8();
     uint32 zone = fields[11].GetUInt16();
     uint32 mapId = uint32(fields[12].GetUInt16());
@@ -1635,7 +1635,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     Tokenizer equipment(fields[22].GetString(), ' ');
     uint8 slot = fields[24].GetUInt8();
 
-    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, hairStyle, hairColor, face, facialHair, skin))
+    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, hairStyle, hairColor, face, facialStyle, skin))
     {
         TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid.ToString().c_str());
 
