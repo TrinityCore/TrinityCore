@@ -16432,7 +16432,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludequestid) const
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
-        if (questid == 0 || questid == excludequestid)
+        if (questid == 0)
             continue;
 
         QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questid);
