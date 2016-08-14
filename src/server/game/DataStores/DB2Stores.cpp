@@ -30,6 +30,14 @@ DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroup
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", AreaTableMeta::Instance(), HOTFIX_SEL_AREA_TABLE);
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", AreaTriggerMeta::Instance(), HOTFIX_SEL_AREA_TRIGGER);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", ArmorLocationMeta::Instance(), HOTFIX_SEL_ARMOR_LOCATION);
+DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", ArtifactMeta::Instance(), HOTFIX_SEL_ARTIFACT);
+DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", ArtifactAppearanceMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE);
+DB2Storage<ArtifactAppearanceSetEntry>          sArtifactAppearanceSetStore("ArtifactAppearanceSet.db2", ArtifactAppearanceSetMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE_SET);
+DB2Storage<ArtifactCategoryEntry>               sArtifactCategoryStore("ArtifactCategory.db2", ArtifactCategoryMeta::Instance(), HOTFIX_SEL_ARTIFACT_CATEGORY);
+DB2Storage<ArtifactPowerEntry>                  sArtifactPowerStore("ArtifactPower.db2", ArtifactPowerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER);
+DB2Storage<ArtifactPowerLinkEntry>              sArtifactPowerLinkStore("ArtifactPowerLink.db2", ArtifactPowerLinkMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_LINK);
+DB2Storage<ArtifactPowerRankEntry>              sArtifactPowerRankStore("ArtifactPowerRank.db2", ArtifactPowerRankMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_RANK);
+DB2Storage<ArtifactQuestXPEntry>                sArtifactQuestXPStore("ArtifactQuestXP.db2", ArtifactQuestXPMeta::Instance(), HOTFIX_SEL_ARTIFACT_QUEST_XP);
 DB2Storage<AuctionHouseEntry>                   sAuctionHouseStore("AuctionHouse.db2", AuctionHouseMeta::Instance(), HOTFIX_SEL_AUCTION_HOUSE);
 DB2Storage<BankBagSlotPricesEntry>              sBankBagSlotPricesStore("BankBagSlotPrices.db2", BankBagSlotPricesMeta::Instance(), HOTFIX_SEL_BANK_BAG_SLOT_PRICES);
 DB2Storage<BannedAddOnsEntry>                   sBannedAddOnsStore("BannedAddOns.db2", BannedAddOnsMeta::Instance(), HOTFIX_SEL_BANNED_ADDONS);
@@ -100,6 +108,7 @@ DB2Storage<ItemArmorShieldEntry>                sItemArmorShieldStore("ItemArmor
 DB2Storage<ItemArmorTotalEntry>                 sItemArmorTotalStore("ItemArmorTotal.db2", ItemArmorTotalMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_TOTAL);
 DB2Storage<ItemBagFamilyEntry>                  sItemBagFamilyStore("ItemBagFamily.db2", ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY);
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS);
+DB2Storage<ItemBonusListLevelDeltaEntry>        sItemBonusListLevelDeltaStore("ItemBonusListLevelDelta.db2", ItemBonusListLevelDeltaMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
 DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
 DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
@@ -293,6 +302,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
     LOAD_DB2(sArmorLocationStore);
+    LOAD_DB2(sArtifactStore);
+    LOAD_DB2(sArtifactAppearanceStore);
+    LOAD_DB2(sArtifactAppearanceSetStore);
+    LOAD_DB2(sArtifactCategoryStore);
+    LOAD_DB2(sArtifactPowerStore);
+    LOAD_DB2(sArtifactPowerLinkStore);
+    LOAD_DB2(sArtifactPowerRankStore);
     LOAD_DB2(sAuctionHouseStore);
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddOnsStore);
@@ -363,6 +379,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemArmorTotalStore);
     LOAD_DB2(sItemBagFamilyStore);
     LOAD_DB2(sItemBonusStore);
+    LOAD_DB2(sItemBonusListLevelDeltaStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
     LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemClassStore);
@@ -482,6 +499,18 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
 
+    for (ArtifactPowerEntry const* artifactPower : sArtifactPowerStore)
+        _artifactPowers[artifactPower->ArtifactID].push_back(artifactPower);
+
+    for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
+    {
+        _artifactPowerLinks[artifactPowerLink->FromArtifactPowerID].insert(artifactPowerLink->ToArtifactPowerID);
+        _artifactPowerLinks[artifactPowerLink->ToArtifactPowerID].insert(artifactPowerLink->FromArtifactPowerID);
+    }
+
+    for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
+        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->Rank }] = artifactPowerRank;
+
     std::unordered_map<uint32, std::set<std::pair<uint8, uint8>>> addedSections;
     for (CharSectionsEntry const* charSection : sCharSectionsStore)
     {
@@ -600,6 +629,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
+
+    for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
+        _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->Delta] = itemBonusListLevelDelta->ID;
 
     for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
     {
@@ -918,6 +950,33 @@ std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
     return std::vector<uint32>();
 }
 
+std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
+{
+    auto itr = _artifactPowers.find(artifactId);
+    if (itr != _artifactPowers.end())
+        return itr->second;
+
+    return std::vector<ArtifactPowerEntry const*>{};
+}
+
+std::unordered_set<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
+{
+    auto itr = _artifactPowerLinks.find(artifactPowerId);
+    if (itr != _artifactPowerLinks.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const
+{
+    auto itr = _artifactPowerRanks.find({ artifactPowerId, rank });
+    if (itr != _artifactPowerRanks.end())
+        return itr->second;
+
+    return nullptr;
+}
+
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)
 {
     if (gender == GENDER_FEMALE && (forceGender || broadcastText->FemaleText->Str[DEFAULT_LOCALE][0] != '\0'))
@@ -1193,6 +1252,15 @@ DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId
         return &itr->second;
 
     return nullptr;
+}
+
+uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
+{
+    auto itr = _itemLevelDeltaToBonusListContainer.find(delta);
+    if (itr != _itemLevelDeltaToBonusListContainer.end())
+        return itr->second;
+
+    return 0;
 }
 
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const

@@ -55,6 +55,40 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ArmorLocation.db2
     PrepareStatement(HOTFIX_SEL_ARMOR_LOCATION, "SELECT ID, Modifier1, Modifier2, Modifier3, Modifier4, Modifier5 FROM armor_location ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // Artifact.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT, "SELECT ID, Name, BarConnectedColor, BarDisconnectedColor, TitleColor, ClassUiTextureKitID, SpecID, "
+        "ArtifactCategoryID, Flags FROM artifact ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT, "SELECT ID, Name_lang FROM artifact_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactAppearance.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT Name, SwatchColor, ModelDesaturation, ModelAlpha, ShapeshiftDisplayID, "
+        "ArtifactAppearanceSetID, PlayerConditionID, Unknown, DisplayIndex, AppearanceModID, Flags, ModifiesShapeshiftFormDisplay, ID, "
+        "ItemAppearanceID, AltItemAppearanceID FROM artifact_appearance ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT ID, Name_lang FROM artifact_appearance_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactAppearanceSet.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT Name, Name2, UiCameraID, AltHandUICameraID, ArtifactID, DisplayIndex, "
+        "AttachmentPoint, Flags, ID FROM artifact_appearance_set ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT ID, Name_lang, Name2_lang FROM artifact_appearance_set_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactCategory.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_CATEGORY, "SELECT ID, ArtifactKnowledgeCurrencyID, ArtifactKnowledgeMultiplierCurveID FROM artifact_category"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPower.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER, "SELECT PosX, PosY, ArtifactID, Flags, MaxRank, ID, RelicType FROM artifact_power ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPowerLink.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_LINK, "SELECT ID, FromArtifactPowerID, ToArtifactPowerID FROM artifact_power_link ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPowerRank.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_RANK, "SELECT ID, SpellID, Value, ArtifactPowerID, Unknown, Rank FROM artifact_power_rank"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactQuestXp.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT ID, Exp1, Exp2, Exp3, Exp4, Exp5, Exp6, Exp7, Exp8, Exp9, Exp10 FROM artifact_quest_xp"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // AuctionHouse.db2
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE locale = ?", CONNECTION_SYNCH);
@@ -376,6 +410,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ItemBonus.db2
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS, "SELECT ID, Value1, Value2, BonusListID, Type, `Index` FROM item_bonus ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ItemBonusListLevelDelta.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA, "SELECT Delta, ID FROM item_bonus_list_level_delta ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemBonusTreeNode.db2
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS_TREE_NODE, "SELECT ID, BonusTreeID, SubTreeID, BonusListID, BonusTreeModID FROM item_bonus_tree_node"

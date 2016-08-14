@@ -319,10 +319,15 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     ItemID = voidItem->ItemEntry;
     RandomPropertiesID = voidItem->ItemRandomPropertyId;
     RandomPropertiesSeed = voidItem->ItemSuffixFactor;
-    if (voidItem->ItemUpgradeId)
+    if (voidItem->ItemUpgradeId || voidItem->FixedScalingLevel || voidItem->ArtifactKnowledgeLevel)
     {
         Modifications = boost::in_place();
-        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+        if (voidItem->ItemUpgradeId)
+            Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+        if (voidItem->FixedScalingLevel)
+            Modifications->Insert(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, voidItem->FixedScalingLevel);
+        if (voidItem->ArtifactKnowledgeLevel)
+            Modifications->Insert(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, voidItem->ArtifactKnowledgeLevel);
     }
 
     if (!voidItem->BonusListIDs.empty())

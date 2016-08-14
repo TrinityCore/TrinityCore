@@ -757,6 +757,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetItemLimitCategory() const { return ExtendedData->ItemLimitCategory; }
     HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
     float  GetStatScalingFactor() const { return ExtendedData->StatScalingFactor; }
+    uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
     uint32 GetBaseArmor() const { return GetArmor(ExtendedData->ItemLevel); }
     void GetBaseDamage(float& minDamage, float& maxDamage) const { GetDamage(ExtendedData->ItemLevel, minDamage, maxDamage); }
 

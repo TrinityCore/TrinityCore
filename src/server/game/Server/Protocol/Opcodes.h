@@ -775,6 +775,7 @@ enum OpcodeServer : uint32
     SMSG_ARTIFACT_APPEARANCE_CHANGED                  = 0x27E3,
     SMSG_ARTIFACT_FORGE_OPENED                        = 0x27E1,
     SMSG_ARTIFACT_POWERS_UPDATED                      = 0x27E2,
+    SMSG_ARTIFACT_RESPEC_CONFIRM                      = 0x27E4,
     SMSG_ARTIFACT_XP_GAIN                             = 0x2823,
     SMSG_ATTACKER_STATE_UPDATE                        = 0x27CE,
     SMSG_ATTACK_START                                 = 0x2669,
