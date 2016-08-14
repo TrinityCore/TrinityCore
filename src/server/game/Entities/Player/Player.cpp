@@ -16448,7 +16448,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludequestid) const
                 continue;
 
             if (questid == excludequestid)
-                excludequestid ==0;
+                excludequestid == 0;
                 return true;
 
             // hide quest if player is in raid-group and quest is no raid quest
