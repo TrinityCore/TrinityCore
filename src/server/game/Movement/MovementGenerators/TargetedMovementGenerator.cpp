@@ -76,7 +76,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
         if (i_target->IsWithinDistInMap(owner, size + distance2d - owner->GetObjectSize()))
             return;
 
-        i_target->GetNearPoint(NULL, x, y, z, size + distance2d, absAngle);
+        i_target->GetNearPoint(x, y, z, size + distance2d, absAngle);
     }
     else
     {
