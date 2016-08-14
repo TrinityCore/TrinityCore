@@ -2058,10 +2058,14 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Default:     1 - (Rate.XP.Kill, affects only kills outside of Battlegrounds)
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
+#                     1 - (Rate.XP.Weekend)
+#                    66 - (Rate.XP.Weekend.EVID)
 
-Rate.XP.Kill    = 1
-Rate.XP.Quest   = 1
-Rate.XP.Explore = 1
+Rate.XP.Kill         = 1
+Rate.XP.Quest        = 1
+Rate.XP.Explore      = 1
+Rate.XP.Weekend      = 1
+Rate.XP.Weekend.EVID = 66
 
 #
 #    Rate.XP.BattlegroundKill
