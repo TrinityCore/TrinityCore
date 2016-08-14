@@ -1856,6 +1856,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAllAurasRequiringDeadTarget();
         void RemoveAllAurasExceptType(AuraType type);
         void RemoveAllAurasExceptType(AuraType type1, AuraType type2); /// @todo: once we support variadic templates use them here
+        void RemoveAllGroupBuffsFromCaster(ObjectGuid casterGUID);
         void DelayOwnedAuras(uint32 spellId, ObjectGuid caster, int32 delaytime);
 
         void _RemoveAllAuraStatMods();
