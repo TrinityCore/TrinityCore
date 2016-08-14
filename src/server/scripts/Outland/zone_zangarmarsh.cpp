@@ -27,7 +27,6 @@ EndScriptData */
 npcs_ashyen_and_keleth
 npc_cooshcoosh
 npc_elder_kuruti
-npc_mortog_steamhead
 npc_kayra_longmane
 npc_timothy_daniels
 EndContentData */
@@ -295,33 +294,6 @@ public:
 };
 
 /*######
-## npc_mortog_steamhead
-######*/
-class npc_mortog_steamhead : public CreatureScript
-{
-public:
-    npc_mortog_steamhead() : CreatureScript("npc_mortog_steamhead") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsVendor() && player->GetReputationRank(942) == REP_EXALTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
-};
-
-/*######
 ## npc_kayra_longmane
 ######*/
 
@@ -455,7 +427,6 @@ void AddSC_zangarmarsh()
     new npcs_ashyen_and_keleth();
     new npc_cooshcoosh();
     new npc_elder_kuruti();
-    new npc_mortog_steamhead();
     new npc_kayra_longmane();
     new npc_timothy_daniels();
 }
