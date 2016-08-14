@@ -14880,13 +14880,13 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(true);
 
     uint32 quest_id = quest->GetQuestId();
-    uint32 excludequestid = quest_id;
+    uint32 excludeQuestId = quest_id;
 
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
         {
-            if (quest->RequiredItemCount[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->RequiredItemId[i], excludequestid))))
+            if (quest->RequiredItemCount[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->RequiredItemId[i], excludeQuestId))))
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
             else 
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
@@ -14896,7 +14896,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            if (quest->ItemDropQuantity[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->ItemDrop[i], excludequestid))))
+            if (quest->ItemDropQuantity[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && (!quest->IsRepeatable() || !HasQuestForItem(quest->ItemDrop[i], excludeQuestId))))
                 DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
             else
                 DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
@@ -16427,7 +16427,7 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
     }
 }
 
-bool Player::HasQuestForItem(uint32 itemid, uint32 excludequestid) const
+bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */) const
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -16447,8 +16447,8 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludequestid) const
             if (!qinfo)
                 continue;
 
-            if (questid == excludequestid)
-                excludequestid == 0;
+            if (questid == excludeQuestId)
+                excludeQuestId == 0;
                 return true;
 
             // hide quest if player is in raid-group and quest is no raid quest
