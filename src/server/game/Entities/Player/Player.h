@@ -1267,7 +1267,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetChatTag() const;
         std::string autoReplyMsg;
 
-        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=nullptr);
+        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = nullptr) const;
 
         PlayerSocial *GetSocial() const { return m_social; }
 
