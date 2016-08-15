@@ -2227,21 +2227,16 @@ namespace Trinity
 
 //===================================================================================================
 
-void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
+void WorldObject::_GetNearPoint(float &x, float &y, float &z, float distance, float absAngle) const
 {
-    x = GetPositionX() + distance2d * std::cos(absAngle);
-    y = GetPositionY() + distance2d * std::sin(absAngle);
-
-    Trinity::NormalizeMapCoord(x);
-    Trinity::NormalizeMapCoord(y);
+    GetNearPoint2D(x, y, distance, absAngle);
+    z = GetPositionZ();
+    UpdateAllowedPositionZ(x, y, z);
 }
 
-void WorldObject::GetNearPoint(float &x, float &y, float &z, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(float &x, float &y, float &z, float distance, float absAngle) const
 {
-    GetNearPoint2D(x, y, distance2d, absAngle);
-    z = GetPositionZ();
-    // Should "searcher" be used instead of "this" when updating z coordinate ?
-    UpdateAllowedPositionZ(x, y, z);
+    _GetNearPoint(x, y, z, distance, absAngle);
 
     // if detection disabled, return first point
     if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
@@ -2259,9 +2254,7 @@ void WorldObject::GetNearPoint(float &x, float &y, float &z, float distance2d, f
     // loop in a circle to look for a point in LoS using small steps
     for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
-        GetNearPoint2D(x, y, distance2d, absAngle + angle);
-        z = GetPositionZ();
-        UpdateAllowedPositionZ(x, y, z);
+        _GetNearPoint(x, y, z, distance, absAngle + angle);
         if (IsWithinLOS(x, y, z))
             return;
     }

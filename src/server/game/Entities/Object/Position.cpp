@@ -157,6 +157,15 @@ bool Position::HasInLine(Position const* pos, float width) const
     return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
 }
 
+void Position::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
+{
+    x = GetPositionX() + distance2d * std::cos(absAngle);
+    y = GetPositionY() + distance2d * std::sin(absAngle);
+
+    Trinity::NormalizeMapCoord(x);
+    Trinity::NormalizeMapCoord(y);
+}
+
 std::string Position::ToString() const
 {
     std::stringstream sstr;

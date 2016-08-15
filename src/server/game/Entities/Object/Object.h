@@ -434,9 +434,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
         virtual void RemoveFromWorld() override;
-
-        void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
-        void GetNearPoint(float &x, float &y, float &z, float distance2d, float absAngle) const;
+        void GetNearPoint(float &x, float &y, float &z, float distance, float absAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const;
         void MovePosition(Position &pos, float dist, float angle);
         Position GetNearPosition(float dist, float angle);
@@ -643,6 +641,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth, bool checkAlert = false) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj, bool checkAlert = false) const;
+        void _GetNearPoint(float &x, float &y, float &z, float distance, float absAngle) const;
 };
 
 namespace Trinity
