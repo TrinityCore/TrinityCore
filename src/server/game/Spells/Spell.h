@@ -666,6 +666,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
+        std::pair<float, float> GetMinMaxRange(bool strict);
 
         Unit* const m_caster;
 

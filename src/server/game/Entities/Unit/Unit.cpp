@@ -511,9 +511,15 @@ bool Unit::IsWithinMeleeRange(Unit const* obj) const
     float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float maxdist = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
+    float maxdist = GetMeleeRange(obj);
 
     return distsq <= maxdist * maxdist;
+}
+
+float Unit::GetMeleeRange(Unit const* target) const
+{
+    float range = GetCombatReach() + target->GetCombatReach() + 4.0f / 3.0f;
+    return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
 bool Unit::IsWithinBoundaryRadius(const Unit* obj) const
