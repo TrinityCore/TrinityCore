@@ -2582,7 +2582,7 @@ class npc_argent_squire : public CreatureScript
 public:
     npc_argent_squire() : CreatureScript("npc_argent_squire") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature) override
     {
         // Argent Pony Bridle options
         const AchievementEntry * achiPonyUp = sAchievementStore.LookupEntry(ACHI_PONY_UP);
@@ -2633,7 +2633,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction) override
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction >= 1000) // remove old pennant aura
@@ -2693,7 +2693,7 @@ public:
         uint32 m_current_pennant;
         uint32 check_timer;
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 uiDiff) override
         {
             // have to delay the check otherwise it wont work
             if (check_timer && (check_timer <= uiDiff))
@@ -2716,7 +2716,7 @@ public:
             }
         }
 
-        void SetData(uint32 add, uint32 spell)
+        void SetData(uint32 add, uint32 spell) override
         {
             if (add)
             {
@@ -2731,7 +2731,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const override
     {
         return new npc_argent_squireAI(creature);
     }
