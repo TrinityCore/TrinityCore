@@ -27,7 +27,7 @@ class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
+        WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE)
         {
         }
 

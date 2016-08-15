@@ -193,7 +193,6 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
     ASSERT(packet->GetOpcode() != NULL_OPCODE);
-    ASSERT(packet->GetOpcode() != UNKNOWN_OPCODE);
 
     if (!m_Socket)
         return;

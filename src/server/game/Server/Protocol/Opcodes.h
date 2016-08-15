@@ -26,14 +26,6 @@
 #include "Common.h"
 #include <iomanip>
 
-enum OpcodeMisc : uint16
-{
-    MAX_OPCODE                                        = 0x3FFF,
-    NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
-    UNKNOWN_OPCODE                                    = (0x7FFF + 1),
-    NULL_OPCODE                                       = 0xBADD
-};
-
 enum Opcodes : uint16
 {
     CMSG_BOOTME                                     = 0x001,
@@ -1347,6 +1339,13 @@ enum Opcodes : uint16
     SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2         = 0x51D,
     SMSG_MULTIPLE_MOVES                             = 0x51E, // uncompressed version of SMSG_COMPRESSED_MOVES
     NUM_MSG_TYPES                                   = 0x51F
+};
+
+enum OpcodeMisc : uint16
+{
+    MAX_OPCODE = NUM_MSG_TYPES - 1,
+    NUM_OPCODE_HANDLERS = (MAX_OPCODE + 1),
+    NULL_OPCODE = 0x0000
 };
 
 typedef Opcodes OpcodeClient;
