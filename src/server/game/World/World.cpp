@@ -453,7 +453,7 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_XP_QUEST]    = sConfigMgr->GetFloatDefault("Rate.XP.Quest", 1.0f);
     rate_values[RATE_XP_EXPLORE]  = sConfigMgr->GetFloatDefault("Rate.XP.Explore", 1.0f);
     rate_values[RATE_XP_WEEKEND]  = sConfigMgr->GetFloatDefault("Rate.XP.Weekend", 1.0f);
-    m_int_configs[CONFIG_RATE_XP_WEEKEND_EVID] = sConfigMgr->GetIntDefault("Rate.XP.Weekend.EVID", 65);
+    m_int_configs[CONFIG_RATE_XP_WEEKEND_EVID] = sConfigMgr->GetIntDefault("Rate.XP.Weekend.EVID", 66);
     rate_values[RATE_REPAIRCOST]  = sConfigMgr->GetFloatDefault("Rate.RepairCost", 1.0f);
     if (rate_values[RATE_REPAIRCOST] < 0.0f)
     {
