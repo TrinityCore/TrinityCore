@@ -1447,7 +1447,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 float ground_z = z;
                 float max_z = canSwim
                     ? GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
-                    : ((ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true)));
+                    : (ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
