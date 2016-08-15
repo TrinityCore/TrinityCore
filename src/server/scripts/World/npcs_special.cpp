@@ -2704,7 +2704,8 @@ public:
                 }
                 check_timer = 0;
             }
-            else check_timer -= uiDiff;
+            else
+                check_timer -= uiDiff;
 
             if (me->HasAura(SPELL_SQUIRE_TIRED) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
             {
