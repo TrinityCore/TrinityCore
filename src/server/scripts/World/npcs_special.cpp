@@ -2586,7 +2586,7 @@ public:
     {
         // Argent Pony Bridle options
         const AchievementEntry * achiPonyUp = sAchievementStore.LookupEntry(ACHI_PONY_UP);
-        if (pPlayer->GetAchievementMgr().HasAchieved(achiPonyUp))
+        if (pPlayer->HasAchieved(ACHI_PONY_UP))
             if (!pCreature->HasAura(SPELL_SQUIRE_TIRED))
             {
                 uint8 uiBuff = (STATE_BANK | STATE_SHOP | STATE_MAIL);
@@ -2729,6 +2729,10 @@ public:
                 m_current_pennant = 0;
             }
         }
+
+    private:
+        uint32 _targetTimer;
+        ObjectGuid _lastTargetGUID;
     };
 
     CreatureAI *GetAI(Creature *creature) const override
