@@ -52,19 +52,14 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
     if (updateDestination || !i_path)
     {
-        if (!i_offset)
-        {
-            if (i_target->IsWithinDistInMap(owner, CONTACT_DISTANCE))
-                return;
+        float size = owner->GetObjectSize();
+        float distance2d = CONTACT_DISTANCE;
+        float absAngle = i_target->GetAngle(owner);
 
-            // to nearest contact position
-            //i_target->GetContactPoint(owner, x, y, z);
-            i_target->GetNearPoint(NULL, x, y, z, owner->GetObjectSize(), CONTACT_DISTANCE, i_target->GetAngle(owner));
-        }
-        else
+        if (i_offset)
         {
-            float dist = i_offset + 1.0f;
-            float size = owner->GetObjectSize();
+            distance2d = i_offset;
+            absAngle = i_target->GetOrientation() + i_angle;
 
             // Pets need special handling.
             // We need to subtract GetObjectSize() because it gets added back further down the chain
@@ -74,17 +69,14 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             //   doing a "dance" while fighting
             if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
-                dist -= i_offset; //i_target->GetCombatReach();
-                size -= owner->GetObjectSize() - 1.0f; //i_target->GetCombatReach() - i_target->GetObjectSize();
+                size = 1.0f;
             }
-
-            if (i_target->IsWithinDistInMap(owner, dist))
-                return;
-
-            // to at i_offset distance from target and i_angle from target facing
-            //i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
-            i_target->GetNearPoint(NULL, x, y, z, size, i_offset, i_target->GetOrientation() + i_angle);
         }
+
+        if (i_target->IsWithinDistInMap(owner, size + distance2d - owner->GetObjectSize()))
+            return;
+
+        i_target->GetNearPoint(NULL, x, y, z, size, distance2d, absAngle);
     }
     else
     {
