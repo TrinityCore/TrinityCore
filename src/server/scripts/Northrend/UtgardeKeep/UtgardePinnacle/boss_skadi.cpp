@@ -757,10 +757,10 @@ class spell_skadi_reset_check : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (_targetCount || !GetHitUnit())
+                if (_targetCount)
                     return;
 
-                Creature* target = GetHitCreature()->ToCreature();
+                Creature* target = GetHitCreature();
                 if (!target)
                     return;
 
