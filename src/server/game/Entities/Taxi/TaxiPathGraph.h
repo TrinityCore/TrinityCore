@@ -40,11 +40,11 @@ private:
         uint32 Distance;
         uint32 EvaluateDistance(Player const* player) const;
     };
-    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, boost::property<boost::vertex_index_t, uint32>, boost::property<boost::edge_weight_t, EdgeCost>> Graph;
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::property<boost::vertex_index_t, uint32>, boost::property<boost::edge_weight_t, EdgeCost>> Graph;
     typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
     typedef Graph::vertex_descriptor vertex_descriptor;
     typedef Graph::edge_descriptor edge_descriptor;
-    typedef std::pair<uint32, uint32> edge;
+    typedef std::pair<vertex_descriptor, vertex_descriptor> edge;
 
     TaxiPathGraph() { }
     ~TaxiPathGraph() { }

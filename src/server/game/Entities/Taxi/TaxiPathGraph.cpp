@@ -147,9 +147,17 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
     {
         shortestPath.clear();
         std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
+        std::vector<uint32> d(boost::num_vertices(m_graph));
 
         boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
             boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+            .distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, m_graph)))
+            .vertex_index_map(boost::get(boost::vertex_index, m_graph))
+            .distance_compare(std::less<uint32>())
+            .distance_combine(boost::closed_plus<uint32>())
+            .distance_inf(std::numeric_limits<uint32>::max())
+            .distance_zero(0)
+            .visitor(boost::dijkstra_visitor<boost::null_visitor>())
             .weight_map(boost::make_transform_value_property_map(
                 [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
                 boost::get(boost::edge_weight, m_graph))));
