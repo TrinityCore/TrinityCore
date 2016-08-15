@@ -4266,7 +4266,7 @@ public:
                     if (caster->GetOwner()->IsMounted())
                         caster->Mount(29736);
                     else if (caster->IsMounted())
-                        GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                        caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
                 }
             }
         }
