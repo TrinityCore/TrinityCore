@@ -2585,7 +2585,7 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         // Argent Pony Bridle options
-        const AchievementEntry * achiPonyUp = GetAchievementStore()->LookupEntry(ACHI_PONY_UP);
+        const AchievementEntry * achiPonyUp = sAchievementStore.LookupEntry(ACHI_PONY_UP);
         if (pPlayer->GetAchievementMgr().HasAchieved(achiPonyUp))
             if (!pCreature->HasAura(SPELL_SQUIRE_TIRED))
             {

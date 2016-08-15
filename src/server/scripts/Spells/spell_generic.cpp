@@ -4252,7 +4252,7 @@ public:
 
     class spell_gen_mounting_check_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_gen_mounting_check_AuraScript)
+        PrepareAuraScript(spell_gen_mounting_check_AuraScript);
 
     public:
         spell_gen_mounting_check_AuraScript() { }
