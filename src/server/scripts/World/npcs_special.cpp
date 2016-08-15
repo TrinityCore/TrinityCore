@@ -2690,9 +2690,6 @@ public:
             check_timer = 1000;
         }
 
-        uint32 m_current_pennant;
-        uint32 check_timer;
-
         void UpdateAI(const uint32 uiDiff) override
         {
             // have to delay the check otherwise it wont work
@@ -2731,8 +2728,8 @@ public:
         }
 
     private:
-        uint32 _targetTimer;
-        ObjectGuid _lastTargetGUID;
+        uint32 m_current_pennant;
+        uint32 check_timer;
     };
 
     CreatureAI *GetAI(Creature *creature) const override
