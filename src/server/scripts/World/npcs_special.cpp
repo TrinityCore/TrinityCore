@@ -2762,5 +2762,5 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_stable_master();
     new npc_train_wrecker();
-    new npc_argent_squire;
+    new npc_argent_squire();
 }
