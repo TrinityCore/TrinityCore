@@ -413,6 +413,7 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
 
 // SD2 grid searchers.
 TC_GAME_API Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
+TC_GAME_API Creature* GetClosestSpawnedCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive = true);
 TC_GAME_API GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange);
 TC_GAME_API void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange);
 TC_GAME_API void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange);

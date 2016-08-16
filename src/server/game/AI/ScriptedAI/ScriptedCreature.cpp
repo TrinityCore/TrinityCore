@@ -651,6 +651,11 @@ Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float m
     return source->FindNearestCreature(entry, maxSearchRange, alive);
 }
 
+Creature* GetClosestSpawnedCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive /*= true*/)
+{
+    return source->FindNearestSpawnedCreature(entry, maxSearchRange, alive);
+}
+
 GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
 {
     return source->FindNearestGameObject(entry, maxSearchRange);
