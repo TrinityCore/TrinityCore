@@ -29,6 +29,11 @@ typedef std::set<uint32> BattlegroundClientIdsContainer;
 
 typedef std::unordered_map<uint32, BattlegroundTypeId> BattleMastersMap;
 
+enum BattlegroundMisc
+{
+    BATTLEGROUND_OBJECTIVE_UPDATE_INTERVAL      = 1000
+};
+
 struct BattlegroundData
 {
     BattlegroundContainer m_Battlegrounds;
@@ -148,6 +153,7 @@ class TC_GAME_API BattlegroundMgr
 
         std::vector<uint64> m_QueueUpdateScheduler;
         uint32 m_NextRatedArenaUpdate;
+        uint32 m_UpdateTimer;
         bool   m_ArenaTesting;
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;
