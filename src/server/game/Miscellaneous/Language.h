@@ -865,7 +865,7 @@ enum TrinityStrings
     LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
     LANG_ACCOUNT_NOT_DELETED            = 1003,
     LANG_ACCOUNT_CREATED                = 1004,
-    LANG_ACCOUNT_TOO_LONG               = 1005,
+    LANG_ACCOUNT_NAME_TOO_LONG          = 1005,
     LANG_ACCOUNT_ALREADY_EXIST          = 1006,
     LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
     LANG_ACCOUNT_NOT_CREATED            = 1008,
@@ -891,7 +891,8 @@ enum TrinityStrings
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
     LANG_ACCOUNT_INVALID_BNET_NAME      = 1029, // 6.x ONLY
     LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030, // 6.x enum value name but different text in DB
-    // Room for more level 4              1031-1099 not used
+    LANG_ACCOUNT_PASS_TOO_LONG          = 1031,
+    // Room for more level 4              1032-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
