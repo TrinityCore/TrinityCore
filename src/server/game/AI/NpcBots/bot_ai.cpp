@@ -4802,7 +4802,7 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
             {
                 //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
                 // so made a hacky way by making it a gameobject by player with 90s removal
-                if (GameObject* go = player->SummonGameObject(portdest, me->GetPositionX()+2, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 90));
+                if (GameObject* go = player->SummonGameObject(portdest, me->GetPositionX()+2, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 90))
                 PlaySound(TEXT_EMOTE_TRAIN);
                 std::ostringstream chootext;
                 chootext << "All aboard the " << locname << " Express!";
@@ -4838,7 +4838,7 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
 
                 //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
                 // so made a hacky way by making it a gameobject by player with 2 min removal
-                if (GameObject* go = player->SummonGameObject(wwell, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 120));
+                if (GameObject* go = player->SummonGameObject(wwell, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 120))
                 PlaySound(TEXT_EMOTE_TRAIN);
                 BotYell("Get your stones from the soulwell here!", player);
             }
@@ -4872,7 +4872,7 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
 
                 //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
                 // so made a hacky way by making it a gameobject by player with 3 min removal
-                if (GameObject* go = player->SummonGameObject(wtable, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 180));
+                if (GameObject* go = player->SummonGameObject(wtable, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), G3D::Quat(), 180))
                 PlaySound(TEXT_EMOTE_TRAIN);
                 BotYell("Get your yummies from the table here!", player);
             }
