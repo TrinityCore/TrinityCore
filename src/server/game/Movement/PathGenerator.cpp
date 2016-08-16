@@ -485,8 +485,9 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         memcpy(&pathPoints[VERTEX_SIZE * 0], startPoint, sizeof(float)* 3); // first point
 
         // path has to be split into polygons with dist SMOOTH_PATH_STEP_SIZE between them
-        G3D::Vector3 startVec = G3D::Vector3(startPoint[0], startPoint[1], startPoint[2]);
-        G3D::Vector3 endVec = G3D::Vector3(endPoint[0], endPoint[1], endPoint[2]);
+		//startPoint and endPoint are in format y,z,x while G3D::Vector3 expects x,y,z
+        G3D::Vector3 startVec = G3D::Vector3(startPoint[2], startPoint[0], startPoint[1]);
+        G3D::Vector3 endVec = G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]);
         G3D::Vector3 diffVec = (endVec - startVec);
         G3D::Vector3 prevVec = startVec;
         float len = diffVec.length();
