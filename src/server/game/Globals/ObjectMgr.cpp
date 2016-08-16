@@ -9285,3 +9285,37 @@ void ObjectMgr::LoadCreatureQuestItems()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::LoadVendorItemCounts()
+{
+    uint32 oldMSTime = getMSTime();
+
+    // For reload case
+    for (VendorItemCountsContainer::iterator itr = _vendorItemCountsStore.begin(); itr != _vendorItemCountsStore.end(); ++itr)
+        itr->second.clear();
+    _vendorItemCountsStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT guid, item, count, lastIncrementTime FROM creature_vendor");
+    if (!result)
+    {
+        TC_LOG_ERROR("sql.sql", ">>  Loaded 0 Vendor Item Counts. DB table `creature_vendor` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint64 guid = fields[0].GetUInt32();
+        uint32 item = fields[1].GetUInt32();
+        uint32 count = fields[2].GetUInt32();
+        time_t lastIncrementTime = fields[3].GetUInt32();
+
+        _vendorItemCountsStore[guid].push_back(VendorItemCount(item, count, lastIncrementTime));
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %d Vendor Item Counts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
