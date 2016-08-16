@@ -2942,18 +2942,17 @@ void Creature::SaveVendorItemCount()
 {
     for (auto itr = m_vendorItemCounts.begin(); itr != m_vendorItemCounts.end(); ++itr)
     {
-        SQLTransaction trans = WorldDatabase.BeginTransaction();
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_VENDOR);
         uint8 index = 0;
 
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_VENDOR);
         stmt->setUInt32(index++, m_spawnId);
         stmt->setUInt32(index++, itr->itemId);
         stmt->setUInt8(index++, itr->count);
         stmt->setUInt32(index++, itr->lastIncrementTime);
         trans->Append(stmt);
 
-        WorldDatabase.CommitTransaction(trans);
+        CharacterDatabase.CommitTransaction(trans);
     }
 }

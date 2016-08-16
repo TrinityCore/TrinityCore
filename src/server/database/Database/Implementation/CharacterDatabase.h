@@ -532,6 +532,8 @@ enum CharacterDatabaseStatements
 
     CHAR_INS_DESERTER_TRACK,
 
+    CHAR_REP_CREATURE_VENDOR,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
