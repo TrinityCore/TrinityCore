@@ -17,6 +17,13 @@ echo
 git pull
 echo
 
+chmod +x ./update
+chmod +x ./update.sh
+chmod +x ./compile.sh
+chmod +x ./rebuild
+chmod +x ./rebuild.sh
+chmod +x ./update-config
+
 sudo rm /usr/local/bin/server-update
 sudo cp ./update /usr/local/bin/server-update
 
