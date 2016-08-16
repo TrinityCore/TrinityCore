@@ -2677,7 +2677,6 @@ public:
         bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
 
     private:
-        uint32 _check_timer;
         TaskScheduler _scheduler;
     };
 
