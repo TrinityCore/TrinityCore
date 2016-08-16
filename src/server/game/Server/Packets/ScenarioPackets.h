@@ -54,7 +54,7 @@ namespace WorldPackets
             int8 UnkBit = 128;
         };
 
-        class ScenarioState final : public WorldPackets::ServerPacket
+        class TC_GAME_API ScenarioState final : public ServerPacket
         {
         public:
             ScenarioState() : ServerPacket(SMSG_SCENARIO_STATE) { }
@@ -74,7 +74,7 @@ namespace WorldPackets
             bool ScenarioCompleted = false;
         };
 
-        class ScenarioProgressUpdate final : public WorldPackets::ServerPacket
+        class TC_GAME_API ScenarioProgressUpdate final : public ServerPacket
         {
         public:
             ScenarioProgressUpdate() : ServerPacket(SMSG_SCENARIO_PROGRESS_UPDATE) { }
@@ -84,7 +84,7 @@ namespace WorldPackets
             CriteriaProgress criteriaProgress;
         };
 
-        class ScenarioCompleted final : public WorldPackets::ServerPacket
+        class TC_GAME_API ScenarioCompleted final : public ServerPacket
         {
         public:
             ScenarioCompleted(uint32 scenarioId) : ScenarioId(scenarioId), ServerPacket(SMSG_SCENARIO_COMPLETED, 4) { }
@@ -94,7 +94,7 @@ namespace WorldPackets
             uint32 ScenarioId = 0;
         };
 
-        class ScenarioBoot final : public WorldPackets::ServerPacket
+        class TC_GAME_API ScenarioBoot final : public ServerPacket
         {
         public:
             ScenarioBoot() : ServerPacket(SMSG_SCENARIO_BOOT, 0) { }
