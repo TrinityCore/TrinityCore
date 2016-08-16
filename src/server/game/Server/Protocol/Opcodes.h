@@ -1343,8 +1343,7 @@ enum Opcodes : uint16
 
 enum OpcodeMisc : uint16
 {
-    MAX_OPCODE = NUM_MSG_TYPES - 1,
-    NUM_OPCODE_HANDLERS = (MAX_OPCODE + 1),
+    NUM_OPCODE_HANDLERS = NUM_MSG_TYPES,
     NULL_OPCODE = 0x0000
 };
 
