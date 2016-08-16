@@ -1231,7 +1231,7 @@ BirthdayTime = 1222964635
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 0
+Updates.EnableDatabases = 7
 
 #
 #    Updates.AutoSetup
