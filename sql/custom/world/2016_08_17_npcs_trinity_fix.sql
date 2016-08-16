@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `faction`= 35 WHERE entry BETWEEN 500044 AND 500045;
