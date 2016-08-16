@@ -387,14 +387,14 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         {
             pkt << uint8(WOW_FAIL_BANNED);
             SendPacket(pkt);
-            TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] Banned account %s tried to login!", ipAddress.c_str(), port, _accountInfo.Login.c_str());
+            TC_LOG_INFO("server.authserver.banned", "'%s:%d' [AuthChallenge] Banned account %s tried to login!", ipAddress.c_str(), port, _accountInfo.Login.c_str());
             return;
         }
         else
         {
             pkt << uint8(WOW_FAIL_SUSPENDED);
             SendPacket(pkt);
-            TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] Temporarily banned account %s tried to login!", ipAddress.c_str(), port, _accountInfo.Login.c_str());
+            TC_LOG_INFO("server.authserver.banned", "'%s:%d' [AuthChallenge] Temporarily banned account %s tried to login!", ipAddress.c_str(), port, _accountInfo.Login.c_str());
             return;
         }
     }
@@ -648,7 +648,7 @@ bool AuthSession::HandleLogonProof()
         packet << uint8(0);
         SendPacket(packet);
 
-        TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!",
+        TC_LOG_INFO("server.authserver.hack", "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!",
             GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str());
 
         uint32 MaxWrongPassCount = sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0);
@@ -811,7 +811,7 @@ bool AuthSession::HandleReconnectProof()
     }
     else
     {
-        TC_LOG_ERROR("server.authserver", "'%s:%d' [ERROR] user %s tried to login, but session is invalid.", GetRemoteIpAddress().to_string().c_str(),
+        TC_LOG_ERROR("server.authserver.hack", "'%s:%d' [ERROR] user %s tried to login, but session is invalid.", GetRemoteIpAddress().to_string().c_str(),
             GetRemotePort(), _accountInfo.Login.c_str());
         return false;
     }

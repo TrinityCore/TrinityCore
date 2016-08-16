@@ -363,7 +363,7 @@ class TC_GAME_API AchievementGlobalMgr
             if (itr == m_allCompletedAchievements.end())
                 return false;
 
-            if (achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
+            if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
                 return itr->second != instanceId;
 
             return true;
