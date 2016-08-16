@@ -1,0 +1,11 @@
+#! /bin/bash
+
+cd /home/conan/Source/SingleCore_TC
+chmod +x ./update
+chmod +x ./update.sh
+chmod +x ./compile.sh
+chmod +x ./rebuild
+chmod +x ./rebuild.sh
+chmod +x ./update-config
+./update.sh
+cd ~
