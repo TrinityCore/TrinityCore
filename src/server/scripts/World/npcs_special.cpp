@@ -2596,7 +2596,24 @@ public:
     {
         npc_argent_squire_gruntlingAI(Creature* creature) : ScriptedAI(creature)
         {
-            _check_timer = 1 * IN_MILLISECONDS;
+            ScheduleTasks();
+        }
+
+        void ScheduleTasks()
+        {
+            _scheduler
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                {
+                    if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
+                        if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
+                            squireTired->SetDuration(ownerTired->GetDuration());
+                })
+                .Schedule(Seconds(1), [this](TaskContext context)
+                {
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    context.Repeat();
+                });
         }
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -2643,10 +2660,10 @@ public:
                 case GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT:
                 case GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT:
                 case GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT:
-                    if (me->GetEntry() == NPC_ARGENT_SQUIRE)
-                        me->CastSpell(me, bannerSpells[gossipListId - 3].spellSquire, true);
+                    if (IsArgentSquire())
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellSquire, true);
                     else
-                        me->CastSpell(me, bannerSpells[gossipListId - 3].spellGruntling, true);
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellGruntling, true);
                     break;
             }
             player->PlayerTalkClass->SendCloseGossip();
@@ -2654,24 +2671,14 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (_check_timer && _check_timer <= diff)
-            {
-                if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
-                    if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
-                        squireTired->SetDuration(ownerTired->GetDuration());
-                _check_timer = 0;
-            }
-            else
-                _check_timer -= diff;
-
-            if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+            _scheduler.Update(diff);
         }
 
-        bool IsArgentSquire() { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
+        bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
 
     private:
         uint32 _check_timer;
+        TaskScheduler _scheduler;
     };
 
     CreatureAI* GetAI(Creature *creature) const override
