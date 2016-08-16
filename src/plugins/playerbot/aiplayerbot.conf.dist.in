@@ -8,11 +8,17 @@ ConfVersion=2010102201
 # Enable or disable AI Playerbot
 AiPlayerbot.Enabled = 1
 
-# thesawolf - Not So Random bot creation, use prefab or fallback to random
-AiPlayerbot.NotSoRandom = 1
+# AI Playerbots can join in Battlegrounds
+AiPlayerbot.RandomBotJoinBG = 1
 
-# thesawolf - Enable ARAC (Any Race, Any Class) support for chargen
-AiPlayerbot.ARAC = 1
+# AI Playerbots pick up the player level
+AIPlayerbot.RandomBotBracketPlayer = 0
+
+# Feels like NPCBots, but using AI playerbots code
+AiPlayerbot.NotSoRandom = 0
+
+# All race, all class mode for bots (need the client mod too)
+AiPlayerbot.ARAC = 0
 
 # Warrior
 AiPlayerbot.RandomClassSpecProbability.1.0 = 20
@@ -54,6 +60,14 @@ AiPlayerbot.RandomClassSpecProbability.9.2 = 33
 AiPlayerbot.RandomClassSpecProbability.11.0 = 10
 AiPlayerbot.RandomClassSpecProbability.11.1 = 45
 AiPlayerbot.RandomClassSpecProbability.11.2 = 45
+
+# no idea - TC was requesting these.. so..
+AiPlayerbot.RandomClassSpecProbability.0.0 = 33
+AiPlayerbot.RandomClassSpecProbability.0.1 = 33
+AiPlayerbot.RandomClassSpecProbability.0.2 = 33
+AiPlayerbot.RandomClassSpecProbability.10.0 = 33
+AiPlayerbot.RandomClassSpecProbability.10.1 = 33
+AiPlayerbot.RandomClassSpecProbability.10.2 = 33
 
 #
 # All other parameters are optional but can be changed by uncommenting them here
@@ -112,14 +126,14 @@ AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random,+loot
 AiPlayerbot.RandomBotAutoCreate = 1
 
 # Random bot count
-AiPlayerbot.MinRandomBots = 150
+AiPlayerbot.MinRandomBots = 200
 AiPlayerbot.MaxRandomBots = 200
 AiPlayerbot.RandomBotMinLevel = 1
-AiPlayerbot.RandomBotMaxLevel = 80
+AiPlayerbot.RandomBotMaxLevel = 80 
 
 # Accounts to create for random bots
 AiPlayerbot.RandomBotAccountPrefix = rndbot
-AiPlayerbot.RandomBotAccountCount = 50
+AiPlayerbot.RandomBotAccountCount = 100
 
 # Delete all random bot accounts
 AiPlayerbot.DeleteRandomBotAccounts = 0
@@ -143,14 +157,14 @@ AiPlayerbot.MaxGuildTaskRewardTime = 600
 # Delete all random bot guilds
 AiPlayerbot.DeleteRandomBotGuilds = 0
 
-# Maps to teleport random bots
-AiPlayerbot.RandomBotMaps = 0,1,530,571
+# Maps to teleport random bots (0,1,530,571)
+AiPlayerbot.RandomBotMaps = 0,1
 
 # Change random bot has lower gear
 AiPlayerbot.RandomGearLoweringChance = 0.15
 
 # Chance random bot has max level on first randomize
-AiPlayerbot.RandomBotMaxLevelChance = 0.4
+AiPlayerbot.RandomBotMaxLevelChance = 0.3
 
 # Quest items to leave (do not destroy)
 AiPlayerbot.RandomBotQuestItems = 6948,5175,5176,5177,5178
@@ -176,11 +190,11 @@ AiPlayerbot.MinRandomBotsPerInterval = 50
 AiPlayerbot.MaxRandomBotsPerInterval = 100
 AiPlayerbot.MinRandomBotsPriceChangeInterval = 7200
 AiPlayerbot.MaxRandomBotsPriceChangeInterval = 172800
-AiPlayerbot.MinRandomBotReviveTime = 60
-AiPlayerbot.MaxRandomReviveTime = 300
+AiPlayerbot.MinRandomBotReviveTime = 10
+AiPlayerbot.MaxRandomReviveTime = 120
 
 # Log on all random bots on start
-AiPlayerbot.RandomBotLoginAtStartup = 1
+AiPlayerbot.RandomBotLoginAtStartup = 0
 
 # How far random bots are teleported after death
 AiPlayerbot.RandomBotTeleportDistance = 1000

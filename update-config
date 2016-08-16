@@ -1,0 +1,13 @@
+#! /bin/bash
+
+echo
+echo Updating old server config files
+echo
+
+rm /home/conan/Settings/worldserver.conf
+rm /home/conan/Settings/authserver.conf
+rm /home/conan/Settings/bots.conf
+
+cp /home/conan/Source/SingleCore_TC/src/server/worldserver/worldserver.conf.dist /home/conan/Settings/worldserver.conf
+cp /home/conan/Source/SingleCore_TC/src/server/authserver/authserver.conf.dist /home/conan/Settings/authserver.conf
+cp /home/conan/Source/SingleCore_TC/src/plugins/playerbot/aiplayerbot.conf.dist.in /home/conan/Settings/bots.conf

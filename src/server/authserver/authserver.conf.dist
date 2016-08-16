@@ -173,7 +173,7 @@ MySQLExecutable = ""
 #                                                                           Unix/Linux)
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"
 
-LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+LoginDatabaseInfo = "127.0.0.1;3306;root;123456;auth"
 
 #
 #    LoginDatabase.WorkerThreads
