@@ -1,0 +1,6 @@
+#! /bin/bash
+
+cd /home/conan/Source/SingleCore_TC
+chmod +x ./rebuild.sh
+./rebuild.sh
+cd ~
