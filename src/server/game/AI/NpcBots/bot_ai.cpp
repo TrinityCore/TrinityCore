@@ -285,7 +285,7 @@ void bot_ai::ResetBotAI(uint8 resetType)
         //thesawolf - TC commit 1ad73212dca0cf8a829d15ffdbcc4cd611e64d4e
         //		changed this, updating to new calls
         //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
-        //teleHomeEvent->ScheduleAbort();
+//        teleHomeEvent->ScheduleAbort(); //thesawolf - test teleport fix
         teleHomeEvent->Execute(0,0);
     }
     else
@@ -4445,7 +4445,14 @@ bool bot_minion_ai::OnGossipHello(Player* player, Creature* creature, uint32 /*o
                 case BOT_CLASS_MAGE:
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need food", GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need drink", GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Can we get a portal?", GOSSIP_SENDER_PORTAL, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "Can we get a refreshment table?", GOSSIP_SENDER_TABLE, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Can we get a portal?", GOSSIP_SENDER_PORTAL, GOSSIP_ACTION_INFO_DEF + 4);
+                    menus = true;
+                    break;
+                case BOT_CLASS_WARLOCK:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need a healthstone", GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need a firestone", GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Can we get a soulwell?", GOSSIP_SENDER_SOULWELL, GOSSIP_ACTION_INFO_DEF + 3);
                     menus = true;
                     break;
                 default:
@@ -4697,7 +4704,6 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
         }
         case GOSSIP_SENDER_PORTCHOICE: //thesawolf - do the actual porting for mages
         {
-            uint32 portlock = 0;
             std::string locname;
             uint32 portdest = 0;
             
@@ -4705,81 +4711,80 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
             {
                 case 1:
                 {
-                    portlock = 10059;
-                    portdest = 17334;
+                    portdest = 176296;
                     locname = "Stormwind City";
                     break;
                 }
                 case 2:
                 {
-                    portlock = 11416;
+                    portdest = 176497;
                     locname = "Ironforge";
                     break;
                 }
                 case 3:
                 {
-                    portlock = 11419;
+                    portdest = 176498;
                     locname = "Darnassus";
                     break;
                 }
                 case 4:
                 {
-                    portlock = 32266;
+                    portdest = 182351;
                     locname = "Exodar";
                     break;
                 }
                 case 5:
                 {
-                    portlock = 49360;
+                    portdest = 189993;
                     locname = "Theramore";
                     break;
                 }
                 case 6: 
                 {
-                    portlock = 33691;
+                    portdest = 184594;
                     locname = "Shattrath City";
                     break;
                 }
                 case 7:
                 case 14:
                 {
-                    portlock = 53142;
+                    portdest = 195682;
                     locname = "Dalaran";
                     break;
                 }
                 case 8:
                 {
-                    portlock = 11417;
+                    portdest = 176499;
                     locname = "Orgrimmar";
                     break;
                 }
                 case 9:
                 {
-                    portlock = 11420;
+                    portdest = 176500;
                     locname = "Thunder Bluff";
                     break;
                 }
                 case 10:
                 {
-                    portlock = 11418;
+                    portdest = 176501;
                     locname = "Undercity";
                     break;
                 }
                 case 11:
                 {
-                    portlock = 32267;
+                    portdest = 182352;
                     locname = "Silvermoon City";
                     break;
                 }
                 case 12:
                 {
-                    portlock = 49361;
+                    portdest = 189994;
                     locname = "Stonard";
                     break;
                 }
                 case 13:
                 {
-                    portlock = 35717;
+                    portdest = 184594;
                     locname = "Shattrath City";
                     break;
                 }
@@ -4787,34 +4792,89 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                     break;
             }
 
-            InitSpellMap(portlock);
+            InitSpellMap(7078);
                         
-            //uint32 portload = InitSpell(me, portlock);
-            //SpellInfo const* Info = sSpellMgr->GetSpellInfo(portload);
-            //Spell* portspell = new Spell(me, Info, TRIGGERED_NONE, player->GetGUID());
-            //SpellCastTargets targets;
-            //targets.SetUnitTarget(player);
-            //targets.SetDst(portdest);
-            //TODO implement checkcast for bots
-            //SpellCastResult result = me->IsMounted() || CCed(me) ? SPELL_FAILED_CUSTOM_ERROR : portspell->CheckPetCast(player);
-            //if (result != SPELL_CAST_OK)
-            if (!doCast(me, portlock))
+            if (!doCast(me, 7078))
             {
-                //portspell->finish(false);
-                //delete portspell;
                 BotSay("Oops! Something went wrong!", player);
             }
             else
             {
-                //thesawolf - TODO: It works.. but not group clickable yet for some reason
-                // probably because Npcbots are pseudo-grouped since they are npc's - FIXME
-
-                //aftercastTargetGuid = player->GetGUID();
-                //portspell->prepare(&targets);
+                //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
+                // so made a hacky way by making it a gameobject by player with 90s removal
+                if (GameObject* go = player->SummonGameObject(portdest, me->GetPositionX()+2, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 90));
                 PlaySound(TEXT_EMOTE_TRAIN);
                 std::ostringstream chootext;
                 chootext << "All aboard the " << locname << " Express!";
                 BotYell(chootext.str().c_str(), player);
+            }
+            break;
+        }        
+        case GOSSIP_SENDER_SOULWELL: //thesawolf - add in soulwell for locks
+        {
+            subMenu = true;
+
+            uint32 plevel = player->getLevel();
+
+            if (plevel < 70) // level check
+            {
+                BotWhisper("I can't create soulwells yet.. sorry.", player);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "BACK", 1, GOSSIP_ACTION_INFO_DEF + 1);
+                break;            
+            } 
+                        
+            InitSpellMap(29893);
+            if (!doCast(me, 29893))
+            {
+                BotWhisper("Oops! Something went wrong!", player);
+            }
+            else
+            {
+                uint32 wwell;
+                if (plevel >= 79)
+                    wwell = 193169; // well for lvl 79 stones
+                else 
+                    wwell = 181621; //well for lvl 70 stones
+
+                //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
+                // so made a hacky way by making it a gameobject by player with 2 min removal
+                if (GameObject* go = player->SummonGameObject(wwell, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 120));
+                PlaySound(TEXT_EMOTE_TRAIN);
+                BotYell("Get your stones from the soulwell here!", player);
+            }
+            break;
+        }        
+        case GOSSIP_SENDER_TABLE: //thesawolf - add in mage table for mages
+        {
+            subMenu = true;
+
+            uint32 plevel = player->getLevel();
+
+            if (plevel < 72) // level check
+            {
+                BotWhisper("I can't create refreshment tables yet.. sorry.", player);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "BACK", 1, GOSSIP_ACTION_INFO_DEF + 1);
+                break;            
+            } 
+                        
+            InitSpellMap(43987);
+            if (!doCast(me, 43987))
+            {
+                BotWhisper("Oops! Something went wrong!", player);
+            }
+            else
+            {
+                uint32 wtable;
+                if (plevel >= 80)
+                    wtable = 193061; // table with lvl 80 food
+                else
+                    wtable = 186812; // table with lvl 65 food
+
+                //thesawolf - It works.. but not group clickable due to npcbot pseudo-group
+                // so made a hacky way by making it a gameobject by player with 3 min removal
+                if (GameObject* go = player->SummonGameObject(wtable, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 180));
+                PlaySound(TEXT_EMOTE_TRAIN);
+                BotYell("Get your yummies from the table here!", player);
             }
             break;
         }        
@@ -4847,8 +4907,6 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                         errorstr += iswater ? "water" : "food";
                         errorstr += " yet";
                         BotWhisper(errorstr.c_str(), player);
-                        //player->PlayerTalkClass->ClearMenus();
-                        //return OnGossipHello(player, me);
                         break;
                     }
                     SpellInfo const* Info = sSpellMgr->GetSpellInfo(food);
@@ -4866,8 +4924,232 @@ bool bot_minion_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/,
                     else
                     {
                         aftercastTargetGuid = player->GetGUID();
-                        foodspell->prepare(&targets);
-                        BotWhisper("Here you go...", player);
+                        foodspell->prepare(&targets); 
+                        //thesawolf - fix for straight-to-inventory summoning
+                        if (aftercastTargetGuid)
+                        {
+                            std::string summonstr = "Summoning ";
+                            summonstr += iswater ? "water" : "food";
+                            summonstr +=" for you...";
+                            BotWhisper(summonstr.c_str(), player);
+                            Player* pTarget = ObjectAccessor::FindPlayer(aftercastTargetGuid);
+                            aftercastTargetGuid.Clear();
+
+                            if (!pTarget/* || me->GetDistance(pTarget) > 15*/)
+                            {
+                                BotWhisper("You are too far away for me to give you this..", player);
+                                break;
+                            }
+
+                            //handle effects
+                            for (uint8 i = 0; i != MAX_SPELL_EFFECTS; ++i)
+                            {
+                                switch (Info->Effects[i].Effect)
+                                {
+                                    case SPELL_EFFECT_CREATE_ITEM:
+                                    case SPELL_EFFECT_CREATE_ITEM_2:
+                                    {
+                                        uint32 newitemid = Info->Effects[i].ItemType;
+                                        if (newitemid)
+                                        {
+                                            ItemPosCountVec dest;
+                                            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(newitemid);
+                                            if (!pProto)
+                                                break;
+                                            uint32 count = pProto->GetMaxStackSize();
+                                            uint32 no_space = 0;
+                                            InventoryResult msg = pTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, newitemid, count, &no_space);
+                                            if (msg != EQUIP_ERR_OK)
+                                            {
+                                                if (msg == EQUIP_ERR_INVENTORY_FULL || msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+                                                {
+                                                    BotWhisper("No space in your bags!", player);                                
+                                                    count -= no_space;
+                                                }
+                                                else
+                                                {
+                                                    // if not created by another reason from full inventory or unique items amount limitation
+                                                    BotWhisper("There was an issue giving this to you!", player);                                
+                                                    pTarget->SendEquipError(msg, NULL, NULL, newitemid);
+                                                    continue;
+                                                }
+                                            }
+                                            if (count)
+                                            {
+                                                Item* pItem = pTarget->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+                                                if (!pItem)
+                                                {
+                                                    BotWhisper("Can't seem to find the item now to give to you!", player);                                
+                                                    pTarget->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+                                                    continue;
+                                                }
+                                                //unsafe possible
+                                                pItem->SetUInt32Value(ITEM_FIELD_CREATOR, me->GetGUID().GetCounter());
+                                                        
+                                                pTarget->SendNewItem(pItem, count, true, false, true);
+                                                BotWhisper("Here you go...", player);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default:
+                                        break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case BOT_CLASS_WARLOCK: //thesawolf - stone summoning 
+                {
+                    //Prevent high-leveled consumables for low-level characters
+                    Unit* checker;
+                    if (player->getLevel() < me->getLevel())
+                        checker = player;
+                    else
+                        checker = me;
+
+                    // Create Healthstone
+                    uint32 stone = InitSpell(checker, 34130/*6201*/);
+                    bool isfire = (action == GOSSIP_ACTION_INFO_DEF + 2);
+                    if (!isfire)// Create Healthstone
+                    {
+                        //thesawolf - issue with rank healthstone conjuring
+                        // doesn't go to inventory.. only these 2 stones are working
+                        // FIXME
+                        if(player->getLevel() < 69)
+                        { 
+                            stone = InitSpell(checker, 34130); //lvl 60 stone
+                        }
+                        else
+                        {
+                            stone = InitSpell(checker, 58890); //lvl 69 stone
+                        }
+                    }
+                    else// Create Firestone
+                        stone = InitSpell(checker, 6366);
+
+                    if (!stone)
+                    {
+                        std::string stonestr = "I can't create ";
+                        stonestr += isfire ? "fire" : "health";
+                        stonestr += "stones yet...";
+                        BotWhisper(stonestr.c_str(), player);
+                        break;
+                    }
+                    SpellInfo const* Info = sSpellMgr->GetSpellInfo(stone);
+                    Spell* stonespell = new Spell(me, Info, TRIGGERED_NONE, player->GetGUID());
+                    SpellCastTargets targets;
+                    targets.SetUnitTarget(player);
+                    //TODO implement checkcast for bots
+                    SpellCastResult result = me->IsMounted() || CCed(me) ? SPELL_FAILED_CUSTOM_ERROR : stonespell->CheckPetCast(player);
+                    if (result != SPELL_CAST_OK)
+                    {
+                        stonespell->finish(false);
+                        delete stonespell;
+                        BotWhisper("I can't do it right now", player);
+                    }
+                    else
+                    {
+                        aftercastTargetGuid = player->GetGUID();
+                        stonespell->prepare(&targets);
+
+                        //thesawolf - kludgy fix to healthstones.. can't find a spell
+                        //that actually makes the stones.. just the cast effect OR just a stone
+                        if (!isfire) 
+                        {
+                            stone = InitSpell(checker, 6201); // this is only for appearance
+                            SpellInfo const* Info = sSpellMgr->GetSpellInfo(stone);
+                            Spell* stonespell = new Spell(me, Info, TRIGGERED_NONE, player->GetGUID());
+                            SpellCastTargets targets;
+                            targets.SetUnitTarget(player);                            
+                            stonespell->prepare(&targets);
+                        } 
+                        //thesawolf - fix straight-to-inventory summoning
+                        if (aftercastTargetGuid)
+                        {
+                            std::string wstonestr = "Creating ";
+                            wstonestr += isfire ? "fire" : "health";
+                            wstonestr += "stone for you...";
+                            BotWhisper(wstonestr.c_str(), player);
+                            Player* pTarget = ObjectAccessor::FindPlayer(aftercastTargetGuid);
+                            aftercastTargetGuid.Clear();
+
+                            if (!pTarget/* || me->GetDistance(pTarget) > 15*/)
+                            {
+                                BotWhisper("You are too far away for me to give you this..", player);
+                                break;
+                            }
+
+                            //handle effects
+                            for (uint8 i = 0; i != MAX_SPELL_EFFECTS; ++i)
+                            {
+                                switch (Info->Effects[i].Effect)
+                                {
+                                    case SPELL_EFFECT_CREATE_ITEM:
+                                    case SPELL_EFFECT_CREATE_ITEM_2:
+                                    {
+                                        uint32 newitemid = Info->Effects[i].ItemType;
+                                        if (newitemid)
+                                        {
+                                            ItemPosCountVec dest;
+                                            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(newitemid);
+                                            if (!pProto)
+                                                break;
+                                            uint32 count = pProto->GetMaxStackSize();
+                                            uint32 no_space = 0;
+                                            InventoryResult msg = pTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, newitemid, count, &no_space);
+                                            if (msg != EQUIP_ERR_OK)
+                                            {
+                                                if (msg == EQUIP_ERR_INVENTORY_FULL) 
+                                                {
+                                                    BotWhisper("No space in your bags!", player);                                
+                                                    count -= no_space;
+                                                }
+                                                else if (msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+                                                {
+                                                    BotWhisper("You can only have one of those at a time!", player);
+                                                    count -= no_space;
+                                                }
+                                                else
+                                                {
+                                                    // if not created by another reason from full inventory or unique items amount limitation
+                                                    //BotWhisper("There was an issue giving this to you!", player);                                
+                                                    /*
+                                                    std::string dstone = "DEBUG: ";
+                                                    dstone += msg;
+                                                    dstone += " equip error";
+                                                    BotWhisper(dstone.c_str(), player);
+                                                    */
+                                                    pTarget->SendEquipError(msg, NULL, NULL, newitemid);
+                                                    continue;
+                                                }
+                                            }
+                                            if (count)
+                                            {
+                                                Item* pItem = pTarget->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+                                                if (!pItem)
+                                                {
+                                                    BotWhisper("Can't seem to find the item now to give to you!", player);                                
+                                                    pTarget->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+                                                    continue;
+                                                }
+                                                //unsafe possible
+                                                pItem->SetUInt32Value(ITEM_FIELD_CREATOR, me->GetGUID().GetCounter());
+                                                        
+                                                pTarget->SendNewItem(pItem, count, true, false, true);
+                                                BotWhisper("Here you go...", player);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                    default:
+                                        break;
+                                }
+                            }
+                            break;
+                        }
                     }
                     break;
                 }
@@ -8539,7 +8821,7 @@ bool bot_minion_ai::FinishTeleport(/*uint32 mapId, uint32 instanceId, float x, f
         events.AddEvent(teleHomeEvent, events.CalculateTime(0)); //make sure event will be deleted
         //thesawolf - recent commit adjustment
         //teleHomeEvent->to_Abort = true; //make sure event will not be executed twice
-        //teleHomeEvent->ScheduleAbort();
+//        teleHomeEvent->ScheduleAbort();
         teleHomeEvent->Execute(0,0);
         _evadeMode = false;
 
@@ -8580,14 +8862,14 @@ void bot_minion_ai::AbortTeleport()
     if (teleHomeEvent)
     {
         //teleHomeEvent->to_Abort = true; //thesawolf
-        //teleHomeEvent->ScheduleAbort();
+//        teleHomeEvent->ScheduleAbort();
         teleHomeEvent = NULL;
     }
 
     if (teleFinishEvent)
     {
         //teleFinishEvent->to_Abort = true; //thesawolf
-        //teleHomeEvent->ScheduleAbort();
+//        teleHomeEvent->ScheduleAbort();
         teleFinishEvent = NULL;
     }
 

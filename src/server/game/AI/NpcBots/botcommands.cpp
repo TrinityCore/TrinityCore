@@ -46,10 +46,12 @@ public:
             { "lookup",     rbac::RBAC_PERM_COMMAND_NPCBOT_LOOKUP,                     false, &HandleNpcBotLookupCommand,              ""},
             { "revive",     rbac::RBAC_PERM_COMMAND_NPCBOT_REVIVE,                     false, &HandleNpcBotReviveCommand,              ""},
             { "cast",       rbac::RBAC_PERM_COMMAND_NPCBOT_CAST,                       false, &HandleNpcBotCastCustomSpell,            ""},
-			{ "info", 	    rbac::RBAC_PERM_COMMAND_NPCBOT_INFO,		       false, &HandleNpcBotInfoCommand,		       ""},
+            { "info", 	    rbac::RBAC_PERM_COMMAND_NPCBOT_INFO,		       false, &HandleNpcBotInfoCommand,		       ""},
             { "reset",	    rbac::RBAC_PERM_COMMAND_NPCBOT_RESET,		       false, &HandleNpcBotResetCommand,	       ""},
             { "command",    rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND,		       false, &HandleNpcBotCommandCommand,	       ""},
             { "distance",   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE,		       false, &HandleNpcBotDistanceCommand,	       ""},
+            { "attack",	    rbac::RBAC_PERM_COMMAND_NPCBOT_ATTACK,		       false, &HandleNpcBotAttackCommand,	       ""},
+            { "withdraw",   rbac::RBAC_PERM_COMMAND_NPCBOT_WITHDRAW,		       false, &HandleNpcBotWithdrawCommand,	       ""},
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -774,6 +776,63 @@ public:
         return false;
     }
 
+    //thesawolf - .npcbot attack (TARGET)
+    static bool HandleNpcBotAttackCommand(ChatHandler* handler, const char* /*args*/)    
+    {
+        Player* owner = handler->GetSession()->GetPlayer();
+        Unit* target = owner->GetSelectedUnit();
+        //Unit* target = u->GetGUID();
+        if (!target)
+        {
+            handler->PSendSysMessage(".npcbot attack (TARGET)");
+            handler->PSendSysMessage("ERROR: You need to have a target!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (owner->HaveBot())
+        {
+            //owner->GetBotMgr()->SendBotCommandState(CommandStates(COMMAND_ABANDON));
+            owner->GetBotMgr()->SendBotCommandState(CommandStates(COMMAND_ATTACK));
+            return true;
+        }
+        else 
+        {
+            handler->PSendSysMessage("ERROR: You need to have a controlled bot!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }        
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+    
+    //thesawolf - .npcbot withdraw
+    static bool HandleNpcBotWithdrawCommand(ChatHandler* handler, const char* /*args*/)    
+    {
+        Player* owner = handler->GetSession()->GetPlayer();
+        if (owner->HaveBot())
+        {
+            /*
+            if (me->GetVictim())
+                me->AttackStop();
+            else if (me->IsInCombat())
+                Evade(true);
+            */                
+            //me->CombatStop();
+            //SetBotCommandState(COMMAND_ABANDON);
+            owner->GetBotMgr()->SendBotCommandState(CommandStates(COMMAND_ABANDON));
+            owner->GetBotMgr()->SendBotCommandState(CommandStates(COMMAND_FOLLOW));
+            return true;                
+        }
+        else 
+        {
+            handler->PSendSysMessage("ERROR: You need to have a controlled bot!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }        
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+    
     static bool HandleNpcBotRemoveCommand(ChatHandler* handler, const char* /*args*/)
     {
         Player* owner = handler->GetSession()->GetPlayer();

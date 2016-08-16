@@ -76,6 +76,10 @@ enum CommonValues
     //thesawolf - mage portals
     GOSSIP_SENDER_PORTAL,
     GOSSIP_SENDER_PORTCHOICE,
+    //thesawolf - lock soulwell
+    GOSSIP_SENDER_SOULWELL,
+    //thesawolf - mage table
+    GOSSIP_SENDER_TABLE,
     GOSSIP_SENDER_EQUIPMENT,
     GOSSIP_SENDER_EQUIPMENT_LIST,
     GOSSIP_SENDER_EQUIPMENT_SHOW,
