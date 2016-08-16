@@ -1,5 +1,9 @@
 #! /bin/bash
 
+echo
+echo Updating old server config files
+echo
+
 rm /home/conan/Settings/worldserver.conf
 rm /home/conan/Settings/authserver.conf
 rm /home/conan/Settings/bots.conf
