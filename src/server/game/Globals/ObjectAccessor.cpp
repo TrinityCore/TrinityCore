@@ -81,17 +81,27 @@ HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
 template class TC_GAME_API HashMapHolder<Player>;
 template class TC_GAME_API HashMapHolder<Transport>;
 
-void PlayerNameMapHolder::Insert(Player* p)
+namespace PlayerNameMapHolder
+{
+typedef std::unordered_map<std::string, Player*> MapType;
+
+MapType& GetContainer()
+{
+    static MapType _objectMap;
+    return _objectMap;
+}
+
+void Insert(Player* p)
 {
     GetContainer()[p->GetName()] = p;
 }
 
-void PlayerNameMapHolder::Remove(Player* p)
+void Remove(Player* p)
 {
     GetContainer().erase(p->GetName());
 }
 
-Player* PlayerNameMapHolder::Find(std::string const& name)
+Player* Find(std::string const& name)
 {
     std::string charName(name);
     if (!normalizePlayerName(charName))
@@ -100,12 +110,7 @@ Player* PlayerNameMapHolder::Find(std::string const& name)
     typename MapType::iterator itr = GetContainer().find(charName);
     return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
-
-PlayerNameMapHolder::MapType& PlayerNameMapHolder::GetContainer()
-{
-    static MapType _objectMap;
-    return _objectMap;
-}
+} // namespace PlayerNameMapHolder
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
 {
