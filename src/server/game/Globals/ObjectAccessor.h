@@ -65,24 +65,6 @@ public:
     static boost::shared_mutex* GetLock();
 };
 
-class TC_GAME_API PlayerNameMapHolder
-{
-    //Non instanceable only static
-    PlayerNameMapHolder() { }
-
-public:
-
-    typedef std::unordered_map<std::string, Player*> MapType;
-
-    static void Insert(Player* p);
-
-    static void Remove(Player* p);
-
-    static Player* Find(std::string const& name);
-
-    static MapType& GetContainer();
-};
-
 namespace ObjectAccessor
 {
     // these functions return objects only if in map of specified object
