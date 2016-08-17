@@ -101,7 +101,7 @@ Player* PlayerNameMapHolder::Find(std::string const& name)
     return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
 
-auto PlayerNameMapHolder::GetContainer() -> MapType&
+PlayerNameMapHolder::MapType& PlayerNameMapHolder::GetContainer()
 {
     static MapType _objectMap;
     return _objectMap;
