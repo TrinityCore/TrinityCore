@@ -2238,9 +2238,9 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle, bool is3D) const
 {
-    float totalDistance = distance2d + searcher_size;
     if (is3D && searcher != NULL)
     {
+        float totalDistance = distance2d + searcher_size + GetObjectSize();
         G3D::Vector3 vectSearcher(searcher->GetPositionX(), searcher->GetPositionY(), searcher->GetPositionZ());
         G3D::Vector3 vectMe(GetPositionX(), GetPositionY(), GetPositionZ());
         G3D::Vector3 contactPoint = (vectSearcher - vectMe).fastUnit() * totalDistance + vectMe;
@@ -2250,7 +2250,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     }
     else
     {
-        GetNearPoint2D(x, y, totalDistance, absAngle);
+        GetNearPoint2D(x, y, distance2d + searcher_size, absAngle);
         // Should "searcher" be used instead of "this" when updating z coordinate ?
         z = GetPositionZ();
     }
@@ -2273,7 +2273,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     // loop in a circle to look for a point in LoS using small steps
     for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
-        GetNearPoint2D(x, y, totalDistance, absAngle + angle);
+        GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
         z = GetPositionZ();
         UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
