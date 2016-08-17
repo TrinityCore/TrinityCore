@@ -37,11 +37,21 @@ struct MmapTileHeader
     uint32 dtVersion;
     uint32 mmapVersion;
     uint32 size;
-    bool usesLiquids : 1;
+    char usesLiquids;
+    char padding[3];
 
     MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() {}
 };
+
+// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
+static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
+static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
+                                         sizeof(MmapTileHeader::dtVersion) +
+                                         sizeof(MmapTileHeader::mmapVersion) +
+                                         sizeof(MmapTileHeader::size) +
+                                         sizeof(MmapTileHeader::usesLiquids) +
+                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
 
 namespace MMAP
 {
