@@ -2245,7 +2245,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
         G3D::Vector3 vectMe(GetPositionX(), GetPositionY(), GetPositionZ());
         G3D::Vector3 contactPoint = (vectSearcher - vectMe).fastUnit() * totalDistance + vectMe;
         x = contactPoint.x;
-        y = contactPoint.y; 
+        y = contactPoint.y;
         z = contactPoint.z;
     }
     else
@@ -2254,7 +2254,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
         // Should "searcher" be used instead of "this" when updating z coordinate ?
         z = GetPositionZ();
     }
-    z += 1.0f; // go up a bit before the Z normalization to avoid getting under the landscape. 
+    z += 1.0f; // go up a bit before the Z normalization to avoid getting under the landscape.
     UpdateAllowedPositionZ(x, y, z);
 
     // if detection disabled, return first point
