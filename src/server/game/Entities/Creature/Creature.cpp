@@ -2938,21 +2938,20 @@ void Creature::LoadVendorItemCount()
             m_vendorItemCounts.push_back(VendorItemCount(itr->itemId, itr->count, itr->lastIncrementTime));
 }
 
-void Creature::SaveVendorItemCount()
+void Creature::SaveVendorItemCount(VendorItemCount* vendorItemCount)
 {
-    for (auto itr = m_vendorItemCounts.begin(); itr != m_vendorItemCounts.end(); ++itr)
-    {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    sObjectMgr->SaveVendorItemCounts(GetSpawnId(), vendorItemCount);
+        
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_VENDOR);
-        uint8 index = 0;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_VENDOR);
+    uint8 index = 0;
 
-        stmt->setUInt32(index++, m_spawnId);
-        stmt->setUInt32(index++, itr->itemId);
-        stmt->setUInt8(index++, itr->count);
-        stmt->setUInt32(index++, itr->lastIncrementTime);
-        trans->Append(stmt);
+    stmt->setUInt32(index++, m_spawnId);
+    stmt->setUInt32(index++, itr->itemId);
+    stmt->setUInt8(index++, itr->count);
+    stmt->setUInt32(index++, itr->lastIncrementTime);
+    trans->Append(stmt);
 
-        CharacterDatabase.CommitTransaction(trans);
-    }
+    CharacterDatabase.CommitTransaction(trans);
 }
