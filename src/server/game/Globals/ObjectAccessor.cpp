@@ -81,6 +81,41 @@ HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
 template class TC_GAME_API HashMapHolder<Player>;
 template class TC_GAME_API HashMapHolder<Transport>;
 
+void PlayerNameMapHolder::Insert(Player* p)
+{
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+
+    GetContainer()[p->GetName()] = p;
+}
+
+void PlayerNameMapHolder::Remove(Player* p)
+{
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+
+    GetContainer().erase(p->GetName());
+}
+
+// note that input string shall be normalized by the caller
+Player* PlayerNameMapHolder::Find(std::string const& name)
+{
+    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+
+    typename MapType::iterator itr = GetContainer().find(name);
+    return (itr != GetContainer().end()) ? itr->second : nullptr;
+}
+
+auto PlayerNameMapHolder::GetContainer() -> MapType&
+{
+    static MapType _objectMap;
+    return _objectMap;
+}
+
+boost::shared_mutex* PlayerNameMapHolder::GetLock()
+{
+    static boost::shared_mutex _lock;
+    return &_lock;
+}
+
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
 {
     switch (guid.GetHigh())
@@ -217,40 +252,24 @@ Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)
 
 Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
     std::string nameStr = name;
-    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
-    HashMapHolder<Player>::MapType const& m = GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        if (!iter->second->IsInWorld())
-            continue;
-        std::string currentName = iter->second->GetName();
-        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
-        if (nameStr.compare(currentName) == 0)
-            return iter->second;
-    }
+    if (!normalizePlayerName(nameStr))
+        return nullptr;
 
-    return NULL;
+    Player* player = PlayerNameMapHolder::Find(nameStr);
+    if (!player || !player->IsInWorld())
+        return nullptr;
+
+    return player;
 }
 
 Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
     std::string nameStr = name;
-    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
-    HashMapHolder<Player>::MapType const& m = GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        std::string currentName = iter->second->GetName();
-        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
-        if (nameStr.compare(currentName) == 0)
-            return iter->second;
-    }
+    if (!normalizePlayerName(nameStr))
+        return nullptr;
 
-    return NULL;
+    return PlayerNameMapHolder::Find(nameStr);
 }
 
 void ObjectAccessor::SaveAllPlayers()
@@ -260,4 +279,18 @@ void ObjectAccessor::SaveAllPlayers()
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
+}
+
+template<>
+void ObjectAccessor::AddObject(Player* player)
+{
+    HashMapHolder<Player>::Insert(player);
+    PlayerNameMapHolder::Insert(player);
+}
+
+template<>
+void ObjectAccessor::RemoveObject(Player* player)
+{
+    HashMapHolder<Player>::Remove(player);
+    PlayerNameMapHolder::Remove(player);
 }

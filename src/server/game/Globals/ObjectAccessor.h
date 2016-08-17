@@ -65,6 +65,26 @@ public:
     static boost::shared_mutex* GetLock();
 };
 
+class TC_GAME_API PlayerNameMapHolder
+{
+    //Non instanceable only static
+    PlayerNameMapHolder() { }
+
+public:
+
+    typedef std::map<std::string, Player*> MapType;
+
+    static void Insert(Player* p);
+
+    static void Remove(Player* p);
+
+    static Player* Find(std::string const& name);
+
+    static MapType& GetContainer();
+
+    static boost::shared_mutex* GetLock();
+};
+
 namespace ObjectAccessor
 {
     // these functions return objects only if in map of specified object
@@ -104,6 +124,12 @@ namespace ObjectAccessor
     {
         HashMapHolder<T>::Remove(object);
     }
+
+    template<>
+    void AddObject(Player* player);
+
+    template<>
+    void RemoveObject(Player* player);
 
     TC_GAME_API void SaveAllPlayers();
 };
