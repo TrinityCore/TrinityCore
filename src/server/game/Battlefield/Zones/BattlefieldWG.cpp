@@ -403,10 +403,18 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         }
     }
 
+    WintergraspWorldStates logEntry;
     if (!endByTimer) // win alli/horde
+    {
         SendWarning(GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_WG_TEXT_FORTRESS_CAPTURE_ALLIANCE : BATTLEFIELD_WG_TEXT_FORTRESS_CAPTURE_HORDE);
+        logEntry = GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_A : BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_H;
+    }
     else // defend alli/horde
+    {
         SendWarning(GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_WG_TEXT_FORTRESS_DEFEND_ALLIANCE : BATTLEFIELD_WG_TEXT_FORTRESS_DEFEND_HORDE);
+        logEntry = GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_A : BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_H;
+    }
+    sWorld->setWorldState(logEntry, sWorld->getWorldState(logEntry) + 1);
 }
 
 // *******************************************************
@@ -827,16 +835,22 @@ void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
 
     for (WintergraspWorkshop* workshop : Workshops)
         workshop->FillInitialWorldStates(data);
+
+    // Archavons's Log
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_H) << uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_H));
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_A) << uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_LOG_CAPTURED_A));
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_H) << uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_H));
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_A) << uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_LOG_DEFENDED_A));
 }
 
 void BattlefieldWG::SendInitWorldStatesTo(Player* player)
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (Workshops.size() * 8));
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (Workshops.size() * 8) + 4 * 8);
 
     data << uint32(m_MapId);
     data << uint32(m_ZoneId);
     data << uint32(0);                                              // AreaId
-    data << uint16(10 + BuildingsInZone.size() + Workshops.size()); // Number of fields
+    data << uint16(10 + BuildingsInZone.size() + Workshops.size() + 4); // Number of fields
 
     FillInitialWorldStates(data);
 
