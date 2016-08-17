@@ -2239,7 +2239,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
 void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle, bool is3D) const
 {
     float totalDistance = distance2d + searcher_size;
-    if (is3D)
+    if (is3D && searcher != NULL)
     {
         G3D::Vector3 vectSearcher(searcher->GetPositionX(), searcher->GetPositionY(), searcher->GetPositionZ());
         G3D::Vector3 vectMe(GetPositionX(), GetPositionY(), GetPositionZ());
