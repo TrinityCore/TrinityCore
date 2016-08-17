@@ -72,7 +72,7 @@ class TC_GAME_API PlayerNameMapHolder
 
 public:
 
-    typedef std::map<std::string, Player*> MapType;
+    typedef std::unordered_map<std::string, Player*> MapType;
 
     static void Insert(Player* p);
 

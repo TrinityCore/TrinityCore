@@ -95,13 +95,18 @@ void PlayerNameMapHolder::Remove(Player* p)
     GetContainer().erase(p->GetName());
 }
 
-// note that input string shall be normalized by the caller
 Player* PlayerNameMapHolder::Find(std::string const& name)
 {
-    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+    std::string charName(name);
+    if (!normalizePlayerName(charName))
+        return nullptr;
 
-    typename MapType::iterator itr = GetContainer().find(name);
-    return (itr != GetContainer().end()) ? itr->second : nullptr;
+    {
+        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+
+        typename MapType::iterator itr = GetContainer().find(charName);
+        return (itr != GetContainer().end()) ? itr->second : nullptr;
+    }
 }
 
 auto PlayerNameMapHolder::GetContainer() -> MapType&
@@ -252,11 +257,7 @@ Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)
 
 Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
-    std::string nameStr = name;
-    if (!normalizePlayerName(nameStr))
-        return nullptr;
-
-    Player* player = PlayerNameMapHolder::Find(nameStr);
+    Player* player = PlayerNameMapHolder::Find(name);
     if (!player || !player->IsInWorld())
         return nullptr;
 
@@ -265,11 +266,7 @@ Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 
 Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
 {
-    std::string nameStr = name;
-    if (!normalizePlayerName(nameStr))
-        return nullptr;
-
-    return PlayerNameMapHolder::Find(nameStr);
+    return PlayerNameMapHolder::Find(name);
 }
 
 void ObjectAccessor::SaveAllPlayers()
