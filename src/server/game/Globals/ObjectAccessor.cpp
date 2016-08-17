@@ -84,21 +84,16 @@ template class TC_GAME_API HashMapHolder<Transport>;
 namespace PlayerNameMapHolder
 {
 typedef std::unordered_map<std::string, Player*> MapType;
-
-MapType& GetContainer()
-{
-    static MapType _objectMap;
-    return _objectMap;
-}
+static MapType PlayerNameMap;
 
 void Insert(Player* p)
 {
-    GetContainer()[p->GetName()] = p;
+    PlayerNameMap[p->GetName()] = p;
 }
 
 void Remove(Player* p)
 {
-    GetContainer().erase(p->GetName());
+    PlayerNameMap.erase(p->GetName());
 }
 
 Player* Find(std::string const& name)
@@ -107,8 +102,8 @@ Player* Find(std::string const& name)
     if (!normalizePlayerName(charName))
         return nullptr;
 
-    typename MapType::iterator itr = GetContainer().find(charName);
-    return (itr != GetContainer().end()) ? itr->second : nullptr;
+    typename MapType::iterator itr = PlayerNameMap.find(charName);
+    return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
 }
 } // namespace PlayerNameMapHolder
 
