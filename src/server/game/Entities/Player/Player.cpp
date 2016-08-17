@@ -1141,7 +1141,7 @@ void Player::Update(uint32 p_time)
                 }
             }
 
-            if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
+            if (!IsInFeralForm() && haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
                 if (!IsWithinMeleeRange(victim))
                     setAttackTimer(OFF_ATTACK, 100);
