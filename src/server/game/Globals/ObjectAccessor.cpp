@@ -102,7 +102,7 @@ Player* Find(std::string const& name)
     if (!normalizePlayerName(charName))
         return nullptr;
 
-    typename MapType::iterator itr = PlayerNameMap.find(charName);
+    auto itr = PlayerNameMap.find(charName);
     return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
 }
 } // namespace PlayerNameMapHolder
