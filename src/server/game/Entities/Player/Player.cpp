@@ -10079,14 +10079,14 @@ bool Player::HasGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot) 
 {
     uint32 tempcount = 0;
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    
+
     if (pProto && pProto->GemProperties)
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
         {
             if (i == except_slot)
                 continue;
-            
+
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (pItem && pItem->GetTemplate()->Socket[0].Color)
             {
@@ -10096,7 +10096,7 @@ bool Player::HasGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot) 
             }
         }
     }
-    
+
     return false;
 }
 
