@@ -60,6 +60,9 @@ namespace MMAP
 
         m_rcContext = new rcContext(false);
 
+        m_totalTiles = 0;
+        m_totalTilesDone = 0;
+
         discoverTiles();
     }
 
@@ -142,6 +145,8 @@ namespace MMAP
             }
         }
         printf("found %u.\n\n", count);
+
+        m_totalTiles = count;
     }
 
     /**************************************************************************/
@@ -414,7 +419,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("[Map %03i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
+        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesDone), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -851,6 +856,7 @@ namespace MMAP
 
             // now that tile is written to disk, we can unload it
             navMesh->removeTile(tileRef, NULL, NULL);
+            m_totalTilesDone++;
         }
         while (0);
 
@@ -1003,6 +1009,15 @@ namespace MMAP
             return false;
 
         return true;
+    }
+
+    /**************************************************************************/
+    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesDone)
+    {
+        if (totalTiles)
+            return totalTilesDone * 100 / totalTiles;
+
+        return 0;
     }
 
 }
