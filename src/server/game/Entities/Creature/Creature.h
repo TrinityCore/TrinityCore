@@ -757,7 +757,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
         void LoadVendorItemCount();
-        void SaveVendorItemCount();
+        void SaveVendorItemCount(VendorItemCount* vendorItemCount);
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0);

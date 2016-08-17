@@ -2470,7 +2470,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
             vCount->lastIncrementTime = ptime;
         }
 
-    SaveVendorItemCount();
+    SaveVendorItemCount(vCount);
     return vCount->count;
 }
 
@@ -2507,7 +2507,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     vCount->count = vCount->count > used_count ? vCount->count-used_count : 0;
     vCount->lastIncrementTime = ptime;
-    SaveVendorItemCount();
+    SaveVendorItemCount(vCount);
     return vCount->count;
 }
 

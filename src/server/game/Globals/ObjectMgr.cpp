@@ -9316,3 +9316,20 @@ void ObjectMgr::LoadVendorItemCounts()
 
     TC_LOG_INFO("server.loading", ">> Loaded %d Vendor Item Counts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::SaveVendorItemCounts(ObjectGuid::LowType guid, VendorItemCount* vendorItemCount)
+{
+    VendorItemCountsContainer::iterator itr = _vendorItemCountsStore.find(guid);
+    if (itr == _vendorItemCountsStore.end())
+        return;
+
+    for (auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+    {
+        if (itr2->itemId != vendorItemCount->itemId)
+            continue;
+
+        itr2->itemId = vendorItemCount->itemId;
+        itr2->count = vendorItemCount->count;
+        itr2->lastIncrementTime = vendorItemCount->lastIncrementTime;
+    }
+}

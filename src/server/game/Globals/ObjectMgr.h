@@ -1329,6 +1329,7 @@ class TC_GAME_API ObjectMgr
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
         void LoadVendorItemCounts();
+        void SaveVendorItemCounts(ObjectGuid::LowType guid, VendorItemCount* vendorItemCount);
         VendorItemCounts const* GetVendorItemCounts(ObjectGuid::LowType guid) const
         {
             VendorItemCountsContainer::const_iterator itr = _vendorItemCountsStore.find(guid);
