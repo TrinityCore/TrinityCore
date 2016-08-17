@@ -9295,12 +9295,9 @@ void ObjectMgr::LoadVendorItemCounts()
         itr->second.clear();
     _vendorItemCountsStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT guid, item, count, lastIncrementTime FROM creature_vendor");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, item, count, lastIncrementTime FROM creature_vendor");
     if (!result)
-    {
-        TC_LOG_ERROR("sql.sql", ">>  Loaded 0 Vendor Item Counts. DB table `creature_vendor` is empty!");
         return;
-    }
 
     uint32 count = 0;
 
@@ -9308,7 +9305,7 @@ void ObjectMgr::LoadVendorItemCounts()
     {
         Field* fields = result->Fetch();
 
-        uint64 guid = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
         uint32 item = fields[1].GetUInt32();
         uint32 count = fields[2].GetUInt32();
         time_t lastIncrementTime = fields[3].GetUInt32();

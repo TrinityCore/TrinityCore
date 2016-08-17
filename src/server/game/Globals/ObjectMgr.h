@@ -671,7 +671,7 @@ typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContain
 
 class PlayerDumpReader;
 
-typedef std::unordered_map<uint32, VendorItemCounts> VendorItemCountsContainer;
+typedef std::unordered_map<ObjectGuid::LowType, VendorItemCounts> VendorItemCountsContainer;
 
 class TC_GAME_API ObjectMgr
 {
