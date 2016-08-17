@@ -81,8 +81,6 @@ public:
     static Player* Find(std::string const& name);
 
     static MapType& GetContainer();
-
-    static boost::shared_mutex* GetLock();
 };
 
 namespace ObjectAccessor

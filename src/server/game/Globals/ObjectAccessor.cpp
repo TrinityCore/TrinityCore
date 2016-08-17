@@ -83,15 +83,11 @@ template class TC_GAME_API HashMapHolder<Transport>;
 
 void PlayerNameMapHolder::Insert(Player* p)
 {
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
-
     GetContainer()[p->GetName()] = p;
 }
 
 void PlayerNameMapHolder::Remove(Player* p)
 {
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
-
     GetContainer().erase(p->GetName());
 }
 
@@ -101,24 +97,14 @@ Player* PlayerNameMapHolder::Find(std::string const& name)
     if (!normalizePlayerName(charName))
         return nullptr;
 
-    {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
-
-        typename MapType::iterator itr = GetContainer().find(charName);
-        return (itr != GetContainer().end()) ? itr->second : nullptr;
-    }
+    typename MapType::iterator itr = GetContainer().find(charName);
+    return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
 
 auto PlayerNameMapHolder::GetContainer() -> MapType&
 {
     static MapType _objectMap;
     return _objectMap;
-}
-
-boost::shared_mutex* PlayerNameMapHolder::GetLock()
-{
-    static boost::shared_mutex _lock;
-    return &_lock;
 }
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
