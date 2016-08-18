@@ -138,7 +138,7 @@ namespace MMAP
             float m_maxWalkableAngle;
             bool m_bigBaseUnit;
             uint32 m_totalTiles;
-            uint32 m_totalTilesDone;
+            std::atomic<uint32> m_totalTilesDone;
 
             // build performance - not really used for now
             rcContext* m_rcContext;
