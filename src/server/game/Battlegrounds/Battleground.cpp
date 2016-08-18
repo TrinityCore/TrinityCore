@@ -1201,7 +1201,7 @@ void Battleground::EventPlayerLoggedIn(Player* player)
         }
     }
     m_Players[guid].OfflineRemoveTime = 0;
-    AddPlayer(player);
+    PlayerAddedToBGCheckIfBGIsRunning(player);
     // if battleground is starting, then add preparation aura
     // we don't have to do that, because preparation aura isn't removed when player logs out
 }
