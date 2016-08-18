@@ -2207,33 +2207,17 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 
 uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        return Player::TeamForRace(player->getRace());
-    }
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
+        return 0;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-
-    stmt->setUInt32(0, guid.GetCounter());
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint8 race = (*result)[0].GetUInt8();
-        return Player::TeamForRace(race);
-    }
-
-    return 0;
+    return Player::TeamForRace(characterInfo->Race);
 }
 
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
 {
     if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
         return characterInfo->AccountId;
-
-
 
     return 0;
 }
