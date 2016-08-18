@@ -671,8 +671,6 @@ typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContain
 
 class PlayerDumpReader;
 
-typedef std::unordered_map<ObjectGuid::LowType, VendorItemCounts> VendorItemCountsContainer;
-
 class TC_GAME_API ObjectMgr
 {
     friend class PlayerDumpReader;
@@ -1328,16 +1326,6 @@ class TC_GAME_API ObjectMgr
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
-        void LoadVendorItemCounts();
-        void SaveVendorItemCounts(ObjectGuid::LowType guid, VendorItemCount* vendorItemCount);
-        VendorItemCounts const* GetVendorItemCounts(ObjectGuid::LowType guid) const
-        {
-            VendorItemCountsContainer::const_iterator itr = _vendorItemCountsStore.find(guid);
-            if (itr == _vendorItemCountsStore.end())
-                return nullptr;
-            return &itr->second;
-        }
-
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1481,8 +1469,6 @@ class TC_GAME_API ObjectMgr
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
-
-        VendorItemCountsContainer _vendorItemCountsStore;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate

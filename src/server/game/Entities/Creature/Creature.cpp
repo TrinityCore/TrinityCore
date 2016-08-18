@@ -2933,14 +2933,14 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
 
 void Creature::LoadVendorItemCount()
 {
-    if (VendorItemCounts const* items = sObjectMgr->GetVendorItemCounts(GetSpawnId()))
+    if (VendorItemCounts const* items = GetMap()->GetVendorItemCounts(GetSpawnId()))
         for (auto itr = items->begin(); itr != items->end(); ++itr)
             m_vendorItemCounts.push_back(VendorItemCount(itr->itemId, itr->count, itr->lastIncrementTime));
 }
 
 void Creature::SaveVendorItemCount(VendorItemCount* vendorItemCount)
 {
-    sObjectMgr->SaveVendorItemCounts(GetSpawnId(), vendorItemCount);
+    GetMap()->SaveVendorItemCounts(GetSpawnId(), vendorItemCount);
         
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -2948,9 +2948,9 @@ void Creature::SaveVendorItemCount(VendorItemCount* vendorItemCount)
     uint8 index = 0;
 
     stmt->setUInt32(index++, m_spawnId);
-    stmt->setUInt32(index++, itr->itemId);
-    stmt->setUInt8(index++, itr->count);
-    stmt->setUInt32(index++, itr->lastIncrementTime);
+    stmt->setUInt32(index++, vendorItemCount->itemId);
+    stmt->setUInt8(index++, vendorItemCount->count);
+    stmt->setUInt32(index++, vendorItemCount->lastIncrementTime);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
