@@ -4383,3 +4383,19 @@ Pvp.FactionBalance.Pct20 = 0.8
 
 #
 ###################################################################################################
+
+####################
+# PATCHES SETTINGS #
+####################
+
+###################################################################################################
+#
+#     Solocraft.Enable
+#        Description: Solocraft is a script to increase players and bots stats in raids, 
+#		 based on group size. It feels a little Hacky, but raids is unfair hard with playerbots.
+#        Default:     0 (disabled)
+#                     1 (enabled)
+
+Solocraft.Enable = 0
+
+###################################################################################################
