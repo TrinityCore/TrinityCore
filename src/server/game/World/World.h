@@ -736,8 +736,8 @@ class TC_GAME_API World
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
         }
 
-        void setWorldState(uint32 index, uint64 value);
-        uint64 getWorldState(uint32 index) const;
+        void setWorldState(uint32 index, uint32 value);
+        uint32 getWorldState(uint32 index) const;
         void LoadWorldStates();
 
         /// Are we on a "Player versus Player" server?
@@ -851,7 +851,7 @@ class TC_GAME_API World
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
-        typedef std::map<uint32, uint64> WorldStatesMap;
+        typedef std::map<uint32, uint32> WorldStatesMap;
         WorldStatesMap m_worldstates;
         uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
