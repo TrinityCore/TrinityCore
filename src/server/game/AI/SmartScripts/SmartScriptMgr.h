@@ -443,7 +443,7 @@ enum SMART_ACTION
     SMART_ACTION_SOUND                              = 4,      // SoundId, onlySelf
     SMART_ACTION_PLAY_EMOTE                         = 5,      // EmoteId
     SMART_ACTION_FAIL_QUEST                         = 6,      // QuestID
-    SMART_ACTION_ADD_QUEST                          = 7,      // QuestID
+    SMART_ACTION_OFFER_QUEST                        = 7,      // QuestID, directAdd
     SMART_ACTION_SET_REACT_STATE                    = 8,      // state
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
@@ -596,6 +596,12 @@ struct SmartAction
         {
             uint32 quest;
         } quest;
+
+        struct
+        {
+            uint32 questID;
+            uint32 directAdd;
+        } questOffer;
 
         struct
         {
