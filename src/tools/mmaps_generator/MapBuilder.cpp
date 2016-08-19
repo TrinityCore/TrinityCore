@@ -146,28 +146,8 @@ namespace MMAP
         }
         printf("found %u.\n\n", count);
 
-        // DEBUG code, this does the same as L115 through L147 above
-
-        // I'm counting tiles of every map with some portion of code taken
-        // from lines inside of buildMap() and buildNavMesh() wich are the real 
-        // process of building tile files, and buildng navmesh, first of all 
-        // this methods get how many tiles has each mapId in order to process data
-
-        // Surprisingly m_totalTiles matches how many tiles are found at L147
-
-        printf("\n\n Comienza la parte de codigo para saber el total de tiles\n\n");
-        std::set<uint32>* tiles;
-
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-        {
-            uint32 mapId = it->m_mapId;
-            tiles = getTileList(mapId);
-
-            m_totalTiles += tiles->size();
-            printf("Tiles para el mapa %u en total %zu.\n\n", mapId, tiles->size());
-        }
-
-        printf("Tiles en total %u.\n\n", m_totalTiles);
+        // percentageDone - total tiles to process
+        m_totalTiles = count;
     }
 
     /**************************************************************************/
@@ -440,6 +420,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
+        // percentageDone - added, now it will show addional reference percentage done of the overall process
         printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesBuilt), mapID, tileX, tileY);
 
         MeshData meshData;
@@ -475,9 +456,8 @@ namespace MMAP
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
 
-        // increment tiles done for percentageDone
+        // percentageDone - increment tiles built
         m_totalTilesBuilt++;
-        printf("m_totalTilesBuilt = %u\n", m_totalTilesBuilt);
     }
 
     /**************************************************************************/

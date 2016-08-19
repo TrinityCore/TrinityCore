@@ -137,6 +137,7 @@ namespace MMAP
 
             float m_maxWalkableAngle;
             bool m_bigBaseUnit;
+            // percentageDone - variables to calculate percentage
             uint32 m_totalTiles;
             std::atomic<uint32> m_totalTilesBuilt;
 
