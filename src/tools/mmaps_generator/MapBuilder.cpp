@@ -60,6 +60,7 @@ namespace MMAP
 
         m_rcContext = new rcContext(false);
 
+        // percentageDone - Initializing
         m_totalTiles = 0;
         m_totalTilesBuilt = 0;
 

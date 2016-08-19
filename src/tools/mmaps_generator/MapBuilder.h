@@ -123,6 +123,7 @@ namespace MMAP
             bool shouldSkipMap(uint32 mapID);
             bool isTransportMap(uint32 mapID);
             bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY);
+            // percentageDone - method to calculate percentage
             uint32 percentageDone(uint32 totalTiles, uint32 totalTilesDone);
 
             TerrainBuilder* m_terrainBuilder;
