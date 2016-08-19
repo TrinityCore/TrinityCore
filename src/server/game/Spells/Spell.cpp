@@ -6005,7 +6005,7 @@ SpellCastResult Spell::CheckRange(bool strict)
 
         if (target && m_caster->isMoving() && target->isMoving() && !m_caster->IsWalking() && !target->IsWalking() &&
             (m_spellInfo->RangeEntry->type & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 5.0f / 3.0f;
+            rangeMod += 8.0f / 3.0f;
     }
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
