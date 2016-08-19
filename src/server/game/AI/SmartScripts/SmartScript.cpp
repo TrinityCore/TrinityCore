@@ -2783,6 +2783,23 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                     l->push_back(target);
             break;
         }
+        case SMART_TARGET_LOOT_RECIPIENTS:
+        {
+            if (me)
+            {
+                if (Group* lootGroup = me->GetLootRecipientGroup())
+                {
+                    for (GroupReference* it = lootGroup->GetFirstMember(); it != nullptr; it = it->next())
+                        if (Player* recipient = it->GetSource())
+                            l->push_back(recipient);
+                }
+                else
+                {
+                    if (Player* recipient = me->GetLootRecipient())
+                        l->push_back(recipient);
+                }
+            }
+        }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         default:
