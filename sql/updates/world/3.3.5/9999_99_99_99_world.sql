@@ -1,5 +1,5 @@
 --
-DELETE FROM `spell_script_names` WHERE `spell_id`=43755;
+DELETE FROM `spell_script_names` WHERE `ScriptName`="spell_brewfest_relay_race_turn_in";
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (43755, "spell_brewfest_relay_race_turn_in");
 

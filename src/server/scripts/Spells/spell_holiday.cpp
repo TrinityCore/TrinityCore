@@ -1025,13 +1025,11 @@ public:
         void HandleDummy(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
-            if (GetHitUnit()->HasAura(SPELL_SWIFT_WORK_RAM))
+
+            if (Aura* aura = GetHitUnit()->GetAura(SPELL_SWIFT_WORK_RAM))
             {
-                if (Aura* aur = GetHitUnit()->GetAura(SPELL_SWIFT_WORK_RAM))
-                {
-                    aur->SetDuration(aur->GetDuration() + 30 * IN_MILLISECONDS);
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_RELAY_RACE_TURN_IN, TRIGGERED_FULL_MASK);
-                }
+                aura->SetDuration(aura->GetDuration() + 30 * IN_MILLISECONDS);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_RELAY_RACE_TURN_IN, TRIGGERED_FULL_MASK);
             }
         }
 
