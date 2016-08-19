@@ -810,7 +810,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
-        case SMART_ACTION_ADD_QUEST:
+        case SMART_ACTION_OFFER_QUEST:
             if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
                 return false;
             break;

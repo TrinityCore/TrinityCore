@@ -316,7 +316,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_ADD_QUEST:
+        case SMART_ACTION_OFFER_QUEST:
         {
             ObjectList* targets = GetTargets(e, unit);
             if (!targets)
@@ -324,13 +324,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (IsPlayer(*itr))
+                if (Player* pTarget = (*itr)->ToPlayer())
                 {
-                    if (Quest const* q = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
+                    if (Quest const* q = sObjectMgr->GetQuestTemplate(e.action.questOffer.questID))
                     {
-                        (*itr)->ToPlayer()->AddQuestAndCheckCompletion(q, nullptr);
-                        TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_QUEST: Player %s add quest %u",
-                            (*itr)->GetGUID().ToString().c_str(), e.action.quest.quest);
+                        if (me && e.action.questOffer.directAdd == 0)
+                        {
+                            if (pTarget->CanTakeQuest(q, true))
+                                if (WorldSession* session = pTarget->GetSession())
+                                {
+                                    PlayerMenu menu(session);
+                                    menu.SendQuestGiverQuestDetails(q, me->GetGUID(), true);
+                                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player %s - offering quest %u", pTarget->GetGUID().ToString().c_str(), e.action.questOffer.questID);
+                                }
+                        }
+                        else
+                        {
+                            (*itr)->ToPlayer()->AddQuestAndCheckCompletion(q, nullptr);
+                            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_ADD_QUEST: Player %s add quest %u",
+                                (*itr)->GetGUID().ToString().c_str(), e.action.questOffer.questID);
+                        }
                     }
                 }
             }
