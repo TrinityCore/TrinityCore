@@ -1105,6 +1105,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObject* LookupFishingHoleAround(float range);
 
         void CastSpell(Unit* target, uint32 spell, bool triggered = true);
+        void CastSpell(Unit* target, uint32 spell, TriggerCastFlags triggered);
         void SendCustomAnim(uint32 anim);
         bool IsInRange(float x, float y, float z, float radius) const;
 
