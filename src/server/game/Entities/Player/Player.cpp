@@ -475,8 +475,8 @@ Player::Player(WorldSession* session): Unit(true)
     // Player summoning
     m_summon_expire = 0;
 
-    m_mover = this;
-    m_movedPlayer = this;
+    m_unitMovedByMe = this;
+    m_playerMovingMe = this;
     m_seer = this;
 
     m_homebindMapId = 0;
@@ -22076,7 +22076,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_mover == obj)
+    if (m_unitMovedByMe == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -22371,10 +22371,10 @@ void Player::SendComboPoints()
     if (combotarget)
     {
         WorldPacket data;
-        if (m_mover != this)
+        if (m_unitMovedByMe != this)
         {
-            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data << m_mover->GetPackGUID();
+            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_unitMovedByMe->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
+            data << m_unitMovedByMe->GetPackGUID();
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
@@ -23747,9 +23747,9 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 
 void Player::SetMover(Unit* target)
 {
-    m_mover->m_movedPlayer = nullptr;
-    m_mover = target;
-    m_mover->m_movedPlayer = this;
+    m_unitMovedByMe->m_playerMovingMe = nullptr;
+    m_unitMovedByMe = target;
+    m_unitMovedByMe->m_playerMovingMe = this;
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
