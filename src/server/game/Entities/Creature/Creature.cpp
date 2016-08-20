@@ -2800,18 +2800,18 @@ void Creature::SetTarget(ObjectGuid guid)
         SetGuidValue(UNIT_FIELD_TARGET, guid);
 }
 
-bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
+void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (m_focusSpell)
-        return false;
+        return;
 
     // don't use spell focus for vehicle spells
     if (focusSpell->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-        return false;
+        return;
 
     if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
-        return false;
+        return;
 
     // store pre-cast values for target and orientation (used to later restore)
     if (!IsFocusing(nullptr, true))
@@ -2821,9 +2821,6 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     }
 
     m_focusSpell = focusSpell;
-
-    // "instant" creature casts that require re-targeting will be delayed by a short moment to prevent facing bugs
-    bool shouldDelay = false;
 
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
@@ -2847,28 +2844,21 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
             {
                 // only update players that are known to the client (have already been created)
                 if (player->HaveAtClient(this))
-                {
                     SendUpdateToPlayer(player);
-                    shouldDelay = true;
-                }
             }
-            if (shouldDelay)
-                shouldDelay = !(focusSpell->IsTriggered() || focusSpell->GetCastTime() || focusSpell->GetSpellInfo()->IsChanneled());
         }
     }
 
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
-        SetFacingToObject(target);
+        SetFacingTo(GetAngle(target));
     else if (!canTurnDuringCast)
         if (Unit* victim = GetVictim())
-            SetFacingToObject(victim); // ensure orientation is correct at beginning of cast
+            SetFacingTo(GetAngle(victim)); // ensure orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
-
-    return shouldDelay;
 }
 
 bool Creature::IsFocusing(Spell const* focusSpell, bool withDelay)
@@ -2911,7 +2901,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         if (m_suppressedTarget)
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                SetFacingToObject(objTarget);
+                SetFacingTo(GetAngle(objTarget));
         }
         else
             SetFacingTo(m_suppressedOrientation);
