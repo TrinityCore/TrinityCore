@@ -611,24 +611,21 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             creatureAddon.emote = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.aiAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.aiAnimKit))
         {
-            if (creatureAddon.aiAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid aiAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.aiAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid aiAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.aiAnimKit);
             creatureAddon.aiAnimKit = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.movementAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.movementAnimKit))
         {
-            if (creatureAddon.movementAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid movementAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.movementAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid movementAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.movementAnimKit);
             creatureAddon.movementAnimKit = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.meleeAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.meleeAnimKit))
         {
-            if (creatureAddon.meleeAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid meleeAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.meleeAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid meleeAnimKit (%u) defined in `creature_template_addon`.", entry, creatureAddon.meleeAnimKit);
             creatureAddon.meleeAnimKit = 0;
         }
 
@@ -1098,24 +1095,21 @@ void ObjectMgr::LoadCreatureAddons()
             creatureAddon.emote = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.aiAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.aiAnimKit))
         {
-            if (creatureAddon.aiAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid aiAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.aiAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid aiAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.aiAnimKit);
             creatureAddon.aiAnimKit = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.movementAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.movementAnimKit))
         {
-            if (creatureAddon.movementAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid movementAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.movementAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid movementAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.movementAnimKit);
             creatureAddon.movementAnimKit = 0;
         }
 
-        if (!sAnimKitStore.LookupEntry(creatureAddon.meleeAnimKit))
+        if (creatureAddon.aiAnimKit && !sAnimKitStore.LookupEntry(creatureAddon.meleeAnimKit))
         {
-            if (creatureAddon.meleeAnimKit != 0)
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid meleeAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.meleeAnimKit);
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid meleeAnimKit (%u) defined in `creature_addon`.", guid, creatureAddon.meleeAnimKit);
             creatureAddon.meleeAnimKit = 0;
         }
 
