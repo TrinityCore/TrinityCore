@@ -375,8 +375,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     else
     {
         UpdateDamagePhysical(BASE_ATTACK);
-        if (CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
-            UpdateDamagePhysical(OFF_ATTACK);
+        if (Item* offhand = GetWeaponForAttack(OFF_ATTACK, true))
+            if (CanDualWield() || offhand->GetTemplate()->GetFlags3() & ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED)
+                UpdateDamagePhysical(OFF_ATTACK);
+
         if (HasAuraType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER) ||
             HasAuraType(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER) ||
             HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
@@ -408,9 +410,9 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float attackSpeedMod = GetAPMultiplier(attType, normalized);
+    float attackPowerMod = GetAPMultiplier(attType, normalized);
 
-    float baseValue  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 3.5f * attackSpeedMod;
+    float baseValue  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 3.5f * attackPowerMod;
     float basePct    = GetModifierValue(unitMod, BASE_PCT);
     float totalValue = GetModifierValue(unitMod, TOTAL_VALUE);
     float totalPct   = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
@@ -418,22 +420,11 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    if (IsInFeralForm()) // check if player is druid and in cat or bear forms
+    SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
+    if (shapeshift && shapeshift->CombatRoundTime)
     {
-        float weaponSpeed = BASE_ATTACK_TIME / 1000.f;
-        if (Item* weapon = GetWeaponForAttack(BASE_ATTACK, true))
-            weaponSpeed =  weapon->GetTemplate()->GetDelay() / 1000;
-
-        if (GetShapeshiftForm() == FORM_CAT_FORM)
-        {
-            weaponMinDamage = weaponMinDamage / weaponSpeed;
-            weaponMaxDamage = weaponMaxDamage / weaponSpeed;
-        }
-        else if (GetShapeshiftForm() == FORM_BEAR_FORM)
-        {
-            weaponMinDamage = weaponMinDamage / weaponSpeed + weaponMinDamage / 2.5;
-            weaponMaxDamage = weaponMinDamage / weaponSpeed + weaponMaxDamage / 2.5;
-        }
+        weaponMinDamage = weaponMinDamage * shapeshift->CombatRoundTime / 1000.0f / attackPowerMod;
+        weaponMaxDamage = weaponMaxDamage * shapeshift->CombatRoundTime / 1000.0f / attackPowerMod;
     }
     else if (!CanUseAttackType(attType)) // check if player not in form but still can't use (disarm case)
     {
@@ -447,13 +438,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weaponMinDamage = BASE_MINDAMAGE;
         weaponMaxDamage = BASE_MAXDAMAGE;
     }
-    /*
-    TODO: Is this still needed after ammo has been removed?
-    else if (attType == RANGED_ATTACK) // add ammo DPS to ranged damage
-    {
-        weaponMinDamage += GetAmmoDPS() * attackSpeedMod;
-        weaponMaxDamage += GetAmmoDPS() * attackSpeedMod;
-    }*/
 
     minDamage = ((weaponMinDamage + baseValue) * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * basePct + totalValue) * totalPct;

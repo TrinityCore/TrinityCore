@@ -262,7 +262,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
     &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
-    &Spell::EffectNULL,                                     //198 SPELL_EFFECT_198
+    &Spell::EffectNULL,                                     //198 SPELL_EFFECT_PLAY_SCENE
     &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
     &Spell::EffectHealBattlePetPct,                         //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
     &Spell::EffectEnableBattlePets,                         //201 SPELL_EFFECT_ENABLE_BATTLE_PETS

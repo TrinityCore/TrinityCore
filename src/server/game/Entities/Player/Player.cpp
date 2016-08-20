@@ -1141,7 +1141,7 @@ void Player::Update(uint32 p_time)
                 }
             }
 
-            if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
+            if (!IsInFeralForm() && haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
             {
                 if (!IsWithinMeleeRange(victim))
                     setAttackTimer(OFF_ATTACK, 100);
@@ -7501,7 +7501,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
         SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
     }
 
-    if (proto->GetDelay() && !IsInFeralForm())
+    SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
+    if (proto->GetDelay() && !(shapeshift && shapeshift->CombatRoundTime))
         SetAttackTime(attType, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
 
     if (CanModifyStats() && (damage || proto->GetDelay()))
@@ -9119,11 +9120,11 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 5389:
             if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
             {
-                packet.Worldstates.emplace_back(5385, sWorld->getWorldState(5385)); // TB_WS_ALLIANCE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5384, sWorld->getWorldState(5384)); // TB_WS_HORDE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5387, sWorld->getWorldState(5387)); // TB_WS_TIME_NEXT_BATTLE_SHOW
-                packet.Worldstates.emplace_back(5546, sWorld->getWorldState(5546)); // TB_WS_ALLIANCE_ATTACKING_SHOW
-                packet.Worldstates.emplace_back(5547, sWorld->getWorldState(5547)); // TB_WS_HORDE_ATTACKING_SHOW
+                packet.Worldstates.emplace_back(5385u, sWorld->getWorldState(5385)); // TB_WS_ALLIANCE_CONTROLS_SHOW
+                packet.Worldstates.emplace_back(5384u, sWorld->getWorldState(5384)); // TB_WS_HORDE_CONTROLS_SHOW
+                packet.Worldstates.emplace_back(5387u, sWorld->getWorldState(5387)); // TB_WS_TIME_NEXT_BATTLE_SHOW
+                packet.Worldstates.emplace_back(5546u, sWorld->getWorldState(5546)); // TB_WS_ALLIANCE_ATTACKING_SHOW
+                packet.Worldstates.emplace_back(5547u, sWorld->getWorldState(5547)); // TB_WS_HORDE_ATTACKING_SHOW
             }
             break;
         // Tol Barad
@@ -9682,7 +9683,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     if (!useable)
         return item;
 
-    if (item->IsBroken() || IsInFeralForm())
+    if (item->IsBroken())
         return nullptr;
 
     return item;
@@ -11060,9 +11061,14 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
                 if (type == INVTYPE_WEAPON && pProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM)
                     return EQUIP_ERR_2HSKILLNOTFOUND;
-                else if (type == INVTYPE_WEAPON || type == INVTYPE_WEAPONOFFHAND)
+                else if (type == INVTYPE_WEAPON)
                 {
                     if (!CanDualWield())
+                        return EQUIP_ERR_2HSKILLNOTFOUND;
+                }
+                else if (type == INVTYPE_WEAPONOFFHAND)
+                {
+                    if (!CanDualWield() && !(pProto->GetFlags3() & ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED))
                         return EQUIP_ERR_2HSKILLNOTFOUND;
                 }
                 else if (type == INVTYPE_2HWEAPON)
@@ -24049,8 +24055,10 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         return;
 
      // unequip offhand weapon if player doesn't have dual wield anymore
-    if (!CanDualWield() && (offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND || offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPON))
-          force = true;
+    if (!CanDualWield()
+        && ((offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND && !(offItem->GetTemplate()->GetFlags3() & ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED))
+            || offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPON))
+        force = true;
 
     // need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
     if (!force && (CanTitanGrip() || (offItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON && !IsTwoHandUsed())))

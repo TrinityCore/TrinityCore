@@ -2058,7 +2058,17 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     float maxDamage = 0.0f;
 
     if (normalized || !addTotalPct)
+    {
         CalculateMinMaxDamage(attType, normalized, addTotalPct, minDamage, maxDamage);
+        if (IsInFeralForm() && attType == BASE_ATTACK)
+        {
+            float minOffhandDamage = 0.0f;
+            float maxOffhandDamage = 0.0f;
+            CalculateMinMaxDamage(OFF_ATTACK, normalized, addTotalPct, minOffhandDamage, maxOffhandDamage);
+            minDamage += minOffhandDamage;
+            maxDamage += maxOffhandDamage;
+        }
+    }
     else
     {
         switch (attType)
@@ -2070,6 +2080,11 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
             case BASE_ATTACK:
                 minDamage = GetFloatValue(UNIT_FIELD_MINDAMAGE);
                 maxDamage = GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                if (IsInFeralForm())
+                {
+                    minDamage += GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
+                    maxDamage += GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE);
+                }
                 break;
             case OFF_ATTACK:
                 minDamage = GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
@@ -10679,7 +10694,7 @@ void Unit::SetShapeshiftForm(ShapeshiftForm form)
 bool Unit::IsInFeralForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM;
+    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM || form == FORM_DIRE_BEAR_FORM || form == FORM_GHOST_WOLF;
 }
 
 bool Unit::IsInDisallowedMountForm() const
@@ -12593,14 +12608,17 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
 
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 {
-    if (!normalized || GetTypeId() != TYPEID_PLAYER)
-        return float(GetAttackTime(attType)) / 1000.0f;
+    if (GetTypeId() != TYPEID_PLAYER)
+        return GetAttackTime(attType) / 1000.0f;
 
-    Item* Weapon = ToPlayer()->GetWeaponForAttack(attType, true);
-    if (!Weapon)
+    Item* weapon = ToPlayer()->GetWeaponForAttack(attType, true);
+    if (!normalized)
+        return (weapon ? weapon->GetTemplate()->GetDelay() : BASE_ATTACK_TIME) / 1000.0f;
+
+    if (!weapon)
         return 2.4f;                                         // fist attack
 
-    switch (Weapon->GetTemplate()->GetInventoryType())
+    switch (weapon->GetTemplate()->GetInventoryType())
     {
         case INVTYPE_2HWEAPON:
             return 3.3f;
@@ -12612,7 +12630,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
         default:
-            return Weapon->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
+            return weapon->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
     }
 }
 
@@ -14064,7 +14082,7 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
     //calculate miss chance
     float missChance = victim->GetUnitMissChance(attType);
 
-    if (!spellId && haveOffhandWeapon())
+    if (!spellId && haveOffhandWeapon() && !IsInFeralForm())
         missChance += 19;
 
     // Calculate hit chance
