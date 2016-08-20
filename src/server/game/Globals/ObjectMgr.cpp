@@ -708,7 +708,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `npcflag`: %u) has different `npcflag` in difficulty %u mode (Entry: %u, `npcflag`: %u).",
                 cInfo->Entry, cInfo->npcflag, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->npcflag);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=`npcflag`|%u WHERE `entry`=%u;",
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `npcflag`=`npcflag`^%u WHERE `entry`=%u;",
                 differenceMask, cInfo->DifficultyEntry[diff]);
         }
 
@@ -720,21 +720,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
                 cInfo->dmgschool, cInfo->DifficultyEntry[diff]);
         }
 
-        differenceMask = cInfo->unit_flags ^ difficultyInfo->unit_flags;
-        if (cInfo->unit_flags != difficultyInfo->unit_flags)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `unit_flags`: %u) has different `unit_flags` in difficulty %u mode (Entry: %u, `unit_flags`: %u).",
-                cInfo->Entry, cInfo->unit_flags, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_flags);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `unit_flags`=`unit_flags`|%u WHERE `entry`=%u;",
-                differenceMask, cInfo->DifficultyEntry[diff]);
-        }
-
         differenceMask = cInfo->unit_flags2 ^ difficultyInfo->unit_flags2;
         if (cInfo->unit_flags2 != difficultyInfo->unit_flags2)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, `unit_flags2`: %u) has different `unit_flags2` in difficulty %u mode (Entry: %u, `unit_flags2`: %u).",
                 cInfo->Entry, cInfo->unit_flags2, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->unit_flags2);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `unit_flags2`=`unit_flags2`|%u WHERE `entry`=%u;",
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `unit_flags2`=`unit_flags2`^%u WHERE `entry`=%u;",
                 differenceMask, cInfo->DifficultyEntry[diff]);
         }
 
@@ -795,8 +786,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
                 cInfo->RegenHealth, cInfo->DifficultyEntry[diff]);
         }
 
-        differenceMask = cInfo->MechanicImmuneMask ^ difficultyInfo->MechanicImmuneMask;
-        if ((difficultyInfo->MechanicImmuneMask & differenceMask) != differenceMask)
+        differenceMask = cInfo->MechanicImmuneMask & (~difficultyInfo->MechanicImmuneMask);
+        if (differenceMask)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, mechanic_immune_mask: %u) has weaker immunities in difficulty %u mode (Entry: %u, mechanic_immune_mask: %u).",
                 cInfo->Entry, cInfo->MechanicImmuneMask, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->MechanicImmuneMask);
@@ -804,12 +795,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
                 differenceMask, cInfo->DifficultyEntry[diff]);
         }
 
-        differenceMask = cInfo->flags_extra ^ difficultyInfo->flags_extra;
+        differenceMask = (cInfo->flags_extra ^ difficultyInfo->flags_extra) & (~CREATURE_FLAG_EXTRA_INSTANCE_BIND);
         if (cInfo->flags_extra != difficultyInfo->flags_extra)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, flags_extra: %u) has different `flags_extra` in difficulty %u mode (Entry: %u, flags_extra: %u).",
                 cInfo->Entry, cInfo->flags_extra, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->flags_extra);
-            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `flags_extra`=`flags_extra`|%u WHERE `entry`=%u;",
+            TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `flags_extra`=`flags_extra`^%u WHERE `entry`=%u;",
                 differenceMask, cInfo->DifficultyEntry[diff]);
         }
 
