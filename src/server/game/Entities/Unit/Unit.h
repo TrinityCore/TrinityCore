@@ -1780,9 +1780,14 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void UpdateCharmAI();
-        Unit* GetMover() const;
-        Player* GetPlayerMover() const;
-        Player* m_movedPlayer;
+        // returns the unit that this player IS CONTROLLING
+        Unit* GetUnitBeingMoved() const;
+        // returns the player that this player IS CONTROLLING
+        Player* GetPlayerBeingMoved() const;
+        // returns the player that this unit is BEING CONTROLLED BY
+        Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
+        // only set for direct client control (possess effects, vehicles and similar)
+        Player* m_playerMovingMe;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);

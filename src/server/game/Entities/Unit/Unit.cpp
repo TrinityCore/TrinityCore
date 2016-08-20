@@ -195,7 +195,7 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 }
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
+    WorldObject(isWorldObject), m_playerMovingMe(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
@@ -9876,7 +9876,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
     }
 
-    if (Player* playerMover = GetPlayerMover()) // unit controlled by a player.
+    if (Player* playerMover = GetPlayerBeingMoved()) // unit controlled by a player.
     {
         // Send notification to self
         WorldPackets::Movement::MoveSetSpeed selfpacket(moveTypeToOpcode[mtype][1]);
@@ -10249,7 +10249,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
 {
-    uint32 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    uint32 comboPoints = m_playerMovingMe ? m_playerMovingMe->GetComboPoints() : 0;
 
     int32 minduration = spellProto->GetDuration();
     int32 maxduration = spellProto->GetMaxDuration();
@@ -11433,16 +11433,16 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
     }
 }
 
-Unit* Unit::GetMover() const
+Unit* Unit::GetUnitBeingMoved() const
 {
     if (Player const* player = ToPlayer())
-        return player->m_mover;
+        return player->m_unitMovedByMe;
     return nullptr;
 }
 
-Player* Unit::GetPlayerMover() const
+Player* Unit::GetPlayerBeingMoved() const
 {
-    if (Unit* mover = GetMover())
+    if (Unit* mover = GetUnitBeingMoved())
         return mover->ToPlayer();
     return nullptr;
 }
@@ -13368,7 +13368,7 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
         { SMSG_MOVE_SPLINE_ROOT, SMSG_MOVE_ROOT }
     };
 
-    if (Player* playerMover = GetPlayerMover()) // unit controlled by a player.
+    if (Player* playerMover = GetPlayerBeingMoved()) // unit controlled by a player.
     {
         WorldPackets::Movement::MoveSetFlag packet(rootOpcodeTable[apply][1]);
         packet.MoverGUID = GetGUID();
@@ -14097,7 +14097,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         if (Unit* charmer = GetCharmer())
         {
             player = charmer->ToPlayer();
-            if (player && player->m_mover != this)
+            if (player && player->m_unitMovedByMe != this)
                 player = NULL;
         }
     }
@@ -14942,7 +14942,7 @@ void Unit::SendTeleportPacket(Position& pos)
     moveUpdateTeleport.movementInfo = &m_movementInfo;
     Unit* broadcastSource = this;
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveTeleport moveTeleport;
         moveTeleport.MoverGUID = GetGUID();
@@ -15339,7 +15339,7 @@ bool Unit::SetDisableGravity(bool disable)
         { SMSG_MOVE_SPLINE_DISABLE_GRAVITY, SMSG_MOVE_DISABLE_GRAVITY }
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
         packet.MoverGUID = GetGUID();
@@ -15417,7 +15417,7 @@ bool Unit::SetCanFly(bool enable)
     if (!enable && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -15454,7 +15454,7 @@ bool Unit::SetWaterWalking(bool enable)
         { SMSG_MOVE_SPLINE_SET_WATER_WALK, SMSG_MOVE_SET_WATER_WALK }
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -15491,7 +15491,7 @@ bool Unit::SetFeatherFall(bool enable)
         { SMSG_MOVE_SPLINE_SET_FEATHER_FALL, SMSG_MOVE_SET_FEATHER_FALL }
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -15543,7 +15543,7 @@ bool Unit::SetHover(bool enable)
         { SMSG_MOVE_SPLINE_SET_HOVER,   SMSG_MOVE_SET_HOVERING   }
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -15580,7 +15580,7 @@ bool Unit::SetCollision(bool disable)
         { SMSG_MOVE_SPLINE_DISABLE_COLLISION, SMSG_MOVE_DISABLE_COLLISION }
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(collisionOpcodeTable[disable][1]);
         packet.MoverGUID = GetGUID();
@@ -15620,7 +15620,7 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
         SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(swimToFlyTransOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -15651,7 +15651,7 @@ bool Unit::SetCanTurnWhileFalling(bool enable)
         SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(canTurnWhileFallingOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -15682,7 +15682,7 @@ bool Unit::SetDoubleJump(bool enable)
         SMSG_MOVE_ENABLE_DOUBLE_JUMP
     };
 
-    if (Player* playerMover = GetPlayerMover())
+    if (Player* playerMover = GetPlayerBeingMoved())
     {
         WorldPackets::Movement::MoveSetFlag packet(doubleJumpOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();

@@ -248,7 +248,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_TELEPORT_ACK: Guid: %s, Sequence: %u, Time: %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime);
 
-    Player* plMover = _player->m_mover->ToPlayer();
+    Player* plMover = _player->m_unitMovedByMe->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
@@ -291,7 +291,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 {
     OpcodeClient opcode = packet.GetOpcode();
 
-    Unit* mover = _player->m_mover;
+    Unit* mover = _player->m_unitMovedByMe;
 
     ASSERT(mover != nullptr);                      // there must always be a mover
 
@@ -515,15 +515,15 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpe
 void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveMover& packet)
 {
     if (GetPlayer()->IsInWorld())
-        if (_player->m_mover->GetGUID() != packet.ActiveMover)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+        if (_player->m_unitMovedByMe->GetGUID() != packet.ActiveMover)
+            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 }
 
 void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
 {
     GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
 
-    if (_player->m_mover->GetGUID() != movementAck.Ack.movementInfo.guid)
+    if (_player->m_unitMovedByMe->GetGUID() != movementAck.Ack.movementInfo.guid)
         return;
 
     _player->m_movementInfo = movementAck.Ack.movementInfo;

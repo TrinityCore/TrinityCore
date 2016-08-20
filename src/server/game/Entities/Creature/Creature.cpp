@@ -2658,7 +2658,7 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (m_movedPlayer)
+    if (m_playerMovingMe)
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
