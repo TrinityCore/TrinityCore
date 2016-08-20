@@ -23,10 +23,7 @@
 #include "Errors.h"
 #include "ByteConverter.h"
 #include "Util.h"
-
-#if PLATFORM == PLATFORM_UNIX
-  #include <cstring>
-#endif
+#include <cstring>
 
 class MessageBuffer;
 
