@@ -14841,7 +14841,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     StartCriteriaTimer(CRITERIA_TIMED_TYPE_QUEST, quest_id);
 
-    SendQuestUpdate();
+    SendQuestUpdate(quest_id);
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
     {
@@ -15189,7 +15189,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         UpdatePvPState();
     }
 
-    SendQuestUpdate();
+    SendQuestUpdate(quest_id);
 
     SendQuestGiverStatusMultiple();
 
@@ -15843,7 +15843,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
     }
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 
     sScriptMgr->OnQuestStatusChange(this, questId, status);
 }
@@ -15858,7 +15858,7 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -15874,19 +15874,19 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SetQuestCompletedBit(questBit, false);
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate()
+void Player::SendQuestUpdate(uint32 questId)
 {
     uint32 zone = 0, area = 0;
     GetZoneAndAreaId(zone, area);
 
-    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(area);
+    SpellAreaForQuestAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestAreaMapBounds(area, questId);
 
     if (saBounds.first != saBounds.second)
     {
-        for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+        for (SpellAreaForQuestAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             if (!itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
