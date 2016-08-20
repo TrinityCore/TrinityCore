@@ -91,6 +91,7 @@ TC_GAME_API ResponseCodes ValidateName(std::string const& name, LocaleConstant l
 TC_GAME_API EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender);
 
 TC_GAME_API extern DBCStorage <AchievementEntry>             sAchievementStore;
+TC_GAME_API extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 TC_GAME_API extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 TC_GAME_API extern DBCStorage <AreaTableEntry>               sAreaTableStore;
 TC_GAME_API extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
