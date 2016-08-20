@@ -195,6 +195,16 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             break;
     }
 
+    if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
+    {
+        if (!(flags & UPDATEFLAG_LIVING))
+            if (!worldObject->m_movementInfo.transport.guid.IsEmpty())
+                flags |= UPDATEFLAG_TRANSPORT_POSITION;
+
+        if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
+            flags |= UPDATEFLAG_ANIMKITS;
+    }
+
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
@@ -215,13 +225,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
-    {
         if (unit->GetVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
-
-        if (unit->GetAIAnimKitId() || unit->GetMovementAnimKitId() || unit->GetMeleeAnimKitId())
-            flags |= UPDATEFLAG_ANIMKITS;
-    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -364,7 +369,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_LIVING);
     data->WriteBits(stopFrameCount, 24);
     data->WriteBit(0);
-    data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
+    data->WriteBit(flags & UPDATEFLAG_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
     data->WriteBit(flags & UPDATEFLAG_UNK5);
     data->WriteBit(0);
@@ -468,10 +473,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (flags & UPDATEFLAG_ANIMKITS)
     {
-        Unit const* unit = ToUnit();
-        data->WriteBit(unit->GetAIAnimKitId() == 0);
-        data->WriteBit(unit->GetMovementAnimKitId() == 0);
-        data->WriteBit(unit->GetMeleeAnimKitId() == 0);
+        WorldObject const* self = static_cast<WorldObject const*>(this);
+        *data << uint16(self->GetAIAnimKitId());                        // AiID
+        *data << uint16(self->GetMovementAnimKitId());                  // MovementID
+        *data << uint16(self->GetMeleeAnimKitId());                     // MeleeID
     }
 
     data->FlushBits();
@@ -1197,7 +1202,8 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0)
+m_phaseMask(PHASEMASK_NORMAL), _dbPhase(0), m_notifyflags(0), m_executed_notifies(0),
+m_aiAnimKitId(0), m_movementAnimKitId(0), m_meleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -2938,6 +2944,45 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
+}
+
+void WorldObject::SetAIAnimKitId(uint16 animKitId)
+{
+    if (m_aiAnimKitId == animKitId)
+        return;
+
+    m_aiAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
+    data << GetPackGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+void WorldObject::SetMovementAnimKitId(uint16 animKitId)
+{
+    if (m_movementAnimKitId == animKitId)
+        return;
+
+    m_movementAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
+    data << GetPackGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
+{
+    if (m_meleeAnimKitId == animKitId)
+        return;
+
+    m_meleeAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
+    data << GetPackGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
 }
 
 void WorldObject::RebuildTerrainSwaps()
