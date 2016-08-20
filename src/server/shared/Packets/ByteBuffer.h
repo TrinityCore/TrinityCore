@@ -24,6 +24,9 @@
 #include "ByteConverter.h"
 #include "Util.h"
 
+#if PLATFORM == PLATFORM_UNIX
+  #include <cstring>
+#endif
 
 class MessageBuffer;
 
