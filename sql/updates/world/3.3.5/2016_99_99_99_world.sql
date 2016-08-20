@@ -12,4 +12,4 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 DELETE FROM `creature_text` WHERE `entry`=36794 AND `groupid`=3;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(36794,3,0,'Rimefang, trap them within the tunnel! BURY THEM ALIVE!',14,0,100,0,0,16757,36714,1,'SAY');
+(36794,3,0,'Rimefang, trap them within the tunnel! BURY THEM ALIVE!',14,0,100,0,0,16757,36714,1,'SAY_TYRANNUS_CAVERN_ENTRANCE');
