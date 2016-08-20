@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "pit_of_saron.h"
+#include "PassiveAI.h"
 #include "Vehicle.h"
 #include "Player.h"
 
@@ -252,11 +253,10 @@ class npc_pit_of_saron_icicle : public CreatureScript
     public:
         npc_pit_of_saron_icicle() : CreatureScript("npc_pit_of_saron_icicle") { }
 
-        struct npc_pit_of_saron_icicleAI : public ScriptedAI
+        struct npc_pit_of_saron_icicleAI : public PassiveAI
         {
-            npc_pit_of_saron_icicleAI(Creature* creature) : ScriptedAI(creature)
+            npc_pit_of_saron_icicleAI(Creature* creature) : PassiveAI(creature)
             {
-                me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
             }
 
@@ -264,7 +264,7 @@ class npc_pit_of_saron_icicle : public CreatureScript
             {
                 _summonerGUID = summoner->GetGUID();
 
-                _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
                 {
                     DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
                     DoCastSelf(SPELL_ICICLE_FALL_VISUAL);
@@ -329,6 +329,11 @@ class spell_pos_ice_shards : public SpellScriptLoader
         }
 };
 
+enum TyrannusEventCavernEmote
+{
+    SAY_TYRANNUS_CAVERN_ENTRANCE = 3
+};
+
 class at_pit_cavern_entrance : public AreaTriggerScript
 {
     public:
@@ -338,15 +343,13 @@ class at_pit_cavern_entrance : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
-                {
-                    //tyrannus->AI()->Talk(1);
-                }
-
                 if (instance->GetData(DATA_CAVERN_ACTIVE))
                     return true;
 
                 instance->SetData(DATA_CAVERN_ACTIVE, 1);
+
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS_EVENT)))
+                    tyrannus->AI()->Talk(SAY_TYRANNUS_CAVERN_ENTRANCE);
             }
             return true;
         }

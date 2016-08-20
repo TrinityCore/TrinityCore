@@ -292,10 +292,12 @@ class instance_pit_of_saron : public InstanceMapScript
             {
                 for (ObjectGuid guid : _cavernstriggersVector)
                     if (Creature* trigger = instance->GetCreature(guid))
+                    {
                         if (activate)
                             trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1000));
                         else
                             trigger->m_Events.KillAllEvents(false);
+                    }
             }
 
         private:
