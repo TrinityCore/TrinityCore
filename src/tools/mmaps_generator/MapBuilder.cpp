@@ -73,6 +73,10 @@ namespace MMAP
 
         m_rcContext = new rcContext(false);
 
+        // percentageDone - Initializing
+        m_totalTiles = 0;
+        m_totalTilesBuilt = 0;
+
         discoverTiles();
     }
 
@@ -152,6 +156,9 @@ namespace MMAP
             }
         }
         printf("found %u.\n\n", count);
+
+        // percentageDone - total tiles to process
+        m_totalTiles = count;
     }
 
     /**************************************************************************/
@@ -422,7 +429,8 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("[Map %04i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
+        // percentageDone - added, now it will show addional reference percentage done of the overall process
+        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesBuilt), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -456,6 +464,9 @@ namespace MMAP
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
+
+        // percentageDone - increment tiles built
+        m_totalTilesBuilt++;
     }
 
     /**************************************************************************/
@@ -1090,6 +1101,15 @@ namespace MMAP
             return false;
 
         return true;
+    }
+
+    /**************************************************************************/
+    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesBuilt)
+    {
+        if (totalTiles)
+            return totalTilesBuilt * 100 / totalTiles;
+
+        return 0;
     }
 
 }
