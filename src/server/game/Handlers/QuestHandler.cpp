@@ -271,7 +271,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
-        TC_LOG_ERROR("network", "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (possible packet-hacking detected)", _player->GetName().c_str(), _player->GetGUID().GetCounter(), reward);
+        TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (possible packet-hacking detected)", _player->GetName().c_str(), _player->GetGUID().GetCounter(), reward);
         return;
     }
 
@@ -290,7 +290,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
         if ((!_player->CanSeeStartQuest(quest) &&  _player->GetQuestStatus(questId) == QUEST_STATUS_NONE) ||
             (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
         {
-            TC_LOG_ERROR("network", "Error in QUEST_STATUS_COMPLETE: player %s (guid %u) tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
+            TC_LOG_ERROR("entities.player.cheat", "Error in QUEST_STATUS_COMPLETE: player %s (guid %u) tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
                            _player->GetName().c_str(), _player->GetGUID().GetCounter(), questId);
             return;
         }
@@ -510,7 +510,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
     {
-        TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [guid: %u] tried to complete quest [entry: %u] without being in possession of the quest!",
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s [guid: %u] tried to complete quest [entry: %u] without being in possession of the quest!",
                       _player->GetName().c_str(), _player->GetGUID().GetCounter(), questId);
         return;
     }
