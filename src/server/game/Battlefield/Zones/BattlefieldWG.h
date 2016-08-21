@@ -40,7 +40,7 @@ typedef std::set<Group*> GroupSet;
 extern uint32 const ClockWorldState[];
 
 // used in zone_wintergrasp.cpp
-extern uint32 const WintergraspFaction[];
+TC_GAME_API extern uint32 const WintergraspFaction[];
 
 enum WintergrastData
 {
