@@ -601,7 +601,6 @@ struct AnimKitEntry
     uint32      ID;                                         // 0
     //uint32      OneShotDuration;                          // 1
     //uint32      OneShotStopAnimKitID;                     // 2
-    //uint32      LowDefAnimKitID;                          // 3
 };
 
 struct AreaTableEntry
