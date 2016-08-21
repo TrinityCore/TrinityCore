@@ -73,7 +73,7 @@ void LoadDisables()
     do
     {
         fields = result->Fetch();
-        DisableType type = DisableType(fields[0].GetUInt32());
+        uint32 type = fields[0].GetUInt32();
         if (type >= MAX_DISABLE_TYPES)
         {
             TC_LOG_ERROR("sql.sql", "Invalid type %u specified in `disables` table, skipped.", type);
@@ -243,7 +243,7 @@ void CheckQuestDisables()
 {
     uint32 oldMSTime = getMSTime();
 
-    uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
+    std::size_t count = m_DisableMap[DISABLE_TYPE_QUEST].size();
     if (!count)
     {
         TC_LOG_INFO("server.loading", ">> Checked 0 quest disables.");
@@ -251,9 +251,9 @@ void CheckQuestDisables()
     }
 
     // check only quests, rest already done at startup
-    for (DisableTypeMap::iterator itr = m_DisableMap[DISABLE_TYPE_QUEST].begin(); itr != m_DisableMap[DISABLE_TYPE_QUEST].end();)
+    for (auto itr = m_DisableMap[DISABLE_TYPE_QUEST].begin(); itr != m_DisableMap[DISABLE_TYPE_QUEST].end();)
     {
-        const uint32 entry = itr->first;
+        uint32 entry = itr->first;
         if (!sObjectMgr->GetQuestTemplate(entry))
         {
             TC_LOG_ERROR("sql.sql", "Quest entry %u from `disables` doesn't exist, skipped.", entry);
@@ -265,7 +265,7 @@ void CheckQuestDisables()
         ++itr;
     }
 
-    TC_LOG_INFO("server.loading", ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Checked " SZFMTD " quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
