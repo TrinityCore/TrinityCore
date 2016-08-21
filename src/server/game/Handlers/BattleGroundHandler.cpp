@@ -777,7 +777,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
     if (!reportedPlayer)
     {
-        TC_LOG_INFO("bg.reportpvpafk", "WorldSession::HandleReportPvPAFK: %s [IP: %s] reported %s [IP: %s]", _player->GetName().c_str(), _player->GetSession()->GetRemoteAddress().c_str(), reportedPlayer->GetName().c_str(), reportedPlayer->GetSession()->GetRemoteAddress().c_str());
+        TC_LOG_INFO("bg.reportpvpafk", "WorldSession::HandleReportPvPAFK: %s [IP: %s] reported %s", _player->GetName().c_str(), _player->GetSession()->GetRemoteAddress().c_str(), playerGuid.ToString().c_str());
         return;
     }
 
