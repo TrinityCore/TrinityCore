@@ -199,7 +199,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     {
         if (!(flags & UPDATEFLAG_LIVING))
             if (!worldObject->m_movementInfo.transport.guid.IsEmpty())
-                flags |= UPDATEFLAG_TRANSPORT_POSITION;
+                flags |= UPDATEFLAG_STATIONARY_POSITION;
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags |= UPDATEFLAG_ANIMKITS;
@@ -369,7 +369,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_LIVING);
     data->WriteBits(stopFrameCount, 24);
     data->WriteBit(0);
-    data->WriteBit(flags & UPDATEFLAG_TRANSPORT_POSITION);
+    data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
     data->WriteBit(flags & UPDATEFLAG_UNK5);
     data->WriteBit(0);
