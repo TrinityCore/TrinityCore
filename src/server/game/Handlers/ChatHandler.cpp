@@ -56,7 +56,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (lang == LANG_UNIVERSAL && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
     {
-        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         recvData.rfinish();
         return;

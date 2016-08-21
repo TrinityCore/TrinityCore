@@ -181,7 +181,7 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 }
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
+    WorldObject(isWorldObject), m_playerMovingMe(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
@@ -247,7 +247,6 @@ Unit::Unit(bool isWorldObject) :
         m_createStats[i] = 0.0f;
 
     m_attacking = nullptr;
-    m_shouldReacquireTarget = false;
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
@@ -485,9 +484,15 @@ bool Unit::IsWithinMeleeRange(Unit const* obj) const
     float dz = GetPositionZMinusOffset() - obj->GetPositionZMinusOffset();
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float maxdist = GetCombatReach() + obj->GetCombatReach() + 4.0f / 3.0f;
+    float maxdist = GetMeleeRange(obj);
 
     return distsq <= maxdist * maxdist;
+}
+
+float Unit::GetMeleeRange(Unit const* target) const
+{
+    float range = GetCombatReach() + target->GetCombatReach() + 4.0f / 3.0f;
+    return std::max(range, NOMINAL_MELEE_RANGE);
 }
 
 void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const
@@ -4286,6 +4291,20 @@ void Unit::RemoveAllAurasExceptType(AuraType type1, AuraType type2)
             ++iter;
         else
             RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
+    }
+}
+
+void Unit::RemoveAllGroupBuffsFromCaster(ObjectGuid casterGUID)
+{
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        Aura* aura = iter->second;
+        if (aura->GetCasterGUID() == casterGUID && aura->GetSpellInfo()->IsGroupBuff())
+        {
+            RemoveOwnedAura(iter);
+            continue;
+        }
+        ++iter;
     }
 }
 
@@ -8538,12 +8557,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         RemoveAurasByType(SPELL_AURA_MOD_UNATTACKABLE);
 
-    if (m_shouldReacquireTarget)
-    {
-        SetTarget(victim->GetGUID());
-        m_shouldReacquireTarget = false;
-    }
-
     if (m_attacking)
     {
         if (m_attacking == victim)
@@ -12051,7 +12064,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
                 pet->SetSpeedRate(mtype, m_speed_rate[mtype]);
     }
 
-    if (Player* playerMover = GetPlayerMover()) // unit controlled by a player.
+    if (Player* playerMover = GetPlayerBeingMoved()) // unit controlled by a player.
     {
         // Send notification to self. this packet is only sent to one client (the client of the player concerned by the change).
         WorldPacket self;
@@ -12426,7 +12439,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
 {
-    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    uint8 comboPoints = m_playerMovingMe ? m_playerMovingMe->GetComboPoints() : 0;
 
     int32 minduration = spellProto->GetDuration();
     int32 maxduration = spellProto->GetMaxDuration();
@@ -12711,7 +12724,7 @@ float Unit::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spell
         return 0;
     if (spellInfo->RangeEntry->maxRangeFriend == spellInfo->RangeEntry->maxRangeHostile)
         return spellInfo->GetMaxRange();
-    if (target == NULL)
+    if (!target)
         return spellInfo->GetMaxRange(true);
     return spellInfo->GetMaxRange(!IsHostileTo(target));
 }
@@ -12722,6 +12735,8 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
         return 0;
     if (spellInfo->RangeEntry->minRangeFriend == spellInfo->RangeEntry->minRangeHostile)
         return spellInfo->GetMinRange();
+    if (!target)
+        return spellInfo->GetMinRange(true);
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
@@ -13595,16 +13610,16 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
     }
 }
 
-Unit* Unit::GetMover() const
+Unit* Unit::GetUnitBeingMoved() const
 {
     if (Player const* player = ToPlayer())
-        return player->m_mover;
+        return player->m_unitMovedByMe;
     return nullptr;
 }
 
-Player* Unit::GetPlayerMover() const
+Player* Unit::GetPlayerBeingMoved() const
 {
-    if (Unit* mover = GetMover())
+    if (Unit* mover = GetUnitBeingMoved())
         return mover->ToPlayer();
     return nullptr;
 }
@@ -16214,7 +16229,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         if (Unit* charmer = GetCharmer())
         {
             player = charmer->ToPlayer();
-            if (player && player->m_mover != this)
+            if (player && player->m_unitMovedByMe != this)
                 player = NULL;
         }
     }
