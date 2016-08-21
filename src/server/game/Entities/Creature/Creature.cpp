@@ -183,7 +183,7 @@ m_lootRecipient(), m_lootRecipientGroup(0), _skinner(), _pickpocketLootRestore(0
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr), m_focusDelay(0)
+m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), m_waypointID(0), m_path_id(0), m_formation(nullptr), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -570,6 +570,19 @@ void Creature::Update(uint32 diff)
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if (!IsAlive())
                 break;
+
+            if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
+            {
+                SetTarget(m_suppressedTarget);
+                if (m_suppressedTarget)
+                {
+                    if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
+                        SetFacingToObject(objTarget);
+                }
+                else
+                    SetFacingTo(m_suppressedOrientation);
+                m_shouldReacquireTarget = false;
+            }
 
             // if creature is charmed, switch to charmed AI (and back)
             if (NeedChangeAI)
@@ -1360,6 +1373,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
     }
 
     m_spawnId = spawnId;
+    m_creatureData = data;
     if (!Create(map->GenerateLowGuid<HighGuid::Unit>(), map, data->phaseMask, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
 
@@ -1387,8 +1401,6 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
-
-    m_creatureData = data;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -1450,7 +1462,7 @@ void Creature::SetSpawnHealth()
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     }
 
-    SetHealth(m_deathState == ALIVE ? curhealth : 0);
+    SetHealth((m_deathState == ALIVE || m_deathState == JUST_RESPAWNED) ? curhealth : 0);
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
@@ -2731,7 +2743,7 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (m_movedPlayer)
+    if (m_playerMovingMe)
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
@@ -2782,31 +2794,39 @@ void Creature::SetDisplayId(uint32 modelId)
 
 void Creature::SetTarget(ObjectGuid guid)
 {
-    if (!IsFocusing())
+    if (IsFocusing(nullptr, true))
+        m_suppressedTarget = guid;
+    else
         SetGuidValue(UNIT_FIELD_TARGET, guid);
 }
 
-bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
+void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (m_focusSpell)
-        return false;
+        return;
+
+    // don't use spell focus for vehicle spells
+    if (focusSpell->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+        return;
 
     if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
-        return false;
+        return;
+
+    // store pre-cast values for target and orientation (used to later restore)
+    if (!IsFocusing(nullptr, true))
+    { // only overwrite these fields if we aren't transitioning from one spell focus to another
+        m_suppressedTarget = GetGuidValue(UNIT_FIELD_TARGET);
+        m_suppressedOrientation = GetOrientation();
+    }
 
     m_focusSpell = focusSpell;
-
-    // "instant" creature casts that require re-targeting will be delayed by a short moment to prevent facing bugs
-    bool shouldDelay = false;
 
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
     if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
     {
         SetGuidValue(UNIT_FIELD_TARGET, newTarget);
-        if (target)
-            SetFacingToObject(target);
 
         if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
             ( // only require instant update for spells that actually have a visual
@@ -2824,28 +2844,21 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
             {
                 // only update players that are known to the client (have already been created)
                 if (player->HaveAtClient(this))
-                {
                     SendUpdateToPlayer(player);
-                    shouldDelay = true;
-                }
             }
-            if (shouldDelay)
-                shouldDelay = !(focusSpell->IsTriggered() || focusSpell->GetCastTime() || focusSpell->GetSpellInfo()->IsChanneled());
         }
     }
 
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
-        SetInFront(target);
+        SetFacingTo(GetAngle(target));
     else if (!canTurnDuringCast)
         if (Unit* victim = GetVictim())
-            SetInFront(victim); // ensure server-side orientation is correct at beginning of cast
+            SetFacingTo(GetAngle(victim)); // ensure orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
-
-    return shouldDelay;
 }
 
 bool Creature::IsFocusing(Spell const* focusSpell, bool withDelay)
@@ -2883,9 +2896,18 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         return;
 
     if (IsPet()) // player pets do not use delay system
-        SetGuidValue(UNIT_FIELD_TARGET, GetVictim() ? EnsureVictim()->GetGUID() : ObjectGuid::Empty);
+    {
+        SetGuidValue(UNIT_FIELD_TARGET, m_suppressedTarget);
+        if (m_suppressedTarget)
+        {
+            if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
+                SetFacingTo(GetAngle(objTarget));
+        }
+        else
+            SetFacingTo(m_suppressedOrientation);
+    }
     else
-        // tell the creature that it should reacquire its actual target after the delay expires (this is handled in ::Attack)
+        // tell the creature that it should reacquire its actual target after the delay expires (this is handled in ::Update)
         // player pets don't need to do this, as they automatically reacquire their target on focus release
         MustReacquireTarget();
 

@@ -442,11 +442,11 @@ enum SMART_ACTION
     SMART_ACTION_SOUND                              = 4,      // SoundId, onlySelf
     SMART_ACTION_PLAY_EMOTE                         = 5,      // EmoteId
     SMART_ACTION_FAIL_QUEST                         = 6,      // QuestID
-    SMART_ACTION_ADD_QUEST                          = 7,      // QuestID
+    SMART_ACTION_OFFER_QUEST                        = 7,      // QuestID, directAdd
     SMART_ACTION_SET_REACT_STATE                    = 8,      // state
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
-    SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags
+    SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags, TriggeredFlags
     SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
@@ -551,8 +551,9 @@ enum SMART_ACTION
     SMART_ACTION_MOVE_OFFSET                        = 114,
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
+    SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
 
-    SMART_ACTION_END                                = 117
+    SMART_ACTION_END                                = 118
 };
 
 struct SmartAction
@@ -597,6 +598,12 @@ struct SmartAction
 
         struct
         {
+            uint32 questID;
+            uint32 directAdd;
+        } questOffer;
+
+        struct
+        {
             uint32 state;
         } react;
 
@@ -613,12 +620,19 @@ struct SmartAction
         struct
         {
             uint32 spell;
-            uint32 flags;
+            uint32 castFlags;
+            uint32 triggerFlags;
+        } cast;
+
+        struct
+        {
+            uint32 spell;
+            uint32 castFlags;
             uint32 targetType;
             uint32 targetParam1;
             uint32 targetParam2;
             uint32 targetParam3;
-        } cast;
+        } crossCast;
 
         struct
         {
@@ -1041,6 +1055,11 @@ struct SmartAction
             uint32 timer;
         } corpseDelay;
 
+        struct
+        {
+            uint32 disable;
+        } disableEvade;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1096,8 +1115,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist, playerOnly
     SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
+    SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
 
-    SMART_TARGET_END                            = 27
+    SMART_TARGET_END                            = 28
 };
 
 struct SmartTarget

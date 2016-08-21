@@ -18,3 +18,5 @@ CMakeLists.txt.user
 *.LOCAL.*
 nbproject/*
 .idea/*
+.browse.VC*
+.vscode
