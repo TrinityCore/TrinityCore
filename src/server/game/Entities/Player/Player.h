@@ -1364,7 +1364,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetQuestStatus(uint32 questId, QuestStatus status, bool update = true);
         void RemoveActiveQuest(uint32 questId, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
-        void SendQuestUpdate();
+        void SendQuestUpdate(uint32 questId);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -2068,7 +2068,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
         void UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode);
-        Unit* m_mover;
+        // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
+        Unit* m_unitMovedByMe;
         WorldObject* m_seer;
         void SetFallInformation(uint32 time, float z);
         void HandleFall(MovementInfo const& movementInfo);

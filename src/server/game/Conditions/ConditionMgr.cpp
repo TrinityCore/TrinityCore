@@ -107,7 +107,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Sit/stand state",      true,  true, false },
     { "Daily Quest Completed",true, false, false },
     { "Charmed",             false, false, false },
-    { "Pet type",             true, false, false }
+    { "Pet type",             true, false, false },
+    { "On Taxi",             false, false, false }
 };
 
 // Checks if object meets the condition
@@ -471,6 +472,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                     condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
             break;
         }
+        case CONDITION_TAXI:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsInFlight();
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -651,6 +658,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_PET_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_TAXI:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2185,6 +2195,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             break;
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
+        case CONDITION_TAXI:
         default:
             break;
     }
