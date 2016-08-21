@@ -599,8 +599,6 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
 
-    m_isDelayedInstantCast = false;
-
     m_runesState = 0;
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
@@ -3028,21 +3026,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         if (!(IsNextMeleeSwingSpell() || IsAutoRepeat() || _triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-            {
-                if (m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget()))
-                {
-                    m_isDelayedInstantCast = true;
-                    m_timer = 100; // 100ms delay ensures client has updated creature orientation when cast goes off
-                }
-            }
+                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-            {
-                if (m_caster->ToCreature()->FocusTarget(this, nullptr))
-                {
-                    m_isDelayedInstantCast = true;
-                    m_timer = 100;
-                }
-            }
+                m_caster->ToCreature()->FocusTarget(this, nullptr);
         }
 
     // don't allow channeled spells / spells with cast time to be cast while moving
@@ -3087,14 +3073,13 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         }
 
         m_caster->SetCurrentCastSpell(this);
-        if (!m_isDelayedInstantCast)
-            SendSpellStart();
+        SendSpellStart();
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
 
         //item: first cast may destroy item and second cast causes crash
-        if (!m_casttime && !m_isDelayedInstantCast && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
+        if (!m_casttime && !m_spellInfo->StartRecoveryTime && !m_castItemGUID && GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
     }
 }
@@ -3102,9 +3087,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 void Spell::cancel()
 {
     if (m_spellState == SPELL_STATE_FINISHED)
-        return;
-    // delayed instant casts are used for client-side visual orientation; they are treated as instant for all intents and purposes server-side, and thus cannot be interrupted by another cast
-    if (m_isDelayedInstantCast)
         return;
 
     uint32 oldState = m_spellState;
@@ -3174,9 +3156,6 @@ void Spell::cast(bool skipCheck)
         cancel();
         return;
     }
-
-    if (m_isDelayedInstantCast)
-        SendSpellStart();
 
     if (Player* playerCaster = m_caster->ToPlayer())
     {
@@ -3262,10 +3241,7 @@ void Spell::cast(bool skipCheck)
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
-            {
                 m_caster->SetInFront(objTarget);
-                m_caster->SetFacingToObject(objTarget);
-            }
 
     SelectSpellTargets();
 

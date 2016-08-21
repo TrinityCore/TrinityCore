@@ -685,7 +685,6 @@ class TC_GAME_API Spell
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
-        bool m_isDelayedInstantCast;                        // whether this is a creature's delayed instant cast
         uint8 m_runesState;
 
         uint8 m_delayAtDamageCount;
