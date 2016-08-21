@@ -1694,7 +1694,7 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x2BBA,
 
     // Opcodes that are not generated automatically
-    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0xBADD, // no client handler
+    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x25C3, // no client handler
     SMSG_ITEM_UPGRADE_RESULT                          = 0xBADD, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x3052,
     SMSG_MULTIPLE_PACKETS                             = 0x3051,
