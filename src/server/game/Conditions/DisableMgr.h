@@ -33,7 +33,9 @@ enum DisableType
     DISABLE_TYPE_CRITERIA               = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_VMAP                   = 6,
-    DISABLE_TYPE_MMAP                   = 7
+    DISABLE_TYPE_MMAP                   = 7,
+
+    MAX_DISABLE_TYPES
 };
 
 enum SpellDisableTypes
