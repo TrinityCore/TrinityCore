@@ -17,6 +17,7 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_solocraft();
+void AddSC_FireWorksOnLevelUp();
 
 void AddSC_GOMove_commandscript();  //Rocher2-gomove_master
 void AddSC_XpWeekend();             //��ĩ˫������
@@ -71,4 +72,6 @@ void AddCustomScripts()
    //AddSC_start_equipment();      //OpenLCore,出生送装备
    //AddSC_quest_conversation();      //任务对话?       //这货启用,会使服务端启动不了,千万别启用,谨记!
     //   AddSC_gossiptp();               //闲聊
+	AddSC_solocraft();
+	AddSC_FireWorksOnLevelUp();
 }
