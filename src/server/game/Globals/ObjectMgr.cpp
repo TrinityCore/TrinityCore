@@ -3565,7 +3565,7 @@ void ObjectMgr::LoadPlayerInfo()
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
         // load the DBC's levels at first...
-        for (uint32 level = 0; level < sXpGameTable.GetTableRowCount(); ++level)
+        for (uint32 level = 1; level < sXpGameTable.GetTableRowCount(); ++level)
             _playerXPperLevel[level] = sXpGameTable.GetRow(level)->Total;
 
         uint32 count = 0;
