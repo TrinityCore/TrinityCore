@@ -3566,7 +3566,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         // load the DBC's levels at first...
         for (uint32 level = 0; level < sXpGameTable.GetTableRowCount(); ++level)
-            _playerXPperLevel[level + 1] = sXpGameTable.GetRow(level)->Total;
+            _playerXPperLevel[level] = sXpGameTable.GetRow(level)->Total;
 
         uint32 count = 0;
 
