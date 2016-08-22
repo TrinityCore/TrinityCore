@@ -6226,9 +6226,7 @@ SpellCastResult Spell::CheckItems()
                 ItemTemplate const* proto = targetItem->GetTemplate();
                 for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    if (proto->Effects[e]->SpellID && (
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e]->SpellID && proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE)
                     {
                         isItemUsable = true;
                         break;
