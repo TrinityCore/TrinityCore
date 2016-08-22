@@ -4423,4 +4423,14 @@ XGirlWhispersOnLevelUp = 1
 Login.BoA = 1
 
 #
+#     StartGuild
+#        Description: New players automatically added for the configurated guild IDs.
+#		 Example: 	  StartGuild.Alliance = 45
+#					  StartGuild.Horde = 46
+#        Default:     0 (disabled)
+
+StartGuild.Alliance = 0
+StartGuild.Horde = 0
+
+#
 ###################################################################################################
