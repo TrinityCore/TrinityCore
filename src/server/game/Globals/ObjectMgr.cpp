@@ -3559,7 +3559,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount() + 1, 0);
+        _playerXPperLevel.resize(sXpGameTable.GetTableRowCount() - 1, 0);
 
         //                                               0      1
         QueryResult result = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
