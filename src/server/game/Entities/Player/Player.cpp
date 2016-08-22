@@ -11708,7 +11708,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         const ItemTemplate* proto = pItem->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
                     if (!HasAura(proto->Effects[i]->SpellID))
                         CastSpell(this, proto->Effects[i]->SpellID, true, pItem);
@@ -11751,7 +11751,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         const ItemTemplate* proto = pItem2->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
                 if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
                     if (!HasAura(proto->Effects[i]->SpellID))
                         CastSpell(this, proto->Effects[i]->SpellID, true, pItem2);
@@ -12207,7 +12207,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         const ItemTemplate* proto = pItem->GetTemplate();
         for (uint8 i = 0; i < proto->Effects.size(); ++i)
-            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+            if (proto->Effects[i]->Trigger == ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
                 RemoveAurasDueToSpell(proto->Effects[i]->SpellID);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
@@ -23300,7 +23300,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
     {
         ItemEffectEntry const* effectData = proto->Effects[i];
 
-        // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
+        // wrong triggering type
         if (effectData->Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
