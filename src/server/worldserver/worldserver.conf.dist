@@ -4416,3 +4416,11 @@ FireWorksOnLevelUp = 1
 
 XGirlWhispersOnLevelUp = 1
 
+#     Login.BoA
+#        Description: New players get some starting equipment.
+#        Default:     1
+
+Login.BoA = 1
+
+#
+###################################################################################################
