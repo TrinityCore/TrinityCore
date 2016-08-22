@@ -241,7 +241,6 @@ public:
         boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -258,8 +257,6 @@ public:
             Intro = false;
             Done = false;
         }
-
-        InstanceScript* instance;
 
         uint32 IncinerateTimer;
         uint32 SummonDoomBlossomTimer;
