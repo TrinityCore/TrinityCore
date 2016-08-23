@@ -1127,6 +1127,75 @@ class spell_q9452_cast_net: public SpellScriptLoader
         }
 };
 
+enum PoundDrumSpells
+{
+    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
+    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
+};
+
+class spell_q14076_14092_pound_drum : public SpellScriptLoader
+{
+    public:
+        spell_q14076_14092_pound_drum() : SpellScriptLoader("spell_q14076_14092_pound_drum") { }
+
+        class spell_q14076_14092_pound_drum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14076_14092_pound_drum_SpellScript);
+
+            void HandleSummon()
+            {
+                Unit* caster = GetCaster();
+
+                if (roll_chance_i(80))
+                    caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
+                else
+                    caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
+            }
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_q14076_14092_pound_drum_SpellScript::HandleSummon);
+                OnEffectHitTarget += SpellEffectFn(spell_q14076_14092_pound_drum_SpellScript::HandleActiveObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q14076_14092_pound_drum_SpellScript();
+        }
+};
+
+class spell_q12279_cast_net : public SpellScriptLoader
+{
+    public:
+        spell_q12279_cast_net() : SpellScriptLoader("spell_q12279_cast_net") { }
+
+        class spell_q12279_cast_net_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12279_cast_net_SpellScript);
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12279_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12279_cast_net_SpellScript();
+        }
+};
+
 enum HodirsHelm
 {
     SAY_1               = 1,
@@ -2569,6 +2638,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12279_cast_net();
+    new spell_q14076_14092_pound_drum();
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
