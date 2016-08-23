@@ -3138,6 +3138,20 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#     Creature.CheckInvalidPosition
+#        Description: Check possible invalid position for creatures at startup (WARNING: SLOW WORLD SERVER STARTUP)
+#        Default:     0  - (Do not show)
+
+Creature.CheckInvalidPosition = 0
+
+#
+#     GameObject.CheckInvalidPosition
+#        Description: Check possible invalid position for game objects at startup (WARNING: SLOW WORLD SERVER STARTUP)
+#        Default:     0  - (Do not show)
+
+GameObject.CheckInvalidPosition = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
