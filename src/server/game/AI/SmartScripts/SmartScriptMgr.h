@@ -741,6 +741,7 @@ struct SmartAction
         struct
         {
             uint32 creature;
+            uint32 updateLevel;
         } updateTemplate;
 
         struct
