@@ -580,7 +580,7 @@ public:
             events.Reset();
             running = false;
         }
-        
+
         void Reset() override
         {
             Initialize();
@@ -1655,25 +1655,25 @@ public:
 # npc_wormhole
 ######*/
 
-#define GOSSIP_ENGINEERING1   "Borean Tundra"
-#define GOSSIP_ENGINEERING2   "Howling Fjord"
-#define GOSSIP_ENGINEERING3   "Sholazar Basin"
-#define GOSSIP_ENGINEERING4   "Icecrown"
-#define GOSSIP_ENGINEERING5   "Storm Peaks"
-#define GOSSIP_ENGINEERING6   "Underground..."
-
-enum WormholeSpells
+enum NPC_Wormhole
 {
-    SPELL_BOREAN_TUNDRA         = 67834,
-    SPELL_SHOLAZAR_BASIN        = 67835,
-    SPELL_ICECROWN              = 67836,
-    SPELL_STORM_PEAKS           = 67837,
-    SPELL_HOWLING_FJORD         = 67838,
-    SPELL_UNDERGROUND           = 68081,
+    DATA_SHOW_UNDERGROUND = 1,     // -> Random 0 or 1
 
-    TEXT_WORMHOLE               = 907,
+    MENU_ID_WORMHOLE      = 10668, // "This tear in the fabric of time and space looks ominous."
+    NPC_TEXT_WORMHOLE     = 14785, // (not 907 "What brings you to this part of the world, $n?")
+    GOSSIP_OPTION_1       = 0,     // "Borean Tundra"
+    GOSSIP_OPTION_2       = 1,     // "Howling Fjord"
+    GOSSIP_OPTION_3       = 2,     // "Sholazar Basin"
+    GOSSIP_OPTION_4       = 3,     // "Icecrown"
+    GOSSIP_OPTION_5       = 4,     // "Storm Peaks"
+    GOSSIP_OPTION_6       = 5,     // "Underground..."
 
-    DATA_SHOW_UNDERGROUND       = 1,
+    SPELL_BOREAN_TUNDRA   = 67834, // 0
+    SPELL_HOWLING_FJORD   = 67838, // 1
+    SPELL_SHOLAZAR_BASIN  = 67835, // 2
+    SPELL_ICECROWN        = 67836, // 3
+    SPELL_STORM_PEAKS     = 67837, // 4
+    SPELL_UNDERGROUND     = 68081  // 5
 };
 
 class npc_wormhole : public CreatureScript
@@ -1713,16 +1713,16 @@ class npc_wormhole : public CreatureScript
             {
                 if (player == creature->ToTempSummon()->GetSummoner())
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
                     if (creature->AI()->GetData(DATA_SHOW_UNDERGROUND))
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                        player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
-                    player->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(NPC_TEXT_WORMHOLE, creature->GetGUID());
                 }
             }
 
