@@ -4447,4 +4447,21 @@ Reset.on.login = 1
 Login.Announcer.Enable = 1
 
 #
+#     Boss.Announcer.Enable
+#        Description: System announce who killed a world boss in global.
+#        Default:     1
+
+Boss.Announcer.Enable = 1
+
+#
+#    Double XP Weekend
+#        Description: Enables or disables the Double XP Weekend Script
+#
+#    DoubleXP.Enable
+#        Default:     1 (enabled)
+#                     0 (disabled)
+
+DoubleXP.Enable = 1
+
+#
 ###################################################################################################
