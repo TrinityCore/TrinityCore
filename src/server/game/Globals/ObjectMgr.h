@@ -465,10 +465,10 @@ struct TrinityString
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef std::unordered_map<uint32, CreatureGroupTemplateData> CreatureGroupDataContainer;
-typedef std::multimap<uint32, uint32> CreatureGroupLinkContainer;
+typedef std::multimap<uint32, ObjectGuid::LowType> CreatureGroupLinkContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
 typedef std::unordered_map<uint32, GameObjectGroupTemplateData> GameObjectGroupDataContainer;
-typedef std::multimap<uint32, uint32> GameObjectGroupLinkContainer;
+typedef std::multimap<uint32, ObjectGuid::LowType> GameObjectGroupLinkContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
@@ -737,8 +737,8 @@ class TC_GAME_API ObjectMgr
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
-        uint32 GetCreaturesInGroup(uint32 groupid, std::vector<uint32>& creatureList);
-        uint32 GetGameObjectsInGroup(uint32 groupid, std::vector<uint32>& gameobjectList);
+        uint32 GetCreaturesInGroup(uint32 groupid, std::vector<ObjectGuid::LowType>& creatureList);
+        uint32 GetGameObjectsInGroup(uint32 groupid, std::vector<ObjectGuid::LowType>& gameobjectList);
 
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId) const
         {
@@ -1086,8 +1086,8 @@ class TC_GAME_API ObjectMgr
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
-        uint32 GenerateCreatureSpawnId(bool dynamic = false);
-        uint32 GenerateGameObjectSpawnId(bool dynamic = false);
+        ObjectGuid::LowType GenerateCreatureSpawnId();
+        ObjectGuid::LowType GenerateGameObjectSpawnId();
 
         bool SpawnCreatureGroup(uint32 groupId, Map* map, bool ignoreRespawn = false, bool force = false, std::vector<ObjectGuid>* creatureList = nullptr);
         bool DespawnCreatureGroup(uint32 groupId, Map* map, bool deleteRespawnTimes = false);
@@ -1356,11 +1356,8 @@ class TC_GAME_API ObjectMgr
         uint32 _itemTextId;
         uint32 _mailId;
         uint32 _hiPetNumber;
-
-        uint32 _creatureSpawnId;
-        uint32 _gameObjectSpawnId;
-        uint32 _creatureDynamicSpawnId;
-        uint32 _gameObjectDynamicSpawnId;
+        ObjectGuid::LowType _creatureSpawnId;
+        ObjectGuid::LowType _gameObjectSpawnId;
 
         // first free low guid for selected guid type
         template<HighGuid high>

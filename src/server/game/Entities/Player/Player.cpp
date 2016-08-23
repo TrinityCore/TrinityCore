@@ -7051,6 +7051,9 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    if (Map* map = GetMap())
+        map->UpdatePlayerAreaStats(m_areaUpdateId, newArea);
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
@@ -7092,6 +7095,11 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
+
+    TC_LOG_INFO("misc", "Player %s leaving zone %u area %u, entering zone %u, area %u", GetGUID().ToString().c_str(), m_zoneUpdateId, m_areaUpdateId, newZone, newArea);
+
+    if (Map* map = GetMap())
+        map->UpdatePlayerZoneStats(m_zoneUpdateId, newZone);
 
     // group update
     if (GetGroup())

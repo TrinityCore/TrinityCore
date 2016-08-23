@@ -273,7 +273,6 @@ struct ZoneDynamicInfo
 #define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
 #define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
-#define ZONE_AREA_CHECK_TIME  30000                         // Update area/zone list of players every 30 seconds
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
@@ -552,6 +551,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return itr != _gameObjectRespawnTimesBySpawnId.end() ? itr->second->respawnTime : time_t(0);
         }
 
+        void UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone);
+        void UpdatePlayerAreaStats(uint32 oldArea, uint32 newArea);
+
         void SaveCreatureRespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 cellAreaZoneId = 0, uint32 gridId = 0, bool WriteDB = true, bool replace = false, SQLTransaction respawntrans = nullptr);
         void SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime);
         void SaveGORespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 cellAreaZoneId = 0, uint32 gridId = 0, bool WriteDB = true, bool replace = false, SQLTransaction respawntrans = nullptr);
@@ -561,7 +563,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             OBJECT_TYPE_CREATURE        = 0,
             OBJECT_TYPE_GAMEOBJECT      = 1
         };
-        bool GetRespawnData(RespawnVector& results, RespawnObjectType type, bool onlyDue = false, uint32 spawnId = 0, uint32 grid = 0, bool allMap = true, float x = 0.0f, float y = 0.0f, float z = 0.0f);
+        bool GetRespawnData(RespawnVector& results, RespawnObjectType type, bool onlyDue = false, ObjectGuid::LowType spawnId = 0, uint32 grid = 0, bool allMap = true, float x = 0.0f, float y = 0.0f, float z = 0.0f);
         uint32 GetZoneAreaGridId(RespawnObjectType objectType, float x, float y, float z);
         void LoadRespawnTimes();
         void DeleteRespawnTimes();
@@ -647,11 +649,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         {
             addRespawnInfo(_creatureRespawnTimesByGridId, _creatureRespawnTimesByCellAreaZoneId, _creatureRespawnTimesBySpawnId, Info, replace);
         }
-        bool GetCreatureRespawnInfo(RespawnVector& RespawnData, uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
+        bool GetCreatureRespawnInfo(RespawnVector& RespawnData, ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
         {
             return getRespawnInfo(_creatureRespawnTimesByGridId, _creatureRespawnTimesByCellAreaZoneId, _creatureRespawnTimesBySpawnId, RespawnData, spawnId, gridId, cellAreaZoneId, onlyDue);
         }
-        void DeleteCreatureRespawnInfo(uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
+        void DeleteCreatureRespawnInfo(ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
         {
             deleteRespawnInfo(_creatureRespawnTimesByGridId, _creatureRespawnTimesByCellAreaZoneId, _creatureRespawnTimesBySpawnId, spawnId, gridId, cellAreaZoneId, onlyDue);
         }
@@ -660,17 +662,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         {
             addRespawnInfo(_gameObjectRespawnTimesByGridId, _gameObjectRespawnTimesByCellAreaZoneId, _gameObjectRespawnTimesBySpawnId, Info, replace);
         }
-        bool GetGameObjectRespawnInfo(RespawnVector& RespawnData, uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
+        bool GetGameObjectRespawnInfo(RespawnVector& RespawnData, ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
         {
             return getRespawnInfo(_gameObjectRespawnTimesByGridId, _gameObjectRespawnTimesByCellAreaZoneId, _gameObjectRespawnTimesBySpawnId, RespawnData, spawnId, gridId, cellAreaZoneId, onlyDue);
         }
-        void DeleteGameObjectRespawnInfo(uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
+        void DeleteGameObjectRespawnInfo(ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true)
         {
             deleteRespawnInfo(_gameObjectRespawnTimesByGridId, _gameObjectRespawnTimesByCellAreaZoneId, _gameObjectRespawnTimesBySpawnId, spawnId, gridId, cellAreaZoneId, onlyDue);
         }
-
-        void getPlayersByZone(std::unordered_map<uint32, uint32>& playerZoneMap);
-        void getPlayersByArea(std::unordered_map<uint32, uint32>& playerAreaMap);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
@@ -769,8 +768,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RespawnCellAreaZoneGameObject(uint32 cellZoneAreaId);
 
         void addRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cellAreaZoneList, respawnInfoMap& spawnList, RespawnInfo& Info, bool replace = false);
-        bool getRespawnInfo(respawnInfoMultiMap const& gridList, respawnInfoMultiMap const& cellAreaZoneList, respawnInfoMap const& spawnList, RespawnVector& RespawnData, uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true);
-        void deleteRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cellAreaZoneList, respawnInfoMap& spawnList, uint32 spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true);
+        bool getRespawnInfo(respawnInfoMultiMap const& gridList, respawnInfoMultiMap const& cellAreaZoneList, respawnInfoMap const& spawnList, RespawnVector& RespawnData, ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true);
+        void deleteRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cellAreaZoneList, respawnInfoMap& spawnList, ObjectGuid::LowType spawnId, uint32 gridId = 0, uint32 cellAreaZoneId = 0, bool onlyDue = true);
 
         // Type specific code for add/remove to/from grid
         template<class T>
@@ -837,7 +836,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_set<Corpse*> _corpseBones;
 
         std::unordered_set<Object*> _updateObjects;
-        uint32 m_zoneAreaCheckDiff;
 };
 
 enum InstanceResetMethod

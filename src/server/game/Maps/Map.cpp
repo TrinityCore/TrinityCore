@@ -246,7 +246,7 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-i_scriptLock(false), _defaultLight(GetDefaultMapLight(id)), m_zoneAreaCheckDiff(ZONE_AREA_CHECK_TIME)
+i_scriptLock(false), _defaultLight(GetDefaultMapLight(id))
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -258,6 +258,9 @@ i_scriptLock(false), _defaultLight(GetDefaultMapLight(id)), m_zoneAreaCheckDiff(
             setNGrid(NULL, idx, j);
         }
     }
+
+    _zonePlayerCountMap.clear();
+    _areaPlayerCountMap.clear();
 
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
@@ -702,6 +705,50 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
     }
 }
 
+void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
+{
+    // Nothing to do if no change
+    if (oldZone == newZone)
+        return;
+
+    if (oldZone != 0xFFFFFFFF && _zonePlayerCountMap[oldZone] == 0)
+    {
+        TC_LOG_WARN("maps", "Player left zone %u, when no players in zone!", oldZone);
+        return;
+    }
+
+    if (oldZone != 0xFFFFFFFF)
+        _zonePlayerCountMap[oldZone]--;
+
+    if (newZone != 0xFFFFFFFF)
+        _zonePlayerCountMap[newZone]++;
+
+    if (oldZone != newZone)
+        TC_LOG_INFO("misc", "Player moved from zone %u (new count %u) to zone %u (new count %u)", oldZone, _zonePlayerCountMap[oldZone], newZone, _zonePlayerCountMap[newZone]);
+}
+
+void Map::UpdatePlayerAreaStats(uint32 oldArea, uint32 newArea)
+{
+    // Nothing to do if no change
+    if (oldArea == newArea)
+        return;
+
+    if (oldArea && _areaPlayerCountMap[oldArea] == 0)
+    {
+        TC_LOG_WARN("maps", "Player left area %u, when no players in area!", oldArea);
+        return;
+    }
+
+    if (oldArea)
+        _areaPlayerCountMap[oldArea]--;
+
+    if (newArea)
+        _areaPlayerCountMap[newArea]++;
+
+    if (oldArea != newArea)
+        TC_LOG_INFO("misc", "Player moved from area %u (new count %u) to area %u (new count %u)", oldArea, _areaPlayerCountMap[oldArea], newArea, _areaPlayerCountMap[newArea]);
+}
+
 void Map::Update(const uint32 t_diff)
 {
     _dynamicTree.update(t_diff);
@@ -809,17 +856,6 @@ void Map::Update(const uint32 t_diff)
     if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
         ProcessRelocationNotifies(t_diff);
 
-    // Update zone/area player counts (used by respawn handler)
-    m_zoneAreaCheckDiff += t_diff;
-    if (m_zoneAreaCheckDiff >= ZONE_AREA_CHECK_TIME)
-    {
-        _zonePlayerCountMap.clear();
-        _areaPlayerCountMap.clear();
-        getPlayersByZone(_zonePlayerCountMap);
-        getPlayersByArea(_areaPlayerCountMap);
-        m_zoneAreaCheckDiff = 0;
-    }
-
     sScriptMgr->OnMapUpdate(this, t_diff);
 }
 
@@ -914,6 +950,8 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
+    // Before leaving map, update zone/area for stats
+    player->UpdateZone(0xFFFFFFFF, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
     player->RemoveFromWorld();
@@ -2911,7 +2949,7 @@ void Map::addRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cel
     }
 }
 
-bool Map::getRespawnInfo(respawnInfoMultiMap const& gridList, respawnInfoMultiMap const& cellAreaZoneList, respawnInfoMap const& spawnList, RespawnVector& RespawnData, uint32 spawnId, uint32 gridId, uint32 cellAreaZoneId, bool onlyDue)
+bool Map::getRespawnInfo(respawnInfoMultiMap const& gridList, respawnInfoMultiMap const& cellAreaZoneList, respawnInfoMap const& spawnList, RespawnVector& RespawnData, ObjectGuid::LowType spawnId, uint32 gridId, uint32 cellAreaZoneId, bool onlyDue)
 {
     // If no criteria passed, then return either due respawns, or all respawns
     if (!spawnId && !gridId && !cellAreaZoneId)
@@ -2964,7 +3002,7 @@ bool Map::getRespawnInfo(respawnInfoMultiMap const& gridList, respawnInfoMultiMa
     return false;
 }
 
-void Map::deleteRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cellAreaZoneList, respawnInfoMap& spawnList, uint32 spawnId, uint32 gridId, uint32 cellAreaZoneId, bool onlyDue)
+void Map::deleteRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& cellAreaZoneList, respawnInfoMap& spawnList, ObjectGuid::LowType spawnId, uint32 gridId, uint32 cellAreaZoneId, bool onlyDue)
 {
     // For delete, a bit more important to ensure only one present (or none to erase all)
     if ((spawnId && (gridId || cellAreaZoneId)) || (gridId && (spawnId || cellAreaZoneId)) || (cellAreaZoneId && (spawnId || gridId)))
@@ -3077,7 +3115,7 @@ void Map::RespawnCreatureList(const RespawnVector& RespawnData, bool force)
                 }
                 else
                 {
-                    const uint32 spawnId = ri->spawnId;
+                    const ObjectGuid::LowType spawnId = ri->spawnId;
                     const uint32 entry = ri->entry;
                     const uint32 cellAreaZoneId = ri->cellAreaZoneId;
                     const uint32 gridId = ri->gridId;
@@ -3151,7 +3189,7 @@ void Map::RespawnGameObjectList(const RespawnVector& RespawnData, bool force)
             }
             else
             {
-                uint32 spawnId = ri->spawnId;
+                ObjectGuid::LowType spawnId = ri->spawnId;
                 if (const GameObjectData* cdata = sObjectMgr->GetGOData(spawnId))
                 {
                     // Always delete the respawn time
@@ -3374,7 +3412,7 @@ void Map::RespawnCellAreaZoneGameObject(uint32 cellZoneAreaId)
         RespawnGameObjectList(rv);
 }
 
-bool Map::GetRespawnData(RespawnVector& results, RespawnObjectType type, bool onlyDue, uint32 spawnId, uint32 grid, bool allMap, float x, float y, float z)
+bool Map::GetRespawnData(RespawnVector& results, RespawnObjectType type, bool onlyDue, ObjectGuid::LowType spawnId, uint32 grid, bool allMap, float x, float y, float z)
 {
     // Obtain references to appropriate respawn stores
     respawnInfoMultiMap const& gridList = (type == OBJECT_TYPE_CREATURE) ? _creatureRespawnTimesByGridId : _gameObjectRespawnTimesByGridId;
@@ -3396,19 +3434,6 @@ bool Map::GetRespawnData(RespawnVector& results, RespawnObjectType type, bool on
     // By scope
     uint32 zoneAreaCellId = GetZoneAreaGridId(type, x, y, z);
     return getRespawnInfo(gridList, scopeList, spawnIdList, results, 0, 0, zoneAreaCellId, onlyDue);
-}
-
-void Map::getPlayersByZone(std::unordered_map<uint32, uint32>& playerZoneMap)
-{
-    for (PlayerList::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        playerZoneMap[itr->GetSource()->GetZoneId()]++;
-}
-
-void Map::getPlayersByArea(std::unordered_map<uint32, uint32>& playerAreaMap)
-{
-    for (PlayerList::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        playerAreaMap[itr->GetSource()->GetAreaId()]++;
-
 }
 
 uint32 Map::GetPlayersInRangeOfPosition(const Position* pos, uint32 phaseMask, float range, std::list<Player*>& playerList)
