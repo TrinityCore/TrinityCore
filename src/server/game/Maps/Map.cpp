@@ -711,20 +711,38 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
     if (oldZone == newZone)
         return;
 
-    if (oldZone != 0xFFFFFFFF && _zonePlayerCountMap[oldZone] == 0)
+    uint32 oldZoneCount = 0;
+    uint32 newZoneCount = 0;
+
+    // Get old zone if exist, without creating element if not
+    auto oldItr = _zonePlayerCountMap.find(oldZone);
+    if (oldItr != _zonePlayerCountMap.end())
+        oldZoneCount = oldItr->second;
+
+    // Sanity check, we're leaving a zone (that isn't the default) and there's no players there (should be at least one)
+    if (oldZone != 0xFFFFFFFF && oldZoneCount == 0)
     {
         TC_LOG_WARN("maps", "Player left zone %u, when no players in zone!", oldZone);
         return;
     }
 
-    if (oldZone != 0xFFFFFFFF)
-        _zonePlayerCountMap[oldZone]--;
+    // Get new zone if exist, without creating element if not
+    auto newItr = _zonePlayerCountMap.find(newZone);
+    if (newItr != _zonePlayerCountMap.end())
+        newZoneCount = newItr->second;
 
-    if (newZone != 0xFFFFFFFF)
+    // If there is already a count then the iterator will exist, use it to subtract one.
+    // If there was only one (us) delete the element entirely.
+    if (oldZone != 0xFFFFFFFF && oldZoneCount > 1)
+        oldItr->second--;
+    else if (oldZone != 0xFFFFFFFF && oldZoneCount == 1)
+        _zonePlayerCountMap.erase(oldItr);
+
+    // If we already have an iterator (already players in the area) increment. Otherwise, add to map
+    if (newZone != 0xFFFFFFFF && newZoneCount > 0)
+        newItr->second++;
+    else if (newZone != 0xFFFFFFFF)
         _zonePlayerCountMap[newZone]++;
-
-    if (oldZone != newZone)
-        TC_LOG_INFO("misc", "Player moved from zone %u (new count %u) to zone %u (new count %u)", oldZone, _zonePlayerCountMap[oldZone], newZone, _zonePlayerCountMap[newZone]);
 }
 
 void Map::UpdatePlayerAreaStats(uint32 oldArea, uint32 newArea)
@@ -733,20 +751,38 @@ void Map::UpdatePlayerAreaStats(uint32 oldArea, uint32 newArea)
     if (oldArea == newArea)
         return;
 
-    if (oldArea && _areaPlayerCountMap[oldArea] == 0)
+    uint32 oldAreaCount = 0;
+    uint32 newAreaCount = 0;
+
+    // Get old area if exist, without creating element if not
+    auto oldItr = _areaPlayerCountMap.find(oldArea);
+    if (oldItr != _areaPlayerCountMap.end())
+        oldAreaCount = oldItr->second;
+
+    // Sanity check, we're leaving an area (that isn't the default) and there's no players there (should be at least one)
+    if (oldArea && oldAreaCount == 0)
     {
         TC_LOG_WARN("maps", "Player left area %u, when no players in area!", oldArea);
         return;
     }
 
-    if (oldArea)
-        _areaPlayerCountMap[oldArea]--;
+    // Get new area if exist, without creating element if not
+    auto newItr = _areaPlayerCountMap.find(newArea);
+    if (newItr != _areaPlayerCountMap.end())
+        newAreaCount = newItr->second;
 
-    if (newArea)
+    // If there is already a count then the iterator will exist, use it to subtract one.
+    // If there was only one (us) delete the element entirely.
+    if (oldArea && oldAreaCount > 1)
+        oldItr->second--;
+    else if (oldArea && oldAreaCount == 1)
+        _areaPlayerCountMap.erase(oldItr);
+
+    // If we already have an iterator (already players in the area) increment. Otherwise, add to map
+    if (newArea && newAreaCount > 0)
+        newItr->second++;
+    else if (newArea)
         _areaPlayerCountMap[newArea]++;
-
-    if (oldArea != newArea)
-        TC_LOG_INFO("misc", "Player moved from area %u (new count %u) to area %u (new count %u)", oldArea, _areaPlayerCountMap[oldArea], newArea, _areaPlayerCountMap[newArea]);
 }
 
 void Map::Update(const uint32 t_diff)

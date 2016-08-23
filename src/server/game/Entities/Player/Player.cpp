@@ -7096,8 +7096,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
 
-    TC_LOG_INFO("misc", "Player %s leaving zone %u area %u, entering zone %u, area %u", GetGUID().ToString().c_str(), m_zoneUpdateId, m_areaUpdateId, newZone, newArea);
-
     if (Map* map = GetMap())
         map->UpdatePlayerZoneStats(m_zoneUpdateId, newZone);
 
