@@ -643,7 +643,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             return 0;
         }
         
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == MOVEMENT_MINION_RANDOM)
                 _movementTimer = urandms(2, 10) + urandms(2, 10);
