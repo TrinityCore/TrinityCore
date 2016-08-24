@@ -26,7 +26,7 @@ char * wdtGetPlainName(char * FileName)
 {
     char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != NULL)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -52,7 +52,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE *dirfile;
     dirfile = fopen(dirname.c_str(), "ab");
-    if(!dirfile)
+    if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
         return false;
@@ -124,7 +124,7 @@ WDTFile::~WDTFile(void)
 
 ADTFile* WDTFile::GetMap(int x, int z)
 {
-    if(!(x>=0 && z >= 0 && x<64 && z<64))
+    if (!(x>=0 && z >= 0 && x<64 && z<64))
         return NULL;
 
     char name[512];

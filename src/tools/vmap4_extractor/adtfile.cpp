@@ -30,7 +30,7 @@ char const* GetPlainName(char const* FileName)
 {
     const char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != NULL)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -39,7 +39,7 @@ char* GetPlainName(char* FileName)
 {
     char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if ((szTemp = strrchr(FileName, '\\')) != NULL)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -65,7 +65,7 @@ void FixNameSpaces(char* name, size_t len)
 {
     for (size_t i=0; i<len-3; i++)
     {
-        if(name[i] == ' ')
+        if (name[i] == ' ')
             name[i] = '_';
     }
 }
@@ -86,7 +86,7 @@ ADTFile::ADTFile(char* filename) : ADT(WorldMpq, filename, false)
 
 bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
 {
-    if(ADT.isEof ())
+    if (ADT.isEof ())
         return false;
 
     uint32 size;
@@ -109,7 +109,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE *dirfile;
     dirfile = fopen(dirname.c_str(), "ab");
-    if(!dirfile)
+    if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());
         return false;

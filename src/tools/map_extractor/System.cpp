@@ -155,7 +155,7 @@ void CreateDir(std::string const& path)
 bool FileExists(TCHAR const* fileName)
 {
     int fp = _open(fileName, OPEN_FLAGS);
-    if(fp != -1)
+    if (fp != -1)
     {
         _close(fp);
         return true;
@@ -321,7 +321,7 @@ void ReadLiquidTypeTableDBC()
     }
 
     DBCFile dbc(dbcFile);
-    if(!dbc.open())
+    if (!dbc.open())
     {
         printf("Fatal error: Invalid LiquidType.dbc file format!\n");
         exit(1);
@@ -1019,7 +1019,7 @@ void ExtractMapsFromMpq(uint32 build)
 bool ExtractFile(HANDLE fileInArchive, char const* filename)
 {
     FILE* output = fopen(filename, "wb");
-    if(!output)
+    if (!output)
     {
         printf("Can't create the output file '%s'\n", filename);
         return false;

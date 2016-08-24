@@ -42,7 +42,7 @@ extern HANDLE WorldMpq;
 bool WMORoot::open()
 {
     MPQFile f(WorldMpq, filename.c_str());
-    if(f.isEof ())
+    if (f.isEof ())
     {
         printf("No such file.\n");
         return false;
@@ -150,7 +150,7 @@ WMOGroup::WMOGroup(const std::string &filename) :
 bool WMOGroup::open()
 {
     MPQFile f(WorldMpq, filename.c_str());
-    if(f.isEof ())
+    if (f.isEof ())
     {
         printf("No such file.\n");
         return false;
@@ -272,50 +272,50 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         uint32 nIdexes = nTriangles * 3;
 
-        if(fwrite("INDX",4, 1, output) != 1)
+        if (fwrite("INDX",4, 1, output) != 1)
         {
             printf("Error while writing file nbraches ID");
             exit(0);
         }
         int wsize = sizeof(uint32) + sizeof(unsigned short) * nIdexes;
-        if(fwrite(&wsize, sizeof(int), 1, output) != 1)
+        if (fwrite(&wsize, sizeof(int), 1, output) != 1)
         {
             printf("Error while writing file wsize");
             // no need to exit?
         }
-        if(fwrite(&nIdexes, sizeof(uint32), 1, output) != 1)
+        if (fwrite(&nIdexes, sizeof(uint32), 1, output) != 1)
         {
             printf("Error while writing file nIndexes");
             exit(0);
         }
-        if(nIdexes >0)
+        if (nIdexes >0)
         {
-            if(fwrite(MOVI, sizeof(unsigned short), nIdexes, output) != nIdexes)
+            if (fwrite(MOVI, sizeof(unsigned short), nIdexes, output) != nIdexes)
             {
                 printf("Error while writing file indexarray");
                 exit(0);
             }
         }
 
-        if(fwrite("VERT",4, 1, output) != 1)
+        if (fwrite("VERT",4, 1, output) != 1)
         {
             printf("Error while writing file nbraches ID");
             exit(0);
         }
         wsize = sizeof(int) + sizeof(float) * 3 * nVertices;
-        if(fwrite(&wsize, sizeof(int), 1, output) != 1)
+        if (fwrite(&wsize, sizeof(int), 1, output) != 1)
         {
             printf("Error while writing file wsize");
             // no need to exit?
         }
-        if(fwrite(&nVertices, sizeof(int), 1, output) != 1)
+        if (fwrite(&nVertices, sizeof(int), 1, output) != 1)
         {
             printf("Error while writing file nVertices");
             exit(0);
         }
-        if(nVertices >0)
+        if (nVertices >0)
         {
-            if(fwrite(MOVT, sizeof(float)*3, nVertices, output) != nVertices)
+            if (fwrite(MOVT, sizeof(float)*3, nVertices, output) != nVertices)
             {
                 printf("Error while writing file vectors");
                 exit(0);
@@ -390,7 +390,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         int check = 3*nColVertices;
         fwrite(VERT,4,3,output);
         for (uint32 i=0; i<nVertices; ++i)
-            if(IndexRenum[i] >= 0)
+            if (IndexRenum[i] >= 0)
                 check -= fwrite(MOVT+3*i, sizeof(float), 3, output);
 
         assert(check==0);
@@ -509,7 +509,7 @@ WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint
     FILE *input;
     input = fopen(tempname, "r+b");
 
-    if(!input)
+    if (!input)
     {
         printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname);
         return;
@@ -526,7 +526,7 @@ WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint
     float x,z;
     x = pos.x;
     z = pos.z;
-    if(x==0 && z == 0)
+    if (x==0 && z == 0)
     {
         pos.x = 533.33333f*32;
         pos.z = 533.33333f*32;
@@ -537,7 +537,7 @@ WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint
 
     float scale = 1.0f;
     uint32 flags = MOD_HAS_BOUND;
-    if(tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
+    if (tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
