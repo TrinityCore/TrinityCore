@@ -71,10 +71,11 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
     ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // N                            login on day of N-th Birthday
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23, // title_id                     known (pvp) title, values from dbc
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 24  // item_quality
+    // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT       = 24, // 7.x only
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25  // item_quality
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               25 // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               26 // maximum value in AchievementCriteriaDataType enum
 
 struct AchievementCriteriaData
 {
