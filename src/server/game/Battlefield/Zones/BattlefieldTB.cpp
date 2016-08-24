@@ -306,14 +306,14 @@ bool BattlefieldTB::SetupBattlefield()
 
     // Set timer
     m_Timer = sWorld->getWorldState(TB_WS_TIME_NEXT_BATTLE);
-    
+
     // Defending team isn't set yet? Choose randomly.
     if (sWorld->getWorldState(TB_WS_FACTION_CONTROLLING) == 0)
         sWorld->setWorldState(TB_WS_FACTION_CONTROLLING, uint64(urand(1, 2)));
 
     // Set defender team
     SetDefenderTeam(TeamId(sWorld->getWorldState(TB_WS_FACTION_CONTROLLING) - 1));
-    
+
     // Just to save world states
     SendInitWorldStatesToAll();
 
@@ -330,7 +330,7 @@ bool BattlefieldTB::SetupBattlefield()
         }
         AddCapturePoint(capturePoint);
     }
-    
+
     // Spawn towers
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
         if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, TBTowers[i].rot))
@@ -359,7 +359,7 @@ bool BattlefieldTB::SetupBattlefield()
     warnedFiveMinutes = false;
     warnedTwoMinutes = false;
     warnedOneMinute = false;
-    
+
     UpdateNPCsAndGameObjects();
 
     return true;
@@ -390,7 +390,7 @@ bool BattlefieldTB::Update(uint32 diff)
             SendWarning(TB_TEXT_PREPARATIONS_IN_1_MIN);
         }
     }
-    
+
     if (!updatedNPCAndObjects)
     {
         if (m_updateObjectsTimer <= diff)
@@ -700,7 +700,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
         if (GameObject* gameobject = GetGameObject(guid))
             gameobject->Delete();
     TemporaryGOs.clear();
-    
+
     // Tol Barad gates - closed during warmup
     if (GameObject* gates = GetGameObject(TBGatesGUID))
         gates->SetGoState(GetState() == BATTLEFIELD_WARMUP ? GO_STATE_READY : GO_STATE_ACTIVE);
@@ -760,7 +760,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
             if (Creature* creature = SpawnCreature(entry, TBQuestInfantrySpawnData[i]))
                 TemporaryNPCs.insert(creature->GetGUID());
         }
-            
+
         for (uint8 i = 0; i < TB_GUARDS_MAX; i++)
             if (Creature* creature = SpawnCreature(GetDefenderTeam() == TEAM_ALLIANCE ? NPC_BARADIN_GUARD : NPC_HELLSCREAMS_SENTRY, GuardNPCSpawns[i]))
                 TemporaryNPCs.insert(creature->GetGUID());
