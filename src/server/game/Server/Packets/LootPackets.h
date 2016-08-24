@@ -65,7 +65,7 @@ namespace WorldPackets
             ObjectGuid LootObj;
             ObjectGuid Owner;
             uint8 Threshold      = 2; // Most common value, 2 = Uncommon
-            uint8 LootMethod     = 0;
+            uint8 _LootMethod    = 0; ///< @see enum LootMethod
             uint8 AcquireReason  = 0;
             uint8 FailureReason  = 17; // Most common value
             uint32 Coins         = 0;
