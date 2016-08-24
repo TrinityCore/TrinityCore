@@ -643,7 +643,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             return 0;
         }
         
-        void MovementInform(uint32 /*type*/, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == MOVEMENT_MINION_RANDOM)
                 _movementTimer = urandms(2, 10) + urandms(2, 10);
@@ -681,7 +681,7 @@ public:
     {
         npc_kelthuzad_skeletonAI(Creature* creature) : npc_kelthuzad_minionAI(creature) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
@@ -707,7 +707,7 @@ public:
     {
         npc_kelthuzad_bansheeAI(Creature* creature) : npc_kelthuzad_minionAI(creature) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
@@ -733,7 +733,7 @@ public:
     {
         npc_kelthuzad_abominationAI(Creature* creature) : npc_kelthuzad_minionAI(creature), _woundTimer(urandms(10, 20)) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
