@@ -287,7 +287,7 @@ void InstanceSaveManager::LoadInstances()
     CharacterDatabase.DirectExecute("UPDATE characters AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = 0 WHERE tmp.instance_id > 0 AND instance.id IS NULL");
 
     // Initialize instance id storage (Needs to be done after the trash has been clean out)
-    sMapMgr->InitInstanceIds();
+    sMapMgr->InitInstanceId();
 
     // Load reset times and clean expired instances
     sInstanceSaveMgr->LoadResetTimes();
@@ -323,14 +323,6 @@ void InstanceSaveManager::LoadResetTimes()
             Field* fields = result->Fetch();
 
             uint32 instanceId = fields[0].GetUInt32();
-
-            // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
-            // so if the instance id is used, increment until we find the first unused one for a potential new instance
-            if (sMapMgr->GetNextInstanceId() == instanceId)
-                sMapMgr->SetNextInstanceId(instanceId + 1);
-
-            // Mark instance id as being used
-            sMapMgr->RegisterInstanceId(instanceId);
 
             if (time_t resettime = time_t(fields[3].GetUInt32()))
             {
@@ -616,9 +608,6 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
     }
     else
         Map::DeleteRespawnTimesInDB(mapid, instanceId);
-
-    // Free up the instance id and allow it to be reused
-    sMapMgr->FreeInstanceId(instanceId);
 }
 
 void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)

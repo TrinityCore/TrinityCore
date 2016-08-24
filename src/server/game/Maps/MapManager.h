@@ -110,13 +110,8 @@ class TC_GAME_API MapManager
         uint32 GetNumPlayersInInstances();
 
         // Instance ID management
-        void InitInstanceIds();
+        void InitInstanceId();
         uint32 GenerateInstanceId();
-        void RegisterInstanceId(uint32 instanceId);
-        void FreeInstanceId(uint32 instanceId);
-
-        uint32 GetNextInstanceId() const { return _nextInstanceId; };
-        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
@@ -133,7 +128,6 @@ class TC_GAME_API MapManager
 
     private:
         typedef std::unordered_map<uint32, Map*> MapMapType;
-        typedef std::vector<bool> InstanceIds;
 
         MapManager();
         ~MapManager();
@@ -152,8 +146,7 @@ class TC_GAME_API MapManager
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        InstanceIds _instanceIds;
-        uint32 _nextInstanceId;
+        uint32 _instanceId;
         MapUpdater m_updater;
 
         // atomic op counter for active scripts amount
