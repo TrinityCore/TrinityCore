@@ -681,7 +681,7 @@ public:
     {
         npc_kelthuzad_skeletonAI(Creature* creature) : npc_kelthuzad_minionAI(creature) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
@@ -707,7 +707,7 @@ public:
     {
         npc_kelthuzad_bansheeAI(Creature* creature) : npc_kelthuzad_minionAI(creature) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
@@ -733,7 +733,7 @@ public:
     {
         npc_kelthuzad_abominationAI(Creature* creature) : npc_kelthuzad_minionAI(creature), _woundTimer(urandms(10, 20)) { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             UpdateRandomMovement(diff);
 
