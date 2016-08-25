@@ -149,7 +149,7 @@ static inline Position const& GetRandomMinionSpawnPoint()
 // uniformly distribute on the circle
 static Position GetRandomPositionOnCircle(Position const& center, float radius)
 {
-    double angle = rand_norm() * M_2_PI;
+    double angle = rand_norm() * 2.0 * M_PI;
     double relDistance = rand_norm() + rand_norm();
     if (relDistance > 1)
         relDistance = 1 - relDistance;
