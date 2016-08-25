@@ -1,0 +1,183 @@
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 123 ConnIdx: 0 Time: 06/16/2011 10:04:52.000 Number: 74223
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 82
+Text: Champions, meet me at the Town Hall at once. We must take the fight to Mal'Ganis.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 76 ConnIdx: 0 Time: 06/16/2011 10:05:05.000 Number: 74949
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 35
+Text: Follow me, I know the way through.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 93 ConnIdx: 0 Time: 06/16/2011 10:05:20.000 Number: 75246
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 52
+Text: Yes, I'm glad I could get to you before the plague.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 63 ConnIdx: 0 Time: 06/16/2011 10:05:28.000 Number: 75324
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 22
+Text: What is this sorcery?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 127 ConnIdx: 0 Time: 06/16/2011 10:05:30.000 Number: 75344
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF1306EB400000E95 Type: Creature Entry: 28340 Low: 3733
+Constant time: 0
+Name Length: 19
+Name: Stratholme Citizen
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 74
+Text: There's no need for you to understand, Arthas. All you need to do is die.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 123 ConnIdx: 0 Time: 06/16/2011 10:06:09.000 Number: 76550
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 82
+Text: Mal'Ganis appears to have more than Scourge in his arsenal. We should make haste.
+Chat Tag: 32 (32)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 83 ConnIdx: 0 Time: 06/16/2011 10:06:25.000 Number: 76728
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 42
+Text: More vile sorcery! Be ready for anything!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 56 ConnIdx: 0 Time: 06/16/2011 10:07:15.000 Number: 78577
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 15
+Text: Let's move on.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 97 ConnIdx: 0 Time: 06/16/2011 10:07:27.000 Number: 78726
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 56
+Text: Watch your backs: they have us surrounded in this hall.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 106 ConnIdx: 0 Time: 06/16/2011 10:08:15.000 Number: 80808
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 000000000000000000 Type: Creature Entry: 46506 Low: 0000
+Receiver Name Length: 26
+Receiver Name: Guardian of Ancient Kings
+Text Length: 35
+Text: Mal'Ganis is not making this easy.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 96 ConnIdx: 0 Time: 06/16/2011 10:08:26.000 Number: 80971
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 000000000000000000 Type: Creature Entry: 46506 Low: 0000
+Receiver Name Length: 26
+Receiver Name: Guardian of Ancient Kings
+Text Length: 25
+Text: They're very persistent.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 73 ConnIdx: 0 Time: 06/16/2011 10:09:10.000 Number: 82942
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 32
+Text: What else can he put in my way?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 213 ConnIdx: 0 Time: 06/16/2011 10:09:15.000 Number: 82988
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067A400001014 Type: Creature Entry: 26532 Low: 4116
+Constant time: 0
+Name Length: 18
+Name: Chrono-Lord Epoch
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 161
+Text: Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 127 ConnIdx: 0 Time: 06/16/2011 10:09:28.000 Number: 83094
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF130678300000E90 Type: Creature Entry: 26499 Low: 3728
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 86
+Text: I do what I must for Lordaeron, and neither your words nor your actions will stop me.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 88 ConnIdx: 0 Time: 06/16/2011 10:09:36.000 Number: 83148
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067A400001014 Type: Creature Entry: 26532 Low: 4116
+Constant time: 0
+Name Length: 18
+Name: Chrono-Lord Epoch
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 36
+Text: We'll see about that, young prince.
+Chat Tag: None (0)

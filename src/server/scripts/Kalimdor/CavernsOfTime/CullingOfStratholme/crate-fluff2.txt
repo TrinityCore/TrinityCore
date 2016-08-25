@@ -1,0 +1,128 @@
+== EVENT #1 ==
+Bartleby Battson (27907)
+== EVENT DATA ==
+T+00s: BB move
+	Position: X: 1670.256 Y: 872.8734 Z: 120.0351
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1672.917 Y: 871.3535 Z: 120.3277
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1671.586 Y: 872.1134 Z: 120.4314
+T+00s: BB say (type 12, emote 0): Well, guess I should load everything back into the cart.
+T+01s: BB kneel (bytes1=8)
+T+05s: BB say (type 12, emote 5): Oh, come on! My cart broke, my horse lost a shoe, and now the cargo goes bad!
+T+07s: BB emote 1
+T+13s: BB stop kneel (bytes1=0)
+T+13s: BB move
+	Position: X: 1672.917 Y: 871.3535 Z: 120.3277
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1667.076 Y: 870.0946 Z: 119.9527
+T+13s: BB say (type 12, emote 0): I guess I'll go find the authorities. If I'm lucky they'll tell me it's the plague and that we're all going to die.
+T+14s: BB move
+	Position: X: 1669.969 Y: 870.718 Z: 120.1384
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1662.828 Y: 866.6351 Z: 119.8706
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1667.148 Y: 870.1765 Z: 120.0045
+T+17s: BB move
+	Position: X: 1664.689 Y: 868.1503 Z: 119.9065
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1658.108 Y: 859.9075 Z: 119.1869
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1662.898 Y: 866.5289 Z: 120.0467
+T+20s: BB move
+	Position: X: 1659.009 Y: 861.1918 Z: 119.3174
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1653.903 Y: 852.6165 Z: 119.0619
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1658.206 Y: 859.9042 Z: 119.4396
+T+23s: BB move
+	Position: X: 1655.873 Y: 856.0323 Z: 119.1204
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1648.169 Y: 841.8626 Z: 119.0619
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1654.021 Y: 852.6975 Z: 119.3411
+T+28s: BB move
+	Position: X: 1650.059 Y: 845.4074 Z: 119.0619
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1641.229 Y: 825.2514 Z: 120.1012
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1648.144 Y: 841.8294 Z: 119.5816
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1644.644 Y: 832.8294 Z: 119.8316
+T+35s: BB move
+	Position: X: 1642.712 Y: 828.8032 Z: 119.8451
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1638.217 Y: 815.4248 Z: 119.9439
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1641.215 Y: 825.364 Z: 120.1445
+T+40s: BB move
+	Position: X: 1638.808 Y: 817.3542 Z: 119.9748
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1633.981 Y: 802.764 Z: 119.8189
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1638.145 Y: 815.3091 Z: 120.1469
+T+45s: BB move
+	Position: X: 1635.01 Y: 805.8387 Z: 119.8493
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1627.451 Y: 780.3792 Z: 118.3817
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1633.98 Y: 802.8589 Z: 119.8655
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1630.98 Y: 791.6089 Z: 119.3655
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1628.73 Y: 783.8589 Z: 119.1155
+T+54s: BB move
+	Position: X: 1628.106 Y: 782.6379 Z: 118.5758
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1625.122 Y: 771.533 Z: 117.4269
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1627.364 Y: 780.3354 Z: 118.5013
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1626.114 Y: 774.8354 Z: 118.0013
+T+58s: BB move
+	Position: X: 1625.746 Y: 773.9089 Z: 117.7027
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1620.617 Y: 756.6836 Z: 115.8646
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1625.181 Y: 771.5463 Z: 117.5337
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1623.431 Y: 765.7963 Z: 117.0337
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1621.931 Y: 760.2963 Z: 116.7837
+T+64s: BB move
+	Position: X: 1621.453 Y: 759.4308 Z: 116.1794
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1616.889 Y: 741.244 Z: 113.887
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1620.671 Y: 756.5874 Z: 116.0332
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1619.671 Y: 752.8374 Z: 115.5332
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1618.921 Y: 749.0874 Z: 115.0332
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1617.421 Y: 742.3374 Z: 114.5332
+T+70s: BB move
+	Position: X: 1617.759 Y: 744.836 Z: 114.2508
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1613.611 Y: 728.4866 Z: 111.9114
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1617.185 Y: 742.1613 Z: 114.0811
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1616.935 Y: 741.1613 Z: 114.0811
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1615.685 Y: 736.6613 Z: 113.3311
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1614.935 Y: 732.6613 Z: 113.0811
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1614.185 Y: 729.9113 Z: 112.5811
+T+76s: BB move
+	Position: X: 1614.082 Y: 730.3239 Z: 112.2263
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1606.4 Y: 706.6543 Z: 107.9497
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1613.991 Y: 729.7391 Z: 112.338
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1613.491 Y: 728.4891 Z: 112.088
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1612.741 Y: 725.7391 Z: 111.588
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1611.741 Y: 722.7391 Z: 110.838
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1610.491 Y: 718.9891 Z: 110.088
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1609.491 Y: 715.4891 Z: 109.588
+	(MovementMonsterSpline) (MovementSpline) [6] WayPoints: X: 1608.241 Y: 711.7391 Z: 109.088
+T+85s: BB move
+	Position: X: 1607.669 Y: 710.4952 Z: 108.4556
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1601.236 Y: 692.0279 Z: 105.8172
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1606.452 Y: 706.7616 Z: 108.1364
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1604.952 Y: 702.7616 Z: 107.3864
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1603.702 Y: 698.5116 Z: 106.8864
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1602.202 Y: 694.7616 Z: 106.3864
+T+92s: BB move
+	Position: X: 1601.766 Y: 693.5259 Z: 105.9085
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1598.388 Y: 682.0231 Z: 104.838
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1601.327 Y: 692.0245 Z: 105.8733
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1600.077 Y: 687.5245 Z: 105.3733
+T+95s: BB move
+	Position: X: 1599.201 Y: 684.876 Z: 105.0273
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1592.339 Y: 665.5434 Z: 103.1246
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1598.27 Y: 681.9597 Z: 105.076
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1596.02 Y: 675.4597 Z: 104.326
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1593.77 Y: 669.2097 Z: 103.826
+T+103s: BB move
+	Position: X: 1593.179 Y: 667.827 Z: 103.3361
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1586.192 Y: 654.1075 Z: 101.7524
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1592.436 Y: 665.4673 Z: 103.2942
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1588.686 Y: 658.7173 Z: 102.5442
+T+107s: BB move
+	Position: X: 1587.781 Y: 657.0647 Z: 102.1362
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1583.389 Y: 651.7168 Z: 101.572
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1586.085 Y: 654.3907 Z: 101.8541
+T+109s: BB move
+	Position: X: 1586.359 Y: 654.4169 Z: 101.7926
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1577.749 Y: 653.7333 Z: 101.815
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1586.304 Y: 654.0751 Z: 101.8038
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1583.304 Y: 652.0751 Z: 101.8038
+T+111s: BB move
+	Position: X: 1581.581 Y: 652.3631 Z: 101.6499
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1571.428 Y: 659.64 Z: 102.197
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1577.755 Y: 654.0015 Z: 101.9234
+T+115s: BB move
+	Position: X: 1574.082 Y: 657.1602 Z: 102.0366
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1564.711 Y: 666.6931 Z: 102.1827
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1571.396 Y: 659.9266 Z: 102.3597
+T+121s: BB despawn

@@ -1,0 +1,227 @@
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 229 ConnIdx: 0 Time: 06/16/2011 09:51:13.000 Number: 30009
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 188
+Text: Everyone looks ready. Remember, these people are all infected with the plague and will die soon. We must purge Stratholme to protect the remainder of Lordaeron from the Scourge. Let's go.
+Chat Tag: None (0)
+
+09:51:22 move to RP2_ARTHAS_MOVE_1, get there by 09:51:37
+09:51:37 both citizen + resident face arthas
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:39.000 Number: 30207
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF1306E07000007B8 Type: Creature Entry: 28167 Low: 1976
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 169 ConnIdx: 0 Time: 06/16/2011 09:51:39.000 Number: 30211
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF1306E07000007B8 Type: Creature Entry: 28167 Low: 1976
+Constant time: 0
+Name Length: 19
+Name: Stratholme Citizen
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 116
+Text: Prince Arthas, may the light be praised! Many people in the town have begun to fall seriously ill, can you help us?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 81 ConnIdx: 0 Time: 06/16/2011 09:51:47.000 Number: 30262
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 40
+Text: I can only help you with a clean death.
+Chat Tag: None (0)
+
+09:51:48 move to RP2_ARTHAS_MOVE_2
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:53.000 Number: 30303
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF1306E09000007BE Type: Creature Entry: 28169 Low: 1982
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 64 ConnIdx: 0 Time: 06/16/2011 09:51:53.000 Number: 30307
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF1306E09000007C0 Type: Creature Entry: 28169 Low: 1984
+Constant time: 0
+Name Length: 20
+Name: Stratholme Resident
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 10
+Text: Oh, no...
+Chat Tag: 32 (32)
+
+09:51:53 move to RP2_ARTHAS_MOVE_3
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:55.000 Number: 30321
+Emote ID: OneShotExclamation (5)
+GUID: Full: 0xF1306E0700000816 Type: Creature Entry: 28167 Low: 2070
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:56.000 Number: 30323
+Emote ID: OneShotRude (14)
+GUID: Full: 0xF1307996000007F8 Type: Creature Entry: 31126 Low: 2040
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:57.000 Number: 30325
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF1306E07000007BA Type: Creature Entry: 28167 Low: 1978
+
+09:51:57 change orientation to 2.234021
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:59.000 Number: 30335
+Emote ID: OneShotRoar (15)
+GUID: Full: 0xF1307996000007F8 Type: Creature Entry: 31126 Low: 2040
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:51:59.000 Number: 30334
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 70 ConnIdx: 0 Time: 06/16/2011 09:51:59.000 Number: 30336
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 29
+Text: That was just the beginning.
+Chat Tag: None (0)
+
+09:51:59 all soldiers + priests face arthas
+
+09:52:03 mal'ganis spawn
+
+ServerToClient: SMSG_SPELL_START (0xDB2F) Length: 31 ConnIdx: 0 Time: 06/16/2011 09:52:03.000 Number: 30357
+Caster GUID: Full: 0xF1305052000007C3 Type: Creature Entry: 20562 Low: 1987
+Caster Unit GUID: Full: 0xF1305052000007C3 Type: Creature Entry: 20562 Low: 1987
+Cast Count: 0
+Spell ID: 51908 (51908)
+Cast Flags: HasTrajectory (2)
+Time: 0
+Target Flags: Self (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 129 ConnIdx: 0 Time: 06/16/2011 09:52:03.000 Number: 30358
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Constant time: 0
+Name Length: 10
+Name: Mal'Ganis
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 85
+Text: Yes, this is the beginning. I've been waiting for you, young prince. I am Mal'Ganis.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_SPELL_START (0xDB2F) Length: 31 ConnIdx: 0 Time: 06/16/2011 09:52:03.000 Number: 30369
+Caster GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Caster Unit GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Cast Count: 0
+Spell ID: 51908 (51908)
+Cast Flags: HasTrajectory (2)
+Time: 0
+Target Flags: Self (0)
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:03.000 Number: 30372
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+
+09:52:04 soldiers + priests face mal'ganis
+09:52:06 arthas face mal'ganis
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 193 ConnIdx: 0 Time: 06/16/2011 09:52:15.000 Number: 30515
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Constant time: 0
+Name Length: 10
+Name: Mal'Ganis
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 149
+Text: As you can see, your people are now mine. I will now turn this city household by household, until the flame of life has been snuffed out... forever.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_SPELL_START (0xDB2F) Length: 31 ConnIdx: 0 Time: 06/16/2011 09:52:29.000 Number: 30632
+Caster GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Caster Unit GUID: Full: 0xF13067A500000A39 Type: Creature Entry: 26533 Low: 2617
+Cast Count: 0
+Spell ID: 51908 (51908)
+Cast Flags: HasTrajectory (2)
+Time: 0
+Target Flags: Self (0)
+
+09:52:30 mal'ganis despawn
+
+ServerToClient: SMSG_SPELL_START (0xDB2F) Length: 31 ConnIdx: 0 Time: 06/16/2011 09:52:30.000 Number: 30643
+Caster GUID: Full: 0xF1305052000007C3 Type: Creature Entry: 20562 Low: 1987
+Caster Unit GUID: Full: 0xF1305052000007C3 Type: Creature Entry: 20562 Low: 1987
+Cast Count: 0
+Spell ID: 51908 (51908)
+Cast Flags: HasTrajectory (2)
+Time: 0
+Target Flags: Self (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 146 ConnIdx: 0 Time: 06/16/2011 09:52:30.000 Number: 30638
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 105
+Text: I won't allow it, Mal'Ganis! Better that these people die by my hand than serve as your slaves in death!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:30.000 Number: 30642
+Emote ID: OneShotPointNoSheathe (397)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:34.000 Number: 30673
+Emote ID: OneShotExclamation (5)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+09:52:40 arthas face 1.134464
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:40.000 Number: 31044
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 269 ConnIdx: 0 Time: 06/16/2011 09:52:40.000 Number: 31051
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 228
+Text: Mal'Ganis will send out some of his Scourge minions to interfere with us. Those of you with the strongest steel and magic shall go forth and destroy them. I will lead the rest of my forces in purging Stratholme of the infected.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:46.000 Number: 31370
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+ServerToClient: SMSG_EMOTE (0xAD7C) Length: 12 ConnIdx: 0 Time: 06/16/2011 09:52:52.000 Number: 31497
+Emote ID: OneShotTalk (1)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 112 ConnIdx: 0 Time: 06/16/2011 09:53:02.000 Number: 31639
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF1306D0900000854 Type: Creature Entry: 27913 Low: 2132
+Constant time: 0
+Name Length: 16
+Name: Lordaeron Crier
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 62
+Text: Scourge forces have been spotted near the Festival Lane Gate!
+Chat Tag: None (0)

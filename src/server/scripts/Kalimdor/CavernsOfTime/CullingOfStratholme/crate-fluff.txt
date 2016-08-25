@@ -1,0 +1,125 @@
+== EVENT #1 ==
+Martha Goslin (27884), Jena Anderson (27885)
+== EVENT DATA ==
+T-33s: JA move
+to 1633.366 etc
+T+00s: JA move
+	Position: X: 1633.366 Y: 726.3549 Z: 113.5467
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1630.407 Y: 730.1193 Z: 113.6845
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1632.387 Y: 726.9871 Z: 113.6156
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1630.887 Y: 727.7371 Z: 113.1156
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1631.387 Y: 727.9871 Z: 113.3656
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1630.887 Y: 727.7371 Z: 113.1156
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1629.887 Y: 728.2371 Z: 113.1156
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1631.387 Y: 729.4871 Z: 113.8656
+	(MovementMonsterSpline) (MovementSpline) [6] WayPoints: X: 1631.637 Y: 730.4871 Z: 113.8656
+T+04s: MG move
+	Position: X: 1635.827 Y: 723.1434 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1639.946 Y: 725.7776 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1636.886 Y: 725.7106 Z: 113.8119
+T+04s: JA kneel (bytes1=8)
+T+06s: JA -> MG say (type 12, emote 0): Oh, dear.
+T+06s: JA -> MG say (type 12, emote 5): Martha, something's wrong with this grain! Some of the Prince's soldiers were looking for this. I'm going to go look for one.
+T+06s: MG face 4.764749 (@previous end)
+T+06s: JA face MG (@previous end)
+T+06s: MG emotestate 69
+T+06s: JA stop kneel (bytes1=0)
+T+12s: JA move
+	Position: X: 1630.407 Y: 730.1193 Z: 113.6845
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1613.928 Y: 715.9256 Z: 109.6573
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1630.917 Y: 730.2725 Z: 113.9209
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1629.667 Y: 728.5225 Z: 112.9209
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1624.917 Y: 727.0225 Z: 112.4209
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1620.917 Y: 725.0225 Z: 111.9209
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1618.417 Y: 722.0225 Z: 111.4209
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1616.167 Y: 718.7725 Z: 110.6709
+T+12s: MG face JA
+T+12s: MG emotestate 0
+T+12s: MG -> JA say (type 12, emote 1): Oh, my.
+T+13s: JA move
+	Position: X: 1623.199 Y: 726.2747 Z: 112.1131
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1607.678 Y: 700.3972 Z: 107.06
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1620.688 Y: 725.0859 Z: 112.0865
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1618.188 Y: 721.8359 Z: 111.0865
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1615.938 Y: 718.5859 Z: 110.3365
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1614.188 Y: 715.8359 Z: 109.8365
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1612.938 Y: 713.3359 Z: 109.5865
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1611.188 Y: 708.8359 Z: 109.0865
+	(MovementMonsterSpline) (MovementSpline) [6] WayPoints: X: 1609.688 Y: 705.0859 Z: 108.3365
+	(MovementMonsterSpline) (MovementSpline) [7] WayPoints: X: 1608.688 Y: 702.3359 Z: 107.8365
+T+16s: JA move
+	Position: X: 1612.112 Y: 711.4092 Z: 108.9662
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1601.958 Y: 685.7047 Z: 105.3837
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1611.035 Y: 708.5569 Z: 108.6749
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1609.535 Y: 704.8069 Z: 108.1749
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1608.285 Y: 702.0569 Z: 107.4249
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1607.785 Y: 700.3069 Z: 107.1749
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1606.535 Y: 696.8069 Z: 106.9249
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1604.285 Y: 691.3069 Z: 106.1749
+T+18s: JA move
+	Position: X: 1605.05 Y: 693.6397 Z: 106.1223
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1596.307 Y: 671.2687 Z: 103.792
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1604.178 Y: 691.2042 Z: 105.9571
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1601.928 Y: 685.7042 Z: 105.4571
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1599.928 Y: 680.4542 Z: 104.9571
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1597.928 Y: 674.7042 Z: 104.7071
+T+21s: JA move
+	Position: X: 1598.042 Y: 675.6906 Z: 104.313
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1590.834 Y: 658.6144 Z: 102.2933
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1597.688 Y: 674.4025 Z: 104.3032
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1596.188 Y: 671.1525 Z: 104.0532
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1594.188 Y: 665.9025 Z: 103.3032
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1592.188 Y: 661.4025 Z: 103.0532
+T+22s: JA move
+	Position: X: 1594.38 Y: 666.8188 Z: 103.3112
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1583.393 Y: 641.8773 Z: 100.822
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1593.886 Y: 665.848 Z: 103.3166
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1591.886 Y: 661.098 Z: 102.8166
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1590.886 Y: 658.598 Z: 102.5666
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1588.636 Y: 653.348 Z: 102.0666
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1586.136 Y: 647.848 Z: 101.5666
+T+24s: JA move
+	Position: X: 1586.642 Y: 649.1833 Z: 101.2471
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1577.569 Y: 626.5533 Z: 100.0073
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1585.855 Y: 647.6183 Z: 101.1272
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1583.355 Y: 641.8683 Z: 100.8772
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1578.605 Y: 629.1183 Z: 100.6272
+T+24s: MG move
+	Position: X: 1639.946 Y: 725.7776 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1635.827 Y: 723.1434 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1637.886 Y: 725.7106 Z: 113.8119
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1636.136 Y: 725.7106 Z: 113.8119
+T+27s: JA move
+	Position: X: 1579.374 Y: 631.3001 Z: 100.2685
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1572.675 Y: 613.7097 Z: 99.76225
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1578.524 Y: 628.7549 Z: 100.2654
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1577.524 Y: 626.5049 Z: 100.2654
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1577.024 Y: 625.0049 Z: 100.0154
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1575.274 Y: 620.5049 Z: 100.0154
+	(MovementMonsterSpline) (MovementSpline) [4] WayPoints: X: 1575.024 Y: 619.7549 Z: 100.0154
+	(MovementMonsterSpline) (MovementSpline) [5] WayPoints: X: 1574.774 Y: 619.0049 Z: 100.0154
+T+27s: MG face 3.159046 (@previous end)
+T+27s: MG emotestate 69
+T+28s: JA move
+	Position: X: 1575.843 Y: 622.2479 Z: 99.65166
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1569.633 Y: 609.4501 Z: 99.77429
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1574.988 Y: 620.099 Z: 99.71298
+	(MovementMonsterSpline) (MovementSpline) [1] WayPoints: X: 1574.738 Y: 619.599 Z: 99.96298
+	(MovementMonsterSpline) (MovementSpline) [2] WayPoints: X: 1574.488 Y: 618.849 Z: 99.96298
+	(MovementMonsterSpline) (MovementSpline) [3] WayPoints: X: 1572.738 Y: 613.849 Z: 99.96298
+T+29s: JA move
+	Position: X: 1572.403 Y: 613.3293 Z: 99.76333
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1565.19 Y: 611.6257 Z: 99.77345
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1569.547 Y: 609.7275 Z: 100.0184
+T+31s: JA despawn (maybe sniff range???)
+T+39s: MG emotestate 0
+T+39s: MG move
+	Position: X: 1635.827 Y: 723.1434 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] Points: X: 1639.946 Y: 725.7776 Z: 113.5619
+	(MovementMonsterSpline) (MovementSpline) [0] WayPoints: X: 1636.886 Y: 725.7106 Z: 113.8119
+T+41s: MG face 4.764749 (@previous end)
+T+41s: MG emotestate 69
+
+Conclusion:
+MG has idle cycle with moves+emotestate between cupboard and table, interrupted briefly for event
+JA is event controller

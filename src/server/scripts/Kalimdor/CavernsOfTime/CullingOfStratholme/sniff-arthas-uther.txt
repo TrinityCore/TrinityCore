@@ -1,0 +1,239 @@
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 72 ConnIdx: 0 Time: 06/16/2011 09:48:06.000 Number: 28600
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF1306C61000007EB Type: Creature Entry: 27745 Low: 2027
+Constant time: 0
+Name Length: 18
+Name: Lordaeron Footman
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 20
+Text: The Lightbringer...
+Chat Tag: 32 (32)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 66 ConnIdx: 0 Time: 06/16/2011 09:48:08.000 Number: 28614
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF1306C610000082F Type: Creature Entry: 27745 Low: 2095
+Constant time: 0
+Name Length: 18
+Name: Lordaeron Footman
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 14
+Text: Lord Uther...
+Chat Tag: 32 (32)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 72 ConnIdx: 0 Time: 06/16/2011 09:48:14.000 Number: 28720
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 31
+Text: Glad you could make it, Uther.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 152 ConnIdx: 0 Time: 06/16/2011 09:48:18.000 Number: 28726
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 95
+Text: Watch your tone with me, boy. You may be the prince, but I'm still your superior as a paladin!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 132 ConnIdx: 0 Time: 06/16/2011 09:48:25.000 Number: 28766
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 91
+Text: As if I could forget. Listen, Uther, there's something about the plague you should know...
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 191 ConnIdx: 0 Time: 06/16/2011 09:48:35.000 Number: 28794
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 150
+Text: Oh, no. We're too late. These people have all been infected! They may look fine now, but it's just a matter of time before they turn into the undead!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 63 ConnIdx: 0 Time: 06/16/2011 09:48:46.000 Number: 28834
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 6
+Text: What?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 74 ConnIdx: 0 Time: 06/16/2011 09:48:48.000 Number: 28840
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 33
+Text: This entire city must be purged.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 123 ConnIdx: 0 Time: 06/16/2011 09:48:52.000 Number: 28882
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 66
+Text: How can you even consider that? There's got to be some other way.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 110 ConnIdx: 0 Time: 06/16/2011 09:48:58.000 Number: 28921
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 69
+Text: Damn it, Uther! As your future king, I order you to purge this city!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 135 ConnIdx: 0 Time: 06/16/2011 09:49:04.000 Number: 28930
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 78
+Text: You are not my king yet, boy! Nor would I obey that command even if you were!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 86 ConnIdx: 0 Time: 06/16/2011 09:49:10.000 Number: 28936
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 45
+Text: Then I must consider this an act of treason.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 99 ConnIdx: 0 Time: 06/16/2011 09:49:13.000 Number: 28942
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 42
+Text: Treason? Have you lost your mind, Arthas?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 197 ConnIdx: 0 Time: 06/16/2011 09:49:18.000 Number: 28948
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 156
+Text: Have I? Lord Uther, by my right of succession and the sovereignty of my crown, I hereby relieve you of your command and suspend your paladins from service.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 81 ConnIdx: 0 Time: 06/16/2011 09:49:31.000 Number: 28986
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067810000088E Type: Creature Entry: 26497 Low: 2190
+Constant time: 0
+Name Length: 22
+Name: Lady Jaina Proudmoore
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 25
+Text: Arthas! You can't just--
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 153 ConnIdx: 0 Time: 06/16/2011 09:49:33.000 Number: 28991
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 112
+Text: It's done! Those of you who have the will to save this land, follow me! The rest of you... get out of my sight!
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 107 ConnIdx: 0 Time: 06/16/2011 09:49:45.000 Number: 29005
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067A00000088D Type: Creature Entry: 26528 Low: 2189
+Constant time: 0
+Name Length: 23
+Name: Uther the Lightbringer
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 50
+Text: You've just crossed a terrible threshold, Arthas.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 48 ConnIdx: 0 Time: 06/16/2011 09:49:50.000 Number: 29020
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 7
+Text: Jaina?
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 102 ConnIdx: 0 Time: 06/16/2011 09:49:52.000 Number: 29032
+Type: MonsterSay (12)
+Language: Universal (0)
+GUID: Full: 0xF13067810000088E Type: Creature Entry: 26497 Low: 2190
+Constant time: 0
+Name Length: 22
+Name: Lady Jaina Proudmoore
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 46
+Text: I'm sorry, Arthas. I can't watch you do this.
+Chat Tag: None (0)
+
+ServerToClient: SMSG_CHAT (0xDD7C) Length: 204 ConnIdx: 0 Time: 06/16/2011 09:50:17.000 Number: 29178
+Type: MonsterYell (14)
+Language: Universal (0)
+GUID: Full: 0xF13067830000088F Type: Creature Entry: 26499 Low: 2191
+Constant time: 0
+Name Length: 7
+Name: Arthas
+Receiver GUID: Full: 0x000000000000000 Type: Player Low: 00000000
+Text Length: 163
+Text: Take position here, and I will lead a small force inside Stratholme to begin the culling. We must contain and purge the infected for the sake of all of Lordaeron!
+Chat Tag: None (0)
