@@ -1657,8 +1657,8 @@ void WorldSession::HandleBotPackets()
     WorldPacket* packet;
     while (_recvQueue.next(packet))
     {
-        OpcodeHandler& opHandle = opcodeTable[packet->GetOpcode()];
-        (this->*opHandle.handler)(*packet);
+		ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+		opHandle->Call(this, *packet);
         delete packet;
     }
 }
