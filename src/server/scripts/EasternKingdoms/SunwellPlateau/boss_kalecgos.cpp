@@ -79,22 +79,21 @@ enum SWPActions
     DO_BANISH                                   =  2
 };
 
-#define GO_FAILED   "You are unable to use this currently."
+enum Misc
+{
+    FLY_X                         = 1679,
+    FLY_Y                         = 900,
+    FLY_Z                         = 82,
+    CENTER_X                      = 1705,
+    CENTER_Y                      = 930,
+    RADIUS                        = 30,
+    MAX_PLAYERS_IN_SPECTRAL_REALM = 0 // over this, teleport object won't work, 0 disables check
+};
 
 #define EMOTE_UNABLE_TO_FIND    "is unable to find Kalecgos"
 
-#define FLY_X           1679
-#define FLY_Y           900
-#define FLY_Z           82
-
-#define CENTER_X        1705
-#define CENTER_Y        930
-#define RADIUS          30
-
 #define DRAGON_REALM_Z  53.079f
 #define DEMON_REALM_Z   -74.558f
-
-#define MAX_PLAYERS_IN_SPECTRAL_REALM 0 //over this, teleport object won't work, 0 disables check
 
 uint32 WildMagic[] = { 44978, 45001, 45002, 45004, 45006, 45010 };
 
@@ -565,7 +564,6 @@ public:
 
         if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
         {
-            player->GetSession()->SendNotification(GO_FAILED);
             return true;
         }
 #else
@@ -763,7 +761,6 @@ public:
                     }
                     else
                     {
-                        me->TextEmote(EMOTE_UNABLE_TO_FIND);
                         EnterEvadeMode();
                         return;
                     }
