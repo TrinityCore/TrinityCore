@@ -570,7 +570,9 @@ class TC_GAME_API Spell
         {
             // Alternate names for this value
             uint32 TalentId;
-            uint32 GlyphSlot;
+
+            // SPELL_EFFECT_APPLY_GLYPH
+            uint32 SpellId;
 
             // SPELL_EFFECT_TALENT_SPEC_SELECT
             uint32 SpecializationId;

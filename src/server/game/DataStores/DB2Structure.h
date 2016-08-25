@@ -1108,6 +1108,13 @@ struct GemPropertiesEntry
     uint16 MinItemLevel;
 };
 
+struct GlyphBindableSpellEntry
+{
+    uint32 ID;
+    uint32 SpellID;
+    uint16 GlyphPropertiesID;
+};
+
 struct GlyphPropertiesEntry
 {
     uint32 ID;
@@ -1115,6 +1122,13 @@ struct GlyphPropertiesEntry
     uint16 SpellIconID;
     uint8 Type;
     uint8 GlyphExclusiveCategoryID;
+};
+
+struct GlyphRequiredSpecEntry
+{
+    uint32 ID;
+    uint16 GlyphPropertiesID;
+    uint16 ChrSpecializationID;
 };
 
 struct GuildColorBackgroundEntry

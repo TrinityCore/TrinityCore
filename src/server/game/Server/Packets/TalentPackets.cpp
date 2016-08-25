@@ -70,3 +70,22 @@ WorldPacket const* WorldPackets::Talent::LearnTalentsFailed::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::GlyphBinding const& glyphBinding)
+{
+    data << uint32(glyphBinding.SpellID);
+    data << uint16(glyphBinding.GlyphID);
+    return data;
+}
+
+WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
+{
+    _worldPacket << uint32(Glyphs.size());
+    for (GlyphBinding const& glyph : Glyphs)
+        _worldPacket << glyph;
+
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
