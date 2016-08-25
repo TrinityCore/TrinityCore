@@ -1499,6 +1499,21 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
 {
+    Battleground* bg = _player->GetBattleground();
+    if (bg)
+    {
+        if (_player->ShouldForgetBGPlayers() && bg)
+        {
+            _player->DoForgetPlayersInBG(bg);
+            _player->SetForgetBGPlayers(false);
+        }
+    }
+    else if (_player->ShouldForgetInListPlayers())
+    {
+        _player->DoForgetPlayersInList();
+        _player->SetForgetInListPlayers(false);
+    }
+
     TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
 
     uint32 counter, clientTicks;
@@ -1682,7 +1697,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     recvData.read_skip<float>();                           // unk2
 
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
+    _player->m_unitMovedByMe->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)

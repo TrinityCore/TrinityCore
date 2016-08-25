@@ -561,7 +561,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
             {
                 // this line is checked, i only don't know if GetStartTime is changing itself after bg end!
                 // send status in Battleground
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, i, STATUS_IN_PROGRESS, bg->GetEndTime(), bg->GetStartTime(), arenaType, _player->GetBGTeam());
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, i, STATUS_IN_PROGRESS, bg->GetEndTime(), bg->GetStartTime(), arenaType, _player->GetTeam());
                 SendPacket(&data);
                 continue;
             }
@@ -778,7 +778,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
     if (!reportedPlayer)
     {
-        TC_LOG_INFO("bg.reportpvpafk", "WorldSession::HandleReportPvPAFK: %s [IP: %s] reported %s [IP: %s]", _player->GetName().c_str(), _player->GetSession()->GetRemoteAddress().c_str(), reportedPlayer->GetName().c_str(), reportedPlayer->GetSession()->GetRemoteAddress().c_str());
+        TC_LOG_INFO("bg.reportpvpafk", "WorldSession::HandleReportPvPAFK: %s [IP: %s] reported %s", _player->GetName().c_str(), _player->GetSession()->GetRemoteAddress().c_str(), playerGuid.ToString().c_str());
         return;
     }
 

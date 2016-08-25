@@ -82,10 +82,22 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (lang == LANG_UNIVERSAL && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
     {
-        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         recvData.rfinish();
         return;
+    }
+
+    if (sWorld->getBoolConfig(CROSSFACTION_SYSTEM_BATTLEGROUNDS) && lang != LANG_ADDON)
+    {
+        switch (type)
+        {
+            case CHAT_MSG_BATTLEGROUND:
+            case CHAT_MSG_BATTLEGROUND_LEADER:
+                lang = LANG_UNIVERSAL;
+            default:
+                break;
+        }
     }
 
     Player* sender = GetPlayer();
@@ -275,6 +287,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
                 return;
             }
+ 
+            if (!GetPlayer()->IsGameMaster())
+                 if (GetPlayer()->SendBattleGroundChat(type, msg))
+                 return;
 
 #ifdef ELUNA
             if (!sEluna->OnChat(sender, type, lang, msg))

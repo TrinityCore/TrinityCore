@@ -302,6 +302,12 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
 
 Player::Player(WorldSession* session): Unit(true)
 {
+    m_FakeRace = 0;
+    m_RealRace = 0;
+    m_FakeMorph = 0;
+    m_ForgetBGPlayers = false;
+    m_ForgetInListPlayers = false;
+
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -485,8 +491,8 @@ Player::Player(WorldSession* session): Unit(true)
     // Player summoning
     m_summon_expire = 0;
 
-    m_mover = this;
-    m_movedPlayer = this;
+    m_unitMovedByMe = this;
+    m_playerMovingMe = this;
     m_seer = this;
 
     m_homebindMapId = 0;
@@ -611,7 +617,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
     if (!info)
     {
-        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
+        TC_LOG_ERROR("entities.player.cheat", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid race/class pair (%u/%u) - refusing to do so.",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
         return false;
     }
@@ -624,7 +630,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(createInfo->Class);
     if (!cEntry)
     {
-        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid character class (%u) - refusing to do so (wrong DBC-files?)",
+        TC_LOG_ERROR("entities.player.cheat", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid character class (%u) - refusing to do so (wrong DBC-files?)",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
         return false;
     }
@@ -639,14 +645,14 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     if (!IsValidGender(createInfo->Gender))
     {
-        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid gender (%u) - refusing to do so",
+        TC_LOG_ERROR("entities.player.cheat", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with an invalid gender (%u) - refusing to do so",
                 GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
         return false;
     }
 
     if (!ValidateAppearance(createInfo->Race, createInfo->Class, createInfo->Gender, createInfo->HairStyle, createInfo->HairColor, createInfo->Face, createInfo->FacialHair, createInfo->Skin, true))
     {
-        TC_LOG_ERROR("entities.player", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with invalid appearance attributes - refusing to do so",
+        TC_LOG_ERROR("entities.player.cheat", "Player::Create: Possible hacking attempt: Account %u tried to create a character named '%s' with invalid appearance attributes - refusing to do so",
             GetSession()->GetAccountId(), m_name.c_str());
         return false;
     }
@@ -655,6 +661,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, createInfo->Class);
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, createInfo->Gender);
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, powertype);
+
+    SetCFSRace();
+    m_team = TeamForRace(getCFSRace());
+    SetFakeRaceAndMorph(); // m_team must be set before this can be used.
+    setFactionForRace(getCFSRace());
+
     InitDisplayIds();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
@@ -1667,6 +1679,9 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     {
         TC_LOG_ERROR("entities.player.loading", "Player %u has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
 
+        // Make sure customization always works properly - send all zeroes instead
+        skin = 0, face = 0, hairStyle = 0, hairColor = 0, facialStyle = 0;
+
         if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
@@ -1794,7 +1809,7 @@ void Player::ToggleAFK()
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
-    if (isAFK() && InBattleground() && !InArena())
+    if (!IsGameMaster() && isAFK() && InBattleground() && !InArena())
         LeaveBattleground();
 }
 
@@ -1839,7 +1854,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_DISABLE_MAP) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
-        TC_LOG_ERROR("maps", "Player::TeleportTo: Player '%s' (%s) tried to enter a forbidden map (MapID: %u)", GetGUID().ToString().c_str(), GetName().c_str(), mapid);
+        TC_LOG_ERROR("entities.player.cheat", "Player::TeleportTo: Player '%s' (%s) tried to enter a forbidden map (MapID: %u)", GetGUID().ToString().c_str(), GetName().c_str(), mapid);
         SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
@@ -2628,6 +2643,9 @@ void Player::SetGMVisible(bool on)
 
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
+
+    for (Channel* channel : m_channels)
+        channel->SetInvisible(this, !on);
 }
 
 bool Player::IsGroupVisibleFor(Player const* p) const
@@ -2766,10 +2784,10 @@ void Player::GiveLevel(uint8 level)
         guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);
 
     PlayerLevelInfo info;
-    sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
+    sObjectMgr->GetPlayerLevelInfo(getCFSRace(), getClass(), level, &info);
 
     PlayerClassLevelInfo classInfo;
-    sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, &classInfo);
+	sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, &classInfo);
 
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS*4+MAX_STATS*4));
@@ -2904,7 +2922,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), &classInfo);
 
     PlayerLevelInfo info;
-    sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
+    sObjectMgr->GetPlayerLevelInfo(getCFSRace(), getClass(), getLevel(), &info);
 
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
@@ -4561,7 +4579,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             break;
         }
         default:
-            TC_LOG_ERROR("entities.player", "Player::DeleteFromDB: Tried to delete player (%s) with unsupported delete method (%u).",
+            TC_LOG_ERROR("entities.player.cheat", "Player::DeleteFromDB: Tried to delete player (%s) with unsupported delete method (%u).",
                 playerguid.ToString().c_str(), charDelete_method);
             return;
     }
@@ -4823,7 +4841,7 @@ Corpse* Player::CreateCorpse()
     // prevent the existence of 2 corpses for one player
     SpawnCorpseBones();
 
-    uint32 _cfb1, _cfb2;
+    uint32 _uf, _pb, _pb2, _cfb1, _cfb2;
 
     Corpse* corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
@@ -4835,12 +4853,19 @@ Corpse* Player::CreateCorpse()
     }
 
     _corpseLocation.WorldRelocate(*this);
+	
+    _uf = getCFSRace();
+    uint8 race       = (uint8) (_uf);
 
     uint8 skin = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 face = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
     uint8 hairstyle = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
     uint8 facialhair = GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+
+    _uf = getCFSRace();
+    _pb = GetUInt32Value(PLAYER_BYTES);
+    _pb2 = GetUInt32Value(PLAYER_BYTES_2);
 
     _cfb1 = ((0x00) | (getRace() << 8) | (GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER) << 16) | (skin << 24));
     _cfb2 = ((face) | (hairstyle << 8) | (haircolor << 16) | (facialhair << 24));
@@ -6533,10 +6558,10 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::setFactionForRace(uint8 race)
 {
-    m_team = TeamForRace(race);
+    SetBGTeam(TeamForRace(race));
 
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
-    setFaction(rEntry ? rEntry->FactionID : 0);
+    setFaction(rEntry ? rEntry->FactionID : getFaction());
 }
 
 ReputationRank Player::GetReputationRank(uint32 faction) const
@@ -6638,6 +6663,27 @@ void Player::RewardReputation(Unit* victim, float rate)
     if (!Rep)
         return;
 
+    uint32 repfaction1 = Rep->RepFaction1;
+    uint32 repfaction2 = Rep->RepFaction2;
+    
+    if (!IsPlayingNative())
+    {
+        if (GetCFSTeam() == ALLIANCE)
+        {
+            if (repfaction1 == 729)
+                repfaction1 = 730;
+            if (repfaction2 == 729)
+                repfaction2 = 730;
+        }
+        else
+        {
+        if (repfaction1 == 730)
+            repfaction1 = 729;
+        if (repfaction2 == 730)
+            repfaction2 = 729;
+        }
+    }
+
     uint32 ChampioningFaction = 0;
 
     if (GetChampioningFaction())
@@ -6652,9 +6698,9 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     uint32 team = GetTeam();
 
-    if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
+    if (repfaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
+        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : repfaction1);
         donerep1 = int32(donerep1 * rate);
 
         FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
@@ -6663,12 +6709,12 @@ void Player::RewardReputation(Unit* victim, float rate)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
     }
 
-    if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
+    if (repfaction2 && (!Rep->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : repfaction2);
         donerep2 = int32(donerep2 * rate);
 
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : repfaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
@@ -6763,7 +6809,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         if (!victim || victim == this || victim->GetTypeId() != TYPEID_PLAYER)
             return false;
 
-        if (GetBGTeam() == victim->ToPlayer()->GetBGTeam())
+        if (GetTeam() == victim->ToPlayer()->GetTeam())
             return false;
 
         return true;
@@ -11514,7 +11560,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     uint8 pItemslot = pItem->GetSlot();
     if (pItemslot >= CURRENCYTOKEN_SLOT_START && pItemslot < CURRENCYTOKEN_SLOT_END)
     {
-        TC_LOG_ERROR("entities.player", "Possible hacking attempt: Player %s (%s) tried to move token [%s entry: %u] out of the currency bag!",
+        TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s (%s) tried to move token [%s entry: %u] out of the currency bag!",
             GetName().c_str(), GetGUID().ToString().c_str(), pItem->GetGUID().ToString().c_str(), pProto->ItemId);
         return EQUIP_ERR_ITEMS_CANT_BE_SWAPPED;
     }
@@ -11745,13 +11791,13 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetCFSTeam() != HORDE)
         return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
-    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+    if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetCFSTeam() != ALLIANCE)
         return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
-    if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
+    if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getCFSRaceMask()) == 0)
         return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
     if (proto->RequiredSkill != 0)
@@ -15012,7 +15058,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
-    SendQuestUpdate();
+    SendQuestUpdate(quest_id);
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
     {
@@ -15262,7 +15308,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         UpdatePvPState();
     }
 
-    SendQuestUpdate();
+    SendQuestUpdate(quest_id);
 
     SendQuestGiverStatusMultiple();
 
@@ -15926,7 +15972,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
     }
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 
     sScriptMgr->OnQuestStatusChange(this, questId, status);
 }
@@ -15941,7 +15987,7 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
@@ -15954,19 +16000,19 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     }
 
     if (update)
-        SendQuestUpdate();
+        SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate()
+void Player::SendQuestUpdate(uint32 questId)
 {
     uint32 zone = 0, area = 0;
     GetZoneAndAreaId(zone, area);
 
-    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(area);
+    SpellAreaForQuestAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestAreaMapBounds(area, questId);
 
     if (saBounds.first != saBounds.second)
     {
-        for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+        for (SpellAreaForQuestAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             if (!itr->second->IsFitToRequirements(this, zone, area))
                 RemoveAurasDueToSpell(itr->second->spellId);
@@ -17182,6 +17228,11 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, fields[4].GetUInt8());
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
 
+    SetCFSRace(); //**** umisteni ****
+    m_team = TeamForRace(getCFSRace());
+    SetFakeRaceAndMorph(); // m_team must be set before this can be used.
+    setFactionForRace(getCFSRace());//Need to call it to initialize m_team (m_team can be calculated from race)
+
     // check if race/class combination is valid
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
@@ -17256,9 +17307,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: Load Basic value of player '%s' is: ", m_name.c_str());
     outDebugValues();
 
-    //Need to call it to initialize m_team (m_team can be calculated from race)
-    //Other way is to saves m_team into characters table.
-    setFactionForRace(getRace());
+   
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -17320,6 +17369,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+    Map* map = nullptr;
+    bool player_at_bg = false;
     if (!mapEntry || !IsPositionValid())
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",
@@ -17333,10 +17384,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
             currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
 
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+        player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
+            map = currentBg->GetBgMap();
+
             BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
             AddBattlegroundQueueId(bgQueueTypeId);
 
@@ -17353,11 +17406,15 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         {
             // leave bg
             if (player_at_bg)
+            {
+                player_at_bg = false;
                 currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+            }
 
             // Do not look for instance if bg not found
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
+            WorldLocation const& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId();
+            instanceId = 0;
 
             // Db field type is type int16, so it can never be MAPID_INVALID
             //if (mapId == MAPID_INVALID) -- code kept for reference
@@ -17486,7 +17543,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
-    Map* map = sMapMgr->CreateMap(mapId, this, instanceId);
+    if (!map)
+        map = sMapMgr->CreateMap(mapId, this, instanceId);
     AreaTrigger const* areaTrigger = nullptr;
     bool check = false;
 
@@ -17569,6 +17627,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (!CheckInstanceValidity(true) && !IsInstanceLoginGameMasterException())
         m_InstanceValid = false;
 
+    if (player_at_bg)
+        map->ToBattlegroundMap()->GetBG()->AddPlayer(this);
+
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
     m_nextSave = urand(m_nextSave / 2, m_nextSave * 3 / 2);
@@ -17612,7 +17673,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     if (HasAtLoginFlag(AT_LOGIN_RENAME))
     {
-        TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) tried to login while forced to rename, can't load.'", GetGUID().ToString().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "Player::LoadFromDB: Player (%s) tried to login while forced to rename, can't load.'", GetGUID().ToString().c_str());
         return false;
     }
 
@@ -18819,7 +18880,7 @@ InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
     InstanceSave* pSave = pBind ? pBind->save : NULL;
     if (!pBind || !pBind->perm)
         if (Group* group = GetGroup())
-            if (InstanceGroupBind* groupBind = group->GetBoundInstance(this))
+            if (InstanceGroupBind* groupBind = group->GetBoundInstance(GetDifficulty(raid), mapid))
                 pSave = groupBind->save;
 
     return pSave;
@@ -19170,7 +19231,7 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
 {
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getCFSRace(), getClass());
     if (!info)
     {
         TC_LOG_ERROR("entities.player", "Player::_LoadHomeBind: Player '%s' (%s) has incorrect race/class (%u/%u) pair. Can't load.",
@@ -19264,7 +19325,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetGUID().GetCounter());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
         stmt->setString(index++, GetName());
-        stmt->setUInt8(index++, getRace());
+        stmt->setUInt8(index++, getCFSRace());
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
@@ -19374,7 +19435,7 @@ void Player::SaveToDB(bool create /*=false*/)
         // Update query
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER);
         stmt->setString(index++, GetName());
-        stmt->setUInt8(index++, getRace());
+        stmt->setUInt8(index++, getCFSRace());
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
@@ -20620,6 +20681,18 @@ void Player::StopCastingCharm()
     }
 }
 
+void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
+{
+	*data << uint8(msgtype);
+	*data << uint32(language);
+	*data << uint64(GetGUID());
+	*data << uint32(0);                                      // constant unknown time 
+	*data << uint64(GetGUID());
+	*data << uint32(text.length() + 1);
+	*data << text;
+	*data << uint8(GetChatTag());
+}
+
 void Player::Say(std::string const& text, Language language, WorldObject const* /*= nullptr*/)
 {
     std::string _text(text);
@@ -21577,7 +21650,7 @@ void Player::InitDataForForm(bool reapplyMods)
 
 void Player::InitDisplayIds()
 {
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getCFSRace(), getClass());
     if (!info)
     {
         TC_LOG_ERROR("entities.player", "Player::InitDisplayIds: Player '%s' (%s) has incorrect race/class pair. Can't init display ids.", GetName().c_str(), GetGUID().ToString().c_str());
@@ -21585,14 +21658,18 @@ void Player::InitDisplayIds()
     }
 
     uint8 gender = GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+    bool isMorphed = GetNativeDisplayId() != GetDisplayId();
+
     switch (gender)
     {
         case GENDER_FEMALE:
-            SetDisplayId(info->displayId_f);
+            if (!isMorphed)
+                SetDisplayId(info->displayId_f);
             SetNativeDisplayId(info->displayId_f);
             break;
         case GENDER_MALE:
-            SetDisplayId(info->displayId_m);
+            if (!isMorphed)
+                SetDisplayId(info->displayId_m);
             SetNativeDisplayId(info->displayId_m);
             break;
         default:
@@ -21794,7 +21871,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
         if ((uint32)count > maxCount)
         {
-            TC_LOG_ERROR("entities.player", "Player::BuyItemFromVendorSlot: Player '%s' (%s) tried to buy item (ItemID: %u, Count: %u), causing overflow",
+            TC_LOG_ERROR("entities.player.cheat", "Player::BuyItemFromVendorSlot: Player '%s' (%s) tried to buy item (ItemID: %u, Count: %u), causing overflow",
                 GetName().c_str(), GetGUID().ToString().c_str(), pProto->ItemId, (uint32)count);
             count = (uint8)maxCount;
         }
@@ -22195,11 +22272,6 @@ void Player::SetBGTeam(uint32 team)
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0));
 }
 
-uint32 Player::GetBGTeam() const
-{
-    return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam();
-}
-
 void Player::LeaveBattleground(bool teleportToEntryPoint)
 {
     if (Battleground* bg = GetBattleground())
@@ -22285,7 +22357,7 @@ void Player::ReportedAfkBy(Player* reporter)
 
 WorldLocation Player::GetStartPosition() const
 {
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getCFSRace(), getClass());
     uint32 mapId = info->mapId;
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
@@ -22311,7 +22383,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_mover == obj)
+    if (m_unitMovedByMe == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -22606,10 +22678,10 @@ void Player::SendComboPoints()
     if (combotarget)
     {
         WorldPacket data;
-        if (m_mover != this)
+        if (m_unitMovedByMe != this)
         {
-            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data << m_mover->GetPackGUID();
+            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_unitMovedByMe->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
+            data << m_unitMovedByMe->GetPackGUID();
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
@@ -22975,7 +23047,7 @@ void Player::LearnCustomSpells()
     {
         uint32 tspell = *itr;
         TC_LOG_DEBUG("entities.player.loading", "Player::LearnCustomSpells: Player '%s' (%s, Class: %u Race: %u): Adding initial spell (SpellID: %u)",
-            GetName().c_str(), GetGUID().ToString().c_str(), uint32(getClass()), uint32(getRace()), tspell);
+            GetName().c_str(), GetGUID().ToString().c_str(), uint32(getClass()), uint32(getCFSRace()), tspell);
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
             AddSpell(tspell, true, true, true, false);
         else                                                // but send in normal spell in game learn case
@@ -23988,9 +24060,9 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 
 void Player::SetMover(Unit* target)
 {
-    m_mover->m_movedPlayer = nullptr;
-    m_mover = target;
-    m_mover->m_movedPlayer = this;
+    m_unitMovedByMe->m_playerMovingMe = nullptr;
+    m_unitMovedByMe = target;
+    m_unitMovedByMe->m_playerMovingMe = this;
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)

@@ -30,6 +30,13 @@ class TC_GAME_API PlayerAI : public UnitAI
 
         void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
 
+        Creature* GetCharmer() const
+        {
+            if (ObjectGuid charmerGUID = me->GetCharmerGUID())
+                if (charmerGUID.IsCreature())
+                    return ObjectAccessor::GetCreature(*me, charmerGUID);
+            return nullptr;
+        }
         // helper functions to determine player info
         // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
         static uint8 GetPlayerSpec(Player const* who);
@@ -98,7 +105,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         bool _isSelfRangedAttacker;
 };
 
-class SimpleCharmedPlayerAI : public PlayerAI
+class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
 {
     public:
         SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(500), _chaseCloser(false), _forceFacing(true) { }

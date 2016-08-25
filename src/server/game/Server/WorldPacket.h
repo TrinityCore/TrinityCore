@@ -20,17 +20,19 @@
 #define TRINITYCORE_WORLDPACKET_H
 
 #include "Common.h"
+#include "Opcodes.h"
 #include "ByteBuffer.h"
 
 class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket()                                       : ByteBuffer(0), m_opcode(0)
+        WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE)
         {
         }
 
-        explicit WorldPacket(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
+        WorldPacket(uint16 opcode, size_t res = 200) : ByteBuffer(res),
+            m_opcode(opcode) { }
 
         WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
         {
@@ -51,9 +53,20 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
+        WorldPacket& operator=(WorldPacket&& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator=(std::move(right));
+            }
+
+            return *this;
+        }
+
         WorldPacket(uint16 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
 
-        void Initialize(uint16 opcode, size_t newres=200)
+        void Initialize(uint16 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);

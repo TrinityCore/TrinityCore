@@ -40,9 +40,9 @@ Arena::Arena()
 void Arena::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID().GetCounter()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
+    PlayerScores[player->GetGUID().GetCounter()] = new ArenaScore(player->GetGUID(), player->GetTeam());
 
-    if (player->GetBGTeam() == ALLIANCE)        // gold
+    if (player->GetTeam() == ALLIANCE)       // gold
     {
         if (player->GetTeam() == HORDE)
             player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
@@ -142,15 +142,19 @@ void Arena::EndBattleground(uint32 winner)
         int32  winnerChange           = 0;
         int32  winnerMatchmakerChange = 0;
 
-        ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner));
-        ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
+        // In case of arena draw, follow this logic:
+        // winnerArenaTeam => ALLIANCE, loserArenaTeam => HORDE
+        ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? ALLIANCE : winner));
+        ArenaTeam* loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? HORDE : GetOtherTeam(winner)));
 
         if (winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)
         {
+            // In case of arena draw, follow this logic:
+            // winnerMatchmakerRating => ALLIANCE, loserMatchmakerRating => HORDE
             loserTeamRating = loserArenaTeam->GetRating();
-            loserMatchmakerRating = GetArenaMatchmakerRating(GetOtherTeam(winner));
+            loserMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? HORDE : GetOtherTeam(winner));
             winnerTeamRating = winnerArenaTeam->GetRating();
-            winnerMatchmakerRating = GetArenaMatchmakerRating(winner);
+            winnerMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? ALLIANCE : winner);
 
             if (winner != 0)
             {
@@ -206,7 +210,12 @@ void Arena::EndBattleground(uint32 winner)
                     if (team == winner)
                         winnerArenaTeam->OfflineMemberLost(i.first, loserMatchmakerRating, winnerMatchmakerChange);
                     else
+                    {
+                        if (winner == 0)
+                            winnerArenaTeam->OfflineMemberLost(i.first, loserMatchmakerRating, winnerMatchmakerChange);
+
                         loserArenaTeam->OfflineMemberLost(i.first, winnerMatchmakerRating, loserMatchmakerChange);
+                    }
                     continue;
                 }
 
@@ -230,6 +239,9 @@ void Arena::EndBattleground(uint32 winner)
                 }
                 else
                 {
+                    if (winner == 0)
+                        winnerArenaTeam->MemberLost(player, loserMatchmakerRating, winnerMatchmakerChange);
+
                     loserArenaTeam->MemberLost(player, winnerMatchmakerRating, loserMatchmakerChange);
 
                     // Arena lost => reset the win_rated_arena having the "no_lose" condition

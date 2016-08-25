@@ -119,6 +119,10 @@ class TC_GAME_API Channel
     struct PlayerInfo
     {
         uint8 flags;
+        bool invisible;
+
+        bool IsInvisible() const { return invisible; }
+        void SetInvisible(bool on) { invisible = on; }
 
         bool HasFlag(uint8 flag) const { return (flags & flag) != 0; }
         void SetFlag(uint8 flag) { flags |= flag; }
@@ -180,6 +184,8 @@ class TC_GAME_API Channel
         void UnsetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, false); }
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
+
+        void SetInvisible(Player const* player, bool on);
 
         void SetOwner(ObjectGuid guid, bool exclaim = true);
         void SetOwner(Player const* player, std::string const& name);
@@ -291,6 +297,7 @@ class TC_GAME_API Channel
         bool _announceEnabled;          //< Whether we should broadcast a packet whenever a player joins/exits the channel
         bool _ownershipEnabled;         //< Whether the channel has to maintain an owner
         bool _persistentChannel;        //< Whether the channel is saved to DB
+        bool _isOwnerInvisible;         //< Whether the channel is owned by invisible GM, ownership should change to first player that joins channel
 
         uint8 _channelFlags;
         uint32 _channelId;

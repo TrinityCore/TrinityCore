@@ -90,6 +90,7 @@ enum WorldTimers
 enum WorldBoolConfigs
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
+    CROSSFACTION_SYSTEM_BATTLEGROUNDS,
     CONFIG_ADDON_CHANNEL,
     CONFIG_ALLOW_PLAYER_COMMANDS,
     CONFIG_CLEAN_CHARACTER_DB,
@@ -546,6 +547,7 @@ enum RealmZone
 
 enum WorldStates
 {
+    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
