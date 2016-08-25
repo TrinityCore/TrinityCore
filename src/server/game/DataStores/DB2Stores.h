@@ -237,6 +237,8 @@ public:
     typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
     typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
     typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
+    typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphBindableSpellsContainer;
+    typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphRequiredSpecsContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
     typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
@@ -291,6 +293,8 @@ public:
     EmotesTextSoundEntry const* GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const;
     std::vector<uint32> const* GetFactionTeamList(uint32 faction) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
+    std::vector<uint32> const* GetGlyphBindableSpells(uint32 glyphPropertiesId) const;
+    std::vector<uint32> const* GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
@@ -348,6 +352,8 @@ private:
     EmotesTextSoundContainer _emoteTextSounds;
     FactionTeamContainer _factionTeams;
     HeirloomItemsContainer _heirlooms;
+    GlyphBindableSpellsContainer _glyphBindableSpells;
+    GlyphRequiredSpecsContainer _glyphRequiredSpecs;
     ItemBonusListContainer _itemBonusLists;
     ItemBonusListLevelDeltaContainer _itemLevelDeltaToBonusListContainer;
     ItemBonusTreeContainer _itemBonusTrees;

@@ -344,9 +344,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GemProperties.db2
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, Type, EnchantID, MinItemLevel FROM gem_properties ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GlyphBindableSpell.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GlyphProperties.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_PROPERTIES, "SELECT ID, SpellID, SpellIconID, Type, GlyphExclusiveCategoryID FROM glyph_properties"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GlyphRequiredSpec.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_REQUIRED_SPEC, "SELECT ID, GlyphPropertiesID, ChrSpecializationID FROM glyph_required_spec ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GuildColorBackground.db2
     PrepareStatement(HOTFIX_SEL_GUILD_COLOR_BACKGROUND, "SELECT ID, Red, Green, Blue FROM guild_color_background ORDER BY ID DESC", CONNECTION_SYNCH);
