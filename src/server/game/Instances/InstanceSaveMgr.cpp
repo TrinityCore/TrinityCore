@@ -286,6 +286,30 @@ void InstanceSaveManager::LoadInstances()
     CharacterDatabase.DirectExecute("UPDATE corpse SET instanceId = 0 WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
     CharacterDatabase.DirectExecute("UPDATE characters AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = 0 WHERE tmp.instance_id > 0 AND instance.id IS NULL");
 
+    // Reduce instance ID numbers when they climb too high, to prevent overflow
+    QueryResult result = CharacterDatabase.Query("SELECT MIN(id),MAX(id) FROM instance");
+    if (result)
+    {
+        uint32 minId = (*result)[0].GetUInt32();
+        uint32 maxId = (*result)[1].GetUInt32();
+
+        // If the gap at the front is larger than the ID range, shift all IDs down to start at 1
+        if (maxId > minId && minId > maxId-minId)
+        {
+            uint32 gap = minId - 1;
+            CharacterDatabase.DirectPExecute("UPDATE instance SET id = id-%u ORDER BY id ASC", gap);
+
+            CharacterDatabase.DirectPExecute("UPDATE character_instance SET instance = instance-%u ORDER BY instance ASC", gap);
+            CharacterDatabase.DirectPExecute("UPDATE group_instance SET instance = instance-%u ORDER BY instance ASC", gap);
+
+            CharacterDatabase.DirectPExecute("UPDATE creature_respawn SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+            CharacterDatabase.DirectPExecute("UPDATE gameobject_respawn SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+
+            CharacterDatabase.DirectPExecute("UPDATE corpse SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+            CharacterDatabase.DirectPExecute("UPDATE characters SET instance_id = instance_id-%u WHERE instance_id > 0 ORDER BY instance_id ASC", gap);
+        }
+    }
+
     // Initialize instance id storage (Needs to be done after the trash has been clean out)
     sMapMgr->InitInstanceId();
 
