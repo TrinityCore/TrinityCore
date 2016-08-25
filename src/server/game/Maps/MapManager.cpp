@@ -320,5 +320,9 @@ uint32 MapManager::GenerateInstanceId()
         TC_LOG_ERROR("maps", "Instance ID overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
+    else if (_instanceId >= 0xEE6B2800)
+    {
+        TC_LOG_WARN("maps", "Instance IDs have reached 4,000,000,000. A restart is required soon to reset the sequence!");
+    }
     return _instanceId++;
 }
