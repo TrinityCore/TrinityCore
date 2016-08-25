@@ -220,6 +220,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
 template<class T>
 void ChaseMovementGenerator<T>::_reachTarget(T* owner)
 {
+    _clearUnitStateMove(owner);
 	if (this->GetTarget()!=NULL && this->GetTarget()->GetTypeId() == TYPEID_UNIT)
 	{
 		if (((Unit *)owner)->IsWithinMeleeRange((Unit *)this->i_target.getTarget()))

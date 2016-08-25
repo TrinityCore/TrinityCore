@@ -1300,7 +1300,6 @@ class TC_GAME_API Unit : public WorldObject
         void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
         Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
         bool Attack(Unit* victim, bool meleeAttack);
-        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Unit for forced (client displayed) target reacquisition in the next ::Attack call
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop();
         void RemoveAllAttackers();
@@ -1690,9 +1689,14 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void UpdateCharmAI();
-        Unit* GetMover() const;
-        Player* GetPlayerMover() const;
-        Player* m_movedPlayer;
+        // returns the unit that this player IS CONTROLLING
+        Unit* GetUnitBeingMoved() const;
+        // returns the player that this player IS CONTROLLING
+        Player* GetPlayerBeingMoved() const;
+        // returns the player that this unit is BEING CONTROLLED BY
+        Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
+        // only set for direct client control (possess effects, vehicles and similar)
+        Player* m_playerMovingMe;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);
@@ -2206,7 +2210,6 @@ class TC_GAME_API Unit : public WorldObject
 
         AttackerSet m_attackers;
         Unit* m_attacking;
-        bool m_shouldReacquireTarget;
 
         DeathState m_deathState;
 
