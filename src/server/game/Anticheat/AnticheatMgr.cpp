@@ -290,7 +290,7 @@ bool ClimbHackCheck::OnCheck(Player* player, AnticheatData* playerData, Movement
 
     Position playerPos = player->GetPosition();
 
-    float deltaZ = fabsf(playerPos.GetPositionZ() - movementInfo.pos.GetPositionZ());
+    float deltaZ = std::fabs(playerPos.GetPositionZ() - movementInfo.pos.GetPositionZ());
     float deltaXY = movementInfo.pos.GetExactDist2d(&playerPos);
 
     // Prevent divide by 0
