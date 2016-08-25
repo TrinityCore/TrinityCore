@@ -2609,6 +2609,9 @@ void Player::SetGMVisible(bool on)
 
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
+
+    for (Channel* channel : m_channels)
+        channel->SetInvisible(this, !on);
 }
 
 bool Player::IsGroupVisibleFor(Player const* p) const
