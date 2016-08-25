@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
+#include "AnticheatMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
@@ -544,6 +545,8 @@ void WorldSession::LogoutPlayer(bool save)
         //! Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID().GetCounter(), true);
         sSocialMgr->RemovePlayerSocial(_player->GetGUID().GetCounter());
+
+        sAnticheatMgr->HandlePlayerLogout(_player->GetGUID());
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
