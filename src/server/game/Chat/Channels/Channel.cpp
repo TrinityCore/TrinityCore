@@ -29,6 +29,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team /*= 0*/)
     _announceEnabled(true),
     _ownershipEnabled(true),
     _persistentChannel(false),
+    _isOwnerInvisible(false),
     _channelFlags(0),
     _channelId(channelId),
     _channelTeam(team),
@@ -197,8 +198,11 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         SendToAll(&data);
     }
 
+    bool newChannel = _playersStore.empty();
+
     PlayerInfo& pinfo = _playersStore[guid];
     pinfo.flags = MEMBER_FLAG_NONE;
+    pinfo.invisible = !player->isGMVisible();
 
     WorldPacket data;
     MakeYouJoined(&data);
@@ -213,9 +217,13 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         UpdateChannelUseageInDB();
 
         // If the channel has no owner yet and ownership is allowed, set the new owner.
-        if (!_ownerGuid && _ownershipEnabled)
+        // or if the owner was a GM with .gm visible off
+        // don't do this if the new player is, too, an invis GM, unless the channel was empty
+        if (_ownershipEnabled && (newChannel || !pinfo.IsInvisible()) && (!_ownerGuid || _isOwnerInvisible))
         {
-            SetOwner(guid, _playersStore.size() > 1);
+            _isOwnerInvisible = pinfo.IsInvisible();
+
+            SetOwner(guid, !newChannel && !_isOwnerInvisible);
             pinfo.SetModerator(true);
         }
     }
@@ -262,13 +270,28 @@ void Channel::LeaveChannel(Player* player, bool send)
         // Update last_used timestamp in db
         UpdateChannelUseageInDB();
 
-        // If the channel owner left and there are still players inside, pick a new owner
+        // If the channel owner left and there are players still inside, pick a new owner
+        // do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
         if (changeowner && _ownershipEnabled && !_playersStore.empty())
         {
-            auto itr = _playersStore.begin();
-            ObjectGuid newowner = itr->first;
+            PlayerContainer::iterator itr;
+            for (itr = _playersStore.begin(); itr != _playersStore.end(); ++itr)
+            {
+                if (!itr->second.IsInvisible())
+                    break;
+            }
+
+            if (itr == _playersStore.end())
+                itr = _playersStore.begin();
+
+            ObjectGuid newOwner = itr->first;
             itr->second.SetModerator(true);
-            SetOwner(newowner);
+
+            SetOwner(newOwner);
+
+            // if the new owner is invisible gm, set flag to automatically choose a new owner
+            if (itr->second.IsInvisible())
+                _isOwnerInvisible = true;
         }
     }
 }
@@ -466,6 +489,19 @@ void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bo
         SetModerator(newp->GetGUID(), set);
     else
         SetMute(newp->GetGUID(), set);
+}
+
+void Channel::SetInvisible(Player const* player, bool on)
+{
+    auto itr = _playersStore.find(player->GetGUID());
+    if (itr == _playersStore.end())
+        return;
+
+    itr->second.SetInvisible(on);
+
+    // we happen to be owner too, update flag
+    if (_ownerGuid == player->GetGUID())
+        _isOwnerInvisible = on;
 }
 
 void Channel::SetOwner(Player const* player, std::string const& newname)
