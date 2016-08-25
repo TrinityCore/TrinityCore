@@ -2271,6 +2271,7 @@ class TC_GAME_API Unit : public WorldObject
 
         // Part of Evade mechanics
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void UpdateLastDamagedTime(SpellInfo const* spellProto);
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
