@@ -2461,6 +2461,164 @@ class npc_train_wrecker : public CreatureScript
         }
 };
 
+/*######
+## npc_argent_squire/gruntling
+######*/
+
+enum Pennants
+{
+    SPELL_DARNASSUS_PENNANT     = 63443,
+    SPELL_EXODAR_PENNANT        = 63439,
+    SPELL_GNOMEREGAN_PENNANT    = 63442,
+    SPELL_IRONFORGE_PENNANT     = 63440,
+    SPELL_STORMWIND_PENNANT     = 62727,
+    SPELL_SENJIN_PENNANT        = 63446,
+    SPELL_UNDERCITY_PENNANT     = 63441,
+    SPELL_ORGRIMMAR_PENNANT     = 63444,
+    SPELL_SILVERMOON_PENNANT    = 63438,
+    SPELL_THUNDERBLUFF_PENNANT  = 63445,
+    SPELL_AURA_POSTMAN_S        = 67376,
+    SPELL_AURA_SHOP_S           = 67377,
+    SPELL_AURA_BANK_S           = 67368,
+    SPELL_AURA_TIRED_S          = 67401,
+    SPELL_AURA_BANK_G           = 68849,
+    SPELL_AURA_POSTMAN_G        = 68850,
+    SPELL_AURA_SHOP_G           = 68851,
+    SPELL_AURA_TIRED_G          = 68852,
+    SPELL_TIRED_PLAYER          = 67334
+};
+
+enum ArgentPetGossipOptions
+{
+    GOSSIP_OPTION_BANK                            = 0,
+    GOSSIP_OPTION_SHOP                            = 1,
+    GOSSIP_OPTION_MAIL                            = 2,
+    GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT        = 3,
+    GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT        = 4,
+    GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT    = 5,
+    GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT    = 6,
+    GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT  = 7
+};
+
+enum Misc
+{
+    NPC_ARGENT_SQUIRE  = 33238
+};
+
+struct ArgentPonyBannerSpells
+{
+    uint32 spellSquire;
+    uint32 spellGruntling;
+};
+
+ArgentPonyBannerSpells const bannerSpells[5] =
+{
+    { SPELL_DARNASSUS_PENNANT, SPELL_SENJIN_PENNANT },
+    { SPELL_EXODAR_PENNANT, SPELL_UNDERCITY_PENNANT },
+    { SPELL_GNOMEREGAN_PENNANT, SPELL_ORGRIMMAR_PENNANT },
+    { SPELL_IRONFORGE_PENNANT, SPELL_SILVERMOON_PENNANT },
+    { SPELL_STORMWIND_PENNANT, SPELL_THUNDERBLUFF_PENNANT }
+};
+
+class npc_argent_squire_gruntling : public CreatureScript
+{
+public:
+    npc_argent_squire_gruntling() : CreatureScript("npc_argent_squire_gruntling") { }
+
+    struct npc_argent_squire_gruntlingAI : public ScriptedAI
+    {
+        npc_argent_squire_gruntlingAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ScheduleTasks();
+        }
+
+        void ScheduleTasks()
+        {
+            _scheduler
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                {
+                    if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
+                        if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
+                            squireTired->SetDuration(ownerTired->GetDuration());
+                })
+                .Schedule(Seconds(1), [this](TaskContext context)
+                {
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    context.Repeat();
+                });
+        }
+
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            switch (gossipListId)
+            {
+                case GOSSIP_OPTION_BANK:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
+                    uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
+                    if (!me->HasAura(_bankAura))
+                        DoCastSelf(_bankAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_SHOP:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                    uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
+                    if (!me->HasAura(_shopAura))
+                        DoCastSelf(_shopAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_MAIL:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
+                    player->GetSession()->SendShowMailBox(me->GetGUID());
+
+                    uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;
+                    if (!me->HasAura(_mailAura))
+                        DoCastSelf(_mailAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT:
+                case GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT:
+                case GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT:
+                case GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT:
+                case GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT:
+                    if (IsArgentSquire())
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellSquire, true);
+                    else
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellGruntling, true);
+                    break;
+            }
+            player->PlayerTalkClass->SendCloseGossip();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+        bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+
+    CreatureAI* GetAI(Creature *creature) const override
+    {
+        return new npc_argent_squire_gruntlingAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2485,4 +2643,5 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
+    new npc_argent_squire_gruntling();
 }
