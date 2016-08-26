@@ -471,7 +471,7 @@ public:
                         phase = 3;
                         break;
                     case 3:
-                        //Talk(SAY_NESINGWARY_1);
+                        Talk(SAY_NESINGWARY_1);
                         phaseTimer = 2000;
                         phase = 4;
                         break;
