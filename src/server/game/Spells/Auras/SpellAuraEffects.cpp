@@ -1630,7 +1630,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_MOONKIN:
             {
                 // remove movement affects
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingEffects();
 
                 // and polymorphic affects
                 if (target->IsPolymorphed())
@@ -1716,7 +1716,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             {
                 target->setPowerType(POWER_MANA);
                 // Remove movement impairing effects also when shifting out
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingEffects();
             }
         }
 
@@ -3282,7 +3282,12 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
     }
 
     if (apply && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-        target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+    {
+        if (GetBase()->HasMoreThanOneEffect(SPELL_EFFECT_APPLY_AURA))
+            target->RemoveAurasEffectAmountWithMechanic(mechanic);
+        else
+            target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+    }
 }
 
 void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const

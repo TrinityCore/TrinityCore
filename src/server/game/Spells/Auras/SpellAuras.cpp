@@ -919,6 +919,16 @@ void Aura::RefreshSpellMods()
             player->RestoreAllSpellMods(0, this);
 }
 
+bool Aura::HasMoreThanOneEffect(SpellEffects spellEffects) const
+{
+    uint32 count = 0;
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (HasEffect(i) && SpellEffects(GetSpellInfo()->Effects[i].Effect) == spellEffects)
+            ++count;
+
+    return count > 1;
+}
+
 bool Aura::HasMoreThanOneEffectForType(AuraType auraType) const
 {
     uint32 count = 0;

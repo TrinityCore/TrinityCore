@@ -4105,9 +4105,9 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
     }
 }
 
-void Unit::RemoveMovementImpairingAuras()
+void Unit::RemoveMovementImpairingEffects()
 {
-    RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+    RemoveAurasEffectAmountWithMechanic((1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT));
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
@@ -4121,6 +4121,26 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
             {
                 RemoveAura(iter, removemode);
                 continue;
+            }
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveAurasEffectAmountWithMechanic(uint32 mechanic_mask, uint32 except)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura* aura = iter->second->GetBase();
+        if (!except || aura->GetId() != except)
+        {
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (aura->GetSpellInfo()->GetEffectMechanicMask(i) & mechanic_mask)
+                {
+                    if (AuraEffect* aurEff = aura->GetEffect(i))
+                        aurEff->ChangeAmount(0);
+                }
             }
         }
         ++iter;
@@ -4576,18 +4596,28 @@ bool Unit::HasNegativeAuraWithAttribute(uint32 flag, ObjectGuid guid) const
     return false;
 }
 
-bool Unit::HasAuraWithMechanic(uint32 mechanicMask) const
+bool Unit::HasAuraWithMechanic(uint32 mechanicMask, bool checkEffectAmout) const
 {
     for (AuraApplicationMap::const_iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
     {
         SpellInfo const* spellInfo = iter->second->GetBase()->GetSpellInfo();
-        if (spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
+        if (!checkEffectAmout && spellInfo->Mechanic && (mechanicMask & (1 << spellInfo->Mechanic)))
             return true;
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (iter->second->HasEffect(i) && spellInfo->Effects[i].Effect && spellInfo->Effects[i].Mechanic)
                 if (mechanicMask & (1 << spellInfo->Effects[i].Mechanic))
+                {
+                    if (checkEffectAmout)
+                    {
+                        if (iter->second->GetBase()->GetEffect(i)->GetAmount() > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+
                     return true;
+                }
     }
 
     return false;
@@ -6063,7 +6093,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!roll_chance_i(triggerAmount))
                         return false;
 
-                    RemoveMovementImpairingAuras();
+                    RemoveMovementImpairingEffects();
                     break;
                 }
                 // Glyph of Dispel Magic
@@ -9803,7 +9833,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
 
             // Torment the weak
             if (spellProto->SpellFamilyFlags[0] & 0x20600021 || spellProto->SpellFamilyFlags[1] & 0x9000)
-                if (victim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
+                if (victim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK), true))
                 {
                     AuraEffectList const& mDumyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
                     for (AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
