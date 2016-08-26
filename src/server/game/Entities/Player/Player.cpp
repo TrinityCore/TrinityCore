@@ -1849,6 +1849,9 @@ void Player::RegenerateAll()
         if (getClass() == CLASS_DEATH_KNIGHT)
             Regenerate(POWER_RUNIC_POWER);
 
+        if (getClass() == CLASS_WARLOCK)
+            Regenerate(POWER_BURNING_EMBERS);
+
         m_regenTimerCount -= 2000;
     }
 
@@ -1927,6 +1930,17 @@ void Player::Regenerate(Powers power)
                 addvalue += -1.0f;      // remove 1 every 10 sec, first one removed 20s after leaving combat
         }
         break;
+        case POWER_BURNING_EMBERS:                 // regenerate one ember on non combat and remove other embers
+        {
+             if (!IsInCombat())
+             {
+                 if (GetPower(POWER_BURNING_EMBERS)<10)
+                     addvalue += 1.0f;
+                 else if (GetPower(POWER_BURNING_EMBERS)>10)
+                     addvalue -= 1.0f;
+             }
+        }
+        break;
         case POWER_RUNES:
             break;
         case POWER_HEALTH:
@@ -1936,7 +1950,7 @@ void Player::Regenerate(Powers power)
     }
 
     // Mana regen calculated in Player::UpdateManaRegen()
-    if (power != POWER_MANA)
+    if (power != POWER_MANA && power != POWER_BURNING_EMBERS)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
