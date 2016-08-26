@@ -95,7 +95,7 @@ BattlegroundGOSpawnPoint const BG_EY_GameObjects[BG_EY_OBJECT_MAX] =
     { BG_OBJECT_BERSERK_DRAENEI_RUINS,     { 2302.477000f, 1391.245000f, 1197.736000f,  1.762782f }, {  0.000000f,  0.000000f,  0.7716246f, 0.6360782f }, RESPAWN_ONE_DAY     }
 };
 
-std::vector<BattlegroundBuffEntries> const buffEntries =
+BattlegroundBuffData const buffEntries =
 {
     { BG_OBJECT_SPEED_BUFF_BLOOD_ELF,     BG_OBJECT_RESTORATION_BLOOD_ELF,     BG_OBJECT_BERSERK_BLOOD_ELF     },
     { BG_OBJECT_SPEED_BUFF_FEL_REAVER,    BG_OBJECT_RESTORATION_FEL_REAVER,    BG_OBJECT_BERSERK_FEL_REAVER    },

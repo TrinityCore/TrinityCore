@@ -399,7 +399,7 @@ void Battleground::SetGameObjectsNumber(size_t count)
     BgObjects.resize(count);
 }
 
-void Battleground::SetChangeBuffs(bool change, std::vector<BattlegroundBuffEntries> const* buffEntries)
+void Battleground::SetChangeBuffs(bool change, BattlegroundBuffData const* buffEntries)
 {
     m_BuffChange = change;
     m_BuffEntries = buffEntries;

@@ -218,16 +218,24 @@ struct BattlegroundBuffEntries
 {
     friend class Battleground;
 
-    BattlegroundBuffEntries(uint32 SpeedBuffEntry, uint32 RegenBuffEntry, uint32 BerserkBuffEntry)
-    {
-        _buffEntry[0] = SpeedBuffEntry;
-        _buffEntry[1] = RegenBuffEntry;
-        _buffEntry[2] = BerserkBuffEntry;
-    }
+    BattlegroundBuffEntries(uint32 speedBuffEntry, uint32 regenBuffEntry, uint32 berserkBuffEntry) :
+        _speedBuffEntry(speedBuffEntry), _regenBuffEntry(regenBuffEntry), _berserkBuffEntry(berserkBuffEntry) { }
 
     private:
-        uint32 _buffEntry[BG_MAX_BUFFS];
+        union
+        {
+            struct
+            {
+                uint32 _speedBuffEntry;
+                uint32 _regenBuffEntry;
+                uint32 _berserkBuffEntry;
+            };
+            uint32 _buffEntry[BG_MAX_BUFFS];
+        };
+
 };
+
+typedef std::vector<BattlegroundBuffEntries> BattlegroundBuffData;
 
 // data helpers
 struct BattlegroundSpawnPoint
@@ -507,7 +515,7 @@ class TC_GAME_API Battleground
     protected:
         void SetCreaturesNumber(size_t count);
         void SetGameObjectsNumber(size_t count);
-        void SetChangeBuffs(bool change, std::vector<BattlegroundBuffEntries> const* buffEntries);
+        void SetChangeBuffs(bool change, BattlegroundBuffData const* buffEntries);
 
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -643,6 +651,6 @@ class TC_GAME_API Battleground
         float m_StartMaxDist;
         uint32 ScriptId;
 
-        std::vector<BattlegroundBuffEntries> const* m_BuffEntries;
+        BattlegroundBuffData const* m_BuffEntries;
 };
 #endif

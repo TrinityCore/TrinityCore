@@ -69,7 +69,7 @@ uint32 const BG_AB_BuffEntries[BG_MAX_BUFFS] =
     BG_AB_SPEED_BUFF
 };
 
-std::vector<BattlegroundBuffEntries> const buffEntries =
+BattlegroundBuffData const buffEntries =
 {
     { BG_AB_SPEED_BUFF, BG_AB_FOOD_BUFF, BG_AB_BERSERK_BUFF }
 };
