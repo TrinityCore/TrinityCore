@@ -103,13 +103,16 @@ void PetAI::UpdateAI(uint32 diff)
         }
 
         // Check before attacking to prevent pets from leaving stay position
-        if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
+        if (me->getClass() != CLASS_MAGE)
         {
-            if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
+            if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
+            {
+                if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->GetVictim())))
+                    DoMeleeAttackIfReady();
+            }
+            else
                 DoMeleeAttackIfReady();
         }
-        else
-            DoMeleeAttackIfReady();
     }
     else
     {
@@ -462,7 +465,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
             me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(target);
+            me->GetMotionMaster()->MoveChase(target, me->getClass() == CLASS_MAGE ? std::min<float>(me->GetDistance(target), 30.0f) : 0.0f);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
