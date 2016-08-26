@@ -279,6 +279,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
             if ((mask & 1) != 0)
                 Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
     }
+    return ByteBuffer();
 }
 
 void WorldPackets::Item::ItemInstance::Initialize(::ItemDynamicFieldGems const* gem)
