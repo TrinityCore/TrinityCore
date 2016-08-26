@@ -296,7 +296,7 @@ void InstanceSaveManager::LoadInstances()
         // If IDs have reached 4 billion, re-number
         if (maxId >= uint32(0xEE6B2800))
         {
-            TC_LOG_INFO("server.loading", "Instance IDs exceed 4000000000, re-numbering...", GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", "Instance IDs exceed 4000000000, re-numbering...");
 
             uint32 gap = minId - 1;
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
