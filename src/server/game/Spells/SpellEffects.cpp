@@ -423,6 +423,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         uint32 pdamage = uint32(std::max(aura->GetAmount(), 0));
                         pdamage = m_caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), pdamage, DOT, aura->GetBase()->GetStackAmount());
                         pdamage = unitTarget->SpellDamageBonusTaken(m_caster, aura->GetSpellInfo(), pdamage, DOT, aura->GetBase()->GetStackAmount());
+                        if (Player* modOwner = m_caster->GetSpellModOwner())
+                            modOwner->ApplySpellMod(aura->GetSpellInfo()->Id, SPELLMOD_DOT, pdamage);
                         uint32 pct_dir = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effIndex + 1));
                         uint8 baseTotalTicks = uint8(m_caster->CalcSpellDuration(aura->GetSpellInfo()) / aura->GetSpellInfo()->Effects[EFFECT_0].Amplitude);
                         damage += int32(CalculatePct(pdamage * baseTotalTicks, pct_dir));
@@ -1395,7 +1397,11 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             int32 tickheal = targetAura->GetAmount();
             if (Unit* auraCaster = targetAura->GetCaster())
+            {
                 tickheal = auraCaster->SpellHealingBonusDone(unitTarget, targetAura->GetSpellInfo(), tickheal, DOT);
+                if (Player* modOwner = auraCaster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(targetAura->GetSpellInfo()->Id, SPELLMOD_DOT, tickheal);
+            }
             //int32 tickheal = targetAura->GetSpellInfo()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
 
