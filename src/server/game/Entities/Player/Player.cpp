@@ -14891,7 +14891,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
         {
-            if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            if (quest->RequiredItemCount[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && itemTemplate->Flags & ITEM_PROTO_FLAG_MULTI_DROP))
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
             else 
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
@@ -14901,7 +14901,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            if (quest->ItemDropQuantity[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
+            if (quest->ItemDropQuantity[i] > 0 && ((itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1) && itemTemplate->Flags & ITEM_PROTO_FLAG_MULTI_DROP))
                 DestroyItemCount(quest->ItemDrop[i], 9999, true, true);
             else
                 DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
