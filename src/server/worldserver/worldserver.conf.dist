@@ -3056,6 +3056,17 @@ NoGrayAggro.Below = 0
 PreventRenameCharacterOnCustomization = 0
 
 #
+#    EnableRaceMasquerade
+#        Description: Setting this to 1 enables the race masquerade system.
+#                     This lets players use another race's model regardless of class restriction (using the .character masquerade command)
+#
+#        Default:     0 - (Masquerade system disabled)
+#                     1 - (Masquerade system enabled)
+#
+
+EnableRaceMasquerade = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################

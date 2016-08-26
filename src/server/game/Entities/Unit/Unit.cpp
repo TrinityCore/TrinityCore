@@ -17395,6 +17395,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     if (plr && plr->IsInSameRaidWith(target))
         visibleFlag |= UF_FLAG_PARTY_MEMBER;
 
+    Player const* masqueradePlayer = ToPlayer();
+    if (masqueradePlayer && !masqueradePlayer->IsMasqueradingRace())
+        masqueradePlayer = nullptr;
     Creature const* creature = ToCreature();
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
@@ -17515,6 +17518,9 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 else
                     fieldBuffer << m_uint32Values[index];
             }
+            else if (masqueradePlayer && index == UNIT_FIELD_BYTES_0 && ((masqueradePlayer != target) || (updateType == UPDATETYPE_VALUES && GetDisplayId() == GetNativeDisplayId() && _changesMask.GetBit(UNIT_FIELD_DISPLAYID))))
+                // Masquerade system - send masquerading race if displayid is being changed to ensure client uses correct skin; send actual race otherwise to ensure languages and spellbook work
+                fieldBuffer << ((m_uint32Values[UNIT_FIELD_BYTES_0] & ~uint32(uint32(0xFF) << (UNIT_BYTES_0_OFFSET_RACE * 8))) | uint32(uint32(masqueradePlayer->GetMasqueradeRace()) << (UNIT_BYTES_0_OFFSET_RACE * 8)));
             else
             {
                 // send in current format (float as float, uint32 as uint32)

@@ -2089,6 +2089,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
+        void NotifyMasqueradeRaceDirty() { m_masqueradeRaceDirty = true; }
+        bool IsMasqueradingRace() const { return m_masqueradeRace != 0; }
+        void SetMasqueradeRace(Races race);
+        Races GetMasqueradeRace() const;
+
         void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
         void Recall() { TeleportTo(m_recall_location); }
 
@@ -2603,6 +2608,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // variables to save health and mana before duel and restore them after duel
         uint32 healthBeforeDuel;
         uint32 manaBeforeDuel;
+
+        // Race masquerade system
+        Races m_masqueradeRace;
+        bool m_masqueradeRaceDirty; // true if player's client currently thinks mask race is actual race
 
         WorldLocation _corpseLocation;
 };

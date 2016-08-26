@@ -746,6 +746,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
+    RBAC_PERM_COMMAND_CHARACTER_MASQUERADE                   = 842,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

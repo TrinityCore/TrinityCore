@@ -1348,6 +1348,9 @@ void World::LoadConfigSettings(bool reload)
     // prevent character rename on character customization
     m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
 
+    // enable/disable race masquerade system
+    m_bool_configs[CONFIG_ENABLE_RACE_MASQUERADE] = sConfigMgr->GetBoolDefault("EnableRaceMasquerade", false);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
