@@ -263,7 +263,7 @@ extern ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS];
 struct BonusData
 {
     uint32 Quality;
-    int32 ItemLevel;
+    int32 ItemLevelBonus;
     int32 RequiredLevel;
     int32 ItemStatType[MAX_ITEM_PROTO_STATS];
     int32 ItemStatValue[MAX_ITEM_PROTO_STATS];
@@ -273,12 +273,22 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-
+    uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
+    bool HasItemLevelBonus;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
+
+private:
+    struct
+    {
+        int32 AppearanceModPriority;
+        int32 ScalingStatDistributionPriority;
+        int32 ItemLevelOverridePriority;
+        bool HasQualityBonus;
+    } _state;
 };
 
 #pragma pack(push, 1)

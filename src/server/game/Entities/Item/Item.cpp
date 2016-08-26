@@ -1271,7 +1271,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
                         }
                         case ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE:
                         {
-                            if (uint32 bonusListId = sDB2Manager.GetItemBonusListForItemLevelDelta(int16(sDB2Manager.GetCurveValueAt(CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS, gemTemplate->GetBaseItemLevel() + gemBonus.ItemLevel))))
+                            if (uint32 bonusListId = sDB2Manager.GetItemBonusListForItemLevelDelta(int16(sDB2Manager.GetCurveValueAt(CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS, gemTemplate->GetBaseItemLevel() + gemBonus.ItemLevelBonus))))
                                 if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListId))
                                     for (ItemBonusEntry const* itemBonus : *bonuses)
                                         if (itemBonus->Type == ITEM_BONUS_ITEM_LEVEL)
@@ -2159,9 +2159,21 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
-        if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, owner->getLevel())))
-            itemLevel = heirloomIlvl;
+    if (!_bonusData.HasItemLevelBonus && !_bonusData.ItemLevelOverride)
+    {
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
+        {
+            uint32 level = owner->getLevel();
+            if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+                level = fixedLevel;
+            if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
+                itemLevel = heirloomIlvl;
+        }
+
+        itemLevel += _bonusData.ItemLevelBonus;
+    }
+    else
+        itemLevel = _bonusData.ItemLevelOverride;
 
     if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))
         itemLevel += upgrade->ItemLevelBonus;
@@ -2169,7 +2181,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         itemLevel += _bonusData.GemItemLevelBonus[i];
 
-    return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
+    return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
 int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
@@ -2423,7 +2435,7 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
 void BonusData::Initialize(ItemTemplate const* proto)
 {
     Quality = proto->GetQuality();
-    ItemLevel = 0;
+    ItemLevelBonus = 0;
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatType[i] = proto->GetItemStatType(i);
@@ -2449,6 +2461,13 @@ void BonusData::Initialize(ItemTemplate const* proto)
 
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
+    ItemLevelOverride = 0;
+    HasItemLevelBonus = false;
+
+    _state.AppearanceModPriority = std::numeric_limits<int32>::max();
+    _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
+    _state.ItemLevelOverridePriority = std::numeric_limits<int32>::max();
+    _state.HasQualityBonus = false;
 }
 
 void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
@@ -2471,7 +2490,8 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
     switch (type)
     {
         case ITEM_BONUS_ITEM_LEVEL:
-            ItemLevel += values[0];
+            ItemLevelBonus += values[0];
+            HasItemLevelBonus = true;
             break;
         case ITEM_BONUS_STAT:
         {
@@ -2488,7 +2508,12 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         }
         case ITEM_BONUS_QUALITY:
-            if (Quality < static_cast<uint32>(values[0]))
+            if (!_state.HasQualityBonus)
+            {
+                Quality = static_cast<uint32>(values[0]);
+                _state.HasQualityBonus = true;
+            }
+            else if (Quality < static_cast<uint32>(values[0]))
                 Quality = static_cast<uint32>(values[0]);
             break;
         case ITEM_BONUS_SOCKET:
@@ -2505,8 +2530,11 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         }
         case ITEM_BONUS_APPEARANCE:
-            if (AppearanceModID < static_cast<uint32>(values[0]))
+            if (values[1] < _state.AppearanceModPriority)
+            {
                 AppearanceModID = static_cast<uint32>(values[0]);
+                _state.AppearanceModPriority = values[1];
+            }
             break;
         case ITEM_BONUS_REQUIRED_LEVEL:
             RequiredLevel += values[0];
@@ -2515,7 +2543,19 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             RepairCostMultiplier *= static_cast<float>(values[0]) * 0.01f;
             break;
         case ITEM_BONUS_SCALING_STAT_DISTRIBUTION:
-            ScalingStatDistribution = static_cast<uint32>(values[0]);
+        case ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2:
+            if (values[1] < _state.ScalingStatDistributionPriority)
+            {
+                ScalingStatDistribution = static_cast<uint32>(values[0]);
+                _state.ScalingStatDistributionPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_ITEM_LEVEL_OVERRIDE:
+            if (values[1] < _state.ItemLevelOverridePriority)
+            {
+                ItemLevelOverride = static_cast<uint32>(values[0]);
+                _state.ItemLevelOverridePriority = values[1];
+            }
             break;
     }
 }
