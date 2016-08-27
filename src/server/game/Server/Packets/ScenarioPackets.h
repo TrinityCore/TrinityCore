@@ -19,38 +19,25 @@
 #define ScenarioPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
-#include "WorldSession.h"
+#include "AchievementPackets.h"
 
 namespace WorldPackets
 {
     namespace Scenario
-    {
-        struct CriteriaProgress
-        {
-            uint32 Id = 0;
-			uint64 Quantity = 0;
-			ObjectGuid Player;
-			time_t Date = time_t(0);
-            uint32 TimeStart = 0;
-            uint32 TimeCreate = 0;
-			uint32 Flags = 0;
-            uint16 Unk1 = 0; // Seems to be 16 bit size, not sure if two 8 bits or its purpose.
-        };
-		
+    {	
 		struct BonusObjectiveData
 		{
 		    int32 Id = 0;
 			bool ObjectiveCompleted = false;
         };
 		
-        struct UnkScenarioStateData1
+        struct UnkScenarioStateData
         {
             uint32 Unk1 = 0;
             bool Unk2 = true;
         };
 
-        class ScenarioState final : public WorldPackets::ServerPacket
+        class ScenarioState final : public ServerPacket
         {
             public:
                 ScenarioState() : ServerPacket(SMSG_SCENARIO_STATE) { }
@@ -63,24 +50,24 @@ namespace WorldPackets
 				int32 WaveCurrent = 0;
 				int32 WaveMax = 0;
 				int32 TimerDuration = 0;
-                std::vector<CriteriaProgress> CriteriaProgress;
+                std::vector<WorldPackets::Achievement::CriteriaProgress> CriteriaProgress;
                 std::vector<BonusObjectiveData> BonusObjectiveData;
-                std::vector<uint32> TotalSteps; // Speculated data
-                std::vector<UnkScenarioStateData1> UnkData;
+                std::vector<uint32> TraversedSteps; // Speculated data
+                std::vector<UnkScenarioStateData> UnkData;
                 bool ScenarioCompleted = false;
         };
 
-        class ScenarioProgressUpdate final : public WorldPackets::ServerPacket
+        class ScenarioProgressUpdate final : public ServerPacket
         {
             public:
                 ScenarioProgressUpdate() : ServerPacket(SMSG_SCENARIO_PROGRESS_UPDATE) { }
 
                 WorldPacket const* Write() override;
 
-                CriteriaProgress criteriaProgress;
+                WorldPackets::Achievement::CriteriaProgress CriteriaProgress;
         };
 
-        class ScenarioCompleted final : public WorldPackets::ServerPacket
+        class ScenarioCompleted final : public ServerPacket
         {
             public:
                 ScenarioCompleted(uint32 scenarioId) : ScenarioId(scenarioId), ServerPacket(SMSG_SCENARIO_COMPLETED, 4) { }
@@ -90,12 +77,17 @@ namespace WorldPackets
                 uint32 ScenarioId = 0;
         };
 
-        class ScenarioBoot final : public WorldPackets::ServerPacket
+        class ScenarioBoot final : public ServerPacket
         {
             public:
-                ScenarioBoot() : ServerPacket(SMSG_SCENARIO_BOOT, 0) { }
+                ScenarioBoot() : ServerPacket(SMSG_SCENARIO_BOOT, 4 + 4 + 1) { }
 
-                WorldPacket const* Write() override { return &_worldPacket; }
+                WorldPacket const* Write() override;
+
+                int32 ScenarioId = 0;
+                // 40 bit section with default 0 values, not really sure what this is or in what order they come but most likely a int32 and a boolean.
+                int32 Unk1 = 0;
+                bool Unk2 = 0;
         };
     }
 }

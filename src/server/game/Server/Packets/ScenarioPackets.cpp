@@ -16,6 +16,22 @@
  */
 
 #include "ScenarioPackets.h"
+#include "CriteriaHandler.h"
+#include "AchievementPackets.h"
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Scenario::BonusObjectiveData const& bonusObjective)
+{
+    data << int32(bonusObjective.Id);
+    data << uint8(bonusObjective.ObjectiveCompleted);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Scenario::UnkScenarioStateData const& unkData)
+{
+    data << uint32(unkData.Unk1);
+    data << uint8(unkData.Unk2);
+    return data;
+}
 
 WorldPacket const* WorldPackets::Scenario::ScenarioState::Write()
 {
@@ -27,51 +43,30 @@ WorldPacket const* WorldPackets::Scenario::ScenarioState::Write()
     _worldPacket << int32(TimerDuration);
     _worldPacket << uint32(CriteriaProgress.size());
     _worldPacket << uint32(BonusObjectiveData.size());
-    _worldPacket << uint32(TotalSteps.size());
+    _worldPacket << uint32(TraversedSteps.size());
     _worldPacket << uint32(UnkData.size());
 
-    for (uint32 i = 0; i < TotalSteps.size(); ++i)
-        _worldPacket << uint32(TotalSteps[i]);
+    for (uint32 i = 0; i < TraversedSteps.size(); ++i)
+        _worldPacket << uint32(TraversedSteps[i]);
 
-   _worldPacket << uint8(ScenarioCompleted);
+    _worldPacket.WriteBit(ScenarioCompleted);
+    _worldPacket.FlushBits();
 
-    for (uint32 i = 0; i < CriteriaProgress.size(); ++i)
-    {
-        _worldPacket << uint32(CriteriaProgress[i].Id);
-        _worldPacket << uint64(CriteriaProgress[i].Quantity);
-        _worldPacket << CriteriaProgress[i].Player;
-        _worldPacket.AppendPackedTime(CriteriaProgress[i].Date);
-        _worldPacket << uint32(CriteriaProgress[i].TimeStart);
-        _worldPacket << uint32(CriteriaProgress[i].TimeCreate);
-        _worldPacket.WriteBits(CriteriaProgress[i].Flags, 4);
-        _worldPacket.FlushBits();
-    }
+   for (WorldPackets::Achievement::CriteriaProgress const& progress : CriteriaProgress)
+       _worldPacket << progress;
 
-    for (uint32 i = 0; i < BonusObjectiveData.size(); ++i)
-    {
-        _worldPacket << int32(BonusObjectiveData[i].Id);
-        _worldPacket << uint8(BonusObjectiveData[i].ObjectiveCompleted);
-    }
+   for (WorldPackets::Scenario::BonusObjectiveData const& bonusObjective : BonusObjectiveData)
+       _worldPacket << bonusObjective;
 
-    for (uint32 i = 0; i < UnkData.size(); ++i)
-    {
-        _worldPacket << uint32(UnkData[i].Unk1);
-        _worldPacket << uint8(UnkData[i].Unk2);
-    }
+   for (WorldPackets::Scenario::UnkScenarioStateData const& unkData : UnkData)
+       _worldPacket << unkData;
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Scenario::ScenarioProgressUpdate::Write()
 {
-    _worldPacket << int32(criteriaProgress.Id);
-    _worldPacket << uint64(criteriaProgress.Quantity);
-    _worldPacket << criteriaProgress.Player;
-    _worldPacket.AppendPackedTime(criteriaProgress.Date);
-    _worldPacket << uint32(criteriaProgress.TimeStart);
-    _worldPacket << uint32(criteriaProgress.TimeCreate);
-    _worldPacket.WriteBits(criteriaProgress.Flags, 4);
-    _worldPacket.FlushBits();
+    _worldPacket << CriteriaProgress;
 
     return &_worldPacket;
 }
@@ -79,6 +74,16 @@ WorldPacket const* WorldPackets::Scenario::ScenarioProgressUpdate::Write()
 WorldPacket const* WorldPackets::Scenario::ScenarioCompleted::Write()
 {
     _worldPacket << ScenarioId;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Scenario::ScenarioBoot::Write()
+{
+    _worldPacket << int32(ScenarioId);
+    _worldPacket << int32(Unk1);
+    _worldPacket.WriteBit(Unk2);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

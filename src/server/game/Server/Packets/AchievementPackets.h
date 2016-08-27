@@ -45,6 +45,8 @@ namespace WorldPackets
             uint32 TimeFromCreate = 0;
         };
 
+        TC_GAME_API ByteBuffer& operator<<(ByteBuffer& data, CriteriaProgress const& criteria);
+
         struct AllAchievements
         {
             std::vector<EarnedAchievement> Earned;
