@@ -21,6 +21,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "EventMap.h"
 #include "Object.h"
 
 enum BG_AB_WorldStates
@@ -131,7 +132,7 @@ enum BG_AB_BuffObjects
 
 enum BG_AB_Timers
 {
-    BG_AB_FLAG_CAPTURING_TIME           = 60000
+    BG_AB_FLAG_CAPTURING_TIME           = 1 * MINUTE * IN_MILLISECONDS
 };
 
 enum BG_AB_Score
@@ -158,7 +159,7 @@ enum BG_AB_BattlegroundNodes
     BG_AB_ALL_NODES_COUNT       = 7                         // all nodes (dynamic and static)
 };
 
-enum BG_AB_NodeStatus
+enum BG_AB_NodeStatus : uint8
 {
     BG_AB_NODE_TYPE_NEUTRAL             = 0,
     BG_AB_NODE_TYPE_CONTESTED           = 1,
@@ -187,9 +188,23 @@ enum BG_AB_Objectives
 
 struct BG_AB_BannerTimer
 {
-    uint32      timer;
     uint8       type;
-    uint8       teamIndex;
+    TeamId      teamIndex;
+};
+
+enum BG_AB_Events
+{
+    EVENT_BANNER_UPDATE_0 = 1,
+    EVENT_BANNER_UPDATE_1,
+    EVENT_BANNER_UPDATE_2,
+    EVENT_BANNER_UPDATE_3,
+    EVENT_BANNER_UPDATE_4,
+
+    EVENT_NODE_CAPTURE_0,
+    EVENT_NODE_CAPTURE_1,
+    EVENT_NODE_CAPTURE_2,
+    EVENT_NODE_CAPTURE_3,
+    EVENT_NODE_CAPTURE_4,
 };
 
 struct BattlegroundABScore final : public BattlegroundScore
@@ -261,13 +276,13 @@ class BattlegroundAB : public Battleground
     private:
         void PostUpdateImpl(uint32 diff) override;
         /* Gameobject spawning/despawning */
-        void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
-        void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
+        void _CreateBanner(uint8 node, uint8 type, TeamId teamIndex, bool delay);
+        void _DelBanner(uint8 node, uint8 type, TeamId teamIndex);
         void _SendNodeUpdate(uint8 node);
 
         /* Creature spawning/despawning */
         /// @todo working, scripted peons spawning
-        void _NodeOccupied(uint8 node, Team team);
+        void _NodeOccupied(uint8 node, TeamId team);
         void _NodeDeOccupied(uint8 node);
 
         int32 _GetNodeNameId(uint8 node);
@@ -278,10 +293,10 @@ class BattlegroundAB : public Battleground
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_NodeStatus    m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_NodeStatus    m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        EventMap            m_Events;
         BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
         uint32              m_lastTick[BG_TEAMS_COUNT];
         uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
         uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
