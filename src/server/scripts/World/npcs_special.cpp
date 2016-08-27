@@ -16,30 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Npcs_Special
-SD%Complete: 100
-SDComment: To be used for special NPCs that are located globally.
-SDCategory: NPCs
-EndScriptData
-*/
-
-/* ContentData
-npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
-npc_lunaclaw_spirit      80%    support for quests 6001/6002 (Body and Heart)
-npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
-npc_dancing_flames      100%    midsummer event NPC
-npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
-npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
-npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
-npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
-npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
-npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
-npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
-npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
-npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -610,7 +586,7 @@ public:
             events.Reset();
             running = false;
         }
-        
+
         void Reset() override
         {
             Initialize();
@@ -1684,25 +1660,25 @@ public:
 # npc_wormhole
 ######*/
 
-#define GOSSIP_ENGINEERING1   "Borean Tundra"
-#define GOSSIP_ENGINEERING2   "Howling Fjord"
-#define GOSSIP_ENGINEERING3   "Sholazar Basin"
-#define GOSSIP_ENGINEERING4   "Icecrown"
-#define GOSSIP_ENGINEERING5   "Storm Peaks"
-#define GOSSIP_ENGINEERING6   "Underground..."
-
-enum WormholeSpells
+enum NPC_Wormhole
 {
-    SPELL_BOREAN_TUNDRA         = 67834,
-    SPELL_SHOLAZAR_BASIN        = 67835,
-    SPELL_ICECROWN              = 67836,
-    SPELL_STORM_PEAKS           = 67837,
-    SPELL_HOWLING_FJORD         = 67838,
-    SPELL_UNDERGROUND           = 68081,
+    DATA_SHOW_UNDERGROUND = 1,     // -> Random 0 or 1
 
-    TEXT_WORMHOLE               = 907,
+    MENU_ID_WORMHOLE      = 10668, // "This tear in the fabric of time and space looks ominous."
+    NPC_TEXT_WORMHOLE     = 14785, // (not 907 "What brings you to this part of the world, $n?")
+    GOSSIP_OPTION_1       = 0,     // "Borean Tundra"
+    GOSSIP_OPTION_2       = 1,     // "Howling Fjord"
+    GOSSIP_OPTION_3       = 2,     // "Sholazar Basin"
+    GOSSIP_OPTION_4       = 3,     // "Icecrown"
+    GOSSIP_OPTION_5       = 4,     // "Storm Peaks"
+    GOSSIP_OPTION_6       = 5,     // "Underground..."
 
-    DATA_SHOW_UNDERGROUND       = 1,
+    SPELL_BOREAN_TUNDRA   = 67834, // 0
+    SPELL_HOWLING_FJORD   = 67838, // 1
+    SPELL_SHOLAZAR_BASIN  = 67835, // 2
+    SPELL_ICECROWN        = 67836, // 3
+    SPELL_STORM_PEAKS     = 67837, // 4
+    SPELL_UNDERGROUND     = 68081  // 5
 };
 
 class npc_wormhole : public CreatureScript
@@ -1742,16 +1718,16 @@ class npc_wormhole : public CreatureScript
             {
                 if (player == creature->ToTempSummon()->GetSummoner())
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
                     if (creature->AI()->GetData(DATA_SHOW_UNDERGROUND))
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                        player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
-                    player->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(NPC_TEXT_WORMHOLE, creature->GetGUID());
                 }
             }
 
@@ -1805,51 +1781,54 @@ class npc_wormhole : public CreatureScript
 
 enum PetTrainer
 {
-    TEXT_ISHUNTER               = 5838,
-    TEXT_NOTHUNTER              = 5839,
-    TEXT_PETINFO                = 13474,
-    TEXT_CONFIRM                = 7722
+    MENU_ID_PET_TRAINING     = 4783,
+    MENU_ID_PET_UNLEARN      = 6520,
+    NPC_TEXT_PET_FAMILIES    = 13474,
+    NPC_TEXT_PET_TRAINING    = 5838,
+    NPC_TEXT_UNLEARN         = 7722,
+    OPTION_ID_HOW_DO_I_TRAIN = 0,
+    OPTION_ID_UNTRAIN_MY_PET = 1,
+    OPTION_ID_PLEASE_DO      = 0,
 };
-
-#define GOSSIP_PET1             "How do I train my pet?"
-#define GOSSIP_PET2             "I wish to untrain my pet."
-#define GOSSIP_PET_CONFIRM      "Yes, please do."
 
 class npc_pet_trainer : public CreatureScript
 {
 public:
     npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) /*override*/
     {
+        player->PlayerTalkClass->ClearMenus();
+
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->getClass() == CLASS_HUNTER)
+        if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            player->PlayerTalkClass->SendGossipMenu(TEXT_ISHUNTER, creature->GetGUID());
-            return true;
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_UNTRAIN_MY_PET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
         }
-        player->PlayerTalkClass->SendGossipMenu(TEXT_NOTHUNTER, creature->GetGUID());
+        else
+        {
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
+        }
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) /*override*/
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                player->PlayerTalkClass->SendGossipMenu(TEXT_PETINFO, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_PET_FAMILIES, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET_CONFIRM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->PlayerTalkClass->SendGossipMenu(TEXT_CONFIRM, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_UNLEARN, OPTION_ID_PLEASE_DO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->SEND_GOSSIP_MENU(NPC_TEXT_UNLEARN, creature->GetGUID());
                 }
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
@@ -1867,10 +1846,13 @@ public:
 ## npc_experience
 ######*/
 
-#define EXP_COST                100000 //10 00 00 copper (10golds)
-#define GOSSIP_TEXT_EXP         14736
-#define GOSSIP_XP_OFF           "I no longer wish to gain experience."
-#define GOSSIP_XP_ON            "I wish to start gaining experience again."
+enum BehstenSlahtz
+{
+    MENU_ID_XP_ON_OFF  = 10638,
+    NPC_TEXT_XP_ON_OFF = 14736,
+    OPTION_ID_XP_OFF   = 0,     // "I no longer wish to gain experience."
+    OPTION_ID_XP_ON    = 1      // "I wish to start gaining experience again."
+};
 
 class npc_experience : public CreatureScript
 {
@@ -1879,49 +1861,33 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_EXP, creature->GetGUID());
+        if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
+        {
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_XP_ON_OFF, OPTION_ID_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_XP_ON_OFF, creature->GetGUID());
+        }
+        else // currently gaining XP
+        {
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_XP_ON_OFF, OPTION_ID_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_XP_ON_OFF, creature->GetGUID());
+        }
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-        bool doSwitch = false;
 
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1://xp off
-                {
-                    if (!noXPGain)//does gain xp
-                        doSwitch = true;//switch to don't gain xp
-                }
+            case GOSSIP_ACTION_INFO_DEF + 1: // XP ON selected
+                player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN); // turn on XP gain
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 2://xp on
-                {
-                    if (noXPGain)//doesn't gain xp
-                        doSwitch = true;//switch to gain xp
-                }
+            case GOSSIP_ACTION_INFO_DEF + 2: // XP OFF selected
+                player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN); // turn off XP gain
                 break;
         }
-        if (doSwitch)
-        {
-            if (!player->HasEnoughMoney(EXP_COST))
-                player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-            else if (noXPGain)
-            {
-                player->ModifyMoney(-EXP_COST);
-                player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-            }
-            else if (!noXPGain)
-            {
-                player->ModifyMoney(-EXP_COST);
-                player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
-            }
-        }
-        player->PlayerTalkClass->SendCloseGossip();
+        player->CLOSE_GOSSIP_MENU();
         return true;
     }
 };
@@ -2549,6 +2515,164 @@ class npc_train_wrecker : public CreatureScript
         }
 };
 
+/*######
+## npc_argent_squire/gruntling
+######*/
+
+enum Pennants
+{
+    SPELL_DARNASSUS_PENNANT     = 63443,
+    SPELL_EXODAR_PENNANT        = 63439,
+    SPELL_GNOMEREGAN_PENNANT    = 63442,
+    SPELL_IRONFORGE_PENNANT     = 63440,
+    SPELL_STORMWIND_PENNANT     = 62727,
+    SPELL_SENJIN_PENNANT        = 63446,
+    SPELL_UNDERCITY_PENNANT     = 63441,
+    SPELL_ORGRIMMAR_PENNANT     = 63444,
+    SPELL_SILVERMOON_PENNANT    = 63438,
+    SPELL_THUNDERBLUFF_PENNANT  = 63445,
+    SPELL_AURA_POSTMAN_S        = 67376,
+    SPELL_AURA_SHOP_S           = 67377,
+    SPELL_AURA_BANK_S           = 67368,
+    SPELL_AURA_TIRED_S          = 67401,
+    SPELL_AURA_BANK_G           = 68849,
+    SPELL_AURA_POSTMAN_G        = 68850,
+    SPELL_AURA_SHOP_G           = 68851,
+    SPELL_AURA_TIRED_G          = 68852,
+    SPELL_TIRED_PLAYER          = 67334
+};
+
+enum ArgentPetGossipOptions
+{
+    GOSSIP_OPTION_BANK                            = 0,
+    GOSSIP_OPTION_SHOP                            = 1,
+    GOSSIP_OPTION_MAIL                            = 2,
+    GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT        = 3,
+    GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT        = 4,
+    GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT    = 5,
+    GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT    = 6,
+    GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT  = 7
+};
+
+enum Misc
+{
+    NPC_ARGENT_SQUIRE  = 33238
+};
+
+struct ArgentPonyBannerSpells
+{
+    uint32 spellSquire;
+    uint32 spellGruntling;
+};
+
+ArgentPonyBannerSpells const bannerSpells[5] =
+{
+    { SPELL_DARNASSUS_PENNANT, SPELL_SENJIN_PENNANT },
+    { SPELL_EXODAR_PENNANT, SPELL_UNDERCITY_PENNANT },
+    { SPELL_GNOMEREGAN_PENNANT, SPELL_ORGRIMMAR_PENNANT },
+    { SPELL_IRONFORGE_PENNANT, SPELL_SILVERMOON_PENNANT },
+    { SPELL_STORMWIND_PENNANT, SPELL_THUNDERBLUFF_PENNANT }
+};
+
+class npc_argent_squire_gruntling : public CreatureScript
+{
+public:
+    npc_argent_squire_gruntling() : CreatureScript("npc_argent_squire_gruntling") { }
+
+    struct npc_argent_squire_gruntlingAI : public ScriptedAI
+    {
+        npc_argent_squire_gruntlingAI(Creature* creature) : ScriptedAI(creature)
+        {
+            ScheduleTasks();
+        }
+
+        void ScheduleTasks()
+        {
+            _scheduler
+                .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                {
+                    if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
+                        if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
+                            squireTired->SetDuration(ownerTired->GetDuration());
+                })
+                .Schedule(Seconds(1), [this](TaskContext context)
+                {
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                    context.Repeat();
+                });
+        }
+
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            switch (gossipListId)
+            {
+                case GOSSIP_OPTION_BANK:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
+                    uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
+                    if (!me->HasAura(_bankAura))
+                        DoCastSelf(_bankAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_SHOP:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                    uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
+                    if (!me->HasAura(_shopAura))
+                        DoCastSelf(_shopAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_MAIL:
+                {
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
+                    player->GetSession()->SendShowMailBox(me->GetGUID());
+
+                    uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;
+                    if (!me->HasAura(_mailAura))
+                        DoCastSelf(_mailAura);
+
+                    if (!player->HasAura(SPELL_TIRED_PLAYER))
+                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                    break;
+                }
+                case GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT:
+                case GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT:
+                case GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT:
+                case GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT:
+                case GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT:
+                    if (IsArgentSquire())
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellSquire, true);
+                    else
+                        DoCastSelf(bannerSpells[gossipListId - 3].spellGruntling, true);
+                    break;
+            }
+            player->PlayerTalkClass->SendCloseGossip();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+        bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+
+    CreatureAI* GetAI(Creature *creature) const override
+    {
+        return new npc_argent_squire_gruntlingAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2574,4 +2698,5 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_stable_master();
     new npc_train_wrecker();
+    new npc_argent_squire_gruntling();
 }
