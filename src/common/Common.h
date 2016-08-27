@@ -136,7 +136,7 @@ const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 #define MAX_LOCALES 10
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
-extern "C" TC_COMMON_API char const* localeNames[TOTAL_LOCALES];
+TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 TC_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 
