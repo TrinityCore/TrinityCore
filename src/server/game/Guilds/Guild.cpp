@@ -3238,8 +3238,6 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                     packet.WithdrawalsRemaining = int32(_GetMemberRemainingSlots(itr->second, tabId));
                     player->GetSession()->SendPacket(packet.Write());
                 }
-
-        TC_LOG_DEBUG("guild", "WORLD: Sent SMSG_GUILD_BANK_QUERY_RESULTS");
     }
 }
 
@@ -3320,8 +3318,6 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
     }
 
     session->SendPacket(packet.Write());
-
-    TC_LOG_DEBUG("guild", "WORLD: Sent SMSG_GUILD_BANK_QUERY_RESULTS");
 }
 
 void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank)
