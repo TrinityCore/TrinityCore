@@ -817,7 +817,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_HAMMER_OF_JUSTICE, TARGET_VICTIM, 6);
             VerifyAndPushSpellCast(spells, SPELL_HAND_OF_FREEDOM, TARGET_SELF, 3);
             VerifyAndPushSpellCast(spells, SPELL_HAND_OF_PROTECTION, TARGET_SELF, 1);
-            if (Creature* creatureCharmer = ObjectAccessor::GetCreature(*me, me->GetCharmerGUID()))
+            if (Creature* creatureCharmer = GetCharmer())
             {
                 if (creatureCharmer->IsDungeonBoss() || creatureCharmer->isWorldBoss())
                     VerifyAndPushSpellCast(spells, SPELL_HAND_OF_SACRIFICE, creatureCharmer, 10);
@@ -1002,7 +1002,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                 case SPEC_DEATH_KNIGHT_BLOOD:
                     VerifyAndPushSpellCast(spells, SPELL_RUNE_TAP, TARGET_NONE, 2);
                     VerifyAndPushSpellCast(spells, SPELL_HYSTERIA, TARGET_SELF, 5);
-                    if (Creature* creatureCharmer = ObjectAccessor::GetCreature(*me, me->GetCharmerGUID()))
+                    if (Creature* creatureCharmer = GetCharmer())
                         if (!creatureCharmer->IsDungeonBoss() && !creatureCharmer->isWorldBoss())
                             VerifyAndPushSpellCast(spells, SPELL_HYSTERIA, creatureCharmer, 15);
                     VerifyAndPushSpellCast(spells, SPELL_HEART_STRIKE, TARGET_VICTIM, 2);
@@ -1180,7 +1180,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     }
                     VerifyAndPushSpellCast(spells, SPELL_TRANQUILITY, TARGET_NONE, 10);
                     VerifyAndPushSpellCast(spells, SPELL_NATURE_SWIFTNESS, TARGET_NONE, 7);
-                    if (Creature* creatureCharmer = ObjectAccessor::GetCreature(*me, me->GetCharmerGUID()))
+                    if (Creature* creatureCharmer = GetCharmer())
                     {
                         VerifyAndPushSpellCast(spells, SPELL_NOURISH, creatureCharmer, 5);
                         VerifyAndPushSpellCast(spells, SPELL_WILD_GROWTH, creatureCharmer, 5);
@@ -1260,7 +1260,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
 static const float CASTER_CHASE_DISTANCE = 28.0f;
 void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 {
-    Creature* charmer = me->GetCharmer() ? me->GetCharmer()->ToCreature() : nullptr;
+    Creature* charmer = GetCharmer();
     if (!charmer)
         return;
 
