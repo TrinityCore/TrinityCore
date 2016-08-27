@@ -131,6 +131,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INVENTORY, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_INSTANCE_ARTIFACT);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE, stmt);
@@ -203,6 +207,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BG_DATA, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GLYPHS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GLYPHS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TALENTS);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TALENTS, stmt);
@@ -266,6 +274,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     uint8 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
     bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
+    if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER) == 0) // char level = 0 means this check is disabled, so always true
+        canAlwaysCreateDemonHunter = true;
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
@@ -319,7 +329,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
-    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm);
+    charEnum.IsDemonHunterCreationAllowed = (!charEnum.HasDemonHunterOnRealm && charEnum.HasLevel70OnRealm) || canAlwaysCreateDemonHunter;
 
     SendPacket(charEnum.Write());
 }
@@ -912,8 +922,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
         return;
     }
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
-
     m_playerLoading = playerLogin.Guid;
 
     TC_LOG_DEBUG("network", "Character %s logging in", playerLogin.Guid.ToString().c_str());
@@ -1013,7 +1021,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         WorldPackets::System::MOTD motd;
         motd.Text = &sWorld->GetMotd();
         SendPacket(motd.Write());
-        TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
     }
 
     SendSetTimeZoneInformation();
@@ -1027,15 +1034,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             season.CurrentSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
 
         SendPacket(season.Write());
-        TC_LOG_DEBUG("network", "WORLD: Sent PVPSeason");
     }
 
     // send server info
     {
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(GitRevision::GetFullVersion());
-
-        TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());

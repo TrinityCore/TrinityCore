@@ -65,10 +65,8 @@ enum RollMask
 enum LootMethod : uint8
 {
     FREE_FOR_ALL      = 0,
-    ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
-    NEED_BEFORE_GREED = 4,
     PERSONAL_LOOT     = 5
 };
 
@@ -78,7 +76,6 @@ enum PermissionTypes
     GROUP_PERMISSION            = 1,
     MASTER_PERMISSION           = 2,
     RESTRICTED_PERMISSION       = 3,
-    ROUND_ROBIN_PERMISSION      = 4,
     OWNER_PERMISSION            = 5,
     NONE_PERMISSION             = 6
 };

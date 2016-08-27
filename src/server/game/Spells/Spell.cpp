@@ -5100,10 +5100,60 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_APPLY_GLYPH:
             {
-                uint32 glyphId = effect->MiscValue;
-                if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
-                    if (m_caster->HasAura(gp->SpellID))
-                        return SPELL_FAILED_UNIQUE_GLYPH;
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_GLYPH_NO_SPEC;
+
+                Player* caster = m_caster->ToPlayer();
+                if (!caster->HasSpell(m_misc.SpellId))
+                    return SPELL_FAILED_NOT_KNOWN;
+
+                if (uint32 glyphId = effect->MiscValue)
+                {
+                    GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId);
+                    if (!glyphProperties)
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    std::vector<uint32> const* glyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphId);
+                    if (!glyphBindableSpells)
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    if (std::find(glyphBindableSpells->begin(), glyphBindableSpells->end(), m_misc.SpellId) == glyphBindableSpells->end())
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    if (std::vector<uint32> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
+                    {
+                        if (!caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                            return SPELL_FAILED_GLYPH_NO_SPEC;
+
+                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)) == glyphRequiredSpecs->end())
+                            return SPELL_FAILED_GLYPH_INVALID_SPEC;
+                    }
+
+                    uint32 replacedGlyph = 0;
+                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
+                    {
+                        if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(activeGlyphId))
+                        {
+                            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
+                            {
+                                replacedGlyph = activeGlyphId;
+                                break;
+                            }
+                        }
+                    }
+
+                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
+                    {
+                        if (activeGlyphId == replacedGlyph)
+                            continue;
+
+                        if (activeGlyphId == glyphId)
+                            return SPELL_FAILED_UNIQUE_GLYPH;
+
+                        if (sGlyphPropertiesStore.AssertEntry(activeGlyphId)->GlyphExclusiveCategoryID == glyphProperties->GlyphExclusiveCategoryID)
+                            return SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY;
+                    }
+                }
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
@@ -5414,6 +5464,25 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_DONT_REPORT;
                 if (m_caster->GetSpellHistory()->HasCooldown(talent->SpellID))
                     return SPELL_FAILED_CANT_UNTALENT;
+                break;
+            }
+            case SPELL_EFFECT_GIVE_ARTIFACT_POWER:
+            case SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS:
+            {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                Aura* artifactAura = m_caster->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
+                if (!artifactAura)
+                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
+                Item* artifact = m_caster->ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID());
+                if (!artifact)
+                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
+                if (effect->Effect == SPELL_EFFECT_GIVE_ARTIFACT_POWER)
+                {
+                    ArtifactEntry const* artifactEntry = sArtifactStore.LookupEntry(artifact->GetTemplate()->GetArtifactID());
+                    if (!artifactEntry || artifactEntry->ArtifactCategoryID != effect->MiscValue)
+                        return SPELL_FAILED_WRONG_ARTIFACT_EQUIPPED;
+                }
                 break;
             }
             default:
@@ -5882,7 +5951,7 @@ SpellCastResult Spell::CheckRange(bool strict)
 
         if (target && m_caster->isMoving() && target->isMoving() && !m_caster->IsWalking() && !target->IsWalking() &&
             (m_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 5.0f / 3.0f;
+            rangeMod += 8.0f / 3.0f;
     }
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -6207,9 +6276,7 @@ SpellCastResult Spell::CheckItems()
                 ItemTemplate const* proto = targetItem->GetTemplate();
                 for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    if (proto->Effects[e]->SpellID && (
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e]->SpellID && proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE)
                     {
                         isItemUsable = true;
                         break;
@@ -6621,46 +6688,19 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
         return true;
 
     /// @todo shit below shouldn't be here, but it's temporary
-    //Check targets for LOS visibility (except spells without range limitations)
-    switch (effect->Effect)
+    //Check targets for LOS visibility
+    if (losPosition)
+        return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
+    else
     {
-        case SPELL_EFFECT_RESURRECT_NEW:
-            // player far away, maybe his corpse near?
-            if (target != m_caster && !target->IsWithinLOSInMap(m_caster))
-            {
-                if (!m_targets.GetCorpseTargetGUID())
-                    return false;
-
-                Corpse* corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
-                if (!corpse)
-                    return false;
-
-                if (target->GetGUID() != corpse->GetOwnerGUID())
-                    return false;
-
-                if (!corpse->IsWithinLOSInMap(m_caster))
-                    return false;
-            }
-
-            // all ok by some way or another, skip normal check
-            break;
-        default:                                            // normal case
-        {
-            if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
-            else
-            {
-                // Get GO cast coordinates if original caster -> GO
-                WorldObject* caster = NULL;
-                if (m_originalCasterGUID.IsGameObject())
-                    caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
-                if (!caster)
-                    caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster))
-                    return false;
-            }
-            break;
-        }
+        // Get GO cast coordinates if original caster -> GO
+        WorldObject* caster = NULL;
+        if (m_originalCasterGUID.IsGameObject())
+            caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
+        if (!caster)
+            caster = m_caster;
+        if (target != m_caster && !target->IsWithinLOSInMap(caster))
+            return false;
     }
 
     return true;

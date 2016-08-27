@@ -2728,6 +2728,80 @@ public:
     }
 };
 
+class spell_item_artifical_stamina : public SpellScriptLoader
+{
+public:
+    spell_item_artifical_stamina() : SpellScriptLoader("spell_item_artifical_stamina") { }
+
+    class spell_item_artifical_stamina_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_artifical_stamina_AuraScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return spellInfo->GetEffect(EFFECT_1) != nullptr;
+        }
+
+        bool Load() override
+        {
+            return GetOwner()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_artifical_stamina_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_artifical_stamina_AuraScript();
+    }
+};
+
+class spell_item_artifical_damage : public SpellScriptLoader
+{
+public:
+    spell_item_artifical_damage() : SpellScriptLoader("spell_item_artifical_damage") { }
+
+    class spell_item_artifical_damage_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_artifical_damage_AuraScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return spellInfo->GetEffect(EFFECT_1) != nullptr;
+        }
+
+        bool Load() override
+        {
+            return GetOwner()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_artifical_damage_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_artifical_damage_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2798,4 +2872,6 @@ void AddSC_item_spell_scripts()
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
     new spell_item_toy_train_set_pulse();
+    new spell_item_artifical_stamina();
+    new spell_item_artifical_damage();
 }

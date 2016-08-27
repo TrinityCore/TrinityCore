@@ -901,7 +901,7 @@ unsigned /*cbBuffer*/)
     // will return true.
     bool bHandled;
     pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, pSym->ModBase, pSym->TypeIndex,
-        0, pVariable, bHandled, pSym->Name, "", false, true);
+        pVariable, bHandled, pSym->Name, "", false, true);
 
     if (!bHandled)
     {
@@ -934,7 +934,6 @@ char * WheatyExceptionReport::DumpTypeIndex(
 char * pszCurrBuffer,
 DWORD64 modBase,
 DWORD dwTypeIndex,
-unsigned nestingLevel,
 DWORD_PTR offset,
 bool & bHandled,
 const char* Name,
@@ -1022,14 +1021,14 @@ bool logChildren)
                 FormatOutputValue(buffer, btVoid, sizeof(PVOID), (PVOID)offset, sizeof(buffer));
                 symbolDetails.top().Value = buffer;
 
-                if (nestingLevel >= WER_MAX_NESTING_LEVEL)
+                if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                     logChildren = false;
 
                 // no need to log any children since the address is invalid anyway
                 if (address == NULL || address == DWORD_PTR(-1))
                     logChildren = false;
 
-                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                     address, bHandled, Name, addressStr, false, logChildren);
 
                 if (!bHandled)
@@ -1074,19 +1073,19 @@ bool logChildren)
                 switch (innerTypeTag)
                 {
                     case SymTagUDT:
-                        if (nestingLevel >= WER_MAX_NESTING_LEVEL)
+                        if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                             logChildren = false;
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagPointerType:
                         if (Name != NULL && Name[0] != '\0')
                             symbolDetails.top().Name = Name;
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagArrayType:
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     default:
@@ -1100,7 +1099,7 @@ bool logChildren)
                 symbolDetails.top().HasChildren = true;
 
                 BasicType basicType = btNoType;
-                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                     offset, bHandled, Name, "", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
@@ -1222,7 +1221,7 @@ bool logChildren)
         DWORD_PTR dwFinalOffset = offset + dwMemberOffset;
 
         pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase,
-            children.ChildId[i], nestingLevel+1,
+            children.ChildId[i],
             dwFinalOffset, bHandled2, ""/*Name */, "", true, true);
 
         // If the child wasn't a UDT, format it appropriately

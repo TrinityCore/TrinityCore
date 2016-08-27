@@ -956,6 +956,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_REPUTATION,
     PLAYER_LOGIN_QUERY_LOAD_INVENTORY,
+    PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS,
     PLAYER_LOGIN_QUERY_LOAD_ACTIONS,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE,
@@ -971,6 +972,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS,
     PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_OUTFITS,
     PLAYER_LOGIN_QUERY_LOAD_BG_DATA,
+    PLAYER_LOGIN_QUERY_LOAD_GLYPHS,
     PLAYER_LOGIN_QUERY_LOAD_TALENTS,
     PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA,
     PLAYER_LOGIN_QUERY_LOAD_SKILLS,
@@ -1123,15 +1125,17 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem() : ItemId(0), ItemEntry(0), ItemRandomPropertyId(0), ItemSuffixFactor(0), ItemUpgradeId(0) { }
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, uint32 upgradeId, std::vector<uint32> const& bonuses)
+    VoidStorageItem() : ItemId(0), ItemEntry(0), ItemRandomPropertyId(0), ItemSuffixFactor(0), ItemUpgradeId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0) { }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor,
+        uint32 upgradeId, uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, std::vector<uint32> const& bonuses)
         : ItemId(id), ItemEntry(entry), CreatorGuid(creator), ItemRandomPropertyId(randomPropertyId),
-        ItemSuffixFactor(suffixFactor), ItemUpgradeId(upgradeId)
+        ItemSuffixFactor(suffixFactor), ItemUpgradeId(upgradeId), FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel)
     {
         BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end());
     }
     VoidStorageItem(VoidStorageItem&& vsi) : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), ItemRandomPropertyId(vsi.ItemRandomPropertyId),
-        ItemSuffixFactor(vsi.ItemSuffixFactor), ItemUpgradeId(vsi.ItemUpgradeId), BonusListIDs(std::move(vsi.BonusListIDs)) { }
+        ItemSuffixFactor(vsi.ItemSuffixFactor), ItemUpgradeId(vsi.ItemUpgradeId), FixedScalingLevel(vsi.FixedScalingLevel),
+        ArtifactKnowledgeLevel(vsi.ArtifactKnowledgeLevel), BonusListIDs(std::move(vsi.BonusListIDs)) { }
 
     uint64 ItemId;
     uint32 ItemEntry;
@@ -1139,6 +1143,8 @@ struct VoidStorageItem
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
     uint32 ItemUpgradeId;
+    uint32 FixedScalingLevel;
+    uint32 ArtifactKnowledgeLevel;
     std::vector<int32> BonusListIDs;
 };
 
@@ -1168,21 +1174,22 @@ static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60,
 static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
 static uint32 const DHTalentRowLevels[MAX_TALENT_TIERS] = { 99, 100, 102, 104, 106, 108, 110 };
 
-struct TC_GAME_API PlayerTalentInfo
+struct TC_GAME_API SpecializationInfo
 {
-    PlayerTalentInfo() : ResetTalentsCost(0), ResetTalentsTime(0), PrimarySpecialization(0), ActiveGroup(0)
+    SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), PrimarySpecialization(0), ActiveGroup(0)
     {
     }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
+    std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
     uint32 PrimarySpecialization;
     uint8 ActiveGroup;
 
 private:
-    PlayerTalentInfo(PlayerTalentInfo const&) = delete;
-    PlayerTalentInfo& operator=(PlayerTalentInfo const&) = delete;
+    SpecializationInfo(SpecializationInfo const&) = delete;
+    SpecializationInfo& operator=(SpecializationInfo const&) = delete;
 };
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
@@ -1317,8 +1324,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                    STORAGE SYSTEM                 ***/
         /*********************************************************/
 
-        void SetVirtualItemSlot(uint8 i, Item* item);
-        void SetSheath(SheathState sheathed) override;             // overwrite Unit version
         uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
@@ -1764,14 +1769,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetLootSpecId() const { return GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID); }
 
         // Talents
-        uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
-        void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
-        time_t GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
-        void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint32 GetPrimarySpecialization() const { return _talentMgr->PrimarySpecialization; }
-        void SetPrimarySpecialization(uint32 spec) { _talentMgr->PrimarySpecialization = spec; }
-        uint8 GetActiveTalentGroup() const { return _talentMgr->ActiveGroup; }
-        void SetActiveTalentGroup(uint8 group){ _talentMgr->ActiveGroup = group; }
+        uint32 GetTalentResetCost() const { return _specializationInfo.ResetTalentsCost; }
+        void SetTalentResetCost(uint32 cost)  { _specializationInfo.ResetTalentsCost = cost; }
+        time_t GetTalentResetTime() const { return _specializationInfo.ResetTalentsTime; }
+        void SetTalentResetTime(time_t time_)  { _specializationInfo.ResetTalentsTime = time_; }
+        uint32 GetPrimarySpecialization() const { return _specializationInfo.PrimarySpecialization; }
+        void SetPrimarySpecialization(uint32 spec) { _specializationInfo.PrimarySpecialization = spec; }
+        uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
+        void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
 
         bool ResetTalents(bool noCost = false);
@@ -1788,8 +1793,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Dual Spec
         void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
-        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_talentMgr->Talents[spec]; }
-        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_talentMgr->Talents[spec]; }
+        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
+        PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
+        std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
+        std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
         uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
@@ -2152,6 +2159,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool formChange = false);
         void UpdateEquipSpellsAtFormChange();
         void UpdateItemSetAuras(bool formChange = false);
+        void ApplyArtifactPowers(Item* item, bool apply);
+        void ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply);
 
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
         void CastItemUseSpell(Item* item, SpellCastTargets const& targets, ObjectGuid castCount, int32* misc);
@@ -2517,8 +2526,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
+        void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
-        void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
+        void _LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
         void _LoadMail();
@@ -2540,6 +2550,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadEquipmentSets(PreparedQueryResult result);
         void _LoadTransmogOutfits(PreparedQueryResult result);
         void _LoadBGData(PreparedQueryResult result);
+        void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
@@ -2563,6 +2574,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveSpells(SQLTransaction& trans);
         void _SaveEquipmentSets(SQLTransaction& trans);
         void _SaveBGData(SQLTransaction& trans);
+        void _SaveGlyphs(SQLTransaction& trans) const;
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans) const;
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
@@ -2643,7 +2655,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_map<uint32 /*overridenSpellId*/, std::unordered_set<uint32> /*newSpellId*/> m_overrideSpells;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
-        PlayerTalentInfo* _talentMgr;
+        SpecializationInfo _specializationInfo;
 
         ActionButtonList m_actionButtons;
 

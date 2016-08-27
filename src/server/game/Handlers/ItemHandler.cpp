@@ -575,8 +575,6 @@ void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LIST_INVENTORY");
-
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
@@ -1046,9 +1044,9 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
     //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
 
-    //remove ALL enchants
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
+    //remove ALL mods - gem can change item level
+    if (itemTarget->IsEquipped())
+        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), false);
 
     for (uint16 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
@@ -1057,15 +1055,24 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
             itemTarget->SetGem(i, &gemData[i]);
 
             if (gemProperties[i] && gemProperties[i]->EnchantID)
-                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
 
             uint32 gemCount = 1;
             _player->DestroyItemCount(gems[i], gemCount, true);
         }
     }
 
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), true);
+    if (itemTarget->IsEquipped())
+        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), true);
+
+    if (Item* childItem = _player->GetChildItemByGuid(itemTarget->GetChildItem()))
+    {
+        if (childItem->IsEquipped())
+            _player->_ApplyItemMods(childItem, childItem->GetSlot(), false);
+        childItem->CopyArtifactDataFromParent(itemTarget);
+        if (childItem->IsEquipped())
+            _player->_ApplyItemMods(childItem, childItem->GetSlot(), true);
+    }
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...

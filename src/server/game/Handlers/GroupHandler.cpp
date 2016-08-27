@@ -348,8 +348,16 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    if (packet.LootMethod > PERSONAL_LOOT)
-        return;
+    switch (packet.LootMethod)
+    {
+        case FREE_FOR_ALL:
+        case MASTER_LOOT:
+        case GROUP_LOOT:
+        case PERSONAL_LOOT:
+            break;
+        default:
+            return;
+    }
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
         return;

@@ -55,6 +55,40 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ArmorLocation.db2
     PrepareStatement(HOTFIX_SEL_ARMOR_LOCATION, "SELECT ID, Modifier1, Modifier2, Modifier3, Modifier4, Modifier5 FROM armor_location ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // Artifact.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT, "SELECT ID, Name, BarConnectedColor, BarDisconnectedColor, TitleColor, ClassUiTextureKitID, SpecID, "
+        "ArtifactCategoryID, Flags FROM artifact ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT, "SELECT ID, Name_lang FROM artifact_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactAppearance.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT Name, SwatchColor, ModelDesaturation, ModelAlpha, ShapeshiftDisplayID, "
+        "ArtifactAppearanceSetID, PlayerConditionID, Unknown, DisplayIndex, AppearanceModID, Flags, ModifiesShapeshiftFormDisplay, ID, "
+        "ItemAppearanceID, AltItemAppearanceID FROM artifact_appearance ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE, "SELECT ID, Name_lang FROM artifact_appearance_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactAppearanceSet.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT Name, Name2, UiCameraID, AltHandUICameraID, ArtifactID, DisplayIndex, "
+        "AttachmentPoint, Flags, ID FROM artifact_appearance_set ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ARTIFACT_APPEARANCE_SET, "SELECT ID, Name_lang, Name2_lang FROM artifact_appearance_set_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ArtifactCategory.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_CATEGORY, "SELECT ID, ArtifactKnowledgeCurrencyID, ArtifactKnowledgeMultiplierCurveID FROM artifact_category"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPower.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER, "SELECT PosX, PosY, ArtifactID, Flags, MaxRank, ID, RelicType FROM artifact_power ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPowerLink.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_LINK, "SELECT ID, FromArtifactPowerID, ToArtifactPowerID FROM artifact_power_link ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactPowerRank.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_RANK, "SELECT ID, SpellID, Value, ArtifactPowerID, Unknown, Rank FROM artifact_power_rank"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ArtifactQuestXp.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_QUEST_XP, "SELECT ID, Exp1, Exp2, Exp3, Exp4, Exp5, Exp6, Exp7, Exp8, Exp9, Exp10 FROM artifact_quest_xp"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // AuctionHouse.db2
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE locale = ?", CONNECTION_SYNCH);
@@ -183,6 +217,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "CategoryID, SpellCategory, Quality, SpellWeight FROM currency_types ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CURRENCY_TYPES, "SELECT ID, Name_lang, Description_lang FROM currency_types_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // Curve.db2
+    PrepareStatement(HOTFIX_SEL_CURVE, "SELECT ID, Type, Unused FROM curve ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CurvePoint.db2
     PrepareStatement(HOTFIX_SEL_CURVE_POINT, "SELECT ID, X, Y, CurveID, `Index` FROM curve_point ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -307,9 +344,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GemProperties.db2
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, Type, EnchantID, MinItemLevel FROM gem_properties ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GlyphBindableSpell.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GlyphProperties.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_PROPERTIES, "SELECT ID, SpellID, SpellIconID, Type, GlyphExclusiveCategoryID FROM glyph_properties"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GlyphRequiredSpec.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_REQUIRED_SPEC, "SELECT ID, GlyphPropertiesID, ChrSpecializationID FROM glyph_required_spec ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GuildColorBackground.db2
     PrepareStatement(HOTFIX_SEL_GUILD_COLOR_BACKGROUND, "SELECT ID, Red, Green, Blue FROM guild_color_background ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -374,16 +417,19 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ItemBonus.db2
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS, "SELECT ID, Value1, Value2, BonusListID, Type, `Index` FROM item_bonus ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemBonusListLevelDelta.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA, "SELECT Delta, ID FROM item_bonus_list_level_delta ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemBonusTreeNode.db2
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS_TREE_NODE, "SELECT ID, BonusTreeID, SubTreeID, BonusListID, BonusTreeModID FROM item_bonus_tree_node"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemChildEquipment.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ItemID, AltItemID, AltEquipmentSlot FROM item_child_equipment ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemClass.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, PriceMod, Name, Flags FROM item_class ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_CLASS, "SELECT ID, Name_lang FROM item_class_locale WHERE locale = ?", CONNECTION_SYNCH);
-
-    // ItemChildEquipment.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_CHILD_EQUIPMENT, "SELECT ID, ItemID, AltItemID, AltEquipmentSlot FROM item_child_equipment ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemId FROM item_currency_cost ORDER BY ID DESC", CONNECTION_SYNCH);

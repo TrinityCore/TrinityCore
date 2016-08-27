@@ -92,7 +92,9 @@ struct TC_GAME_API CreatureTemplate
     int16   minlevel;
     int16   maxlevel;
     int32   expansion;
-    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
+    uint32  HealthScalingExpansion;
+    uint32  RequiredExpansion;
+    uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;
@@ -356,6 +358,9 @@ struct CreatureAddon
     uint32 bytes1;
     uint32 bytes2;
     uint32 emote;
+    uint16 aiAnimKit;
+    uint16 movementAnimKit;
+    uint16 meleeAnimKit;
     std::vector<uint32> auras;
 };
 

@@ -775,6 +775,7 @@ enum OpcodeServer : uint32
     SMSG_ARTIFACT_APPEARANCE_CHANGED                  = 0x27E3,
     SMSG_ARTIFACT_FORGE_OPENED                        = 0x27E1,
     SMSG_ARTIFACT_POWERS_UPDATED                      = 0x27E2,
+    SMSG_ARTIFACT_RESPEC_CONFIRM                      = 0x27E4,
     SMSG_ARTIFACT_XP_GAIN                             = 0x2823,
     SMSG_ATTACKER_STATE_UPDATE                        = 0x27CE,
     SMSG_ATTACK_START                                 = 0x2669,
@@ -1693,7 +1694,7 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x2BBA,
 
     // Opcodes that are not generated automatically
-    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0xBADD, // no client handler
+    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x25C3, // no client handler
     SMSG_ITEM_UPGRADE_RESULT                          = 0xBADD, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x3052,
     SMSG_MULTIPLE_PACKETS                             = 0x3051,
@@ -1815,7 +1816,7 @@ class OpcodeTable
         }
 
     private:
-        template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
+        template<typename Handler, Handler HandlerFunction>
         void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
 
         void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);

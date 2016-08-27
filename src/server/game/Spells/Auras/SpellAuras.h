@@ -83,11 +83,11 @@ class TC_GAME_API AuraApplication
         uint32 GetEffectsToApply() const { return _effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
-        AuraRemoveMode GetRemoveMode() const {return _removeMode;}
+        AuraRemoveMode GetRemoveMode() const { return _removeMode; }
 
-        void SetNeedClientUpdate() { _needClientUpdate = true;}
-        bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& data, bool remove) const;
+        void SetNeedClientUpdate();
+        bool IsNeedClientUpdate() const { return _needClientUpdate; }
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
 };
 
@@ -201,7 +201,6 @@ class TC_GAME_API Aura
 
         bool CanBeSaved() const;
         bool IsRemoved() const { return m_isRemoved; }
-        bool CanBeSentToClient() const;
         // Single cast aura helpers
         bool IsSingleTarget() const {return m_isSingleTarget; }
         bool IsSingleTargetWith(Aura const* aura) const;

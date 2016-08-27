@@ -109,7 +109,7 @@ enum ItemSpelltriggerType
      * other hand the item is destroyed if the aura is removed ("removed on
      * death" of spell 57348 makes me think so)
      */
-    ITEM_SPELLTRIGGER_ON_NO_DELAY_USE = 5,                  // no equip cooldown
+    ITEM_SPELLTRIGGER_ON_OBTAIN       = 5,
     ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in item_template.spell_2 with spell_id with SPELL_GENERIC_LEARN in spell_1
 };
 
@@ -259,7 +259,8 @@ enum ItemFlags3
     ITEM_FLAG3_UNK12                       = 0x00008000,
     ITEM_FLAG3_UNK13                       = 0x00010000,
     ITEM_FLAG3_UNK14                       = 0x00020000,
-    ITEM_FLAG3_UNK15                       = 0x00040000
+    ITEM_FLAG3_UNK15                       = 0x00040000,
+    ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED     = 0x00080000
 };
 
 enum ItemFlagsCustom
@@ -691,8 +692,11 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21
 
-#define MIN_ITEM_LEVEL 1
-#define MAX_ITEM_LEVEL 1000
+enum ItemLevelConstants : uint32
+{
+    MIN_ITEM_LEVEL = 1,
+    MAX_ITEM_LEVEL = 1300
+};
 
 class Player;
 struct ChrSpecializationEntry;
@@ -754,8 +758,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetItemLimitCategory() const { return ExtendedData->ItemLimitCategory; }
     HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
     float  GetStatScalingFactor() const { return ExtendedData->StatScalingFactor; }
-    uint32 GetBaseArmor() const { return GetArmor(ExtendedData->ItemLevel); }
-    void GetBaseDamage(float& minDamage, float& maxDamage) const { GetDamage(ExtendedData->ItemLevel, minDamage, maxDamage); }
+    uint8 GetArtifactID() const { return ExtendedData->ArtifactID; }
 
     uint32 MaxDurability;
     std::vector<ItemEffectEntry const*> Effects;

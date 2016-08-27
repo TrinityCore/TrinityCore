@@ -42,17 +42,13 @@ namespace
     struct DisableData
     {
         uint8 flags;
-        std::set<uint32> params[2];                             // params0, params1
+        std::unordered_set<uint32> params[2];                   // params0, params1
     };
 
     // single disables here with optional data
-    typedef std::map<uint32, DisableData> DisableTypeMap;
-    // global disable map by source
-    typedef std::map<DisableType, DisableTypeMap> DisableMap;
+    typedef std::unordered_map<uint32, DisableData> DisableTypeMap;
 
-    DisableMap m_DisableMap;
-
-    uint8 MAX_DISABLE_TYPES = 8;
+    std::array<DisableTypeMap, MAX_DISABLE_TYPES> m_DisableMap;
 }
 
 void LoadDisables()
@@ -60,10 +56,8 @@ void LoadDisables()
     uint32 oldMSTime = getMSTime();
 
     // reload case
-    for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
-        itr->second.clear();
-
-    m_DisableMap.clear();
+    for (std::size_t i = 0; i < m_DisableMap.size(); ++i)
+        m_DisableMap[i].clear();
 
     QueryResult result = WorldDatabase.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
 
@@ -79,7 +73,7 @@ void LoadDisables()
     do
     {
         fields = result->Fetch();
-        DisableType type = DisableType(fields[0].GetUInt32());
+        uint32 type = fields[0].GetUInt32();
         if (type >= MAX_DISABLE_TYPES)
         {
             TC_LOG_ERROR("sql.sql", "Invalid type %u specified in `disables` table, skipped.", type);
@@ -184,7 +178,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Disable flags specified for outdoor PvP %u, useless data.", entry);
                 break;
             case DISABLE_TYPE_CRITERIA:
-                if (!sCriteriaMgr->GetCriteria(entry))
+                if (!sCriteriaStore.LookupEntry(entry))
                 {
                     TC_LOG_ERROR("sql.sql", "Criteria entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
@@ -237,7 +231,7 @@ void LoadDisables()
                 break;
         }
 
-        m_DisableMap[type].insert(DisableTypeMap::value_type(entry, data));
+        m_DisableMap[type][entry] = std::move(data);
         ++total_count;
     }
     while (result->NextRow());
@@ -249,7 +243,7 @@ void CheckQuestDisables()
 {
     uint32 oldMSTime = getMSTime();
 
-    uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
+    std::size_t count = m_DisableMap[DISABLE_TYPE_QUEST].size();
     if (!count)
     {
         TC_LOG_INFO("server.loading", ">> Checked 0 quest disables.");
@@ -257,9 +251,9 @@ void CheckQuestDisables()
     }
 
     // check only quests, rest already done at startup
-    for (DisableTypeMap::iterator itr = m_DisableMap[DISABLE_TYPE_QUEST].begin(); itr != m_DisableMap[DISABLE_TYPE_QUEST].end();)
+    for (auto itr = m_DisableMap[DISABLE_TYPE_QUEST].begin(); itr != m_DisableMap[DISABLE_TYPE_QUEST].end();)
     {
-        const uint32 entry = itr->first;
+        uint32 entry = itr->first;
         if (!sObjectMgr->GetQuestTemplate(entry))
         {
             TC_LOG_ERROR("sql.sql", "Quest entry %u from `disables` doesn't exist, skipped.", entry);
@@ -271,7 +265,7 @@ void CheckQuestDisables()
         ++itr;
     }
 
-    TC_LOG_INFO("server.loading", ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Checked " SZFMTD " quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
@@ -296,7 +290,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 {
                     if (spellFlags & SPELL_DISABLE_MAP)
                     {
-                        std::set<uint32> const& mapIds = itr->second.params[0];
+                        std::unordered_set<uint32> const& mapIds = itr->second.params[0];
                         if (mapIds.find(unit->GetMapId()) != mapIds.end())
                             return true;                                        // Spell is disabled on current map
 
@@ -308,7 +302,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
 
                     if (spellFlags & SPELL_DISABLE_AREA)
                     {
-                        std::set<uint32> const& areaIds = itr->second.params[1];
+                        std::unordered_set<uint32> const& areaIds = itr->second.params[1];
                         if (areaIds.find(unit->GetAreaId()) != areaIds.end())
                             return true;                                        // Spell is disabled in this area
                         return false;                                           // Spell is disabled in another area, but not this one, return false
@@ -367,6 +361,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             return true;
         case DISABLE_TYPE_VMAP:
            return (flags & itr->second.flags) != 0;
+        default:
+            break;
     }
 
     return false;

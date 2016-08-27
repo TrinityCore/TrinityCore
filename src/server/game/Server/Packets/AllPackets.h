@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "AchievementPackets.h"
+#include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"

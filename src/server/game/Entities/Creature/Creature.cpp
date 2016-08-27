@@ -2272,6 +2272,10 @@ bool Creature::LoadCreaturesAddon()
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
+    SetAIAnimKitId(cainfo->aiAnimKit);
+    SetMovementAnimKitId(cainfo->movementAnimKit);
+    SetMeleeAnimKitId(cainfo->meleeAnimKit);
+
     //Load Path
     if (cainfo->path_id != 0)
         m_path_id = cainfo->path_id;

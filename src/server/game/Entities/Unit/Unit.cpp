@@ -537,24 +537,18 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
-AuraApplication * Unit::GetVisibleAura(uint8 slot) const
+void Unit::SetVisibleAura(AuraApplication* aurApp)
 {
-    VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
-    if (itr != m_visibleAuras.end())
-        return itr->second;
-    return 0;
+    m_visibleAuras.insert(aurApp);
+    m_visibleAurasToUpdate.insert(aurApp);
+    UpdateAuraForGroup();
 }
 
-void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
+void Unit::RemoveVisibleAura(AuraApplication* aurApp)
 {
-    m_visibleAuras[slot]=aur;
-    UpdateAuraForGroup(slot);
-}
-
-void Unit::RemoveVisibleAura(uint8 slot)
-{
-    m_visibleAuras.erase(slot);
-    UpdateAuraForGroup(slot);
+    m_visibleAuras.erase(aurApp);
+    m_visibleAurasToUpdate.erase(aurApp);
+    UpdateAuraForGroup();
 }
 
 void Unit::UpdateInterruptMask()
@@ -2064,7 +2058,17 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
     float maxDamage = 0.0f;
 
     if (normalized || !addTotalPct)
+    {
         CalculateMinMaxDamage(attType, normalized, addTotalPct, minDamage, maxDamage);
+        if (IsInFeralForm() && attType == BASE_ATTACK)
+        {
+            float minOffhandDamage = 0.0f;
+            float maxOffhandDamage = 0.0f;
+            CalculateMinMaxDamage(OFF_ATTACK, normalized, addTotalPct, minOffhandDamage, maxOffhandDamage);
+            minDamage += minOffhandDamage;
+            maxDamage += maxOffhandDamage;
+        }
+    }
     else
     {
         switch (attType)
@@ -2076,6 +2080,11 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
             case BASE_ATTACK:
                 minDamage = GetFloatValue(UNIT_FIELD_MINDAMAGE);
                 maxDamage = GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                if (IsInFeralForm())
+                {
+                    minDamage += GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
+                    maxDamage += GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE);
+                }
                 break;
             case OFF_ATTACK:
                 minDamage = GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
@@ -2689,9 +2698,10 @@ void Unit::_UpdateSpells(uint32 time)
             ++i;
     }
 
-    for (VisibleAuraMap::iterator itr = m_visibleAuras.begin(); itr != m_visibleAuras.end(); ++itr)
-        if (itr->second->IsNeedClientUpdate())
-            itr->second->ClientUpdate();
+    for (AuraApplication* visibleAura : m_visibleAurasToUpdate)
+        visibleAura->ClientUpdate();
+
+    m_visibleAurasToUpdate.clear();
 
     _DeleteRemovedAuras();
 
@@ -8038,6 +8048,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 TakenTotalCasterMod += (float((*i)->GetAmount()));
         }
 
+        // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
+        // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
+        TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
+
         // From caster spells
         AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER);
         for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
@@ -10684,7 +10698,7 @@ void Unit::SetShapeshiftForm(ShapeshiftForm form)
 bool Unit::IsInFeralForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM;
+    return form == FORM_CAT_FORM || form == FORM_BEAR_FORM || form == FORM_DIRE_BEAR_FORM || form == FORM_GHOST_WOLF;
 }
 
 bool Unit::IsInDisallowedMountForm() const
@@ -10699,7 +10713,7 @@ bool Unit::IsInDisallowedMountForm() const
         if (!shapeshift)
             return true;
 
-        if (!(shapeshift->Flags & 0x1))
+        if (!(shapeshift->Flags & SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT))
             return true;
     }
 
@@ -12547,10 +12561,8 @@ uint32 Unit::GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectTyp
     return CastingTime;
 }
 
-void Unit::UpdateAuraForGroup(uint8 slot)
+void Unit::UpdateAuraForGroup()
 {
-    if (slot >= MAX_AURAS)                        // slot not found, return
-        return;
     if (Player* player = ToPlayer())
     {
         if (player->GetGroup())
@@ -12600,14 +12612,17 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
 
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 {
-    if (!normalized || GetTypeId() != TYPEID_PLAYER)
-        return float(GetAttackTime(attType)) / 1000.0f;
+    if (GetTypeId() != TYPEID_PLAYER)
+        return GetAttackTime(attType) / 1000.0f;
 
-    Item* Weapon = ToPlayer()->GetWeaponForAttack(attType, true);
-    if (!Weapon)
+    Item* weapon = ToPlayer()->GetWeaponForAttack(attType, true);
+    if (!normalized)
+        return (weapon ? weapon->GetTemplate()->GetDelay() : BASE_ATTACK_TIME) / 1000.0f;
+
+    if (!weapon)
         return 2.4f;                                         // fist attack
 
-    switch (Weapon->GetTemplate()->GetInventoryType())
+    switch (weapon->GetTemplate()->GetInventoryType())
     {
         case INVTYPE_2HWEAPON:
             return 3.3f;
@@ -12619,7 +12634,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
         default:
-            return Weapon->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
+            return weapon->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
     }
 }
 
@@ -14071,7 +14086,7 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
     //calculate miss chance
     float missChance = victim->GetUnitMissChance(attType);
 
-    if (!spellId && haveOffhandWeapon())
+    if (!spellId && haveOffhandWeapon() && !IsInFeralForm())
         missChance += 19;
 
     // Calculate hit chance
@@ -14221,6 +14236,12 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
+        if (Aura* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
+            if (Item* artifact = ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
+                if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
+                    if (ShapeshiftForm(artifactAppearance->ModifiesShapeshiftFormDisplay) == form)
+                        return artifactAppearance->ShapeshiftDisplayID;
+
         switch (form)
         {
             case FORM_CAT_FORM:
@@ -16180,4 +16201,9 @@ void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* 
 {
     CombatLogSender notifier(this, combatLog, GetVisibilityRange());
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+}
+
+bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplication* right) const
+{
+    return left->GetSlot() < right->GetSlot();
 }
