@@ -2521,6 +2521,14 @@ struct SummonPropertiesEntry
     uint32 Flags;
 };
 
+#define TACTKEY_SIZE 16
+
+struct TactKeyEntry
+{
+    uint32 ID;
+    uint8 Key[TACTKEY_SIZE];
+};
+
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
 
