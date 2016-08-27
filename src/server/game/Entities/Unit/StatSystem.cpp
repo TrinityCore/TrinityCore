@@ -1426,7 +1426,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
     //  Pet's base damage changes depending on happiness
-    if (IsHunterPet() && attType == BASE_ATTACK)
+    if (IsHunterPet())
     {
         switch (ToPet()->GetHappinessState())
         {

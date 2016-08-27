@@ -77,6 +77,8 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             break;
         default:
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
@@ -237,11 +239,12 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
             return true;                                    // not check correctness node indexes
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
             if (equipped_item.item_quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) contains an unknown quality state value in value1 (%u), ignored.",
-                    criteria->ID, criteria->Type, dataType, equipped_item.item_quality);
+                TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type %s (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                    criteria->ID, criteria->Type, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM ? "ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM" : "ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY"), dataType, equipped_item.item_quality);
                 return false;
             }
             return true;
@@ -390,7 +393,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             }
             return instance->CheckAchievementCriteriaMeet(criteria_id, source, target, miscvalue1);
         }
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscvalue1);
             if (!pProto)
@@ -417,6 +420,13 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             if (CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(known_title.title_id))
                 return source->HasTitle(titleInfo->bit_index);
             return false;
+        }
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+        {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscvalue1);
+            if (!pProto)
+                return false;
+            return pProto->Quality == item.item_quality;
         }
         default:
             break;
