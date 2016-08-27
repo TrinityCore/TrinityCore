@@ -576,3 +576,19 @@ WorldPacket const* WorldPackets::Quest::DailyQuestsReset::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::WorldQuestUpdate::Write()
+{
+    _worldPacket << uint32(WorldQuestUpdates.size());
+
+    for (WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
+    {
+        _worldPacket << int32(worldQuestUpdate.LastUpdate);
+        _worldPacket << uint32(worldQuestUpdate.QuestID);
+        _worldPacket << uint32(worldQuestUpdate.Timer);
+        _worldPacket << int32(worldQuestUpdate.VariableID);
+        _worldPacket << int32(worldQuestUpdate.Value);
+    }
+
+    return &_worldPacket;
+}
