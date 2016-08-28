@@ -80,6 +80,7 @@ enum eTradeskill
     GOSSIP_SENDER_SEC_STABLEMASTER      = 10
 };
 
+class Creature;
 void ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB
 void AddGossipItemFor(Player* player, uint32 icon, const char* text, uint32 sender, uint32 action);
