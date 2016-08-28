@@ -1014,7 +1014,7 @@ CREATE TABLE `graveyard_zone` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `GhostZone` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Faction` smallint(5) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`,`ghost_zone`)
+  PRIMARY KEY (`id`,`GhostZone`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Trigger System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
