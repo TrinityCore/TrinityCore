@@ -14891,7 +14891,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         {
             if (quest->RequiredItemCount[i] > 0 && (itemTemplate->Bonding == BIND_QUEST_ITEM || itemTemplate->Bonding == BIND_QUEST_ITEM1))
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true, true);
-            else 
+            else
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true, true);
         }
     }
