@@ -1943,8 +1943,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
 
-        uint32 GetSpellByProto(ItemTemplate* proto);
-
         float GetHealthBonusFromStamina();
         float GetManaBonusFromIntellect();
 
@@ -2464,7 +2462,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetAchievementPoints() const;
         bool HasAchieved(uint32 achievementId) const;
         void ResetAchievements();
-        void CheckAllAchievementCriteria();
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
