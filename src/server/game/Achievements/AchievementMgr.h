@@ -71,7 +71,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // used on 3.3.5a branch
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23, // title_id                     known (pvp) title, values from dbc
     ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT          = 24, // game_event_id  0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25,  // item_quality
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25, // item_quality
 
     MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE
 };
@@ -150,7 +150,7 @@ struct AchievementCriteriaData
             uint32 max_score;
         } bg_loss_team_score;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT   = 18 (no data)
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM    = 19
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM   = 19
         struct
         {
             uint32 item_level;
@@ -166,16 +166,16 @@ struct AchievementCriteriaData
         {
             uint32 title_id;
         } known_title;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 23
-        struct
-        {
-            uint32 item_quality;
-        } item;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT           = 24
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT        = 24
         struct
         {
             uint32 id;
         } game_event;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 25
+        struct
+        {
+            uint32 item_quality;
+        } item;
         // raw
         struct
         {
