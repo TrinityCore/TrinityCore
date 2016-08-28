@@ -316,13 +316,11 @@ class boss_professor_putricide : public CreatureScript
                     case NPC_GAS_CLOUD:
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
-                        summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_VOLATILE_OOZE:
                         // no possible aura seen in sniff adding the aurastate
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
-                        summon->CastSpell(summon, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_CHOKING_GAS_BOMB:
@@ -716,15 +714,18 @@ class boss_professor_putricide : public CreatureScript
 class npc_putricide_oozeAI : public ScriptedAI
 {
     public:
-        npc_putricide_oozeAI(Creature* creature, uint32 hitTargetSpellId) : ScriptedAI(creature),
-            _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0)
-        {
-        }
+        npc_putricide_oozeAI(Creature* creature, uint32 auraSpellId, uint32 hitTargetSpellId) : ScriptedAI(creature),
+            _auraSpellId(auraSpellId), _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0) { }
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (!_newTargetSelectTimer && spell->Id == _hitTargetSpellId)
                 _newTargetSelectTimer = 1000;
+        }
+
+        void Reset() override
+        {
+            DoCastAOE(_auraSpellId, true);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
@@ -761,6 +762,7 @@ class npc_putricide_oozeAI : public ScriptedAI
         virtual void CastMainSpell() = 0;
 
     private:
+        uint32 _auraSpellId;
         uint32 _hitTargetSpellId;
         uint32 _newTargetSelectTimer;
 };
@@ -772,9 +774,7 @@ class npc_volatile_ooze : public CreatureScript
 
         struct npc_volatile_oozeAI : public npc_putricide_oozeAI
         {
-            npc_volatile_oozeAI(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_OOZE_ERUPTION)
-            {
-            }
+            npc_volatile_oozeAI(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_OOZE_ERUPTION_SEARCH_PERIODIC, SPELL_OOZE_ERUPTION) { }
 
             void CastMainSpell() override
             {
@@ -795,7 +795,7 @@ class npc_gas_cloud : public CreatureScript
 
         struct npc_gas_cloudAI : public npc_putricide_oozeAI
         {
-            npc_gas_cloudAI(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_EXPUNGED_GAS)
+            npc_gas_cloudAI(Creature* creature) : npc_putricide_oozeAI(creature, SPELL_GASEOUS_BLOAT_PROC, SPELL_EXPUNGED_GAS)
             {
                 _newTargetSelectTimer = 0;
             }
@@ -1029,7 +1029,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                         break;
                 }
 
-                GetCaster()->CastSpell(target, uint32(GetSpellInfo()->GetEffect(stage)->CalcValue()), true, NULL, NULL, GetCaster()->GetGUID());
+                GetCaster()->CastSpell(target, uint32(GetSpellInfo()->GetEffect(stage)->CalcValue()), true);
             }
 
             void Register() override
