@@ -87,8 +87,8 @@ inline void AddGossipItemFor(Player* player, uint32 icon, const char* text, uint
 inline void AddGossipItemFor(Player* player, uint32 icon, const char* text, uint32 sender, uint32 action, const char* popupText, uint32 popupMoney, bool coded) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded); }
 // Uses gossip item info from DB
 inline void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(gossipMenuID, gossipMenuItemID, sender, action); }
-inline void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature) { if (creature) SendGossipMenuFor(player, npcTextID, creature->GetGUID()); }
 inline void SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const& guid) { player->PlayerTalkClass->SendGossipMenu(npcTextID, guid); }
+inline void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature) { if (creature) SendGossipMenuFor(player, npcTextID, creature->GetGUID()); }
 inline void CloseGossipMenuFor(Player* player) { player->PlayerTalkClass->SendCloseGossip(); }
 
 // Defined fuctions to use with player.
