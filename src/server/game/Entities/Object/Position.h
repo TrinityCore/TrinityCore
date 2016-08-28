@@ -31,6 +31,8 @@ struct TC_GAME_API Position
 
     Position(Position const& loc) { Relocate(loc); }
 
+    Position(G3D::Vector3 const& vect);
+
     struct PositionXYStreamer
     {
         explicit PositionXYStreamer(Position& pos) : Pos(&pos) { }
