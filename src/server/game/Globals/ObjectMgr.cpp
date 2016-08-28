@@ -65,7 +65,7 @@ std::string GetScriptsTableNameByType(ScriptsType type)
 
 ScriptMapMap* GetScriptsMapByType(ScriptsType type)
 {
-    ScriptMapMap* res = NULL;
+    ScriptMapMap* res = nullptr;
     switch (type)
     {
         case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
@@ -179,7 +179,7 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang)
             return &lang_description[i];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clickee) const
@@ -188,7 +188,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     if (!playerClicker)
         return true;
 
-    Unit const* summoner = NULL;
+    Unit const* summoner = nullptr;
     // Check summoners for party
     if (clickee->IsSummon())
         summoner = clickee->ToTempSummon()->GetSummoner();
@@ -229,9 +229,9 @@ ObjectMgr::ObjectMgr():
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
     {
-        _playerClassInfo[i] = NULL;
+        _playerClassInfo[i] = nullptr;
         for (uint8 j = 0; j < MAX_RACES; ++j)
-            _playerInfo[j][i] = NULL;
+            _playerInfo[j][i] = nullptr;
     }
 }
 
@@ -807,7 +807,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
 
     // used later for scale
-    CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
+    CreatureDisplayInfoEntry const* displayScaleEntry = nullptr;
 
     if (cInfo->Modelid1)
     {
@@ -1147,41 +1147,41 @@ void ObjectMgr::LoadGameObjectAddons()
     TC_LOG_INFO("server.loading", ">> Loaded %u gameobject addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GameObjectAddon const* ObjectMgr::GetGameObjectAddon(ObjectGuid::LowType lowguid)
+GameObjectAddon const* ObjectMgr::GetGameObjectAddon(ObjectGuid::LowType lowguid) const
 {
     GameObjectAddonContainer::const_iterator itr = _gameObjectAddonStore.find(lowguid);
     if (itr != _gameObjectAddonStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
-CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType lowguid)
+CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType lowguid) const
 {
     CreatureAddonContainer::const_iterator itr = _creatureAddonStore.find(lowguid);
     if (itr != _creatureAddonStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
-CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
+CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry) const
 {
     CreatureAddonContainer::const_iterator itr = _creatureTemplateAddonStore.find(entry);
     if (itr != _creatureTemplateAddonStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
-EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
+EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id) const
 {
     EquipmentInfoContainer::const_iterator itr = _equipmentInfoStore.find(entry);
     if (itr == _equipmentInfoStore.end())
-        return NULL;
+        return nullptr;
 
     if (itr->second.empty())
-        return NULL;
+        return nullptr;
 
     if (id == -1) // select a random element
     {
@@ -1197,7 +1197,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
             return &itr2->second;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::LoadEquipmentTemplates()
@@ -1277,16 +1277,16 @@ void ObjectMgr::LoadEquipmentTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u equipment templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId) const
 {
     CreatureModelContainer::const_iterator itr = _creatureModelStore.find(modelId);
     if (itr != _creatureModelStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
-uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= NULL*/)
+uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= nullptr*/)
 {
     // Load creature model (display id)
     if (data && data->displayid)
@@ -1299,7 +1299,7 @@ uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData co
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
+void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= nullptr*/)
 {
     npcflag = cinfo->npcflag;
     unit_flags = cinfo->unit_flags;
@@ -1318,11 +1318,11 @@ void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcfl
     }
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID)
+CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID) const
 {
     CreatureModelInfo const* modelInfo = GetCreatureModelInfo(*displayID);
     if (!modelInfo)
-        return NULL;
+        return nullptr;
 
     // If a model for another gender exists, 50% chance to use it
     if (modelInfo->modelid_other_gender != 0 && urand(0, 1) == 0)
@@ -2708,7 +2708,7 @@ void ObjectMgr::LoadItemTemplates()
             else if (itemTemplate.Spells[1].SpellId != -1)
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Spells[1].SpellId);
-                if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[1].SpellId, NULL))
+                if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[1].SpellId, nullptr))
                 {
                     TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)", entry, 1+1, itemTemplate.Spells[1].SpellId);
                     itemTemplate.Spells[0].SpellId = 0;
@@ -2756,7 +2756,7 @@ void ObjectMgr::LoadItemTemplates()
                 if (itemTemplate.Spells[j].SpellId && itemTemplate.Spells[j].SpellId != -1)
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Spells[j].SpellId);
-                    if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[j].SpellId, NULL))
+                    if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[j].SpellId, nullptr))
                     {
                         TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)", entry, j+1, itemTemplate.Spells[j].SpellId);
                         itemTemplate.Spells[j].SpellId = 0;
@@ -2915,13 +2915,13 @@ void ObjectMgr::LoadItemTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u item templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
+ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry) const
 {
     ItemTemplateContainer::const_iterator itr = _itemTemplateStore.find(entry);
     if (itr != _itemTemplateStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::LoadItemSetNameLocales()
@@ -3175,8 +3175,7 @@ void ObjectMgr::LoadPetLevelInfo()
         }
 
         PetLevelInfo*& pInfoMapEntry = _petInfoStore[creature_id];
-
-        if (pInfoMapEntry == NULL)
+        if (!pInfoMapEntry)
             pInfoMapEntry = new PetLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
         // data for level 1 stored in [0] array element, ...
@@ -3228,7 +3227,7 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
 
     PetLevelInfoContainer::const_iterator itr = _petInfoStore.find(creature_id);
     if (itr == _petInfoStore.end())
-        return NULL;
+        return nullptr;
 
     return &itr->second[level-1];                           // data for level 1 stored in [0] array element, ...
 }
@@ -4169,7 +4168,7 @@ void ObjectMgr::LoadQuests()
     for (QuestMap::iterator iter = _questTemplates.begin(); iter != _questTemplates.end(); ++iter)
     {
         // skip post-loading checks for disabled quests
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, NULL))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, nullptr))
             continue;
 
         Quest * qinfo = iter->second;
@@ -5387,7 +5386,7 @@ PageText const* ObjectMgr::GetPageText(uint32 pageEntry)
     if (itr != _pageTextStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::LoadPageTextLocales()
@@ -5457,13 +5456,13 @@ void ObjectMgr::LoadInstanceTemplate()
     TC_LOG_INFO("server.loading", ">> Loaded %u instance templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
+InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
 {
     InstanceTemplateContainer::const_iterator itr = _instanceTemplateStore.find(uint16(mapID));
     if (itr != _instanceTemplateStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::LoadInstanceEncounters()
@@ -5550,7 +5549,7 @@ GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
     GossipTextContainer::const_iterator itr = _gossipTextStore.find(Text_ID);
     if (itr != _gossipTextStore.end())
         return &itr->second;
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::LoadGossipText()
@@ -5676,7 +5675,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(NULL);
+    time_t curTime = time(nullptr);
     tm lt;
     localtime_r(&curTime, &lt);
     uint64 basetime(curTime);
@@ -5731,7 +5730,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->checked        = fields[7].GetUInt8();
         m->mailTemplateId = fields[8].GetInt16();
 
-        Player* player = NULL;
+        Player* player = nullptr;
         if (serverUp)
             player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, m->receiver));
 
@@ -6091,7 +6090,7 @@ void ObjectMgr::LoadGraveyardZones()
     TC_LOG_INFO("server.loading", ">> Loaded %u graveyard-zone links in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team)
+WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team) const
 {
     enum DefaultGraveyard
     {
@@ -6103,10 +6102,10 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team)
         return sWorldSafeLocsStore.LookupEntry(HORDE_GRAVEYARD);
     else if (team == ALLIANCE)
         return sWorldSafeLocsStore.LookupEntry(ALLIANCE_GRAVEYARD);
-    else return NULL;
+    else return nullptr;
 }
 
-WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team)
+WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team) const
 {
     // search for zone associated closest graveyard
     uint32 zoneId = sMapMgr->GetZoneId(MapId, x, y, z);
@@ -6141,15 +6140,15 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     // at corpse map
     bool foundNear = false;
     float distNear = 10000;
-    WorldSafeLocsEntry const* entryNear = NULL;
+    WorldSafeLocsEntry const* entryNear = nullptr;
 
     // at entrance map for corpse map
     bool foundEntr = false;
     float distEntr = 10000;
-    WorldSafeLocsEntry const* entryEntr = NULL;
+    WorldSafeLocsEntry const* entryEntr = nullptr;
 
     // some where other
-    WorldSafeLocsEntry const* entryFar = NULL;
+    WorldSafeLocsEntry const* entryFar = nullptr;
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
@@ -6231,7 +6230,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     return entryFar;
 }
 
-GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
+GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId) const
 {
     GraveYardMapBounds range = GraveYardStore.equal_range(zoneId);
     for (; range.first != range.second; ++range.first)
@@ -6240,7 +6239,7 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
         if (data.safeLocId == id)
             return &data;
     }
-    return NULL;
+    return nullptr;
 }
 
 bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
@@ -6485,14 +6484,14 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     uint32 parentId = 0;
     const MapEntry* mapEntry = sMapStore.LookupEntry(Map);
     if (!mapEntry || mapEntry->entrance_map < 0)
-        return NULL;
+        return nullptr;
 
     if (mapEntry->IsDungeon())
     {
         const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(Map);
 
         if (!iTemplate)
-            return NULL;
+            return nullptr;
 
         parentId = iTemplate->Parent;
         useParentDbValue = true;
@@ -6506,7 +6505,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
             if (atEntry && atEntry->mapid == Map)
                 return &itr->second;
         }
-    return NULL;
+    return nullptr;
 }
 
 /**
@@ -6523,7 +6522,7 @@ AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
                 return &itr->second;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void ObjectMgr::SetHighestGuids()
@@ -7964,7 +7963,7 @@ bool ObjectMgr::CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName c
     return (x || y);
 }
 
-uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)
+uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id) const
 {
     AreaTriggerScriptContainer::const_iterator i = _areaTriggerScriptStore.find(trigger_id);
     if (i!= _areaTriggerScriptStore.end())
@@ -7974,11 +7973,11 @@ uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)
 
 SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spellId)
 {
-    return SpellScriptsBounds(_spellScriptsStore.equal_range(spellId));
+    return _spellScriptsStore.equal_range(spellId);
 }
 
 // this allows calculating base reputations to offline players, just by race and class
-int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass)
+int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass) const
 {
     if (!factionEntry)
         return 0;
@@ -8081,18 +8080,18 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
     // explicit name case
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     // converting string that we try to find to lower case
     wstrToLower(wname);
 
     // Alternative first GameTele what contains wnameLow as substring in case no GameTele location found
-    const GameTele* alt = NULL;
+    GameTele const* alt = nullptr;
     for (GameTeleContainer::const_iterator itr = _gameTeleStore.begin(); itr != _gameTeleStore.end(); ++itr)
     {
         if (itr->second.wnameLow == wname)
             return &itr->second;
-        else if (alt == NULL && itr->second.wnameLow.find(wname) != std::wstring::npos)
+        else if (!alt && itr->second.wnameLow.find(wname) != std::wstring::npos)
             alt = &itr->second;
     }
 
@@ -8104,7 +8103,7 @@ GameTele const* ObjectMgr::GetGameTeleExactName(const std::string& name) const
     // explicit name case
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     // converting string that we try to find to lower case
     wstrToLower(wname);
@@ -8115,7 +8114,7 @@ GameTele const* ObjectMgr::GetGameTeleExactName(const std::string& name) const
             return &itr->second;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool ObjectMgr::AddGameTele(GameTele& tele)
@@ -8382,7 +8381,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
 
-            if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, NULL, skip_vendors))
+            if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
@@ -8432,7 +8431,7 @@ void ObjectMgr::LoadVendors()
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
 
-            if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, NULL, &skip_vendors))
+            if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
@@ -9191,22 +9190,22 @@ void ObjectMgr::LoadFactionChangeTitles()
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
+GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry) const
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
     if (itr != _gameObjectTemplateStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
-CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 entry)
+CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 entry) const
 {
     CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.find(entry);
     if (itr != _creatureTemplateStore.end())
         return &(itr->second);
 
-    return NULL;
+    return nullptr;
 }
 
 VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) const
@@ -9223,18 +9222,18 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     VehicleAccessoryContainer::const_iterator itr = _vehicleTemplateAccessoryStore.find(veh->GetCreatureEntry());
     if (itr != _vehicleTemplateAccessoryStore.end())
         return &itr->second;
-    return NULL;
+    return nullptr;
 }
 
 PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
     if (race >= MAX_RACES)
-        return NULL;
+        return nullptr;
     if (class_ >= MAX_CLASSES)
-        return NULL;
+        return nullptr;
     PlayerInfo const* info = _playerInfo[race][class_];
     if (!info)
-        return NULL;
+        return nullptr;
     return info;
 }
 
