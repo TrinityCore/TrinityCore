@@ -264,7 +264,7 @@ public:
                 _JustDied();
                 Talk(SAY_DEATH);
             }
-            
+
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (events.IsInPhase(PHASE_ONE))
@@ -432,7 +432,7 @@ public:
                             if (Is25ManRaid())
                                 events.ScheduleEvent(EVENT_CHAINS, randtime(Seconds(60), Seconds(80)), 0, PHASE_TWO);
                             break;
-                        
+
                         case EVENT_FROSTBOLT_VOLLEY:
                             DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
                             events.Repeat(randtime(Seconds(16), Seconds(18)));
@@ -624,7 +624,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 ScriptedAI::MoveInLineOfSight(who);
                 return;
             }
-            
+
             if (me->CanStartAttack(who, false) && me->GetDistance2d(who) <= MINION_AGGRO_DISTANCE)
                 EnterCombat(who);
         }
@@ -641,7 +641,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 return pocketId;
             return 0;
         }
-        
+
         void MovementInform(uint32 /*type*/, uint32 id) override
         {
             if (id == MOVEMENT_MINION_RANDOM)
@@ -665,7 +665,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
     protected:
         InstanceScript* const instance;
         uint32 pocketId;
-    
+
     private:
         uint32 _movementTimer;
         Position const _home;
