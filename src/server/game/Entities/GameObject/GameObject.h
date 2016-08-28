@@ -43,6 +43,8 @@ struct GameObjectTemplate
     std::string IconName;
     std::string castBarCaption;
     std::string unk1;
+    uint32  mingold;
+    uint32  maxgold;
     uint32  faction;
     uint32  flags;
     float   size;

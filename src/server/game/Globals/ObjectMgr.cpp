@@ -6736,11 +6736,11 @@ void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1      2        3       4             5          6      7       8     9
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, "
-    //                                          10     11     12     13     14     15     16     17     18     19     20      21      22
+    //                                                 0      1      2        3       4             5          6      7       8        9        10    11
+    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, mingold, maxgold, faction, flags, size, "
+    //                                          12     13     14     15     16     17     18     19     20     21     22      23      24
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-    //                                          23      24      25      26      27      28      29      30      31      32      33      34        35
+    //                                          25      26      27      28      29      30      31      32      33      34      35      36        37
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName "
                                              "FROM gameobject_template");
 
@@ -6767,15 +6767,17 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.IconName       = fields[4].GetString();
         got.castBarCaption = fields[5].GetString();
         got.unk1           = fields[6].GetString();
-        got.faction        = uint32(fields[7].GetUInt16());
-        got.flags          = fields[8].GetUInt32();
-        got.size           = fields[9].GetFloat();
+        got.mingold        = fields[7].GetUInt32();
+        got.maxgold        = fields[8].GetUInt32();
+        got.faction        = uint32(fields[9].GetUInt16());
+        got.flags          = fields[10].GetUInt32();
+        got.size           = fields[11].GetFloat();
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-            got.raw.data[i] = fields[10 + i].GetInt32(); // data1 and data6 can be -1
+            got.raw.data[i] = fields[12 + i].GetInt32(); // data1 and data6 can be -1
 
-        got.AIName = fields[34].GetString();
-        got.ScriptId = GetScriptId(fields[35].GetString());
+        got.AIName = fields[36].GetString();
+        got.ScriptId = GetScriptId(fields[37].GetString());
 
         // Checks
 
@@ -6908,6 +6910,19 @@ void ObjectMgr::LoadGameObjectTemplate()
             case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
                 CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
                 break;
+        }
+
+        if (got.maxgold > 0)
+        {
+            switch (got.type)
+            {
+                case GAMEOBJECT_TYPE_CHEST:
+                case GAMEOBJECT_TYPE_FISHINGHOLE:
+                    break;
+                default:
+                    TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set", entry, got.type);
+                    break;
+            }
         }
 
        ++count;
