@@ -2597,7 +2597,7 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
-                target->CastSpell(target, uint32(GetEffectValue()));
+                target->CastSpell(target, uint32(GetEffectValue()), true);
             }
 
             void Register() override
