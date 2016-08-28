@@ -161,7 +161,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << int32(questObjective.ObjectID);
             _worldPacket << int32(questObjective.Amount);
             _worldPacket << uint32(questObjective.Flags);
-            _worldPacket << float(questObjective.UnkFloat);
+            _worldPacket << float(questObjective.ProgressBarWeight);
 
             _worldPacket << int32(questObjective.VisualEffects.size());
             for (int32 visualEffect : questObjective.VisualEffects)
