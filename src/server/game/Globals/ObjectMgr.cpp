@@ -6735,11 +6735,11 @@ void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1      2        3       4             5          6      7       8        9        10    11
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, mingold, maxgold, faction, flags, size, "
-    //                                          12     13     14     15     16     17     18     19     20     21     22      23      24
+    //                                                 0      1      2        3       4             5          6     7
+    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, "
+    //                                         8      9      10     11     12     13     14     15     16     17     18      19      20
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-    //                                          25      26      27      28      29      30      31      32      33      34      35      36        37
+    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName "
                                              "FROM gameobject_template");
 
@@ -6758,7 +6758,6 @@ void ObjectMgr::LoadGameObjectTemplate()
         uint32 entry = fields[0].GetUInt32();
 
         GameObjectTemplate& got = _gameObjectTemplateStore[entry];
-
         got.entry          = entry;
         got.type           = uint32(fields[1].GetUInt8());
         got.displayId      = fields[2].GetUInt32();
@@ -6766,17 +6765,13 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.IconName       = fields[4].GetString();
         got.castBarCaption = fields[5].GetString();
         got.unk1           = fields[6].GetString();
-        got.mingold        = fields[7].GetUInt32();
-        got.maxgold        = fields[8].GetUInt32();
-        got.faction        = uint32(fields[9].GetUInt16());
-        got.flags          = fields[10].GetUInt32();
-        got.size           = fields[11].GetFloat();
+        got.size           = fields[7].GetFloat();
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-            got.raw.data[i] = fields[12 + i].GetInt32(); // data1 and data6 can be -1
+            got.raw.data[i] = fields[8 + i].GetInt32(); // data1 and data6 can be -1
 
-        got.AIName = fields[36].GetString();
-        got.ScriptId = GetScriptId(fields[37].GetString());
+        got.AIName = fields[32].GetString();
+        got.ScriptId = GetScriptId(fields[33].GetString());
 
         // Checks
 
@@ -6911,24 +6906,68 @@ void ObjectMgr::LoadGameObjectTemplate()
                 break;
         }
 
-        if (got.maxgold > 0)
-        {
-            switch (got.type)
-            {
-                case GAMEOBJECT_TYPE_CHEST:
-                case GAMEOBJECT_TYPE_FISHINGHOLE:
-                    break;
-                default:
-                    TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set", entry, got.type);
-                    break;
-            }
-        }
-
        ++count;
     }
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u game object templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGameObjectTemplateAddons()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0       1       2      3        4
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold FROM gameobject_template_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject template addon definitions. DB table `gameobject_template_addon` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        GameObjectTemplate const* got = sObjectMgr->GetGameObjectTemplate(entry);
+        if (!got)
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject template (Entry: %u) does not exist but has a record in `gameobject_template_addon`", entry);
+            continue;
+        }
+
+        GameObjectTemplateAddon& gameObjectAddon = _gameObjectTemplateAddonStore[entry];
+        gameObjectAddon.faction = uint32(fields[1].GetUInt16());
+        gameObjectAddon.flags   = fields[2].GetUInt32();
+        gameObjectAddon.mingold = fields[3].GetUInt32();
+        gameObjectAddon.maxgold = fields[4].GetUInt32();
+
+        // checks
+        if (!sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid faction (%u) defined in `gameobject_template_addon`.", entry, gameObjectAddon.faction);
+
+        if (gameObjectAddon.maxgold > 0)
+        {
+            switch (got->type)
+            {
+                case GAMEOBJECT_TYPE_CHEST:
+                case GAMEOBJECT_TYPE_FISHINGHOLE:
+                    break;
+                default:
+                    TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
+                    break;
+            }
+        }
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u game object template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
@@ -9195,6 +9234,15 @@ GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry) const
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
     if (itr != _gameObjectTemplateStore.end())
         return &(itr->second);
+
+    return nullptr;
+}
+
+GameObjectTemplateAddon const* ObjectMgr::GetGameObjectTemplateAddon(uint32 entry) const
+{
+    auto itr = _gameObjectTemplateAddonStore.find(entry);
+    if (itr != _gameObjectTemplateAddonStore.end())
+        return &itr->second;
 
     return nullptr;
 }

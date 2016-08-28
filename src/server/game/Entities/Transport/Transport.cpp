@@ -57,7 +57,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     Object::_Create(guidlow, 0, HighGuid::Mo_Transport);
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-
     if (!goinfo)
     {
         TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
@@ -81,10 +80,14 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
+    if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+    {
+        SetFaction(addon->faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
+    }
+
     m_goValue.Transport.PathProgress = 0;
     SetObjectScale(goinfo->size);
-    SetFaction(goinfo->faction);
-    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
