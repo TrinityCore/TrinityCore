@@ -268,7 +268,7 @@ class npc_pit_of_saron_icicle : public CreatureScript
                 {
                     DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
                     DoCastSelf(SPELL_ICICLE_FALL_VISUAL);
-                    
+
                     if (Unit* caster = ObjectAccessor::GetUnit(*me, _summonerGUID))
                         caster->RemoveDynObject(SPELL_ICICLE_SUMMON);
                 });
