@@ -75,7 +75,7 @@ public:
         void InitializeAI() override
         {
             float x, y, z;
-            me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI*2*rand_norm()));
+            me->GetNearPoint(x, y, z, me->GetObjectSize() + 101, float(M_PI*2*rand_norm()));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->SetVisible(false);
             me->CastSpell(me, SPELL_MOLTEN_FLAME, true);
