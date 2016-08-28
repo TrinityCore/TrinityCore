@@ -548,7 +548,7 @@ class spell_sapphiron_frost_breath : public SpellScriptLoader
                         toRemove.push_back(target);
                         continue;
                     }
-                    
+
                     bool found = false;
                     for (GameObject* block : blocks)
                         if (block->IsInBetween(GetCaster(), target, 2.0f) && GetCaster()->GetExactDist2d(block) + 5 >= GetCaster()->GetExactDist2d(target))
