@@ -4860,7 +4860,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject;
-        if (linkedGO->Create(linkedEntry, cMap, m_caster->GetPhaseMask(), Position(fx, fy, fz, m_caster->GetOrientation()), G3D::Quat(), 255, GO_STATE_READY))
+        if (linkedGO->Create(linkedEntry, cMap, m_caster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
         {
             linkedGO->CopyPhaseFrom(m_caster);
 
