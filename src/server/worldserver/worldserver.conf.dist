@@ -679,7 +679,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 5
+Expansion = 6
 
 #
 #    MinPlayerName
