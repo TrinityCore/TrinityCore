@@ -213,3 +213,33 @@ INSERT INTO `scenarios` (`map`, `difficulty`, `scenario_A`, `scenario_H`) VALUES
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+DROP TABLE IF EXISTS `scenario_poi`;
+CREATE TABLE `scenario_poi` (
+	`CriteriaTreeID` INT(11) NOT NULL DEFAULT '0',
+	`BlobIndex` INT(11) NOT NULL DEFAULT '0',
+	`Idx1` INT(11) NOT NULL DEFAULT '0',
+	`MapID` INT(11) NOT NULL DEFAULT '0',
+	`WorldMapAreaId` INT(11) NOT NULL DEFAULT '0',
+	`Floor` INT(11) NOT NULL DEFAULT '0',
+	`Priority` INT(11) NOT NULL DEFAULT '0',
+	`Flags` INT(11) NOT NULL DEFAULT '0',
+	`WorldEffectID` INT(11) NOT NULL DEFAULT '0',
+	`PlayerConditionID` INT(11) NOT NULL DEFAULT '0',
+	`VerifiedBuild` SMALLINT(5) NULL DEFAULT '0',
+	PRIMARY KEY (`CriteriaTreeID`, `BlobIndex`, `Idx1`),
+	INDEX `idx` (`CriteriaTreeID`, `BlobIndex`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+;
+
+DROP TABLE IF EXISTS `scenario_poi_points`;
+CREATE TABLE `scenario_poi_points` (
+	`CriteriaTreeID` INT(11) NOT NULL DEFAULT '0',
+	`Idx1` INT(11) NOT NULL DEFAULT '0',
+	`Idx2` INT(11) NOT NULL DEFAULT '0',
+	`X` INT(11) NOT NULL DEFAULT '0',
+	`Y` INT(11) NOT NULL DEFAULT '0',
+	`VerifiedBuild` SMALLINT(5) NULL DEFAULT '0',
+	PRIMARY KEY (`CriteriaTreeID`, `Idx1`, `Idx2`),
+	INDEX `questId_id` (`CriteriaTreeID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;

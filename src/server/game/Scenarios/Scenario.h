@@ -21,12 +21,27 @@
 
 #include "CriteriaHandler.h"
 #include "ScenarioPackets.h"
-#include "Player.h"
+
+
+namespace WorldPackets
+{
+    namespace Scenario
+    {
+        class ScenarioState;
+    }
+}
 
 struct ScenarioData
 {
     ScenarioEntry const* Entry;
     std::map<uint8, ScenarioStepEntry const*> Steps;
+};
+
+enum ScenarioStepState
+{
+    SCENARIO_STEP_NOT_STARTED   = 0,
+    SCENARIO_STEP_IN_PROGRESS   = 1,
+    SCENARIO_STEP_DONE          = 2
 };
 
 class TC_GAME_API Scenario : public CriteriaHandler
@@ -59,6 +74,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
     protected:
         GuidSet m_players;
+        std::map<ScenarioStepEntry const*, ScenarioStepState> ScenarioState;
 
         void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
         void SendCriteriaProgressRemoved(uint32 criteriaId) override;
@@ -75,8 +91,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenarioState);
 
         std::vector<WorldPackets::Scenario::BonusObjectiveData> GetBonusObjectivesData();
-        std::vector<WorldPackets::Scenario::CriteriaProgress> GetCriteriasProgress();
-        std::vector<uint32> GetTotalSteps();
+        std::vector<WorldPackets::Achievement::CriteriaProgress> GetCriteriasProgress();
 
         std::string GetOwnerInfo() const override;
         CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;

@@ -16,8 +16,8 @@
  */
 
 #include "ScenarioPackets.h"
-#include "CriteriaHandler.h"
 #include "AchievementPackets.h"
+#include "QueryPackets.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Scenario::BonusObjectiveData const& bonusObjective)
 {
@@ -84,6 +84,45 @@ WorldPacket const* WorldPackets::Scenario::ScenarioBoot::Write()
     _worldPacket << int32(Unk1);
     _worldPacket.WriteBit(Unk2);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Scenario::QueryScenarioPOI::Read()
+{
+    _worldPacket >> MissingScenarioPOICount;
+
+    for (uint8 i = 0; i < 50; ++i)
+        _worldPacket >> MissingScenarioPOIs[i];
+}
+
+WorldPacket const* WorldPackets::Scenario::ScenarioPOIs::Write()
+{
+    _worldPacket << int32(ScenarioPOIDataStats.size());
+
+    for (Query::ScenarioPOIData const& scenarioPOIData : ScenarioPOIDataStats)
+    {
+        _worldPacket << int32(scenarioPOIData.CriteriaTreeID);
+
+        _worldPacket << int32(scenarioPOIData.ScenarioPOIs.size());
+        for (ScenarioPOI const* scenarioPOI : scenarioPOIData.ScenarioPOIs)
+        {
+            _worldPacket << int32(scenarioPOI->BlobIndex);
+            _worldPacket << int32(scenarioPOI->MapID);
+            _worldPacket << int32(scenarioPOI->WorldMapAreaID);
+            _worldPacket << int32(scenarioPOI->Floor);
+            _worldPacket << int32(scenarioPOI->Priority);
+            _worldPacket << int32(scenarioPOI->Flags);
+            _worldPacket << int32(scenarioPOI->WorldEffectID);
+            _worldPacket << int32(scenarioPOI->PlayerConditionID);
+
+            for (ScenarioPOIPoint const& scenarioPOIBlobPoint : scenarioPOI->Points)
+            {
+                _worldPacket << int32(scenarioPOIBlobPoint.X);
+                _worldPacket << int32(scenarioPOIBlobPoint.Y);
+            }
+        }
+    }
 
     return &_worldPacket;
 }

@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "AchievementPackets.h"
+#include "QueryPackets.h"
 
 namespace WorldPackets
 {
@@ -88,6 +89,27 @@ namespace WorldPackets
                 // 40 bit section with default 0 values, not really sure what this is or in what order they come but most likely a int32 and a boolean.
                 int32 Unk1 = 0;
                 bool Unk2 = 0;
+        };
+
+        class QueryScenarioPOI final : public ClientPacket
+        {
+        public:
+            QueryScenarioPOI(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_SCENARIO_POI, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 MissingScenarioPOICount = 0;
+            int32 MissingScenarioPOIs[50];
+        };
+
+        class ScenarioPOIs final : public ServerPacket
+        {
+        public:
+            ScenarioPOIs() : ServerPacket(SMSG_SCENARIO_POIS) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<WorldPackets::Query::ScenarioPOIData> ScenarioPOIDataStats;
         };
     }
 }

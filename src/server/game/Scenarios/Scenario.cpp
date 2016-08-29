@@ -59,7 +59,7 @@ void Scenario::Reset()
 
 void Scenario::CompleteStep(ScenarioStepEntry const* step)
 {
-    if (!(step->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE))
+    if (!step->IsBonusObjective())
         AdvanceStep();
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(step->QuestRewardID))
@@ -72,7 +72,11 @@ void Scenario::AdvanceStep()
 {
     for (auto step : _data->Steps)
     {
-        if (step.second->Step > GetStep()->Step && !(step.second->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE))
+        if (step.second->IsBonusObjective())
+            continue;
+
+        // Can only do this because they are in order
+        if (step.second->Step > GetStep()->Step)
         {
             SetStep(step.second);
             return;
@@ -120,7 +124,7 @@ void Scenario::OnPlayerExit(Player* player)
 void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress const * progress, uint32 timeElapsed, bool timedCompleted) const
 {
     WorldPackets::Scenario::ScenarioProgressUpdate progressUpdate;
-    WorldPackets::Scenario::CriteriaProgress criteriaProgress;
+    WorldPackets::Achievement::CriteriaProgress criteriaProgress;
     criteriaProgress.Id = criteria->ID;
     criteriaProgress.Quantity = progress->Counter;
     criteriaProgress.Player = progress->PlayerGUID;
@@ -128,10 +132,10 @@ void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress co
     if (criteria->Entry->StartTimer)
         criteriaProgress.Flags = timedCompleted ? 1 : 0;
 
-    criteriaProgress.TimeStart = timeElapsed;
-    criteriaProgress.TimeCreate = 0;
+    criteriaProgress.TimeFromStart = timeElapsed;
+    criteriaProgress.TimeFromCreate = 0;
 
-    progressUpdate.criteriaProgress = criteriaProgress;
+    progressUpdate.CriteriaProgress = criteriaProgress;
     SendPacket(progressUpdate.Write());
 }
 
@@ -173,7 +177,18 @@ void Scenario::BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenari
         scenarioState->CurrentStep = step->ID;
     scenarioState->CriteriaProgress = GetCriteriasProgress();
     scenarioState->BonusObjectiveData = GetBonusObjectivesData();
-    scenarioState->TotalSteps = GetTotalSteps();
+    // We don't actually know what this does, can only guess behavior
+    for (auto state : ScenarioState)
+    {
+        if (state.first->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
+            continue;
+
+        if (state.second != SCENARIO_STEP_IN_PROGRESS ||
+            state.second != SCENARIO_STEP_DONE)
+            continue;
+
+        scenarioState->TraversedSteps.push_back(state.first->ID);
+    }
     scenarioState->ScenarioCompleted = _complete;
 }
 
@@ -205,15 +220,15 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
     return bonusObjectivesData;
 }
 
-std::vector<WorldPackets::Scenario::CriteriaProgress> Scenario::GetCriteriasProgress()
+std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasProgress()
 {
-    std::vector<WorldPackets::Scenario::CriteriaProgress> criteriasProgress;
+    std::vector<WorldPackets::Achievement::CriteriaProgress> criteriasProgress;
 
     if (!_criteriaProgress.empty())
     {
         for (auto critItr = _criteriaProgress.begin(); critItr != _criteriaProgress.end(); ++critItr)
         {
-            WorldPackets::Scenario::CriteriaProgress criteriaProgress;
+            WorldPackets::Achievement::CriteriaProgress criteriaProgress;
             criteriaProgress.Id = critItr->first;
             criteriaProgress.Quantity = critItr->second.Counter;
             criteriaProgress.Date = critItr->second.Date;
@@ -223,20 +238,6 @@ std::vector<WorldPackets::Scenario::CriteriaProgress> Scenario::GetCriteriasProg
     }
 
     return criteriasProgress;
-}
-
-std::vector<uint32> Scenario::GetTotalSteps()
-{
-    std::vector<uint32> totalSteps;
-    for (auto itr = _data->Steps.begin(); itr != _data->Steps.end(); ++itr)
-    {
-        if (itr->second->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
-            continue;
-
-        totalSteps.push_back(itr->second->ID);
-    }
-
-    return totalSteps;
 }
 
 std::string Scenario::GetOwnerInfo() const

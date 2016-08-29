@@ -31,6 +31,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "QueryPackets.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -2002,6 +2003,27 @@ CriteriaMgr::~CriteriaMgr()
 
     for (auto itr = _criteriaModifiers.begin(); itr != _criteriaModifiers.end(); ++itr)
         delete itr->second;
+}
+
+WorldPackets::Query::ScenarioPOIData CriteriaMgr::GetScenarioPOIsForCriteriaTree(uint32 criteriaTreeId) const
+{
+    WorldPackets::Query::ScenarioPOIData scenarioPOIData;
+
+    if (!GetCriteriaTree(criteriaTreeId))
+        return scenarioPOIData;
+
+    ScenarioPOIVector const* poiVector = sObjectMgr->GetScenarioPOIs(criteriaTreeId);
+    if (poiVector)
+    {
+        scenarioPOIData.CriteriaTreeID = criteriaTreeId;
+
+        for (auto poi = poiVector->begin(); poi != poiVector->end(); ++poi)
+            scenarioPOIData.ScenarioPOIs.push_back(*poi);
+    }
+    else
+        TC_LOG_ERROR("misc", "Table 'scenario_poi' missing POI data for Criteria Tree (id: %u)", criteriaTreeId);
+
+    return scenarioPOIData;
 }
 
 void CriteriaMgr::LoadCriteriaModifiersTree()

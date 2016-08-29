@@ -37,7 +37,7 @@ void InstanceScenario::SaveToDB()
         return;
 
     DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(_map->GetDifficultyID());
-    if (!difficultyEntry || difficultyEntry->Flags & DIFFICULTY_FLAG_CHALLENGE_MODE)
+    if (!difficultyEntry || difficultyEntry->Flags & DIFFICULTY_FLAG_CHALLENGE_MODE) // Map should have some sort of "CanSave" boolean that returns whether or not the map is savable. (Challenge modes cannot be saved for example)
         return;
 
     uint32 id = _map->GetInstanceId();

@@ -2060,6 +2060,12 @@ struct ScenarioStepEntry
     uint8 Step;
     uint8 Flags; // DBCEnums.h - ScenarioStepFlags
     uint32 Unk1; // Always zero (rev 22280)
+
+    // helpers
+    bool IsBonusObjective() const
+    {
+        return Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE;
+    }
 };
 
 struct SkillLineEntry
