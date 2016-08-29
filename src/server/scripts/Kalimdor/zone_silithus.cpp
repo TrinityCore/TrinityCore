@@ -1114,7 +1114,7 @@ enum WS
     WATER                  = 0x2,
     EARTH                  = 0x4,
     AIR                    = 0x8
-}; 
+};
 
 enum WSTexts
 {

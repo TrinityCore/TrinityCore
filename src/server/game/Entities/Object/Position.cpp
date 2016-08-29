@@ -20,6 +20,12 @@
 #include "GridDefines.h"
 
 #include <G3D/g3dmath.h>
+#include <G3D/Vector3.h>
+
+Position::Position(G3D::Vector3 const& vect)
+{
+    Relocate(vect.x, vect.y, vect.z, 0.f);
+}
 
 bool Position::operator==(Position const &a)
 {
