@@ -40,8 +40,6 @@ struct GameObjectTemplate
     std::string IconName;
     std::string castBarCaption;
     std::string unk1;
-    uint32  faction;
-    uint32  flags;
     float   size;
     int32   RequiredLevel;
     union
@@ -812,8 +810,19 @@ struct GameObjectTemplate
     }
 };
 
+// From `gameobject_template_addon`
+struct GameObjectTemplateAddon
+{
+    uint32  entry;
+    uint32  faction;
+    uint32  flags;
+    uint32  mingold;
+    uint32  maxgold;
+};
+
 // Benchmarked: Faster than std::map (insert/find)
 typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
+typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
 
 class OPvPCapturePoint;
 struct TransportAnimation;
@@ -939,6 +948,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool Create(uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
+        GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
@@ -1158,6 +1168,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         ObjectGuid::LowType m_spawnId;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
+        GameObjectTemplateAddon const* m_goTemplateAddon;
         GameObjectData const* m_goData;
         GameObjectValue m_goValue;
 
