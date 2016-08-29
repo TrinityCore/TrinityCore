@@ -1538,7 +1538,7 @@ public:
                 why = CreatureAI::EVADE_REASON_SEQUENCE_BREAK;
             else if (stricmp(type_str, "FORCE") == 0)
                 force = true;
-            
+
             if (!force && force_str)
                 if (stricmp(force_str, "FORCE") == 0)
                     force = true;
