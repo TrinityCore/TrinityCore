@@ -115,9 +115,6 @@ void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* ma
 template <class T>
 void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
-    // Sadly, we need this hack for conditions check
-    Creature* tempObj = new Creature();
-    tempObj->SetMap(map);
 
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -135,15 +132,6 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                 const CreatureData* cdata = sObjectMgr->GetCreatureData(guid);
                 if (cdata && cdata->groupdata && (cdata->groupdata->flags & CREATUREGROUP_FLAG_MANUAL_SPAWN) && !cdata->groupdata->isActive)
                     continue;
-
-                // Check creature spawn condition, queue later respawn and don't spawn if not set
-                if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, guid, tempObj))
-                {
-                    uint32 zoneAreaGridId = map->GetZoneAreaGridId(Map::OBJECT_TYPE_CREATURE, cdata->posX, cdata->posY, cdata->posZ);
-                    uint32 gridId = Trinity::ComputeGridCoord(cdata->posX, cdata->posY).GetId();
-                    map->SaveCreatureRespawnTime(guid, cdata->id, time(NULL) + (4 * MINUTE + urand(0, 2 * MINUTE)), zoneAreaGridId, gridId, false, true);
-                    continue;
-                }
             }
             else if (obj->GetTypeId() == TYPEID_GAMEOBJECT)
             {
@@ -163,8 +151,6 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
         else
             delete obj;
     }
-
-    delete tempObj;
 }
 
 void ObjectGridLoader::Visit(GameObjectMapType &m)

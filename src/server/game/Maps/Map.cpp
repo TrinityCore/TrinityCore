@@ -3081,10 +3081,6 @@ void Map::deleteRespawnInfo(respawnInfoMultiMap& gridList, respawnInfoMultiMap& 
 
 void Map::RespawnCreatureList(const RespawnVector& RespawnData, bool force)
 {
-    // We need this object, to test conditions. Horrible hack.
-    Creature* tempObj = new Creature();
-    tempObj->SetMap(this);
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     for (RespawnInfo* ri : RespawnData)
     {
@@ -3157,13 +3153,6 @@ void Map::RespawnCreatureList(const RespawnVector& RespawnData, bool force)
                     const uint32 gridId = ri->gridId;
                     if (const CreatureData* cdata = sObjectMgr->GetCreatureData(spawnId))
                     {
-                        // Check creature spawn condition, queue later respawn and don't respawn now if not set
-                        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, spawnId, tempObj))
-                        {
-                            SaveCreatureRespawnTime(spawnId, entry, time(NULL) +  (4 * MINUTE + urand(0, 2 * MINUTE)), cellAreaZoneId, gridId, true, true, trans);
-                            continue;
-                        }
-
                         // Always delete the respawn time
                         RemoveCreatureRespawnTime(ri->spawnId, 0, 0, false, trans);
 
@@ -3194,7 +3183,6 @@ void Map::RespawnCreatureList(const RespawnVector& RespawnData, bool force)
         }
     }
     CharacterDatabase.CommitTransaction(trans);
-    delete tempObj;
 }
 
 void Map::RespawnGameObjectList(const RespawnVector& RespawnData, bool force)

@@ -535,12 +535,6 @@ void Creature::Update(uint32 diff)
             time_t now = time(NULL);
             if (m_respawnTime <= now)
             {
-                if (m_spawnId && !sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CREATURE, m_spawnId, this))
-                {
-                    SetRespawnTime(4 * MINUTE + urand(0, 2 * MINUTE));
-                    SaveRespawnTime();
-                    break;
-                }
                 bool allowed = IsAIEnabled ? AI()->CanRespawn() : true;     // First check if there are any scripts that object to us respawning
                 if (!allowed)                                               // Will be rechecked on next Update call
                     break;
