@@ -6947,7 +6947,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.maxgold = fields[4].GetUInt32();
 
         // checks
-        if (gameObjectAddon.Faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
+        if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
             TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid faction (%u) defined in `gameobject_template_addon`.", entry, gameObjectAddon.faction);
 
         if (gameObjectAddon.maxgold > 0)
