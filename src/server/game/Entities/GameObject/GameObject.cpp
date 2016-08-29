@@ -51,6 +51,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_cooldownTime = 0;
     m_prevGoState = GO_STATE_ACTIVE;
     m_goInfo = nullptr;
+    m_goTemplateAddon = nullptr;
     m_goData = nullptr;
     m_packedRotation = 0;
 
@@ -216,6 +217,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
 
     m_goInfo = goinfo;
+    m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(name_id);
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
@@ -235,10 +237,10 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     SetObjectScale(goinfo->size);
 
-    if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+    if (m_goTemplateAddon)
     {
-        SetUInt32Value(GAMEOBJECT_FACTION, addon->faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
+        SetUInt32Value(GAMEOBJECT_FACTION, m_goTemplateAddon->faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
     }
 
     SetEntry(goinfo->entry);
@@ -679,11 +681,6 @@ void GameObject::Update(uint32 diff)
         }
     }
     sScriptMgr->OnGameObjectUpdate(this, diff);
-}
-
-GameObjectTemplateAddon const* GameObject::GetTemplateAddon() const
-{
-    return sObjectMgr->GetGameObjectTemplateAddon(GetGOInfo()->entry);
 }
 
 void GameObject::Refresh()
