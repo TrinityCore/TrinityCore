@@ -31,13 +31,13 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 
 
 Software requirements are available in the [wiki](http://www.trinitycore.info/display/tc/Requirements) for
-Windows, Linux and Mac OSX.
+Windows, Linux and OS X.
 
 
 ## Install
 
 Detailed installation guides are available in the [wiki](http://www.trinitycore.info/display/tc/Installation+Guide) for
-Windows, Linux and Mac OSX.
+Windows, Linux and OS X.
 
 
 ## Reporting issues
