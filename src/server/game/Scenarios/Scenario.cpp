@@ -20,6 +20,7 @@
 #include "ScenarioMgr.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "ScenarioPackets.h"
 
 Scenario::Scenario(ScenarioData const* scenarioData) : _data(scenarioData), _currentstep(nullptr), _firstStep(nullptr), _lastStep(nullptr), _complete(false), _canReward(false)
 {

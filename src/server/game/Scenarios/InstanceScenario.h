@@ -19,7 +19,6 @@
 #ifndef __TRINITY_MAPSCENARIO_H
 #define __TRINITY_MAPSCENARIO_H
 
-#include "ScenarioMgr.h"
 #include "Map.h"
 #include "Scenario.h"
 
