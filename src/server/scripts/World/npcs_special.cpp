@@ -266,18 +266,18 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        player->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, creature->GetGUID());
+        SendGossipMenuFor(player, TEXT_ID_DEFAULT, creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            player->SEND_GOSSIP_MENU(TEXT_ID_PROGRESS, creature->GetGUID());
+            SendGossipMenuFor(player, TEXT_ID_PROGRESS, creature->GetGUID());
             player->AreaExploredOrEventHappens(player->GetTeam() == ALLIANCE ? QUEST_BODY_HEART_A : QUEST_BODY_HEART_H);
         }
         return true;
@@ -1327,11 +1327,11 @@ public:
             player->GetSpellHistory()->HasCooldown(SPELL_ARMOR)     ||
             player->GetSpellHistory()->HasCooldown(SPELL_DAMAGE)    ||
             player->GetSpellHistory()->HasCooldown(SPELL_RESISTANCE))
-            player->SEND_GOSSIP_MENU(GOSSIP_MENU_CANT_GIVE_YOU_YOUR, creature->GetGUID());
+            SendGossipMenuFor(player, GOSSIP_MENU_CANT_GIVE_YOU_YOUR, creature->GetGUID());
         else
         {
-            player->ADD_GOSSIP_ITEM_DB(GOSSIP_I_AM_READY_TO_DISCOVER, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(GOSSIP_MENU_I_HAVE_LONG_KNOWN, creature->GetGUID());
+            AddGossipItemFor(player, GOSSIP_I_AM_READY_TO_DISCOVER, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, GOSSIP_MENU_I_HAVE_LONG_KNOWN, creature->GetGUID());
         }
 
         return true;
@@ -1342,50 +1342,50 @@ public:
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE1, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE2, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE3, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE4, GOSSIP_MENU_OPTION_ID_ANSWER_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_YOU_HAVE_BEEN_TASKED, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE1, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE2, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE3, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE4, GOSSIP_MENU_OPTION_ID_ANSWER_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                SendGossipMenuFor(player, GOSSIP_MENU_YOU_HAVE_BEEN_TASKED, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE5, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 1, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE6, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE7, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_SWORN_EXECUTIONER, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE5, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 1, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE6, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE7, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, GOSSIP_MENU_SWORN_EXECUTIONER, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE8, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE9, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE10,GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_DIPLOMATIC_MISSION, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE8, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE9, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE10,GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, GOSSIP_MENU_DIPLOMATIC_MISSION, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE11, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 6, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE12, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 7, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE13, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 8, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_YOUR_BROTHER_SEEKS, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE11, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 6, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE12, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 7, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE13, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 8, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, GOSSIP_MENU_YOUR_BROTHER_SEEKS, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE14, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE15, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE16, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_A_TERRIBLE_BEAST, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE14, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN + 5, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE15, GOSSIP_MENU_OPTION_ID_ANSWER_2, GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE16, GOSSIP_MENU_OPTION_ID_ANSWER_3, GOSSIP_SENDER_MAIN + 3, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, GOSSIP_MENU_A_TERRIBLE_BEAST, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_OPTION_SAYGE17, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_YOUR_FORTUNE_IS_CAST, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_MENU_OPTION_SAYGE17, GOSSIP_MENU_OPTION_ID_ANSWER_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                SendGossipMenuFor(player, GOSSIP_MENU_YOUR_FORTUNE_IS_CAST, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6:
                 creature->CastSpell(player, SPELL_FORTUNE, false);
-                player->SEND_GOSSIP_MENU(GOSSIP_MENU_HERE_IS_YOUR_FORTUNE, creature->GetGUID());
+                SendGossipMenuFor(player, GOSSIP_MENU_HERE_IS_YOUR_FORTUNE, creature->GetGUID());
                 break;
         }
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         uint32 spellId = 0;
         switch (sender)
         {
@@ -1713,16 +1713,16 @@ class npc_wormhole : public CreatureScript
             {
                 if (player == creature->ToTempSummon()->GetSummoner())
                 {
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                    AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
 
                     if (creature->AI()->GetData(DATA_SHOW_UNDERGROUND))
-                        player->ADD_GOSSIP_ITEM_DB(MENU_ID_WORMHOLE, GOSSIP_OPTION_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                        AddGossipItemFor(player, MENU_ID_WORMHOLE, GOSSIP_OPTION_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
-                    player->SEND_GOSSIP_MENU(NPC_TEXT_WORMHOLE, creature->GetGUID());
+                    SendGossipMenuFor(player, NPC_TEXT_WORMHOLE, creature->GetGUID());
                 }
             }
 
@@ -1731,32 +1731,32 @@ class npc_wormhole : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
 
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1: // Borean Tundra
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_BOREAN_TUNDRA, false);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2: // Howling Fjord
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_HOWLING_FJORD, false);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3: // Sholazar Basin
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_SHOLAZAR_BASIN, false);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 4: // Icecrown
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_ICECROWN, false);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 5: // Storm peaks
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_STORM_PEAKS, false);
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 6: // Underground
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     creature->CastSpell(player, SPELL_UNDERGROUND, false);
                     break;
             }
@@ -1793,43 +1793,43 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) /*override*/
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
 
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_UNTRAIN_MY_PET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_UNTRAIN_MY_PET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, NPC_TEXT_PET_TRAINING, creature->GetGUID());
         }
         else
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, NPC_TEXT_PET_TRAINING, creature->GetGUID());
         }
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) /*override*/
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                player->SEND_GOSSIP_MENU(NPC_TEXT_PET_FAMILIES, creature->GetGUID());
+                SendGossipMenuFor(player, NPC_TEXT_PET_FAMILIES, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 {
-                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_UNLEARN, OPTION_ID_PLEASE_DO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->SEND_GOSSIP_MENU(NPC_TEXT_UNLEARN, creature->GetGUID());
+                    AddGossipItemFor(player, MENU_ID_PET_UNLEARN, OPTION_ID_PLEASE_DO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    SendGossipMenuFor(player, NPC_TEXT_UNLEARN, creature->GetGUID());
                 }
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
                 {
                     player->ResetPetTalents();
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                 }
                 break;
         }
@@ -1858,20 +1858,20 @@ public:
     {
         if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_XP_ON_OFF, OPTION_ID_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_XP_ON_OFF, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_XP_ON_OFF, OPTION_ID_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, NPC_TEXT_XP_ON_OFF, creature->GetGUID());
         }
         else // currently gaining XP
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_XP_ON_OFF, OPTION_ID_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_XP_ON_OFF, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_XP_ON_OFF, OPTION_ID_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, NPC_TEXT_XP_ON_OFF, creature->GetGUID());
         }
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
 
         switch (action)
         {
@@ -1882,7 +1882,7 @@ public:
                 player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN); // turn off XP gain
                 break;
         }
-        player->PlayerTalkClass->SendCloseGossip();
+        CloseGossipMenuFor(player);
         return true;
     }
 };
