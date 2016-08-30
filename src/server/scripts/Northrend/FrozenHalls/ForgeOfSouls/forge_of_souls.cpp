@@ -103,7 +103,7 @@ public:
         {
             if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
@@ -200,7 +200,7 @@ public:
         {
             if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();

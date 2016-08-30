@@ -231,7 +231,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             me->setFaction(FACTION_HOSTILE);
             me->Attack(player, true);
         }
