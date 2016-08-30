@@ -67,8 +67,8 @@ class TC_COMMON_API SFMTEngine
 public:
     typedef uint32 result_type;
 
-    static TRINITY_CONSTEXPR result_type min() { return std::numeric_limits<result_type>::min(); }
-    static TRINITY_CONSTEXPR result_type max() { return std::numeric_limits<result_type>::max(); }
+    static constexpr result_type min() { return std::numeric_limits<result_type>::min(); }
+    static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() const { return rand32(); }
 
     static SFMTEngine& Instance();
