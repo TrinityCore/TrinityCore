@@ -652,7 +652,7 @@ public:
         if (!instance)
             return false;
 
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
 
         if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_AHUNE_BUNNY)))
         {
@@ -661,7 +661,7 @@ public:
         }
         if (Creature* luma = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_LUMA_SKYMOTHER)))
             luma->CastSpell(player, SPELL_SUMMONING_RHYME_AURA, true);
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
         go->Delete();
 
         return true;
