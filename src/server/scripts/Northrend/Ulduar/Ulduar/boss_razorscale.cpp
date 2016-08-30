@@ -731,11 +731,11 @@ class npc_expedition_commander : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF:
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     ENSURE_AI(npc_expedition_commanderAI, creature->AI())->Phase = 1;
                     break;
             }
@@ -749,11 +749,11 @@ class npc_expedition_commander : public CreatureScript
             {
                 player->PrepareGossipMenu(creature);
 
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                player->SEND_GOSSIP_MENU(13853, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, 13853, creature->GetGUID());
             }
             else
-                player->SEND_GOSSIP_MENU(13910, creature->GetGUID());
+                SendGossipMenuFor(player, 13910, creature->GetGUID());
 
             return true;
         }

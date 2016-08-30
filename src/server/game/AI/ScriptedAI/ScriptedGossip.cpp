@@ -21,9 +21,9 @@
 
 void ClearGossipMenuFor(Player* player) { player->PlayerTalkClass->ClearMenus(); }
 // Using provided text, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, const char* text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }
+void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }
 // Using provided texts, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, const char* text, uint32 sender, uint32 action, const char* popupText, uint32 popupMoney, bool coded) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded); }
+void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, const char* popupText, uint32 popupMoney, bool coded) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded); }
 // Uses gossip item info from DB
 void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(gossipMenuID, gossipMenuItemID, sender, action); }
 void SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const& guid) { player->PlayerTalkClass->SendGossipMenu(npcTextID, guid); }
