@@ -443,7 +443,11 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
 {
     Movement::PointsArray path(pathPoints, pathPoints + pathSize);
+    MoveSmoothPath(pointId, path, walk);
+}
 
+void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk)
+{
     Movement::MoveSplineInit init(_owner);
     if (_owner->CanFly())
         init.SetUncompressed();

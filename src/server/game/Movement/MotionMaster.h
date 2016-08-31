@@ -23,6 +23,7 @@
 #include <vector>
 #include "SharedDefines.h"
 #include "Object.h"
+#include "MoveSplineInitArgs.h"
 
 class MovementGenerator;
 class Unit;
@@ -194,6 +195,7 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
+        void MoveSmoothPath(uint32 pointId, Movement::PointsArray const& points, bool walk);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);
