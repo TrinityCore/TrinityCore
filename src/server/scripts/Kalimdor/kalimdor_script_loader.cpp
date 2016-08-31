@@ -100,17 +100,13 @@ void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
 
 void AddSC_ashenvale();
-void AddSC_azshara();
 void AddSC_azuremyst_isle();
 void AddSC_bloodmyst_isle();
-void AddSC_darkshore();
 void AddSC_desolace();
 void AddSC_durotar();
 void AddSC_felwood();
 void AddSC_moonglade();
-void AddSC_orgrimmar();
 void AddSC_silithus();
-void AddSC_stonetalon_mountains();
 void AddSC_tanaris();
 void AddSC_the_barrens();
 void AddSC_thunder_bluff();
@@ -205,17 +201,13 @@ void AddKalimdorScripts()
     AddSC_boss_baleroc();
 
     AddSC_ashenvale();
-    AddSC_azshara();
     AddSC_azuremyst_isle();
     AddSC_bloodmyst_isle();
-    AddSC_darkshore();
     AddSC_desolace();
     AddSC_durotar();
     AddSC_felwood();
     AddSC_moonglade();
-    AddSC_orgrimmar();
     AddSC_silithus();
-    AddSC_stonetalon_mountains();
     AddSC_tanaris();
     AddSC_the_barrens();
     AddSC_thunder_bluff();
