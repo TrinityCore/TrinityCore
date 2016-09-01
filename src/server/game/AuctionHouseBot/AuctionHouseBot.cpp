@@ -142,7 +142,7 @@ void AuctionBotConfig::SetConfig(AuctionBotConfigFloatValues index, char const* 
 //Get AuctionHousebot configuration file
 void AuctionBotConfig::GetConfigFromFile()
 {
-	SetConfig(CONFIG_AHBOT_ACCOUNT_ID, "AuctionHouseBot.Account", 0);
+    SetConfig(CONFIG_AHBOT_ACCOUNT_ID, "AuctionHouseBot.Account", 0);
 
     SetConfigMax(CONFIG_AHBOT_ALLIANCE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Alliance.Items.Amount.Ratio", 100, 10000);
     SetConfigMax(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Horde.Items.Amount.Ratio", 100, 10000);
