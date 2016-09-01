@@ -3101,6 +3101,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 44544: // Fingers of Frost
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
                 break;
+            case 53257: // Cobra Strikes
+                spellInfo->ProcCharges = 2;
+                spellInfo->StackAmount = 0;
+                break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
