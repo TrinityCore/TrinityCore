@@ -316,7 +316,8 @@ uint32 AuctionBotConfig::GetRandChar() const
 uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
 {
     // avoid freezing if only one ahbot char (which defeats the purpose but oh well)
-    if (_AHBotCharacters.size() == 1) return _AHBotCharacters[0];
+    if (_AHBotCharacters.size() == 1)
+        return _AHBotCharacters[0];
 
     uint32 result;
     do
