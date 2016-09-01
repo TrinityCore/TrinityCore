@@ -319,9 +319,12 @@ uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
     if (_AHBotCharacters.size() == 1) return GetRandChar();
 
     uint32 result;
-    do {
+    do
+    {
         result = GetRandChar();
-    } while (result == exclude);
+    }
+    while (result == exclude);
+    
     return result;
 }
 
