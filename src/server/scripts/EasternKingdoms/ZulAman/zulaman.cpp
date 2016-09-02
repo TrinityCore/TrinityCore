@@ -133,17 +133,17 @@ class npc_zulaman_hostage : public CreatureScript
 
         bool OnGossipHello(Player* player, Creature* creature) override
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
 
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
 
             if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 return true;
@@ -272,7 +272,7 @@ class npc_harrison_jones : public CreatureScript
             {
                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                {
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     me->SetFacingToObject(player);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_HARRISON_0);
