@@ -28,6 +28,7 @@
 
 SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 {
+    mIsCharmed = false;
     // copy script to local (protection for table reload)
 
     mWayPoints = nullptr;
@@ -68,6 +69,15 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mInvincibilityHpLevel = 0;
 
     mJustReset = false;
+}
+
+bool SmartAI::IsAIControlled() const
+{
+    if (me->IsControlledByPlayer())
+        return false;
+    if (mIsCharmed)
+        return false;
+    return true;
 }
 
 void SmartAI::UpdateDespawn(const uint32 diff)
@@ -155,7 +165,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         return;
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
         return;
     }
     mForcedPaused = forced;
@@ -199,7 +209,10 @@ void SmartAI::EndPath(bool fail)
     mLastWP = nullptr;
 
     if (mCanRepeatPath)
-        StartPath(mRun, GetScript()->GetPathId(), true);
+    {
+        if (IsAIControlled())
+            StartPath(mRun, GetScript()->GetPathId(), true);
+    }
     else
         GetScript()->SetPathId(0);
 
@@ -249,7 +262,6 @@ void SmartAI::EndPath(bool fail)
 
 void SmartAI::ResumePath()
 {
-    //mWPReached = false;
     SetRun(mRun);
     if (mLastWP)
         me->GetMotionMaster()->MovePoint(mLastWP->id, mLastWP->x, mLastWP->y, mLastWP->z);
@@ -257,6 +269,9 @@ void SmartAI::ResumePath()
 
 void SmartAI::ReturnToLastOOCPos()
 {
+    if (!IsAIControlled())
+        return;
+
     SetRun(mRun);
     me->GetMotionMaster()->MovePoint(SMART_ESCORT_LAST_OOC_POINT, mLastOOCPos);
 }
@@ -347,6 +362,9 @@ void SmartAI::UpdateAI(uint32 diff)
             mFollowArrivedTimer -= diff;
     }
 
+    if (!IsAIControlled())
+        return;
+
     if (!UpdateVictim())
         return;
 
@@ -413,19 +431,15 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
 
 void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (!me->IsAlive() || me->IsInEvadeMode())
-        return;
-
     if (mEvadeDisabled)
     {
         GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);
         return;
     }
 
-    me->RemoveAurasOnEvade();
-
+    if (!_EnterEvadeMode())
+        return;
     me->AddUnitState(UNIT_STATE_EVADE);
-    _EnterEvadeMode();
 
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
 
@@ -446,7 +460,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     else
         me->GetMotionMaster()->MoveTargetedHome();
 
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))//dont mess up escort movement after combat
+    if (!HasEscortState(SMART_ESCORT_ESCORTING)) //dont mess up escort movement after combat
         SetRun(mRun);
 }
 
@@ -456,6 +470,9 @@ void SmartAI::MoveInLineOfSight(Unit* who)
         return;
 
     GetScript()->OnMoveInLineOfSight(who);
+
+    if (!IsAIControlled())
+        return;
 
     if (AssistPlayerInCombatAgainst(who))
         return;
@@ -470,7 +487,7 @@ bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 
 bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
 {
-    if (me->HasReactState(REACT_PASSIVE))
+    if (me->HasReactState(REACT_PASSIVE) || !IsAIControlled())
         return false;
 
     if (!who || !who->GetVictim())
@@ -552,8 +569,13 @@ void SmartAI::JustReachedHome()
 
 void SmartAI::EnterCombat(Unit* enemy)
 {
-    me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
+    if (IsAIControlled())
+        me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
+
     GetScript()->ProcessEventsFor(SMART_EVENT_AGGRO, enemy);
+
+    if (!IsAIControlled())
+        return;
     mLastOOCPos = me->GetPosition();
     SetRun(mRun);
     if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
@@ -603,6 +625,10 @@ void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* spellInfo)
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
+
+    if (!IsAIControlled()) // don't allow players to use unkillable units
+        return;
+
     if (mInvincibilityHpLevel && (damage >= me->GetHealth() - mInvincibilityHpLevel))
         damage = me->GetHealth() - mInvincibilityHpLevel; // damage should not be nullified, because of player damage req.
 }
@@ -632,8 +658,6 @@ void SmartAI::SummonedCreatureDespawn(Creature* unit)
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit);
 }
 
-void SmartAI::UpdateAIWhileCharmed(const uint32 /*diff*/) { }
-
 void SmartAI::CorpseRemoved(uint32& respawnDelay)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CORPSE_REMOVED, nullptr, respawnDelay);
@@ -655,11 +679,26 @@ void SmartAI::InitializeAI()
 
 void SmartAI::OnCharmed(bool apply)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, apply);
+    if (apply) // do this before we change charmed state, as charmed state might prevent these things from processing
+    {
+        if (HasEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
+            EndPath(true);
+        me->StopMoving();
+    }
+    mIsCharmed = apply;
 
     if (!apply && !me->IsInEvadeMode())
+    {
+        if (mCanRepeatPath)
+            StartPath(mRun, GetScript()->GetPathId(), true);
+        else
+            me->SetWalk(!mRun);
+
         if (Unit* charmer = me->GetCharmer())
             AttackStart(charmer);
+    }
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, apply);
 }
 
 void SmartAI::DoAction(int32 param)
@@ -738,6 +777,8 @@ void SmartAI::SetCombatMove(bool on)
     if (mCanCombatMove == on)
         return;
     mCanCombatMove = on;
+    if (!IsAIControlled())
+        return;
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
     {
         if (on && me->GetVictim())
@@ -770,15 +811,15 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
         return;
     }
 
-    SetRun(mRun);
     mFollowGuid = target->GetGUID();
     mFollowDist = dist >= 0.0f ? dist : PET_FOLLOW_DIST;
     mFollowAngle = angle >= 0.0f ? angle : me->GetFollowAngle();
     mFollowArrivedTimer = 1000;
     mFollowCredit = credit;
     mFollowArrivedEntry = end;
-    me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
     mFollowCreditType = creditType;
+    SetRun(mRun);
+    me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
 }
 
 void SmartAI::StopFollow()
