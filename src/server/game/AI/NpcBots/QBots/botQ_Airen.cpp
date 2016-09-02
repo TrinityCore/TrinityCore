@@ -58,7 +58,7 @@ public:
                 break;
         }
 
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
         return true;
     }
 
@@ -77,7 +77,7 @@ public:
             }
         }
 
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
         return true;
     }
 
