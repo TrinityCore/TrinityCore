@@ -331,7 +331,7 @@ uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
 
 bool AuctionBotConfig::GetIsBotChar(uint32 characterID) const
 {
-    return !characterID || find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
+    return !characterID || std::find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
 }
 
 uint32 AuctionBotConfig::GetConfigItemAmountRatio(AuctionHouseType houseType) const
