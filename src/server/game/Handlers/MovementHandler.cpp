@@ -44,10 +44,10 @@
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
-    HandleMoveWorldportAckOpcode();
+    HandleMoveWorldportAck();
 }
 
-void WorldSession::HandleMoveWorldportAckOpcode()
+void WorldSession::HandleMoveWorldportAck()
 {
     // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
@@ -217,7 +217,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     uint32 flags, time;
     recvData >> flags >> time;
 
-    Player* plrMover = _player->m_mover->ToPlayer();
+    Player* plMover = _player->m_unitMovedByMe->ToPlayer();
 
     if (!plrMover || !plrMover->IsBeingTeleportedNear())
         return;
@@ -260,7 +260,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recvData)
 {
     uint16 opcode = recvData.GetOpcode();
 
-    Unit* mover = _player->m_mover;
+    Unit* mover = _player->m_unitMovedByMe;
 
     ASSERT(mover != NULL);                      // there must always be a mover
 
@@ -896,8 +896,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
     recvData >> guid;
 
     if (GetPlayer()->IsInWorld())
-        if (_player->m_mover->GetGUID() != guid)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+        if (_player->m_unitMovedByMe->GetGUID() != guid)
+            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -930,7 +930,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
-    if (_player->m_mover->GetGUID() != guid)
+    if (_player->m_unitMovedByMe->GetGUID() != guid)
         return;
 
     recvData.read_skip<uint32>();                          // unk

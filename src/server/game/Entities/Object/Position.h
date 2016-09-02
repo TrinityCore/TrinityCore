@@ -20,6 +20,11 @@
 
 #include "Common.h"
 
+namespace G3D
+{
+    class Vector3;
+}
+
 class ByteBuffer;
 
 struct TC_GAME_API Position
@@ -28,6 +33,10 @@ struct TC_GAME_API Position
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
     Position(Position const& loc) { Relocate(loc); }
+
+    Position(G3D::Vector3 const& vect);
+
+    operator G3D::Vector3() const;
 
     struct PositionXYStreamer
     {

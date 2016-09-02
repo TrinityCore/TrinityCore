@@ -485,7 +485,7 @@ class spell_sapphiron_icebolt : public SpellScriptLoader
                 return;
             float x, y, z;
             GetTarget()->GetPosition(x, y, z);
-            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0, 0, 0, 0, 0, 25))
+            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0.f, G3D::Quat(), 25))
                 _block = block->GetGUID();
         }
 
@@ -548,7 +548,7 @@ class spell_sapphiron_frost_breath : public SpellScriptLoader
                         toRemove.push_back(target);
                         continue;
                     }
-                    
+
                     bool found = false;
                     for (GameObject* block : blocks)
                         if (block->IsInBetween(GetCaster(), target, 2.0f) && GetCaster()->GetExactDist2d(block) + 5 >= GetCaster()->GetExactDist2d(target))
