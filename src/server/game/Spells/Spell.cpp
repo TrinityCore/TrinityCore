@@ -7030,7 +7030,13 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
 
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType, this);
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->SetSpellModTakingSpell(this, true);
+
+    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->SetSpellModTakingSpell(this, false);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
