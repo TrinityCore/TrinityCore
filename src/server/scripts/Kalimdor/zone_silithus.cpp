@@ -1236,7 +1236,7 @@ class go_wind_stone : public GameObjectScript
                 case GOSSIP_ID_LESSER_WS:
                 {
                     if (rank >= 1) // 1 or 2 or 3
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_LESSER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1245,19 +1245,19 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, TEMPLAR);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_LESSER_WS, OPTION_ID_1_CRIMSON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_1_CRIMSON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_LESSER_WS, OPTION_ID_2_AZURE,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_2_AZURE,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_LESSER_WS, OPTION_ID_3_EARTHEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_3_EARTHEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_LESSER_WS, OPTION_ID_4_HOARY,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_4_HOARY,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                     break;
                 }
                 case GOSSIP_ID_WIND_STONE:
                 {
                     if (rank >= 2) // 2 or 3
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_WIND_STONE, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1266,19 +1266,19 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, DUKE);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_WIND_STONE, OPTION_ID_1_CYNDERS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_1_CYNDERS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_WIND_STONE, OPTION_ID_2_FATHOMS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_2_FATHOMS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_WIND_STONE, OPTION_ID_3_SHARDS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_3_SHARDS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_WIND_STONE, OPTION_ID_4_ZEPHYRS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_4_ZEPHYRS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
                     break;
                 }
                 case GOSSIP_ID_GREATER_WS:
                 {
                     if (rank == 3) // 3
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_GREATER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1287,26 +1287,26 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, ROYAL);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_GREATER_WS, OPTION_ID_1_SKALDRENOX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_1_SKALDRENOX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_GREATER_WS, OPTION_ID_2_SKWOL,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_2_SKWOL,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_GREATER_WS, OPTION_ID_3_KAZUM,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_3_KAZUM,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM_DB(GOSSIP_ID_GREATER_WS, OPTION_ID_4_WHIRLAXIS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_4_WHIRLAXIS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
                     break;
                 }
                 default:
                     break;
             }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(gossipId, go), go->GetGUID());
+            SendGossipMenuFor(player, player->GetGossipTextId(gossipId, go), go->GetGUID());
             return true;
         }
 
         bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
             player->PlayerTalkClass->SendCloseGossip();
 
             switch (action)
