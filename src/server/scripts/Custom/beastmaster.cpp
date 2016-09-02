@@ -59,7 +59,7 @@ void CreatePet(Player *player, Creature * m_creature, uint32 entry) {
         pet->InitTalentForLevel();
         player->PetSpellInitialize();
     //end
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
         m_creature->Whisper("Pet added. You might want to feed it and name it somehow.", LANG_UNIVERSAL, player);
         return;
     }
@@ -73,15 +73,15 @@ bool OnGossipHello(Player* player, Creature* m_creature)
 
     // Check config if "Normal Pet " is enabled or not
     if(EnableNormalPet)
-        player->ADD_GOSSIP_ITEM( 7, "Normal Pets ->"              , GOSSIP_SENDER_MAIN, 1000);
+        AddGossipItemFor(player, 7, "Normal Pets ->"              , GOSSIP_SENDER_MAIN, 1000);
     // Check if player can have an exotic pet, and check config if "Exotic" is enabled or not
     if(player->CanTameExoticPets() && EnableExoticPet)
-        player->ADD_GOSSIP_ITEM( 7, "Exotic Pets ->"              , GOSSIP_SENDER_MAIN, 2000);
+        AddGossipItemFor(player, 7, "Exotic Pets ->"              , GOSSIP_SENDER_MAIN, 2000);
     // Now to add the spells, vendor, and stable stuffs
-    player->ADD_GOSSIP_ITEM(4, "Teach Me Pet spells ->"      , GOSSIP_SENDER_MAIN, 3000);
-    player->ADD_GOSSIP_ITEM(2, "Take me to the Stable.", GOSSIP_SENDER_MAIN, 6006);
-    player->ADD_GOSSIP_ITEM(6, "Sell me some Food for my Pet.", GOSSIP_SENDER_MAIN, 6007);
-    player->SEND_GOSSIP_MENU(MSG_TYPE, m_creature->GetGUID());
+    AddGossipItemFor(player, 4, "Teach Me Pet spells ->"      , GOSSIP_SENDER_MAIN, 3000);
+    AddGossipItemFor(player, 2, "Take me to the Stable.", GOSSIP_SENDER_MAIN, 6006);
+    AddGossipItemFor(player, 6, "Sell me some Food for my Pet.", GOSSIP_SENDER_MAIN, 6007);
+    SendGossipMenuFor(player, MSG_TYPE, m_creature->GetGUID());
 return true;
 }
 
@@ -104,11 +104,11 @@ bool showNormalPet(Player *player, Creature *m_creature, uint32 showFromId = 0)
  entryNum = fields[0].GetInt32();
  petName = fields[1].GetString();
 
-    player->ADD_GOSSIP_ITEM(9, petName, GOSSIP_SENDER_MAIN, entryNum);
+    AddGossipItemFor(player, 9, petName, GOSSIP_SENDER_MAIN, entryNum);
 }
  while (result->NextRow());
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
  return true;
  }
  else
@@ -117,7 +117,7 @@ bool showNormalPet(Player *player, Creature *m_creature, uint32 showFromId = 0)
  {
  //you are too poor
  m_creature->Whisper("You don't have enough money.", LANG_UNIVERSAL, player);
- player->CLOSE_GOSSIP_MENU();
+ CloseGossipMenuFor(player);
  }
  else
  {
@@ -145,11 +145,11 @@ bool showExoticPet(Player *player, Creature *m_creature, uint32 showFromId = 0)
  entryNum = fields[0].GetInt32();
  petName = fields[1].GetString();
 
-    player->ADD_GOSSIP_ITEM(9, petName, GOSSIP_SENDER_MAIN, entryNum);
+    AddGossipItemFor(player, 9, petName, GOSSIP_SENDER_MAIN, entryNum);
 }
  while (result->NextRow());
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
  return true;
  }
  else
@@ -158,7 +158,7 @@ bool showExoticPet(Player *player, Creature *m_creature, uint32 showFromId = 0)
  {
  //you are too poor
  //m_creature->Whisper("You don't have enough money.", LANG_UNIVERSAL, player);
- //player->CLOSE_GOSSIP_MENU();
+ //CloseGossipMenuFor(player);
  }
  else
  {
@@ -190,11 +190,11 @@ bool showPetSpells(Player *player, Creature *m_creature, uint32 showFromId = 0)
  entryNum = fields[0].GetInt32();
  petName = fields[1].GetString();
 
-    player->ADD_GOSSIP_ITEM(9, petName, GOSSIP_SENDER_MAIN, entryNum);
+    AddGossipItemFor(player, 9, petName, GOSSIP_SENDER_MAIN, entryNum);
 }
  while (result->NextRow());
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
  return true;
  }
  else
@@ -203,7 +203,7 @@ bool showPetSpells(Player *player, Creature *m_creature, uint32 showFromId = 0)
  {
  //you are too poor
  m_creature->Whisper("You don't have enough money.", LANG_UNIVERSAL, player);
- player->CLOSE_GOSSIP_MENU();
+ CloseGossipMenuFor(player);
  }
  else
  {
@@ -222,7 +222,7 @@ void SendDefaultMenu(Player* player, Creature* m_creature, uint32 uiAction)
 // Not allow in combat
 if (player->IsInCombat())
 {
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     m_creature->Say("You are in combat!", LANG_UNIVERSAL);
     return;
 }
@@ -257,12 +257,12 @@ if (result)
             if (!player->HasItemCount(token, cost))
                 {
                     m_creature->Whisper("You ain't gots no darn chips.", LANG_UNIVERSAL, player);
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     return;
                 }
             else if (uiAction != 1000 && uiAction != 2000 && uiAction != 3000 && catNumber != 2)
             {
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     CreatePet(player, m_creature, spellId);
     player->DestroyItemCount(token, cost, true);
             }
@@ -271,10 +271,10 @@ if (result)
             if (player->HasSpell(spellId))
             {
                 m_creature->Whisper("You already know this spell.", LANG_UNIVERSAL, player);
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 return;
             } else {
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     player->LearnSpell(spellId, false);
     player->DestroyItemCount(token, cost, true);
             }
@@ -284,12 +284,12 @@ if (result)
             if (player->GetMoney() < cost)
             {
                 m_creature->Whisper("You dont have enough money!", LANG_UNIVERSAL, player);
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 return;
             }
         else if (uiAction != 1000 && uiAction != 2000 && uiAction != 3000 && catNumber != 2)
         {
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     CreatePet(player, m_creature, spellId);
     player->ModifyMoney(-int(cost));
         }
@@ -298,10 +298,10 @@ if (result)
             if (player->HasSpell(spellId))
             {
                 m_creature->Whisper("You already know this spell.", LANG_UNIVERSAL, player);
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 return;
             } else {
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     player->LearnSpell(spellId, false);
     player->ModifyMoney(-int(cost));
             }
@@ -309,7 +309,7 @@ if (result)
     }
 } while (result->NextRow());
 } else {
-//player->ADD_GOSSIP_ITEM( 7, MAIN_MENU, GOSSIP_SENDER_MAIN, 5005);
+//AddGossipItemFor(player, 7, MAIN_MENU, GOSSIP_SENDER_MAIN, 5005);
 }
 
  switch(uiAction)
@@ -317,51 +317,51 @@ if (result)
 
 case 1000: //Normal Pet
         showNormalPet(player, m_creature, 0);
-        player->ADD_GOSSIP_ITEM( 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
+        AddGossipItemFor(player, 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
 break;
 
 case 2000: //Exotic Pet
         showExoticPet(player, m_creature, 0);
-        player->ADD_GOSSIP_ITEM( 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
+        AddGossipItemFor(player, 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
 break;
 
 case 3000: //Pet Spells
         showPetSpells(player, m_creature, 0);
-        player->ADD_GOSSIP_ITEM( 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
+        AddGossipItemFor(player, 7, "<- Main Menu"                            , GOSSIP_SENDER_MAIN, 5005);
 
-    player->SEND_GOSSIP_MENU(MSG_PET, m_creature->GetGUID());
+    SendGossipMenuFor(player, MSG_PET, m_creature->GetGUID());
 break;
 
 case 5005: //Back To Main Menu
     // Main Menu
     // Check config if "Normal Pet " is enabled or not
     if(EnableNormalPet)
-        player->ADD_GOSSIP_ITEM( 7, "Normal Pets ->"              , GOSSIP_SENDER_MAIN, 1000);
+        AddGossipItemFor(player, 7, "Normal Pets ->"              , GOSSIP_SENDER_MAIN, 1000);
     // Check if player can have an exotic pet, and check config if "Exotic" is enabled or not
     if(player->CanTameExoticPets() && EnableExoticPet)
-        player->ADD_GOSSIP_ITEM( 7, "Exotic Pets ->"              , GOSSIP_SENDER_MAIN, 2000);
+        AddGossipItemFor(player, 7, "Exotic Pets ->"              , GOSSIP_SENDER_MAIN, 2000);
     // Now to add the spells, vendor, and stable stuffs
-    player->ADD_GOSSIP_ITEM(4, "Teach Me Pet spells ->"      , GOSSIP_SENDER_MAIN, 3000);
-    player->ADD_GOSSIP_ITEM(2, "Take me to the Stable.", GOSSIP_SENDER_MAIN, 6006);
-    player->ADD_GOSSIP_ITEM(6, "Sell me some Food for my Pet.", GOSSIP_SENDER_MAIN, 6007);
-    player->SEND_GOSSIP_MENU(MSG_TYPE, m_creature->GetGUID());
+    AddGossipItemFor(player, 4, "Teach Me Pet spells ->"      , GOSSIP_SENDER_MAIN, 3000);
+    AddGossipItemFor(player, 2, "Take me to the Stable.", GOSSIP_SENDER_MAIN, 6006);
+    AddGossipItemFor(player, 6, "Sell me some Food for my Pet.", GOSSIP_SENDER_MAIN, 6007);
+    SendGossipMenuFor(player, MSG_TYPE, m_creature->GetGUID());
 break;
 
 case 6006:
     player->GetSession()->SendStablePet(m_creature->GetGUID());
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     break;
 
 case 6007:
     player->GetSession()->SendListInventory(m_creature->GetGUID());
-    player->CLOSE_GOSSIP_MENU();
+    CloseGossipMenuFor(player);
     break;
 
- player->CLOSE_GOSSIP_MENU();
+ CloseGossipMenuFor(player);
  }
 
 } //end of function
