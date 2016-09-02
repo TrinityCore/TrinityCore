@@ -3138,6 +3138,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
+            case 53257: // Cobra Strikes
                 spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;

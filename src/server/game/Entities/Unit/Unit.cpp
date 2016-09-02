@@ -301,8 +301,10 @@ Unit::~Unit()
         if (m_currentSpells[i])
         {
             m_currentSpells[i]->SetReferencedFromCurrent(false);
-            m_currentSpells[i] = NULL;
+            m_currentSpells[i] = nullptr;
         }
+
+    m_Events.KillAllEvents(true);
 
     _DeleteRemovedAuras();
 
@@ -7879,6 +7881,31 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
                     return true;
                 }
+                case 44401: //Missile Barrage
+                case 48108: //Hot Streak
+                case 57761: //Fireball!
+                {
+                    *handled = true;
+
+                    // Prevent double proc for Arcane missiles
+                    if (this == victim)
+                        return false;
+
+                    if (HasAura(70752)) // Item - Mage T10 2P Bonus
+                        CastSpell((Unit*)nullptr, 70753, true);
+
+                    // Proc chance is unknown, we'll just use dummy aura amount
+                    if (AuraEffect const* aurEff = GetAuraEffect(64869, EFFECT_0)) // Item - Mage T8 4P Bonus
+                        if (roll_chance_i(aurEff->GetAmount())) // do not proc charges
+                            return false;
+
+                    // @workaround: We'll take care of removing the aura on next update tick
+                    // This is needed for 44401 to affect Arcane Missiles, else the spellmod will not be applied
+                    // it only works because EventProcessor will always update first scheduled event,
+                    // as cast is already in progress the SpellEvent for Arcane Missiles is already in queue.
+                    triggeredByAura->DropChargeDelayed(1);
+                    return false;
+                }
             }
             break;
         }
@@ -10377,12 +10404,12 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
     return TakenAdvertisedBenefit;
 }
 
-bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/, Spell* spell /*= nullptr*/) const
 {
-    return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
+    return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType, spell));
 }
 
-float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/, Spell* spell /*= nullptr*/) const
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
@@ -10579,7 +10606,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
     // percent done
     // only players use intelligence for critical chance computations
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRITICAL_CHANCE, crit_chance);
+        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRITICAL_CHANCE, crit_chance, spell);
 
     //npcbot - apply bot spell crit mods
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->GetBotAI())
