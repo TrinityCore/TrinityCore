@@ -3008,6 +3008,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (bvar == (e.event.charm.onRemove != 1))
                 ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+            break;
         }
         //no params
         case SMART_EVENT_AGGRO:
