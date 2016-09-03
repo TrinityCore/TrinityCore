@@ -258,6 +258,9 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (HealthBelowPct(25) && !dalliahTaunt)
