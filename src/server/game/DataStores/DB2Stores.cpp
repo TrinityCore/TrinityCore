@@ -926,7 +926,7 @@ static void LoadBroadcastTextLocales()
         count++;
     } while(result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded broadcast_text locale strings in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u broadcast_text locale strings in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DB2Manager::LoadHotfixData()
