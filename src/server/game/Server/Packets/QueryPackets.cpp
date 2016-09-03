@@ -73,9 +73,9 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());
         _worldPacket << int32(Stats.CreatureMovementInfoID);
+        _worldPacket << int32(Stats.HealthScalingExpansion);
         _worldPacket << int32(Stats.RequiredExpansion);
-        _worldPacket << int32(0); // FlagQuest
-        _worldPacket << int32(0);
+        _worldPacket << int32(Stats.VignetteID);
 
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;

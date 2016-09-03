@@ -479,7 +479,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.minlevel               = fields[15].GetInt16();
     creatureTemplate.maxlevel               = fields[16].GetInt16();
     creatureTemplate.expansion              = fields[17].GetInt16();
-    creatureTemplate.HealthScalingExpansion = fields[18].GetUInt32();
+    creatureTemplate.HealthScalingExpansion = fields[18].GetInt32();
     creatureTemplate.RequiredExpansion      = fields[19].GetUInt32();
     creatureTemplate.VignetteID             = fields[20].GetUInt32();
     creatureTemplate.faction                = fields[21].GetUInt16();
@@ -971,13 +971,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
     }
 
-    if (cInfo->HealthScalingExpansion > MAX_EXPANSIONS)
+    if ((cInfo->HealthScalingExpansion > (MAX_EXPANSIONS - 1)) && cInfo->HealthScalingExpansion != EXPANSION_LEVEL_CURRENT)
     {
         TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with `HealthScalingExpansion` %u. Ignored and set to 0.", cInfo->Entry, cInfo->HealthScalingExpansion);
         const_cast<CreatureTemplate*>(cInfo)->HealthScalingExpansion = 0;
     }
 
-    if (cInfo->RequiredExpansion > MAX_EXPANSIONS)
+    if (cInfo->RequiredExpansion > (MAX_EXPANSIONS - 1))
     {
         TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with `RequiredExpansion` %u. Ignored and set to 0.", cInfo->Entry, cInfo->RequiredExpansion);
         const_cast<CreatureTemplate*>(cInfo)->RequiredExpansion = 0;
