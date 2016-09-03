@@ -1554,7 +1554,7 @@ public:
     static bool HandleDebugNearGraveyard(ChatHandler* handler, char const* args)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        const WorldSafeLocsEntry* nearestLoc = nullptr;
+        WorldSafeLocsEntry const* nearestLoc = nullptr;
 
         if (stricmp(args, "linked"))
         {
@@ -1577,10 +1577,10 @@ public:
 
             for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
             {
-                const WorldSafeLocsEntry* loc = sWorldSafeLocsStore.LookupEntry(i);
-                if (loc && loc->map_id == player->GetMapId())
+                WorldSafeLocsEntry const* loc = sWorldSafeLocsStore.LookupEntry(i);
+                if (loc && loc->MapID == player->GetMapId())
                 {
-                    float dist = (loc->x - x) * (loc->x - x) + (loc->y - y) * (loc->y - y) + (loc->z - z) * (loc->z - z);
+                    float dist = (loc->Loc.X - x) * (loc->Loc.X - x) + (loc->Loc.Y - y) * (loc->Loc.Y - y) + (loc->Loc.Z - z) * (loc->Loc.Z - z);
                     if (dist < distNearest)
                     {
                         distNearest = dist;
@@ -1591,7 +1591,7 @@ public:
         }
 
         if (nearestLoc)
-            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->x, nearestLoc->y, nearestLoc->z);
+            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->Loc.X, nearestLoc->Loc.Y, nearestLoc->Loc.Z);
         else
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 
