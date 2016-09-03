@@ -3151,7 +3151,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     uint32 gameobject_id = effectInfo->MiscValue;
 
-    GameObject* pGameObj = new GameObject;
+    GameObject* pGameObj = new GameObject();
 
     WorldObject* target = focusObject;
     if (!target)
@@ -3165,7 +3165,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     Map* map = target->GetMap();
 
-    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), G3D::Quat(), 255, GO_STATE_READY))
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
+    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -3190,8 +3191,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
-        GameObject* linkedGO = new GameObject;
-        if (linkedGO->Create(linkedEntry, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), G3D::Quat(), 255, GO_STATE_READY))
+        GameObject* linkedGO = new GameObject();
+        if (linkedGO->Create(linkedEntry, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
         {
             linkedGO->CopyPhaseFrom(m_caster);
 
@@ -3204,11 +3205,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
             map->AddToMap(linkedGO);
         }
         else
-        {
             delete linkedGO;
-            linkedGO = NULL;
-            return;
-        }
     }
 }
 
@@ -3793,7 +3790,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     };
 
     Map* map = m_caster->GetMap();
-    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), pos, G3D::Quat(), 0, GO_STATE_READY))
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), pos, rot, 0, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -4128,7 +4126,8 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
-    if (!go->Create(go_id, map, m_caster->GetPhaseMask(), Position(x, y, z, m_caster->GetOrientation()), G3D::Quat(), 255, GO_STATE_READY))
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+    if (!go->Create(go_id, map, m_caster->GetPhaseMask(), Position(x, y, z, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete go;
         return;
