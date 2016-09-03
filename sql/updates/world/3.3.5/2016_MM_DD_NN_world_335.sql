@@ -264,7 +264,7 @@ INSERT INTO `game_event_gameobject` (`guid`, `eventEntry`) SELECT `guid`, 8 FROM
 INSERT INTO `game_event_gameobject` (`guid`, `eventEntry`) SELECT `guid`, 1 FROM `gameobject` WHERE `guid` BETWEEN @OGUID+224 AND @OGUID+251;
 
 -- STRAND OF THE ANCIENTS
-UPDATE `gameobject_template` SET `flags`=32 WHERE `entry`=194086;
+UPDATE `gameobject_template_addon` SET `flags`=32 WHERE `entry`=194086;
 DELETE FROM `creature` WHERE `map`=607 AND `id` IN (29,23472,24637);
 -- NOTE: THESE SPAWNS ARE WIP AND NEED CLEANUP
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
@@ -326,8 +326,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (@CGUID+55, 24637, 607, 0, 0, 3, 193, 2382.777, 716.7998, -0.318641, 5.652711, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 12340);
 
 -- ISLE OF CONQUEST
-UPDATE `gameobject_template` SET `faction`=84, `flags`=32 WHERE `entry`=195394;
-UPDATE `gameobject_template` SET `flags`=32 WHERE `entry` IN (195393,195396,195313,195314,195315,195316);
+UPDATE `gameobject_template_addon` SET `faction`=84, `flags`=32 WHERE `entry`=195394;
+UPDATE `gameobject_template_addon` SET `flags`=32 WHERE `entry` IN (195393,195396,195313,195314,195315,195316);
 -- avoid 'the the' when 'the alliance/horde' has taken 'the the alliance/horde keep'
 UPDATE `trinity_string` SET `content_default`='alliance keep' WHERE `entry`=1209;
 UPDATE `trinity_string` SET `content_default`='horde keep' WHERE `entry`=1210;
@@ -335,8 +335,21 @@ UPDATE `trinity_string` SET `content_default`='The west gate of the %s is destro
 UPDATE `trinity_string` SET `content_default`='The east gate of the %s is destroyed!' WHERE `entry`=1213;
 UPDATE `trinity_string` SET `content_default`='The south gate of the %s is destroyed!' WHERE `entry`=1214;
 UPDATE `trinity_string` SET `content_default`='The north gate of the %s is destroyed!' WHERE `entry`=1215;
-UPDATE `creature_template_addon` SET `auras`='67323 ' WHERE `entry` IN (34776,35069); -- add aura to siege engine
-DELETE FROM `creature_template_addon` WHERE `entry` IN (35431,35433); -- add missing difficulty entries to creature_template_addon
+-- Siege Engine, misc flags and missing difficulty entry data
+UPDATE `creature_template` SET `unit_flags`=16640 WHERE `entry` IN (34776,35069,35431,35433);
+UPDATE `creature_template` SET `VehicleId`=435 WHERE `entry`=35431;
+UPDATE `creature_template` SET `VehicleId`=514 WHERE `entry`=35433;
+UPDATE `creature_template` SET `ScriptName`='npc_ioc_siege_engine' WHERE `entry` IN (34776,35069);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (35431,35433);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(35431, 0, 0, 0, 1, 0, '67323 '), -- damaged aura, not sure if putting it here or through script, also missing spellscript
-(35433, 0, 0, 0, 1, 0, '67323 ');
+(35431, 0, 0, 0, 1, 0, ''),
+(35433, 0, 0, 0, 1, 0, '');
+DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (35431,35433);
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`)
+SELECT 35431, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer` FROM `vehicle_template_accessory` WHERE `entry`=34776;
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`)
+SELECT 35433, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer` FROM `vehicle_template_accessory` WHERE `entry`=35069;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_ioc_damaged';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(67323, 'spell_ioc_damaged');

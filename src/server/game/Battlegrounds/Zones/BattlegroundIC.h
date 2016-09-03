@@ -389,9 +389,6 @@ enum BG_IC_NPCs
     BG_IC_NPC_KEEP_CANNON_23,
     BG_IC_NPC_KEEP_CANNON_24,
 
-    BG_IC_NPC_SIEGE_ENGINE_A,
-    BG_IC_NPC_SIEGE_ENGINE_H,
-
     BG_IC_NPC_DEMOLISHER_1_A,
     BG_IC_NPC_DEMOLISHER_2_A,
     BG_IC_NPC_DEMOLISHER_3_A,
@@ -474,7 +471,8 @@ enum Spells
     SPELL_SIMPLE_TELEPORT                   = 12980,
     SPELL_TELEPORT_VISUAL_ONLY              = 51347,
     SPELL_PARACHUTE_IC                      = 66657,
-    SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66251
+    SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66251,
+    SPELL_DAMAGED_AURA                      = 67323
 };
 
 enum BG_IC_Objectives
@@ -581,12 +579,14 @@ enum ICNodePointType
 enum ICNodeState : uint8
 {
     NODE_STATE_UNCONTROLLED = 0,
-    NODE_STATE_CONFLICT_A,
-    NODE_STATE_CONFLICT_H,
-    NODE_STATE_CONTROLLED_A,
-    NODE_STATE_CONTROLLED_H,
+    NODE_STATE_CONFLICT     = 1,
+    NODE_STATE_CONFLICT_A   = 1,
+    NODE_STATE_CONFLICT_H   = 2,
+    NODE_STATE_CONTROLLED   = 3,
+    NODE_STATE_CONTROLLED_A = 3,
+    NODE_STATE_CONTROLLED_H = 4,
 
-    NODE_STATE_MAX
+    NODE_STATE_MAX          = 5
 };
 
 // I.E: Hangar, Quarry, Graveyards .. etc
@@ -690,8 +690,10 @@ class BattlegroundIC : public Battleground
         BG_IC_GateState GateStatus[BG_IC_MAXDOOR];
         ICNodePoint nodePoint[MAX_NODE_TYPES];
 
-        ObjectGuid gunshipAllianceGUID;
-        ObjectGuid gunshipHordeGUID;
+        ObjectGuid GunshipGUID[BG_TEAMS_COUNT];
+
+        // we need more control over this spawn so it's not in Bg creature array
+        ObjectGuid SiegeEngineGUID[BG_TEAMS_COUNT];
 
         static uint32 GetNextBanner(ICNodePoint const* node, TeamId team, bool returnDefinitve);
         static uint32 GetGateIDFromEntry(uint32 id);
@@ -700,6 +702,8 @@ class BattlegroundIC : public Battleground
         void UpdateNodeWorldState(ICNodePoint* node);
         void HandleCapturedNodes(ICNodePoint const* node, bool recapture);
         void HandleContestedNodes(ICNodePoint const* node);
+
+        Creature* SpawnSiegeEngine(TeamId team);
 };
 
 #endif

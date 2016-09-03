@@ -37,43 +37,43 @@ uint32 const MAX_REINFORCEMENTS = 300;
 
 BattlegroundSpawnPoint const BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS] =
 {
-    { NPC_OVERLORD_AGMAR,                  { 1295.44f, -765.733f, 70.0541f, 0.000000f }, RESPAWN_ONE_DAY }, //Overlord Agmar 1
-    { NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, { 224.983f, -831.573f, 60.9034f, 0.000000f }, RESPAWN_ONE_DAY }, //High Commander Halford Wyrmbane 2
-    { NPC_KOR_KRON_GUARD,                  { 1296.01f, -773.256f, 69.9580f, 0.292168f }, RESPAWN_ONE_DAY }, // 3
-    { NPC_KOR_KRON_GUARD,                  { 1295.94f, -757.756f, 69.9587f, 6.021650f }, RESPAWN_ONE_DAY }, // 4
-    { NPC_KOR_KRON_GUARD,                  { 1295.09f, -760.927f, 69.9587f, 5.943110f }, RESPAWN_ONE_DAY }, // 5
-    { NPC_KOR_KRON_GUARD,                  { 1295.13f, -769.700f, 69.9500f, 0.340000f }, RESPAWN_ONE_DAY }, // 6
+    { NPC_OVERLORD_AGMAR,                  { 1295.44f, -765.733f, 70.0541f, 0.000000f }, RESPAWN_ONE_DAY },
+    { NPC_HIGH_COMMANDER_HALFORD_WYRMBANE, { 224.983f, -831.573f, 60.9034f, 0.000000f }, RESPAWN_ONE_DAY },
+    { NPC_KOR_KRON_GUARD,                  { 1296.01f, -773.256f, 69.9580f, 0.292168f }, RESPAWN_ONE_DAY },
+    { NPC_KOR_KRON_GUARD,                  { 1295.94f, -757.756f, 69.9587f, 6.021650f }, RESPAWN_ONE_DAY },
+    { NPC_KOR_KRON_GUARD,                  { 1295.09f, -760.927f, 69.9587f, 5.943110f }, RESPAWN_ONE_DAY },
+    { NPC_KOR_KRON_GUARD,                  { 1295.13f, -769.700f, 69.9500f, 0.340000f }, RESPAWN_ONE_DAY },
 
-    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.969f, -822.958f, 60.8151f, 0.463370f }, RESPAWN_ONE_DAY }, // 7
-    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 224.211f, -826.952f, 60.8188f, 6.259610f }, RESPAWN_ONE_DAY }, // 8
-    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.119f, -838.386f, 60.8145f, 5.648570f }, RESPAWN_ONE_DAY }, // 9
-    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.889f, -835.102f, 60.8201f, 6.216420f }, RESPAWN_ONE_DAY }, // 10
+    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.969f, -822.958f, 60.8151f, 0.463370f }, RESPAWN_ONE_DAY },
+    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 224.211f, -826.952f, 60.8188f, 6.259610f }, RESPAWN_ONE_DAY },
+    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.119f, -838.386f, 60.8145f, 5.648570f }, RESPAWN_ONE_DAY },
+    { NPC_SEVEN_TH_LEGION_INFANTRY,        { 223.889f, -835.102f, 60.8201f, 6.216420f }, RESPAWN_ONE_DAY },
 
-    { NPC_KEEP_CANNON,                     { 415.825f, -754.634f, 87.7990f, 1.780240f }, RESPAWN_ONE_DAY }, // 11
-    { NPC_KEEP_CANNON,                     { 410.142f, -755.332f, 87.7991f, 1.780240f }, RESPAWN_ONE_DAY }, // 12
-    { NPC_KEEP_CANNON,                     { 424.330f, -879.352f, 88.0446f, 0.436332f }, RESPAWN_ONE_DAY }, // 13
-    { NPC_KEEP_CANNON,                     { 425.602f, -786.646f, 87.7991f, 5.742130f }, RESPAWN_ONE_DAY }, // 14
-    { NPC_KEEP_CANNON,                     { 426.743f, -884.939f, 87.9613f, 0.436332f }, RESPAWN_ONE_DAY }, // 15
-    { NPC_KEEP_CANNON,                     { 404.736f, -755.495f, 87.7989f, 1.780240f }, RESPAWN_ONE_DAY }, // 16
-    { NPC_KEEP_CANNON,                     { 428.375f, -780.797f, 87.7991f, 5.794490f }, RESPAWN_ONE_DAY }, // 17
-    { NPC_KEEP_CANNON,                     { 429.175f, -890.436f, 88.0446f, 0.436332f }, RESPAWN_ONE_DAY }, // 18
-    { NPC_KEEP_CANNON,                     { 430.872f, -775.278f, 87.7991f, 5.881760f }, RESPAWN_ONE_DAY }, // 19
-    { NPC_KEEP_CANNON,                     { 408.056f, -911.283f, 88.0445f, 4.642580f }, RESPAWN_ONE_DAY }, // 20
-    { NPC_KEEP_CANNON,                     { 413.609f, -911.566f, 88.0447f, 4.660030f }, RESPAWN_ONE_DAY }, // 21
-    { NPC_KEEP_CANNON,                     { 402.554f, -910.557f, 88.0446f, 4.572760f }, RESPAWN_ONE_DAY }, // 22
+    { NPC_KEEP_CANNON,                     { 415.825f, -754.634f, 87.7990f, 1.780240f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 410.142f, -755.332f, 87.7991f, 1.780240f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 424.330f, -879.352f, 88.0446f, 0.436332f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 425.602f, -786.646f, 87.7991f, 5.742130f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 426.743f, -884.939f, 87.9613f, 0.436332f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 404.736f, -755.495f, 87.7989f, 1.780240f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 428.375f, -780.797f, 87.7991f, 5.794490f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 429.175f, -890.436f, 88.0446f, 0.436332f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 430.872f, -775.278f, 87.7991f, 5.881760f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 408.056f, -911.283f, 88.0445f, 4.642580f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 413.609f, -911.566f, 88.0447f, 4.660030f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 402.554f, -910.557f, 88.0446f, 4.572760f }, RESPAWN_ONE_DAY },
 
-    { NPC_KEEP_CANNON,                     { 1158.91f, -660.144f, 87.9332f, 0.750492f }, RESPAWN_ONE_DAY }, // 23
-    { NPC_KEEP_CANNON,                     { 1156.22f, -866.809f, 87.8754f, 5.270890f }, RESPAWN_ONE_DAY }, // 24
-    { NPC_KEEP_CANNON,                     { 1163.74f, -663.670f, 88.3571f, 0.558505f }, RESPAWN_ONE_DAY }, // 25
-    { NPC_KEEP_CANNON,                     { 1135.18f, -683.896f, 88.0409f, 3.961900f }, RESPAWN_ONE_DAY }, // 26
-    { NPC_KEEP_CANNON,                     { 1138.91f, -836.359f, 88.3728f, 2.181660f }, RESPAWN_ONE_DAY }, // 27
-    { NPC_KEEP_CANNON,                     { 1162.08f, -863.717f, 88.3580f, 5.480330f }, RESPAWN_ONE_DAY }, // 28
-    { NPC_KEEP_CANNON,                     { 1167.13f, -669.212f, 87.9682f, 0.383972f }, RESPAWN_ONE_DAY }, // 29
-    { NPC_KEEP_CANNON,                     { 1137.72f, -688.517f, 88.4023f, 3.961900f }, RESPAWN_ONE_DAY }, // 30
-    { NPC_KEEP_CANNON,                     { 1135.29f, -840.878f, 88.0252f, 2.303830f }, RESPAWN_ONE_DAY }, // 31
-    { NPC_KEEP_CANNON,                     { 1144.33f, -833.309f, 87.9268f, 2.146750f }, RESPAWN_ONE_DAY }, // 32
-    { NPC_KEEP_CANNON,                     { 1142.59f, -691.946f, 87.9756f, 3.961900f }, RESPAWN_ONE_DAY }, // 33
-    { NPC_KEEP_CANNON,                     { 1166.13f, -858.391f, 87.9653f, 5.637410f }, RESPAWN_ONE_DAY }  // 34
+    { NPC_KEEP_CANNON,                     { 1158.91f, -660.144f, 87.9332f, 0.750492f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1156.22f, -866.809f, 87.8754f, 5.270890f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1163.74f, -663.670f, 88.3571f, 0.558505f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1135.18f, -683.896f, 88.0409f, 3.961900f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1138.91f, -836.359f, 88.3728f, 2.181660f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1162.08f, -863.717f, 88.3580f, 5.480330f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1167.13f, -669.212f, 87.9682f, 0.383972f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1137.72f, -688.517f, 88.4023f, 3.961900f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1135.29f, -840.878f, 88.0252f, 2.303830f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1144.33f, -833.309f, 87.9268f, 2.146750f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1142.59f, -691.946f, 87.9756f, 3.961900f }, RESPAWN_ONE_DAY },
+    { NPC_KEEP_CANNON,                     { 1166.13f, -858.391f, 87.9653f, 5.637410f }, RESPAWN_ONE_DAY }
 };
 
 Position const BG_IC_WorkshopVehicles[5] =
@@ -388,7 +388,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                 break;
             case EVENT_RESPAWN_DOCK_VEHICLES:
             {
-                ICNodePoint* docks = nodePoint + NODE_TYPE_DOCKS;
+                ICNodePoint const* docks = nodePoint + NODE_TYPE_DOCKS;
                 if (docks->nodeState == NODE_STATE_CONTROLLED_A || docks->nodeState == NODE_STATE_CONTROLLED_H)
                 {
                     // we need to confirm this, i am not sure if this every 3 minutes
@@ -416,12 +416,10 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
             }
             case EVENT_RESPAWN_WORKSHOP_VEHICLES:
             {
-                ICNodePoint* workshop = nodePoint + NODE_TYPE_WORKSHOP;
+                ICNodePoint const* workshop = nodePoint + NODE_TYPE_WORKSHOP;
                 if (workshop->nodeState == NODE_STATE_CONTROLLED_A || workshop->nodeState == NODE_STATE_CONTROLLED_H)
                 {
-                    uint8 siegeType = (workshop->faction == TEAM_ALLIANCE ? BG_IC_NPC_SIEGE_ENGINE_A : BG_IC_NPC_SIEGE_ENGINE_H);
-
-                    if (Creature* siege = GetBGCreature(siegeType, false)) // this always should be true
+                    if (Creature* siege = GetBgMap()->GetCreature(SiegeEngineGUID[workshop->faction])) // this always should be true
                     {
                         if (siege->IsAlive())
                         {
@@ -451,7 +449,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
             case EVENT_UPDATE_RESOURCES:
                 for (uint8 i = NODE_TYPE_REFINERY; i <= NODE_TYPE_QUARRY; ++i)
                 {
-                    ICNodePoint* currentNode = nodePoint + i;
+                    ICNodePoint const* currentNode = nodePoint + i;
                     if (currentNode->nodeState == NODE_STATE_CONTROLLED_A || currentNode->nodeState == NODE_STATE_CONTROLLED_H)
                     {
                         ++factionReinforcements[currentNode->faction];
@@ -531,10 +529,10 @@ void BattlegroundIC::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundICScore(player->GetGUID());
 
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == NODE_STATE_CONTROLLED + player->GetTeamId())
         player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == NODE_STATE_CONTROLLED + player->GetTeamId())
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
@@ -664,15 +662,14 @@ bool BattlegroundIC::SetupBattleground()
 
     Transport* gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, 0, GetBgMap());
     Transport* gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, 0, GetBgMap());
-
     if (!gunshipAlliance || !gunshipHorde)
     {
         TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error creating gunships!");
         return false;
     }
 
-    gunshipHordeGUID = gunshipHorde->GetGUID();
-    gunshipAllianceGUID = gunshipAlliance->GetGUID();
+    GunshipGUID[TEAM_ALLIANCE] = gunshipAlliance->GetGUID();
+    GunshipGUID[TEAM_HORDE] = gunshipHorde->GetGUID();
 
     gunshipHorde->EnableMovement(false);
     gunshipAlliance->EnableMovement(false);
@@ -687,12 +684,10 @@ bool BattlegroundIC::SetupBattleground()
             hordeCannon->setFaction(BG_IC_Factions[TEAM_HORDE]);
 
     // correcting spawn time for keeps bombs
-    for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; ++i)
+    for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i <= BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; ++i)
         if (GameObject* seaforiumBomb = GetBGObject(i, false))
             seaforiumBomb->SetRespawnTime(BG_IC_ObjSpawnlocs[i].SpawnTime);
 
-    _events.ScheduleEvent(EVENT_RESPAWN_DOCK_VEHICLES, DOCKS_UPDATE_TIME);
-    _events.ScheduleEvent(EVENT_RESPAWN_WORKSHOP_VEHICLES, WORKSHOP_UPDATE_TIME);
     _events.ScheduleEvent(EVENT_UPDATE_RESOURCES, IC_RESOURCE_TIME);
     return true;
 }
@@ -911,8 +906,8 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint const* node)
 {
     if (node->nodeType == NODE_TYPE_HANGAR)
     {
-        Transport* gunshipAlliance = HashMapHolder<Transport>::Find(gunshipAllianceGUID);
-        Transport* gunshipHorde = HashMapHolder<Transport>::Find(gunshipHordeGUID);
+        Transport* gunshipAlliance = HashMapHolder<Transport>::Find(GunshipGUID[TEAM_ALLIANCE]);
+        Transport* gunshipHorde = HashMapHolder<Transport>::Find(GunshipGUID[TEAM_HORDE]);
 
         if (gunshipAlliance && gunshipHorde)
             (node->faction == TEAM_ALLIANCE ? gunshipHorde : gunshipAlliance)->EnableMovement(false);
@@ -966,8 +961,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint const* node, bool recapture
         case BG_IC_GO_HANGAR_BANNER_CONT_A:
         case BG_IC_GO_HANGAR_BANNER_CONT_H:
         {
-            Transport* gunshipAlliance = HashMapHolder<Transport>::Find(gunshipAllianceGUID);
-            Transport* gunshipHorde = HashMapHolder<Transport>::Find(gunshipHordeGUID);
+            Transport* gunshipAlliance = HashMapHolder<Transport>::Find(GunshipGUID[TEAM_ALLIANCE]);
+            Transport* gunshipHorde = HashMapHolder<Transport>::Find(GunshipGUID[TEAM_HORDE]);
 
             if (!gunshipAlliance || !gunshipHorde)
                 break;
@@ -1123,26 +1118,21 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint const* node, bool recapture
                 }
 
                 // we check if the opossing siege engine is in use
-                uint8 enemySiege = (node->faction == TEAM_ALLIANCE ? BG_IC_NPC_SIEGE_ENGINE_H : BG_IC_NPC_SIEGE_ENGINE_A);
-                if (Creature* siegeEngine = GetBGCreature(enemySiege, false))
+                if (Creature* siegeEngine = GetBgMap()->GetCreature(SiegeEngineGUID[node->faction == TEAM_ALLIANCE ? TEAM_HORDE: TEAM_ALLIANCE]))
                 {
                     if (Vehicle* vehicleSiege = siegeEngine->GetVehicleKit())
                     {
                         // is VehicleInUse working as expected ?
                         if (!vehicleSiege->IsVehicleInUse())
-                            DelCreature(enemySiege);
+                            siegeEngine->AddObjectToRemoveList();
                     }
                 }
 
-                uint8 siegeType = (node->faction == TEAM_ALLIANCE ? BG_IC_NPC_SIEGE_ENGINE_A : BG_IC_NPC_SIEGE_ENGINE_H);
-                Creature* siege = GetBGCreature(siegeType, false);
+                Creature* siege = GetBgMap()->GetCreature(SiegeEngineGUID[node->faction]);
                 if (!siege || !siege->IsAlive())
                 {
-                    if (Creature* siegeEngine = AddCreature((node->faction == TEAM_ALLIANCE ? NPC_SIEGE_ENGINE_A : NPC_SIEGE_ENGINE_H), siegeType, BG_IC_WorkshopVehicles[4], RESPAWN_ONE_DAY))
-                    {
-                        siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANNOT_SWIM | UNIT_FLAG_IMMUNE_TO_PC);
-                        siegeEngine->setFaction(BG_IC_Factions[node->faction]);
-                    }
+                    if (Creature* siegeEngine = SpawnSiegeEngine(node->faction))
+                        siegeEngine->AddAura(SPELL_DAMAGED_AURA, siegeEngine); // no cast seen on sniff
                 }
             }
 
@@ -1157,6 +1147,44 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint const* node, bool recapture
         default:
             break;
     }
+}
+
+// This is a use case that I only found here.
+// The siege Engine NEEDS to spawn as a vehicle, however without vehiclekit (it's added later by script)
+Creature* BattlegroundIC::SpawnSiegeEngine(TeamId team)
+{
+    uint32 entry = team == TEAM_ALLIANCE ? NPC_SIEGE_ENGINE_A : NPC_SIEGE_ENGINE_H;
+
+    Map* map = FindBgMap();
+    if (!map)
+        return nullptr;
+
+    Creature* creature = new Creature();
+
+    float x, y, z, o;
+    BG_IC_WorkshopVehicles[4].GetPosition(x, y, z, o);
+    if (!creature->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, PHASEMASK_NORMAL, entry, x, y, z, o))
+    {
+        delete creature;
+        return nullptr;
+    }
+
+    // now vehicle kit is created
+    // fortunately nobody has seen it yet
+    creature->RemoveVehicleKit(); // fix'd
+
+    creature->SetHomePosition(*creature);
+    if (!map->AddToMap(creature))
+    {
+        delete creature;
+        return nullptr;
+    }
+
+    SiegeEngineGUID[team] = creature->GetGUID();
+
+    creature->SetRespawnTime(RESPAWN_ONE_DAY);
+
+    return creature;
 }
 
 void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
