@@ -7712,6 +7712,10 @@ void Player::ApplyArtifactPowers(Item* item, bool apply)
 
         ApplyArtifactPowerRank(item, artifactPowerRank, apply);
     }
+
+    if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(item->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
+        if (artifactAppearance->ShapeshiftDisplayID && GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->ModifiesShapeshiftFormDisplay))
+            RestoreDisplayId();
 }
 
 void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply)
