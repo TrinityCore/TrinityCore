@@ -92,7 +92,7 @@ struct TC_GAME_API CreatureTemplate
     int16   minlevel;
     int16   maxlevel;
     int32   expansion;
-    uint32  HealthScalingExpansion;
+    int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
