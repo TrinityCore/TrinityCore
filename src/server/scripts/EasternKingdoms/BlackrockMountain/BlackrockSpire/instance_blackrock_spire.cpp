@@ -383,6 +383,9 @@ public:
                          break;
                 }
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         void Dragonspireroomstore()

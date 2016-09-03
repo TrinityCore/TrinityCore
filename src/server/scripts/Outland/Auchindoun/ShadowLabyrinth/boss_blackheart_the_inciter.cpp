@@ -131,6 +131,9 @@ class boss_blackheart_the_inciter : public CreatureScript
                             events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
