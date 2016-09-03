@@ -176,6 +176,9 @@ class boss_faerlina : public CreatureScript
                             }
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
