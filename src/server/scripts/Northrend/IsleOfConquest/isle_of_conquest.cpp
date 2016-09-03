@@ -238,7 +238,7 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 /*
-                 * HACK: GetWorldLocation() returns real position and not transportposition.
+                 * HACK: GetWorldLocation() returns real position and not transport position.
                  * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
                  * counter: 45
                  * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
@@ -249,11 +249,45 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
                 Transport* gunship = GetHitCreature()->GetTransport();
                 ASSERT(gunship);
 
-                WorldLocation transportPos = GetHitCreature()->GetWorldLocation();
-                transportPos.Relocate(GetHitCreature()->m_movementInfo.transport.pos);
+                Position oldPosition = GetHitCreature()->GetPosition(); // contains absolute coords
+                float x, y, z, o;
+                oldPosition.GetPosition(x, y, z, o);
+                gunship->CalculatePassengerOffset(x, y, z, &o);
+
+                ///@workaround: Player::TeleportTo implementation is incorrect
+                if (caster->GetVehicle())
+                    caster->ExitVehicle();
+
+                // reset movement flags at teleport, because player will continue move with these flags after teleport
+                caster->SetUnitMovementFlags(caster->GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
 
                 gunship->AddPassenger(caster);
-                caster->TeleportTo(transportPos, TELE_TO_NOT_LEAVE_TRANSPORT);
+                caster->AddUnitMovementFlag(MOVEMENTFLAG_FALLING); // seen on sniff
+                caster->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+                // pet should not be unsummoned, rather teleported with owner.
+                // but pets on transports are still not implemented :/
+                caster->UnsummonPetTemporaryIfAny();
+
+                caster->CombatStop();
+                caster->SetFallInformation(0, oldPosition.GetPositionZ());
+
+                // code for finish transfer called in WorldSession::HandleMovementOpcodes()
+                // at client packet MSG_MOVE_TELEPORT_ACK
+                caster->SetSemaphoreTeleportNear(true);
+
+                // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
+                if (!caster->GetSession()->PlayerLogout())
+                {
+                    caster->Relocate(oldPosition);
+
+                    WorldPacket data(MSG_MOVE_TELEPORT, 9 + 4 + 2 + 4 + 4 * 4 + 9 + 4 * 4 + 4 + 1 + 4 + 4 * 4);
+                    data << caster->GetPackGUID();
+                    caster->BuildMovementPacket(&data);
+                    caster->SendMessageToSet(&data, false);
+
+                    caster->SendTeleportAckPacket();
+                }
             }
 
             void Register() override
