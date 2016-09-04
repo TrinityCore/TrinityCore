@@ -329,6 +329,9 @@ class WorldLocation : public Position
         explicit WorldLocation(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
             : Position(_x, _y, _z, _o), m_mapId(_mapId) { }
 
+        WorldLocation(uint32 mapId, Position const& position)
+            : Position(position), m_mapId(mapId) { }
+
         WorldLocation(WorldLocation const& loc)
             : Position(loc), m_mapId(loc.GetMapId()) { }
 

@@ -19,9 +19,9 @@ INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
 
 DELETE FROM `command` WHERE `permission` BETWEEN 837 AND 842;
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES
-('anticheat', 837, 'Syntax: .anticheat $subcommand\nType .anticheat to see the list of possible subcommands or .help anticheat $subcommand to see info on subcommands'),
-('anticheat global', 838, 'Syntax: .anticheat global\n\nShows top 3 global anticheat stadistics'),
-('anticheat player', 839, 'Syntax: .anticheat player [$name]\n\nShows anticheat stadistics for player $name or selected player if not provided'),
-('anticheat handle', 840, 'Syntax: .anticheat handle on|off\n\nEnables/disables AC system'),
-('anticheat jail', 841, 'Syntax: .anticheat jail [$name]\n\nSends GM and player $name (or selected player if not provided) to Jail for interrogation, also freezes player in place'),
-('anticheat warn', 842, 'Syntax: .anticheat warn [$name]\n\nSends a ''friendly'' warning to player $name (or selected player if not provided)');
+('anticheat', 845, 'Syntax: .anticheat $subcommand\nType .anticheat to see the list of possible subcommands or .help anticheat $subcommand to see info on subcommands'),
+('anticheat global', 846, 'Syntax: .anticheat global\n\nShows top 3 global anticheat stadistics'),
+('anticheat player', 847, 'Syntax: .anticheat player [$name]\n\nShows anticheat stadistics for player $name or selected player if not provided'),
+('anticheat handle', 848, 'Syntax: .anticheat handle on|off\n\nEnables/disables AC system'),
+('anticheat jail', 849, 'Syntax: .anticheat jail [$name]\n\nSends GM and player $name (or selected player if not provided) to Jail for interrogation, also freezes player in place'),
+('anticheat warn', 850, 'Syntax: .anticheat warn [$name]\n\nSends a ''friendly'' warning to player $name (or selected player if not provided)');
