@@ -512,6 +512,12 @@ class spell_hun_lock_and_load : public SpellScriptLoader
                 if (!(eventInfo.GetTypeMask() & mask))
                     return;
 
+                // Additional check: do not proc on traps for immolation/explosive trap
+                // (But still do it for the periodic damage part)
+                if (mask == PROC_FLAG_DONE_TRAP_ACTIVATION)
+                    if (!(eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                        return;
+
                 if (!roll_chance_i(aurEff->GetAmount()))
                     return;
 
