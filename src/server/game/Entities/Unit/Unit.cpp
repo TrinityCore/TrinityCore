@@ -6433,15 +6433,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
-                case 3579: // Lock and Load
-                {
-                    // Proc only from periodic (from trap activation proc another aura of this spell)
-                    if (!(procFlag & PROC_FLAG_DONE_PERIODIC) || !roll_chance_i(triggerAmount))
-                        return false;
-                    triggered_spell_id = 56453;
-                    target = this;
-                    break;
-                }
             }
 
             switch (dummySpell->Id)
@@ -8124,14 +8115,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             // Need Interrupt or Silenced mechanic
             if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_INTERRUPT)|(1<<MECHANIC_SILENCE))))
-                return false;
-            break;
-        }
-        // Lock and Load
-        case 56453:
-        {
-            // Proc only from Frost/Freezing trap activation or from Freezing Arrow (the periodic dmg proc handled elsewhere)
-            if (!(procFlag & PROC_FLAG_DONE_TRAP_ACTIVATION) || !procSpell || !(procSpell->SchoolMask & SPELL_SCHOOL_MASK_FROST) || !roll_chance_i(triggerAmount))
                 return false;
             break;
         }
