@@ -1060,6 +1060,7 @@ class boss_icehowl : public CreatureScript
                                         _trampleTargetZ = target->GetPositionZ();
                                         // 2: Hop Backwards
                                         me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - _trampleTargetX, 2*me->GetPositionY() - _trampleTargetY, me->GetPositionZ(), me->GetOrientation(), 30.0f, 20.0f, 0);
+                                        me->SetControlled(false, UNIT_STATE_ROOT);
                                         _stage = 7; //Invalid (Do nothing more than move)
                                     }
                                     else
@@ -1121,7 +1122,6 @@ class boss_icehowl : public CreatureScript
                         }
                         _movementStarted = false;
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->SetControlled(false, UNIT_STATE_ROOT);
                         SetCombatMovement(true);
                         me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->Clear();
