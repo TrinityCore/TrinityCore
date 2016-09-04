@@ -136,6 +136,11 @@ class npc_ioc_siege_engine : public CreatureScript
                     CreatureTemplate const* creatureTemplate = me->GetCreatureTemplate();
                     ASSERT(me->CreateVehicleKit(creatureTemplate->VehicleId, creatureTemplate->Entry));
 
+                    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 9 + 4);
+                    data << me->GetPackGUID();
+                    data << uint32(creatureTemplate->VehicleId);
+                    me->SendMessageToSet(&data, true);
+
                     me->GetVehicleKit()->Install();
                     me->GetVehicleKit()->InstallAllAccessories(false);
                 });
