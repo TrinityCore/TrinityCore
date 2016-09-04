@@ -404,7 +404,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         WorkshopSet Workshops;
 
-        GuidSet DefenderPortalList;
+        GuidSet DefenderPortalList[BG_TEAMS_COUNT];
         GuidSet m_KeepGameObject[BG_TEAMS_COUNT];
         GameObjectBuildingSet BuildingsInZone;
 

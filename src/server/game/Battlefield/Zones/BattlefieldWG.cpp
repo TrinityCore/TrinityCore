@@ -247,45 +247,6 @@ WintergraspObjectPositionData const WGOutsideNPC[WG_MAX_OUTSIDE_NPC] =
     { { 5080.40f, 2199.00f, 359.489f, 2.967f }, 0, BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO },
 };
 
-struct WintergraspTeleporterData
-{
-    uint32 Entry;
-    Position Pos;
-    G3D::Quat Rot;
-};
-
-WintergraspTeleporterData const WGPortalDefenderData[WG_MAX_TELEPORTER + 10] =
-{
-    // Player teleporter
-    { 190763, { 5153.408f, 2901.349f, 409.1913f, -0.06981169f }, { 0.f, 0.f, -0.03489876f, 0.9993908f } },
-    { 191575, { 5153.408f, 2901.349f, 409.1913f, -0.06981169f }, { 0.f, 0.f, -0.03489876f, 0.9993908f } },
-    { 190763, { 5153.931f, 2781.671f, 409.2455f,  1.65806200f }, { 0.f, 0.f,  0.73727700f, 0.6755905f } },
-    { 191575, { 5153.931f, 2781.671f, 409.2455f,  1.65806200f }, { 0.f, 0.f,  0.73727700f, 0.6755905f } },
-    { 190763, { 5196.671f, 2737.345f, 409.1892f, -2.93213900f }, { 0.f, 0.f, -0.99452110f, 0.1045355f } },
-    { 191575, { 5196.671f, 2737.345f, 409.1892f, -2.93213900f }, { 0.f, 0.f, -0.99452110f, 0.1045355f } },
-    { 190763, { 5197.050f, 2944.814f, 409.1913f,  2.33874000f }, { 0.f, 0.f,  0.92050460f, 0.3907318f } },
-    { 191575, { 5197.050f, 2944.814f, 409.1913f,  2.33874000f }, { 0.f, 0.f,  0.92050460f, 0.3907318f } },
-    { 190763, { 5268.698f, 2666.421f, 409.0985f, -0.71558490f }, { 0.f, 0.f, -0.35020730f, 0.9366722f } },
-    { 191575, { 5268.698f, 2666.421f, 409.0985f, -0.71558490f }, { 0.f, 0.f, -0.35020730f, 0.9366722f } },
-    { 190763, { 5269.208f, 3013.838f, 408.8276f, -1.76278200f }, { 0.f, 0.f, -0.77162460f, 0.6360782f } },
-    { 191575, { 5269.208f, 3013.839f, 408.7695f, -1.76277900f }, { 0.f, 0.f, -0.77162360f, 0.6360794f } },
-    { 190763, { 5269.208f, 3013.839f, 408.7695f,  4.52040600f }, { 0.f, 0.f, -0.77162360f, 0.6360794f } },
-    { 190763, { 5311.445f, 2618.931f, 409.0916f, -2.37364400f }, { 0.f, 0.f, -0.92718320f, 0.3746083f } },
-    { 191575, { 5311.445f, 2618.931f, 409.0916f, -2.37364400f }, { 0.f, 0.f, -0.92718320f, 0.3746083f } },
-    { 190763, { 5314.580f, 3055.852f, 408.8620f,  0.54105060f }, { 0.f, 0.f,  0.26723770f, 0.9636307f } },
-    { 191575, { 5314.580f, 3055.852f, 408.8620f,  0.54105060f }, { 0.f, 0.f,  0.26723770f, 0.9636307f } },
-    { 190763, { 5391.277f, 2828.094f, 418.6752f, -2.16420600f }, { 0.f, 0.f, -0.88294700f, 0.4694727f } },
-    { 191575, { 5391.277f, 2828.094f, 418.6752f, -2.16420600f }, { 0.f, 0.f, -0.88294700f, 0.4694727f } },
-    { 192819, { 5401.634f, 2853.667f, 418.6748f,  2.63544400f }, { 0.f, 0.f,  0.96814730f, 0.2503814f } },
-    // Vehicle teleporter
-    { 192951, { 5314.515f, 2703.687f, 408.5502f, -0.89011660f }, { 0.f, 0.f, -0.43051050f, 0.9025856f } },
-    { 192951, { 5316.252f, 2977.042f, 408.5385f, -0.82030330f }, { 0.f, 0.f, -0.39874840f, 0.9170604f } }
-};
-
-// *********************************************************
-// **********Tower Element(GameObject, Creature)************
-// *********************************************************
-
 struct WintergraspGameObjectData
 {
     Position Pos;
@@ -293,6 +254,29 @@ struct WintergraspGameObjectData
     uint32 HordeEntry;
     uint32 AllianceEntry;
 };
+
+WintergraspGameObjectData const WGPortalDefenderData[WG_MAX_TELEPORTER] =
+{
+    // Player teleporter
+    { { 5153.408f, 2901.349f, 409.1913f, -0.06981169f }, { 0.f, 0.f, -0.03489876f, 0.9993908f }, 190763, 191575 },
+    { { 5268.698f, 2666.421f, 409.0985f, -0.71558490f }, { 0.f, 0.f, -0.35020730f, 0.9366722f }, 190763, 191575 },
+    { { 5197.050f, 2944.814f, 409.1913f,  2.33874000f }, { 0.f, 0.f,  0.92050460f, 0.3907318f }, 190763, 191575 },
+    { { 5196.671f, 2737.345f, 409.1892f, -2.93213900f }, { 0.f, 0.f, -0.99452110f, 0.1045355f }, 190763, 191575 },
+    { { 5314.580f, 3055.852f, 408.8620f,  0.54105060f }, { 0.f, 0.f,  0.26723770f, 0.9636307f }, 190763, 191575 },
+    { { 5391.277f, 2828.094f, 418.6752f, -2.16420600f }, { 0.f, 0.f, -0.88294700f, 0.4694727f }, 190763, 191575 },
+    { { 5153.931f, 2781.671f, 409.2455f,  1.65806200f }, { 0.f, 0.f,  0.73727700f, 0.6755905f }, 190763, 191575 },
+    { { 5311.445f, 2618.931f, 409.0916f, -2.37364400f }, { 0.f, 0.f, -0.92718320f, 0.3746083f }, 190763, 191575 },
+    { { 5269.208f, 3013.838f, 408.8276f, -1.76278200f }, { 0.f, 0.f, -0.77162460f, 0.6360782f }, 190763, 191575 },
+
+    { { 5401.634f, 2853.667f, 418.6748f,  2.63544400f }, { 0.f, 0.f,  0.96814730f, 0.2503814f }, 192819, 192819 }, // return portal inside fortress, neutral
+    // Vehicle teleporter
+    { { 5314.515f, 2703.687f, 408.5502f, -0.89011660f }, { 0.f, 0.f, -0.43051050f, 0.9025856f }, 192951, 192951 },
+    { { 5316.252f, 2977.042f, 408.5385f, -0.82030330f }, { 0.f, 0.f, -0.39874840f, 0.9170604f }, 192951, 192951 }
+};
+
+// *********************************************************
+// **********Tower Element(GameObject, Creature)************
+// *********************************************************
 
 struct WintergraspTowerData
 {
@@ -633,11 +617,17 @@ bool BattlefieldWG::SetupBattlefield()
     // Spawning portal defender
     for (uint8 i = 0; i < WG_MAX_TELEPORTER; ++i)
     {
-        WintergraspTeleporterData const& teleporter = WGPortalDefenderData[i];
-        if (GameObject* go = SpawnGameObject(teleporter.Entry, teleporter.Pos, teleporter.Rot))
+        WintergraspGameObjectData const& teleporter = WGPortalDefenderData[i];
+        if (GameObject* go = SpawnGameObject(teleporter.AllianceEntry, teleporter.Pos, teleporter.Rot))
         {
-            DefenderPortalList.insert(go->GetGUID());
-            go->SetFaction(WintergraspFaction[GetDefenderTeam()]);
+            DefenderPortalList[TEAM_ALLIANCE].insert(go->GetGUID());
+            go->SetRespawnTime(GetDefenderTeam() == TEAM_ALLIANCE ? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
+        }
+
+        if (GameObject* go = SpawnGameObject(teleporter.HordeEntry, teleporter.Pos, teleporter.Rot))
+        {
+            DefenderPortalList[TEAM_HORDE].insert(go->GetGUID());
+            go->SetRespawnTime(GetDefenderTeam() == TEAM_HORDE ? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
         }
     }
 
@@ -806,10 +796,14 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         if (GameObject* object = GetGameObject(*itr))
             object->SetRespawnTime(RESPAWN_ONE_DAY);
 
-    // Update portal defender faction
-    for (GuidSet::const_iterator itr = DefenderPortalList.begin(); itr != DefenderPortalList.end(); ++itr)
+    // Update portals
+    for (GuidSet::const_iterator itr = DefenderPortalList[GetDefenderTeam()].begin(); itr != DefenderPortalList[GetDefenderTeam()].end(); ++itr)
         if (GameObject* portal = GetGameObject(*itr))
-            portal->SetFaction(WintergraspFaction[GetDefenderTeam()]);
+            portal->SetRespawnTime(RESPAWN_IMMEDIATELY);
+
+    for (GuidSet::const_iterator itr = DefenderPortalList[GetAttackerTeam()].begin(); itr != DefenderPortalList[GetAttackerTeam()].end(); ++itr)
+        if (GameObject* portal = GetGameObject(*itr))
+            portal->SetRespawnTime(RESPAWN_ONE_DAY);
 
     // Saving data
     for (BfWGGameObjectBuilding* building : BuildingsInZone)
@@ -1929,7 +1923,6 @@ void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool init /*= false*/)
             for (ObjectGuid guid : _gameObjectOnPoint[TEAM_HORDE])
                 if (GameObject* go = _wg->GetGameObject(guid))
                     go->SetRespawnTime(RESPAWN_ONE_DAY);
-
 
             // Updating worldstate
             _state = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT;
