@@ -3137,6 +3137,65 @@ public:
     }
 };
 
+enum TauntFlag
+{
+    SPELL_TAUNT_FLAG    = 51657,
+
+    EMOTE_PLANTS_FLAG   = 28008
+};
+
+// 51640 - Taunt Flag Targeting
+class spell_item_taunt_flag_targeting : public SpellScriptLoader
+{
+    public:
+        spell_item_taunt_flag_targeting() : SpellScriptLoader("spell_item_taunt_flag_targeting") { }
+
+        class spell_item_taunt_flag_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_taunt_flag_targeting_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TAUNT_FLAG))
+                    return false;
+                if (!sBroadcastTextStore.LookupEntry(EMOTE_PLANTS_FLAG))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                {
+                    FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
+                    return;
+                }
+
+                Trinity::Containers::RandomResizeList(targets, 1);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                // we *really* want the unit implementation here
+                // it sends a packet like seen on sniff
+                GetCaster()->Unit::TextEmote(EMOTE_PLANTS_FLAG, GetHitUnit(), false);
+
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_TAUNT_FLAG, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_taunt_flag_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_CORPSE_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_item_taunt_flag_targeting_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_taunt_flag_targeting_SpellScript();
+        }
+};
+
 class spell_item_artifical_stamina : public SpellScriptLoader
 {
 public:
@@ -3524,6 +3583,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trinket_stack("spell_item_toc25_heroic_caster_trinket", SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK, SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER);
     new spell_item_darkmoon_card_greatness();
     new spell_item_mana_drain();
+    new spell_item_taunt_flag_targeting();
     new spell_item_artifical_stamina();
     new spell_item_artifical_damage();
     new spell_item_talisman_of_ascendance();
