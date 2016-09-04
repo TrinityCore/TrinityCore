@@ -778,11 +778,11 @@ class spell_rog_rupture : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture_AuraScript::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
             }
-        };
 
         public:
             // For Glyph of Backstab use
             uint32 BonusDuration;
+        };
 
         AuraScript* GetAuraScript() const override
         {
