@@ -192,10 +192,8 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
         artifact->SetArtifactPower(&newPower);
 
         if (artifact->IsEquipped())
-        {
-            ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, 0);
-            _player->ApplyArtifactPowerRank(artifact, artifactPowerRank, false);
-        }
+            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, 0))
+                _player->ApplyArtifactPowerRank(artifact, artifactPowerRank, false);
     }
 
     for (ItemDynamicFieldArtifactPowers const& power : artifact->GetArtifactPowers())
