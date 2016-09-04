@@ -523,11 +523,6 @@ class spell_hun_lock_and_load : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_TRIGGER, true);
-            }
-
-            void ApplyMarker(ProcEventInfo& eventInfo)
-            {
-                Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_MARKER, true);
             }
 
@@ -537,8 +532,6 @@ class spell_hun_lock_and_load : public SpellScriptLoader
 
                 OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_TRAP_ACTIVATION>, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
                 OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_PERIODIC>, EFFECT_1, SPELL_AURA_DUMMY);
-
-                AfterProc += AuraProcFn(spell_hun_lock_and_load_AuraScript::ApplyMarker);
             }
         };
 
