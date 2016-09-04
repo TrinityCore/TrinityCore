@@ -61,6 +61,7 @@ enum UlduarNPCs
     NPC_STEELFORGED_DEFFENDER               = 33236,
     NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
+    NPC_XT_VOID_ZONE                        = 34001,
     NPC_XT_TOY_PILE                         = 33337,
     NPC_STEELBREAKER                        = 32867,
     NPC_MOLGEIM                             = 32927,
@@ -416,10 +417,15 @@ enum UlduarWorldStates
 enum UlduarAchievementData
 {
     // FL Achievement boolean
-    DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
+    DATA_UNBROKEN               = 29052906, // 2905, 2906 are achievement IDs,
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232,
-    SPELL_LUMBERJACKED_CREDIT = 65296
+    MAX_HERALD_WEAPON_ITEMLEVEL = 232
+};
+
+enum UlduarSharedSpells
+{
+    SPELL_LUMBERJACKED_CREDIT    = 65296,
+    SPELL_TELEPORT_KEEPER_VISUAL = 62940, // used by keepers 
 };
 
 enum UlduarEvents

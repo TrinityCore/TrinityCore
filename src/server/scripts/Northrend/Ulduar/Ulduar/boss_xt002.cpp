@@ -64,6 +64,7 @@ enum Spells
 
     //------------------VOID ZONE--------------------
     SPELL_VOID_ZONE                             = 64203,
+    SPELL_VOID_ZONE_PERIODIC                    = 46262,
 
     // Life Spark
     SPELL_STATIC_CHARGED                        = 64227,
@@ -106,7 +107,7 @@ enum Timers
 {
     TIMER_TYMPANIC_TANTRUM_MIN                  = 32000,
     TIMER_TYMPANIC_TANTRUM_MAX                  = 36000,
-    TIMER_SEARING_LIGHT                         = 20000,
+    TIMER_SEARING_LIGHT                         = 10000,
     TIMER_GRAVITY_BOMB                          = 20000,
     TIMER_HEART_PHASE                           = 30000,
     TIMER_ENERGY_ORB_MIN                        = 9000,
@@ -129,7 +130,6 @@ enum Timers
 
 enum Creatures
 {
-    NPC_VOID_ZONE                               = 34001,
     NPC_LIFE_SPARK                              = 34004,
     NPC_XT002_HEART                             = 33329,
     NPC_XS013_SCRAPBOT                          = 33343,
@@ -262,7 +262,10 @@ class boss_xt002 : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_hardMode && _phase == 1 && !HealthAbovePct(100 - 25 * (_heartExposed+1)))
+                {
+                    Talk(SAY_HEART_OPENED);
                     ExposeHeart();
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -282,8 +285,7 @@ class boss_xt002 : public CreatureScript
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_SEARING_LIGHT);
-
-                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
+                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT * 2);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -305,6 +307,7 @@ class boss_xt002 : public CreatureScript
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_ENTER_HARD_MODE:
+                            Talk(EMOTE_HEART_CLOSED);
                             me->SetFullHealth();
                             DoCast(me, SPELL_HEARTBREAK, true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
@@ -329,7 +332,6 @@ class boss_xt002 : public CreatureScript
                     if (me->GetHealthPct() > (25 * (4 - _heartExposed)))
                         ++_heartExposed;
 
-                    Talk(EMOTE_SCRAPBOT);
                     _healthRecovered = true;
                 }
             }
@@ -364,7 +366,6 @@ class boss_xt002 : public CreatureScript
 
             void ExposeHeart()
             {
-                Talk(SAY_HEART_OPENED);
                 Talk(EMOTE_HEART_OPENED);
 
                 DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
@@ -377,7 +378,7 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD, false);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER, false);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
-                    heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
+                    heart->AddAura(SPELL_EXPOSED_HEART, heart);    //Hack Fix that applies 2x damage aura
                     heart->ChangeSeat(HEART_VEHICLE_SEAT_EXPOSED, true);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
@@ -398,7 +399,6 @@ class boss_xt002 : public CreatureScript
             void SetPhaseOne()
             {
                 Talk(SAY_HEART_CLOSED);
-                Talk(EMOTE_HEART_CLOSED);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -406,7 +406,7 @@ class boss_xt002 : public CreatureScript
 
                 _phase = 1;
 
-                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT / 2);
+                events.RescheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                 events.RescheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                 events.RescheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
 
@@ -811,7 +811,7 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            player->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
+                            xt002->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
             }
 
             void Register() override
@@ -847,7 +847,7 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
                 if (Player* player = GetOwner()->ToPlayer())
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            player->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
+                            xt002->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
             }
 
             void OnPeriodic(AuraEffect const* aurEff)
@@ -909,6 +909,33 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
             return new spell_xt002_gravity_bomb_damage_SpellScript();
         }
 };
+
+//VOID ZONE
+class npc_xt_void_zone : public CreatureScript
+{
+    public:
+        npc_xt_void_zone() : CreatureScript("npc_xt_void_zone") { }
+
+        struct npc_xt_void_zoneAI : public PassiveAI
+        {
+            npc_xt_void_zoneAI(Creature* creature) : PassiveAI(creature)
+            {
+                Initialize();
+            }
+            void Initialize() {
+                DoCastSelf(SPELL_VOID_ZONE_PERIODIC);
+            }
+
+            void UpdateAI(uint32 /*diff*/) override { }
+        };
+        
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_xt_void_zoneAI(creature);
+        }
+
+};
+
 
 class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 {
@@ -1091,6 +1118,7 @@ void AddSC_boss_xt002()
     new npc_boombot();
 
     new npc_life_spark();
+    new npc_xt_void_zone();
     new boss_xt002();
 
     new spell_xt002_searing_light_spawn_life_spark();
