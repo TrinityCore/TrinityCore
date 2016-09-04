@@ -726,11 +726,12 @@ class spell_rog_recuperate : public SpellScriptLoader
         }
 };
 
-// 1943 - Rupture
+// -1943 - Rupture
+#define RuptureScriptName "spell_rog_rupture"
 class spell_rog_rupture : public SpellScriptLoader
 {
     public:
-        spell_rog_rupture() : SpellScriptLoader("spell_rog_rupture") { }
+        spell_rog_rupture() : SpellScriptLoader(RuptureScriptName) { }
 
         class spell_rog_rupture_AuraScript : public AuraScript
         {
@@ -739,6 +740,7 @@ class spell_rog_rupture : public SpellScriptLoader
             bool Load() override
             {
                 Unit* caster = GetCaster();
+                BonusDuration = 0;
                 return caster && caster->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -766,15 +768,81 @@ class spell_rog_rupture : public SpellScriptLoader
                 }
             }
 
+            void ResetDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                BonusDuration = 0;
+            }
+
             void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture_AuraScript::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
             }
         };
+
+        public:
+            // For Glyph of Backstab use
+            uint32 BonusDuration;
 
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_rupture_AuraScript();
+        }
+};
+
+// 63975 - Glyph of Backstab (triggered - serverside)
+class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
+{
+    public:
+        spell_rog_glyph_of_backstab_triggered() : SpellScriptLoader("spell_rog_glyph_of_backstab_triggered") { }
+
+        class spell_rog_glyph_of_backstab_triggered_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_glyph_of_backstab_triggered_SpellScript);
+
+            typedef spell_rog_rupture::spell_rog_rupture_AuraScript RuptureAuraScript;
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster();
+                // search our Rupture aura on target
+                if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
+                {
+                    RuptureAuraScript* ruptureAuraScript = dynamic_cast<RuptureAuraScript*>(aurEff->GetBase()->GetScriptByName(RuptureScriptName));
+                    if (!ruptureAuraScript)
+                        return;
+
+                    uint32& bonusDuration = ruptureAuraScript->BonusDuration;
+
+                    // already includes duration mod from Glyph of Rupture
+                    uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                    uint32 countMax = countMin - bonusDuration;
+
+                    // this glyph
+                    countMax += 6000;
+
+                    if (countMin < countMax)
+                    {
+                        bonusDuration += 2000;
+
+                        aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 2000);
+                        aurEff->GetBase()->SetMaxDuration(countMin + 2000);
+                    }
+
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_glyph_of_backstab_triggered_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_glyph_of_backstab_triggered_SpellScript();
         }
 };
 
@@ -1076,6 +1144,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_prey_on_the_weak();
     new spell_rog_recuperate();
     new spell_rog_rupture();
+    new spell_rog_glyph_of_backstab_triggered();
     new spell_rog_shiv();
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
