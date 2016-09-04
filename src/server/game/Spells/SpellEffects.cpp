@@ -3222,25 +3222,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Backstab
-                case 63975:
-                {
-                    // search our Rupture aura on target
-                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00100000, 0, 0), m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 12000; // this can be wrong, duration should be based on combo-points
-                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin + 2000);
-                        }
-
-                    }
-                    return;
-                }
                 // Glyph of Scourge Strike
                 case 69961:
                 {
