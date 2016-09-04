@@ -30,23 +30,14 @@ struct StaticWintergraspTowerInfo;
 struct StaticWintergraspWorkshopInfo;
 struct WintergraspObjectPositionData;
 
-typedef std::set<GameObject*> GameObjectSet;
-typedef std::set<BfWGGameObjectBuilding*> GameObjectBuildingSet;
-typedef std::set<WintergraspWorkshop*> WorkshopSet;
-typedef std::set<Group*> GroupSet;
-//typedef std::set<WintergraspCapturePoint *> CapturePointSet; unused ?
+typedef std::vector<BfWGGameObjectBuilding*> GameObjectBuildingVect;
+typedef std::vector<WintergraspWorkshop*> WorkshopVect;
 
 // used in Player.cpp
 extern uint32 const ClockWorldState[];
 
 // used in zone_wintergrasp.cpp
 TC_GAME_API extern uint32 const WintergraspFaction[];
-
-enum WintergrastData
-{
-    BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
-    BATTLEFIELD_WG_MAPID                         = 571               // Northrend
-};
 
 enum WintergraspSpells
 {
@@ -106,7 +97,10 @@ enum WintergraspData
     BATTLEFIELD_WG_DATA_DEF_A,
     BATTLEFIELD_WG_DATA_WON_H,
     BATTLEFIELD_WG_DATA_DEF_H,
-    BATTLEFIELD_WG_DATA_MAX
+    BATTLEFIELD_WG_DATA_MAX,
+
+    BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
+    BATTLEFIELD_WG_MAPID                         = 571               // Northrend
 };
 
 enum WintergraspAchievements
@@ -402,16 +396,15 @@ class TC_GAME_API BattlefieldWG : public Battlefield
     protected:
         bool m_isRelicInteractible;
 
-        WorkshopSet Workshops;
+        WorkshopVect Workshops;
 
-        GuidSet DefenderPortalList[BG_TEAMS_COUNT];
-        GuidSet m_KeepGameObject[BG_TEAMS_COUNT];
-        GameObjectBuildingSet BuildingsInZone;
+        GuidVector DefenderPortalList[BG_TEAMS_COUNT];
+        GameObjectBuildingVect BuildingsInZone;
 
-        GuidSet m_vehicles[BG_TEAMS_COUNT];
-        GuidSet CanonList;
-        GuidSet KeepCreature[BG_TEAMS_COUNT];
-        GuidSet OutsideCreature[BG_TEAMS_COUNT];
+        GuidUnorderedSet m_vehicles[BG_TEAMS_COUNT];
+        GuidVector CanonList;
+        GuidVector KeepCreature[BG_TEAMS_COUNT];
+        GuidVector OutsideCreature[BG_TEAMS_COUNT];
 
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
@@ -576,13 +569,13 @@ private:
     StaticWintergraspTowerInfo const* _staticTowerInfo;
 
     // GameObject associations
-    GuidSet m_GameObjectList[BG_TEAMS_COUNT];
+    GuidVector m_GameObjectList[BG_TEAMS_COUNT];
 
     // Creature associations
-    GuidSet m_CreatureBottomList[BG_TEAMS_COUNT];
-    GuidSet m_CreatureTopList[BG_TEAMS_COUNT];
-    GuidSet m_TowerCannonBottomList;
-    GuidSet m_TurretTopList;
+    GuidVector m_CreatureBottomList[BG_TEAMS_COUNT];
+    GuidVector m_CreatureTopList[BG_TEAMS_COUNT];
+    GuidVector m_TowerCannonBottomList;
+    GuidVector m_TurretTopList;
 
 public:
     BfWGGameObjectBuilding(BattlefieldWG* wg, WintergraspGameObjectBuildingType type, uint32 worldState);
@@ -615,8 +608,6 @@ private:
     ObjectGuid _buildGUID;
     WintergraspGameObjectState _state;              // For worldstate
     TeamId _teamControl;                            // Team witch control the workshop
-    GuidSet _creatureOnPoint[BG_TEAMS_COUNT];       // Contain all Creature associate to this point
-    GuidSet _gameObjectOnPoint[BG_TEAMS_COUNT];     // Contain all Gameobject associate to this point
 
     StaticWintergraspWorkshopInfo const* _staticInfo;
 
