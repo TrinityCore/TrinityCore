@@ -627,7 +627,7 @@ void BattlefieldTB::OnStartGrouping()
 
     // Teleport players out of questing area
     for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
-        for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        for (auto itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetAreaId() == TBQuestAreas[m_iCellblockRandom].entry)
                     player->CastSpell(player, TBQuestAreas[m_iCellblockRandom].teleportSpell, true);
@@ -668,7 +668,7 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
 
     for (uint8 team = 0; team < 2; ++team)
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
+        for (auto itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 RemoveAurasFromPlayer(player);
 
@@ -981,7 +981,7 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
     SendUpdateWorldState(uint32(TBTowers[tbTowerId].wsDestroyed), int32(1));
 
     // Attack bonus buff
-    for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+    for (auto itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
             player->CastCustomSpell(SPELL_TOWER_ATTACK_BONUS, SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED), player, TRIGGERED_FULL_MASK);
 
@@ -1012,7 +1012,7 @@ void BattlefieldTB::HandleKill(Player* killer, Unit* victim)
         return;
 
     TeamId killerTeam = killer->GetTeamId();
-    for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
+    for (auto itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
             if (player->GetDistance2d(killer) < 40.0f)
                 PromotePlayer(player);
