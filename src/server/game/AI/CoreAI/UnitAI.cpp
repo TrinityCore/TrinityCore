@@ -287,7 +287,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
 
         if (_caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
             (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 5.0f / 3.0f;
+            rangeMod += 8.0f / 3.0f;
     }
 
     maxRange += rangeMod;
