@@ -56,7 +56,6 @@ enum Spells
     SPELL_HEART_OVERLOAD                        = 62789,
 
     SPELL_HEART_LIGHTNING_TETHER                = 64799,    // Cast on self?
-    SPELL_HEART_RIDE_VEHICLE                    = 63313,
     SPELL_ENRAGE                                = 26662,
     SPELL_STAND                                 = 37752,
     SPELL_SUBMERGE                              = 37751,
@@ -72,7 +71,8 @@ enum Spells
 
     //----------------XT-002 HEART-------------------
     SPELL_EXPOSED_HEART                         = 63849,
-    // Channeled
+    SPELL_HEART_RIDE_VEHICLE                    = 63852,
+    SPELL_RIDE_VEHICLE_EXPOSED                  = 63313, //Heart Exposed
 
     //---------------XM-024 PUMMELLER----------------
     SPELL_ARCING_SMASH                          = 8374,
@@ -367,7 +367,7 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(heart, SPELL_HEART_OVERLOAD);
                     heart->CastSpell(me, SPELL_HEART_LIGHTNING_TETHER);
                     heart->CastSpell(heart, SPELL_HEART_HEAL_TO_FULL, true);
-                    heart->ChangeSeat(HEART_VEHICLE_SEAT_EXPOSED, true);
+                    heart->CastSpell(me, SPELL_RIDE_VEHICLE_EXPOSED, true);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
                }
@@ -403,7 +403,7 @@ class boss_xt002 : public CreatureScript
                 if (!heart)
                     return;
 
-                heart->ChangeSeat(HEART_VEHICLE_SEAT_NORMAL);
+                heart->CastSpell(me, SPELL_HEART_RIDE_VEHICLE, true);
                 heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
