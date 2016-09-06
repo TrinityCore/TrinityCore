@@ -199,10 +199,6 @@ class TC_GAME_API Aura
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
 
-        // Proc system
-        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
-        // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
-        // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
         bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
         void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
         bool IsUsingCharges() const { return m_isUsingCharges; }

@@ -73,7 +73,8 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284,
-    SPELL_DK_GHOUL_THRASH                       = 47480
+    SPELL_DK_GHOUL_THRASH                       = 47480,
+    SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT     = 69961
 };
 
 enum DeathKnightSpellIcons
@@ -963,6 +964,41 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dk_ghoul_explode_SpellScript();
+        }
+};
+
+// 58642 - Glyph of Scourge Strike
+class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_scourge_strike() : SpellScriptLoader("spell_dk_glyph_of_scourge_strike") { }
+
+        class spell_dk_glyph_of_scourge_strike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_scourge_strike_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell(caster, SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_scourge_strike_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_glyph_of_scourge_strike_AuraScript();
         }
 };
 
@@ -2211,6 +2247,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_pact();
     new spell_dk_death_strike();
     new spell_dk_ghoul_explode();
+    new spell_dk_glyph_of_scourge_strike();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_blood_presence_triggered();

@@ -3535,6 +3535,52 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
         }
 };
 
+enum VampiricTouch
+{
+    SPELL_VAMPIRIC_TOUCH_HEAL   = 52724
+};
+
+// 52723 - Vampiric Touch
+// 60501 - Vampiric Touch
+class spell_gen_vampiric_touch : public SpellScriptLoader
+{
+    public:
+        spell_gen_vampiric_touch() : SpellScriptLoader("spell_gen_vampiric_touch") { }
+
+        class spell_gen_vampiric_touch_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_vampiric_touch_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VAMPIRIC_TOUCH_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                int32 bp = damageInfo->GetDamage() / 2;
+                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_vampiric_touch_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_vampiric_touch_AuraScript();
+        }
+};
+
 enum VehicleScaling
 {
     SPELL_GEAR_SCALING      = 66668
@@ -4367,6 +4413,7 @@ void AddSC_generic_spell_scripts()
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
+    new spell_gen_vampiric_touch();
     new spell_gen_vehicle_scaling();
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();

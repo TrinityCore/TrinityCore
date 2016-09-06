@@ -46,6 +46,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA          = 58227
 };
 
 enum PriestSpellIcons
@@ -838,6 +839,55 @@ class spell_pri_renew : public SpellScriptLoader
         }
 };
 
+// 57989 - Shadowfiend Death
+class spell_pri_shadowfiend_death : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowfiend_death() : SpellScriptLoader("spell_pri_shadowfiend_death") { }
+
+        class spell_pri_shadowfiend_death_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_shadowfiend_death_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return false;
+
+                Unit* shadowfiend = eventInfo.GetActor();
+                if (!shadowfiend->GetOwner())
+                    return false;
+
+                return shadowfiend->HealthBelowPctDamaged(1, damageInfo->GetDamage());
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor()->GetOwner();
+                caster->CastSpell(caster, SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_shadowfiend_death_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_shadowfiend_death_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_shadowfiend_death_AuraScript();
+        }
+};
+
 // -32379 - Shadow Word Death
 class spell_pri_shadow_word_death : public SpellScriptLoader
 {
@@ -931,6 +981,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_renew();
+    new spell_pri_shadowfiend_death();
     new spell_pri_shadow_word_death();
     new spell_pri_vampiric_touch();
 }

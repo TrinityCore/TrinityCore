@@ -55,7 +55,11 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
-    SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT         = 59665
+    SPELL_WARRIOR_VIGILANCE_REDIRECT_THREAT         = 59665,
+    SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER = 59725,
+    SPELL_WARRIOR_SECOND_WIND_TRIGGER_1             = 29841,
+    SPELL_WARRIOR_SECOND_WIND_TRIGGER_2             = 29842,
+    SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374
 };
 
 enum WarriorSpellIcons
@@ -352,6 +356,41 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
+// 58375 - Glyph of Blocking
+class spell_warr_glyph_of_blocking : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_blocking() : SpellScriptLoader("spell_warr_glyph_of_blocking") { }
+
+        class spell_warr_glyph_of_blocking_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_blocking_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_BLOCKING))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_glyph_of_blocking_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_glyph_of_blocking_AuraScript();
+        }
+};
+
 // 58387 - Glyph of Sunder Armor
 class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
 {
@@ -388,31 +427,38 @@ class spell_warr_glyph_of_sunder_armor : public SpellScriptLoader
         }
 };
 
-// 59725 - Improved Spell Reflection
+// -59088 - Improved Spell Reflection
 class spell_warr_improved_spell_reflection : public SpellScriptLoader
 {
     public:
         spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
 
-        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
+        class spell_warr_improved_spell_reflection_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
+            PrepareAuraScript(spell_warr_improved_spell_reflection_AuraScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (GetCaster())
-                    unitList.remove(GetCaster());
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true);
             }
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+                OnEffectProc += AuraEffectProcFn(spell_warr_improved_spell_reflection_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const override
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_warr_improved_spell_reflection_SpellScript();
+            return new spell_warr_improved_spell_reflection_AuraScript();
         }
 };
 
@@ -603,6 +649,55 @@ class spell_warr_retaliation : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_warr_retaliation_AuraScript();
+        }
+};
+
+// -29834 - Second Wind
+class spell_warr_second_wind : public SpellScriptLoader
+{
+    public:
+        spell_warr_second_wind() : SpellScriptLoader("spell_warr_second_wind") { }
+
+        class spell_warr_second_wind_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_second_wind_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOND_WIND_TRIGGER_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOND_WIND_TRIGGER_2))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return false;
+
+                return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                static uint32 const triggeredSpells[2] = { SPELL_WARRIOR_SECOND_WIND_TRIGGER_1, SPELL_WARRIOR_SECOND_WIND_TRIGGER_2 };
+
+                Unit* caster = eventInfo.GetActor();
+                uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
+                caster->CastSpell(caster, spellId, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warr_second_wind_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_warr_second_wind_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_second_wind_AuraScript();
         }
 };
 
@@ -872,6 +967,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_damage_shield();
     new spell_warr_deep_wounds();
     new spell_warr_execute();
+    new spell_warr_glyph_of_blocking();
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
@@ -879,6 +975,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_overpower();
     new spell_warr_rend();
     new spell_warr_retaliation();
+    new spell_warr_second_wind();
     new spell_warr_shattering_throw();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();

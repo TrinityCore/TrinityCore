@@ -57,7 +57,15 @@ enum DruidSpells
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_T9_FERAL_RELIC_BEAR         = 67354,
     SPELL_DRUID_T9_FERAL_RELIC_CAT          = 67355,
-    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178
+    SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
+    SPELL_DRUID_T3_PROC_ENERGIZE_MANA       = 28722,
+    SPELL_DRUID_T3_PROC_ENERGIZE_RAGE       = 28723,
+    SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY     = 28724,
+    SPELL_DRUID_BLESSING_OF_THE_CLAW        = 28750,
+    SPELL_DRUID_REVITALIZE_ENERGIZE_MANA    = 48542,
+    SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE    = 48541,
+    SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY  = 48540,
+    SPELL_DRUID_REVITALIZE_ENERGIZE_RP      = 48543
 };
 
 // 1178 - Bear Form (Passive)
@@ -352,6 +360,37 @@ public:
     {
         return new spell_dru_forms_trinket_AuraScript();
     }
+};
+
+// -33943 - Flight Form
+class spell_dru_flight_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_flight_form() : SpellScriptLoader("spell_dru_flight_form") { }
+
+        class spell_dru_flight_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_flight_form_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsInDisallowedMountForm())
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_flight_form_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dru_flight_form_SpellScript();
+        }
 };
 
 // 54846 - Glyph of Starfire
@@ -812,6 +851,70 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
         }
 };
 
+// -48539 - Revitalize
+class spell_dru_revitalize : public SpellScriptLoader
+{
+    public:
+        spell_dru_revitalize() : SpellScriptLoader("spell_dru_revitalize") { }
+
+        class spell_dru_revitalize_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_revitalize_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_REVITALIZE_ENERGIZE_MANA) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_REVITALIZE_ENERGIZE_RP))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (!roll_chance_i(aurEff->GetAmount()))
+                {
+                    PreventDefaultAction();
+                    return;
+                }
+
+                Unit* target = eventInfo.GetProcTarget();
+                uint32 spellId;
+
+                switch (target->getPowerType())
+                {
+                    case POWER_MANA:
+                        spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_MANA;
+                        break;
+                    case POWER_RAGE:
+                        spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE;
+                        break;
+                    case POWER_ENERGY:
+                        spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY;
+                        break;
+                    case POWER_RUNIC_POWER:
+                        spellId = SPELL_DRUID_REVITALIZE_ENERGIZE_RP;
+                        break;
+                    default:
+                        return;
+                }
+
+                eventInfo.GetActor()->CastSpell(target, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_revitalize_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_revitalize_AuraScript();
+        }
+};
+
 // -1079 - Rip
 class spell_dru_rip : public SpellScriptLoader
 {
@@ -1148,37 +1251,6 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
-// -33943 - Flight Form
-class spell_dru_flight_form : public SpellScriptLoader
-{
-    public:
-        spell_dru_flight_form() : SpellScriptLoader("spell_dru_flight_form") { }
-
-        class spell_dru_flight_form_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_flight_form_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->IsInDisallowedMountForm())
-                    return SPELL_FAILED_NOT_SHAPESHIFT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_dru_flight_form_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dru_flight_form_SpellScript();
-        }
-};
-
 // -5217 - Tiger's Fury
 class spell_dru_tiger_s_fury : public SpellScriptLoader
 {
@@ -1233,6 +1305,102 @@ class spell_dru_typhoon : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dru_typhoon_SpellScript();
+        }
+};
+
+// 28716 - Rejuvenation
+class spell_dru_t3_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_t3_2p_bonus() : SpellScriptLoader("spell_dru_t3_2p_bonus") { }
+
+        class spell_dru_t3_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t3_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_T3_PROC_ENERGIZE_MANA) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_T3_PROC_ENERGIZE_RAGE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                if (!roll_chance_i(50))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                Unit* target = eventInfo.GetProcTarget();
+                uint32 spellId;
+
+                switch (target->getPowerType())
+                {
+                    case POWER_MANA:
+                        spellId = SPELL_DRUID_T3_PROC_ENERGIZE_MANA;
+                        break;
+                    case POWER_RAGE:
+                        spellId = SPELL_DRUID_T3_PROC_ENERGIZE_RAGE;
+                        break;
+                    case POWER_ENERGY:
+                        spellId = SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY;
+                        break;
+                    default:
+                        return;
+                }
+
+                eventInfo.GetActor()->CastSpell(target, spellId, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_t3_2p_bonus_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_t3_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t3_2p_bonus_AuraScript();
+        }
+};
+
+// 28744 - Regrowth
+class spell_dru_t3_6p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_t3_6p_bonus() : SpellScriptLoader("spell_dru_t3_6p_bonus") { }
+
+        class spell_dru_t3_6p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t3_6p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_THE_CLAW))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_t3_6p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t3_6p_bonus_AuraScript();
         }
 };
 
@@ -1439,6 +1607,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_eclipse();
     new spell_dru_enrage();
     new spell_dru_forms_trinket();
+    new spell_dru_flight_form();
     new spell_dru_glyph_of_starfire();
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
@@ -1450,6 +1619,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
     new spell_dru_primal_tenacity();
+    new spell_dru_revitalize();
     new spell_dru_rip();
     new spell_dru_savage_defense();
     new spell_dru_savage_roar();
@@ -1457,9 +1627,10 @@ void AddSC_druid_spell_scripts()
     new spell_dru_starfall_dummy();
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
-    new spell_dru_flight_form();
     new spell_dru_tiger_s_fury();
     new spell_dru_typhoon();
+    new spell_dru_t3_2p_bonus();
+    new spell_dru_t3_6p_bonus();
     new spell_dru_t9_feral_relic();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();

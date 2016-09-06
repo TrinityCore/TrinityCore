@@ -58,7 +58,8 @@ enum WarlockSpells
     SPELL_WARLOCK_NETHER_PROTECTION_NATURE          = 54375,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED       = 63321
 };
 
 enum WarlockSpellIcons
@@ -478,6 +479,41 @@ class spell_warl_fel_synergy : public SpellScriptLoader
         {
             return new spell_warl_fel_synergy_AuraScript();
         }
+};
+
+// 63320 - Glyph of Life Tap
+class spell_warl_glyph_of_life_tap : public SpellScriptLoader
+{
+public:
+    spell_warl_glyph_of_life_tap() : SpellScriptLoader("spell_warl_glyph_of_life_tap") { }
+
+    class spell_warl_glyph_of_life_tap_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_glyph_of_life_tap_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            Unit* caster = eventInfo.GetActor();
+            caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED, true);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_life_tap_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warl_glyph_of_life_tap_AuraScript();
+    }
 };
 
 // 63310 - Glyph of Shadowflame
@@ -1010,6 +1046,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_empowerment();
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_synergy();
+    new spell_warl_glyph_of_life_tap();
     new spell_warl_glyph_of_shadowflame();
     new spell_warl_haunt();
     new spell_warl_health_funnel();

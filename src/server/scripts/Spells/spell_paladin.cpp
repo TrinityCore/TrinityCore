@@ -416,6 +416,36 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
         }
 };
 
+// -31871 - Divine Purpose
+class spell_pal_divine_purpose : public SpellScriptLoader
+{
+    public:
+        spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
+
+        class spell_pal_divine_purpose_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_divine_purpose_AuraScript);
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (!roll_chance_i(aurEff->GetAmount()))
+                    return;
+
+                eventInfo.GetProcTarget()->RemoveAurasWithMechanic(1 << MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_divine_purpose_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_divine_purpose_AuraScript();
+        }
+};
+
 // 64205 - Divine Sacrifice
 class spell_pal_divine_sacrifice : public SpellScriptLoader
 {
@@ -1439,6 +1469,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
+    new spell_pal_divine_purpose();
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
