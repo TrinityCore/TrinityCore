@@ -371,7 +371,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<ReorderInfo> Entries;
+            Array<ReorderInfo, MAX_CHARACTERS_PER_REALM> Entries;
         };
 
         class UndeleteCharacter final : public ClientPacket
