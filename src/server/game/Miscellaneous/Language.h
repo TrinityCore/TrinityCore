@@ -112,7 +112,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
     LANG_PVPSTATS                       = 80,
     LANG_PVPSTATS_DISABLED              = 81,
-    // Free 82 - 95
+    LANG_COMMAND_NEARGRAVEYARD          = 82,
+    LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
+    // Free 84 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -1218,6 +1220,8 @@ enum TrinityStrings
     LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
     LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
     LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
-    LANG_INSTANCE_BIND_MISMATCH                   = 11014
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014,
+    LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
+    LANG_SELECT_PLAYER_OR_PET                     = 11016,
 };
 #endif

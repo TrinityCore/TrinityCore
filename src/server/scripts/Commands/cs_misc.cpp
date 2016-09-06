@@ -39,6 +39,7 @@
 #include "SpellHistory.h"
 #include "MiscPackets.h"
 #include "Transport.h"
+#include "MapManager.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -925,9 +926,27 @@ public:
         if (char const* loc = strtok(NULL, " "))
             location_str = loc;
 
-        Player* player = NULL;
-        if (!handler->extractPlayerTarget(player_str, &player))
+        Player* player = nullptr;
+        ObjectGuid targetGUID;
+        if (!handler->extractPlayerTarget(player_str, &player, &targetGUID))
             return false;
+
+        if (!player)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_HOMEBIND);
+            stmt->setUInt64(0, targetGUID.GetCounter());
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+            if (result)
+            {
+                Field* fields = result->Fetch();
+
+                SQLTransaction dummy;
+                Player::SavePositionInDB(WorldLocation(fields[0].GetUInt16(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), 0.0f), fields[1].GetUInt16(), targetGUID, dummy);
+                return true;
+            }
+
+            return false;
+        }
 
         if (player->IsInFlight() || player->IsInCombat())
         {
