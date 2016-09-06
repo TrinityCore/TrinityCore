@@ -91,7 +91,6 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    int32   expansion;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -229,7 +228,7 @@ struct TC_GAME_API CreatureBaseStats
 
     uint32 GenerateHealth(CreatureTemplate const* info) const
     {
-        return uint32(ceil(BaseHealth[info->expansion] * info->ModHealth * info->ModHealthExtra));
+        return uint32(ceil(BaseHealth[info->HealthScalingExpansion] * info->ModHealth * info->ModHealthExtra));
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const
@@ -248,7 +247,7 @@ struct TC_GAME_API CreatureBaseStats
 
     float GenerateBaseDamage(CreatureTemplate const* info) const
     {
-        return BaseDamage[info->expansion];
+        return BaseDamage[info->HealthScalingExpansion];
     }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
