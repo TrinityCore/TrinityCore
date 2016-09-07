@@ -185,7 +185,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_CHARTER                  = 0x00002000, // Item is guild or arena charter
     ITEM_FLAG_UNK5                     = 0x00004000, // Only readable items have this (but not all)
     ITEM_FLAG_UNK6                     = 0x00008000,
-    ITEM_FLAG_UNK7                     = 0x00010000,
+    ITEM_FLAG_REAL_DURATION            = 0x00010000,
     ITEM_FLAG_UNK8                     = 0x00020000,
     ITEM_FLAG_PROSPECTABLE             = 0x00040000, // Item can be prospected
     ITEM_FLAG_UNIQUE_EQUIPPED          = 0x00080000, // You can only equip one of these
@@ -265,7 +265,7 @@ enum ItemFlags3
 
 enum ItemFlagsCustom
 {
-    ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
+    ITEM_FLAGS_CU_UNUSED                = 0x0001,
     ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   // No quest status will be checked when this item drops
     ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004    // Item will always follow group/master/need before greed looting rules
 };
