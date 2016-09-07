@@ -964,15 +964,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
-    if (cInfo->HealthScalingExpansion > (MAX_EXPANSIONS - 1))
+    if (cInfo->HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || cInfo->HealthScalingExpansion > (MAX_EXPANSIONS - 1))
     {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (ID: %u) with invalid `HealthScalingExpansion` %u. Ignored and set to 0.", cInfo->Entry, cInfo->HealthScalingExpansion);
-        const_cast<CreatureTemplate*>(cInfo)->HealthScalingExpansion = 0;
-    }
-
-    if ((cInfo->HealthScalingExpansion > (MAX_EXPANSIONS - 1)) && cInfo->HealthScalingExpansion != EXPANSION_LEVEL_CURRENT)
-    {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with `HealthScalingExpansion` %u. Ignored and set to 0.", cInfo->Entry, cInfo->HealthScalingExpansion);
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (ID: %u) with invalid `HealthScalingExpansion` %i. Ignored and set to 0.", cInfo->Entry, cInfo->HealthScalingExpansion);
         const_cast<CreatureTemplate*>(cInfo)->HealthScalingExpansion = 0;
     }
 
