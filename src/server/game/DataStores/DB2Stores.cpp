@@ -603,6 +603,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         }
 
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
+        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_RECOMMENDED)
+            _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
 
     for (CurvePointEntry const* curvePoint : sCurvePointStore)
@@ -1059,6 +1061,15 @@ char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEF
 ChrSpecializationEntry const* DB2Manager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const
 {
     return _chrSpecializationsByIndex[class_][index];
+}
+
+ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(uint32 class_) const
+{
+    auto itr = _defaultChrSpecializationsByClass.find(class_);
+    if (itr != _defaultChrSpecializationsByClass.end())
+        return itr->second;
+
+    return nullptr;
 }
 
 char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, uint32 locale)
