@@ -16481,11 +16481,6 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
             }
         }
     }
-/*    if (questid == excludeQuestId)
-    {
-        excludeQuestId = 0;
-        return true;
-    } */
     return false;
 }
 
