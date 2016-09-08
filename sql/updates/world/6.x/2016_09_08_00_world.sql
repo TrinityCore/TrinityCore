@@ -13,39 +13,39 @@ UPDATE `creature_template` SET `difficulty_entry_1`=57427 WHERE `entry`=57384;
 UPDATE `creature_template` SET `difficulty_entry_1`=57426 WHERE `entry`=57382;
 UPDATE `creature_template` SET `difficulty_entry_1`=57425 WHERE `entry`=57333;
 
-UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `exp`=3, `faction`=14 WHERE `entry`=57437;
-UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `exp`=3, `faction`=14 WHERE `entry`=57438;
-UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `exp`=3, `faction`=14 WHERE `entry`=57439;
+UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `faction`=14 WHERE `entry`=57437;
+UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `faction`=14 WHERE `entry`=57438;
+UPDATE `creature_template` SET `minlevel`=85, `maxlevel`=85, `faction`=14 WHERE `entry`=57439;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57434;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57435;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57436;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57434;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57435;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57436;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57374;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57375;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57376;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57374;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57375;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57376;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57368;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57369;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57370;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57368;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57369;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57370;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57365;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57366;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57367;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57365;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57366;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57367;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57362;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57363;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57364;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57362;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57363;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57364;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57359;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57360;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57361;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57359;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57360;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57361;
 
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57430;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57428;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57427;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57426;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16 WHERE `entry`=57425;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57430;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57428;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57427;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57426;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16 WHERE `entry`=57425;
 
 UPDATE `creature_template` SET `unit_class`=2 WHERE `entry`=57463;
 UPDATE `creature_template` SET `unit_class`=2 WHERE `entry`=57462;
