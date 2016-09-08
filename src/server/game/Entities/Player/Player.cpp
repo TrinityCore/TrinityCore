@@ -16445,7 +16445,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
 
         QuestStatusData const& q_status = qs_itr->second;
 
-        if ((q_status.Status == QUEST_STATUS_INCOMPLETE) || (turnIn && (q_status.Status == QUEST_STATUS_INCOMPLETE || q_status.Status == QUEST_STATUS_COMPLETE)))
+        if ((q_status.Status == QUEST_STATUS_INCOMPLETE) || (turnIn && q_status.Status == QUEST_STATUS_COMPLETE))
         {
             Quest const* qinfo = sObjectMgr->GetQuestTemplate(questid);
             if (!qinfo)
