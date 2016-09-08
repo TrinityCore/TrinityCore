@@ -22939,6 +22939,7 @@ void Player::SendAurasForTarget(Unit* target) const
     {
         AuraApplication * auraApp = itr->second;
         auraApp->BuildUpdatePacket(data, false);
+        auraApp->SetNeedClientUpdate(false);
     }
 
     GetSession()->SendPacket(&data);
