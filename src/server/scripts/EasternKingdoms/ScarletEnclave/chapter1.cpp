@@ -476,10 +476,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
 
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
@@ -509,8 +509,8 @@ public:
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
-            player->ADD_GOSSIP_ITEM_DB(Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
@@ -1023,7 +1023,6 @@ class npc_scarlet_miner_cart : public CreatureScript
         {
             npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
             }
 

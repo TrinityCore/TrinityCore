@@ -22,17 +22,30 @@
 #include "DetourCommon.h"
 #include <string.h>
 
+#ifdef DT_POLYREF64
+// From Thomas Wang, https://gist.github.com/badboy/6267743
 inline unsigned int dtHashRef(dtPolyRef a)
 {
-    // Edited by TC
-    a = (~a) + (a << 18);
-    a = a ^ (a >> 31);
-    a = a * 21;
-    a = a ^ (a >> 11);
-    a = a + (a << 6);
-    a = a ^ (a >> 22);
-    return (unsigned int)a;
+	a = (~a) + (a << 18); // a = (a << 18) - a - 1;
+	a = a ^ (a >> 31);
+	a = a * 21; // a = (a + (a << 2)) + (a << 4);
+	a = a ^ (a >> 11);
+	a = a + (a << 6);
+	a = a ^ (a >> 22);
+	return (unsigned int)a;
 }
+#else
+inline unsigned int dtHashRef(dtPolyRef a)
+{
+	a += ~(a<<15);
+	a ^=  (a>>10);
+	a +=  (a<<3);
+	a ^=  (a>>6);
+	a += ~(a<<11);
+	a ^=  (a>>16);
+	return (unsigned int)a;
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
@@ -44,7 +57,9 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_nodeCount(0)
 {
 	dtAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
-	dtAssert(m_maxNodes > 0);
+	// pidx is special as 0 means "none" and 1 is the first node. For that reason
+	// we have 1 fewer nodes available than the number of values it can contain.
+	dtAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);
 
 	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
 	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*m_maxNodes, DT_ALLOC_PERM);

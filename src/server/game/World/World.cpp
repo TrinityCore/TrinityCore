@@ -1489,6 +1489,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
+    TC_LOG_INFO("server.loading", "Loading Game Object template addons...");
+    sObjectMgr->LoadGameObjectTemplateAddons();
+
     TC_LOG_INFO("server.loading", "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
@@ -1891,6 +1894,9 @@ void World::SetInitialWorldSettings()
     // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
     Channel::CleanOldChannelsInDB();
 
+    TC_LOG_INFO("server.loading", "Initializing Opcodes...");
+    opcodeTable.Initialize();
+
     TC_LOG_INFO("server.loading", "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
 
@@ -2193,6 +2199,7 @@ void World::Update(uint32 diff)
 
             stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME));
             stmt->setUInt32(1, uint32(time(0)));
+            stmt->setUInt32(2, realm.Id.Realm);
 
             LoginDatabase.Execute(stmt);
         }
@@ -3224,6 +3231,9 @@ void World::setWorldState(uint32 index, uint64 value)
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     if (it != m_worldstates.end())
     {
+        if (it->second == value)
+            return;
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
 
         stmt->setUInt32(0, uint32(value));

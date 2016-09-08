@@ -104,7 +104,7 @@ class boss_kologarn : public CreatureScript
                 left(false), right(false)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                me->SetControlled(true, UNIT_STATE_ROOT);
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
@@ -309,6 +309,9 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

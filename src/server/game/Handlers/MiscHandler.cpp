@@ -451,8 +451,6 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
         //! DISABLE_ROTATE
         GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
 void WorldSession::HandleTogglePvP(WorldPacket& recvData)
@@ -1625,7 +1623,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     recvData.read_skip<float>();                           // unk2
 
-    _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
+    _player->m_unitMovedByMe->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)

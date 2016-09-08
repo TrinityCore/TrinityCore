@@ -48,6 +48,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         ~SmartAI(){ }
         explicit SmartAI(Creature* c);
 
+        // Check whether we are currently permitted to make the creature take action
+        bool IsAIControlled() const;
+
         // Start moving to the desired MovePoint
         void StartPath(bool run = false, uint32 path = 0, bool repeat = false, Unit* invoker = nullptr);
         bool LoadPath(uint32 entry);
@@ -129,9 +132,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         // called when the corpse of this creature gets removed
         void CorpseRemoved(uint32& respawnDelay) override;
 
-        // Called at World update tick if creature is charmed
-        void UpdateAIWhileCharmed(const uint32 diff);
-
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
@@ -172,6 +172,8 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetSwim(bool swim = true);
 
+        void SetEvadeDisabled(bool disable = true);
+
         void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
         void sGossipHello(Player* player) override;
@@ -195,6 +197,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnSpellClick(Unit* clicker, bool& result) override;
 
     private:
+        bool mIsCharmed;
         uint32 mFollowCreditType;
         uint32 mFollowArrivedTimer;
         uint32 mFollowCredit;
@@ -217,6 +220,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
         bool mCanRepeatPath;
         bool mRun;
+        bool mEvadeDisabled;
         bool mCanAutoAttack;
         bool mCanCombatMove;
         bool mForcedPaused;

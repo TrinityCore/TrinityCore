@@ -843,8 +843,9 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
                 return false;
         }
         /// Aura must have negative or neutral(PROC_FLAG_DONE_PERIODIC only) procflags for a DOT to proc
+        /// Traps are negative spells but not always do damage (only hunter traps set PROC_FLAG_DONE_TRAP_ACTIVATION)
         else if (EventProcFlag != PROC_FLAG_DONE_PERIODIC)
-            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
+            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_DONE_TRAP_ACTIVATION)))
                 return false;
     }
 
@@ -1123,6 +1124,11 @@ SpellAreaForAuraMapBounds SpellMgr::GetSpellAreaForAuraMapBounds(uint32 spell_id
 SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id) const
 {
     return mSpellAreaForAreaMap.equal_range(area_id);
+}
+
+SpellAreaForQuestAreaMapBounds SpellMgr::GetSpellAreaForQuestAreaMapBounds(uint32 area_id, uint32 quest_id) const
+{
+    return mSpellAreaForQuestAreaMap.equal_range(std::pair<uint32, uint32>(area_id, quest_id));
 }
 
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
@@ -2720,6 +2726,12 @@ void SpellMgr::LoadSpellAreas()
         if (spellArea.auraSpell)
             mSpellAreaForAuraMap.insert(SpellAreaForAuraMap::value_type(abs(spellArea.auraSpell), sa));
 
+        if (spellArea.areaId && spellArea.questStart)
+            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questStart), sa));
+
+        if (spellArea.areaId && spellArea.questEnd)
+            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questEnd), sa));
+
         ++count;
     } while (result->NextRow());
 
@@ -3127,6 +3139,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
+            case 53257: // Cobra Strikes
                 spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;

@@ -28,7 +28,7 @@ class TC_DATABASE_API SQLQueryHolder
         std::vector<SQLResultPair> m_queries;
     public:
         SQLQueryHolder() { }
-        ~SQLQueryHolder();
+        virtual ~SQLQueryHolder();
         bool SetQuery(size_t index, const char* sql);
         template<typename Format, typename... Args>
         bool SetPQuery(size_t index, Format&& sql, Args&&... args)
