@@ -1,4 +1,4 @@
-ALTER TABLE `hotfixes`.`creature_difficulty`   
+ALTER TABLE `creature_difficulty`   
   CHANGE `Flags1` `Flags1` INT(10) UNSIGNED DEFAULT 0 NOT NULL  AFTER `CreatureID`,
   CHANGE `Flags2` `Flags2` INT(10) UNSIGNED DEFAULT 0 NOT NULL  AFTER `Flags1`,
   CHANGE `Flags3` `Flags3` INT(10) UNSIGNED DEFAULT 0 NOT NULL  AFTER `Flags2`,
