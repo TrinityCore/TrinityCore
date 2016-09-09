@@ -488,6 +488,9 @@ public:
                             break;
                         }
                     }
+
+                    if (!events.IsInPhase(PHASE_ONE) && me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!_frostboltCooldown)

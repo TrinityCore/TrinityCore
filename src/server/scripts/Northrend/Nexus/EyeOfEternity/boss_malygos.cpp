@@ -990,6 +990,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING) && _phase != PHASE_NOT_STARTED)
+                    return;
             }
 
             if (_phase != PHASE_THREE)

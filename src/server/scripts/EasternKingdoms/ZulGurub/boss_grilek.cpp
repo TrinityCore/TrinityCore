@@ -98,6 +98,9 @@ class boss_grilek : public CreatureScript // grilek
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
