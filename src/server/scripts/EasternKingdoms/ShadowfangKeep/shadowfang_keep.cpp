@@ -230,12 +230,14 @@ enum ArugalEvents
     EVENT_ARUGAL_CURSE          = 4
 };
 
-std::array<uint32, 3> arugalTeleportSpells =
+std::array<uint32, spellsSize> arugalTeleportSpells =
 {
-    SPELL_TELE_UPPER,
-    SPELL_TELE_STAIRS,
-    SPELL_TELE_SPAWN
+    { SPELL_TELE_UPPER,  }
+    { SPELL_TELE_STAIRS, }
+    { SPELL_TELE_SPAWN   }
 };
+
+const uint32 spellsSize = 3;
 
 class boss_archmage_arugal : public CreatureScript
 {
@@ -245,11 +247,6 @@ public:
     struct boss_archmage_arugalAI : public BossAI
     {
         boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
-
-        void Reset() override
-        {
-            _Reset();
-        }
 
         void KilledUnit(Unit* who) override
         {
@@ -275,9 +272,6 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (!who)
-                return;
-
             AttackStartCaster(who, 100.0f); // void bolt range is 100.f
         }
 
@@ -291,7 +285,7 @@ public:
 
             events.Update(diff);
 
-            while (auto eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -303,9 +297,8 @@ public:
                         break;
                     case EVENT_ARUGAL_TELEPORT:
                     {
-                        auto spell = arugalTeleportSpells.front();
-                        DoCast(spell); 
-                        // rotate array, can be done with some kind of shuffle. Up to you to figure out what is best.
+                        uint32 spell = arugalTeleportSpells.front();
+                        DoCast(spell);
                         std::rotate(arugalTeleportSpells.begin(), arugalTeleportSpells.begin() + 1, arugalTeleportSpells.end());
                         events.ScheduleEvent(eventId, Seconds(20));
                         break;
