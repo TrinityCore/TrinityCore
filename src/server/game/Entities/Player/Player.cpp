@@ -16460,7 +16460,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
             // This part for ReqItem drop
             for (uint8 j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
             {
-                if ((itemid == qinfo->RequiredItemId[j] && q_status.ItemCount[j] < qinfo->RequiredItemCount[j]) || (turnIn && q_status.ItemCount[j] <= qinfo->RequiredItemCount[j]))
+                if ((itemid == qinfo->RequiredItemId[j] && q_status.ItemCount[j] < qinfo->RequiredItemCount[j]) || (turnIn && q_status.ItemCount[j] = qinfo->RequiredItemCount[j]))
                     return true;
             }
             // This part - for ReqSource
@@ -16472,13 +16472,13 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
 
                     // 'unique' item
-                    if (pProto->MaxCount && int32(GetItemCount(itemid, true)) < pProto->MaxCount)
+                    if ((pProto->MaxCount && int32(GetItemCount(itemid, true)) < pProto->MaxCount) || (turnIn && int32(GetItemCount(itemid, true)) = pProto->MaxCount))
                         return true;
 
                     // allows custom amount drop when not 0
                     if (qinfo->ItemDropQuantity[j])
                     {
-                        if (GetItemCount(itemid, true) < qinfo->ItemDropQuantity[j])
+                        if ((GetItemCount(itemid, true) < qinfo->ItemDropQuantity[j]) || (turnIn && GetItemCount(itemid, true) = qinfo->ItemDropQuantity[j]))
                             return true;
                     } else if (GetItemCount(itemid, true) < pProto->GetMaxStackSize())
                         return true;
