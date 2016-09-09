@@ -195,7 +195,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
         if (Item* item = player->GetItemByGuid(att.ItemGUID))
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
