@@ -280,6 +280,9 @@ class boss_gormok : public CreatureScript
                         default:
                             return;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -614,6 +617,9 @@ struct boss_jormungarAI : public BossAI
                 default:
                     return;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
         if (events.IsInPhase(PHASE_MOBILE))
             DoMeleeAttackIfReady();
@@ -1004,6 +1010,9 @@ class boss_icehowl : public CreatureScript
                                 default:
                                     break;
                             }
+
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                                return;
                         }
                         DoMeleeAttackIfReady();
                         break;
@@ -1051,6 +1060,7 @@ class boss_icehowl : public CreatureScript
                                         _trampleTargetZ = target->GetPositionZ();
                                         // 2: Hop Backwards
                                         me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - _trampleTargetX, 2*me->GetPositionY() - _trampleTargetY, me->GetPositionZ(), me->GetOrientation(), 30.0f, 20.0f, 0);
+                                        me->SetControlled(false, UNIT_STATE_ROOT);
                                         _stage = 7; //Invalid (Do nothing more than move)
                                     }
                                     else
@@ -1060,6 +1070,9 @@ class boss_icehowl : public CreatureScript
                                 default:
                                     break;
                             }
+
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                                return;
                         }
                         break;
                     case 4:
@@ -1109,7 +1122,6 @@ class boss_icehowl : public CreatureScript
                         }
                         _movementStarted = false;
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->SetControlled(false, UNIT_STATE_ROOT);
                         SetCombatMovement(true);
                         me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->Clear();
