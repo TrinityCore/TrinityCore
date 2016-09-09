@@ -259,6 +259,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!events.IsInPhase(PHASE_EVENT))

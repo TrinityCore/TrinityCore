@@ -507,14 +507,6 @@ void BossAI::_EnterCombat()
     ScheduleTasks();
 }
 
-bool BossAI::CanRespawn()
-{
-    if (instance && instance->GetBossState(_bossId) == DONE)
-        return false;
-
-    return true;
-}
-
 void BossAI::TeleportCheaters()
 {
     float x, y, z;
@@ -550,7 +542,11 @@ void BossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }
@@ -631,7 +627,11 @@ void WorldBossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }

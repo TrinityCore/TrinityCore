@@ -323,6 +323,9 @@ class boss_devourer_of_souls : public CreatureScript
                             }
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

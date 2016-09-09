@@ -163,7 +163,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     Position interPosition(lastPosition.m_positionX + (xDiff * (float(interDiff) / float(timeDiff))), lastPosition.m_positionY +
         (yDiff * (float(interDiff) / float(timeDiff))), lastPosition.m_positionZ + (zDiff * (float(interDiff) / float(timeDiff))));
 
-    // Advance (at speed) to this position. The remote sight object is used 
+    // Advance (at speed) to this position. The remote sight object is used
     // to send update information to player in cinematic
     if (m_CinematicObject && interPosition.IsPositionValid())
         m_CinematicObject->MonsterMoveWithSpeed(interPosition.m_positionX, interPosition.m_positionY, interPosition.m_positionZ, 500.0f, false, true);

@@ -264,6 +264,9 @@ class boss_steelbreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60000, 35000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -429,6 +432,9 @@ class boss_runemaster_molgeim : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(30000, 45000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -637,6 +643,9 @@ class boss_stormcaller_brundir : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
