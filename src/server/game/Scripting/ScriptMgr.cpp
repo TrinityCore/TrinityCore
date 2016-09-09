@@ -2115,9 +2115,9 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
 }
 
-void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
 }
 
 // Account
