@@ -82,6 +82,9 @@ public:
                         events.ScheduleEvent(EVENT_STUN_BOMB, 14000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

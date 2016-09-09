@@ -121,6 +121,9 @@ class boss_darkmaster_gandling : public CreatureScript
                                 events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
                             }
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 DoMeleeAttackIfReady();
             }
