@@ -15,6 +15,7 @@
 - [ ] 
 - [ ] 
 
+**NOTE** Enable the setting "Allow edits from maintainers." when creating your pull request.
 **NOTE** If your Pull Request is ONLY SQL create an issue instead!
 **NOTE** You no longer need to squash your commits, on merge we will squash it for you. (GitHub added a new feature)
 
