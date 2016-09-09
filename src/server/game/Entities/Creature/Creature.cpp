@@ -47,6 +47,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Transport.h"
+#include "ScriptedGossip.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -517,9 +518,9 @@ void Creature::Update(uint32 diff)
             time_t now = time(NULL);
             if (m_respawnTime <= now)
             {
-                bool allowed = IsAIEnabled ? AI()->CanRespawn() : true;     // First check if there are any scripts that object to us respawning
-                if (!allowed)                                               // Will be rechecked on next Update call
-                    break;
+                // First check if there are any scripts that object to us respawning
+                if (!sScriptMgr->CanSpawn(GetSpawnId(), GetCreatureTemplate(), GetCreatureData(), GetMap()))
+                    break; // Will be rechecked on next Update call
 
                 ObjectGuid dbtableHighGuid(HighGuid::Unit, GetEntry(), m_spawnId);
                 time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
@@ -972,12 +973,12 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
     if (!player->GetBGAccessByLevel(bgTypeId))
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (bgTypeId)
         {
-            case BATTLEGROUND_AV:  player->PlayerTalkClass->SendGossipMenu(7616, GetGUID()); break;
-            case BATTLEGROUND_WS:  player->PlayerTalkClass->SendGossipMenu(7599, GetGUID()); break;
-            case BATTLEGROUND_AB:  player->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
+            case BATTLEGROUND_AV:  SendGossipMenuFor(player, 7616, this); break;
+            case BATTLEGROUND_WS:  SendGossipMenuFor(player, 7599, this); break;
+            case BATTLEGROUND_AB:  SendGossipMenuFor(player, 7642, this); break;
             case BATTLEGROUND_EY:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -985,7 +986,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
+            case BATTLEGROUND_RV:  SendGossipMenuFor(player, 10024, this); break;
             default: break;
         }
         return false;
@@ -1387,6 +1388,11 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
     m_deathState = ALIVE;
 
     m_respawnTime  = GetMap()->GetCreatureRespawnTime(m_spawnId);
+
+    // Is the creature script objecting to us spawning? If yes, delay by one second (then re-check in ::Update)
+    if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetCreatureTemplate(), GetCreatureData(), map))
+        m_respawnTime = time(NULL)+1;
+
     if (m_respawnTime)                          // respawn on Update
     {
         m_deathState = DEAD;

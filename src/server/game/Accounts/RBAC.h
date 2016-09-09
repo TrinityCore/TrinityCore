@@ -746,6 +746,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
+    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
+    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 844, // not on 3.3.5a
 
     // custom permissions 1000+
     RBAC_PERM_MAX

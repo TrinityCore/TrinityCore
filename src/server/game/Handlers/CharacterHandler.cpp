@@ -736,8 +736,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     m_playerLoading = true;
     ObjectGuid playerGuid;
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
-
     recvData >> playerGuid;
 
     if (!IsLegitCharacterForAccount(playerGuid))
@@ -826,13 +824,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         data.put(0, linecount);
 
         SendPacket(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent motd (SMSG_MOTD)");
 
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(GitRevision::GetFullVersion());
-
-        TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUID().GetCounter());
