@@ -44,24 +44,24 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         TransmogDisplayVendorMgr::selectionStore.RemoveSelection(player->GetGUID().GetCounter());
         WorldSession* session = player->GetSession();
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; slot++)
         {
             // if (player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             if (const char* slotName = TransmogDisplayVendorMgr::getSlotName(slot, session))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, slotName, SENDER_SELECT_VENDOR, slot);
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, slotName, SENDER_SELECT_VENDOR, slot);
         }
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "Remove transmogrifications", SENDER_REMOVE_MENU, 0);
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Remove transmogrifications", SENDER_REMOVE_MENU, 0);
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
         WorldSession* session = player->GetSession();
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (sender)
         {
             case SENDER_SELECT_VENDOR: // action = slot
@@ -75,7 +75,7 @@ public:
                     return true;
                 }
                 const ItemTemplate * itemTemplate = item->GetTemplate();
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, (std::string)"Update selected; " + TransmogDisplayVendorMgr::getItemName(itemTemplate, session), sender, action);
+                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, (std::string)"Update selected; " + TransmogDisplayVendorMgr::getItemName(itemTemplate, session), sender, action);
 
                 // [quality] = {size}
                 std::map<uint32, uint32> L;
@@ -118,7 +118,7 @@ public:
                         ss << TransmogDisplayVendorMgr::getQualityName(it->first);
                         if (count)
                             ss << " [" << count << "]";
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, ss.str().c_str(), it->first, count*MAX_VENDOR_ITEMS);
+                        AddGossipItemFor(player, GOSSIP_ICON_VENDOR, ss.str().c_str(), it->first, count*MAX_VENDOR_ITEMS);
                     }
                 }
 
@@ -132,8 +132,8 @@ public:
 
                 SelectionStore::Selection temp = { item->GetEntry(), static_cast<uint8>(action), 0, 0 }; // entry, slot, offset, quality
                 TransmogDisplayVendorMgr::selectionStore.SetSelection(player->GetGUID().GetCounter(), temp);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             } break;
             case SENDER_BACK: // Back
             {
@@ -195,11 +195,11 @@ public:
                         continue;
                     std::ostringstream ss;
                     ss << "Remove transmogrification from " << slotname << "?";
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, (std::string)"Remove from " + slotname, SENDER_REMOVE_ONE, slot, ss.str().c_str(), 0, false);
+                    AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, (std::string)"Remove from " + slotname, SENDER_REMOVE_ONE, slot, ss.str().c_str(), 0, false);
                 }
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, "Remove all transmogrifications", SENDER_REMOVE_ALL, 0, "Are you sure you want to remove all transmogrifications?", 0, false);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "Remove all transmogrifications", SENDER_REMOVE_ALL, 0, "Are you sure you want to remove all transmogrifications?", 0, false);
+                AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             } break;
             default: // Show items you can use
             {
@@ -292,7 +292,7 @@ public:
                         OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                         return true;
                     }
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
 
                     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LIST_INVENTORY");
 
