@@ -449,7 +449,7 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (_owner->GetPlayer()->CanUseItem(itemTemplate) != EQUIP_ERR_OK)
         return false;
 
-    if (itemTemplate->GetFlags2() & ITEM_FLAG2_CANNOT_TRANSMOG || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
+    if (itemTemplate->GetFlags2() & ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
         return false;
 
     switch (itemTemplate->GetClass())
@@ -502,7 +502,7 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     }
 
     if (itemTemplate->GetQuality() < ITEM_QUALITY_UNCOMMON)
-        if (!(itemTemplate->GetFlags2() & ITEM_FLAG2_CAN_TRANSMOG) || !(itemTemplate->GetFlags3() & 0x200000))
+        if (!(itemTemplate->GetFlags2() & ITEM_FLAG2_IGNORE_QUALITY_FOR_ITEM_VISUAL_SOURCE) || !(itemTemplate->GetFlags3() & ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION))
             return false;
 
     if (itemModifiedAppearance->ID < _appearances.size() && _appearances.test(itemModifiedAppearance->ID))
