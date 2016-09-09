@@ -843,8 +843,9 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
                 return false;
         }
         /// Aura must have negative or neutral(PROC_FLAG_DONE_PERIODIC only) procflags for a DOT to proc
+        /// Traps are negative spells but not always do damage (only hunter traps set PROC_FLAG_DONE_TRAP_ACTIVATION)
         else if (EventProcFlag != PROC_FLAG_DONE_PERIODIC)
-            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)))
+            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_DONE_TRAP_ACTIVATION)))
                 return false;
     }
 
@@ -3138,6 +3139,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
+            case 53257: // Cobra Strikes
                 spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;

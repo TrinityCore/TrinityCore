@@ -1998,7 +1998,6 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
         (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||     // Freezing and Frost Trap, Freezing Arrow
         m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
         m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
-
         m_procAttacker |= PROC_FLAG_DONE_TRAP_ACTIVATION;
 
     /* Effects which are result of aura proc from triggered spell cannot proc
@@ -3656,15 +3655,18 @@ void Spell::finish(bool ok)
     {
         if (!m_triggeredByAuraSpell)
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
+    }
 
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+    {
         // triggered spell pointer can be not set in some cases
         // this is needed for proper apply of triggered spell mods
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+        modOwner->SetSpellModTakingSpell(this, true);
 
         // Take mods after trigger spell (needed for 14177 to affect 48664)
         // mods are taken only on succesfull cast and independantly from targets of the spell
-        m_caster->ToPlayer()->RemoveSpellMods(this);
-        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+        modOwner->RemoveSpellMods(this);
+        modOwner->SetSpellModTakingSpell(this, false);
     }
 
     // Stop Attack for some spells
@@ -5641,7 +5643,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 dispel_immune |= SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[i].MiscValue));
         }
         // immune movement impairment and loss of control
-        if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752 || m_spellInfo->Id == 19574)
+        if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752 || m_spellInfo->Id == 19574 || m_spellInfo->Id == 53490)
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
 
@@ -6935,7 +6937,13 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
 
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->SetSpellModTakingSpell(this, true);
+
     targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+        modOwner->SetSpellModTakingSpell(this, false);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)

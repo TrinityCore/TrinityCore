@@ -177,17 +177,17 @@ struct AchievementCriteriaData
         {
             uint32 mapId;
         } map_id;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY      = 21
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY      = 22
         struct
         {
             uint32 nth_birthday;
         } birthday_login;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_KNOWN_TITLE       = 22
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_KNOWN_TITLE       = 23
         struct
         {
             uint32 title_id;
         } known_title;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 23
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 25
         struct
         {
             uint32 item_quality;

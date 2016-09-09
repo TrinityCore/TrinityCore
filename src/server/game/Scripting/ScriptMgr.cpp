@@ -1602,6 +1602,14 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     return tmpscript->GetDialogStatus(player, creature);
 }
 
+bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, CreatureTemplate const* cTemplate, CreatureData const* cData, Map const* map)
+{
+    ASSERT(cTemplate);
+
+    GET_SCRIPT_RET(CreatureScript, cTemplate->ScriptID, tmpscript, true);
+    return tmpscript->CanSpawn(spawnId, cTemplate, cData, map);
+}
+
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
