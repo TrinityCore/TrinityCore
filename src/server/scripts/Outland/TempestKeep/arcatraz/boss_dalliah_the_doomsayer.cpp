@@ -170,6 +170,9 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (HealthBelowPct(25) && !soccothratesTaunt)

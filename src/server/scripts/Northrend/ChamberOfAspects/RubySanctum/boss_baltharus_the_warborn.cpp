@@ -211,6 +211,9 @@ class boss_baltharus_the_warborn : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
