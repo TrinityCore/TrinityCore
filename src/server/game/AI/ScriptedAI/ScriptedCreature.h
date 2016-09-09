@@ -358,7 +358,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         void JustReachedHome() override { _JustReachedHome(); }
 
         bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
-        bool CanRespawn() override;
 
     protected:
         void _Reset();
