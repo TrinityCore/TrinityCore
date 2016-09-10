@@ -49,7 +49,7 @@ enum CreatureDifficultyFlags
     CREATURE_DIFFICULTYFLAGS_SESSILE                           = 0x00000100, // Creature is rooted
     CREATURE_DIFFICULTYFLAGS_NOT_SELECTABLE                    = 0x00000200, // UNIT_FLAG_NOT_SELECTABLE
     CREATURE_DIFFICULTYFLAGS_UNK3                              = 0x00000400, // Related to health - it seems similar to CREATURE_DIFFICULTYFLAGS_2_KEEP_HEALTH_POINTS_AT_RESET
-    CREATURE_DIFFICULTYFLAGS_UNK4                              = 0x00000800,
+    CREATURE_DIFFICULTYFLAGS_NO_CORPSE_UPON_DEATH              = 0x00000800, // Creature instantly disappear when killed
     CREATURE_DIFFICULTYFLAGS_UNK5                              = 0x00001000,
     CREATURE_DIFFICULTYFLAGS_UNK6                              = 0x00002000,
     CREATURE_DIFFICULTYFLAGS_UNK7                              = 0x00004000,
