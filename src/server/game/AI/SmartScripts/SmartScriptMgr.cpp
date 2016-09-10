@@ -225,7 +225,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.type = (SMART_EVENT)fields[4].GetUInt8();
         temp.event.event_phase_mask = fields[5].GetUInt8();
         temp.event.event_chance = fields[6].GetUInt8();
-        temp.event.event_flags = fields[7].GetUInt8();
+        temp.event.event_flags = fields[7].GetUInt16();
 
         temp.event.raw.param1 = fields[8].GetUInt32();
         temp.event.raw.param2 = fields[9].GetUInt32();
@@ -1245,6 +1245,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
         case SMART_ACTION_DISABLE_EVADE:
+        case SMART_ACTION_SPAWN_CREATUREGROUP:
+        case SMART_ACTION_DESPAWN_CREATUREGROUP:
+        case SMART_ACTION_SPAWN_GAMEOBJECTGROUP:
+        case SMART_ACTION_DESPAWN_GAMEOBJECTGROUP:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

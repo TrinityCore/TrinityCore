@@ -7342,6 +7342,8 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    GetMap()->UpdatePlayerAreaStats(m_areaUpdateId, newArea);
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
@@ -7383,6 +7385,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
+
+    GetMap()->UpdatePlayerZoneStats(m_zoneUpdateId, newZone);
 
     // group update
     if (GetGroup())
@@ -15182,6 +15186,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);
     }
+
+    sScriptMgr->OnQuestStatusChange(this, quest_id);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15424,6 +15430,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
+
+    sScriptMgr->OnQuestStatusChange(this, quest_id);
 }
 
 void Player::FailQuest(uint32 questId)
@@ -16084,7 +16092,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
     if (update)
         SendQuestUpdate(questId);
 
-    sScriptMgr->OnQuestStatusChange(this, questId, status);
+    sScriptMgr->OnQuestStatusChange(this, questId);
 }
 
 void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)

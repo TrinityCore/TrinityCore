@@ -475,7 +475,7 @@ void BossAI::_Reset()
     events.Reset();
     summons.DespawnAll();
     scheduler.CancelAll();
-    if (instance)
+    if (instance && instance->GetBossState(_bossId) != DONE)
         instance->SetBossState(_bossId, NOT_STARTED);
 }
 
@@ -505,14 +505,6 @@ void BossAI::_EnterCombat()
     me->setActive(true);
     DoZoneInCombat();
     ScheduleTasks();
-}
-
-bool BossAI::CanRespawn()
-{
-    if (instance && instance->GetBossState(_bossId) == DONE)
-        return false;
-
-    return true;
 }
 
 void BossAI::TeleportCheaters()
@@ -550,17 +542,21 @@ void BossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }
 
-void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
 {
-    if (delayToRespawn < 2)
+    if (delayToRespawn < Seconds(2))
     {
-        TC_LOG_ERROR("scripts", "_DespawnAtEvade called with delay of %u seconds, defaulting to 2.", delayToRespawn);
-        delayToRespawn = 2;
+        TC_LOG_ERROR("scripts", "_DespawnAtEvade called with delay of %ld seconds, defaulting to 2.", delayToRespawn.count());
+        delayToRespawn = Seconds(2);
     }
 
     if (!who)
@@ -573,7 +569,7 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
         return;
     }
 
-    me->DespawnOrUnsummon(0, Seconds(delayToRespawn));
+    who->DespawnOrUnsummon(0, delayToRespawn);
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
@@ -631,7 +627,11 @@ void WorldBossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }

@@ -143,6 +143,9 @@ class boss_trollgore : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (_consumptionJunction)

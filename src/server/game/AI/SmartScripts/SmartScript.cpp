@@ -99,7 +99,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     //calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
     {
-        uint32 rnd = urand(0, 100);
+        uint32 rnd = urand(1, 100);
         if (e.event.event_chance <= rnd)
             return;
     }
@@ -769,6 +769,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             me->DoFleeToGetAssistance();
+
             if (e.action.flee.withEmote)
             {
                 Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST);
@@ -1175,6 +1176,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (!IsCreature(*itr))
                         continue;
 
+                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && !IsCreatureInControlOfSelf(*itr))
+                        continue;
+
                     Position pos = (*itr)->GetPosition();
 
                     // Use forward/backward/left/right cartesian plane movement
@@ -1268,7 +1272,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         continue;
 
                     Position pos = (*itr)->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
-                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, G3D::Quat(), e.action.summonGO.despawnTime);
+                    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, rot, e.action.summonGO.despawnTime);
                 }
 
                 delete targets;
@@ -1277,7 +1282,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), G3D::Quat(), e.action.summonGO.despawnTime);
+            G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
+            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, e.action.summonGO.despawnTime);
             break;
         }
         case SMART_ACTION_KILL_UNIT:
@@ -2385,6 +2391,175 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
 
             delete targets;
+        }
+        case SMART_ACTION_SPAWN_CREATUREGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                const bool ignoreRespawn = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN) != 0);
+                const bool force = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_FORCE_SPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->SpawnCreatureGroup(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), ignoreRespawn, force);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_SPAWN_CREATUREGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
+        case SMART_ACTION_DESPAWN_CREATUREGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                const bool deleteRespawnTimes = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->DespawnCreatureGroup(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), deleteRespawnTimes);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_DESPAWN_CREATUREGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
+        case SMART_ACTION_SPAWN_GAMEOBJECTGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                const bool ignoreRespawn = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN) != 0);
+                const bool force = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_FORCE_SPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->SpawnGOGroup(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), ignoreRespawn, force);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_SPAWN_GAMEOBJECTGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
+            break;
+        }
+        case SMART_ACTION_DESPAWN_GAMEOBJECTGROUP:
+        {
+            if (e.action.groupSpawn.minDelay == 0 && e.action.groupSpawn.maxDelay == 0)
+            {
+                const bool deleteRespawnTimes = ((e.action.groupSpawn.spawnflags & SMARTAI_SPAWN_FLAGS::SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN) != 0);
+
+                // Instant spawn
+                sObjectMgr->DespawnGOGroup(e.action.groupSpawn.groupId, GetBaseObject()->GetMap(), deleteRespawnTimes);
+            }
+            else
+            {
+                // Delayed spawn (use values from parameter to schedule event to call us back
+                SmartEvent ne = SmartEvent();
+                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ne.event_chance = 100;
+
+                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ne.minMaxRepeat.repeatMin = 0;
+                ne.minMaxRepeat.repeatMax = 0;
+
+                ne.event_flags = 0;
+                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                SmartAction ac = SmartAction();
+                ac.type = (SMART_ACTION)SMART_ACTION_DESPAWN_GAMEOBJECTGROUP;
+                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ac.groupSpawn.minDelay = 0;
+                ac.groupSpawn.maxDelay = 0;
+                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ac.timeEvent.id = e.action.timeEvent.id;
+
+                SmartScriptHolder ev = SmartScriptHolder();
+                ev.event = ne;
+                ev.event_id = e.event_id;
+                ev.target = e.target;
+                ev.action = ac;
+                InitTimer(ev);
+                mStoredEvents.push_back(ev);
+            }
             break;
         }
         case SMART_ACTION_DISABLE_EVADE:
@@ -2848,6 +3023,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
     if ((e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask)) || ((e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && e.runOnce))
         return;
 
+    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCreature(me) && !IsCreatureInControlOfSelf(me))
+        return;
+
     switch (e.GetEventType())
     {
         case SMART_EVENT_LINK://special handling
@@ -2987,12 +3165,17 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
             break;
         }
+        case SMART_EVENT_CHARMED:
+        {
+            if (bvar == (e.event.charm.onRemove != 1))
+                ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+            break;
+        }
         //no params
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:
         case SMART_EVENT_EVADE:
         case SMART_EVENT_REACHED_HOME:
-        case SMART_EVENT_CHARMED:
         case SMART_EVENT_CHARMED_TARGET:
         case SMART_EVENT_CORPSE_REMOVED:
         case SMART_EVENT_AI_INIT:
