@@ -117,15 +117,14 @@ enum ItemSpelltriggerType
 
 enum ItemBondingType
 {
-    NO_BIND                                     = 0,
-    BIND_WHEN_PICKED_UP                         = 1,
-    BIND_WHEN_EQUIPED                           = 2,
-    BIND_WHEN_USE                               = 3,
-    BIND_QUEST_ITEM                             = 4,
-    BIND_QUEST_ITEM1                            = 5         // not used in game
+    BIND_NONE                                   = 0,
+    BIND_ON_ACQUIRE                             = 1,
+    BIND_ON_EQUIP                               = 2,
+    BIND_ON_USE                                 = 3,
+    BIND_QUEST                                  = 4,
 };
 
-#define MAX_BIND_TYPE                             6
+#define MAX_BIND_TYPE                             5
 
 /* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
