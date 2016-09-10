@@ -21,10 +21,27 @@
 #include "Player.h"
 #include "WorldPacket.h"
 
+BattlegroundSpawnPoint const BG_DS_Creatures[BG_DS_NPC_MAX] =
+{
+    { BG_DS_NPC_TYPE_WATER_SPOUT, { 1292.587f, 790.2205f, 7.197960f, 3.054326f }, RESPAWN_IMMEDIATELY },
+    { BG_DS_NPC_TYPE_WATER_SPOUT, { 1369.977f, 817.2882f, 16.08718f, 3.106686f }, RESPAWN_IMMEDIATELY },
+    { BG_DS_NPC_TYPE_WATER_SPOUT, { 1212.833f, 765.3871f, 16.09484f, 0.000000f }, RESPAWN_IMMEDIATELY }
+};
+
+BattlegroundGOSpawnPoint const BG_DS_GameObjects[BG_DS_OBJECT_MAX] =
+{
+    { BG_DS_OBJECT_TYPE_DOOR_1,  { 1350.95f, 817.200f, 20.8096f, 3.15000f }, { 0.f, 0.f, 0.9962700f,  0.0862864f }, RESPAWN_IMMEDIATELY },
+    { BG_DS_OBJECT_TYPE_DOOR_2,  { 1232.65f, 764.913f, 20.0729f, 6.30000f }, { 0.f, 0.f, 0.0310211f, -0.9995190f }, RESPAWN_IMMEDIATELY },
+    { BG_DS_OBJECT_TYPE_WATER_1, { 1291.56f, 790.837f, 7.10000f, 3.14238f }, { 0.f, 0.f, 0.6942150f, -0.7197680f }, 2 * MINUTE          },
+    { BG_DS_OBJECT_TYPE_WATER_2, { 1291.56f, 790.837f, 7.10000f, 3.14238f }, { 0.f, 0.f, 0.6942150f, -0.7197680f }, 2 * MINUTE          },
+    { BG_DS_OBJECT_TYPE_BUFF_1,  { 1291.70f, 813.424f, 7.11472f, 4.64562f }, { 0.f, 0.f, 0.7303140f, -0.6831110f }, 2 * MINUTE          },
+    { BG_DS_OBJECT_TYPE_BUFF_2,  { 1291.70f, 768.911f, 7.11472f, 1.55194f }, { 0.f, 0.f, 0.7004090f,  0.7137420f }, 2 * MINUTE          }
+};
+
 BattlegroundDS::BattlegroundDS()
 {
-    BgObjects.resize(BG_DS_OBJECT_MAX);
-    BgCreatures.resize(BG_DS_NPC_MAX);
+    SetGameObjectsNumber(BG_DS_OBJECT_MAX);
+    SetCreaturesNumber(BG_DS_NPC_MAX);
 
     _pipeKnockBackTimer = 0;
     _pipeKnockBackCount = 0;
@@ -152,22 +169,24 @@ void BattlegroundDS::FillInitialWorldStates(WorldPacket& data)
 
 bool BattlegroundDS::SetupBattleground()
 {
-    // gates
-    if (!AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY)
-        // water
-        || !AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
-        || !AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
-        // buffs
-        || !AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, 120)
-        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, 120)
-        // knockback creatures
-        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_WATERFALL_KNOCKBACK, 1292.587f, 790.2205f, 7.19796f, 3.054326f, TEAM_NEUTRAL, RESPAWN_IMMEDIATELY)
-        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_1, 1369.977f, 817.2882f, 16.08718f, 3.106686f, TEAM_NEUTRAL, RESPAWN_IMMEDIATELY)
-        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_2, 1212.833f, 765.3871f, 16.09484f, 0.0f, TEAM_NEUTRAL, RESPAWN_IMMEDIATELY))
+    for (uint32 i = 0; i < BG_DS_NPC_MAX; ++i)
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundDS: Failed to spawn some object!");
-        return false;
+        BattlegroundSpawnPoint const& creature = BG_DS_Creatures[i];
+        if (!AddCreature(creature.Entry, i, creature.Pos, creature.SpawnTime))
+        {
+            TC_LOG_ERROR("bg.battleground", "BattleGroundDS: Failed to spawn Creature! (Entry: %u). Battleground not created!", creature.Entry);
+            return false;
+        }
+    }
+
+    for (uint32 i = 0; i < BG_DS_OBJECT_MAX; ++i)
+    {
+        BattlegroundGOSpawnPoint const& object = BG_DS_GameObjects[i];
+        if (!AddObject(i, object.Entry, object.Pos, object.Rot, object.SpawnTime))
+        {
+            TC_LOG_ERROR("bg.battleground", "BattleGroundDS: Failed to spawn GameObject! (Entry: %u). Battleground not created!", object.Entry);
+            return false;
+        }
     }
 
     return true;
