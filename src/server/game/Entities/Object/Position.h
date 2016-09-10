@@ -148,7 +148,7 @@ public:
 
     float GetExactDist2d(Position const& pos) const
     {
-        return std::sqrt(GetExactDist2d(pos));
+        return std::sqrt(GetExactDist2dSq(pos));
     }
 
     float GetExactDist2dSq(Position const* pos) const
