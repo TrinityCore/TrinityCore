@@ -448,6 +448,8 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
                 // add to Quest Tracker
                 CharacterDatabase.Execute(stmt);
             }
+
+            sScriptMgr->OnQuestStatusChange(_player, questId);
         }
 
         _player->SetQuestSlot(slot, 0);
