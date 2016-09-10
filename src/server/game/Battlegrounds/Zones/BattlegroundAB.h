@@ -21,6 +21,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "EventMap.h"
 #include "Object.h"
 
 enum BG_AB_WorldStates
@@ -61,10 +62,6 @@ enum BG_AB_WorldStates
 */
 };
 
-const uint32 BG_AB_OP_NODESTATES[5] =    {1767, 1782, 1772, 1792, 1787};
-
-const uint32 BG_AB_OP_NODEICONS[5]  =    {1842, 1846, 1845, 1844, 1843};
-
 /* Note: code uses that these IDs follow each other */
 enum BG_AB_NodeObjectId
 {
@@ -78,6 +75,7 @@ enum BG_AB_NodeObjectId
 enum BG_AB_ObjectType
 {
     // for all 5 node points 8*5=40 objects
+    BG_AB_OBJECT_FIRST                   = 0,
     BG_AB_OBJECT_BANNER_NEUTRAL          = 0,
     BG_AB_OBJECT_BANNER_CONT_A           = 1,
     BG_AB_OBJECT_BANNER_CONT_H           = 2,
@@ -90,6 +88,7 @@ enum BG_AB_ObjectType
     BG_AB_OBJECT_GATE_A                  = 40,
     BG_AB_OBJECT_GATE_H                  = 41,
     //buffs
+    BG_AB_OBJECT_BUFF_FIRST              = 42,
     BG_AB_OBJECT_SPEEDBUFF_STABLES       = 42,
     BG_AB_OBJECT_REGENBUFF_STABLES       = 43,
     BG_AB_OBJECT_BERSERKBUFF_STABLES     = 44,
@@ -124,9 +123,16 @@ enum BG_AB_ObjectTypes
     BG_AB_OBJECTID_GATE_H               = 180256
 };
 
+enum BG_AB_BuffObjects
+{
+    BG_AB_FOOD_BUFF                     = 180144,
+    BG_AB_BERSERK_BUFF                  = 180382,
+    BG_AB_SPEED_BUFF                    = 180384
+};
+
 enum BG_AB_Timers
 {
-    BG_AB_FLAG_CAPTURING_TIME           = 60000
+    BG_AB_FLAG_CAPTURING_TIME           = 1 * MINUTE * IN_MILLISECONDS
 };
 
 enum BG_AB_Score
@@ -145,6 +151,7 @@ enum BG_AB_BattlegroundNodes
     BG_AB_NODE_GOLD_MINE        = 4,
 
     BG_AB_DYNAMIC_NODES_COUNT   = 5,                        // dynamic nodes that can be captured
+    BG_AB_DYNAMIC_NODE_GO_COUNT = 8,                        // how many GOs are spawned in each dynamic node
 
     BG_AB_SPIRIT_ALIANCE        = 5,
     BG_AB_SPIRIT_HORDE          = 6,
@@ -152,7 +159,7 @@ enum BG_AB_BattlegroundNodes
     BG_AB_ALL_NODES_COUNT       = 7                         // all nodes (dynamic and static)
 };
 
-enum BG_AB_NodeStatus
+enum BG_AB_NodeStatus : uint8
 {
     BG_AB_NODE_TYPE_NEUTRAL             = 0,
     BG_AB_NODE_TYPE_CONTESTED           = 1,
@@ -179,62 +186,25 @@ enum BG_AB_Objectives
     AB_OBJECTIVE_DEFEND_BASE            = 123
 };
 
-#define BG_AB_NotABBGWeekendHonorTicks      260
-#define BG_AB_ABBGWeekendHonorTicks         160
-#define BG_AB_NotABBGWeekendReputationTicks 160
-#define BG_AB_ABBGWeekendReputationTicks    120
-
-#define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
-
-Position const BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT] =
-{
-    {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
-    {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
-    {806.1821f, 874.2723f, -55.99371f, -2.303835f},         // farm
-    {856.1419f, 1148.902f, 11.18469f, -2.303835f},          // lumber mill
-    {1146.923f, 848.1782f, -110.917f, -0.7330382f}          // gold mine
-};
-
-// x, y, z, o, rot0, rot1, rot2, rot3
-const float BG_AB_DoorPositions[2][8] =
-{
-    {1284.597f, 1281.167f, -15.97792f, 0.7068594f, 0.012957f, -0.060288f, 0.344959f, 0.93659f},
-    {708.0903f, 708.4479f, -17.8342f, -2.391099f, 0.050291f, 0.015127f, 0.929217f, -0.365784f}
-};
-
-// Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
-const uint32 BG_AB_TickIntervals[6] = {0, 12000, 9000, 6000, 3000, 1000};
-const uint32 BG_AB_TickPoints[6] = {0, 10, 10, 10, 10, 30};
-
-// WorldSafeLocs ids for 5 nodes, and for ally, and horde starting location
-const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 896, 898, 899};
-
-// x, y, z, o
-const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
-{
-    {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
-    {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
-    {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
-    {807.46f, 1189.16f, 11.92f, 5.44f},                     // lumber mill
-    {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
-};
-
-Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
-{
-    {1200.03f, 1171.09f, -56.47f, 5.15f},                   // stables
-    {1017.43f, 960.61f, -42.95f, 4.88f},                    // blacksmith
-    {833.00f, 793.00f, -57.25f, 5.27f},                     // farm
-    {775.17f, 1206.40f, 15.79f, 1.90f},                     // lumber mill
-    {1207.48f, 787.00f, -83.36f, 5.51f},                    // gold mine
-    {1354.05f, 1275.48f, -11.30f, 4.77f},                   // alliance starting base
-    {714.61f, 646.15f, -10.87f, 4.34f}                      // horde starting base
-};
-
 struct BG_AB_BannerTimer
 {
-    uint32      timer;
     uint8       type;
-    uint8       teamIndex;
+    TeamId      teamIndex;
+};
+
+enum BG_AB_Events
+{
+    EVENT_BANNER_UPDATE_0 = 1,
+    EVENT_BANNER_UPDATE_1,
+    EVENT_BANNER_UPDATE_2,
+    EVENT_BANNER_UPDATE_3,
+    EVENT_BANNER_UPDATE_4,
+
+    EVENT_NODE_CAPTURE_0,
+    EVENT_NODE_CAPTURE_1,
+    EVENT_NODE_CAPTURE_2,
+    EVENT_NODE_CAPTURE_3,
+    EVENT_NODE_CAPTURE_4,
 };
 
 struct BattlegroundABScore final : public BattlegroundScore
@@ -306,13 +276,13 @@ class BattlegroundAB : public Battleground
     private:
         void PostUpdateImpl(uint32 diff) override;
         /* Gameobject spawning/despawning */
-        void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
-        void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
+        void _CreateBanner(uint8 node, uint8 type, TeamId teamIndex, bool delay);
+        void _DelBanner(uint8 node, uint8 type, TeamId teamIndex);
         void _SendNodeUpdate(uint8 node);
 
         /* Creature spawning/despawning */
         /// @todo working, scripted peons spawning
-        void _NodeOccupied(uint8 node, Team team);
+        void _NodeOccupied(uint8 node, TeamId team);
         void _NodeDeOccupied(uint8 node);
 
         int32 _GetNodeNameId(uint8 node);
@@ -323,10 +293,10 @@ class BattlegroundAB : public Battleground
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_NodeStatus    m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
+        BG_AB_NodeStatus    m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
+        EventMap            m_Events;
         BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
         uint32              m_lastTick[BG_TEAMS_COUNT];
         uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
         uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
