@@ -1838,14 +1838,9 @@ public:
             return true;
         }
 
-        // First handle any creatures that still have a corpse around
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
         player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
-
-        // Now handle any that had despawned, but had respawn time logged.
-        player->GetMap()->RemoveCreatureRespawnTime(0, 0, Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId(), true);
-        player->GetMap()->RemoveGORespawnTime(0, 0, Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId(), true);
 
         return true;
     }

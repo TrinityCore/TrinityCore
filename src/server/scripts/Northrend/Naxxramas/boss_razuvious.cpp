@@ -76,7 +76,7 @@ public:
 
         void InitializeAI() override
         {
-            if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
+            if (!me->isDead())
             {
                 Reset();
                 SummonAdds();

@@ -82,7 +82,7 @@ class boss_faerlina : public CreatureScript
 
             void InitializeAI() override
             {
-                if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
+                if (!me->isDead())
                 {
                     Reset();
                     SummonAdds();

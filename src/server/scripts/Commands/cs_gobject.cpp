@@ -51,17 +51,15 @@ public:
         };
         static std::vector<ChatCommand> gobjectCommandTable =
         {
-            { "activate",     rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE,     false, &HandleGameObjectActivateCommand,  ""       },
-            { "delete",       rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,       false, &HandleGameObjectDeleteCommand,    ""       },
-            { "info",         rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,         false, &HandleGameObjectInfoCommand,      ""       },
-            { "move",         rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,         false, &HandleGameObjectMoveCommand,      ""       },
-            { "near",         rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,         false, &HandleGameObjectNearCommand,      ""       },
-            { "target",       rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,       false, &HandleGameObjectTargetCommand,    ""       },
-            { "turn",         rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,         false, &HandleGameObjectTurnCommand,      ""       },
-            { "spawngroup",   rbac::RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP,   false, &HandleGameObjectSpawnGroup,       ""       },
-            { "despawngroup", rbac::RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP, false, &HandleGameObjectDespawnGroup,     ""       },
-            { "add",          rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,          false, NULL,            "", gobjectAddCommandTable },
-            { "set",          rbac::RBAC_PERM_COMMAND_GOBJECT_SET,          false, NULL,            "", gobjectSetCommandTable },
+            { "activate", rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE, false, &HandleGameObjectActivateCommand,  ""       },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,   false, &HandleGameObjectDeleteCommand,    ""       },
+            { "info",     rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,     false, &HandleGameObjectInfoCommand,      ""       },
+            { "move",     rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     false, &HandleGameObjectMoveCommand,      ""       },
+            { "near",     rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     false, &HandleGameObjectNearCommand,      ""       },
+            { "target",   rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   false, &HandleGameObjectTargetCommand,    ""       },
+            { "turn",     rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     false, &HandleGameObjectTurnCommand,      ""       },
+            { "add",      rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, NULL,            "", gobjectAddCommandTable },
+            { "set",      rbac::RBAC_PERM_COMMAND_GOBJECT_SET,      false, NULL,            "", gobjectSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -449,85 +447,6 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectSpawnGroup(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        bool ignoreRespawn = false;
-        bool force = false;
-        uint32 groupId = 0;
-
-        // Decode arguments
-        char* arg = strtok((char*)args, " ");
-        while (arg)
-        {
-            std::string thisArg = arg;
-            std::transform(thisArg.begin(), thisArg.end(), thisArg.begin(), ::tolower);
-            if (thisArg == "ignorerespawn")
-                ignoreRespawn = true;
-            else if (thisArg == "force")
-                force = true;
-            else if (thisArg.empty() || !(std::count_if(thisArg.begin(), thisArg.end(), ::isdigit) == (int)thisArg.size()))
-                return false;
-            else
-                groupId = atoi(thisArg.c_str());
-
-            arg = strtok(NULL, " ");
-        }
-
-        Player* player = handler->GetSession()->GetPlayer();
-
-        std::vector <ObjectGuid> gameobjectList;
-        if (!sObjectMgr->SpawnGOGroup(groupId, player->GetMap(), ignoreRespawn, force, &gameobjectList))
-        {
-            handler->PSendSysMessage(LANG_GOSPAWNGROUP_BADGROUP, groupId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        for (ObjectGuid thisGuid : gameobjectList)
-            handler->PSendSysMessage("%s", thisGuid.ToString().c_str());
-
-        return true;
-    }
-
-    static bool HandleGameObjectDespawnGroup(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        bool deleteRespawnTimes = false;
-        uint32 groupId = 0;
-
-        // Decode arguments
-        char* arg = strtok((char*)args, " ");
-        while (arg)
-        {
-            std::string thisArg = arg;
-            std::transform(thisArg.begin(), thisArg.end(), thisArg.begin(), ::tolower);
-            if (thisArg == "removerespawntime")
-                deleteRespawnTimes = true;
-            else if (thisArg.empty() || !(std::count_if(thisArg.begin(), thisArg.end(), ::isdigit) == (int)thisArg.size()))
-                return false;
-            else
-                groupId = atoi(thisArg.c_str());
-
-            arg = strtok(NULL, " ");
-        }
-
-        Player* player = handler->GetSession()->GetPlayer();
-
-        if (!sObjectMgr->DespawnGOGroup(groupId, player->GetMap(), deleteRespawnTimes))
-        {
-            handler->PSendSysMessage(LANG_GOSPAWNGROUP_BADGROUP, groupId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        return true;
-    }
-
     //move selected object
     static bool HandleGameObjectMoveCommand(ChatHandler* handler, char const* args)
     {
@@ -676,7 +595,7 @@ public:
                 if (!gameObjectInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name.c_str(), x, y, z, mapId, "", "");
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name.c_str(), x, y, z, mapId);
 
                 ++count;
             } while (result->NextRow());
@@ -706,15 +625,8 @@ public:
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
-        GameObject* thisGO = nullptr;
-
         if (!gameObjectInfo)
             return false;
-
-        if (*args && handler->GetSession()->GetPlayer())
-            thisGO = handler->GetSession()->GetPlayer()->FindNearestGameObject(entry, 30);
-        else if (handler->getSelectedObject() && handler->getSelectedObject()->GetTypeId() == TYPEID_GAMEOBJECT)
-            thisGO = handler->getSelectedObject()->ToGameObject();
 
         type = gameObjectInfo->type;
         displayId = gameObjectInfo->displayId;
@@ -724,32 +636,10 @@ public:
         else if (type == GAMEOBJECT_TYPE_FISHINGHOLE)
             lootId = gameObjectInfo->fishinghole.lootId;
 
-        // If we have a real object, send some info about it
-        if (thisGO)
-        {
-            handler->PSendSysMessage(LANG_GOINFO_GUIDINFO, thisGO->GetGUID().ToString().c_str());
-            handler->PSendSysMessage(LANG_GOINFO_SPAWNID_LOCATION, thisGO->GetSpawnId(), thisGO->GetPositionX(), thisGO->GetPositionY(), thisGO->GetPositionZ());
-            if (Player* player = handler->GetSession()->GetPlayer())
-            {
-                Position playerPos = player->GetPosition();
-                float dist = thisGO->GetExactDist(&playerPos);
-                handler->PSendSysMessage(LANG_GOINFO_DISTANCEFROMPLAYER, dist);
-            }
-        }
         handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
         handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
         handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
-        if (WorldObject* object = handler->getSelectedObject())
-        {
-            if (object->ToGameObject() && object->ToGameObject()->GetGOData() && object->ToGameObject()->GetGOData()->groupdata)
-            {
-                GameObjectGroupTemplateData* groupdata = object->ToGameObject()->GetGOData()->groupdata;
-                handler->PSendSysMessage(LANG_GOINFO_GROUP_ID, groupdata->groupId, groupdata->flags, groupdata->isActive);
-            }
-            if (object->ToGameObject())
-                handler->PSendSysMessage(LANG_GOINFO_COMPATIBILITY_MODE, object->ToGameObject()->GetRespawnCompatibilityMode());
-        }
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
 
         return true;

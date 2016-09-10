@@ -264,7 +264,8 @@ struct boss_four_horsemen_baseAI : public BossAI
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
                 {
-                    cBoss->DespawnOrUnsummon(0, Seconds(15));
+                    cBoss->DespawnOrUnsummon(0);
+                    cBoss->SetRespawnTime(15);
                 }
                 else
                 {
