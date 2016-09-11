@@ -23561,6 +23561,9 @@ void Player::SendAurasForTarget(Unit* target) const
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
+    if (target->HasAura(SPELL_DH_DOUBLE_JUMP))
+        target->SetDoubleJump(true, true);
+
     Unit::VisibleAuraContainer const& visibleAuras = target->GetVisibleAuras();
 
     WorldPackets::Spells::AuraUpdate update;
