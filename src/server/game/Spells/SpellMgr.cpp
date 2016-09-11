@@ -3043,22 +3043,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 33760;
                 break;
-            case 17941: // Shadow Trance
-            case 22008: // Netherwind Focus
-            case 31834: // Light's Grace
-            case 34754: // Clearcasting
-            case 34936: // Backlash
-            case 48108: // Hot Streak
-            case 51124: // Killing Machine
-            case 54741: // Firestarter
-            case 57761: // Fireball!
-            case 39805: // Lightning Overload
-            case 64823: // Item - Druid T8 Balance 4P Bonus
-            case 34477: // Misdirection
-            case 44401: // Missile Barrage
-            case 18820: // Insight
-                spellInfo->ProcCharges = 1;
-                break;
             case 44544: // Fingers of Frost
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
                 break;
@@ -3066,9 +3050,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53257: // Cobra Strikes
                 spellInfo->ProcCharges = 2;
                 spellInfo->StackAmount = 0;
-                break;
-            case 28200: // Ascendance (Talisman of Ascendance trinket)
-                spellInfo->ProcCharges = 6;
                 break;
             case 49224: // Magic Suppression - DK
             case 49610: // Magic Suppression - DK
