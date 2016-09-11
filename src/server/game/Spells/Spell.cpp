@@ -2028,7 +2028,7 @@ class ProcReflectDelayed : public BasicEvent
 
             uint32 const typeMask = PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
             uint32 const spellTypeMask = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
-            uint32 const spellPhaseMask = PROC_SPELL_PHASE_HIT;
+            uint32 const spellPhaseMask = PROC_SPELL_PHASE_NONE;
             uint32 const hitMask = PROC_HIT_REFLECT;
 
             ProcEventInfo eventInfo(_victim, caster, _victim, typeMask, spellTypeMask, spellPhaseMask, hitMask, nullptr, nullptr, nullptr);
@@ -2408,10 +2408,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (canEffectTrigger)
         {
             HealInfo healInfo(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
-
-            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
-            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
-            caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
         }
     }
     // Do damage and triggers
@@ -2434,10 +2431,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (canEffectTrigger)
         {
             DamageInfo spellDamageInfo(damageInfo, SPELL_DIRECT_DAMAGE, m_attackType);
-
-            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
-            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
-            caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
 
             if (caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET) &&
                 (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
@@ -2456,12 +2450,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         hitMask |= createProcHitMask(&damageInfo, missInfo);
         // Do triggers for unit
         if (canEffectTrigger)
-        {
-            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_NO_DMG_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, nullptr);
-            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_NO_DMG_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, nullptr);
-
-            caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
-        }
+            caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_NO_DMG_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, nullptr);
 
         // Failed Pickpocket, reveal rogue
         if (missInfo == SPELL_MISS_RESIST && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && unitTarget->GetTypeId() == TYPEID_UNIT)
@@ -3329,8 +3318,7 @@ void Spell::cast(bool skipCheck)
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
-    ProcEventInfo eventInfoActor(m_originalCaster, nullptr, nullptr, procAttacker, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
-    m_originalCaster->ProcDamageAndSpell(eventInfoActor);
+    m_originalCaster->ProcDamageAndSpell(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 }
 
 void Spell::handle_immediate()
@@ -3529,8 +3517,7 @@ void Spell::_handle_finish_phase()
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
-    ProcEventInfo eventInfoActor(m_originalCaster, nullptr, nullptr, procAttacker, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, hitMask, this, nullptr, nullptr);
-    m_originalCaster->ProcDamageAndSpell(eventInfoActor);
+    m_originalCaster->ProcDamageAndSpell(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, hitMask, this, nullptr, nullptr);
 }
 
 void Spell::SendSpellCooldown()

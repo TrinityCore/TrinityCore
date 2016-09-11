@@ -5215,8 +5215,15 @@ void Unit::ProcDamageAndSpell(ProcEventInfo& procAttacker, ProcEventInfo* procVi
 
     // Now go on with a victim's events'n'auras
     // Not much to do if no flags are set or there is no victim
-    if (procVictim && procVictim->GetProcTarget() && procVictim->GetProcTarget()->IsAlive() && procVictim->GetTypeMask())
+    if (procVictim && procVictim->GetTypeMask() && procVictim->GetProcTarget() && procVictim->GetProcTarget()->IsAlive())
         procVictim->GetProcTarget()->ProcDamageAndSpellFor(true, *procVictim);
+}
+
+void Unit::ProcDamageAndSpell(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+{
+    ProcEventInfo myProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcEventInfo targetEventInfo(actionTarget, this, actionTarget, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcDamageAndSpell(myProcEventInfo, &targetEventInfo);
 }
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
@@ -13835,12 +13842,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     }
 
     if (!victim->IsCritter())
-    {
-        ProcEventInfo eventInfoActor(this, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-        ProcEventInfo eventInfoVictim(victim, this, victim, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-
-        ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
-    }
+        ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
     // Proc auras on death - must be before aura/combat remove
     ProcEventInfo eventInfo(victim, nullptr, nullptr, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);

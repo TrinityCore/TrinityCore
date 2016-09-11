@@ -1435,6 +1435,9 @@ class TC_GAME_API Unit : public WorldObject
         int32 DealHeal(Unit* victim, uint32 addhealth);
 
         void ProcDamageAndSpell(ProcEventInfo& procAttacker, ProcEventInfo* procVictim = nullptr);
+        void ProcDamageAndSpell(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+                                uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
+                                DamageInfo* damageInfo, HealInfo* healInfo);
         void ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo);
 
         void GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo);
