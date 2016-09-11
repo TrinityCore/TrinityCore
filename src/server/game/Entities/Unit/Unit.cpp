@@ -1970,11 +1970,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             DealDamage(caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
 
-            DamageInfo damageInfoVictim(caster, this, splitDamage, (*itr)->GetSpellInfo(), schoolMask, DIRECT_DAMAGE, BASE_ATTACK);
-            ProcEventInfo eventInfoVictim(caster, this, caster, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, &damageInfoVictim, nullptr);
-
             // break 'Fear' and similar auras
-            caster->ProcDamageAndSpellFor(true, eventInfoVictim);
+            DamageInfo damageInfo(caster, this, splitDamage, (*itr)->GetSpellInfo(), schoolMask, DIRECT_DAMAGE, BASE_ATTACK);
+            ProcSkillsAndAuras(caster, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, &damageInfo, nullptr);
         }
     }
 
@@ -5207,23 +5205,16 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damag
     SendSpellNonMeleeDamageLog(&log);
 }
 
-void Unit::ProcDamageAndSpell(ProcEventInfo& procAttacker, ProcEventInfo* procVictim /*= nullptr*/)
+void Unit::ProcSkillsAndAuras(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
-     // Not much to do if no flags are set.
-    if (procAttacker.GetTypeMask())
-        ProcDamageAndSpellFor(false, procAttacker);
+    WeaponAttackType attType = damageInfo ? damageInfo->GetAttackType() : BASE_ATTACK;
+    if (typeMaskActor)
+        ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
 
-    // Now go on with a victim's events'n'auras
-    // Not much to do if no flags are set or there is no victim
-    if (procVictim && procVictim->GetTypeMask() && procVictim->GetProcTarget() && procVictim->GetProcTarget()->IsAlive())
-        procVictim->GetProcTarget()->ProcDamageAndSpellFor(true, *procVictim);
-}
+    if (typeMaskActionTarget && actionTarget)
+        actionTarget->ProcSkillsAndReactives(true, this, typeMaskActionTarget, hitMask, attType);
 
-void Unit::ProcDamageAndSpell(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
-{
-    ProcEventInfo myProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    ProcEventInfo targetEventInfo(actionTarget, this, actionTarget, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    ProcDamageAndSpell(myProcEventInfo, &targetEventInfo);
+    TriggerAurasProcOnEvent(actionTarget, typeMaskActor, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
 }
 
 void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
@@ -13010,38 +13001,36 @@ uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCond
     return hitMask;
 }
 
-void Unit::ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo)
+void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType)
 {
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
         return;
 
     // For melee/ranged based attack need update skills and set some Aura states if victim present
-    if (eventInfo.GetTypeMask() & MELEE_BASED_TRIGGER_MASK && eventInfo.GetProcTarget())
+    if (typeMask & MELEE_BASED_TRIGGER_MASK && procTarget)
     {
         // Update skills here for players
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            WeaponAttackType attType = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetAttackType() : BASE_ATTACK;
-
             // On melee based hit/miss/resist need update skill (for victim and attacker)
-            if (eventInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_MISS | PROC_HIT_FULL_RESIST))
+            if (hitMask & (PROC_HIT_NORMAL | PROC_HIT_MISS | PROC_HIT_FULL_RESIST))
             {
-                if (eventInfo.GetProcTarget()->GetTypeId() != TYPEID_PLAYER && !eventInfo.GetProcTarget()->IsCritter())
-                    ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), attType, isVictim);
+                if (procTarget->GetTypeId() != TYPEID_PLAYER && !procTarget->IsCritter())
+                    ToPlayer()->UpdateCombatSkills(procTarget, attType, isVictim);
             }
             // Update defence if player is victim and parry/dodge/block
-            else if (isVictim && (eventInfo.GetHitMask() & (PROC_HIT_DODGE | PROC_HIT_PARRY | PROC_HIT_BLOCK)))
-                ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), attType, true);
+            else if (isVictim && (hitMask & (PROC_HIT_DODGE | PROC_HIT_PARRY | PROC_HIT_BLOCK)))
+                ToPlayer()->UpdateCombatSkills(procTarget, attType, true);
         }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
-        if (eventInfo.GetHitMask() & (PROC_HIT_CRITICAL | PROC_HIT_PARRY | PROC_HIT_DODGE | PROC_HIT_BLOCK))
+        if (hitMask & (PROC_HIT_CRITICAL | PROC_HIT_PARRY | PROC_HIT_DODGE | PROC_HIT_BLOCK))
         {
             // for victim
             if (isVictim)
             {
                 // if victim and dodge attack
-                if (eventInfo.GetHitMask() & PROC_HIT_DODGE)
+                if (hitMask & PROC_HIT_DODGE)
                 {
                     // Update AURA_STATE on dodge
                     if (getClass() != CLASS_ROGUE) // skip Rogue Riposte
@@ -13051,7 +13040,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo)
                     }
                 }
                 // if victim and parry attack
-                if (eventInfo.GetHitMask() & PROC_HIT_PARRY)
+                if (hitMask & PROC_HIT_PARRY)
                 {
                     // For Hunters only Counterattack (skip Mongoose bite)
                     if (getClass() == CLASS_HUNTER)
@@ -13066,7 +13055,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo)
                     }
                 }
                 // if and victim block attack
-                if (eventInfo.GetHitMask() & PROC_HIT_BLOCK)
+                if (hitMask & PROC_HIT_BLOCK)
                 {
                     ModifyAuraState(AURA_STATE_DEFENSE, true);
                     StartReactiveTimer(REACTIVE_DEFENSE);
@@ -13075,18 +13064,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo)
             else // For attacker
             {
                 // Overpower on victim dodge
-                if (eventInfo.GetHitMask() & PROC_HIT_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
+                if ((hitMask & PROC_HIT_DODGE) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
                 {
-                    ToPlayer()->AddComboPoints(eventInfo.GetProcTarget(), 1);
+                    ToPlayer()->AddComboPoints(procTarget, 1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
                 }
             }
         }
     }
-
-    AuraApplicationList procList;
-    GetProcAurasTriggeredOnEvent(procList, nullptr, eventInfo);
-    TriggerAurasProcOnEvent(eventInfo, procList);
 }
 
 void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo)
@@ -13099,20 +13084,17 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc
         for (AuraApplication* aurApp : *procAuras)
         {
             ASSERT(aurApp->GetTarget() == this);
-            if (!aurApp->GetRemoveMode())
+            if (aurApp->GetBase()->IsProcTriggeredOnEvent(aurApp, eventInfo, now))
             {
-                if (aurApp->GetBase()->IsProcTriggeredOnEvent(aurApp, eventInfo, now))
-                {
-                    aurApp->GetBase()->PrepareProcToTrigger(aurApp, eventInfo, now);
-                    aurasTriggeringProc.push_back(aurApp);
-                }
+                aurApp->GetBase()->PrepareProcToTrigger(aurApp, eventInfo, now);
+                aurasTriggeringProc.push_back(aurApp);
             }
         }
     }
     // or generate one on our own
     else
     {
-        for (AuraApplicationMap::iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
+        for (AuraApplicationMap::iterator itr = GetAppliedAuras().begin(); itr != GetAppliedAuras().end(); ++itr)
         {
             if (itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo, now))
             {
@@ -13132,11 +13114,22 @@ void Unit::TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo)
 void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     // prepare data for self trigger
-    ProcEventInfo myProcEventInfo = ProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcEventInfo myProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    if (typeMaskActor)
+    {
+        AuraApplicationList myAurasTriggeringProc;
+        GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, nullptr, myProcEventInfo);
+        TriggerAurasProcOnEvent(myProcEventInfo, myAurasTriggeringProc);
+    }
 
     // prepare data for target trigger
-    ProcEventInfo targetProcEventInfo = ProcEventInfo(actionTarget, this, actionTarget, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    ProcDamageAndSpell(myProcEventInfo, &targetProcEventInfo);
+    ProcEventInfo targetProcEventInfo(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    if (typeMaskActionTarget && actionTarget)
+    {
+        AuraApplicationList targetAurasTriggeringProc;
+        actionTarget->GetProcAurasTriggeredOnEvent(targetAurasTriggeringProc, nullptr, targetProcEventInfo);
+        actionTarget->TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
+    }
 }
 
 void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationList& aurasTriggeringProc)
@@ -13833,20 +13826,16 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
     if (IsPet() || IsTotem())
     {
+        // proc only once for victim
         if (Unit* owner = GetOwner())
-        {
-            // proc only once for victim
-            ProcEventInfo eventInfo(owner, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-            owner->ProcDamageAndSpell(eventInfo);
-        }
+            owner->ProcSkillsAndAuras(victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
     }
 
     if (!victim->IsCritter())
-        ProcDamageAndSpell(victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        ProcSkillsAndAuras(victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
     // Proc auras on death - must be before aura/combat remove
-    ProcEventInfo eventInfo(victim, nullptr, nullptr, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-    victim->ProcDamageAndSpell(eventInfo);
+    victim->ProcSkillsAndAuras(victim, PROC_FLAG_NONE, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
     // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
     // and before Spirit of Redemption as it also removes auras

@@ -1434,11 +1434,9 @@ class TC_GAME_API Unit : public WorldObject
         void KillSelf(bool durabilityLoss = true) { Kill(this, durabilityLoss); }
         int32 DealHeal(Unit* victim, uint32 addhealth);
 
-        void ProcDamageAndSpell(ProcEventInfo& procAttacker, ProcEventInfo* procVictim = nullptr);
-        void ProcDamageAndSpell(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+        void ProcSkillsAndAuras(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
                                 uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                 DamageInfo* damageInfo, HealInfo* healInfo);
-        void ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo);
 
         void GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo);
         void TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo);
@@ -2274,6 +2272,8 @@ class TC_GAME_API Unit : public WorldObject
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
+
+        void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
 
         void SetFeared(bool apply);
         void SetConfused(bool apply);
