@@ -62,7 +62,17 @@ enum WarlockSpells
     SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED       = 63321,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1      = 27285,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
-    SPELL_WARLOCK_SHADOW_TRANCE                     = 17941
+    SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
+    SPELL_WARLOCK_SOUL_LEECH_HEAL                   = 30294,
+    SPELL_WARLOCK_IMP_SOUL_LEECH_R1                 = 54117,
+    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1             = 54607,
+    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2             = 59118,
+    SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1          = 54300,
+    SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2          = 59117,
+    SPELL_REPLENISHMENT                             = 57669,
+    SPELL_WARLOCK_SHADOWFLAME                       = 37378,
+    SPELL_WARLOCK_FLAMESHADOW                       = 37379,
+    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250
 };
 
 enum WarlockSpellIcons
@@ -882,6 +892,47 @@ class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
         }
 };
 
+// 6358 - Seduction
+class spell_warl_seduction : public SpellScriptLoader
+{
+    public:
+        spell_warl_seduction() : SpellScriptLoader("spell_warl_seduction") { }
+
+        class spell_warl_seduction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_seduction_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* owner = GetCaster()->GetOwner();
+                if (!owner || !owner->HasAura(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
+                    return;
+
+                Unit* target = GetHitUnit();
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_warl_seduction_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warl_seduction_SpellScript();
+        }
+};
+
 // -27285 - Seed of Corruption
 class spell_warl_seed_of_corruption : public SpellScriptLoader
 {
@@ -948,7 +999,7 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
                     return;
 
                 uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1, GetSpellInfo()->GetRank());
-                caster->CastSpell(eventInfo.GetActor(), SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1, true);
+                caster->CastSpell(eventInfo.GetActor(), spellId, true);
             }
 
             void Register() override
@@ -1106,6 +1157,70 @@ class spell_warl_siphon_life : public SpellScriptLoader
         }
 };
 
+// -30293 - Soul Leech
+class spell_warl_soul_leech : public SpellScriptLoader
+{
+    public:
+        spell_warl_soul_leech() : SpellScriptLoader("spell_warl_soul_leech") { }
+
+        class spell_warl_soul_leech_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_soul_leech_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_LEECH_HEAL) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMP_SOUL_LEECH_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                static uint32 const casterMana[2] = { SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1, SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2 };
+                static uint32 const petMana[2]    = { SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1,    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2    };
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                int32 bp = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                caster->CastCustomSpell(SPELL_WARLOCK_SOUL_LEECH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+
+                // Improved Soul Leech code below
+                AuraEffect const* impSoulLeech = GetTarget()->GetAuraEffectOfRankedSpell(SPELL_WARLOCK_IMP_SOUL_LEECH_R1, EFFECT_1, aurEff->GetCasterGUID());
+                if (!impSoulLeech)
+                    return;
+
+                uint8 impSoulLeechRank = impSoulLeech->GetSpellInfo()->GetRank();
+                uint32 selfSpellId = casterMana[impSoulLeechRank - 1];
+                uint32 petSpellId = petMana[impSoulLeechRank - 1];
+
+                caster->CastSpell((Unit*)nullptr, selfSpellId, true);
+                caster->CastSpell((Unit*)nullptr, petSpellId, true);
+
+                if (roll_chance_i(impSoulLeech->GetAmount()))
+                    caster->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_soul_leech_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_soul_leech_AuraScript();
+        }
+};
+
 // 29858 - Soulshatter
 class spell_warl_soulshatter : public SpellScriptLoader
 {
@@ -1142,6 +1257,44 @@ class spell_warl_soulshatter : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warl_soulshatter_SpellScript();
+        }
+};
+
+// 37377 - Shadowflame
+// 39437 - Shadowflame Hellfire and RoF
+template <uint32 TriggerSpellId>
+class spell_warl_t4_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_t4_2p_bonus(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint32 Trigger>
+        class spell_warl_t4_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_t4_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(Trigger))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell(caster, Trigger, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_t4_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_t4_2p_bonus_AuraScript<TriggerSpellId>();
         }
 };
 
@@ -1203,11 +1356,15 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_nether_protection();
     new spell_warl_ritual_of_doom_effect();
+    new spell_warl_seduction();
     new spell_warl_seed_of_corruption();
     new spell_warl_seed_of_corruption_dummy();
     new spell_warl_seed_of_corruption_generic();
     new spell_warl_shadow_ward();
     new spell_warl_siphon_life();
+    new spell_warl_soul_leech();
     new spell_warl_soulshatter();
+    new spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>("spell_warl_t4_2p_bonus_shadow");
+    new spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>("spell_warl_t4_2p_bonus_fire");
     new spell_warl_unstable_affliction();
 }

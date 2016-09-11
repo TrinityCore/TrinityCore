@@ -1083,6 +1083,53 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
         }
 };
 
+enum PetHealing
+{
+    SPELL_HEALTH_LINK   = 37382
+};
+
+// 37381 - Pet Healing
+// Hunter T5 2P Bonus
+// Warlock T5 2P Bonus
+class spell_item_pet_healing : public SpellScriptLoader
+{
+    public:
+        spell_item_pet_healing() : SpellScriptLoader("spell_item_pet_healing") { }
+
+        class spell_item_pet_healing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pet_healing_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HEALTH_LINK))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 bp = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                Unit* caster = eventInfo.GetActor();
+                caster->CastCustomSpell(SPELL_HEALTH_LINK, SPELLVALUE_BASE_POINT0, bp, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_pet_healing_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_pet_healing_AuraScript();
+        }
+};
+
 // 17512 - Piccolo of the Flaming Fire
 class spell_item_piccolo_of_the_flaming_fire : public SpellScriptLoader
 {
@@ -3680,6 +3727,7 @@ void AddSC_item_spell_scripts()
     new spell_item_necrotic_touch();
     new spell_item_net_o_matic();
     new spell_item_noggenfogger_elixir();
+    new spell_item_pet_healing();
     new spell_item_piccolo_of_the_flaming_fire();
     new spell_item_savory_deviate_delight();
     new spell_item_scroll_of_recall();
