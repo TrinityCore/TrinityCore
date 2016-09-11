@@ -1862,8 +1862,6 @@ void SpellMgr::LoadSpellProcs()
                 TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `ProcsPerMinute` field", spellInfo->Id);
                 procEntry.ProcsPerMinute = 0;
             }
-            if (procEntry.Chance == 0 && procEntry.ProcsPerMinute == 0)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have any `Chance` and `ProcsPerMinute` values defined, proc will not be triggered", spellInfo->Id);
             if (!procEntry.ProcFlags)
                 TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
             if (procEntry.SpellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
