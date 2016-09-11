@@ -15689,6 +15689,40 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
     return true;
 }
 
+bool Unit::SetDoubleJump(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP))
+            return false;
+
+        if (enable)
+            AddExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP);
+        else
+            RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP);
+    }
+
+    static OpcodeServer const doubleJumpOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_DOUBLE_JUMP,
+        SMSG_MOVE_ENABLE_DOUBLE_JUMP
+    };
+
+    if (Player* playerMover = GetPlayerMover())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(doubleJumpOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.movementInfo = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
 void Unit::SendSetVehicleRecId(uint32 vehicleId)
 {
     if (Player* player = ToPlayer())

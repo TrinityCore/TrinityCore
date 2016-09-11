@@ -32,6 +32,7 @@
 
 #define WORLD_TRIGGER   12999
 #define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
+#define SPELL_DH_DOUBLE_JUMP 196055
 
 enum SpellInterruptFlags
 {
@@ -865,7 +866,8 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK12                    = 0x00001000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00004000,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000,
+    MOVEMENTFLAG2_DOUBLE_JUMP              = 0x00010000
 };
 
 enum UnitTypeMask
@@ -1696,6 +1698,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool packetOnly = false);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
+        bool SetDoubleJump(bool enable, bool packetOnly = false);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
