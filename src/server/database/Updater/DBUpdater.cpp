@@ -219,7 +219,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
 
     if (!is_directory(sourceDirectory))
     {
-        TC_LOG_ERROR("sql.updates", "DBUpdater: The given source directory %s does not exist, change the path to the directory where your sql directory exists (for example c:\source\trinitycore). Shutting down.", sourceDirectory.generic_string().c_str());
+        TC_LOG_ERROR("sql.updates", "DBUpdater: The given source directory %s does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.", sourceDirectory.generic_string().c_str());
         return false;
     }
 
