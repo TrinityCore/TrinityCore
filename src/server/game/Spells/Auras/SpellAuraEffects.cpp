@@ -5906,12 +5906,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
-    DamageInfo damageInfoActor(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
-    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoActor, nullptr);
+    DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
 
-    DamageInfo damageInfoVictim(target, caster, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
-    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoVictim, nullptr);
-
+    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
+    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
     caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
@@ -5996,12 +5994,10 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     if (caster->IsAlive())
     {
-        DamageInfo damageInfoActor(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
-        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoActor, nullptr);
+        DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
 
-        DamageInfo damageInfoVictim(target, caster, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
-        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoVictim, nullptr);
-
+        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
+        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
         caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
     }
 
@@ -6176,12 +6172,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // ignore item heals
     if (!haveCastItem)
     {
-        HealInfo healInfoActor(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
-        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfoActor);
+        HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
 
-        HealInfo healInfoVictim(target, caster, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
-        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfoVictim);
-
+        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
+        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
         caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
     }
 }
@@ -6370,12 +6364,10 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
         spellTypeMask |= PROC_SPELL_TYPE_DAMAGE;
     }
 
-    DamageInfo damageInfoActor(damageInfo, DOT, BASE_ATTACK);
-    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoActor, nullptr);
+    DamageInfo dotDamageInfo(damageInfo, DOT, BASE_ATTACK);
 
-    DamageInfo damageInfoVictim(target, caster, damageInfo.damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
-    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfoVictim, nullptr);
-
+    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &dotDamageInfo, nullptr);
+    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &dotDamageInfo, nullptr);
     caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
 
     caster->DealSpellDamage(&damageInfo, true);

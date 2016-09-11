@@ -2407,12 +2407,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Do triggers for unit
         if (canEffectTrigger)
         {
-            HealInfo healInfoActor(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
-            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfoActor);
+            HealInfo healInfo(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
 
-            HealInfo healInfoVictim(unitTarget, caster, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
-            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfoVictim);
-
+            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
+            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
             caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
         }
     }
@@ -2435,16 +2433,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Do triggers for unit
         if (canEffectTrigger)
         {
-            DamageInfo damageInfoActor(damageInfo, SPELL_DIRECT_DAMAGE, m_attackType);
-            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &damageInfoActor, nullptr);
+            DamageInfo spellDamageInfo(damageInfo, SPELL_DIRECT_DAMAGE, m_attackType);
 
-            DamageInfo damageInfoVictim(unitTarget, caster, damageInfo.damage, m_spellInfo, m_spellSchoolMask, SPELL_DIRECT_DAMAGE, m_attackType);
-            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &damageInfoVictim, nullptr);
-
+            ProcEventInfo eventInfoActor(caster, unitTarget, unitTarget, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
+            ProcEventInfo eventInfoVictim(unitTarget, caster, unitTarget, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
             caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
+
             if (caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET) &&
                 (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
-                caster->ToPlayer()->CastItemCombatSpell(damageInfoActor);
+                caster->ToPlayer()->CastItemCombatSpell(spellDamageInfo);
         }
 
         m_damage = damageInfo.damage;
