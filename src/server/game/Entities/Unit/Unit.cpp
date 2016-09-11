@@ -13198,26 +13198,17 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc
 void Unit::TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo)
 {
     DamageInfo dmgInfo = DamageInfo(damageInfo);
-    TriggerAurasProcOnEvent(nullptr, nullptr, damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, 0, 0, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
+    TriggerAurasProcOnEvent(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 }
 
-void Unit::TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras, Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
+void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget, uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
     // prepare data for self trigger
     ProcEventInfo myProcEventInfo = ProcEventInfo(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    AuraApplicationList myAurasTriggeringProc;
-    GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, myProcAuras, myProcEventInfo);
 
     // prepare data for target trigger
-    ProcEventInfo targetProcEventInfo = ProcEventInfo(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-    AuraApplicationList targetAurasTriggeringProc;
-    if (typeMaskActionTarget)
-        GetProcAurasTriggeredOnEvent(targetAurasTriggeringProc, targetProcAuras, targetProcEventInfo);
-
-    TriggerAurasProcOnEvent(myProcEventInfo, myAurasTriggeringProc);
-
-    if (typeMaskActionTarget)
-        TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
+    ProcEventInfo targetProcEventInfo = ProcEventInfo(actionTarget, this, actionTarget, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
+    ProcDamageAndSpell(myProcEventInfo, &targetProcEventInfo);
 }
 
 void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationList& aurasTriggeringProc)
@@ -13917,21 +13908,21 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (Unit* owner = GetOwner())
         {
             // proc only once for victim
-            ProcEventInfo eventInfo(owner, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+            ProcEventInfo eventInfo(owner, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
             owner->ProcDamageAndSpell(eventInfo);
         }
     }
 
     if (!victim->IsCritter())
     {
-        ProcEventInfo eventInfoActor(this, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
-        ProcEventInfo eventInfoVictim(victim, this, victim, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        ProcEventInfo eventInfoActor(this, victim, victim, PROC_FLAG_KILL, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        ProcEventInfo eventInfoVictim(victim, this, victim, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
         ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
     }
 
     // Proc auras on death - must be before aura/combat remove
-    ProcEventInfo eventInfo(victim, nullptr, nullptr, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+    ProcEventInfo eventInfo(victim, nullptr, nullptr, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
     victim->ProcDamageAndSpell(eventInfo);
 
     // update get killing blow achievements, must be done before setDeathState to be able to require auras on target

@@ -1439,8 +1439,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void GetProcAurasTriggeredOnEvent(AuraApplicationList& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo);
         void TriggerAurasProcOnEvent(CalcDamageInfo& damageInfo);
-        void TriggerAurasProcOnEvent(AuraApplicationList* myProcAuras, AuraApplicationList* targetProcAuras,
-                                     Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
+        void TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
                                      uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
                                      DamageInfo* damageInfo, HealInfo* healInfo);
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationList& procAuras);

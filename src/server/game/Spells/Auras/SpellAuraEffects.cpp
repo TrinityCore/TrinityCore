@@ -5908,8 +5908,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
 
-    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
-    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
+    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &damageInfo, nullptr);
+    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &damageInfo, nullptr);
     caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
@@ -5996,8 +5996,8 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     {
         DamageInfo damageInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask(), DOT, BASE_ATTACK);
 
-        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
-        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &damageInfo, nullptr);
+        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &damageInfo, nullptr);
+        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &damageInfo, nullptr);
         caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
     }
 
@@ -6174,8 +6174,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
 
-        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
-        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, nullptr, nullptr, &healInfo);
+        ProcEventInfo eventInfoActor(caster, target, target, procAttacker, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, hitMask, nullptr, nullptr, &healInfo);
+        ProcEventInfo eventInfoVictim(target, caster, target, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, hitMask, nullptr, nullptr, &healInfo);
         caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
     }
 }
@@ -6366,8 +6366,8 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     DamageInfo dotDamageInfo(damageInfo, DOT, BASE_ATTACK);
 
-    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &dotDamageInfo, nullptr);
-    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, spellTypeMask, PROC_SPELL_PHASE_HIT, hitMask, nullptr, &dotDamageInfo, nullptr);
+    ProcEventInfo eventInfoActor(caster, target, target, procAttacker, spellTypeMask, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &dotDamageInfo, nullptr);
+    ProcEventInfo eventInfoVictim(target, caster, target, procVictim, spellTypeMask, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &dotDamageInfo, nullptr);
     caster->ProcDamageAndSpell(eventInfoActor, &eventInfoVictim);
 
     caster->DealSpellDamage(&damageInfo, true);
