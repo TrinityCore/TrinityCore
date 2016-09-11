@@ -7,7 +7,7 @@ DELETE FROM `spell_proc` WHERE `SpellId` IN (-1463, -11185, -29441, -29834, -315
 INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES
 (-1463,  0, 3, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x4, 1024, 0, 0, 0,   0, 0), -- Mana Shield
 (-11185, 0, 3, 0x00000080, 0x00000000, 0x00000000,  65536, 0x1, 0x2,    0, 2, 0, 0,   0 ,0), -- Improved Blizzard
-(-29441, 0, 3, 0x00000000, 0x00000000, 0x00000000,      0, 0x7, 0x4,    8, 0, 0, 0,   0, 0), -- Magic Absorption
+(-29441, 0, 3, 0x00000000, 0x00000000, 0x00000000,      0, 0x7, 0x4,    8, 0, 0, 0,   1, 0), -- Magic Absorption
 (-29834, 0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x5, 0x2,    0, 0, 0, 0,   0, 0), -- Second Wind (Warrior talent)
 (-31571, 0, 3, 0x00000000, 0x00000022, 0x00000008,  16384, 0x7, 0x4,    0, 0, 0, 0,   0, 0), -- Arcane Potency
 (-31871, 0,10, 0x00000010, 0x00000000, 0x00000000,  16384, 0x4, 0x2,    0, 0, 0, 0,   0, 0), -- Divine Purpose
