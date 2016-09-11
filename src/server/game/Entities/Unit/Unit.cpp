@@ -13151,15 +13151,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, ProcEventInfo& eventInfo)
         // Update skills here for players
         if (GetTypeId() == TYPEID_PLAYER)
         {
+            WeaponAttackType attType = eventInfo.GetDamageInfo() ? eventInfo.GetDamageInfo()->GetAttackType() : BASE_ATTACK;
+
             // On melee based hit/miss/resist need update skill (for victim and attacker)
             if (eventInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_MISS | PROC_HIT_FULL_RESIST))
             {
                 if (eventInfo.GetProcTarget()->GetTypeId() != TYPEID_PLAYER && !eventInfo.GetProcTarget()->IsCritter())
-                    ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), eventInfo.GetDamageInfo()->GetAttackType(), isVictim);
+                    ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), attType, isVictim);
             }
             // Update defence if player is victim and parry/dodge/block
             else if (isVictim && (eventInfo.GetHitMask() & (PROC_HIT_DODGE | PROC_HIT_PARRY | PROC_HIT_BLOCK)))
-                ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), eventInfo.GetDamageInfo()->GetAttackType(), true);
+                ToPlayer()->UpdateCombatSkills(eventInfo.GetProcTarget(), attType, true);
         }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
         if (eventInfo.GetHitMask() & (PROC_HIT_CRITICAL | PROC_HIT_PARRY | PROC_HIT_DODGE | PROC_HIT_BLOCK))
