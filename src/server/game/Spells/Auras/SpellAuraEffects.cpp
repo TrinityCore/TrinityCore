@@ -6354,7 +6354,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
         spellTypeMask |= PROC_SPELL_TYPE_DAMAGE;
     }
 
-    DamageInfo dotDamageInfo(damageInfo, DOT, BASE_ATTACK, procAttacker, procVictim);
+    DamageInfo dotDamageInfo(damageInfo, DOT, BASE_ATTACK, hitMask);
     caster->ProcSkillsAndAuras(target, procAttacker, procVictim, spellTypeMask, PROC_SPELL_PHASE_NONE, hitMask, nullptr, &dotDamageInfo, nullptr);
 
     caster->DealSpellDamage(&damageInfo, true);

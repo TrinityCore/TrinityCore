@@ -862,12 +862,10 @@ class TC_GAME_API DamageInfo
         uint32 m_resist;
         uint32 m_block;
         uint32 m_hitMask;
-        uint32 m_typeMaskAttacker;
-        uint32 m_typeMaskVictim;
     public:
         DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType);
         explicit DamageInfo(CalcDamageInfo const& dmgInfo);
-        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, uint32 typeMaskAttacker, uint32 typeMaskVictim);
+        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, uint32 hitMask);
 
         void ModifyDamage(int32 amount);
         void AbsorbDamage(uint32 amount);
@@ -886,9 +884,6 @@ class TC_GAME_API DamageInfo
         uint32 GetBlock() const { return m_block; }
 
         uint32 GetHitMask() const;
-
-        uint32 GetTypeMaskAttacker() const;
-        uint32 GetTypeMaskVictim() const;
 };
 
 class TC_GAME_API HealInfo

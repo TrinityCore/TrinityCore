@@ -7945,7 +7945,9 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
 void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto)
 {
     // Can do effect if any damage done to target
-    if (damageInfo.GetTypeMaskVictim() & PROC_FLAG_TAKEN_DAMAGE)
+    // for done procs allow normal + critical + absorbs by default
+    bool canTrigger = (damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)) != 0;
+    if (canTrigger)
     {
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
@@ -8009,7 +8011,8 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             else
             {
                 // Can do effect if any damage done to target
-                if (!(damageInfo.GetTypeMaskVictim() & PROC_FLAG_TAKEN_DAMAGE))
+                // for done procs allow normal + critical + absorbs by default
+                if (!canTrigger)
                     continue;
             }
 
