@@ -309,17 +309,11 @@ class boss_gormok : public CreatureScript
 class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
 {
 public:
-    SnobolledTargetSelector(Unit const* unit, float dist = 200.0f) : _me(unit), _dist(dist) { }
+    SnobolledTargetSelector(Unit const* unit) : _me(unit) { }
 
     bool operator()(Unit* unit) const
     {
         if (unit->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (_dist > 0.0f && !_me->IsWithinCombatRange(unit, _dist))
-            return false;
-
-        else if (_dist < 0.0f && !_me->IsWithinCombatRange(unit, -_dist))
             return false;
 
         if (unit->HasAura(SPELL_RIDE_PLAYER) || unit->HasAura(SPELL_SNOBOLLED))
@@ -330,7 +324,6 @@ public:
 
 private:
     Unit const* _me;
-    float _dist;
 };
 
 class SnoboldEvent : public BasicEvent
