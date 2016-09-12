@@ -281,7 +281,7 @@ class boss_gormok : public CreatureScript
                                 {
                                     snobold->ExitVehicle();
                                     snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    snobold->ToCreature()->AI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                                    snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
                                     snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                                     break;
                                 }
