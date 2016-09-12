@@ -89,6 +89,7 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
         }
 };
 
+// -31571 - Arcane Potency
 class spell_mage_arcane_potency : public SpellScriptLoader
 {
     public:
@@ -335,7 +336,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                eventInfo.GetActor()->CastSpell(GetUnitOwner(), SPELL_MAGE_MANA_SURGE, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true);
             }
 
             void Register() override
@@ -481,7 +482,7 @@ class spell_mage_glyph_of_polymorph : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                Unit* target = eventInfo.GetActionTarget();
+                Unit* target = eventInfo.GetProcTarget();
                 target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
                 target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                 target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
@@ -784,7 +785,7 @@ class spell_mage_magic_absorption : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                Unit* caster = eventInfo.GetActor();
+                Unit* caster = eventInfo.GetActionTarget();
                 int32 bp = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), aurEff->GetAmount());
                 caster->CastCustomSpell(SPELL_MAGE_MAGIC_ABSORPTION_MANA, SPELLVALUE_BASE_POINT0, bp, caster, true);
             }
@@ -836,7 +837,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                Unit* caster = eventInfo.GetActor();
+                Unit* caster = eventInfo.GetActionTarget();
                 caster->CastSpell(caster, SPELL_MAGE_ARCANE_SURGE, true);
             }
 

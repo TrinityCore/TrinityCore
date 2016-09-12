@@ -683,7 +683,7 @@ class spell_warr_second_wind : public SpellScriptLoader
             {
                 static uint32 const triggeredSpells[2] = { SPELL_WARRIOR_SECOND_WIND_TRIGGER_1, SPELL_WARRIOR_SECOND_WIND_TRIGGER_2 };
 
-                Unit* caster = eventInfo.GetActor();
+                Unit* caster = eventInfo.GetActionTarget();
                 uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
                 caster->CastSpell(caster, spellId, true);
             }

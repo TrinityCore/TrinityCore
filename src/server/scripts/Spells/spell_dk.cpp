@@ -986,8 +986,7 @@ class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT, true);
             }
 
             void Register() override

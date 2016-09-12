@@ -862,7 +862,7 @@ class spell_pri_shadowfiend_death : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return false;
 
-                Unit* shadowfiend = eventInfo.GetActor();
+                Unit* shadowfiend = eventInfo.GetActionTarget();
                 if (!shadowfiend->GetOwner())
                     return false;
 
@@ -871,7 +871,7 @@ class spell_pri_shadowfiend_death : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                Unit* caster = eventInfo.GetActor()->GetOwner();
+                Unit* caster = eventInfo.GetActionTarget()->GetOwner();
                 caster->CastSpell(caster, SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA, true);
             }
 
