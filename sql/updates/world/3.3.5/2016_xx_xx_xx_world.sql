@@ -1,6 +1,7 @@
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=59725;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (15290, 59725);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 59725, 0, 0, 33, 0, 1, 0, 0, 1, 0, 0, '', 'Spell Improved Spell Reflection (effect 0) will hit the potential target of the spell if target is not the same as condition target.');
+(13, 1, 59725, 0, 0, 33, 0, 1, 0, 0, 1, 0, 0, '', 'Spell Improved Spell Reflection (effect 0) will hit the potential target of the spell if target is not the same as condition target.'),
+(13, 1, 15290, 0, 0, 33, 0, 1, 0, 0, 1, 0, 0, '', 'Spell Vampiric Embrace (effect 0) will hit the potential target of the spell if target is not the same as condition target.');
 
 DELETE FROM `command` WHERE `name`='reload spell_proc_event';
 -- Charges drop (previously hardcoded in SpellMgr::LoadSpellInfoCorrections)
@@ -22,7 +23,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (64823,  0, 7, 0x00000004, 0x00000000, 0x00000000,  65536, 0x1, 0x1,    0, 0, 0, 0,      0, 1); -- Elune's Wrath
 
 -- Port procs from spell_proc_event table
-DELETE FROM `spell_proc` WHERE `SpellId` IN (-1463, -11185, -18094, -27243, -29441, -29834, -30293, -31571, -31871, -44445, -48539, -59088, 22007, 24658, 28716, 28744, 32863, 36123, 38252, 39367, 44141, 70388, 32409, 37381, 37377, 39437, 42770, 56218, 56372, 56374, 56375, 58375, 58642, 37447, 61062, 63320, 65032, 69755, 69739, 71519, 71562, 71761);
+DELETE FROM `spell_proc` WHERE `SpellId` IN (-1463, -11185, -18094, -27243, -29441, -29834, -30293, -31571, -31871, -34914, -44445, -47569, -48539, -59088, -64127, 15286, 22007, 24658, 26169, 28716, 28744, 28809, 32863, 36123, 38252, 39367, 44141, 70388, 32409, 37381, 37377, 39437, 39372, 40438, 42770, 55677, 56218, 56372, 56374, 56375, 58375, 58642, 37447, 61062, 63320, 65032, 69755, 69739, 70770, 71519, 71562, 71761);
 INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES
 (-1463,  0, 3, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x0, 1024, 0, 0, 0,      0, 0), -- Mana Shield
 (-11185, 0, 3, 0x00000080, 0x00000000, 0x00000000,  65536, 0x1, 0x2,    0, 2, 0, 0,      0 ,0), -- Improved Blizzard
@@ -33,13 +34,19 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (-30293, 0, 5, 0x00000181, 0x008200C0, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Soul Leech
 (-31571, 0, 3, 0x00000000, 0x00000022, 0x00000008,  16384, 0x7, 0x4,    0, 0, 0, 0,      0, 0), -- Arcane Potency
 (-31871, 0,10, 0x00000010, 0x00000000, 0x00000000,  16384, 0x4, 0x2,    0, 0, 0, 0,      0, 0), -- Divine Purpose
+(-34914, 0, 6, 0x00002000, 0x00000000, 0x00000000,      0, 0x1, 0x0,    0, 0, 0, 0,      0, 0), -- Vampiric Touch
 (-44445, 0, 3, 0x00000013, 0x00011000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Hot Streak
+(-47569, 0, 6, 0x00004000, 0x00000000, 0x00000000,  16384, 0x4, 0x2,    0, 0, 0, 0,      0, 0), -- Improved Shadowform
 (-48539, 0, 7, 0x00000010, 0x04000000, 0x00000000, 262144, 0x2, 0x0,    0, 0, 0, 0,      0, 0), -- Revitalize
 (-59088, 0, 4, 0x00000000, 0x00000002, 0x00000000,   1024, 0x4, 0x4,    0, 0, 0, 0,      0, 0), -- Improved Spell Reflection
+(-64127, 0, 6, 0x00000001, 0x00000001, 0x00000000,      0, 0x6, 0x2,    0, 0, 0, 0,      0, 0), -- Body and Soul
+(15286, 32, 6, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Vampiric Embrace
 (22007,  0, 3, 0x00200021, 0x00000000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Netherwind Focus
 (24658,  0, 0, 0x00000000, 0x00000000, 0x00000000,  87376, 0x7, 0x2,    0, 0, 0, 0,      0, 0), -- Unstable Power
+(26169,  0, 6, 0x00000000, 0x00000000, 0x00000000,      0, 0x2, 0x2,    0, 0, 0, 0,      0, 0), -- Oracle Healing Bonus
 (28716,  0, 7, 0x00000010, 0x00000000, 0x00000000, 262144, 0x2, 0x0,    0, 0, 0, 0,      0, 0), -- Rejuvenation - Dreamwalker Raiment 2pc
 (28744,  0, 7, 0x00000040, 0x00000000, 0x00000000, 278528, 0x2, 0x2,    0, 0, 0, 0,      0, 0), -- Regrowth - Dreamwalker Raiment 6pc
+(28809,  0, 6, 0x00001000, 0x00000000, 0x00000000,      0, 0x2, 0x2,    2, 0, 0, 0,      0, 0), -- Greater Heal - Vestments of Faith 4pc
 
 (32863,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x0,    0, 0, 0, 0,      0, 0), -- Seed of Corruption (Monster)
 (36123,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x0,    0, 0, 0, 0,      0, 0), -- Seed of Corruption (Monster)
@@ -54,7 +61,10 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (37377, 32, 5, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Shadowflame
 (39437,  4, 5, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Shadowflame Hellfire and RoF
 
+(39372, 48, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x2,    0, 0, 0, 0,      0, 0), -- Frozen Shadoweave
+(40438,  0, 6, 0x00008040, 0x00000000, 0x00000000,      0, 0x3, 0x0,    0, 0, 0, 0,      0, 0), -- Priest Tier 6 Trinket
 (42770,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x5, 0x0,    0, 0, 0, 0,      0, 0), -- Second Wind (NPC aura)
+(55677,  0, 6, 0x00000000, 0x00000001, 0x00000000,      0, 0x4, 0x2,    0, 0, 0, 0,      0, 0), -- Glyph of Dispel Magic
 (56218,  0, 5, 0x00000002, 0x00000000, 0x00000000,      0, 0x1, 0x0,    0, 0, 0, 0,      0, 0), -- Glyph of Corruption
 (56372,  0, 3, 0x00000000, 0x00000080, 0x00000000,  16384, 0x4, 0x4,    0, 0, 0, 0,      0, 0), -- Glyph of Ice Block
 (56374,  0, 3, 0x00000000, 0x00004000, 0x00000008,  16384, 0x4, 0x4,    0, 0, 0, 0,      0, 0), -- Glyph of Icy Veins
@@ -69,11 +79,12 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (65032,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x0,    0, 0, 0, 0,      0, 0), -- 321-Boombot Aura - do not require experience target
 (69755,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x7, 0x4,    0, 0, 0, 0,  45000, 0), -- Purified Shard of the Scale
 (69739,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x7, 0x4,    0, 0, 0, 0,  45000, 0), -- Shiny Shard of the Scale
+(70770,  0, 6, 0x00000800, 0x00000000, 0x00000000,      0, 0x2, 0x2,    0, 0, 0, 0,      0, 0), -- Item - Priest T10 Healer 2P Bonus
 (71519,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x4,    0, 0, 0, 0, 105000, 0), -- Deathbringer's Will
 (71562,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x1, 0x4,    0, 0, 0, 0, 105000, 0), -- Deathbringer's Will (Heroic)
 (71761,  3, 0, 0x00000000, 0x00100000, 0x00000000,      0, 0x5, 0x2,  256, 0, 0, 0,      0, 0); -- Deep Freeze Immunity State
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_imp_blizzard','spell_warl_seed_of_corruption_dummy','spell_mage_magic_absorption','spell_warr_second_wind','spell_warl_soul_leech','spell_mage_arcane_potency','spell_pal_divine_purpose','spell_mage_hot_streak','spell_item_unstable_power','spell_item_restless_strength','spell_dru_revitalize','spell_warr_improved_spell_reflection','spell_warl_seduction','spell_twisted_reflection','spell_dru_t3_2p_bonus','spell_dru_t3_6p_bonus','spell_warl_seed_of_corruption_generic','spell_mark_of_malice','spell_anetheron_vampiric_aura','spell_item_aura_of_madness','spell_item_dementia','spell_item_pet_healing','spell_warl_t4_2p_bonus_shadow','spell_warl_t4_2p_bonus_fire','spell_uk_second_wind','spell_item_sunwell_exalted_caster_neck','spell_item_sunwell_exalted_melee_neck','spell_item_sunwell_exalted_tank_neck','spell_item_sunwell_exalted_healer_neck','spell_warl_glyph_of_corruption_nightfall','spell_mage_glyph_of_ice_block','spell_mage_glyph_of_icy_veins','spell_mage_glyph_of_polymorph','spell_warr_glyph_of_blocking','spell_pri_shadowfiend_death','spell_dk_glyph_of_scourge_strike','spell_hun_kill_command_pet','spell_mage_imp_mana_gems','spell_gen_vampiric_touch','spell_warl_glyph_of_life_tap','spell_xt002_321_boombot_aura','spell_item_purified_shard_of_the_scale','spell_item_shiny_shard_of_the_scale','spell_item_deathbringers_will_normal','spell_item_deathbringers_will_heroic');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_imp_blizzard','spell_warl_seed_of_corruption_dummy','spell_mage_magic_absorption','spell_warr_second_wind','spell_warl_soul_leech','spell_mage_arcane_potency','spell_pal_divine_purpose','spell_mage_hot_streak','spell_pri_imp_shadowform','spell_item_unstable_power','spell_item_restless_strength','spell_pri_aq_3p_bonus','spell_dru_revitalize','spell_warr_improved_spell_reflection','spell_pri_body_and_soul','spell_warl_seduction','spell_pri_vampiric_embrace','spell_twisted_reflection','spell_dru_t3_2p_bonus','spell_dru_t3_6p_bonus','spell_pri_t3_4p_bonus','spell_warl_seed_of_corruption_generic','spell_mark_of_malice','spell_anetheron_vampiric_aura','spell_item_frozen_shadoweave','spell_item_aura_of_madness','spell_pri_item_t6_trinket','spell_item_dementia','spell_item_pet_healing','spell_warl_t4_2p_bonus_shadow','spell_warl_t4_2p_bonus_fire','spell_uk_second_wind','spell_item_sunwell_exalted_caster_neck','spell_item_sunwell_exalted_melee_neck','spell_item_sunwell_exalted_tank_neck','spell_item_sunwell_exalted_healer_neck','spell_warl_glyph_of_corruption_nightfall','spell_pri_glyph_of_dispel_magic','spell_mage_glyph_of_ice_block','spell_mage_glyph_of_icy_veins','spell_mage_glyph_of_polymorph','spell_warr_glyph_of_blocking','spell_pri_shadowfiend_death','spell_dk_glyph_of_scourge_strike','spell_hun_kill_command_pet','spell_mage_imp_mana_gems','spell_gen_vampiric_touch','spell_warl_glyph_of_life_tap','spell_xt002_321_boombot_aura','spell_item_purified_shard_of_the_scale','spell_item_shiny_shard_of_the_scale','spell_pri_t10_heal_2p_bonus','spell_item_deathbringers_will_normal','spell_item_deathbringers_will_heroic');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-11185, 'spell_mage_imp_blizzard'),
 (-27243, 'spell_warl_seed_of_corruption_dummy'),
@@ -83,14 +94,19 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-31571, 'spell_mage_arcane_potency'),
 (-31871, 'spell_pal_divine_purpose'),
 (-44445, 'spell_mage_hot_streak'),
+(-47569, 'spell_pri_imp_shadowform'),
 (-48539, 'spell_dru_revitalize'),
 (-59088, 'spell_warr_improved_spell_reflection'),
+(-64127, 'spell_pri_body_and_soul'),
 (6358,   'spell_warl_seduction'),
+(15286,  'spell_pri_vampiric_embrace'),
 (21063,  'spell_twisted_reflection'),
 (24658,  'spell_item_unstable_power'),
 (24661,  'spell_item_restless_strength'),
+(26169,  'spell_pri_aq_3p_bonus'),
 (28716,  'spell_dru_t3_2p_bonus'),
 (28744,  'spell_dru_t3_6p_bonus'),
+(28809,  'spell_pri_t3_4p_bonus'),
 
 (32863,  'spell_warl_seed_of_corruption_generic'),
 (36123,  'spell_warl_seed_of_corruption_generic'),
@@ -101,7 +117,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 (33493,  'spell_mark_of_malice'),
 (38196,  'spell_anetheron_vampiric_aura'),
+(39372,  'spell_item_frozen_shadoweave'),
 (39446,  'spell_item_aura_of_madness'),
+(40438,  'spell_pri_item_t6_trinket'),
 (41404,  'spell_item_dementia'),
 
 (37381,  'spell_item_pet_healing'),
@@ -118,6 +136,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-18094, 'spell_warl_glyph_of_corruption_nightfall'),
 (56218,  'spell_warl_glyph_of_corruption_nightfall'),
 
+(55677,  'spell_pri_glyph_of_dispel_magic'),
 (56372,  'spell_mage_glyph_of_ice_block'),
 (56374,  'spell_mage_glyph_of_icy_veins'),
 (56375,  'spell_mage_glyph_of_polymorph'),
@@ -135,5 +154,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (65032,  'spell_xt002_321_boombot_aura'),
 (69755,  'spell_item_purified_shard_of_the_scale'),
 (69739,  'spell_item_shiny_shard_of_the_scale'),
+(70770,  'spell_pri_t10_heal_2p_bonus'),
 (71519,  'spell_item_deathbringers_will_normal'),
 (71562,  'spell_item_deathbringers_will_heroic');

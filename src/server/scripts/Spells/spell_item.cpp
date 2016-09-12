@@ -767,6 +767,52 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
         }
 };
 
+enum FrozenShadoweave
+{
+    SPELL_SHADOWMEND    = 39373
+};
+
+// 39372 - Frozen Shadoweave
+// Frozen Shadoweave set 3p bonus
+class spell_item_frozen_shadoweave : public SpellScriptLoader
+{
+    public:
+        spell_item_frozen_shadoweave() : SpellScriptLoader("spell_item_frozen_shadoweave") { }
+
+        class spell_item_frozen_shadoweave_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_frozen_shadoweave_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMEND))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                Unit* caster = eventInfo.GetActor();
+                caster->CastCustomSpell(SPELL_SHADOWMEND, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_frozen_shadoweave_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_frozen_shadoweave_AuraScript();
+        }
+};
+
 // http://www.wowhead.com/item=10645 Gnomish Death Ray
 // 13280 Gnomish Death Ray
 enum GnomishDeathRay
@@ -3721,6 +3767,7 @@ void AddSC_item_spell_scripts()
     new spell_item_echoes_of_light();
     new spell_item_fate_rune_of_unsurpassed_vigor();
     new spell_item_flask_of_the_north();
+    new spell_item_frozen_shadoweave();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();
     new spell_item_mingos_fortune_generator();
