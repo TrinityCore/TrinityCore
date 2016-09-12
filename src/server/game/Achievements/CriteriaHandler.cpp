@@ -1253,10 +1253,13 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_WIN_BG:
+        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case CRITERIA_TYPE_DEATH_AT_MAP:
             if (!miscValue1 || criteria->Entry->Asset.MapID != referencePlayer->GetMapId())
                 return false;
             break;
         case CRITERIA_TYPE_KILL_CREATURE:
+        case CRITERIA_TYPE_KILLED_BY_CREATURE:
             if (!miscValue1 || criteria->Entry->Asset.CreatureID != miscValue1)
                 return false;
             break;
@@ -1268,11 +1271,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             if (miscValue1 && miscValue1 != criteria->Entry->Asset.ZoneID)
-                return false;
-            break;
-        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-        case CRITERIA_TYPE_DEATH_AT_MAP:
-            if (!miscValue1 || referencePlayer->GetMapId() != criteria->Entry->Asset.MapID)
                 return false;
             break;
         case CRITERIA_TYPE_DEATH:
@@ -1295,10 +1293,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         }
-        case CRITERIA_TYPE_KILLED_BY_CREATURE:
-            if (!miscValue1 || miscValue1 != criteria->Entry->Asset.CreatureID)
-                return false;
-            break;
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
             if (!miscValue1 || !unit || unit->GetTypeId() != TYPEID_PLAYER)
                 return false;
