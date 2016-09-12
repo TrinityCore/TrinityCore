@@ -978,7 +978,6 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
             HandleBreakableCCAuraProc(aurApp, eventInfo);
             break;
         case SPELL_AURA_DUMMY:
-        case SPELL_AURA_OVERRIDE_CLASS_SCRIPTS:
         case SPELL_AURA_PROC_TRIGGER_SPELL:
             HandleProcTriggerSpellAuraProc(aurApp, eventInfo);
             break;
