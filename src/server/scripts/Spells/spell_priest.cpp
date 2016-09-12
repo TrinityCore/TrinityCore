@@ -1279,7 +1279,7 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
         }
 };
 
-// 28809 - Greater Heal
+// 70770 - Item - Priest T10 Healer 2P Bonus
 class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
 {
     public:
