@@ -2133,7 +2133,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         targetInfo.reflectResult = m_caster->SpellHitResult(m_caster, m_spellInfo, false); // can't reflect twice
 
         // Proc spell reflect aura when missile hits the original target
-        target->m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), targetInfo.timeDelay);
+        target->m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), target->m_Events.CalculateTime(targetInfo.timeDelay));
 
         // Increase time interval for reflected spells by 1.5
         targetInfo.timeDelay += targetInfo.timeDelay >> 1;
