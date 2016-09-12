@@ -1826,7 +1826,7 @@ void SpellMgr::LoadSpellProcs()
         baseProcEntry.AttributesMask     = fields[10].GetUInt32();
         baseProcEntry.ProcsPerMinute     = fields[11].GetFloat();
         baseProcEntry.Chance             = fields[12].GetFloat();
-        baseProcEntry.Cooldown           = Seconds(fields[13].GetUInt32());
+        baseProcEntry.Cooldown           = Milliseconds(fields[13].GetUInt32());
         baseProcEntry.Charges            = fields[14].GetUInt8();
 
         while (spellInfo)
