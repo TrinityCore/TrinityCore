@@ -31,7 +31,7 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
 {
     public:
 
-        HomeMovementGenerator() : arrived(false) { }
+        HomeMovementGenerator() : arrived(false), skipToHome(false) { }
         ~HomeMovementGenerator() { }
 
         void DoInitialize(Creature*);
@@ -43,5 +43,6 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
     private:
         void _setTargetLocation(Creature*);
         bool arrived;
+        bool skipToHome;
 };
 #endif

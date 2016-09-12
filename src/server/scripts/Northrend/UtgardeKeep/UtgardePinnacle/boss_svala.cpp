@@ -299,16 +299,16 @@ class boss_svala : public CreatureScript
                             me->RemoveAllAuras();
                             me->UpdateEntry(NPC_SVALA_SORROWGRAVE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 10 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_1, 6 * IN_MILLISECONDS, 0, INTRO);
                             break;
                         case EVENT_INTRO_SVALA_TALK_1:
                             Talk(SAY_SVALA_INTRO_1);
-                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_1, 3.2 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_1, 12 * IN_MILLISECONDS, 0, INTRO);
                             break;
                         case EVENT_INTRO_ARTHAS_TALK_1:
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                                 arthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_2);
-                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_2, 7.2 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_2, 9 * IN_MILLISECONDS, 0, INTRO);
                             break;
                         case EVENT_INTRO_SVALA_TALK_2:
                             Talk(SAY_SVALA_INTRO_2);
