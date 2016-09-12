@@ -319,7 +319,7 @@ public:
         if (_dist > 0.0f && !_me->IsWithinCombatRange(unit, _dist))
             return false;
 
-        if (!_me->IsWithinCombatRange(unit, -_dist))
+        else if (_dist < 0.0f && !_me->IsWithinCombatRange(unit, -_dist))
             return false;
 
         if (unit->HasAura(SPELL_RIDE_PLAYER) || unit->HasAura(SPELL_SNOBOLLED))
@@ -342,7 +342,6 @@ public:
     {
         if (_apply)
             _owner->CastSpell(_target, SPELL_SNOBOLLED, true);
-
         else
         {
             _target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
@@ -426,6 +425,7 @@ class npc_snobold_vassal : public CreatureScript
 
             void AttackStart(Unit* who) override
             {
+                //Snobold only melee attack players that is your vehicle
                 if (!_isActive || who->GetGUID() != _targetGUID)
                     return;
 
@@ -462,6 +462,7 @@ class npc_snobold_vassal : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                //Always that Snobold has no vehicle, he should mount in boss/another player
                 if (!me->GetVehicleBase())
                     MountOnBoss();
 
