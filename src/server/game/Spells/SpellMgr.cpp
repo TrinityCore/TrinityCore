@@ -3187,6 +3187,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 42490: // Energized!
             case 42492: // Cast Energized
+            case 43115: // Plague Vial
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
             case 29726: // Test Ribbon Pole Channel
