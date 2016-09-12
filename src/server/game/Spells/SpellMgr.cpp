@@ -1923,13 +1923,8 @@ void SpellMgr::LoadSpellProcs()
 
             found = true;
 
-            // issue warning
             if (!addTriggerFlag && isAlwaysTriggeredAura[auraName])
-            {
                 addTriggerFlag = true;
-                // make this a warning! or remove completely
-                TC_LOG_ERROR("sql.sql", "Spell %u has always triggered aura type %u, but no `spell_proc` entry found! Should make one to check this.", spellInfo->Id, auraName);
-            }
             break;
         }
 
