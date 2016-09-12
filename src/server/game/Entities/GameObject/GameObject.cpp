@@ -1525,8 +1525,12 @@ void GameObject::Use(Unit* user)
 
                     player->UpdateFishingSkill();
 
-                    // but you will likely cause junk in areas that require a high fishing skill
-                    if (chance >= roll)
+                    /// @todo find reasonable value for fishing hole search
+                    GameObject* fishingPool = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
+
+                    // If fishing skill is high enough, or if fishing on a pool, send correct loot.
+                    // Fishing pools have no skill requirement as of patch 3.3.0 (undocumented change).
+                    if (chance >= roll || fishingPool)
                     {
                         /// @todo I do not understand this hack. Need some explanation.
                         // prevent removing GO at spell cancel
@@ -1534,17 +1538,15 @@ void GameObject::Use(Unit* user)
                         SetOwnerGUID(player->GetGUID());
                         SetSpellId(0); // prevent removing unintended auras at Unit::RemoveGameObject
 
-                        /// @todo find reasonable value for fishing hole search
-                        GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
-                        if (ok)
+                        if (fishingPool)
                         {
-                            ok->Use(player);
+                            fishingPool->Use(player);
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
-                    else // else: junk
+                    else // If fishing skill is too low, send junk loot.
                         player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
                     break;
                 }
