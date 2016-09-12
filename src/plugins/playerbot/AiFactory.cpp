@@ -88,7 +88,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 
 	if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
 	{
-		engine->addStrategies("grind","warsong", "attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+		engine->addStrategies("warsong", "attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
 	}
 	else {
 		engine->addStrategies("attack weak", "racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
@@ -211,7 +211,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
     }
 	if (player->InBattleground())
 	{
-		nonCombatEngine->addStrategies("grind","warsong", "nc", "attack weak", "food", "chat",
+		nonCombatEngine->addStrategies("grind", "warsong", "nc", "attack weak", "food", "chat",
 +			"default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", NULL);
 	}
 	else {
