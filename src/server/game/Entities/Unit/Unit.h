@@ -867,7 +867,7 @@ class TC_GAME_API DamageInfo
     public:
         DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType);
         explicit DamageInfo(CalcDamageInfo const& dmgInfo);
-        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType);
+        DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, uint32 typeMaskAttacker, uint32 typeMaskVictim);
 
         void ModifyDamage(int32 amount);
         void AbsorbDamage(uint32 amount);
