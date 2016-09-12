@@ -40,6 +40,7 @@ class spell_mark_of_malice : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
+                PreventDefaultAction();
                 // just drop charges
                 if (aurEff->GetBase()->GetCharges() > 1)
                     return;

@@ -111,6 +111,7 @@ class spell_mage_arcane_potency : public SpellScriptLoader
             {
                 static uint32 const triggerSpell[2] = { SPELL_MAGE_ARCANE_POTENCY_RANK_1, SPELL_MAGE_ARCANE_POTENCY_RANK_2 };
 
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
                 caster->CastSpell(caster, spellId, true);
@@ -300,6 +301,7 @@ class spell_mage_imp_blizzard : public SpellScriptLoader
 
             void HandleChill(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 uint32 triggerSpellId = sSpellMgr->GetSpellWithRank(SPELL_MAGE_CHILLED, GetSpellInfo()->GetRank());
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), triggerSpellId, true);
             }
@@ -336,6 +338,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true);
             }
 
@@ -482,6 +485,7 @@ class spell_mage_glyph_of_polymorph : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* target = eventInfo.GetProcTarget();
                 target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
                 target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
@@ -512,6 +516,7 @@ class spell_mage_glyph_of_icy_veins : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, ObjectGuid::Empty, 0, true, false);
                 caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
@@ -541,6 +546,7 @@ class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
@@ -583,6 +589,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 AuraEffect* counter = GetEffect(EFFECT_1);
                 if (!counter)
                     return;
@@ -785,6 +792,7 @@ class spell_mage_magic_absorption : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 int32 bp = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), aurEff->GetAmount());
                 caster->CastCustomSpell(SPELL_MAGE_MAGIC_ABSORPTION_MANA, SPELLVALUE_BASE_POINT0, bp, caster, true);

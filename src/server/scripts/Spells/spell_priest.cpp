@@ -119,6 +119,7 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 if (caster == eventInfo.GetProcTarget())
                     return;
@@ -567,6 +568,7 @@ class spell_pri_imp_shadowform : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 if (roll_chance_i(aurEff->GetAmount()))
                     eventInfo.GetActor()->RemoveMovementImpairingAuras();
             }
@@ -638,6 +640,7 @@ class spell_pri_item_t6_trinket : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 if (eventInfo.GetSpellTypeMask() & PROC_SPELL_TYPE_HEAL)
                     caster->CastSpell((Unit*)nullptr, SPELL_PRIEST_DIVINE_BLESSING, true);
@@ -1095,6 +1098,7 @@ class spell_pri_shadowfiend_death : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget()->GetOwner();
                 caster->CastSpell(caster, SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA, true);
             }
@@ -1164,6 +1168,7 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
@@ -1222,6 +1227,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
             }
 
@@ -1257,6 +1263,7 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, true);
             }
 
@@ -1291,6 +1298,8 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
+
                 HealInfo* healInfo = eventInfo.GetHealInfo();
                 if (!healInfo || !healInfo->GetHeal())
                     return;

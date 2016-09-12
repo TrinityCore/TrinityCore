@@ -375,6 +375,7 @@ class spell_warr_glyph_of_blocking : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true);
             }
@@ -446,6 +447,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true);
             }
@@ -683,6 +685,7 @@ class spell_warr_second_wind : public SpellScriptLoader
             {
                 static uint32 const triggeredSpells[2] = { SPELL_WARRIOR_SECOND_WIND_TRIGGER_1, SPELL_WARRIOR_SECOND_WIND_TRIGGER_2 };
 
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
                 caster->CastSpell(caster, spellId, true);

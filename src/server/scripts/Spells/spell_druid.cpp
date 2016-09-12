@@ -183,6 +183,7 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
             if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 1)
             {
                 _lunarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(aurEff->GetAmount());
@@ -873,11 +874,9 @@ class spell_dru_revitalize : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 if (!roll_chance_i(aurEff->GetAmount()))
-                {
-                    PreventDefaultAction();
                     return;
-                }
 
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
@@ -1336,6 +1335,7 @@ class spell_dru_t3_2p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* target = eventInfo.GetProcTarget();
                 uint32 spellId;
 
@@ -1389,6 +1389,7 @@ class spell_dru_t3_6p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, true);
             }
 

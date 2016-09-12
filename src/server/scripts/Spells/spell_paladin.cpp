@@ -428,6 +428,7 @@ class spell_pal_divine_purpose : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 if (!roll_chance_i(aurEff->GetAmount()))
                     return;
 

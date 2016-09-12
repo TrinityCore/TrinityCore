@@ -219,6 +219,7 @@ class spell_item_aura_of_madness : public SpellScriptLoader
                     { SPELL_SOCIOPATH, SPELL_DELUSIONAL, SPELL_KLEPTOMANIA, SPELL_MEGALOMANIA, SPELL_PARANOIA, SPELL_MANIC, SPELL_NARCISSISM, SPELL_MARTYR_COMPLEX, SPELL_DEMENTIA }
                 };
 
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->getClass()]);
                 caster->CastSpell(caster, spellId, true);
@@ -404,6 +405,7 @@ class spell_item_deathbringers_will : public SpellScriptLoader
                     { Strength, Agility, Haste }
                 };
 
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 auto const& randomSpells = triggeredSpells[caster->getClass()];
                 if (randomSpells.empty())
@@ -682,6 +684,7 @@ class spell_item_fate_rune_of_unsurpassed_vigor : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
+                PreventDefaultAction();
                 GetTarget()->CastSpell(GetTarget(), SPELL_UNSURPASSED_VIGOR, true);
             }
 
@@ -792,6 +795,7 @@ class spell_item_frozen_shadoweave : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
@@ -1155,6 +1159,7 @@ class spell_item_pet_healing : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
@@ -3083,6 +3088,7 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
@@ -3228,6 +3234,7 @@ class spell_item_sunwell_neck : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Player* player = eventInfo.GetActor()->ToPlayer();
                 Unit* target = eventInfo.GetProcTarget();
 
@@ -3719,6 +3726,7 @@ class spell_item_zandalarian_charm : public SpellScriptLoader
 
             void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
+                PreventDefaultAction();
                 GetTarget()->RemoveAuraFromStack(_spellId);
             }
 

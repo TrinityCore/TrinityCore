@@ -224,6 +224,7 @@ class spell_uk_second_wind : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true);
             }

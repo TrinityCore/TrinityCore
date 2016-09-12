@@ -514,6 +514,7 @@ class spell_warl_glyph_of_corruption_nightfall : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, SPELL_WARLOCK_SHADOW_TRANCE, true);
             }
@@ -549,6 +550,7 @@ public:
 
         void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
+            PreventDefaultAction();
             Unit* caster = eventInfo.GetActor();
             caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED, true);
         }
@@ -980,6 +982,7 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo)
                     return;
@@ -1039,6 +1042,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo)
                     return;
@@ -1185,6 +1189,7 @@ class spell_warl_soul_leech : public SpellScriptLoader
                 static uint32 const casterMana[2] = { SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1, SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2 };
                 static uint32 const petMana[2]    = { SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1,    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2    };
 
+                PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
@@ -1282,6 +1287,7 @@ class spell_warl_t4_2p_bonus : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
+                PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, Trigger, true);
             }
