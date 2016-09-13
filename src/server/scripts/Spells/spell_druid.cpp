@@ -1014,7 +1014,7 @@ class spell_dru_maim_interrupt : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_INTERRUPT_NONPLAYER, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_INTERRUPT_NONPLAYER, true);
             }
 
             void Register() override
