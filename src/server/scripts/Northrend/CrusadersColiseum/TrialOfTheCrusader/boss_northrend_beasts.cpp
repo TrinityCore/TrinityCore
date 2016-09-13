@@ -309,7 +309,7 @@ class boss_gormok : public CreatureScript
 class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
 {
 public:
-    SnobolledTargetSelector(Unit const* unit) { }
+    SnobolledTargetSelector(Unit const* /*unit*/) { }
 
     bool operator()(Unit* unit) const
     {
