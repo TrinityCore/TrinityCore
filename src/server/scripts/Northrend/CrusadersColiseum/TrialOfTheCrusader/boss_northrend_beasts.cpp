@@ -78,6 +78,10 @@ enum BossSpells
     SPELL_HEAD_CRACK        = 66407,
     SPELL_JUMP_TO_HAND      = 66342,
     SPELL_RIDE_PLAYER       = 66245,
+    SPELL_VEHICLE_0         = 66270,
+    SPELL_VEHICLE_1         = 66273,
+    SPELL_VEHICLE_2         = 66274,
+    SPELL_VEHICLE_3         = 68260,
 
     //Acidmaw & Dreadscale Generic
     SPELL_SWEEP             = 66794,
@@ -165,6 +169,8 @@ enum GormokMisc
     PLAYER_VEHICLE_ID       = 444,
 };
 
+uint32 const SnoboldMountspells[4] = { SPELL_VEHICLE_0 , SPELL_VEHICLE_1, SPELL_VEHICLE_2, SPELL_VEHICLE_3 };
+
 class boss_gormok : public CreatureScript
 {
     public:
@@ -230,7 +236,7 @@ class boss_gormok : public CreatureScript
                 {
                     if (Creature* snobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
-                        snobold->EnterVehicle(me, i);
+                        snobold->CastSpell(me, SnoboldMountspells[i], true);
                         snobold->AI()->DoAction(ACTION_ENABLE_FIRE_BOMB);
                         DoZoneInCombat(snobold);
                     }
