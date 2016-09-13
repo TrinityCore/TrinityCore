@@ -691,6 +691,29 @@ LOCK TABLES `character_equipmentsets` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_fishingsteps`
+--
+
+DROP TABLE IF EXISTS `character_fishingsteps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_fishingsteps` (
+  `guid` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `fishingSteps` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_fishingsteps`
+--
+
+LOCK TABLES `character_fishingsteps` WRITE;
+/*!40000 ALTER TABLE `character_fishingsteps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_fishingsteps` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_gifts`
 --
 
