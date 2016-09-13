@@ -227,7 +227,7 @@ public:
     uint32 GetItemPerCycleNormal() const { return _itemsPerCycleNormal; }
     uint32 GetRandChar() const;
     uint32 GetRandCharExclude(uint32 exclude) const;
-    bool GetIsBotChar(uint32 characterID) const;
+    bool IsBotChar(uint32 characterID) const;
     void Reload() { GetConfigFromFile(); }
 
     static char const* GetHouseTypeName(AuctionHouseType houseType);

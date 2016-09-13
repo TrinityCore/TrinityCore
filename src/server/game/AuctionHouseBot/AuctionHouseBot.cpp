@@ -329,7 +329,7 @@ uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
     return result;
 }
 
-bool AuctionBotConfig::GetIsBotChar(uint32 characterID) const
+bool AuctionBotConfig::IsBotChar(uint32 characterID) const
 {
     return !characterID || std::find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
 }
@@ -470,7 +470,7 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
             if (Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow))
             {
                 ItemTemplate const* prototype = item->GetTemplate();
-                if (!auctionEntry->owner || sAuctionBotConfig->GetIsBotChar(auctionEntry->owner)) // Add only ahbot items
+                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                 {
                     if (prototype->Quality < MAX_AUCTION_QUALITY)
                         ++statusInfo[i].QualityInfo[prototype->Quality];
@@ -488,7 +488,7 @@ void AuctionHouseBot::Rebuild(bool all)
     {
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
-            if (!itr->second->owner || sAuctionBotConfig->GetIsBotChar(itr->second->owner)) // ahbot auction
+            if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction
                 if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
                     itr->second->expire_time = sWorld->GetGameTime();
     }
