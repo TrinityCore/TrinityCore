@@ -523,7 +523,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 };
 
 // -1943 - Rupture
-#define RuptureScriptName "spell_rog_rupture"
+static char const* const RuptureScriptName = "spell_rog_rupture";
 class spell_rog_rupture : public SpellScriptLoader
 {
     public:

@@ -65,7 +65,23 @@ enum DruidSpells
     SPELL_DRUID_REVITALIZE_ENERGIZE_MANA    = 48542,
     SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE    = 48541,
     SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY  = 48540,
-    SPELL_DRUID_REVITALIZE_ENERGIZE_RP      = 48543
+    SPELL_DRUID_REVITALIZE_ENERGIZE_RP      = 48543,
+    SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN    = 54833,
+    SPELL_DRUID_GLYPH_OF_STARFIRE_SCRIPT    = 54846,
+    SPELL_DRUID_GLYPH_OF_RIP                = 54818,
+    SPELL_DRUID_RIP_DURATION_LACERATE_DMG   = 60141,
+    SPELL_DRUID_GLYPH_OF_RAKE_TRIGGERED     = 54820,
+    SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1   = 34297,
+    SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL = 34299,
+    SPELL_DRUID_IMP_LEADER_OF_THE_PACK_MANA = 68285,
+    SPELL_DRUID_EXHILARATE                  = 28742,
+    SPELL_DRUID_GLYPH_OF_REJUVENATION_HEAL  = 54755,
+    SPELL_DRUID_INFUSION                    = 37238,
+    SPELL_DRUID_BLESSING_OF_REMULOS         = 40445,
+    SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
+    SPELL_DRUID_BLESSING_OF_CENARIUS        = 40452,
+    SPELL_DRUID_LANGUISH                    = 71023,
+    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691
 };
 
 // 1178 - Bear Form (Passive)
@@ -394,6 +410,193 @@ class spell_dru_flight_form : public SpellScriptLoader
         }
 };
 
+// 54832 - Glyph of Innervate
+class spell_dru_glyph_of_innervate : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_innervate() : SpellScriptLoader("spell_dru_glyph_of_innervate") { }
+
+        class spell_dru_glyph_of_innervate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_innervate_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActor();
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN);
+                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowers(POWER_MANA)), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+
+                caster->CastCustomSpell(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_innervate_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_innervate_AuraScript();
+        }
+};
+
+// 54821 - Glyph of Rake
+class spell_dru_glyph_of_rake : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_rake() : SpellScriptLoader("spell_dru_glyph_of_rake") { }
+
+        class spell_dru_glyph_of_rake_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_rake_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_RAKE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_GLYPH_OF_RAKE_TRIGGERED, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_rake_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_rake_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_rake_AuraScript();
+        }
+};
+
+// 54754 - Glyph of Rejuvenation
+class spell_dru_glyph_of_rejuvenation : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_rejuvenation() : SpellScriptLoader("spell_dru_glyph_of_rejuvenation") { }
+
+        class spell_dru_glyph_of_rejuvenation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_rejuvenation_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_REJUVENATION_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget()->HealthBelowPct(50);
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DRUID_GLYPH_OF_REJUVENATION_HEAL, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_rejuvenation_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_rejuvenation_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_rejuvenation_AuraScript();
+        }
+};
+
+// 54815 - Glyph of Shred
+class spell_dru_glyph_of_shred : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_shred() : SpellScriptLoader("spell_dru_glyph_of_shred") { }
+
+        class spell_dru_glyph_of_shred_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_shred_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_RIP) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_RIP_DURATION_LACERATE_DMG))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActor();
+                // try to find spell Rip on the target
+                if (AuraEffect const* rip = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, caster->GetGUID()))
+                {
+                    // Rip's max duration, note: spells which modifies Rip's duration also counted like Glyph of Rip
+                    uint32 countMin = rip->GetBase()->GetMaxDuration();
+
+                    // just Rip's max duration without other spells
+                    uint32 countMax = rip->GetSpellInfo()->GetMaxDuration();
+
+                    // add possible auras' and Glyph of Shred's max duration
+                    countMax += 3 * aurEff->GetAmount() * IN_MILLISECONDS;                                          // Glyph of Shred               -> +6 seconds
+                    countMax += caster->HasAura(SPELL_DRUID_GLYPH_OF_RIP) ? 4 * IN_MILLISECONDS : 0;                // Glyph of Rip                 -> +4 seconds
+                    countMax += caster->HasAura(SPELL_DRUID_RIP_DURATION_LACERATE_DMG) ? 4 * IN_MILLISECONDS : 0;   // T7 set bonus                 -> +4 seconds
+
+                    // if min < max -> that means caster didn't cast 3 shred yet
+                    // so set Rip's duration and max duration
+                    if (countMin < countMax)
+                    {
+                        rip->GetBase()->SetDuration(rip->GetBase()->GetDuration() + aurEff->GetAmount() * IN_MILLISECONDS);
+                        rip->GetBase()->SetMaxDuration(countMin + aurEff->GetAmount() * IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_shred_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_shred_AuraScript();
+        }
+};
+
 // 54846 - Glyph of Starfire
 class spell_dru_glyph_of_starfire : public SpellScriptLoader
 {
@@ -415,6 +618,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
+                {
                     if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002, 0, 0, caster->GetGUID()))
                     {
                         Aura* aura = aurEff->GetBase();
@@ -432,6 +636,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
                             aura->SetMaxDuration(countMin + 3000);
                         }
                     }
+                }
             }
 
             void Register() override
@@ -443,6 +648,41 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dru_glyph_of_starfire_SpellScript();
+        }
+};
+
+// 54845 - Glyph of Starfire
+class spell_dru_glyph_of_starfire_dummy : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_starfire_dummy() : SpellScriptLoader("spell_dru_glyph_of_starfire_dummy") { }
+
+        class spell_dru_glyph_of_starfire_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_starfire_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_STARFIRE_SCRIPT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_GLYPH_OF_STARFIRE_SCRIPT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_starfire_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_glyph_of_starfire_dummy_AuraScript();
         }
 };
 
@@ -538,6 +778,66 @@ class spell_dru_insect_swarm : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_dru_insect_swarm_AuraScript();
+        }
+};
+
+// 24932 - Leader of the Pack
+class spell_dru_leader_of_the_pack : public SpellScriptLoader
+{
+    public:
+        spell_dru_leader_of_the_pack() : SpellScriptLoader("spell_dru_leader_of_the_pack") { }
+
+        class spell_dru_leader_of_the_pack_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_leader_of_the_pack_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (!aurEff->GetAmount())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                if (caster->GetSpellHistory()->HasCooldown(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL))
+                    return;
+
+                int32 amount = caster->CountPctFromMaxHealth(aurEff->GetAmount());
+                caster->CastCustomSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+
+                // Because of how proc system works, we can't store proc cd on db, it would be applied to entire aura
+                // so aura could only proc once per 6 seconds, independently of caster
+                caster->GetSpellHistory()->AddCooldown(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_HEAL, 0, Seconds(6));
+
+                // only proc on self
+                if (aurEff->GetCasterGUID() != caster->GetGUID())
+                    return;
+
+                AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_1, aurEff->GetCasterGUID());
+                if (!impLotpMana)
+                    return;
+
+                int32 manaAmount = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), impLotpMana->GetAmount());
+                caster->CastCustomSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_MANA, SPELLVALUE_BASE_POINT0, manaAmount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_leader_of_the_pack_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_leader_of_the_pack_AuraScript();
         }
 };
 
@@ -691,6 +991,41 @@ class spell_dru_living_seed_proc : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_dru_living_seed_proc_AuraScript();
+        }
+};
+
+// 44835 - Maim Interrupt
+class spell_dru_maim_interrupt : public SpellScriptLoader
+{
+    public:
+        spell_dru_maim_interrupt() : SpellScriptLoader("spell_dru_maim_interrupt") { }
+
+        class spell_dru_maim_interrupt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_maim_interrupt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_INTERRUPT_NONPLAYER))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_INTERRUPT_NONPLAYER, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_maim_interrupt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_maim_interrupt_AuraScript();
         }
 };
 
@@ -1405,6 +1740,149 @@ class spell_dru_t3_6p_bonus : public SpellScriptLoader
         }
 };
 
+// 28719 - Healing Touch
+class spell_dru_t3_8p_bonus : public SpellScriptLoader
+{
+        public:
+            spell_dru_t3_8p_bonus() : SpellScriptLoader("spell_dru_t3_8p_bonus") { }
+
+        class spell_dru_t3_8p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t3_8p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_EXHILARATE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                int32 amount = CalculatePct(spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask()), aurEff->GetAmount());
+                caster->CastCustomSpell(SPELL_DRUID_EXHILARATE, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_t3_8p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t3_8p_bonus_AuraScript();
+        }
+};
+
+// 37288 - Mana Restore
+// 37295 - Mana Restore
+class spell_dru_t4_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_t4_2p_bonus() : SpellScriptLoader("spell_dru_t4_2p_bonus") { }
+
+        class spell_dru_t4_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t4_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_INFUSION))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DRUID_INFUSION, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_t4_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t4_2p_bonus_AuraScript();
+        }
+};
+
+// 40442 - Druid Tier 6 Trinket
+class spell_dru_item_t6_trinket : public SpellScriptLoader
+{
+    public:
+        spell_dru_item_t6_trinket() : SpellScriptLoader("spell_dru_item_t6_trinket") { }
+
+        class spell_dru_item_t6_trinket_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_item_t6_trinket_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_REMULOS) ||
+                    sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_ELUNE) ||
+                    sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_CENARIUS))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                uint32 spellId;
+                int32 chance;
+
+                // Starfire
+                if (spellInfo->SpellFamilyFlags[0] & 0x00000004)
+                {
+                    spellId = SPELL_DRUID_BLESSING_OF_REMULOS;
+                    chance = 25;
+                }
+                // Rejuvenation
+                else if (spellInfo->SpellFamilyFlags[0] & 0x00000010)
+                {
+                    spellId = SPELL_DRUID_BLESSING_OF_ELUNE;
+                    chance = 25;
+                }
+                // Mangle (Bear) and Mangle (Cat)
+                else if (spellInfo->SpellFamilyFlags[1] & 0x00000440)
+                {
+                    spellId = SPELL_DRUID_BLESSING_OF_CENARIUS;
+                    chance = 40;
+                }
+                else
+                    return;
+
+                if (roll_chance_i(chance))
+                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_item_t6_trinket_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_item_t6_trinket_AuraScript();
+        }
+};
+
 // 67353 - T9 Feral Relic (Idol of Mutilation)
 class spell_dru_t9_feral_relic : public SpellScriptLoader
 {
@@ -1476,6 +1954,55 @@ public:
     }
 };
 
+// 70723 - Item - Druid T10 Balance 4P Bonus
+class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_t10_balance_4p_bonus() : SpellScriptLoader("spell_dru_t10_balance_4p_bonus") { }
+
+        class spell_dru_t10_balance_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t10_balance_4p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_LANGUISH))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH);
+                int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+                // Add remaining ticks to damage done
+                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);
+
+                caster->CastCustomSpell(SPELL_DRUID_LANGUISH, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_t10_balance_4p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t10_balance_4p_bonus_AuraScript();
+        }
+};
+
 // 70691 - Item T10 Restoration 4P Bonus
 class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 {
@@ -1528,6 +2055,61 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_dru_t10_restoration_4p_bonus_SpellScript();
+        }
+};
+
+// 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
+class spell_dru_t10_restoration_4p_bonus_dummy : public SpellScriptLoader
+{
+    public:
+        spell_dru_t10_restoration_4p_bonus_dummy() : SpellScriptLoader("spell_dru_t10_restoration_4p_bonus_dummy") { }
+
+        class spell_dru_t10_restoration_4p_bonus_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_t10_restoration_4p_bonus_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_REJUVENATION_T10_PROC))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || spellInfo->Id == SPELL_DRUID_REJUVENATION_T10_PROC)
+                    return false;
+
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return false;
+
+                Player* caster = eventInfo.GetActor()->ToPlayer();
+                if (!caster)
+                    return false;
+
+                return caster->GetGroup() || caster != eventInfo.GetProcTarget();
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 amount = static_cast<int32>(eventInfo.GetHealInfo()->GetHeal());
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DRUID_REJUVENATION_T10_PROC, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_t10_restoration_4p_bonus_dummy_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dru_t10_restoration_4p_bonus_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_t10_restoration_4p_bonus_dummy_AuraScript();
         }
 };
 
@@ -1609,13 +2191,20 @@ void AddSC_druid_spell_scripts()
     new spell_dru_enrage();
     new spell_dru_forms_trinket();
     new spell_dru_flight_form();
+    new spell_dru_glyph_of_innervate();
+    new spell_dru_glyph_of_rake();
+    new spell_dru_glyph_of_rejuvenation();
+    new spell_dru_glyph_of_shred();
     new spell_dru_glyph_of_starfire();
+    new spell_dru_glyph_of_starfire_dummy();
     new spell_dru_idol_lifebloom();
     new spell_dru_innervate();
     new spell_dru_insect_swarm();
+    new spell_dru_leader_of_the_pack();
     new spell_dru_lifebloom();
     new spell_dru_living_seed();
     new spell_dru_living_seed_proc();
+    new spell_dru_maim_interrupt();
     new spell_dru_moonkin_form_passive();
     new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
@@ -1632,7 +2221,12 @@ void AddSC_druid_spell_scripts()
     new spell_dru_typhoon();
     new spell_dru_t3_2p_bonus();
     new spell_dru_t3_6p_bonus();
+    new spell_dru_t3_8p_bonus();
+    new spell_dru_t4_2p_bonus();
+    new spell_dru_item_t6_trinket();
     new spell_dru_t9_feral_relic();
+    new spell_dru_t10_balance_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus();
+    new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
 }

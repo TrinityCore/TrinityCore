@@ -865,6 +865,47 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
         }
 };
 
+// Item 23004 - Idol of Longevity
+// 28847 - Healing Touch Refund
+enum IdolOfLongevity
+{
+    SPELL_HEALING_TOUCH_MANA    = 28848
+};
+
+class spell_item_healing_touch_refund : public SpellScriptLoader
+{
+    public:
+        spell_item_healing_touch_refund() : SpellScriptLoader("spell_item_healing_touch_refund") { }
+
+        class spell_item_healing_touch_refund_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_healing_touch_refund_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HEALING_TOUCH_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_HEALING_TOUCH_MANA, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_healing_touch_refund_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_healing_touch_refund_AuraScript();
+        }
+};
+
 // http://www.wowhead.com/item=27388 Mr. Pinchy
 // 33060 Make a Wish
 enum MakeAWish
@@ -3777,6 +3818,7 @@ void AddSC_item_spell_scripts()
     new spell_item_flask_of_the_north();
     new spell_item_frozen_shadoweave();
     new spell_item_gnomish_death_ray();
+    new spell_item_healing_touch_refund();
     new spell_item_make_a_wish();
     new spell_item_mingos_fortune_generator();
     new spell_item_necrotic_touch();
