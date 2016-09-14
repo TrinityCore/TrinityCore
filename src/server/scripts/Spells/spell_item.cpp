@@ -397,6 +397,74 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
         }
 };
 
+enum DeadlyPrecision
+{
+    SPELL_DEADLY_PRECISION = 71564
+};
+
+// 71564 - Deadly Precision
+class spell_item_deadly_precision : public SpellScriptLoader
+{
+    public:
+        spell_item_deadly_precision() : SpellScriptLoader("spell_item_deadly_precision") { }
+
+        class spell_item_deadly_precision_charm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_deadly_precision_charm_AuraScript);
+
+            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->RemoveAuraFromStack(GetId());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_deadly_precision_charm_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_deadly_precision_charm_AuraScript();
+        }
+};
+
+// 71563 - Deadly Precision Dummy
+class spell_item_deadly_precision_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_deadly_precision_dummy() : SpellScriptLoader("spell_item_deadly_precision_dummy") { }
+
+        class spell_item_deadly_precision_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_deadly_precision_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_PRECISION))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Aura* newAura = GetCaster()->AddAura(SPELL_DEADLY_PRECISION, GetCaster()))
+                    newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_item_deadly_precision_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_deadly_precision_dummy_SpellScript();
+        }
+};
+
 enum DeathbringersWill
 {
     SPELL_STRENGTH_OF_THE_TAUNKA        = 71484, // +600 Strength
@@ -3949,6 +4017,8 @@ void AddSC_item_spell_scripts()
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
+    new spell_item_deadly_precision();
+    new spell_item_deadly_precision_dummy();
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA_HERO, SPELL_AGILITY_OF_THE_VRYKUL_HERO, SPELL_POWER_OF_THE_TAUNKA_HERO, SPELL_AIM_OF_THE_IRON_DWARVES_HERO, SPELL_SPEED_OF_THE_VRYKUL_HERO>("spell_item_deathbringers_will_heroic");
     new spell_item_decahedral_dwarven_dice();

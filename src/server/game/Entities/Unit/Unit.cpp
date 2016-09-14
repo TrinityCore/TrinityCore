@@ -6115,11 +6115,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
         case SPELLFAMILY_GENERIC:
             switch (dummySpell->Id)
             {
-                // Nevermelting Ice Crystal
-                case 71564:
-                    RemoveAuraFromStack(71564);
-                    *handled = true;
-                    break;
                 // Ball of Flames Proc
                 case 71756:
                 case 72782:
