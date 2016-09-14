@@ -5382,77 +5382,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
     switch (dummySpell->SpellFamilyName)
     {
-        case SPELLFAMILY_HUNTER:
-        {
-            switch (dummySpell->SpellIconID)
-            {
-                case 2236: // Thrill of the Hunt
-                {
-                    if (!procSpell)
-                        return false;
-
-                    Spell* spell = ToPlayer()->m_spellModTakingSpell;
-
-                    // Disable charge drop because of Lock and Load
-                    ToPlayer()->SetSpellModTakingSpell(spell, false);
-
-                    // Explosive Shot
-                    if (procSpell->SpellFamilyFlags[2] & 0x200)
-                    {
-                        if (!victim)
-                            return false;
-                        if (AuraEffect const* pEff = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x0, 0x80000000, 0x0, GetGUID()))
-                            basepoints0 = pEff->GetSpellInfo()->CalcPowerCost(this, SpellSchoolMask(pEff->GetSpellInfo()->SchoolMask)) * 4/10/3;
-                    }
-                    else
-                        basepoints0 = procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
-
-                    ToPlayer()->SetSpellModTakingSpell(spell, true);
-
-                    if (basepoints0 <= 0)
-                        return false;
-
-                    target = this;
-                    triggered_spell_id = 34720;
-                    break;
-                }
-                case 3406: // Hunting Party
-                {
-                    triggered_spell_id = 57669;
-                    target = this;
-                    break;
-                }
-                case 3560: // Rapid Recuperation
-                {
-                    // This effect only from Rapid Killing (mana regen)
-                    if (!procSpell || !(procSpell->SpellFamilyFlags[1] & 0x01000000))
-                        return false;
-
-                    target = this;
-
-                    switch (dummySpell->Id)
-                    {
-                        case 53228:                             // Rank 1
-                            triggered_spell_id = 56654;
-                            break;
-                        case 53232:                             // Rank 2
-                            triggered_spell_id = 58882;
-                            break;
-                    }
-                    break;
-                }
-            }
-
-            switch (dummySpell->Id)
-            {
-                case 57870: // Glyph of Mend Pet
-                {
-                    victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
-                    return true;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_PALADIN:
         {
             // Judgements of the Wise
@@ -6898,15 +6827,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         {
             // If your target is below $s1% health
             if (!victim || !victim->IsAlive() || victim->HealthAbovePct(triggerAmount))
-                return false;
-            break;
-        }
-        // Rapid Recuperation
-        case 53228:
-        case 53232:
-        {
-            // This effect only from Rapid Fire (ability cast)
-            if (!procSpell || !(procSpell->SpellFamilyFlags[0] & 0x20))
                 return false;
             break;
         }

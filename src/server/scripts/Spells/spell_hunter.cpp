@@ -60,9 +60,14 @@ enum HunterSpells
     SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
-    SPELL_LOCK_AND_LOAD_TRIGGER                     = 56453,
-    SPELL_LOCK_AND_LOAD_MARKER                      = 67544,
-    SPELL_HUNTER_KILL_COMMAND_HUNTER                = 34027
+    SPELL_HUNTER_LOCK_AND_LOAD_TRIGGER              = 56453,
+    SPELL_HUNTER_LOCK_AND_LOAD_MARKER               = 67544,
+    SPELL_HUNTER_KILL_COMMAND_HUNTER                = 34027,
+    SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA            = 34720,
+    SPELL_REPLENISHMENT                             = 57669,
+    SPELL_HUNTER_RAPID_RECUPERATION_MANA_R1         = 56654,
+    SPELL_HUNTER_RAPID_RECUPERATION_MANA_R2         = 58882,
+    SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS        = 57894
 };
 
 // 13161 - Aspect of the Beast
@@ -370,6 +375,76 @@ class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
         }
 };
 
+// 57870 - Glyph of Mend Pet
+class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
+{
+    public:
+        spell_hun_glyph_of_mend_pet() : SpellScriptLoader("spell_hun_glyph_of_mend_pet") { }
+
+        class spell_hun_glyph_of_mend_pet_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_glyph_of_mend_pet_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_glyph_of_mend_pet_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_glyph_of_mend_pet_AuraScript();
+        }
+};
+
+// -53290 - Hunting Party
+class spell_hun_hunting_party : public SpellScriptLoader
+{
+    public:
+        spell_hun_hunting_party() : SpellScriptLoader("spell_hun_hunting_party") { }
+
+        class spell_hun_hunting_party_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_hunting_party_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_hunting_party_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_hunting_party_AuraScript();
+        }
+};
+
 // -19572 - Improved Mend Pet
 class spell_hun_improved_mend_pet : public SpellScriptLoader
 {
@@ -536,15 +611,15 @@ class spell_hun_lock_and_load : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_TRIGGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_MARKER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_LOCK_AND_LOAD_TRIGGER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_LOCK_AND_LOAD_MARKER))
                     return false;
                 return true;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetActor()->HasAura(SPELL_LOCK_AND_LOAD_MARKER))
+                if (eventInfo.GetActor()->HasAura(SPELL_HUNTER_LOCK_AND_LOAD_MARKER))
                     return false;
 
                 return true;
@@ -568,8 +643,8 @@ class spell_hun_lock_and_load : public SpellScriptLoader
                     return;
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_TRIGGER, true);
-                caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_MARKER, true);
+                caster->CastSpell(caster, SPELL_HUNTER_LOCK_AND_LOAD_TRIGGER, true);
+                caster->CastSpell(caster, SPELL_HUNTER_LOCK_AND_LOAD_MARKER, true);
             }
 
             void Register() override
@@ -799,11 +874,13 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* owner = caster->GetOwner())
+                {
                     if (!caster->HasAura(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                     {
                         owner->CastCustomSpell(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
                         caster->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
                     }
+                }
             }
 
             void Register() override
@@ -911,6 +988,64 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_rapid_recuperation_AuraScript();
+        }
+};
+
+// -53228 - Rapid Recuperation (talent aura)
+class spell_hun_rapid_recuperation_trigger : public SpellScriptLoader
+{
+    public:
+        spell_hun_rapid_recuperation_trigger() : SpellScriptLoader("spell_hun_rapid_recuperation_trigger") { }
+
+        class spell_hun_rapid_recuperation_trigger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_rapid_recuperation_trigger_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_RAPID_RECUPERATION_MANA_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_RAPID_RECUPERATION_MANA_R2))
+                    return false;
+                return true;
+            }
+
+            void HandleRapidFireProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                // Proc only from Rapid Fire
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 0x00000020))
+                {
+                    PreventDefaultAction();
+                    return;
+                }
+            }
+
+            void HandleRapidKillingProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                static uint32 const triggerSpells[2] = { SPELL_HUNTER_RAPID_RECUPERATION_MANA_R1, SPELL_HUNTER_RAPID_RECUPERATION_MANA_R2 };
+
+                PreventDefaultAction();
+
+                // Proc only from Rapid Killing
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->SpellFamilyFlags[1] & 0x01000000))
+                    return;
+
+                uint8 rank = GetSpellInfo()->GetRank();
+                uint32 spellId = triggerSpells[rank - 1];
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_rapid_recuperation_trigger_AuraScript::HandleRapidFireProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_hun_rapid_recuperation_trigger_AuraScript::HandleRapidKillingProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_rapid_recuperation_trigger_AuraScript();
         }
 };
 
@@ -1181,6 +1316,64 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+// -34497 - Thrill of the Hunt
+class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
+{
+    public:
+        spell_hun_thrill_of_the_hunt() : SpellScriptLoader("spell_hun_thrill_of_the_hunt") { }
+
+        class spell_hun_thrill_of_the_hunt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_thrill_of_the_hunt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                int32 amount = 0;
+
+                // Explosive Shot
+                if (spellInfo->SpellFamilyFlags[2] & 0x200)
+                {
+                    if (AuraEffect const* explosiveShot = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x00000000, 0x80000000, 0x00000000, caster->GetGUID()))
+                    {
+                        // due to Lock and Load SpellInfo::CalcPowerCost might return 0, so just calculate it manually
+                        amount = CalculatePct(static_cast<int32>(CalculatePct(caster->GetCreateMana(), explosiveShot->GetSpellInfo()->ManaCostPercentage)), aurEff->GetAmount());
+                        amount /= explosiveShot->GetSpellInfo()->GetMaxTicks();
+                    }
+                }
+                else
+                    amount = CalculatePct(static_cast<int32>(spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask())), aurEff->GetAmount());
+
+                if (!amount)
+                    return;
+
+                caster->CastCustomSpell(SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_thrill_of_the_hunt_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_thrill_of_the_hunt_AuraScript();
+        }
+};
+
 // 67151   - T9 4P Bonus
 class spell_hun_t9_4p_bonus : public SpellScriptLoader
 {
@@ -1276,6 +1469,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimera_shot();
     new spell_hun_disengage();
     new spell_hun_glyph_of_arcane_shot();
+    new spell_hun_glyph_of_mend_pet();
+    new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_invigoration();
     new spell_hun_kill_command_pet();
@@ -1288,12 +1483,14 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_piercing_shots();
     new spell_hun_rapid_recuperation();
+    new spell_hun_rapid_recuperation_trigger();
     new spell_hun_readiness();
     new spell_hun_roar_of_sacrifice();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
+    new spell_hun_thrill_of_the_hunt();
     new spell_hun_t9_4p_bonus();
     new spell_hun_viper_attack_speed();
 }
