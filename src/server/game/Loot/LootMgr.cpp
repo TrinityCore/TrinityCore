@@ -585,7 +585,7 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
     for (uint8 i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
-        if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT))))
+        if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player)))
         {
             if (presentAtLooting)
                 item.AddAllowedLooter(player);
@@ -1047,30 +1047,25 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 b << uint8(ci->index);
                 b << item;
-                if (item.follow_loot_rules)
+                switch (lv.permission)
                 {
-                    switch (lv.permission)
-                    {
-                    case MASTER_PERMISSION:
-                        b << uint8(LOOT_SLOT_TYPE_MASTER);
-                        break;
-                    case RESTRICTED_PERMISSION:
-                        b << (item.is_blocked ? uint8(LOOT_SLOT_TYPE_LOCKED) : uint8(slotType));
-                        break;
-                    case GROUP_PERMISSION:
-                    case ROUND_ROBIN_PERMISSION:
-                        if (!item.is_blocked)
-                            b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
-                        else
-                            b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
-                        break;
-                    default:
-                        b << uint8(slotType);
-                        break;
-                    }
-                }
-                else
+                case MASTER_PERMISSION:
+                    b << uint8(LOOT_SLOT_TYPE_MASTER);
+                    break;
+                case RESTRICTED_PERMISSION:
+                    b << (item.is_blocked ? uint8(LOOT_SLOT_TYPE_LOCKED) : uint8(slotType));
+                    break;
+                case GROUP_PERMISSION:
+                case ROUND_ROBIN_PERMISSION:
+                    if (!item.is_blocked)
+                        b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                    else
+                        b << uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                    break;
+                default:
                     b << uint8(slotType);
+                    break;
+                }
                 ++itemsShown;
             }
         }
