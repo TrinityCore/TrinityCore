@@ -449,7 +449,7 @@ class spell_item_deadly_precision_dummy : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_DEADLY_PRECISION);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DEADLY_PRECISION);
                 GetCaster()->CastCustomSpell(spellInfo->Id, SPELLVALUE_AURA_STACK, spellInfo->StackAmount, GetCaster(), true);
             }
 
@@ -1926,7 +1926,7 @@ class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* target = GetTarget();
-                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                int32 bp0 = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
                 target->CastCustomSpell(SPELL_SWIFT_HAND_JUSTICE, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
             }
 
