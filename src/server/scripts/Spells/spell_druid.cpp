@@ -1829,9 +1829,9 @@ class spell_dru_item_t6_trinket : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_REMULOS) ||
-                    sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_ELUNE) ||
-                    sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_CENARIUS))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_REMULOS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_ELUNE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_BLESSING_OF_CENARIUS))
                     return false;
                 return true;
             }
