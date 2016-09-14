@@ -5382,61 +5382,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
     switch (dummySpell->SpellFamilyName)
     {
-        case SPELLFAMILY_ROGUE:
-        {
-            switch (dummySpell->Id)
-            {
-                case 56800: // Glyph of Backstab
-                {
-                    triggered_spell_id = 63975;
-                    break;
-                }
-                case 32748: // Deadly Throw Interrupt
-                {
-                    // Prevent cast Deadly Throw Interrupt on self from last effect (apply dummy) of Deadly Throw
-                    if (this == victim)
-                        return false;
-
-                    triggered_spell_id = 32747;
-                    break;
-                }
-            }
-
-            switch (dummySpell->SpellIconID)
-            {
-                case 2116: // Quick Recovery
-                {
-                    if (!procSpell)
-                        return false;
-
-                    // energy cost save
-                    basepoints0 = CalculatePct(int32(procSpell->ManaCost), triggerAmount);
-                    if (basepoints0 <= 0)
-                        return false;
-
-                    target = this;
-                    triggered_spell_id = 31663;
-                    break;
-                }
-                case 2909: // Cut to the Chase
-                {
-                    // "refresh your Slice and Dice duration to its 5 combo point maximum"
-                    // lookup Slice and Dice
-                    if (AuraEffect const* aur = GetAuraEffect(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_ROGUE, 0x40000, 0, 0))
-                    {
-                        aur->GetBase()->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
-                        return true;
-                    }
-                    return false;
-                }
-                case 2963: // Deadly Brew
-                {
-                    triggered_spell_id = 3409;
-                    break;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             switch (dummySpell->SpellIconID)
