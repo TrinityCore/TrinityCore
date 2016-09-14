@@ -6112,20 +6112,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
 
     switch (dummySpell->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-            switch (dummySpell->Id)
-            {
-                // Swift Hand of Justice
-                case 59906:
-                {
-                    int32 bp0 = CalculatePct(GetMaxHealth(), dummySpell->Effects[EFFECT_0]. CalcValue());
-                    CastCustomSpell(this, 59913, &bp0, NULL, NULL, true);
-                    *handled = true;
-                    break;
-                }
-            }
-
-            break;
         case SPELLFAMILY_PALADIN:
         {
             // Infusion of Light

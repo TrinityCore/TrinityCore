@@ -780,10 +780,10 @@ class spell_item_discerning_eye_beast_dummy : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_DISCERNING_EYE_BEAST, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1896,6 +1896,49 @@ class spell_item_six_demon_bag : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_six_demon_bag_SpellScript();
+        }
+};
+
+enum SwiftHandJusticeMisc
+{
+    SPELL_SWIFT_HAND_JUSTICE = 59913
+};
+
+// 59906 - Swift Hand of Justice Dummy
+class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_swift_hand_justice_dummy() : SpellScriptLoader("spell_item_swift_hand_justice_dummy") { }
+
+        class spell_item_swift_hand_justice_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_swift_hand_justice_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SWIFT_HAND_JUSTICE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+                target->CastCustomSpell(SPELL_SWIFT_HAND_JUSTICE, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_swift_hand_justice_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_swift_hand_justice_dummy_AuraScript();
         }
 };
 
@@ -4090,6 +4133,7 @@ void AddSC_item_spell_scripts()
     new spell_item_shadowmourne();
     new spell_item_shadowmourne_soul_fragment();
     new spell_item_six_demon_bag();
+    new spell_item_swift_hand_justice_dummy();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
     new spell_item_worn_troll_dice();

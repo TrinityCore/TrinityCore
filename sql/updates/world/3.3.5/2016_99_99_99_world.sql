@@ -9,10 +9,12 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (72782,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x2,    0, 0, 0, 0,      0,20), -- Ball of Flames Proc
 (72783,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x2,    0, 0, 0, 0,      0,20), -- Ball of Flames Proc
 (72784,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x2,    0, 0, 0, 0,      0,20), -- Ball of Flames Proc
-(59915,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x0,    0, 0, 0, 0,      0, 0); -- Discerning Eye of the Beast
+(59915,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x0,    0, 0, 0, 0,      0, 0), -- Discerning Eye of the Beast
+(59906,  0, 0, 0x00000000, 0x00000000, 0x00000000,      0, 0x0, 0x0,    0, 0, 0, 0,      0, 0); -- Swift Hand of Justice
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_item_deadly_precision','spell_item_deadly_precision_dummy','spell_item_discerning_eye_beast_dummy');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_item_deadly_precision','spell_item_deadly_precision_dummy','spell_item_discerning_eye_beast_dummy','spell_item_swift_hand_justice_dummy');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (71564,'spell_item_deadly_precision'),
 (71563,'spell_item_deadly_precision_dummy'),
-(59915,'spell_item_discerning_eye_beast_dummy');
+(59915,'spell_item_discerning_eye_beast_dummy'),
+(59906,'spell_item_swift_hand_justice_dummy');
