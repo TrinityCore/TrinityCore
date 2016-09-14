@@ -758,6 +758,46 @@ class spell_item_deviate_fish : public SpellScriptLoader
         }
 };
 
+enum DiscerningEyeBeastMisc
+{
+    SPELL_DISCERNING_EYE_BEAST = 59914
+};
+
+// 59915 - Discerning Eye of the Beast Dummy
+class spell_item_discerning_eye_beast_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_discerning_eye_beast_dummy() : SpellScriptLoader("spell_item_discerning_eye_beast_dummy") { }
+
+        class spell_item_discerning_eye_beast_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_discerning_eye_beast_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DISCERNING_EYE_BEAST))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_DISCERNING_EYE_BEAST, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_discerning_eye_beast_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_discerning_eye_beast_dummy_AuraScript();
+        }
+};
+
 // 71610, 71641 - Echoes of Light (Althor's Abacus)
 class spell_item_echoes_of_light : public SpellScriptLoader
 {
@@ -4027,6 +4067,7 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
     new spell_item_desperate_defense();
     new spell_item_deviate_fish();
+    new spell_item_discerning_eye_beast_dummy();
     new spell_item_echoes_of_light();
     new spell_item_fate_rune_of_unsurpassed_vigor();
     new spell_item_flask_of_the_north();
