@@ -1498,6 +1498,27 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
         {
             return new spell_taldaram_ball_of_inferno_flame_SpellScript();
         }
+
+        class spell_taldaram_ball_of_inferno_flame_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_taldaram_ball_of_inferno_flame_AuraScript);
+
+            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->RemoveAuraFromStack(GetId());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_taldaram_ball_of_inferno_flame_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_MOD_SCALE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_taldaram_ball_of_inferno_flame_AuraScript();
+        }
 };
 
 // 72080 - Kinetic Bomb (Valanar)
