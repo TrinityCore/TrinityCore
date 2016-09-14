@@ -126,17 +126,16 @@ public:
             if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
-        
+
         void UpdateAI(uint32 diff) override
-        {   
+        {
             if (HealthBelowPct(75))
             {
                 if (PotTimer <= diff)
                 {
                     DoCast(me, SPELL_HEALING_POTION, true);
                     PotTimer = 10000;
-                }
-                else PotTimer -= diff;
+                } else PotTimer -= diff;
             }
 
             if (GetAttack() && UpdateVictim())
@@ -181,7 +180,7 @@ public:
                         me->SetSheath(SHEATH_STATE_MELEE);
                         break;
                     case EVENT_BURN_CRATES:
-                        me->CastSpell(me, SPELL_BURN, true);
+                        me->DoCastSelf(SPELL_BURN, true);
                         break;
                     case EVENT_TALK_3:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
