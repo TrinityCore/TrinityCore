@@ -98,7 +98,9 @@ enum PaladinSpells
     SPELL_PALADIN_T9_HOLY_4P_BONUS               = 67191,
     SPELL_PALADIN_FLASH_OF_LIGHT_PROC            = 66922,
 
-    SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC    = 68055
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC    = 68055,
+
+    SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC         = 54986,
 
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA    = 31930,
     SPELL_REPLENISHMENT                          = 57669,
@@ -710,6 +712,57 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pal_eye_for_an_eye_AuraScript();
+        }
+};
+
+// 54939 - Glyph of Divinity
+class spell_pal_glyph_of_divinity : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_divinity() : SpellScriptLoader("spell_pal_glyph_of_divinity") { }
+
+        class spell_pal_glyph_of_divinity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_divinity_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                {
+                    Unit* target = GetTarget();
+                    if (eventInfo.GetActionTarget() == target)
+                        return;
+
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                    {
+                        if (spellInfo->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
+                        {
+                            // value multiplied by 2 because you should get twice amount
+                            int32 mana = spellInfo->Effects[i].CalcValue() * 2;
+                            target->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, target, true, nullptr, aurEff);
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_divinity_AuraScript::OnProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_glyph_of_divinity_AuraScript();
         }
 };
 
@@ -2272,6 +2325,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
+    new spell_pal_glyph_of_divinity();
     new spell_pal_glyph_of_holy_light();
     new spell_pal_glyph_of_holy_light_dummy();
     new spell_pal_guarded_by_the_light();

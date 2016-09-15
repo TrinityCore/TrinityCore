@@ -6112,31 +6112,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
 
     switch (dummySpell->SpellFamilyName)
     {
-        case SPELLFAMILY_PALADIN:
-        {
-            // Glyph of Divinity
-            else if (dummySpell->Id == 54939)
-            {
-                if (!procSpell)
-                    return false;
-                *handled = true;
-                // Check if we are the target and prevent mana gain
-                if (victim && triggeredByAura->GetCasterGUID() == victim->GetGUID())
-                    return false;
-                // Lookup base amount mana restore
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-                {
-                    if (procSpell->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
-                    {
-                        // value multiplied by 2 because you should get twice amount
-                        int32 mana = procSpell->Effects[i].CalcValue() * 2;
-                        CastCustomSpell(this, 54986, 0, &mana, NULL, true);
-                    }
-                }
-                return true;
-            }
-            break;
-        }
         case SPELLFAMILY_MAGE:
         {
             // Combustion
