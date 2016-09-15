@@ -7984,7 +7984,6 @@ void Unit::SendHealSpellLog(HealInfo& healInfo, bool critical /*= false*/)
 
 int32 Unit::HealBySpell(HealInfo& healInfo, bool critical /*= false*/)
 {
-    uint32 absorb = 0;
     // calculate heal absorb and reduce healing
     CalcHealAbsorb(healInfo);
 
