@@ -596,7 +596,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
                 return GetTarget() != eventInfo.GetActionTarget();
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 Unit* target = GetTarget();
 
@@ -612,7 +612,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_gen_extra_effects_AuraScript::CheckProc);
-                if (GetId() == SPELL_MAGE_MISSILE_BARRAGE)
+                if (m_scriptSpellId == SPELL_MAGE_MISSILE_BARRAGE)
                     OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
                 else
                     OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
