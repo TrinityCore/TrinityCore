@@ -6114,24 +6114,8 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
     {
         case SPELLFAMILY_MAGE:
         {
-            // Combustion
             switch (dummySpell->Id)
             {
-                case 11129:
-                {
-                    *handled = true;
-                    Unit* caster = triggeredByAura->GetCaster();
-                    if (!caster || !damage)
-                        return false;
-
-                    // last charge and crit
-                    if (triggeredByAura->GetCharges() <= 1 && (procEx & PROC_EX_CRITICAL_HIT))
-                        return true;                        // charge counting (will removed)
-
-                    CastSpell(this, 28682, true);
-
-                    return (procEx & PROC_EX_CRITICAL_HIT) != 0;
-                }
                 // Empowered Fire
                 case 31656:
                 case 31657:

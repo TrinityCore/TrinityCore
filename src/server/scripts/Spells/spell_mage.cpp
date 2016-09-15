@@ -56,7 +56,8 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_RANK_1             = 57529,
     SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 57531,
     SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
-    SPELL_MAGE_ARCANE_SURGE                      = 37436
+    SPELL_MAGE_ARCANE_SURGE                      = 37436,
+    SPELL_MAGE_COMBUSTION_PROC                   = 28682
 };
 
 enum MageSpellIcons
@@ -279,6 +280,49 @@ class spell_mage_cold_snap : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_mage_cold_snap_SpellScript();
+        }
+};
+
+// 11129 - Combustion
+class spell_mage_combustion : public SpellScriptLoader
+{
+    public:
+        spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
+
+        class spell_mage_combustion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_combustion_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_PROC))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo() != nullptr;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                target->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_combustion_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_combustion_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_combustion_AuraScript();
         }
 };
 
@@ -1012,6 +1056,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_blazing_speed();
     new spell_mage_burnout();
     new spell_mage_cold_snap();
+    new spell_mage_combustion();
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_fire_frost_ward();

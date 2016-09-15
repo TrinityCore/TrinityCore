@@ -415,7 +415,7 @@ class spell_item_deadly_precision : public SpellScriptLoader
             void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->RemoveAuraFromStack(GetId());
+                GetTarget()->RemoveAuraFromStack(GetId(), GetTarget()->GetGUID());
             }
 
             void Register() override
