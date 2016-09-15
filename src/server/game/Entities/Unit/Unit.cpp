@@ -6112,38 +6112,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
 
     switch (dummySpell->SpellFamilyName)
     {
-        case SPELLFAMILY_MAGE:
-        {
-            switch (dummySpell->Id)
-            {
-                case 44401: //Missile Barrage
-                case 48108: //Hot Streak
-                case 57761: //Fireball!
-                {
-                    *handled = true;
-
-                    // Prevent double proc for Arcane missiles
-                    if (this == victim)
-                        return false;
-
-                    if (HasAura(70752)) // Item - Mage T10 2P Bonus
-                        CastSpell((Unit*)nullptr, 70753, true);
-
-                    // Proc chance is unknown, we'll just use dummy aura amount
-                    if (AuraEffect const* aurEff = GetAuraEffect(64869, EFFECT_0)) // Item - Mage T8 4P Bonus
-                        if (roll_chance_i(aurEff->GetAmount())) // do not proc charges
-                            return false;
-
-                    // @workaround: We'll take care of removing the aura on next update tick
-                    // This is needed for 44401 to affect Arcane Missiles, else the spellmod will not be applied
-                    // it only works because EventProcessor will always update first scheduled event,
-                    // as cast is already in progress the SpellEvent for Arcane Missiles is already in queue.
-                    triggeredByAura->DropChargeDelayed(1);
-                    return false;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Blood of the North

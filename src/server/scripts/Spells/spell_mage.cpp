@@ -58,7 +58,11 @@ enum MageSpells
     SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
     SPELL_MAGE_ARCANE_SURGE                      = 37436,
     SPELL_MAGE_COMBUSTION_PROC                   = 28682,
-    SPELL_MAGE_EMPOWERED_FIRE_PROC               = 67545
+    SPELL_MAGE_EMPOWERED_FIRE_PROC               = 67545,
+    SPELL_MAGE_T10_2P_BONUS                      = 70752,
+    SPELL_MAGE_T10_2P_BONUS_EFFECT               = 70753,
+    SPELL_MAGE_T8_4P_BONUS                       = 64869,
+    SPELL_MAGE_MISSILE_BARRAGE                   = 44401
 };
 
 enum MageSpellIcons
@@ -563,6 +567,61 @@ class spell_mage_focus_magic : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_mage_focus_magic_AuraScript();
+        }
+};
+
+// 44401 - Missile Barrage
+// 48108 - Hot Streak
+// 57761 - Fireball!
+class spell_mage_gen_extra_effects : public SpellScriptLoader
+{
+    public:
+        spell_mage_gen_extra_effects() : SpellScriptLoader("spell_mage_gen_extra_effects") { }
+
+        class spell_mage_gen_extra_effects_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_gen_extra_effects_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_T10_2P_BONUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_T10_2P_BONUS_EFFECT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MAGE_T8_4P_BONUS))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetTarget() != eventInfo.GetActionTarget();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                Unit* target = GetTarget();
+
+                if (target->HasAura(SPELL_MAGE_T10_2P_BONUS))
+                    target->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
+
+                // Proc chance is unknown, we'll just use dummy aura amount
+                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_MAGE_T8_4P_BONUS, EFFECT_0))
+                    if (roll_chance_i(aurEff->GetAmount()))
+                        PreventDefaultAction();
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_gen_extra_effects_AuraScript::CheckProc);
+                if (GetId() == SPELL_MAGE_MISSILE_BARRAGE)
+                    OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+                else
+                    OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_gen_extra_effects_AuraScript();
         }
 };
 
@@ -1111,6 +1170,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_empowered_fire();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
+    new spell_mage_gen_extra_effects();
     new spell_mage_glyph_of_polymorph();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_ice_block();
