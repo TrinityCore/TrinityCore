@@ -306,7 +306,7 @@ class spell_mage_combustion : public SpellScriptLoader
                 return eventInfo.GetDamageInfo() != nullptr;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -425,7 +425,7 @@ class spell_mage_empowered_fire : public SpellScriptLoader
                 return false;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
