@@ -6114,13 +6114,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
     {
         case SPELLFAMILY_PALADIN:
         {
-            // Judgements of the Just
-            else if (dummySpell->SpellIconID == 3015)
-            {
-                *handled = true;
-                CastSpell(victim, 68055, true);
-                return true;
-            }
             // Glyph of Divinity
             else if (dummySpell->Id == 54939)
             {

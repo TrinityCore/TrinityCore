@@ -1523,7 +1523,7 @@ class spell_pal_judgements_of_the_just : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC))
                     return false;
                 return true;
             }
