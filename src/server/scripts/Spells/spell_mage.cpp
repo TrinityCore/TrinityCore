@@ -606,7 +606,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
                 // Proc chance is unknown, we'll just use dummy aura amount
                 if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_MAGE_T8_4P_BONUS, EFFECT_0))
                     if (roll_chance_i(aurEff->GetAmount()))
-                        PreventDefaultAction();
+                        ModCharges(1);
             }
 
             void Register() override
