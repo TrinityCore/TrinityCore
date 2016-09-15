@@ -94,6 +94,10 @@ enum PaladinSpells
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
     SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
 
+    SPELL_PALADIN_SACRED_SHIELD                  = 53601,
+    SPELL_PALADIN_T9_HOLY_4P_BONUS               = 67191,
+    SPELL_PALADIN_FLASH_OF_LIGHT_PROC            = 66922
+
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA    = 31930,
     SPELL_REPLENISHMENT                          = 57669,
     SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE     = 61840,
@@ -1174,6 +1178,67 @@ class spell_pal_improved_aura_effect : public SpellScriptLoader
         }
 };
 
+// -53569 - Infusion of Light
+class spell_pal_infusion_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_infusion_of_light() : SpellScriptLoader("spell_pal_infusion_of_light") { }
+
+        class spell_pal_infusion_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_infusion_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SACRED_SHIELD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_T9_HOLY_4P_BONUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                {
+                    // Flash of Light HoT on Flash of Light when Sacred Shield active
+                    if (spellInfo->SpellFamilyFlags[0] & 0x40000000 && spellInfo->SpellIconID == 242)
+                    {
+                        PreventDefaultAction();
+
+                        Unit* procTarget = eventInfo.GetActionTarget();
+                        if (procTarget && procTarget->HasAura(SPELL_PALADIN_SACRED_SHIELD))
+                        {
+                            Unit* target = GetTarget();
+                            int32 duration = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC)->GetMaxDuration() / 1000;
+                            int32 pct = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                            int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal() / duration, pct);
+
+                            // Item - Paladin T9 Holy 4P Bonus
+                            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
+                                AddPct(bp0, aurEff->GetAmount());
+
+                            target->CastCustomSpell(SPELL_PALADIN_FLASH_OF_LIGHT_PROC, SPELLVALUE_BASE_POINT0, bp0, procTarget, true, nullptr, aurEff);
+                        }
+                    }
+                    // but should not proc on non-critical Holy Shocks
+                    else if ((spellInfo->SpellFamilyFlags[0] & 0x200000 || spellInfo->SpellFamilyFlags[1] & 0x10000) && !(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
+                        PreventDefaultAction();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_infusion_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_infusion_of_light_AuraScript();
+        }
+};
+
 // 37705 - Healing Discount
 class spell_pal_item_healing_discount : public SpellScriptLoader
 {
@@ -2185,6 +2250,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
+    new spell_pal_infusion_of_light();
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
     new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
