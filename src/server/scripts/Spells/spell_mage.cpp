@@ -403,7 +403,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
 class spell_mage_empowered_fire : public SpellScriptLoader
 {
     public:
-        spell_mage_empowered_fire() : SpellScriptLoader("spell_mage_combustion") { }
+        spell_mage_empowered_fire() : SpellScriptLoader("spell_mage_empowered_fire") { }
 
         class spell_mage_empowered_fire_AuraScript : public AuraScript
         {
@@ -437,7 +437,7 @@ class spell_mage_empowered_fire : public SpellScriptLoader
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_empowered_fire_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_empowered_fire_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+                OnEffectProc += AuraEffectProcFn(spell_mage_empowered_fire_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
             }
         };
 
