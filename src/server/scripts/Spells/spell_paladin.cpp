@@ -734,22 +734,16 @@ class spell_pal_glyph_of_divinity : public SpellScriptLoader
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                PreventDefaultAction();
-
                 if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
                 {
                     Unit* target = GetTarget();
                     if (eventInfo.GetActionTarget() == target)
                         return;
 
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                    if (spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_ENERGIZE)
                     {
-                        if (spellInfo->Effects[i].Effect == SPELL_EFFECT_ENERGIZE)
-                        {
-                            // value multiplied by 2 because you should get twice amount
-                            int32 mana = spellInfo->Effects[i].CalcValue() * 2;
-                            target->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, target, true, nullptr, aurEff);
-                        }
+                        int32 mana = spellInfo->Effects[EFFECT_1].CalcValue() * 2;
+                        target->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, target, true, nullptr, aurEff);
                     }
                 }
             }
