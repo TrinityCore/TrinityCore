@@ -96,7 +96,9 @@ enum PaladinSpells
 
     SPELL_PALADIN_SACRED_SHIELD                  = 53601,
     SPELL_PALADIN_T9_HOLY_4P_BONUS               = 67191,
-    SPELL_PALADIN_FLASH_OF_LIGHT_PROC            = 66922
+    SPELL_PALADIN_FLASH_OF_LIGHT_PROC            = 66922,
+
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC    = 68055
 
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA    = 31930,
     SPELL_REPLENISHMENT                          = 57669,
@@ -1509,6 +1511,41 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
         }
 };
 
+// -53695 - Judgements of the Just
+class spell_pal_judgements_of_the_just : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgements_of_the_just() : SpellScriptLoader("spell_pal_judgements_of_the_just") { }
+
+        class spell_pal_judgements_of_the_just_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgements_of_the_just_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgements_of_the_just_AuraScript::OnProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgements_of_the_just_AuraScript();
+        }
+};
+
 // -31876 - Judgements of the Wise
 class spell_pal_judgements_of_the_wise : public SpellScriptLoader
 {
@@ -2259,6 +2296,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgement_of_command();
     new spell_pal_judgement_of_light_heal();
     new spell_pal_judgement_of_wisdom_mana();
+    new spell_pal_judgements_of_the_just();
     new spell_pal_judgements_of_the_wise();
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
