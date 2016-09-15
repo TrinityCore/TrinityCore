@@ -2029,7 +2029,8 @@ void Unit::CalcHealAbsorb(HealInfo& healInfo)
         }
     }
 
-    healInfo.AbsorbHeal(absorbAmount);
+    if (absorbAmount > 0)
+        healInfo.AbsorbHeal(absorbAmount);
 }
 
 void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
