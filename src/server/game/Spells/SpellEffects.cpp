@@ -2185,7 +2185,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!entry)
         return;
 
-    SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->Effects[effIndex].MiscValueB);
+    SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(m_spellInfo->Effects[effIndex].MiscValueB));
     if (!properties)
     {
         TC_LOG_ERROR("spells", "EffectSummonType: Unhandled summon type %u.", m_spellInfo->Effects[effIndex].MiscValueB);
@@ -2230,6 +2230,15 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         default:
             numSummons = 1;
             break;
+    }
+
+    // Some creatures must be summoned as pets, yet have a different category or type set in SummonProperties.dbc.
+    // Until a generic way is found to handle them, replace the existing values.
+    switch (properties->Id)
+    {
+    case 628: // Hungry Plaguehound
+        properties->Category = SUMMON_CATEGORY_PET;
+        break;
     }
 
     switch (properties->Category)

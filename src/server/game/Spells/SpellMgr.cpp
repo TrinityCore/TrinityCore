@@ -3375,6 +3375,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29726: // Test Ribbon Pole Channel
                 spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
+            case 42767: // Sic'em
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
