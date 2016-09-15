@@ -57,7 +57,8 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_RANK_2             = 57531,
     SPELL_MAGE_HOT_STREAK_PROC                   = 48108,
     SPELL_MAGE_ARCANE_SURGE                      = 37436,
-    SPELL_MAGE_COMBUSTION_PROC                   = 28682
+    SPELL_MAGE_COMBUSTION_PROC                   = 28682,
+    SPELL_MAGE_EMPOWERED_FIRE_PROC               = 67545
 };
 
 enum MageSpellIcons
@@ -395,6 +396,54 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_mage_imp_mana_gems_AuraScript();
+        }
+};
+
+// -31656 - Empowered Fire
+class spell_mage_empowered_fire : public SpellScriptLoader
+{
+    public:
+        spell_mage_empowered_fire() : SpellScriptLoader("spell_mage_combustion") { }
+
+        class spell_mage_empowered_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_empowered_fire_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    if (spellInfo->Id == SPELL_MAGE_IGNITE)
+                        return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                int32 bp0 = int32(CalculatePct(target->GetCreateMana(), aurEff->GetAmount()));
+                target->CastCustomSpell(SPELL_MAGE_EMPOWERED_FIRE_PROC, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_empowered_fire_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_empowered_fire_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_empowered_fire_AuraScript();
         }
 };
 
@@ -1059,6 +1108,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_combustion();
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
+    new spell_mage_empowered_fire();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
     new spell_mage_glyph_of_polymorph();
