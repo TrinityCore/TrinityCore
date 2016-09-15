@@ -6156,7 +6156,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         uint32 funnelDamage = GetSpellInfo()->ManaPerSecond; // damage is not affected by spell power
 
-        if ((int32)funnelDamage > healInfo.GetEffectiveHeal() && healInfo.GetEffectiveHeal())
+        if (funnelDamage > healInfo.GetEffectiveHeal() && healInfo.GetEffectiveHeal())
             funnelDamage = healInfo.GetEffectiveHeal();
 
         uint32 funnelAbsorb = 0;
