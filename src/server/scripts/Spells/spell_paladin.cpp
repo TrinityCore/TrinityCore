@@ -70,6 +70,9 @@ enum PaladinSpells
     SPELL_PALADIN_JUDGEMENT_OF_LIGHT             = 20185,
     SPELL_PALADIN_JUDGEMENT_OF_WISDOM            = 20186,
 
+    SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL        = 20267,
+    SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA       = 20268,
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -89,7 +92,33 @@ enum PaladinSpells
     SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
 
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
+
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA    = 31930,
+    SPELL_REPLENISHMENT                          = 57669,
+    SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE     = 61840,
+    SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL           = 54203,
+    SPELL_PALADIN_SACRED_SHIELD_TRIGGER          = 58597,
+    SPELL_PALADIN_T8_HOLY_4P_BONUS               = 64895,
+    SPELL_PALADIN_HEART_OF_THE_CRUSADER_EFF_R1   = 21183,
+
+    SPELL_PALADIN_HOLY_POWER_ARMOR               = 28790,
+    SPELL_PALADIN_HOLY_POWER_ATTACK_POWER        = 28791,
+    SPELL_PALADIN_HOLY_POWER_SPELL_POWER         = 28793,
+    SPELL_PALADIN_HOLY_POWER_MP5                 = 28795,
+
+    SPELL_PALADIN_HOLY_VENGEANCE                 = 31803,
+    SPELL_PALADIN_SEAL_OF_VENGEANCE_DAMAGE       = 42463,
+    SPELL_PALADIN_BLOOD_CORRUPTION               = 53742,
+    SPELL_PALADIN_SEAL_OF_CORRUPTION_DAMAGE      = 53739,
+
+    SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA      = 31786,
+
+    SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
+    SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
+
+    SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL       = 54968,
+    SPELL_PALADIN_HOLY_MENDING                   = 64891
 };
 
 enum PaladinSpellIcons
@@ -711,6 +740,49 @@ class spell_pal_glyph_of_holy_light : public SpellScriptLoader
         }
 };
 
+// 54937 - Glyph of Holy Light (dummy aura)
+class spell_pal_glyph_of_holy_light_dummy : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_holy_light_dummy() : SpellScriptLoader("spell_pal_glyph_of_holy_light_dummy") { }
+
+        class spell_pal_glyph_of_holy_light_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_holy_light_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+
+                caster->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_holy_light_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_glyph_of_holy_light_dummy_AuraScript();
+        }
+};
+
 // 63521 - Guarded by The Light
 class spell_pal_guarded_by_the_light : public SpellScriptLoader
 {
@@ -828,6 +900,43 @@ class spell_pal_hand_of_salvation : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pal_hand_of_salvation_AuraScript();
+        }
+};
+
+// -20335 - Heart of the Crusader
+class spell_pal_heart_of_the_crusader : public SpellScriptLoader
+{
+    public:
+        spell_pal_heart_of_the_crusader() : SpellScriptLoader("spell_pal_heart_of_the_crusader") { }
+
+        class spell_pal_heart_of_the_crusader_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_heart_of_the_crusader_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HEART_OF_THE_CRUSADER_EFF_R1))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HEART_OF_THE_CRUSADER_EFF_R1, GetSpellInfo()->GetRank());
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_heart_of_the_crusader_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_heart_of_the_crusader_AuraScript();
         }
 };
 
@@ -1023,7 +1132,7 @@ class spell_pal_improved_aura : public SpellScriptLoader
         uint32 _spellId;
 };
 
-// 63510 - Improved Concentraction Aura (Area Aura)
+// 63510 - Improved Concentration Aura (Area Aura)
 // 63514 - Improved Devotion Aura (Area Aura)
 // 63531 - Sanctified Retribution (Area Aura)
 class spell_pal_improved_aura_effect : public SpellScriptLoader
@@ -1100,6 +1209,65 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
         }
 };
 
+// 40470 - Paladin Tier 6 Trinket
+class spell_pal_item_t6_trinket : public SpellScriptLoader
+{
+    public:
+        spell_pal_item_t6_trinket() : SpellScriptLoader("spell_pal_item_t6_trinket") { }
+
+        class spell_pal_item_t6_trinket_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_item_t6_trinket_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_ENDURING_LIGHT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_ENDURING_JUDGEMENT))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                uint32 spellId;
+                int32 chance;
+
+                // Holy Light & Flash of Light
+                if (spellInfo->SpellFamilyFlags[0] & 0xC0000000)
+                {
+                    spellId = SPELL_PALADIN_ENDURING_LIGHT;
+                    chance = 15;
+                }
+                // Judgements
+                else if (spellInfo->SpellFamilyFlags[0] & 0x00800000)
+                {
+                    spellId = SPELL_PALADIN_ENDURING_JUDGEMENT;
+                    chance = 50;
+                }
+                else
+                    return;
+
+                if (roll_chance_i(chance))
+                    eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_item_t6_trinket_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_item_t6_trinket_AuraScript();
+        }
+};
+
 // 53407 - Judgement of Justice
 // 20271 - Judgement of Light
 // 53408 - Judgement of Wisdom
@@ -1132,11 +1300,13 @@ class spell_pal_judgement : public SpellScriptLoader
                 for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
                 {
                     if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
+                    {
                         if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
                         {
                             spellId2 = (*i)->GetAmount();
                             break;
                         }
+                    }
                 }
 
                 GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
@@ -1187,6 +1357,129 @@ class spell_pal_judgement_of_command : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_pal_judgement_of_command_SpellScript();
+        }
+};
+
+// 20185 - Judgement of Light
+class spell_pal_judgement_of_light_heal : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgement_of_light_heal() : SpellScriptLoader("spell_pal_judgement_of_light_heal") { }
+
+        class spell_pal_judgement_of_light_heal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgement_of_light_heal_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetProcTarget();
+                int32 amount = static_cast<int32>(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
+
+                caster->CastCustomSpell(SPELL_PALADIN_JUDGEMENT_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgement_of_light_heal_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgement_of_light_heal_AuraScript();
+        }
+};
+
+// 20186 - Judgement of Wisdom
+class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgement_of_wisdom_mana() : SpellScriptLoader("spell_pal_judgement_of_wisdom_mana") { }
+
+        class spell_pal_judgement_of_wisdom_mana_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgement_of_wisdom_mana_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget()->getPowerType() == POWER_MANA;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetProcTarget();
+                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), aurEff->GetAmount());
+
+                caster->CastCustomSpell(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_judgement_of_wisdom_mana_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgement_of_wisdom_mana_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgement_of_wisdom_mana_AuraScript();
+        }
+};
+
+// -31876 - Judgements of the Wise
+class spell_pal_judgements_of_the_wise : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgements_of_the_wise() : SpellScriptLoader("spell_pal_judgements_of_the_wise") { }
+
+        class spell_pal_judgements_of_the_wise_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgements_of_the_wise_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell((Unit*)nullptr, SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA, true);
+                caster->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgements_of_the_wise_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgements_of_the_wise_AuraScript();
         }
 };
 
@@ -1372,6 +1665,55 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
+// -53380 - Righteous Vengeance
+class spell_pal_righteous_vengeance : public SpellScriptLoader
+{
+    public:
+        spell_pal_righteous_vengeance() : SpellScriptLoader("spell_pal_righteous_vengeance") { }
+
+        class spell_pal_righteous_vengeance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_righteous_vengeance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE);
+                int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+                // Add remaining ticks to damage done
+                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
+
+                caster->CastCustomSpell(SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_righteous_vengeance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_righteous_vengeance_AuraScript();
+        }
+};
+
 // 58597 - Sacred Shield
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
@@ -1413,6 +1755,59 @@ class spell_pal_sacred_shield : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pal_sacred_shield_AuraScript();
+        }
+};
+
+// 53601 - Sacred Shield (dummy)
+class spell_pal_sacred_shield_dummy : public SpellScriptLoader
+{
+    public:
+        spell_pal_sacred_shield_dummy() : SpellScriptLoader("spell_pal_sacred_shield_dummy") { }
+
+        class spell_pal_sacred_shield_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sacred_shield_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SACRED_SHIELD_TRIGGER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_T8_HOLY_4P_BONUS))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+                if (_cooldownEnd > now)
+                    return;
+
+                Seconds cooldown(aurEff->GetAmount());
+                if (AuraEffect const* bonus = caster->GetAuraEffect(SPELL_PALADIN_T8_HOLY_4P_BONUS, EFFECT_0, caster->GetGUID()))
+                    cooldown = Seconds(bonus->GetAmount());
+
+                _cooldownEnd = now + cooldown;
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_SACRED_SHIELD_TRIGGER, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_sacred_shield_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+            // Cooldown tracking can't be done in DB because of T8 bonus
+            std::chrono::steady_clock::time_point _cooldownEnd = std::chrono::steady_clock::time_point::min();
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_sacred_shield_dummy_AuraScript();
         }
 };
 
@@ -1462,6 +1857,305 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
         }
 };
 
+// 31801 - Seal of Vengeance
+// 53736 - Seal of Corruption
+template <uint32 DoTSpellId, uint32 DamageSpellId>
+class spell_pal_seal_of_vengeance : public SpellScriptLoader
+{
+    public:
+        spell_pal_seal_of_vengeance(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint32 DoTSpell, uint32 DamageSpell>
+        class spell_pal_seal_of_vengeance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_seal_of_vengeance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(DoTSpell) ||
+                    !sSpellMgr->GetSpellInfo(DamageSpell))
+                    return false;
+                return true;
+            }
+
+            /*
+            When an auto-attack lands (does not dodge/parry/miss) that can proc a seal the of the following things happen independently of each other (see 2 roll system).
+
+            1) A "hidden strike" which uses melee combat mechanics occurs. If it lands it refreshes/stacks SoV DoT. Only white swings can trigger a refresh or stack. (This hidden strike mechanic can also proc things like berserking..)
+            2) A weapon damage based proc will occur if you used a special (CS/DS/judge) or if you have a 5 stack (from auto attacks). This attack can not be avoided.
+
+            Remember #2 happens regardless of #1 landing, it just requires the initial attack (autos, cs, etc) to land.
+
+            Stack Number    % of Weapon Damage  % with SotP
+            0               0%                  0%
+            1               6.6%                7.6%
+            2               13.2%               15.2%
+            3               19.8%               22.8%
+            4               26.4%               30.4%
+            5               33%                 38%
+            */
+
+            void HandleApplyDoT(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MELEE_AUTO_ATTACK))
+                    return;
+
+                // don't cast triggered, spell already has SPELL_ATTR4_CAN_CAST_WHILE_CASTING attr
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), DoTSpell, false);
+            }
+
+            void HandleSeal(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PALADIN, 0x00000000, 0x00000800, 0x00000000, caster->GetGUID());
+                if (!aurEff)
+                    return;
+
+                uint8 stacks = aurEff->GetBase()->GetStackAmount();
+                uint8 maxStacks = aurEff->GetSpellInfo()->StackAmount;
+
+                if (stacks < maxStacks && !(eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS))
+                    return;
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(DamageSpell);
+                int32 amount = spellInfo->Effects[EFFECT_0].CalcValue();
+                amount *= stacks;
+                amount /= maxStacks;
+
+                caster->CastCustomSpell(DamageSpell, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_vengeance_AuraScript::HandleApplyDoT, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_vengeance_AuraScript::HandleSeal, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_seal_of_vengeance_AuraScript<DoTSpellId, DamageSpellId>();
+        }
+};
+
+// -31785 - Spiritual Attunement
+class spell_pal_spiritual_attunement : public SpellScriptLoader
+{
+    public:
+        spell_pal_spiritual_attunement() : SpellScriptLoader("spell_pal_spiritual_attunement") { }
+
+        class spell_pal_spiritual_attunement_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_spiritual_attunement_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // "when healed by other friendly targets' spells"
+                if (eventInfo.GetProcTarget() == eventInfo.GetActionTarget())
+                    return false;
+
+                return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetEffectiveHeal();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                int32 amount = CalculatePct(healInfo->GetEffectiveHeal(), aurEff->GetAmount());
+
+                eventInfo.GetActionTarget()->CastCustomSpell(SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_spiritual_attunement_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_spiritual_attunement_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_spiritual_attunement_AuraScript();
+        }
+};
+
+// -53501 - Sheath of Light
+class spell_pal_sheath_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_sheath_of_light() : SpellScriptLoader("spell_pal_sheath_of_light") { }
+
+        class spell_pal_sheath_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sheath_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL);
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+                // Add remaining ticks to damage done
+                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELL_AURA_PERIODIC_HEAL);
+
+                caster->CastCustomSpell(SPELL_PALADIN_SHEATH_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_sheath_of_light_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_sheath_of_light_AuraScript();
+        }
+};
+
+// 28789 - Holy Power
+class spell_pal_t3_6p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_pal_t3_6p_bonus() : SpellScriptLoader("spell_pal_t3_6p_bonus") { }
+
+        class spell_pal_t3_6p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_t3_6p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_POWER_ARMOR) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_POWER_ATTACK_POWER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_POWER_SPELL_POWER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_POWER_MP5))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 spellId;
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                switch (target->getClass())
+                {
+                    case CLASS_PALADIN:
+                    case CLASS_PRIEST:
+                    case CLASS_SHAMAN:
+                    case CLASS_DRUID:
+                        spellId = SPELL_PALADIN_HOLY_POWER_MP5;
+                        break;
+                    case CLASS_MAGE:
+                    case CLASS_WARLOCK:
+                        spellId = SPELL_PALADIN_HOLY_POWER_SPELL_POWER;
+                        break;
+                    case CLASS_HUNTER:
+                    case CLASS_ROGUE:
+                        spellId = SPELL_PALADIN_HOLY_POWER_ATTACK_POWER;
+                        break;
+                    case CLASS_WARRIOR:
+                        spellId = SPELL_PALADIN_HOLY_POWER_ARMOR;
+                        break;
+                    default:
+                        return;
+                }
+
+                caster->CastSpell(target, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_t3_6p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_t3_6p_bonus_AuraScript();
+        }
+};
+
+// 64890 Item - Paladin T8 Holy 2P Bonus
+class spell_pal_t8_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_pal_t8_2p_bonus() : SpellScriptLoader("spell_pal_t8_2p_bonus") { }
+
+        class spell_pal_t8_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_t8_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_MENDING))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING);
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+                amount /= spellInfo->GetMaxTicks();
+                // Add remaining ticks to damage done
+                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
+
+                caster->CastCustomSpell(SPELL_PALADIN_HOLY_MENDING, SPELLVALUE_BASE_POINT0, amount, target, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_t8_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_t8_2p_bonus_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -1477,9 +2171,11 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
+    new spell_pal_glyph_of_holy_light_dummy();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
+    new spell_pal_heart_of_the_crusader();
     new spell_pal_holy_shock();
     new spell_pal_illumination();
     new spell_pal_improved_aura("spell_pal_improved_concentraction_aura", SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA);
@@ -1490,13 +2186,25 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
+    new spell_pal_item_t6_trinket();
     new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
     new spell_pal_judgement("spell_pal_judgement_of_light", SPELL_PALADIN_JUDGEMENT_OF_LIGHT);
     new spell_pal_judgement("spell_pal_judgement_of_wisdom", SPELL_PALADIN_JUDGEMENT_OF_WISDOM);
     new spell_pal_judgement_of_command();
+    new spell_pal_judgement_of_light_heal();
+    new spell_pal_judgement_of_wisdom_mana();
+    new spell_pal_judgements_of_the_wise();
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
     new spell_pal_righteous_defense();
+    new spell_pal_righteous_vengeance();
     new spell_pal_sacred_shield();
+    new spell_pal_sacred_shield_dummy();
     new spell_pal_seal_of_righteousness();
+    new spell_pal_seal_of_vengeance<SPELL_PALADIN_HOLY_VENGEANCE, SPELL_PALADIN_SEAL_OF_VENGEANCE_DAMAGE>("spell_pal_seal_of_vengeance");
+    new spell_pal_seal_of_vengeance<SPELL_PALADIN_BLOOD_CORRUPTION, SPELL_PALADIN_SEAL_OF_CORRUPTION_DAMAGE>("spell_pal_seal_of_corruption");
+    new spell_pal_spiritual_attunement();
+    new spell_pal_sheath_of_light();
+    new spell_pal_t3_6p_bonus();
+    new spell_pal_t8_2p_bonus();
 }

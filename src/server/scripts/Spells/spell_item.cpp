@@ -115,6 +115,70 @@ class spell_item_aegis_of_preservation : public SpellScriptLoader
         }
 };
 
+enum AngerCapacitor
+{
+    SPELL_MOTE_OF_ANGER             = 71432,
+    SPELL_MANIFEST_ANGER_MAIN_HAND  = 71433,
+    SPELL_MANIFEST_ANGER_OFF_HAND   = 71434
+};
+
+// Item - 50351: Tiny Abomination in a Jar
+// 71406 - Anger Capacitor
+
+// Item - 50706: Tiny Abomination in a Jar (Heroic)
+// 71545 - Anger Capacitor
+template <uint8 StackAmount>
+class spell_item_anger_capacitor : public SpellScriptLoader
+{
+    public:
+        spell_item_anger_capacitor(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint8 Stacks>
+        class spell_item_anger_capacitor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_anger_capacitor_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOTE_OF_ANGER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_MAIN_HAND) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_OFF_HAND))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
+
+                caster->CastSpell((Unit*)nullptr, SPELL_MOTE_OF_ANGER, true);
+                Aura const* motes = caster->GetAura(SPELL_MOTE_OF_ANGER);
+                if (!motes || motes->GetStackAmount() < Stacks)
+                    return;
+
+                caster->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
+                uint32 spellId = SPELL_MANIFEST_ANGER_MAIN_HAND;
+                if (Player* player = caster->ToPlayer())
+                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                        spellId = SPELL_MANIFEST_ANGER_OFF_HAND;
+
+                caster->CastSpell(target, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_anger_capacitor_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_anger_capacitor_AuraScript<StackAmount>();
+        }
+};
+
 // 26400 - Arcane Shroud
 class spell_item_arcane_shroud : public SpellScriptLoader
 {
@@ -903,6 +967,84 @@ class spell_item_healing_touch_refund : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_item_healing_touch_refund_AuraScript();
+        }
+};
+
+enum Heartpierce
+{
+    SPELL_INVIGORATION_MANA         = 71881,
+    SPELL_INVIGORATION_ENERGY       = 71882,
+    SPELL_INVIGORATION_RAGE         = 71883,
+    SPELL_INVIGORATION_RP           = 71884,
+
+    SPELL_INVIGORATION_RP_HERO      = 71885,
+    SPELL_INVIGORATION_RAGE_HERO    = 71886,
+    SPELL_INVIGORATION_ENERGY_HERO  = 71887,
+    SPELL_INVIGORATION_MANA_HERO    = 71888
+};
+
+// Item - 49982: Heartpierce
+// 71880 - Item - Icecrown 25 Normal Dagger Proc
+
+// Item - 50641: Heartpierce (Heroic)
+// 71892 - Item - Icecrown 25 Heroic Dagger Proc
+template <uint32 EnergySpellId, uint32 ManaSpellId, uint32 RageSpellId, uint32 RPSpellId>
+class spell_item_heartpierce : public SpellScriptLoader
+{
+    public:
+        spell_item_heartpierce(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint32 Energy, uint32 Mana, uint32 Rage, uint32 RunicPower>
+        class spell_item_heartpierce_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_heartpierce_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(Energy) ||
+                    !sSpellMgr->GetSpellInfo(Mana) ||
+                    !sSpellMgr->GetSpellInfo(Rage) ||
+                    !sSpellMgr->GetSpellInfo(RunicPower))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = eventInfo.GetActor();
+
+                uint32 spellId;
+                switch (caster->getPowerType())
+                {
+                    case POWER_MANA:
+                        spellId = Mana;
+                        break;
+                    case POWER_ENERGY:
+                        spellId = Energy;
+                        break;
+                    case POWER_RAGE:
+                        spellId = Rage;
+                        break;
+                    case POWER_RUNIC_POWER:
+                        spellId = RunicPower;
+                        break;
+                    default:
+                        return;
+                }
+
+                caster->CastSpell((Unit*)nullptr, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_heartpierce_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_heartpierce_AuraScript<EnergySpellId, ManaSpellId, RageSpellId, RPSpellId>();
         }
 };
 
@@ -3802,6 +3944,8 @@ void AddSC_item_spell_scripts()
 
     new spell_item_aegis_of_preservation();
     new spell_item_arcane_shroud();
+    new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
+    new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
@@ -3819,6 +3963,8 @@ void AddSC_item_spell_scripts()
     new spell_item_frozen_shadoweave();
     new spell_item_gnomish_death_ray();
     new spell_item_healing_touch_refund();
+    new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
+    new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
     new spell_item_make_a_wish();
     new spell_item_mingos_fortune_generator();
     new spell_item_necrotic_touch();
