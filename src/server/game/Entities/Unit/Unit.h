@@ -892,19 +892,22 @@ class TC_GAME_API HealInfo
         Unit* const _healer;
         Unit* const _target;
         uint32 _heal;
+        uint32 _effectiveHeal;
         uint32 _absorb;
         SpellInfo const* const _spellInfo;
         SpellSchoolMask const _schoolMask;
         uint32 _hitMask;
 
     public:
-        explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
+        HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
         void AbsorbHeal(uint32 amount);
+        void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
         Unit* GetHealer() const { return _healer; }
         Unit* GetTarget() const { return _target; }
         uint32 GetHeal() const { return _heal; }
+        uint32 GetEffectiveHeal() const { return _effectiveHeal; }
         uint32 GetAbsorb() const { return _absorb; }
         SpellInfo const* GetSpellInfo() const { return _spellInfo; };
         SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
@@ -1427,7 +1430,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit* victim, bool durabilityLoss = true);
         void KillSelf(bool durabilityLoss = true) { Kill(this, durabilityLoss); }
-        int32 DealHeal(Unit* victim, uint32 addhealth);
+        void DealHeal(HealInfo& healInfo);
 
         void ProcSkillsAndAuras(Unit* actionTarget, uint32 typeMaskActor, uint32 typeMaskActionTarget,
                                 uint32 spellTypeMask, uint32 spellPhaseMask, uint32 hitMask, Spell* spell,
@@ -1545,8 +1548,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateUnderwaterState(Map* m, float x, float y, float z);
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
-        void SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical = false);
-        int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
+        void SendHealSpellLog(HealInfo& healInfo, bool critical = false);
+        int32 HealBySpell(HealInfo& healInfo, bool critical = false);
         void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powerType);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
         uint32 SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage);
@@ -2025,7 +2028,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK);
         uint32 CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const;
         void CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo = NULL);
-        void CalcHealAbsorb(Unit* victim, SpellInfo const* spellInfo, uint32& healAmount, uint32& absorb);
+        void CalcHealAbsorb(HealInfo& healInfo);
 
         void  UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;

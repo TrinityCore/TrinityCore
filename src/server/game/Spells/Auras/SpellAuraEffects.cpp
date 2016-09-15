@@ -5484,8 +5484,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                         if (caster)
                         {
                             int32 heal = caster->CountPctFromMaxHealth(10);
-                            caster->HealBySpell(target, auraSpellInfo, heal);
+                            HealInfo healInfo(caster, target, heal, auraSpellInfo, auraSpellInfo->GetSchoolMask());
+                            caster->HealBySpell(healInfo);
 
+                            /// @todo: should proc other auras?
                             if (int32 mana = caster->GetMaxPower(POWER_MANA))
                             {
                                 mana /= 10;
@@ -6002,8 +6004,11 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         uint32 heal = uint32(caster->SpellHealingBonusDone(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
         heal = uint32(caster->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT, GetBase()->GetStackAmount()));
 
-        int32 gain = caster->HealBySpell(caster, GetSpellInfo(), heal);
-        caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellInfo());
+        HealInfo healInfo(caster, caster, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
+        caster->HealBySpell(healInfo);
+
+        caster->getHostileRefManager().threatAssist(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
+        caster->ProcSkillsAndAuras(caster, PROC_FLAG_DONE_PERIODIC, PROC_FLAG_TAKEN_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, hitMask, nullptr, nullptr, &healInfo);
     }
 }
 
@@ -6032,7 +6037,9 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
 
     damage = int32(damage * gainMultiplier);
 
-    caster->HealBySpell(target, GetSpellInfo(), damage);
+    HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
+    caster->HealBySpell(healInfo);
+    caster->ProcSkillsAndAuras(target, PROC_FLAG_DONE_PERIODIC, PROC_FLAG_TAKEN_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, PROC_HIT_NORMAL, nullptr, nullptr, &healInfo);
 }
 
 void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
@@ -6130,15 +6137,16 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     TC_LOG_DEBUG("spells.periodic", "PeriodicTick: %s heal of %s for %u health inflicted by %u",
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());
 
-    uint32 absorb = 0;
     uint32 heal = damage;
-    caster->CalcHealAbsorb(target, GetSpellInfo(), heal, absorb);
-    int32 gain = caster->DealHeal(target, heal);
 
-    SpellPeriodicAuraLogInfo pInfo(this, heal, heal - gain, absorb, 0, 0.0f, crit);
+    HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
+    caster->CalcHealAbsorb(healInfo);
+    caster->DealHeal(healInfo);
+
+    SpellPeriodicAuraLogInfo pInfo(this, heal, heal - healInfo.GetEffectiveHeal(), healInfo.GetAbsorb(), 0, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
-    target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());
+    target->getHostileRefManager().threatAssist(caster, float(healInfo.GetEffectiveHeal()) * 0.5f, GetSpellInfo());
 
     bool haveCastItem = !GetBase()->GetCastItemGUID().IsEmpty();
 
@@ -6148,8 +6156,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         uint32 funnelDamage = GetSpellInfo()->ManaPerSecond; // damage is not affected by spell power
 
-        if ((int32)funnelDamage > gain && gain > 0)
-            funnelDamage = gain;
+        if ((int32)funnelDamage > healInfo.GetEffectiveHeal() && healInfo.GetEffectiveHeal())
+            funnelDamage = healInfo.GetEffectiveHeal();
 
         uint32 funnelAbsorb = 0;
         caster->DealDamageMods(caster, funnelDamage, &funnelAbsorb);
@@ -6164,10 +6172,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     uint32 hitMask = crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
     // ignore item heals
     if (!haveCastItem)
-    {
-        HealInfo healInfo(caster, target, damage, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
         caster->ProcSkillsAndAuras(target, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, hitMask, nullptr, nullptr, &healInfo);
-    }
 }
 
 void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const

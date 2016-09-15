@@ -2400,16 +2400,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         else
             hitMask |= PROC_HIT_NORMAL;
 
-        int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
-        unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
-        m_healing = gain;
+        HealInfo healInfo(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
+        caster->HealBySpell(healInfo, crit);
+        unitTarget->getHostileRefManager().threatAssist(caster, float(healInfo.GetEffectiveHeal()) * 0.5f, m_spellInfo);
+        m_healing = healInfo.GetEffectiveHeal();
 
         // Do triggers for unit
         if (canEffectTrigger)
-        {
-            HealInfo healInfo(caster, unitTarget, addhealth, m_spellInfo, m_spellInfo->GetSchoolMask());
             caster->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
-        }
     }
     // Do damage and triggers
     else if (m_damage > 0)

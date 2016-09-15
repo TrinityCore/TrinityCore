@@ -198,7 +198,7 @@ uint32 DamageInfo::GetHitMask() const
 }
 
 HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
-    : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
+    : _healer(healer), _target(target), _heal(heal), _effectiveHeal(0), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
 {
 }
 
@@ -207,6 +207,8 @@ void HealInfo::AbsorbHeal(uint32 amount)
     amount = std::min(amount, GetHeal());
     _absorb += amount;
     _heal -= amount;
+    amount = std::min(amount, GetEffectiveHeal());
+    _effectiveHeal -= amount;
     _hitMask |= PROC_HIT_ABSORB;
 }
 
@@ -1968,21 +1970,22 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     *absorb = dmgInfo.GetAbsorb();
 }
 
-void Unit::CalcHealAbsorb(Unit* victim, SpellInfo const* healSpell, uint32 &healAmount, uint32 &absorb)
+void Unit::CalcHealAbsorb(HealInfo& healInfo)
 {
-    if (!healAmount)
+    if (!healInfo.GetHeal())
         return;
 
-    int32 RemainingHeal = healAmount;
+    int32 const healing = static_cast<int32>(healInfo.GetHeal());
+    int32 absorbAmount = 0;
 
     // Need remove expired auras after
     bool existExpired = false;
 
     // absorb without mana cost
-    AuraEffectList const& vHealAbsorb = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
-    for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
+    AuraEffectList const& vHealAbsorb = healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
+    for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && absorbAmount <= healing; ++i)
     {
-        if (!((*i)->GetMiscValue() & healSpell->SchoolMask))
+        if (!((*i)->GetMiscValue() & healInfo.GetSpellInfo()->SchoolMask))
             continue;
 
         // Max Amount can be absorbed by this aura
@@ -1997,10 +2000,10 @@ void Unit::CalcHealAbsorb(Unit* victim, SpellInfo const* healSpell, uint32 &heal
 
         // currentAbsorb - damage can be absorbed by shield
         // If need absorb less damage
-        if (RemainingHeal < currentAbsorb)
-            currentAbsorb = RemainingHeal;
+        if (healing < currentAbsorb + absorbAmount)
+            currentAbsorb = healing - absorbAmount;
 
-        RemainingHeal -= currentAbsorb;
+        absorbAmount += currentAbsorb;
 
         // Reduce shield amount
         (*i)->SetAmount((*i)->GetAmount() - currentAbsorb);
@@ -2018,16 +2021,15 @@ void Unit::CalcHealAbsorb(Unit* victim, SpellInfo const* healSpell, uint32 &heal
             ++i;
             if (auraEff->GetAmount() <= 0)
             {
-                uint32 removedAuras = victim->m_removedAurasCount;
+                uint32 removedAuras = healInfo.GetTarget()->m_removedAurasCount;
                 auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                if (removedAuras+1 < victim->m_removedAurasCount)
+                if (removedAuras + 1 < healInfo.GetTarget()->m_removedAurasCount)
                     i = vHealAbsorb.begin();
             }
         }
     }
 
-    absorb = RemainingHeal > 0 ? (healAmount - RemainingHeal) : healAmount;
-    healAmount = RemainingHeal;
+    healInfo.AbsorbHeal(absorbAmount);
 }
 
 void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
@@ -8012,9 +8014,11 @@ void Unit::SetCharm(Unit* charm, bool apply)
     }
 }
 
-int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
+void Unit::DealHeal(HealInfo& healInfo)
 {
     int32 gain = 0;
+    Unit* victim = healInfo.GetTarget();
+    uint32 addhealth = healInfo.GetHeal();
 
     if (victim->IsAIEnabled)
         victim->GetAI()->HealReceived(this, addhealth);
@@ -8051,7 +8055,8 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
     }
 
-    return gain;
+    if (gain)
+        healInfo.SetEffectiveHeal(gain > 0 ? static_cast<uint32>(gain) : 0UL);
 }
 
 bool Unit::IsMagnet() const
@@ -8264,30 +8269,30 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
+void Unit::SendHealSpellLog(HealInfo& healInfo, bool critical /*= false*/)
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
-    data << victim->GetPackGUID();
+    data << healInfo.GetTarget()->GetPackGUID();
     data << GetPackGUID();
-    data << uint32(SpellID);
-    data << uint32(Damage);
-    data << uint32(OverHeal);
-    data << uint32(Absorb); // Absorb amount
+    data << uint32(healInfo.GetSpellInfo()->Id);
+    data << uint32(healInfo.GetHeal());
+    data << uint32(healInfo.GetHeal() - healInfo.GetEffectiveHeal());
+    data << uint32(healInfo.GetAbsorb()); // Absorb amount
     data << uint8(critical ? 1 : 0);
     data << uint8(0); // unused
     SendMessageToSet(&data, true);
 }
 
-int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical)
+int32 Unit::HealBySpell(HealInfo& healInfo, bool critical /*= false*/)
 {
     uint32 absorb = 0;
     // calculate heal absorb and reduce healing
-    CalcHealAbsorb(victim, spellInfo, addHealth, absorb);
+    CalcHealAbsorb(healInfo);
 
-    int32 gain = DealHeal(victim, addHealth);
-    SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical);
-    return gain;
+    DealHeal(healInfo);
+    SendHealSpellLog(healInfo, critical);
+    return healInfo.GetEffectiveHeal();
 }
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
