@@ -737,12 +737,6 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
     }
 }
 
-VehicleJoinEvent::~VehicleJoinEvent()
-{
-    if (Target)
-        Target->RemovePendingEvent(this);
-}
-
 /**
  * @fn bool VehicleJoinEvent::Execute(uint64, uint32)
  *
@@ -859,6 +853,9 @@ void VehicleJoinEvent::Abort(uint64)
     {
         TC_LOG_DEBUG("entities.vehicle", "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
             Passenger->GetGUID().GetCounter(), Passenger->GetEntry(), Target->GetBase()->GetGUID().GetCounter(), Target->GetBase()->GetEntry(), (int32)Seat->first);
+
+        /// Remove the pending event when Abort was called on the event directly
+        Target->RemovePendingEvent(this);
 
         /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
         /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
