@@ -115,7 +115,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (57870,   0,  9, 0x00800000, 0x00000000, 0x00000000,  262144, 0x2, 0x0,     0, 0x0,  0,   0,      0, 0), -- Glyph of Mend Pet
 (58375,   0,  4, 0x00000000, 0x00000200, 0x00000000,      16, 0x1, 0x2,     0, 0x0,  0,   0,      0, 0), -- Glyph of Blocking
 (58642,   0, 15, 0x00000000, 0x08000000, 0x00000000,      16, 0x1, 0x4,     0, 0x0,  0,   0,      0, 0), -- Glyph of Scourge Strike
-(59906,   0,  0, 0x00000000, 0x00000000, 0x00000000,       0, 0x0, 0x0,     0, 0x0,  0,   0,      0, 0), -- Swift Hand of Justice
+(59906,   0,  0, 0x00000000, 0x00000000, 0x00000000,       0, 0x0, 0x0,     0, 0x1,  0,   0,      0, 0), -- Swift Hand of Justice
 (59915,   0,  0, 0x00000000, 0x00000000, 0x00000000,       0, 0x0, 0x0,     0, 0x0,  0,   0,      0, 0), -- Discerning Eye of the Beast
 
 (37447,   0,  3, 0x00000000, 0x00000100, 0x00000000,   16384, 0x4, 0x2,     0, 0x0,  0,   0,      0, 0), -- Improved Mana Gems

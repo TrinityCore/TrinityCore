@@ -1921,14 +1921,12 @@ class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL);
                 Unit* caster = eventInfo.GetActor();
-
-                int32 amount = caster->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_0].CalcValue());
+                int32 amount = caster->CountPctFromMaxHealth(aurEff->GetAmount());
                 caster->CastCustomSpell(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
             }
 
