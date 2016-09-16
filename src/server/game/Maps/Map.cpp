@@ -3524,7 +3524,7 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player* source)
+void InstanceMap::PermBindAllPlayers()
 {
     if (!IsDungeon())
         return;
@@ -3532,31 +3532,36 @@ void InstanceMap::PermBindAllPlayers(Player* source)
     InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
-        TC_LOG_ERROR("maps", "Cannot bind player (%s, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUID().ToString().c_str(), source->GetName().c_str(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
+        TC_LOG_ERROR("maps", "Cannot bind players to instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) because no instance save is available!", GetMapName(), GetId(), GetDifficultyID(), GetInstanceId());
         return;
     }
 
-    Group* group = source->GetGroup();
-    // group members outside the instance group don't get bound
+    // perm bind all players that are currently inside the instance
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
         Player* player = itr->GetSource();
-        // players inside an instance cannot be bound to other instances
-        // some players may already be permanently bound, in this case nothing happens
+        // never instance bind GMs with GM mode enabled
+        if (player->IsGameMaster())
+            continue;
+
         InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficultyID());
-        if (!bind || !bind->perm)
+        if (bind && bind->perm)
+        {
+            TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a save for the map on ID %u!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), GetId(), GetDifficultyID(), GetInstanceId(), save->GetInstanceId());
+        }
+        else
         {
             player->BindToInstance(save, true);
             WorldPackets::Instance::InstanceSaveCreated data;
             data.Gm = player->IsGameMaster();
             player->GetSession()->SendPacket(data.Write());
-            if (!player->IsGameMaster())
-                player->GetSession()->SendCalendarRaidLockout(save, true);
-        }
+            player->GetSession()->SendCalendarRaidLockout(save, true);
 
-        // if the leader is not in the instance the group will not get a perm bind
-        if (group && group->GetLeaderGUID() == player->GetGUID())
-            group->BindToInstance(save, true);
+            // if group leader is in instance, group also gets bound
+            if (Group* group = player->GetGroup())
+                if (group->GetLeaderGUID() == player->GetGUID())
+                    group->BindToInstance(save, true);
+        }
     }
 }
 
