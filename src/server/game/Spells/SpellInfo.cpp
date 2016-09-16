@@ -2430,7 +2430,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             // Amplify Magic, Dampen Magic
             if (SpellFamilyFlags[0] == 0x00002000)
                 return true;
-            // Ignite
+            // Impact
             if (SpellIconID == 45)
                 return true;
             break;

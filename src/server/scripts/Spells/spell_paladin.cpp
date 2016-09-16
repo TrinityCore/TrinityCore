@@ -94,6 +94,14 @@ enum PaladinSpells
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
     SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
 
+    SPELL_PALADIN_SACRED_SHIELD                  = 53601,
+    SPELL_PALADIN_T9_HOLY_4P_BONUS               = 67191,
+    SPELL_PALADIN_FLASH_OF_LIGHT_PROC            = 66922,
+
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC    = 68055,
+
+    SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC         = 54986,
+
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_MANA    = 31930,
     SPELL_REPLENISHMENT                          = 57669,
     SPELL_PALADIN_RIGHTEOUS_VENGEANCE_DAMAGE     = 61840,
@@ -707,6 +715,50 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
         }
 };
 
+// 54939 - Glyph of Divinity
+class spell_pal_glyph_of_divinity : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_divinity() : SpellScriptLoader("spell_pal_glyph_of_divinity") { }
+
+        class spell_pal_glyph_of_divinity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_divinity_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC) ||
+                    sSpellMgr->AssertSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC)->Effects[EFFECT_1].Effect != SPELL_EFFECT_ENERGIZE)
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                if (caster == eventInfo.GetProcTarget())
+                    return;
+
+                int32 mana = spellInfo->Effects[EFFECT_1].CalcValue() * 2;
+                caster->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, (Unit*)nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_divinity_AuraScript::OnProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_glyph_of_divinity_AuraScript();
+        }
+};
+
 // 54968 - Glyph of Holy Light
 class spell_pal_glyph_of_holy_light : public SpellScriptLoader
 {
@@ -1174,6 +1226,67 @@ class spell_pal_improved_aura_effect : public SpellScriptLoader
         }
 };
 
+// -53569 - Infusion of Light
+class spell_pal_infusion_of_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_infusion_of_light() : SpellScriptLoader("spell_pal_infusion_of_light") { }
+
+        class spell_pal_infusion_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_infusion_of_light_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SACRED_SHIELD) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_T9_HOLY_4P_BONUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                {
+                    // Flash of Light HoT on Flash of Light when Sacred Shield active
+                    if (spellInfo->SpellFamilyFlags[0] & 0x40000000 && spellInfo->SpellIconID == 242)
+                    {
+                        PreventDefaultAction();
+
+                        Unit* procTarget = eventInfo.GetActionTarget();
+                        if (procTarget && procTarget->HasAura(SPELL_PALADIN_SACRED_SHIELD))
+                        {
+                            Unit* target = GetTarget();
+                            int32 duration = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC)->GetMaxDuration() / 1000;
+                            int32 pct = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                            int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal() / duration, pct);
+
+                            // Item - Paladin T9 Holy 4P Bonus
+                            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
+                                AddPct(bp0, aurEff->GetAmount());
+
+                            target->CastCustomSpell(SPELL_PALADIN_FLASH_OF_LIGHT_PROC, SPELLVALUE_BASE_POINT0, bp0, procTarget, true, nullptr, aurEff);
+                        }
+                    }
+                    // but should not proc on non-critical Holy Shocks
+                    else if ((spellInfo->SpellFamilyFlags[0] & 0x200000 || spellInfo->SpellFamilyFlags[1] & 0x10000) && !(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
+                        PreventDefaultAction();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_infusion_of_light_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_infusion_of_light_AuraScript();
+        }
+};
+
 // 37705 - Healing Discount
 class spell_pal_item_healing_discount : public SpellScriptLoader
 {
@@ -1441,6 +1554,41 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pal_judgement_of_wisdom_mana_AuraScript();
+        }
+};
+
+// -53695 - Judgements of the Just
+class spell_pal_judgements_of_the_just : public SpellScriptLoader
+{
+    public:
+        spell_pal_judgements_of_the_just() : SpellScriptLoader("spell_pal_judgements_of_the_just") { }
+
+        class spell_pal_judgements_of_the_just_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_judgements_of_the_just_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST_PROC, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_judgements_of_the_just_AuraScript::OnProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_judgements_of_the_just_AuraScript();
         }
 };
 
@@ -2170,6 +2318,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
+    new spell_pal_glyph_of_divinity();
     new spell_pal_glyph_of_holy_light();
     new spell_pal_glyph_of_holy_light_dummy();
     new spell_pal_guarded_by_the_light();
@@ -2185,6 +2334,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
+    new spell_pal_infusion_of_light();
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
     new spell_pal_judgement("spell_pal_judgement_of_justice", SPELL_PALADIN_JUDGEMENT_OF_JUSTICE);
@@ -2193,6 +2343,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgement_of_command();
     new spell_pal_judgement_of_light_heal();
     new spell_pal_judgement_of_wisdom_mana();
+    new spell_pal_judgements_of_the_just();
     new spell_pal_judgements_of_the_wise();
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();

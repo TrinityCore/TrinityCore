@@ -397,6 +397,74 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
         }
 };
 
+enum DeadlyPrecision
+{
+    SPELL_DEADLY_PRECISION = 71564
+};
+
+// 71564 - Deadly Precision
+class spell_item_deadly_precision : public SpellScriptLoader
+{
+    public:
+        spell_item_deadly_precision() : SpellScriptLoader("spell_item_deadly_precision") { }
+
+        class spell_item_deadly_precision_charm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_deadly_precision_charm_AuraScript);
+
+            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->RemoveAuraFromStack(GetId(), GetTarget()->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_deadly_precision_charm_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_MOD_RATING);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_deadly_precision_charm_AuraScript();
+        }
+};
+
+// 71563 - Deadly Precision Dummy
+class spell_item_deadly_precision_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_deadly_precision_dummy() : SpellScriptLoader("spell_item_deadly_precision_dummy") { }
+
+        class spell_item_deadly_precision_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_deadly_precision_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_PRECISION))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DEADLY_PRECISION);
+                GetCaster()->CastCustomSpell(spellInfo->Id, SPELLVALUE_AURA_STACK, spellInfo->StackAmount, GetCaster(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_item_deadly_precision_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_deadly_precision_dummy_SpellScript();
+        }
+};
+
 enum DeathbringersWill
 {
     SPELL_STRENGTH_OF_THE_TAUNKA        = 71484, // +600 Strength
@@ -687,6 +755,46 @@ class spell_item_deviate_fish : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_deviate_fish_SpellScript();
+        }
+};
+
+enum DiscerningEyeBeastMisc
+{
+    SPELL_DISCERNING_EYE_BEAST = 59914
+};
+
+// 59915 - Discerning Eye of the Beast Dummy
+class spell_item_discerning_eye_beast_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_discerning_eye_beast_dummy() : SpellScriptLoader("spell_item_discerning_eye_beast_dummy") { }
+
+        class spell_item_discerning_eye_beast_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_discerning_eye_beast_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DISCERNING_EYE_BEAST))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_discerning_eye_beast_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_discerning_eye_beast_dummy_AuraScript();
         }
 };
 
@@ -1788,6 +1896,51 @@ class spell_item_six_demon_bag : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_six_demon_bag_SpellScript();
+        }
+};
+
+enum SwiftHandJusticeMisc
+{
+    SPELL_SWIFT_HAND_OF_JUSTICE_HEAL = 59913
+};
+
+// 59906 - Swift Hand of Justice Dummy
+class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
+{
+    public:
+        spell_item_swift_hand_justice_dummy() : SpellScriptLoader("spell_item_swift_hand_justice_dummy") { }
+
+        class spell_item_swift_hand_justice_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_swift_hand_justice_dummy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL);
+                Unit* caster = eventInfo.GetActor();
+
+                int32 amount = caster->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_0].CalcValue());
+                caster->CastCustomSpell(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_swift_hand_justice_dummy_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_swift_hand_justice_dummy_AuraScript();
         }
 };
 
@@ -3949,6 +4102,8 @@ void AddSC_item_spell_scripts()
     new spell_item_aura_of_madness();
     new spell_item_dementia();
     new spell_item_blessing_of_ancient_kings();
+    new spell_item_deadly_precision();
+    new spell_item_deadly_precision_dummy();
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA_HERO, SPELL_AGILITY_OF_THE_VRYKUL_HERO, SPELL_POWER_OF_THE_TAUNKA_HERO, SPELL_AIM_OF_THE_IRON_DWARVES_HERO, SPELL_SPEED_OF_THE_VRYKUL_HERO>("spell_item_deathbringers_will_heroic");
     new spell_item_decahedral_dwarven_dice();
@@ -3957,6 +4112,7 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
     new spell_item_desperate_defense();
     new spell_item_deviate_fish();
+    new spell_item_discerning_eye_beast_dummy();
     new spell_item_echoes_of_light();
     new spell_item_fate_rune_of_unsurpassed_vigor();
     new spell_item_flask_of_the_north();
@@ -3979,6 +4135,7 @@ void AddSC_item_spell_scripts()
     new spell_item_shadowmourne();
     new spell_item_shadowmourne_soul_fragment();
     new spell_item_six_demon_bag();
+    new spell_item_swift_hand_justice_dummy();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
     new spell_item_worn_troll_dice();

@@ -838,9 +838,23 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                 }
             }
 
+            void HandleProc(ProcEventInfo& eventInfo)
+            {
+                uint32 stack = GetStackAmount();
+                Unit* caster = eventInfo.GetActor();
+
+                int32 const mod = caster->GetMap()->Is25ManRaid() ? 1500 : 1250;
+                int32 dmg = 0;
+                for (uint8 i = 1; i <= stack; ++i)
+                    dmg += mod * i;
+
+                caster->CastCustomSpell(SPELL_EXPUNGED_GAS, SPELLVALUE_BASE_POINT0, dmg);
+            }
+
             void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_putricide_gaseous_bloat_AuraScript::HandleExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnProc += AuraProcFn(spell_putricide_gaseous_bloat_AuraScript::HandleProc);
             }
         };
 

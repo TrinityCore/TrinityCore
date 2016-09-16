@@ -875,6 +875,77 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
+// -54639 - Blood of the North
+// -49208 - Reaping
+// -49467 - Death Rune Mastery
+class spell_dk_death_rune : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_rune() : SpellScriptLoader("spell_dk_death_rune") { }
+
+        class spell_dk_death_rune_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_death_rune_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                Player* player = caster->ToPlayer();
+                if (player->getClass() != CLASS_DEATH_KNIGHT || player->GetLastUsedRune() == RUNE_DEATH)
+                    return false;
+
+                return true;
+            }
+
+            void HandleProc(ProcEventInfo& eventInfo)
+            {
+                Player* player = eventInfo.GetActor()->ToPlayer();
+
+                AuraEffect* aurEff = GetEffect(EFFECT_0);
+                if (!aurEff)
+                    return;
+
+                // Reset amplitude - set death rune remove timer to 30s
+                aurEff->ResetPeriodic(true);
+
+                uint32 runesLeft = 1;
+
+                // Death Rune Mastery
+                if (GetSpellInfo()->SpellIconID == 2622)
+                    runesLeft = 2;
+
+                for (uint8 i = 0; i < MAX_RUNES && runesLeft; ++i)
+                {
+                    if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                        player->GetBaseRune(i) == RUNE_BLOOD)
+                        continue;
+
+                    if (player->GetRuneCooldown(i) != (player->GetRuneBaseCooldown(i) - player->GetLastRuneGraceTimer(i)))
+                        continue;
+
+                    --runesLeft;
+                    // Mark aura as used
+                    player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff);
+                }
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_death_rune_AuraScript::CheckProc);
+                OnProc += AuraProcFn(spell_dk_death_rune_AuraScript::HandleProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_death_rune_AuraScript();
+        }
+};
+
 // -49998 - Death Strike
 class spell_dk_death_strike : public SpellScriptLoader
 {
@@ -2245,6 +2316,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_gate();
     new spell_dk_death_grip();
     new spell_dk_death_pact();
+    new spell_dk_death_rune();
     new spell_dk_death_strike();
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_scourge_strike();
