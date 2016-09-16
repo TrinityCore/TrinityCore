@@ -861,7 +861,7 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetScriptId() const { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
         InstanceScript const* GetInstanceScript() const { return i_data; }
-        void PermBindAllPlayers(Player* source);
+        void PermBindAllPlayers();
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
