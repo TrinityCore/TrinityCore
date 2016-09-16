@@ -4,7 +4,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (-12834,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x1, 0x2,    2, 0, 0, 0,      0, 0), -- Deep Wounds Aura
 (26467,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x2, 0x2,    0, 0, 0, 0,      0, 0), -- Persistent Shield
 (38164,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0), -- Unyielding Knights
-(52420,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,  30000, 0); -- Deflection
+(52420,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,    0, 0, 0, 0,  30000, 0); -- Deflection
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
