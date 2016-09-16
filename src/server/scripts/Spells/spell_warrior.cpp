@@ -510,7 +510,7 @@ class spell_warr_item_T10_prot_4P_bonus : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
