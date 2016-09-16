@@ -5388,40 +5388,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
-    // Try handle unknown trigger spells
-    // triggered spells exists only in serverside spell_dbc
-    /// @todo: reverify and move these spells to spellscripts
-    {
-        switch (auraSpellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_WARLOCK:
-            {
-                // Drain Soul
-                if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
-                {
-                    // Improved Drain Soul
-                    Unit::AuraEffectList const& mAddFlatModifier = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                    for (Unit::AuraEffectList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
-                    {
-                        if ((*i)->GetMiscValue() == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellInfo()->SpellIconID == 113)
-                        {
-                            int32 value2 = CalculateSpellDamage(this, (*i)->GetSpellInfo(), 2);
-                            basepoints0 = int32(CalculatePct(GetMaxPower(POWER_MANA), value2));
-                            // Drain Soul
-                            CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
-                            break;
-                        }
-                    }
-                    // Not remove charge (aura removed on death in any cases)
-                    // Need for correct work Drain Soul SPELL_AURA_CHANNEL_DEATH_ITEM aura
-                    return false;
-                }
-            }
-            default:
-                 break;
-        }
-    }
-
     // All ok. Check current trigger spell
     SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(trigger_spell_id);
     if (triggerEntry == NULL)

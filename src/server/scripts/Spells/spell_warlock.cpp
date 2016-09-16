@@ -72,7 +72,8 @@ enum WarlockSpells
     SPELL_REPLENISHMENT                             = 57669,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
-    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250
+    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371
 };
 
 enum WarlockSpellIcons
@@ -702,6 +703,44 @@ class spell_warl_health_funnel : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_warl_health_funnel_AuraScript();
+        }
+};
+
+// -18213 - Improved Drain Soul
+class spell_warl_improved_drain_soul : public SpellScriptLoader
+{
+    public:
+        spell_warl_improved_drain_soul() : SpellScriptLoader("spell_warl_improved_drain_soul") { }
+
+        class spell_warl_improved_drain_soul_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_improved_drain_soul_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                
+                Unit* target = GetTarget();
+                int32 bp0 = CalculatePct(target->GetMaxPower(POWER_MANA), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                target->CastCustomSpell(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_improved_drain_soul_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_improved_drain_soul_AuraScript();
         }
 };
 
@@ -1359,6 +1398,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_glyph_of_corruption_nightfall();
+    new spell_warl_improved_drain_soul();
     new spell_warl_life_tap();
     new spell_warl_nether_protection();
     new spell_warl_ritual_of_doom_effect();
