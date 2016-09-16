@@ -727,16 +727,16 @@ class spell_pal_glyph_of_divinity : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC) ||
-                    sSpellMgr->AssertSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC)->Effects[EFFECT_1].Effect != SPELL_EFFECT_ENERGIZE)
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC))
                     return false;
                 return true;
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                // Lay on Hands (Rank 1) does not have mana effect
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-                if (!spellInfo)
+                if (!spellInfo || spellInfo->Effects[EFFECT_1].Effect != SPELL_EFFECT_ENERGIZE)
                     return;
 
                 Unit* caster = eventInfo.GetActor();
