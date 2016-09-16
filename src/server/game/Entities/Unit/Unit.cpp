@@ -5405,33 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Deep Wounds
-        case 12834:
-        case 12849:
-        case 12867:
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            float averageDmg = 0;
-            // now compute approximate weapon damage by formula from wowwiki.com
-            if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                averageDmg = (GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2.f;
-            else
-                averageDmg = (GetFloatValue(UNIT_FIELD_MINDAMAGE) + GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
-
-            basepoints0 = int32(averageDmg);
-            break;
-        }
-        // Persistent Shield (Scarab Brooch trinket)
-        // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
-        case 26467:
-        {
-            basepoints0 = int32(CalculatePct(damage, 15));
-            target = victim;
-            trigger_spell_id = 26470;
-            break;
-        }
         // Unyielding Knights (item exploit 29108\29109)
         case 38164:
         {

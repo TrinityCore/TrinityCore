@@ -1497,6 +1497,54 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
         }
 };
 
+enum PersistentShieldMisc
+{
+    SPELL_PERSISTENT_SHIELD_TRIGGERED = 26470,
+};
+
+// 26467 - Persistent Shield
+class spell_item_persistent_shield : public SpellScriptLoader
+{
+    public:
+        spell_item_persistent_shield() : SpellScriptLoader("spell_item_persistent_shield") { }
+
+        class spell_item_persistent_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_persistent_shield_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTENT_SHIELD_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetHeal();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
+                GetTarget()->CastCustomSpell(SPELL_PERSISTENT_SHIELD_TRIGGERED, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_item_persistent_shield_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_item_persistent_shield_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_persistent_shield_AuraScript();
+        }
+};
+
 enum PetHealing
 {
     SPELL_HEALTH_LINK   = 37382
@@ -4240,6 +4288,7 @@ void AddSC_item_spell_scripts()
     new spell_item_necrotic_touch();
     new spell_item_net_o_matic();
     new spell_item_noggenfogger_elixir();
+    new spell_item_persistent_shield();
     new spell_item_pet_healing();
     new spell_item_piccolo_of_the_flaming_fire();
     new spell_item_savory_deviate_delight();

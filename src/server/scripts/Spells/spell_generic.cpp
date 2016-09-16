@@ -1443,51 +1443,6 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
         }
 };
 
-enum DummyTrigger
-{
-    SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
-    SPELL_PERSISTANT_SHIELD                 = 26467
-};
-
-class spell_gen_dummy_trigger : public SpellScriptLoader
-{
-    public:
-        spell_gen_dummy_trigger() : SpellScriptLoader("spell_gen_dummy_trigger") { }
-
-        class spell_gen_dummy_trigger_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD_TRIGGERED) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                int32 damage = GetEffectValue();
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                    if (SpellInfo const* triggeredByAuraSpell = GetTriggeringSpell())
-                        if (triggeredByAuraSpell->Id == SPELL_PERSISTANT_SHIELD_TRIGGERED)
-                            caster->CastCustomSpell(target, SPELL_PERSISTANT_SHIELD_TRIGGERED, &damage, NULL, NULL, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_dummy_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_dummy_trigger_SpellScript();
-        }
-};
-
 class spell_gen_dungeon_credit : public SpellScriptLoader
 {
     public:
@@ -4369,7 +4324,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_despawn_self();
     new spell_gen_divine_storm_cd_reset();
     new spell_gen_ds_flush_knockback();
-    new spell_gen_dummy_trigger();
     new spell_gen_dungeon_credit();
     new spell_gen_elune_candle();
     new spell_gen_gadgetzan_transporter_backfire();
