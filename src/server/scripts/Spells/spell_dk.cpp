@@ -920,9 +920,18 @@ class spell_dk_death_rune : public SpellScriptLoader
 
                 for (uint8 i = 0; i < MAX_RUNES && runesLeft; ++i)
                 {
-                    if (player->GetCurrentRune(i) == RUNE_DEATH ||
-                        player->GetBaseRune(i) == RUNE_BLOOD)
-                        continue;
+                    if (GetSpellInfo()->SpellIconID == 2622)
+                    {
+                        if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                            player->GetBaseRune(i) == RUNE_BLOOD)
+                            continue;
+                    }
+                    else
+                    {
+                        if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                            player->GetBaseRune(i) != RUNE_BLOOD)
+                            continue;
+                    }
 
                     if (player->GetRuneCooldown(i) != (player->GetRuneBaseCooldown(i) - player->GetLastRuneGraceTimer(i)))
                         continue;
