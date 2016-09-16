@@ -779,7 +779,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
         InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
         void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
-        void PermBindAllPlayers(Player* source);
+        void PermBindAllPlayers();
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
