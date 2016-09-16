@@ -61,6 +61,7 @@ class WorldPacket;
 class WorldSocket;
 class WorldObject;
 class WorldSession;
+class LocationScript;
 
 struct AchievementCriteriaData;
 struct AuctionEntry;
@@ -333,6 +334,15 @@ class TC_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
     protected:
 
         WorldMapScript(const char* name, uint32 mapId);
+};
+
+class TC_GAME_API WorldMapZoneScript : public ScriptObject
+{
+protected:
+
+    WorldMapZoneScript(const char* name);
+public:
+    virtual LocationScript* GetLocationScript() const { return nullptr; }
 };
 
 class TC_GAME_API InstanceMapScript
@@ -943,6 +953,9 @@ class TC_GAME_API ScriptMgr
     public: /* InstanceMapScript */
 
         InstanceScript* CreateInstanceData(InstanceMap* map);
+
+    public: /* WorldMapZoneScript */
+        LocationScript* CreateLocationScript(uint32 scriptId);
 
     public: /* ItemScript */
 

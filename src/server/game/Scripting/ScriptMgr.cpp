@@ -97,6 +97,10 @@ template<>
 struct is_script_database_bound<AchievementCriteriaScript>
     : std::true_type { };
 
+template<>
+struct is_script_database_bound<WorldMapZoneScript>
+    : std::true_type { };
+
 enum Spells
 {
     SPELL_HOTSWAP_VISUAL_SPELL_EFFECT = 40162 // 59084
@@ -1474,6 +1478,12 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
     return tmpscript->GetInstanceScript(map);
 }
 
+LocationScript* ScriptMgr::CreateLocationScript(uint32 scriptId)
+{
+    GET_SCRIPT_RET(WorldMapZoneScript, scriptId, tmpscript, nullptr);
+    return tmpscript->GetLocationScript();
+}
+
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
 {
     ASSERT(caster);
@@ -2310,6 +2320,12 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     ScriptRegistry<WorldMapScript>::Instance()->AddScript(this);
 }
 
+WorldMapZoneScript::WorldMapZoneScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<WorldMapZoneScript>::Instance()->AddScript(this);
+}
+
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
@@ -2442,6 +2458,7 @@ template class TC_GAME_API ScriptRegistry<ServerScript>;
 template class TC_GAME_API ScriptRegistry<WorldScript>;
 template class TC_GAME_API ScriptRegistry<FormulaScript>;
 template class TC_GAME_API ScriptRegistry<WorldMapScript>;
+template class TC_GAME_API ScriptRegistry<WorldMapZoneScript>;
 template class TC_GAME_API ScriptRegistry<InstanceMapScript>;
 template class TC_GAME_API ScriptRegistry<BattlegroundMapScript>;
 template class TC_GAME_API ScriptRegistry<ItemScript>;

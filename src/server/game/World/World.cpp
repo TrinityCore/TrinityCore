@@ -1902,6 +1902,10 @@ void World::SetInitialWorldSettings()
 
     sTicketMgr->Initialize();
 
+    //- Initialize Location Script
+    TC_LOG_INFO("server.loading", "Starting LocationScripts");
+    sObjectMgr->LoadLocationScripts();
+
     ///- Initialize Battlegrounds
     TC_LOG_INFO("server.loading", "Starting Battleground System");
     sBattlegroundMgr->LoadBattlegroundTemplates();

@@ -54,4 +54,19 @@ class ZoneScript
         virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/) { }
 };
 
+class LocationScript : public ZoneScript
+{
+public:
+
+    LocationScript() { }
+
+    virtual ~LocationScript() { }
+
+    virtual void Initialize() { }
+
+    virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+
+    // and so on
+    // void OnAssCreate :^)
+};
 #endif
