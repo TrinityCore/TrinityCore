@@ -380,6 +380,10 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
     SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_TIME_RATE, 1.0f);
 
     SetSpeedRate(MOVE_WALK,   cinfo->speed_walk);
     SetSpeedRate(MOVE_RUN,    cinfo->speed_run);
