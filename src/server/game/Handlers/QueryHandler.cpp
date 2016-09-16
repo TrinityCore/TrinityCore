@@ -346,8 +346,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
     }
 
     SendPacket(&data);
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
 /// Only _static_ data is sent in this packet !!!

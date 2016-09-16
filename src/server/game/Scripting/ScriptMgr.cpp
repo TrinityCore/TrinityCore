@@ -368,7 +368,9 @@ class CreatureGameObjectScriptRegistrySwapHooks
     // Hook which is called before a creature is swapped
     static void UnloadStage1(Creature* creature)
     {
-        creature->m_Events.KillAllEvents(true);
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        creature->m_Events.KillAllEvents(false);
 
         if (creature->IsCharmed())
             creature->RemoveCharmedBy(nullptr);
@@ -985,7 +987,7 @@ void ScriptMgr::Initialize()
     FillSpellSummary();
 
     // Load core scripts
-    SetScriptContext("___static___");
+    SetScriptContext(GetNameOfStaticContext());
 
     // SmartAI
     AddSC_SmartScripts();
@@ -1038,6 +1040,12 @@ void ScriptMgr::SwapScriptContext(bool initialize)
 {
     sScriptRegistryCompositum->SwapContext(initialize);
     _currentContext.clear();
+}
+
+std::string const& ScriptMgr::GetNameOfStaticContext()
+{
+    static std::string const name = "___static___";
+    return name;
 }
 
 void ScriptMgr::ReleaseScriptContext(std::string const& context)
@@ -1594,6 +1602,15 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     return tmpscript->GetDialogStatus(player, creature);
 }
 
+bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
+{
+    ASSERT(actTemplate);
+
+    CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
+    GET_SCRIPT_RET(CreatureScript, baseTemplate->ScriptID, tmpscript, true);
+    return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
+}
+
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
@@ -2098,9 +2115,9 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
 }
 
-void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
 }
 
 // Account

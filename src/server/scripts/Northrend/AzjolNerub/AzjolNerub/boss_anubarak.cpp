@@ -156,7 +156,8 @@ public:
                 ImpaleTarget = impaleTarget->GetGUID();
                 impaleTarget->SetReactState(REACT_PASSIVE);
                 impaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
-                impaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                impaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                impaleTarget->SetControlled(true, UNIT_STATE_ROOT);
                 return impaleTarget;
             }
 

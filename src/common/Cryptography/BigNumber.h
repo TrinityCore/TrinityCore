@@ -21,6 +21,7 @@
 
 #include <memory>
 #include "Define.h"
+#include <string>
 
 struct bignum_st;
 
@@ -76,7 +77,8 @@ class TC_COMMON_API BigNumber
             return t %= bn;
         }
 
-        bool isZero() const;
+        bool IsZero() const;
+        bool IsNegative() const;
 
         BigNumber ModExp(BigNumber const& bn1, BigNumber const& bn2);
         BigNumber Exp(BigNumber const&);
@@ -89,8 +91,8 @@ class TC_COMMON_API BigNumber
 
         std::unique_ptr<uint8[]> AsByteArray(int32 minSize = 0, bool littleEndian = true);
 
-        char * AsHexStr() const;
-        char * AsDecStr() const;
+        std::string AsHexStr() const;
+        std::string AsDecStr() const;
 
     private:
         struct bignum_st *_bn;

@@ -141,7 +141,11 @@ public:
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
-                handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
+                handler->SendSysMessage(LANG_ACCOUNT_NAME_TOO_LONG);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_PASS_TOO_LONG:
+                handler->SendSysMessage(LANG_ACCOUNT_PASS_TOO_LONG);
                 handler->SetSentErrorMessage(true);
                 return false;
             case AccountOpResult::AOR_NAME_ALREADY_EXIST:

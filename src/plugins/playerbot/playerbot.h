@@ -6,7 +6,7 @@ int strcmpi(std::string s1, std::string s2);
 #endif
 
 #include "../Spell.h"
-#include "../../shared/Packets/WorldPacket.h"
+#include "../../game/Server/WorldPacket.h"
 #include "../Loot/LootMgr.h"
 #include "../Entities/Creature/GossipDef.h"
 #include "../Chat/Chat.h"

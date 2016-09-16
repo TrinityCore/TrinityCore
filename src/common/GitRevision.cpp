@@ -41,19 +41,30 @@ char const* GitRevision::GetFullDatabase()
     return _FULL_DATABASE;
 }
 
-#define _PACKAGENAME "TrinityCore"
+#if PLATFORM == PLATFORM_WINDOWS
+#  ifdef _WIN64
+#    define TRINITY_PLATFORM_STR "Win64"
+#  else
+#    define TRINITY_PLATFORM_STR "Win32"
+#  endif
+#elif PLATFORM == PLATFORM_APPLE
+#  define TRINITY_PLATFORM_STR "MacOSX"
+#elif PLATFORM == PLATFORM_INTEL
+#  define TRINITY_PLATFORM_STR "Intel"
+#else // PLATFORM_UNIX
+#  define TRINITY_PLATFORM_STR "Unix"
+#endif
+
+#ifndef TRINITY_API_USE_DYNAMIC_LINKING
+#  define TRINITY_LINKAGE_TYPE_STR "Static"
+#else
+#  define TRINITY_LINKAGE_TYPE_STR "Dynamic"
+#endif
 
 char const* GitRevision::GetFullVersion()
 {
-#if PLATFORM == PLATFORM_WINDOWS
-# ifdef _WIN64
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win64, " _BUILD_DIRECTIVE ")";
-# else
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win32, " _BUILD_DIRECTIVE ")";
-# endif
-#else
-    return _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Unix, " _BUILD_DIRECTIVE ")";
-#endif
+  return "TrinityCore rev. " VER_PRODUCTVERSION_STR
+    " (" TRINITY_PLATFORM_STR ", " _BUILD_DIRECTIVE ", " TRINITY_LINKAGE_TYPE_STR ")";
 }
 
 char const* GitRevision::GetCompanyNameStr()

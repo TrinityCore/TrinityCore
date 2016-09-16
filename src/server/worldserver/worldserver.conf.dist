@@ -95,6 +95,12 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#
+#    Don't change hostname unless you are hosting mysql on a different machine, if you need help
+#    with configuration allowing to connect from diferent machine than the one running server
+#    search for TCE00016 on forum.
+#    Don't open port on firewall to external connections (it belongs to mysql, not to wow server).
+#    The username you choose must have permisions to create/alter/rename tables.
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
@@ -1735,24 +1741,27 @@ Channel.RestrictedLfg = 1
 
 #
 #    ChatLevelReq.Channel
-#        Description: Level requirement for characters to be able to write in chat channels.
+#    ChatLevelReq.Whisper
+#    ChatLevelReq.Emote
+#    ChatLevelReq.Say
+#    ChatLevelReq.Yell
+#        Description: Level requirement for characters to be able to use chats.
 #        Default:     1
 
 ChatLevelReq.Channel = 1
-
-#
-#    ChatLevelReq.Whisper
-#        Description: Level requirement for characters to be able to whisper other characters.
-#        Default:     1
-
 ChatLevelReq.Whisper = 1
+ChatLevelReq.Emote = 1
+ChatLevelReq.Say = 1
+ChatLevelReq.Yell = 1
 
 #
-#    ChatLevelReq.Say
-#        Description: Level requirement for characters to be able to use say/yell/emote.
+#    PartyLevelReq
+#        Description: Minimum level at which players can invite to group, even if they aren't on
+#                     the invitee friends list. (Players who are on that friend list can always
+#                     invite despite having lower level)
 #        Default:     1
 
-ChatLevelReq.Say = 1
+PartyLevelReq = 1
 
 #
 #    PreserveCustomChannels
@@ -2445,6 +2454,14 @@ Battleground.RewardLoserHonorFirst  = 5
 Battleground.RewardLoserHonorLast   = 5
 
 #
+#    Battleground.ReportAFK
+#        Description: Number of reports needed to kick someone AFK from Battleground.
+#        Range:       1-9
+#        Default:     3
+
+Battleground.ReportAFK = 3
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -3029,6 +3046,16 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#    PreventRenameCharacterOnCustomization
+#        Description: If option is set to 1, player can not rename the character in character customization.
+#                     Applies to all character customization commands.
+#        Default:     0 - (Disabled, character can be renamed in Character Customization)
+#                     1 - (Enabled, character can not be renamed in Character Customization)
+#
+
+PreventRenameCharacterOnCustomization = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -3609,6 +3636,7 @@ Logger.mmaps=3,Server
 #Logger.bg.arena=3,Console Server
 #Logger.bg.battlefield=3,Console Server
 #Logger.bg.battleground=3,Console Server
+#Logger.bg.reportpvpafk=3,Console Server
 #Logger.chat.log=3,Console Server
 #Logger.calendar=3,Console Server
 #Logger.chat.system=3,Console Server

@@ -302,6 +302,9 @@ public:
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (events.IsInPhase(PHASE_GROUND))

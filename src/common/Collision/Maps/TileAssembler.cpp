@@ -355,10 +355,13 @@ namespace VMAP
 
         uint32 name_length, displayId;
         char buff[500];
-        while (!feof(model_list))
+        while (true)
         {
-            if (fread(&displayId, sizeof(uint32), 1, model_list) != 1
-                || fread(&name_length, sizeof(uint32), 1, model_list) != 1
+            if (fread(&displayId, sizeof(uint32), 1, model_list) != 1)
+                if (feof(model_list))   // EOF flag is only set after failed reading attempt
+                    break;
+
+            if (fread(&name_length, sizeof(uint32), 1, model_list) != 1
                 || name_length >= sizeof(buff)
                 || fread(&buff, sizeof(char), name_length, model_list) != name_length)
             {
@@ -369,7 +372,7 @@ namespace VMAP
             std::string model_name(buff, name_length);
 
             WorldModel_Raw raw_model;
-            if ( !raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
+            if (!raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
                 continue;
 
             spawnedModelFiles.insert(model_name);
@@ -412,13 +415,14 @@ namespace VMAP
         fclose(model_list);
         fclose(model_list_copy);
     }
-        // temporary use defines to simplify read/check code (close file and return at fail)
-        #define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
-        #define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
-        #define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
-                                        fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
+
+// temporary use defines to simplify read/check code (close file and return at fail)
+#define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
+#define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
+                                fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
+#define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
+                                fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
     bool GroupModel_Raw::Read(FILE* rf)
     {

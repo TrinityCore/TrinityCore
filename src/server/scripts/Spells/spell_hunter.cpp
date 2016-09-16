@@ -58,7 +58,10 @@ enum HunterSpells
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_HUNTER_VICIOUS_VIPER                      = 61609,
     SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
-    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543
+    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
+    SPELL_LOCK_AND_LOAD_TRIGGER                     = 56453,
+    SPELL_LOCK_AND_LOAD_MARKER                      = 67544
 };
 
 // 13161 - Aspect of the Beast
@@ -475,6 +478,69 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
         }
 };
 
+// -56342 - Lock and Load
+class spell_hun_lock_and_load : public SpellScriptLoader
+{
+    public:
+        spell_hun_lock_and_load() : SpellScriptLoader("spell_hun_lock_and_load") { }
+
+        class spell_hun_lock_and_load_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lock_and_load_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_TRIGGER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_LOCK_AND_LOAD_MARKER))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetActor()->HasAura(SPELL_LOCK_AND_LOAD_MARKER))
+                    return false;
+
+                return true;
+            }
+
+            template <uint32 mask>
+            void HandleProcs(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(eventInfo.GetTypeMask() & mask))
+                    return;
+
+                // Additional check: do not proc on traps for immolation/explosive trap
+                // (But still do it for the periodic damage part)
+                if (mask == PROC_FLAG_DONE_TRAP_ACTIVATION)
+                    if (!(eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                        return;
+
+                if (!roll_chance_i(aurEff->GetAmount()))
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_TRIGGER, true);
+                caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_MARKER, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_lock_and_load_AuraScript::CheckProc);
+
+                OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_TRAP_ACTIVATION>, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_PERIODIC>, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_lock_and_load_AuraScript();
+        }
+};
+
 // 53271 - Masters Call
 class spell_hun_masters_call : public SpellScriptLoader
 {
@@ -847,6 +913,49 @@ class spell_hun_readiness : public SpellScriptLoader
         }
 };
 
+// 53480 - Roar of Sacrifice
+class spell_hun_roar_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_hun_roar_of_sacrifice() : SpellScriptLoader("spell_hun_roar_of_sacrifice") { }
+
+        class spell_hun_roar_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_roar_of_sacrifice_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROAR_OF_SACRIFICE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetCaster() && (eventInfo.GetDamageInfo()->GetSchoolMask() & GetEffect(EFFECT_1)->GetMiscValue()) != 0;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                eventInfo.GetActor()->CastCustomSpell(SPELL_ROAR_OF_SACRIFICE_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, GetCaster(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_roar_of_sacrifice_AuraScript();
+        }
+};
+
 // 37506 - Scatter Shot
 class spell_hun_scatter_shot : public SpellScriptLoader
 {
@@ -1124,6 +1233,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_improved_mend_pet();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
+    new spell_hun_lock_and_load();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
@@ -1132,6 +1242,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_piercing_shots();
     new spell_hun_rapid_recuperation();
     new spell_hun_readiness();
+    new spell_hun_roar_of_sacrifice();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_tame_beast();

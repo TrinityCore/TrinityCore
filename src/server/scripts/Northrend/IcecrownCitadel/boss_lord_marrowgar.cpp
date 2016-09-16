@@ -256,6 +256,9 @@ class boss_lord_marrowgar : public CreatureScript
                             Talk(SAY_BERSERK);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 // We should not melee attack when storming

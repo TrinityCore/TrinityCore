@@ -90,7 +90,7 @@ void Warning(char const* file, int line, char const* function, char const* messa
 
 void Abort(char const* file, int line, char const* function)
 {
-    fprintf(stderr, "\n%s:%i in %s ABORTED\n",
+    fprintf(stderr, "\n%s:%i in %s ABORTED.\n",
                    file, line, function);
     *((volatile int*)NULL) = 0;
     exit(1);

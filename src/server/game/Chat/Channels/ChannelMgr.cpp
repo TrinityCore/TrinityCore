@@ -39,14 +39,14 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
     if (team == HORDE)
         return &hordeChannelMgr;
 
-    return NULL;
+    return nullptr;
 }
 
 Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     wstrToLower(wname);
 
@@ -66,7 +66,7 @@ Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pk
 {
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return NULL;
+        return nullptr;
 
     wstrToLower(wname);
 
@@ -81,7 +81,7 @@ Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pk
             player->GetSession()->SendPacket(&data);
         }
 
-        return NULL;
+        return nullptr;
     }
 
     return i->second;

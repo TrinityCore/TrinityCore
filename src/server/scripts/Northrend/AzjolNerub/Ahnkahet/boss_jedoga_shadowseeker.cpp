@@ -16,7 +16,8 @@
  */
 
 /*
- * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
+ * Comment: Visuals missing, de-germanize code, wow 3.3.5a-ize
+ * Patch 3.3.2 (2010-01-02): Jedoga Shadowseeker now only ascends once during the encounter.
  */
 
 #include "ScriptMgr.h"

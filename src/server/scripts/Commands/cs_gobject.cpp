@@ -118,10 +118,9 @@ public:
         if (!objectId)
             return false;
 
-        char* spawntimeSecs = strtok(NULL, " ");
+        char* spawntimeSecs = strtok(nullptr, " ");
 
-        const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
-
+        GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
         if (!objectInfo)
         {
             handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
@@ -139,16 +138,13 @@ public:
         }
 
         Player* player = handler->GetSession()->GetPlayer();
-        float x = float(player->GetPositionX());
-        float y = float(player->GetPositionY());
-        float z = float(player->GetPositionZ());
-        float o = float(player->GetOrientation());
         Map* map = player->GetMap();
 
-        GameObject* object = new GameObject;
+        GameObject* object = new GameObject();
         ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
 
-        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), *player, rot, 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -179,7 +175,7 @@ public:
         /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -201,14 +197,7 @@ public:
         if (spawntime)
             spawntm = atoi((char*)spawntime);
 
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float ang = player->GetOrientation();
-
-        float rot2 = std::sin(ang/2);
-        float rot3 = std::cos(ang/2);
-
+        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoi(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -218,7 +207,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
+        player->SummonGameObject(objectId, *player, rotation, spawntm);
 
         return true;
     }
@@ -415,20 +404,30 @@ public:
         }
 
         char* orientation = strtok(NULL, " ");
-        float o;
+        float oz = 0.f, oy = 0.f, ox = 0.f;
 
         if (orientation)
-            o = (float)atof(orientation);
+        {
+            oz = float(atof(orientation));
+
+            orientation = strtok(NULL, " ");
+            if (orientation)
+            {
+                oy = float(atof(orientation));
+                orientation = strtok(NULL, " ");
+                if (orientation)
+                    ox = float(atof(orientation));
+            }
+        }
         else
         {
             Player* player = handler->GetSession()->GetPlayer();
-            o = player->GetOrientation();
+            oz = player->GetOrientation();
         }
 
         Map* map = object->GetMap();
-
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->UpdateRotationFields();
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+        object->SetWorldRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         // Generate a completely new spawn with new guid

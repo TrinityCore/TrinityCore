@@ -1078,11 +1078,8 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 enum RedSnapperVeryTasty
 {
     ITEM_RED_SNAPPER             = 23614,
-
     SPELL_CAST_NET               = 29866,
-    SPELL_NEW_SUMMON_TEST        = 49214,
-
-    GO_SCHOOL_OF_RED_SNAPPER     = 181616
+    SPELL_FISHED_UP_MURLOC       = 29869
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1099,22 +1096,13 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            SpellCastResult CheckCast()
-            {
-                GameObject* go = GetCaster()->FindNearestGameObject(GO_SCHOOL_OF_RED_SNAPPER, 3.0f);
-                if (!go || go->GetRespawnTime())
-                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (roll_chance_i(66))
                     caster->AddItem(ITEM_RED_SNAPPER, 1);
                 else
-                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
+                    caster->CastSpell(caster, SPELL_FISHED_UP_MURLOC, true);
             }
 
             void HandleActiveObject(SpellEffIndex effIndex)
@@ -1127,7 +1115,6 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_q9452_cast_net_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
@@ -1136,6 +1123,75 @@ class spell_q9452_cast_net: public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q9452_cast_net_SpellScript();
+        }
+};
+
+enum PoundDrumSpells
+{
+    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
+    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
+};
+
+class spell_q14076_14092_pound_drum : public SpellScriptLoader
+{
+    public:
+        spell_q14076_14092_pound_drum() : SpellScriptLoader("spell_q14076_14092_pound_drum") { }
+
+        class spell_q14076_14092_pound_drum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14076_14092_pound_drum_SpellScript);
+
+            void HandleSummon()
+            {
+                Unit* caster = GetCaster();
+
+                if (roll_chance_i(80))
+                    caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
+                else
+                    caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
+            }
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_q14076_14092_pound_drum_SpellScript::HandleSummon);
+                OnEffectHitTarget += SpellEffectFn(spell_q14076_14092_pound_drum_SpellScript::HandleActiveObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q14076_14092_pound_drum_SpellScript();
+        }
+};
+
+class spell_q12279_cast_net : public SpellScriptLoader
+{
+    public:
+        spell_q12279_cast_net() : SpellScriptLoader("spell_q12279_cast_net") { }
+
+        class spell_q12279_cast_net_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12279_cast_net_SpellScript);
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12279_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12279_cast_net_SpellScript();
         }
 };
 
@@ -2467,7 +2523,7 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
-                target->CastSpell(target, uint32(GetEffectValue()));
+                target->CastSpell(target, uint32(GetEffectValue()), true);
             }
 
             void Register() override
@@ -2480,6 +2536,33 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
         {
             return new spell_q13665_q13790_bested_trigger_SpellScript();
         }
+};
+
+// herald of war and life without regret portal spells
+class spell_59064_59439_portals : public SpellScriptLoader
+{
+public:
+    spell_59064_59439_portals() : SpellScriptLoader("spell_59064_59439_portals") { }
+
+    class spell_59064_59439_portals_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_59064_59439_portals_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_59064_59439_portals_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_59064_59439_portals_SpellScript();
+    }
 };
 
 void AddSC_quest_spell_scripts()
@@ -2508,6 +2591,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12279_cast_net();
+    new spell_q14076_14092_pound_drum();
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
@@ -2542,4 +2627,5 @@ void AddSC_quest_spell_scripts()
     new spell_q10929_fumping();
     new spell_q12414_hand_over_reins();
     new spell_q13665_q13790_bested_trigger();
+    new spell_59064_59439_portals();
 }

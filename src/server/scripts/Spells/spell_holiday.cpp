@@ -113,6 +113,105 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
         }
 };
 
+enum HallowEndCandysSpells
+{
+    SPELL_HALLOWS_END_CANDY_ORANGE_GIANT          = 24924, // Effect 1: Apply Aura: Mod Size, Value: 30%
+    SPELL_HALLOWS_END_CANDY_SKELETON              = 24925, // Effect 1: Apply Aura: Change Model (Skeleton). Effect 2: Apply Aura: Underwater Breathing
+    SPELL_HALLOWS_END_CANDY_PIRATE                = 24926, // Effect 1: Apply Aura: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_GHOST                 = 24927, // Effect 1: Apply Aura: Levitate / Hover. Effect 2: Apply Aura: Slow Fall, Effect 3: Apply Aura: Water Walking
+    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE  = 44742, // Effect 1: Apply Aura: Change Model (Defias Pirate, Female). Effect 2: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE    = 44743  // Effect 1: Apply Aura: Change Model (Defias Pirate, Male).   Effect 2: Increase Swim Speed, Value: 50%
+};
+
+// 24930 - Hallow's End Candy
+class spell_hallow_end_candy : public SpellScriptLoader
+{
+    public:
+        spell_hallow_end_candy() : SpellScriptLoader("spell_hallow_end_candy") { }
+
+        class spell_hallow_end_candy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hallow_end_candy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (uint32 spellId : spells)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), spells[urand(0, 3)], true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_hallow_end_candy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        private:
+            static uint32 const spells[4];
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hallow_end_candy_SpellScript();
+        }
+};
+
+uint32 const spell_hallow_end_candy::spell_hallow_end_candy_SpellScript::spells[4] =
+{
+    SPELL_HALLOWS_END_CANDY_ORANGE_GIANT,
+    SPELL_HALLOWS_END_CANDY_SKELETON,
+    SPELL_HALLOWS_END_CANDY_PIRATE,
+    SPELL_HALLOWS_END_CANDY_GHOST
+};
+
+// 24926 - Hallow's End Candy
+class spell_hallow_end_candy_pirate : public SpellScriptLoader
+{
+    public:
+        spell_hallow_end_candy_pirate() : SpellScriptLoader("spell_hallow_end_candy_pirate") { }
+
+        class spell_hallow_end_candy_pirate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hallow_end_candy_pirate_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE))
+                    return false;
+                return true;
+            }
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 spell = GetTarget()->getGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                GetTarget()->CastSpell(GetTarget(), spell, true);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 spell = GetTarget()->getGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                GetTarget()->RemoveAurasDueToSpell(spell);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_hallow_end_candy_pirate_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hallow_end_candy_pirate_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hallow_end_candy_pirate_AuraScript();
+        }
+};
+
 // 24750 Trick
 enum TrickSpells
 {
@@ -747,6 +846,7 @@ enum RamBlaBla
 {
     SPELL_GIDDYUP                           = 42924,
     SPELL_RENTAL_RACING_RAM                 = 43883,
+    SPELL_SWIFT_WORK_RAM                    = 43880,
     SPELL_RENTAL_RACING_RAM_AURA            = 42146,
     SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
     SPELL_RAM_TROT                          = 42992,
@@ -754,6 +854,7 @@ enum RamBlaBla
     SPELL_RAM_GALLOP                        = 42994,
     SPELL_RAM_FATIGUE                       = 43052,
     SPELL_EXHAUSTED_RAM                     = 43332,
+    SPELL_RELAY_RACE_TURN_IN                = 44501,
 
     // Quest
     SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN  = 43345,
@@ -774,7 +875,7 @@ class spell_brewfest_giddyup : public SpellScriptLoader
             void OnChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (!target->HasAura(SPELL_RENTAL_RACING_RAM))
+                if (!target->HasAura(SPELL_RENTAL_RACING_RAM) && !target->HasAura(SPELL_SWIFT_WORK_RAM))
                 {
                     target->RemoveAura(GetId());
                     return;
@@ -1011,6 +1112,38 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
         }
 };
 
+class spell_brewfest_relay_race_turn_in : public SpellScriptLoader
+{
+public:
+    spell_brewfest_relay_race_turn_in() : SpellScriptLoader("spell_brewfest_relay_race_turn_in") { }
+
+    class spell_brewfest_relay_race_turn_in_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_brewfest_relay_race_turn_in_SpellScript);
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            if (Aura* aura = GetHitUnit()->GetAura(SPELL_SWIFT_WORK_RAM))
+            {
+                aura->SetDuration(aura->GetDuration() + 30 * IN_MILLISECONDS);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_RELAY_RACE_TURN_IN, TRIGGERED_FULL_MASK);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_turn_in_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_brewfest_relay_race_turn_in_SpellScript();
+    }
+};
+
 // 43876 - Dismount Ram
 class spell_brewfest_dismount_ram : public SpellScriptLoader
 {
@@ -1183,11 +1316,79 @@ class spell_midsummer_braziers_hit : public SpellScriptLoader
         }
 };
 
+enum RibbonPoleData
+{
+    SPELL_HAS_FULL_MIDSUMMER_SET        = 58933,
+    SPELL_BURNING_HOT_POLE_DANCE        = 58934,
+    SPELL_RIBBON_DANCE_COSMETIC         = 29726,
+    SPELL_RIBBON_DANCE                  = 29175,
+    GO_RIBBON_POLE                      = 181605,
+};
+
+class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+
+        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET)
+                    || !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                // check if aura needs to be removed
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 8.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    target->InterruptNonMeleeSpells(false);
+                    target->RemoveAurasDueToSpell(GetId());
+                    target->RemoveAura(SPELL_RIBBON_DANCE_COSMETIC);
+                    return;
+                }
+
+                // set xp buff duration
+                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+                {
+                    aur->SetMaxDuration(std::min(3600000, aur->GetMaxDuration() + 180000));
+                    aur->RefreshDuration();
+
+                    // reward achievement criteria
+                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
+                }
+                else
+                    target->AddAura(SPELL_RIBBON_DANCE, target);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
     new spell_love_is_in_the_air_romantic_picnic();
     // Hallow's End
+    new spell_hallow_end_candy();
+    new spell_hallow_end_candy_pirate();
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
@@ -1215,8 +1416,10 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_apple_trap();
     new spell_brewfest_exhausted_ram();
     new spell_brewfest_relay_race_intro_force_player_to_throw();
+    new spell_brewfest_relay_race_turn_in();
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
     new spell_midsummer_braziers_hit();
+    new spell_gen_ribbon_pole_dancer_check();
 }

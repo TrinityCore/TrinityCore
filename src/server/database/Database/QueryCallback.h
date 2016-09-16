@@ -45,7 +45,7 @@ class QueryCallback
             return _result;
         }
 
-        int IsReady()
+        bool IsReady()
         {
             return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }
@@ -128,7 +128,7 @@ class QueryCallback_2
             return _result;
         }
 
-        int IsReady()
+        bool IsReady()
         {
             return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }

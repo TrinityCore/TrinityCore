@@ -20,6 +20,11 @@
 
 #include "Common.h"
 
+namespace G3D
+{
+    class Vector3;
+}
+
 class ByteBuffer;
 
 struct TC_GAME_API Position
@@ -28,6 +33,10 @@ struct TC_GAME_API Position
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
     Position(Position const& loc) { Relocate(loc); }
+
+    Position(G3D::Vector3 const& vect);
+
+    operator G3D::Vector3() const;
 
     struct PositionXYStreamer
     {
@@ -122,7 +131,7 @@ public:
 
     bool IsPositionValid() const;
 
-    float GetExactDist2dSq(float x, float y) const
+    float GetExactDist2dSq(const float x, const float y) const
     {
         float dx = m_positionX - x; float dy = m_positionY - y; return dx*dx + dy*dy;
     }
@@ -130,6 +139,16 @@ public:
     float GetExactDist2d(const float x, const float y) const
     {
         return std::sqrt(GetExactDist2dSq(x, y));
+    }
+
+    float GetExactDist2dSq(Position const& pos) const
+    {
+        float dx = m_positionX - pos.m_positionX; float dy = m_positionY - pos.m_positionY; return dx*dx + dy*dy;
+    }
+
+    float GetExactDist2d(Position const& pos) const
+    {
+        return std::sqrt(GetExactDist2dSq(pos));
     }
 
     float GetExactDist2dSq(Position const* pos) const
@@ -152,6 +171,16 @@ public:
         return std::sqrt(GetExactDistSq(x, y, z));
     }
 
+    float GetExactDistSq(Position const& pos) const
+    {
+        float dx = m_positionX - pos.m_positionX; float dy = m_positionY - pos.m_positionY; float dz = m_positionZ - pos.m_positionZ; return dx*dx + dy*dy + dz*dz;
+    }
+
+    float GetExactDist(Position const& pos) const
+    {
+        return std::sqrt(GetExactDistSq(pos));
+    }
+
     float GetExactDistSq(Position const* pos) const
     {
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz;
@@ -166,6 +195,10 @@ public:
     Position GetPositionWithOffset(Position const& offset) const;
 
     float GetAngle(Position const* pos) const;
+    float GetAngle(Position const& pos) const
+    {
+        return GetAngle(pos.m_positionX, pos.m_positionY);
+    }
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(Position const* pos) const
     {

@@ -19,3 +19,6 @@ CMakeLists.txt.user
 /cmake/
 nbproject/*
 workspace
+.idea/*
+.browse.VC*
+.vscode

@@ -312,6 +312,9 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (_phase == 1)

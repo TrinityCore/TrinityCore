@@ -66,10 +66,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             ENSURE_AI(npc_sergeant_bly::npc_sergeant_blyAI, creature->AI())->PlayerGUID = player->GetGUID();
             creature->AI()->DoAction(0);
         }
@@ -82,14 +82,14 @@ public:
         {
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                player->SEND_GOSSIP_MENU(1517, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                SendGossipMenuFor(player, 1517, creature->GetGUID());
             }
             else
                 if (instance->GetData(EVENT_PYRAMID) == PYRAMID_NOT_STARTED)
-                    player->SEND_GOSSIP_MENU(1515, creature->GetGUID());
+                    SendGossipMenuFor(player, 1515, creature->GetGUID());
                 else
-                    player->SEND_GOSSIP_MENU(1516, creature->GetGUID());
+                    SendGossipMenuFor(player, 1516, creature->GetGUID());
             return true;
         }
         return false;
@@ -267,10 +267,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             //here we make him run to door, set the charge and run away off to nowhere
             creature->AI()->DoAction(0);
         }
@@ -284,14 +284,14 @@ public:
             switch (instance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    player->SEND_GOSSIP_MENU(1514, creature->GetGUID());  //if event can proceed to end
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_WEEGLI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    SendGossipMenuFor(player, 1514, creature->GetGUID());  //if event can proceed to end
                     break;
                 case PYRAMID_NOT_STARTED:
-                    player->SEND_GOSSIP_MENU(1511, creature->GetGUID());  //if event not started
+                    SendGossipMenuFor(player, 1511, creature->GetGUID());  //if event not started
                     break;
                 default:
-                    player->SEND_GOSSIP_MENU(1513, creature->GetGUID());  //if event are in progress
+                    SendGossipMenuFor(player, 1513, creature->GetGUID());  //if event are in progress
             }
             return true;
         }

@@ -119,6 +119,9 @@ public:
                         events.ScheduleEvent(EVENT_FIRE_NOVA, urand(11000, 16000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

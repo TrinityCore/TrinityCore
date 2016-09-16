@@ -160,7 +160,8 @@ namespace Trinity
 
     // non-const insert functions
     template<class SPECIFIC_TYPE>
-    SPECIFIC_TYPE* Insert(ContainerMapList<SPECIFIC_TYPE>& elements, SPECIFIC_TYPE* obj)    {
+    SPECIFIC_TYPE* Insert(ContainerMapList<SPECIFIC_TYPE>& elements, SPECIFIC_TYPE* obj)
+    {
         //elements._element[hdl] = obj;
         obj->AddToGrid(elements._element);
         return obj;
@@ -209,7 +210,7 @@ namespace Trinity
     //{
     //    // The head element is bad
     //    SPECIFIC_TYPE* t = Remove(elements._elements, obj);
-    //    return ( t != nullptr ? t : Remove(elements._TailElements, obj) );
+    //    return (t != nullptr ? t : Remove(elements._TailElements, obj));
     //}
 }
 #endif

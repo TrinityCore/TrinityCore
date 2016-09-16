@@ -90,6 +90,9 @@ public:
                         events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(15000, 25000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

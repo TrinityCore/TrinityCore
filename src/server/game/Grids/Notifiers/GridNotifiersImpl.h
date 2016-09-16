@@ -526,8 +526,6 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 
         i_builder(*data, loc_idx);
 
-        ASSERT(data->GetOpcode() != MSG_NULL_ACTION);
-
         i_data_cache[cache_idx] = data;
     }
     else

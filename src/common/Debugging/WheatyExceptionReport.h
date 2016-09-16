@@ -13,7 +13,7 @@
 #define countof  _countof
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
-#define WER_MAX_NESTING_LEVEL 5
+#define WER_MAX_NESTING_LEVEL 4
 #define WER_LARGE_BUFFER_SIZE 1024 * 128
 
 enum BasicType                                              // Stolen from CVCONST.H in the DIA 2.0 SDK
@@ -173,7 +173,7 @@ class WheatyExceptionReport
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *, char * pszBuffer, unsigned cbBuffer);
 
-        static char * DumpTypeIndex(char *, DWORD64, DWORD, unsigned, DWORD_PTR, bool &, const char*, char*, bool, bool);
+        static char * DumpTypeIndex(char *, DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 

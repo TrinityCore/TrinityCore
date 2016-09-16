@@ -80,6 +80,9 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                     case NPC_PALEHOOF_ORB:
                         PalehoofOrbGUID = creature->GetGUID();
                         break;
+                    case NPC_GRAUF:
+                        GraufGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -164,6 +167,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         return SvalaGUID;
                     case DATA_SACRIFICED_PLAYER:
                         return SacrificedPlayerGUID;
+                    case DATA_GRAUF:
+                        return GraufGUID;
                     default:
                         break;
                 }
@@ -189,6 +194,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 
             ObjectGuid SvalaGUID;
             ObjectGuid SacrificedPlayerGUID;
+
+            ObjectGuid GraufGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

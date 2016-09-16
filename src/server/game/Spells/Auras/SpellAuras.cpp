@@ -78,7 +78,7 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false)
             TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
         }
         else
-            TC_LOG_DEBUG("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+            TC_LOG_ERROR("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
     }
 
     _InitFlags(caster, effMask);
@@ -470,7 +470,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
 
     if (m_dropEvent)
     {
-        m_dropEvent->to_Abort = true;
+        m_dropEvent->ScheduleAbort();
         m_dropEvent = nullptr;
     }
 }
@@ -1405,14 +1405,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 74396: // Fingers of Frost
                         // Remove the IGNORE_AURASTATE aura
                         target->RemoveAurasDueToSpell(44544);
-                        break;
-                    case 44401: //Missile Barrage
-                    case 48108: //Hot Streak
-                    case 57761: //Fireball!
-                        if (removeMode != AURA_REMOVE_BY_EXPIRE || aurApp->GetBase()->IsExpired())
-                            break;
-                        if (target->HasAura(70752)) //Item - Mage T10 2P Bonus
-                            target->CastSpell(target, 70753, true);
                         break;
                     default:
                         break;

@@ -79,6 +79,9 @@ public:
                         events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

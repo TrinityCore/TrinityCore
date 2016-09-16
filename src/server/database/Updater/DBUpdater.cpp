@@ -197,7 +197,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     }
     catch (UpdateException&)
     {
-        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
+        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
         boost::filesystem::remove(temp);
         return false;
     }
@@ -219,7 +219,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
 
     if (!is_directory(sourceDirectory))
     {
-        TC_LOG_ERROR("sql.updates", "DBUpdater: Given source directory %s does not exist, skipped!", sourceDirectory.generic_string().c_str());
+        TC_LOG_ERROR("sql.updates", "DBUpdater: The given source directory %s does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.", sourceDirectory.generic_string().c_str());
         return false;
     }
 
@@ -288,7 +288,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             case LOCATION_DOWNLOAD:
             {
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
-                    " and place it in your worldserver directory.", base.filename().generic_string().c_str());
+                    " uncompress it and place the file TDB_full_world_(a_variable_name).sql in your worldserver directory.", base.filename().generic_string().c_str());
                 break;
             }
         }
@@ -383,7 +383,10 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (ret != EXIT_SUCCESS)
     {
         TC_LOG_FATAL("sql.updates", "Applying of file \'%s\' to database \'%s\' failed!" \
-            " If you are a user, pull the latest revision from the repository. If you are a developer, fix your sql query.",
+            " If you are a user, please pull the latest revision from the repository. "
+            "Also make sure you have not applied any of the databases with your sql client. "
+            "You cannot use auto-update system and import sql files from TrinityCore repository with your sql client. "
+            "If you are a developer, please fix your sql query.",
             path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
 
         throw UpdateException("update failed");

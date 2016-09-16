@@ -252,6 +252,9 @@ class boss_thekal : public CreatureScript
                         instance->SetBossState(DATA_THEKAL, SPECIAL);
                         WasDead=true;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 DoMeleeAttackIfReady();
             }

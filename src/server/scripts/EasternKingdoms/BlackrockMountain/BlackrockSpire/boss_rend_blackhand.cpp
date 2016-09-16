@@ -437,6 +437,9 @@ public:
                         events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(14000, 16000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

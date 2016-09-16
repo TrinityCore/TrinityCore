@@ -280,9 +280,8 @@ class TC_GAME_API Battlefield : public ZoneScript
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
-        virtual Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId /*teamId*/);
-        Creature* SpawnCreature(uint32 entry, Position const& pos, TeamId /*teamId*/);
-        GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
+        Creature* SpawnCreature(uint32 entry, Position const& pos);
+        GameObject* SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot);
 
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);
@@ -351,9 +350,9 @@ class TC_GAME_API Battlefield : public ZoneScript
         BfCapturePointMap m_capturePoints;
 
         // Players info maps
-        GuidSet m_players[BG_TEAMS_COUNT];                      // Players in zone
-        GuidSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
-        GuidSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
+        GuidUnorderedSet m_players[BG_TEAMS_COUNT];                      // Players in zone
+        GuidUnorderedSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
+        GuidUnorderedSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
         PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
         PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
 
@@ -382,7 +381,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
 
-        GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
+        GuidUnorderedSet m_Groups[BG_TEAMS_COUNT];              // Contain different raid group
 
         std::vector<uint64> m_Data64;
         std::vector<uint32> m_Data32;

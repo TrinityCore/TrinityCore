@@ -24,11 +24,10 @@
 #define _OPCODES_H
 
 #include "Common.h"
+#include <iomanip>
 
-/// List of Opcodes
-enum Opcodes
+enum Opcodes : uint16
 {
-    MSG_NULL_ACTION                                 = 0x000,
     CMSG_BOOTME                                     = 0x001,
     CMSG_DBLOOKUP                                   = 0x002,
     SMSG_DBLOOKUP                                   = 0x003,
@@ -1342,6 +1341,15 @@ enum Opcodes
     NUM_MSG_TYPES                                   = 0x51F
 };
 
+enum OpcodeMisc : uint16
+{
+    NUM_OPCODE_HANDLERS = NUM_MSG_TYPES,
+    NULL_OPCODE = 0x0000
+};
+
+typedef Opcodes OpcodeClient;
+typedef Opcodes OpcodeServer;
+
 /// Player state
 enum SessionStatus
 {
@@ -1365,30 +1373,92 @@ class WorldPacket;
 
 #pragma pack(push, 1)
 
-struct OpcodeHandler
+class OpcodeHandler
 {
-    char const* name;
-    SessionStatus status;
-    PacketProcessing packetProcessing;
-    void (WorldSession::*handler)(WorldPacket& recvPacket);
+public:
+    OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
+    virtual ~OpcodeHandler() { }
+
+    char const* Name;
+    SessionStatus Status;
 };
 
-TC_GAME_API extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];
+class ClientOpcodeHandler : public OpcodeHandler
+{
+public:
+    ClientOpcodeHandler(char const* name, SessionStatus status, PacketProcessing processing)
+        : OpcodeHandler(name, status), ProcessingPlace(processing) { }
+
+    virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
+
+    PacketProcessing ProcessingPlace;
+};
+
+class ServerOpcodeHandler : public OpcodeHandler
+{
+public:
+    ServerOpcodeHandler(char const* name, SessionStatus status)
+        : OpcodeHandler(name, status) { }
+};
+
+class OpcodeTable
+{
+    public:
+        OpcodeTable()
+        {
+            memset(_internalTableClient, 0, sizeof(_internalTableClient));
+        }
+
+        OpcodeTable(OpcodeTable const&) = delete;
+        OpcodeTable& operator=(OpcodeTable const&) = delete;
+
+        ~OpcodeTable()
+        {
+            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+            {
+                delete _internalTableClient[i];
+            }
+        }
+
+        void Initialize();
+
+        ClientOpcodeHandler const* operator[](Opcodes index) const
+        {
+            return _internalTableClient[index];
+        }
+
+    private:
+        template<typename Handler, Handler HandlerFunction>
+        void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
+
+        void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
+
+        ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
+};
+
+extern OpcodeTable opcodeTable;
 
 #pragma pack(pop)
 
-/// Lookup opcode name for human understandable logging
-inline const char* LookupOpcodeName(uint16 id)
+/// Lookup opcode name for human understandable logging (T = OpcodeClient|OpcodeServer)
+template<typename T>
+inline std::string GetOpcodeNameForLogging(T id)
 {
-    if (id >= NUM_MSG_TYPES)
-        return "Received unknown opcode, it's more than max!";
-    return opcodeTable[id].name;
-}
-
-inline std::string GetOpcodeNameForLogging(uint16 opcode)
-{
+    uint16 opcode = uint16(id);
     std::ostringstream ss;
-    ss << '[' << LookupOpcodeName(opcode) << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    ss << '[';
+
+    if (static_cast<uint16>(id) < NUM_OPCODE_HANDLERS)
+    {
+        if (OpcodeHandler const* handler = opcodeTable[id])
+            ss << handler->Name;
+        else
+            ss << "UNKNOWN OPCODE";
+    }
+    else
+        ss << "INVALID OPCODE";
+
+    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
     return ss.str();
 }
 

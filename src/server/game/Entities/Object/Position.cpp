@@ -20,6 +20,17 @@
 #include "GridDefines.h"
 
 #include <G3D/g3dmath.h>
+#include <G3D/Vector3.h>
+
+Position::Position(G3D::Vector3 const& vect)
+{
+    Relocate(vect.x, vect.y, vect.z, 0.f);
+}
+
+Position::operator G3D::Vector3() const
+{
+    return { m_positionX, m_positionY, m_positionZ };
+}
 
 bool Position::operator==(Position const &a)
 {
@@ -60,12 +71,12 @@ Position Position::GetPositionWithOffset(Position const& offset) const
     return ret;
 }
 
-float Position::GetAngle(const Position* obj) const
+float Position::GetAngle(Position const* pos) const
 {
-    if (!obj)
+    if (!pos)
         return 0;
 
-    return GetAngle(obj->GetPositionX(), obj->GetPositionY());
+    return GetAngle(pos->GetPositionX(), pos->GetPositionY());
 }
 
 // Return angle in range 0..2*pi

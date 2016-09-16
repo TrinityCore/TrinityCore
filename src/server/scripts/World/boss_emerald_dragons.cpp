@@ -148,7 +148,12 @@ struct emerald_dragonAI : public WorldBossAI
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
+        {
             ExecuteEvent(eventId);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
             DoCast(target, SPELL_SUMMON_PLAYER);

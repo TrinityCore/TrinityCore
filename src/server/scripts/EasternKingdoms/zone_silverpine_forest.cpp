@@ -139,10 +139,22 @@ public:
 ## pyrewood_ambush
 #######*/
 
-#define QUEST_PYREWOOD_AMBUSH 452
-
-#define NPCSAY_INIT "Get ready, they'll be arriving any minute..." //not blizzlike
-#define NPCSAY_END "Thanks for your help!" //not blizzlike
+enum PyrewoodAmbush
+{
+    SAY_PREPARE_TO_AMBUSH = 0,
+    SAY_A_BLOW_TO_ARUGAL  = 1,
+    FACTION_ENEMY         = 168,
+    QUEST_PYREWOOD_AMBUSH = 452,
+    COUNCILMAN_SMITHERS   = 2060,
+    COUNCILMAN_THATCHER   = 2061,
+    COUNCILMAN_HENDRICKS  = 2062,
+    COUNCILMAN_WILHELM    = 2063,
+    COUNCILMAN_HARTIN     = 2064,
+    COUNCILMAN_COOPER     = 2065,
+    COUNCILMAN_HIGARTH    = 2066,
+    COUNCILMAN_BRUNSWICK  = 2067,
+    LORD_MAYOR_MORRISON   = 2068
+};
 
 static float PyrewoodSpawnPoints[3][4] =
 {
@@ -158,8 +170,6 @@ static float PyrewoodSpawnPoints[3][4] =
     {-396.91f, 1505.77f, 19.77f, 0},
     {-397.94f, 1504.74f, 19.77f, 0},
 };
-
-#define WAIT_SECS 6000
 
 class pyrewood_ambush : public CreatureScript
 {
@@ -189,7 +199,7 @@ public:
         pyrewood_ambushAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             Initialize();
-            WaitTimer = WAIT_SECS;
+            WaitTimer = 6 * IN_MILLISECONDS;
             QuestInProgress = false;
         }
 
@@ -210,7 +220,7 @@ public:
 
         void Reset() override
         {
-            WaitTimer = WAIT_SECS;
+            WaitTimer = 6 * IN_MILLISECONDS;
 
             if (!QuestInProgress) //fix reset values (see UpdateVictim)
             {
@@ -246,7 +256,7 @@ public:
                 if (!target)
                     target = me;
 
-                summoned->setFaction(168);
+                summoned->setFaction(FACTION_ENEMY);
                 summoned->AddThreat(target, 32.0f);
                 summoned->AI()->AttackStart(target);
             }
@@ -279,8 +289,9 @@ public:
             switch (Phase)
             {
                 case 0:
-                    if (WaitTimer == WAIT_SECS)
-                        me->Say(NPCSAY_INIT, LANG_UNIVERSAL); //no blizzlike
+                    if (WaitTimer == 6 * IN_MILLISECONDS)
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                            Talk(SAY_PREPARE_TO_AMBUSH, player);
 
                     if (WaitTimer <= diff)
                     {
@@ -289,28 +300,28 @@ public:
                     }
                     break;
                 case 1:
-                    SummonCreatureWithRandomTarget(2060, 1);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_SMITHERS, 1);
                     break;
                 case 2:
-                    SummonCreatureWithRandomTarget(2061, 2);
-                    SummonCreatureWithRandomTarget(2062, 0);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_THATCHER, 2);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_HENDRICKS, 0);
                     break;
                 case 3:
-                    SummonCreatureWithRandomTarget(2063, 1);
-                    SummonCreatureWithRandomTarget(2064, 2);
-                    SummonCreatureWithRandomTarget(2065, 0);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_WILHELM, 1);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_HARTIN, 2);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_COOPER, 0);
                     break;
                 case 4:
-                    SummonCreatureWithRandomTarget(2066, 1);
-                    SummonCreatureWithRandomTarget(2067, 0);
-                    SummonCreatureWithRandomTarget(2068, 2);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_HIGARTH, 1);
+                    SummonCreatureWithRandomTarget(COUNCILMAN_BRUNSWICK, 0);
+                    SummonCreatureWithRandomTarget(LORD_MAYOR_MORRISON, 2);
                     break;
                 case 5: //end
                     if (PlayerGUID)
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                         {
-                            me->Say(NPCSAY_END, LANG_UNIVERSAL); //not blizzlike
+                            Talk(SAY_A_BLOW_TO_ARUGAL);
                             player->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
                         }
                     }

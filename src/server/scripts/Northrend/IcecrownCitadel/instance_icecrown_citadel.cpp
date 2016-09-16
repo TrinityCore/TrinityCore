@@ -264,6 +264,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_PROFESSOR_PUTRICIDE:
                         ProfessorPutricideGUID = creature->GetGUID();
                         break;
+                    case NPC_VOLATILE_OOZE:
+                    case NPC_GAS_CLOUD:
+                        //! These creatures are summoned by something else than Professor Putricide
+                        //! but need to be controlled/despawned by him - so they need to be
+                        //! registered on his summon list
+                        if (Creature* professorPutricide = instance->GetCreature(ProfessorPutricideGUID))
+                            professorPutricide->AI()->JustSummoned(creature);
+                        break;
                     case NPC_PRINCE_KELESETH:
                         BloodCouncilGUIDs[0] = creature->GetGUID();
                         break;

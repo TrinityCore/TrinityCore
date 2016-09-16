@@ -1903,7 +1903,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target->isDead() && !target->IsPet())
                     {
-                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0, 0, 0, 0, uint32(target->GetRespawnTime()-time(NULL)));
+                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, G3D::Quat(), uint32(target->GetRespawnTime()-time(NULL)));
                         target->DespawnOrUnsummon();
                     }
             }
@@ -3162,6 +3162,65 @@ public:
     }
 };
 
+enum TauntFlag
+{
+    SPELL_TAUNT_FLAG    = 51657,
+
+    EMOTE_PLANTS_FLAG   = 28008
+};
+
+// 51640 - Taunt Flag Targeting
+class spell_item_taunt_flag_targeting : public SpellScriptLoader
+{
+    public:
+        spell_item_taunt_flag_targeting() : SpellScriptLoader("spell_item_taunt_flag_targeting") { }
+
+        class spell_item_taunt_flag_targeting_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_taunt_flag_targeting_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TAUNT_FLAG))
+                    return false;
+                if (!sObjectMgr->GetBroadcastText(EMOTE_PLANTS_FLAG))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                {
+                    FinishCast(SPELL_FAILED_NO_VALID_TARGETS);
+                    return;
+                }
+
+                Trinity::Containers::RandomResizeList(targets, 1);
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                // we *really* want the unit implementation here
+                // it sends a packet like seen on sniff
+                GetCaster()->Unit::TextEmote(EMOTE_PLANTS_FLAG, GetHitUnit(), false);
+
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_TAUNT_FLAG, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_taunt_flag_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_CORPSE_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_item_taunt_flag_targeting_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_taunt_flag_targeting_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -3242,4 +3301,5 @@ void AddSC_item_spell_scripts()
     new spell_item_darkmoon_card_greatness();
     new spell_item_charm_witch_doctor();
     new spell_item_mana_drain();
+    new spell_item_taunt_flag_targeting();
 }

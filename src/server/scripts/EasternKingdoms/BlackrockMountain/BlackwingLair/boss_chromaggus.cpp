@@ -266,6 +266,9 @@ public:
                         events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             // Enrage if not already enraged and below 20%
