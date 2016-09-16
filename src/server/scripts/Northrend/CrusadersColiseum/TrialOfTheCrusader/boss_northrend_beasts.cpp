@@ -78,10 +78,6 @@ enum BossSpells
     SPELL_HEAD_CRACK        = 66407,
     SPELL_JUMP_TO_HAND      = 66342,
     SPELL_RIDE_PLAYER       = 66245,
-    SPELL_VEHICLE_0         = 66270,
-    SPELL_VEHICLE_1         = 66273,
-    SPELL_VEHICLE_2         = 66274,
-    SPELL_VEHICLE_3         = 68260,
 
     //Acidmaw & Dreadscale Generic
     SPELL_SWEEP             = 66794,
@@ -135,24 +131,26 @@ enum Events
     EVENT_FIRE_BOMB             = 4,
     EVENT_BATTER                = 5,
     EVENT_HEAD_CRACK            = 6,
+    EVENT_SNOBOLLED             = 7,
+    EVENT_CHECK_MOUNT           = 8,
 
     // Acidmaw & Dreadscale
-    EVENT_BITE                  = 7,
-    EVENT_SPEW                  = 8,
-    EVENT_SLIME_POOL            = 9,
-    EVENT_SPIT                  = 10,
-    EVENT_SPRAY                 = 11,
-    EVENT_SWEEP                 = 12,
-    EVENT_SUBMERGE              = 13,
-    EVENT_EMERGE                = 14,
-    EVENT_SUMMON_ACIDMAW        = 15,
+    EVENT_BITE                  = 9,
+    EVENT_SPEW                  = 10,
+    EVENT_SLIME_POOL            = 11,
+    EVENT_SPIT                  = 12,
+    EVENT_SPRAY                 = 13,
+    EVENT_SWEEP                 = 14,
+    EVENT_SUBMERGE              = 15,
+    EVENT_EMERGE                = 16,
+    EVENT_SUMMON_ACIDMAW        = 17,
 
     // Icehowl
-    EVENT_FEROCIOUS_BUTT        = 16,
-    EVENT_MASSIVE_CRASH         = 17,
-    EVENT_WHIRL                 = 18,
-    EVENT_ARCTIC_BREATH         = 19,
-    EVENT_TRAMPLE               = 20
+    EVENT_FEROCIOUS_BUTT        = 18,
+    EVENT_MASSIVE_CRASH         = 19,
+    EVENT_WHIRL                 = 20,
+    EVENT_ARCTIC_BREATH         = 21,
+    EVENT_TRAMPLE               = 22
 };
 
 enum Phases
@@ -168,8 +166,6 @@ enum GormokMisc
     GORMOK_HAND_SEAT        =   4,
     PLAYER_VEHICLE_ID       = 444,
 };
-
-uint32 const SnoboldMountspells[4] = { SPELL_VEHICLE_0 , SPELL_VEHICLE_1, SPELL_VEHICLE_2, SPELL_VEHICLE_3 };
 
 class boss_gormok : public CreatureScript
 {
@@ -229,18 +225,7 @@ class boss_gormok : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-                me->SetInCombatWithZone();
                 instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
-
-                for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
-                {
-                    if (Creature* snobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
-                    {
-                        snobold->CastSpell(me, SnoboldMountspells[i], true);
-                        snobold->AI()->DoAction(ACTION_ENABLE_FIRE_BOMB);
-                        DoZoneInCombat(snobold);
-                    }
-                }
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
@@ -275,11 +260,11 @@ class boss_gormok : public CreatureScript
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
                             events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(8), Seconds(10)));
-                            return;
+                            break;
                         case EVENT_STAGGERING_STOMP:
                             DoCastVictim(SPELL_STAGGERING_STOMP);
                             events.ScheduleEvent(EVENT_STAGGERING_STOMP, Seconds(15));
-                            return;
+                            break;
                         case EVENT_THROW:
                             for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
                             {
@@ -293,9 +278,9 @@ class boss_gormok : public CreatureScript
                                 }
                             }
                             events.ScheduleEvent(EVENT_THROW, randtime(Seconds(15), Seconds(30)));
-                            return;
+                            break;
                         default:
-                            return;
+                            break;
                     }
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -329,30 +314,6 @@ public:
     }
 };
 
-class SnoboldEvent : public BasicEvent
-{
-public:
-    SnoboldEvent(Unit* owner, Unit* target, bool apply) : _owner(owner), _target(target), _apply(apply) { }
-
-    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-    {
-        if (_apply)
-            _owner->CastSpell(_target, SPELL_SNOBOLLED, true);
-        else
-        {
-            _target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-            _target->RemoveVehicleKit();
-        }
-
-        return true;
-    }
-
-private:
-    Unit* _owner;
-    Unit* _target;
-    bool _apply;
-};
-
 class npc_snobold_vassal : public CreatureScript
 {
     public:
@@ -369,7 +330,6 @@ class npc_snobold_vassal : public CreatureScript
             void Initialize()
             {
                 _targetGUID.Clear();
-                _targetDied = false;
                 _isActive = false;
                 _events.Reset();
             }
@@ -378,13 +338,15 @@ class npc_snobold_vassal : public CreatureScript
             {
                 Initialize();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetInCombatWithZone();
+                _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE_BOMB, randtime(Seconds(5), Seconds(30)));
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                    if (target->IsAlive())
-                        target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+                    target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
                 _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
@@ -412,10 +374,10 @@ class npc_snobold_vassal : public CreatureScript
                     if (Unit* target = ObjectAccessor::GetPlayer(*me, guid))
                     {
                         _targetGUID = guid;
-                        DoResetThreat();
                         AttackStart(target);
                         _events.ScheduleEvent(EVENT_BATTER, Seconds(5));
                         _events.ScheduleEvent(EVENT_HEAD_CRACK, Seconds(25));
+                        _events.ScheduleEvent(EVENT_SNOBOLLED, Milliseconds(500));
                     }
             }
 
@@ -434,8 +396,6 @@ class npc_snobold_vassal : public CreatureScript
                 if (gormok && gormok->IsAlive())
                 {
                     me->AttackStop();
-                    DoResetThreat();
-                    SetCombatMovement(false);
                     _isActive = false;
                     _events.CancelEvent(EVENT_BATTER);
                     _events.CancelEvent(EVENT_HEAD_CRACK);
@@ -451,17 +411,12 @@ class npc_snobold_vassal : public CreatureScript
                     }
                 }
                 //Without Boss, snobolds should jump in another players
-                else
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(me)))
-                        me->CastSpell(target, SPELL_RIDE_PLAYER, true);
+                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(me)))
+                    me->CastSpell(target, SPELL_RIDE_PLAYER, true);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                //Always that Snobold has no vehicle, he should mount in boss/another player
-                if (!me->GetVehicleBase())
-                    MountOnBoss();
-
                 _events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -472,24 +427,32 @@ class npc_snobold_vassal : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIRE_BOMB:
-                            if (me->GetVehicleBase())
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
-                                    me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_FIRE_BOMB, true);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
+                                me->CastSpell(target, SPELL_FIRE_BOMB, true);
                             _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(20));
-                            return;
+                            break;
                         case EVENT_HEAD_CRACK:
-                            if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                                DoCast(target, SPELL_HEAD_CRACK);
+                            DoCast(me->GetVehicleBase(), SPELL_HEAD_CRACK);
                             _events.ScheduleEvent(EVENT_HEAD_CRACK, Seconds(30));
-                            return;
+                            break;
                         case EVENT_BATTER:
-                            if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                                DoCast(target, SPELL_BATTER);
+                            DoCast(me->GetVehicleBase(), SPELL_BATTER);
                             _events.ScheduleEvent(EVENT_BATTER, Seconds(10));
-                            return;
+                            break;
+                        case EVENT_SNOBOLLED:
+                            DoCastAOE(SPELL_SNOBOLLED);
+                            break;
+                        case EVENT_CHECK_MOUNT:
+                            if (!me->GetVehicleBase())
+                                MountOnBoss();
+                            _events.Repeat(Seconds(1));
+                            break;
                         default:
-                            return;
+                            break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!UpdateVictim())
@@ -504,7 +467,6 @@ class npc_snobold_vassal : public CreatureScript
                 EventMap _events;
                 InstanceScript* _instance;
                 ObjectGuid _targetGUID;
-                bool _targetDied;
                 bool _isActive;
         };
 
@@ -1290,22 +1252,16 @@ public:
                 caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
         }
 
-        void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                caster->m_Events.AddEvent(new SnoboldEvent(caster, GetTarget(), true), caster->m_Events.CalculateTime(1));
-        }
-
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-            target->m_Events.AddEvent(new SnoboldEvent(nullptr, target, false), target->m_Events.CalculateTime(1));
+            target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
+            target->RemoveVehicleKit();
         }
 
         void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_gormok_ride_player_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectApply += AuraEffectApplyFn(spell_gormok_ride_player_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_ride_player_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
         }
     };
