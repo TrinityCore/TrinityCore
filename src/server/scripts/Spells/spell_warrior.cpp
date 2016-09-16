@@ -59,7 +59,8 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER = 59725,
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_1             = 29841,
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_2             = 29842,
-    SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374
+    SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374,
+    SPELL_WARRIOR_STOICISM                          = 70845
 };
 
 enum WarriorSpellIcons
@@ -489,6 +490,44 @@ class spell_warr_intimidating_shout : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_intimidating_shout_SpellScript();
+        }
+};
+
+// 70844 - Item - Warrior T10 Protection 4P Bonus
+class spell_warr_item_T10_prot_4P_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warr_item_T10_prot_4P_bonus() : SpellScriptLoader("spell_warr_item_T10_prot_4P_bonus") { }
+
+        class spell_warr_item_T10_prot_4P_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_item_T10_prot_4P_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_STOICISM))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].CalcValue());
+                target->CastCustomSpell(SPELL_WARRIOR_STOICISM, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_item_T10_prot_4P_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_item_T10_prot_4P_bonus_AuraScript();
         }
 };
 
@@ -974,6 +1013,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
+    new spell_warr_item_T10_prot_4P_bonus();
     new spell_warr_last_stand();
     new spell_warr_overpower();
     new spell_warr_rend();

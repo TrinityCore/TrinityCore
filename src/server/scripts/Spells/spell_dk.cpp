@@ -1082,6 +1082,36 @@ class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
         }
 };
 
+// 51209 - Hungering Cold
+class spell_dk_hungering_cold : public SpellScriptLoader
+{
+    public:
+        spell_dk_hungering_cold() : SpellScriptLoader("spell_dk_hungering_cold") { }
+
+        class spell_dk_hungering_cold_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_hungering_cold_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetDamageType() != DOT)
+                    return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_hungering_cold_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_hungering_cold_AuraScript();
+        }
+};
+
 // 48792 - Icebound Fortitude
 class spell_dk_icebound_fortitude : public SpellScriptLoader
 {
@@ -2329,6 +2359,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_strike();
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_scourge_strike();
+    new spell_dk_hungering_cold();
     new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_blood_presence_triggered();
