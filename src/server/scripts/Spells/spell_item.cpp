@@ -444,7 +444,11 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                int32 absorb = int32(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15.0f));
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
+                int32 absorb = int32(CalculatePct(healInfo->GetHeal(), 15.0f));
                 if (AuraEffect* protEff = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PROTECTION_OF_ANCIENT_KINGS, 0, eventInfo.GetActor()->GetGUID()))
                 {
                     // The shield can grow to a maximum size of 20,000 damage absorbtion

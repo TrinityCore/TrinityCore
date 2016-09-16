@@ -1254,13 +1254,17 @@ class spell_pal_infusion_of_light : public SpellScriptLoader
                     {
                         PreventDefaultAction();
 
+                        HealInfo* healInfo = eventInfo.GetHealInfo();
+                        if (!healInfo || !healInfo->GetHeal())
+                            return;
+
                         Unit* procTarget = eventInfo.GetActionTarget();
                         if (procTarget && procTarget->HasAura(SPELL_PALADIN_SACRED_SHIELD))
                         {
                             Unit* target = GetTarget();
                             int32 duration = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC)->GetMaxDuration() / 1000;
                             int32 pct = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
-                            int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal() / duration, pct);
+                            int32 bp0 = CalculatePct(healInfo->GetHeal() / duration, pct);
 
                             // Item - Paladin T9 Holy 4P Bonus
                             if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_PALADIN_T9_HOLY_4P_BONUS, 0))
@@ -1723,8 +1727,12 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                 if (!procSpell)
                     return;
 
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return;
+
                 uint32 healSpellId = procSpell->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_LIGHT)) ? SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_1 : SPELL_PALADIN_BEACON_OF_LIGHT_HEAL_3;
-                uint32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                uint32 heal = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
 
                 Unit* beaconTarget = GetCaster();
                 if (!beaconTarget || !beaconTarget->HasAura(SPELL_PALADIN_BEACON_OF_LIGHT, eventInfo.GetActor()->GetGUID()))
