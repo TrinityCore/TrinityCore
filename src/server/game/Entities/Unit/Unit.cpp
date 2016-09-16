@@ -5405,13 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Unyielding Knights (item exploit 29108\29109)
-        case 38164:
-        {
-            if (!victim || victim->GetEntry() != 19457)  // Proc only if your target is Grillok
-                return false;
-            break;
-        }
         // Deflection
         case 52420:
         {
