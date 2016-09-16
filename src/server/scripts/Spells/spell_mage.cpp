@@ -307,21 +307,19 @@ class spell_mage_combustion : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetDamageInfo() != nullptr;
-            }
+                // Do not take charges, add a stack of crit buff
+                if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
+                {
+                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
+                    return false;
+                }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-
-                Unit* target = GetTarget();
-                target->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true, nullptr, aurEff);
+                return true;
             }
 
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_combustion_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_combustion_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
             }
         };
 
@@ -593,29 +591,36 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return GetTarget() != eventInfo.GetActionTarget();
-            }
+                Unit* caster = eventInfo.GetActor();
+                // Prevent double proc for Arcane missiles
+                if (caster == eventInfo.GetProcTarget())
+                    return false;
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                Unit* target = GetTarget();
-
-                if (target->HasAura(SPELL_MAGE_T10_2P_BONUS))
-                    target->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
+                // Prevent taking charges from non-modded spell
+                if (Spell const* spell = eventInfo.GetProcSpell())
+                    if (!spell->m_appliedMods.count(GetAura()))
+                        return false;
 
                 // Proc chance is unknown, we'll just use dummy aura amount
-                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_MAGE_T8_4P_BONUS, EFFECT_0))
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_MAGE_T8_4P_BONUS, EFFECT_0))
                     if (roll_chance_i(aurEff->GetAmount()))
-                        ModCharges(1);
+                        return false;
+
+                return true;
+            }
+
+            void HandleProc(ProcEventInfo& eventInfo)
+            {
+                Unit* caster = eventInfo.GetActor();
+
+                if (caster->HasAura(SPELL_MAGE_T10_2P_BONUS))
+                    caster->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
             }
 
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_mage_gen_extra_effects_AuraScript::CheckProc);
-                if (m_scriptSpellId == SPELL_MAGE_MISSILE_BARRAGE)
-                    OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
-                else
-                    OnEffectProc += AuraEffectProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+                OnProc += AuraProcFn(spell_mage_gen_extra_effects_AuraScript::HandleProc);
             }
         };
 

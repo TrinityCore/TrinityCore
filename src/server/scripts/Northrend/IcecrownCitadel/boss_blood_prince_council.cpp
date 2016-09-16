@@ -1503,15 +1503,14 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
         {
             PrepareAuraScript(spell_taldaram_ball_of_inferno_flame_AuraScript);
 
-            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleStackDrop(ProcEventInfo& /*eventInfo*/)
             {
-                PreventDefaultAction();
-                GetTarget()->RemoveAuraFromStack(GetId());
+                ModStackAmount(-1);
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_taldaram_ball_of_inferno_flame_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_MOD_SCALE);
+                OnProc += AuraProcFn(spell_taldaram_ball_of_inferno_flame_AuraScript::HandleStackDrop);
             }
         };
 

@@ -780,10 +780,10 @@ class spell_item_discerning_eye_beast_dummy : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1901,7 +1901,7 @@ class spell_item_six_demon_bag : public SpellScriptLoader
 
 enum SwiftHandJusticeMisc
 {
-    SPELL_SWIFT_HAND_JUSTICE = 59913
+    SPELL_SWIFT_HAND_OF_JUSTICE_HEAL = 59913
 };
 
 // 59906 - Swift Hand of Justice Dummy
@@ -1916,18 +1916,20 @@ class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SWIFT_HAND_JUSTICE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL))
                     return false;
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                Unit* target = GetTarget();
-                int32 bp0 = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
-                target->CastCustomSpell(SPELL_SWIFT_HAND_JUSTICE, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL);
+                Unit* caster = eventInfo.GetActor();
+
+                int32 amount = caster->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_0].CalcValue());
+                caster->CastCustomSpell(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
             }
 
             void Register() override

@@ -727,25 +727,24 @@ class spell_pal_glyph_of_divinity : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC) ||
+                    sSpellMgr->AssertSpellInfo(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC)->Effects[EFFECT_1].Effect != SPELL_EFFECT_ENERGIZE)
                     return false;
                 return true;
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
-                {
-                    Unit* target = GetTarget();
-                    if (eventInfo.GetActionTarget() == target)
-                        return;
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
 
-                    if (spellInfo->Effects[EFFECT_1].Effect == SPELL_EFFECT_ENERGIZE)
-                    {
-                        int32 mana = spellInfo->Effects[EFFECT_1].CalcValue() * 2;
-                        target->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, target, true, nullptr, aurEff);
-                    }
-                }
+                Unit* caster = eventInfo.GetActor();
+                if (caster == eventInfo.GetProcTarget())
+                    return;
+
+                int32 mana = spellInfo->Effects[EFFECT_1].CalcValue() * 2;
+                caster->CastCustomSpell(SPELL_PALADIN_GLYPH_OF_DIVINITY_PROC, SPELLVALUE_BASE_POINT1, mana, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override

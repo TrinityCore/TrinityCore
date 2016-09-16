@@ -887,65 +887,56 @@ class spell_dk_death_rune : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_death_rune_AuraScript);
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            bool CheckProc(ProcEventInfo& eventInfo)
             {
-                Unit* target = GetTarget();
+                Unit* caster = eventInfo.GetActor();
 
-                if (target->GetTypeId() != TYPEID_PLAYER)
+                if (caster->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
-                if (Player* player = GetTarget()->ToPlayer())
-                    if (player->getClass() == CLASS_DEATH_KNIGHT && player->GetLastUsedRune() != RUNE_DEATH)
-                        return true;
+                Player* player = caster->ToPlayer();
+                if (player->getClass() != CLASS_DEATH_KNIGHT || player->GetLastUsedRune() == RUNE_DEATH)
+                    return false;
 
-                return false;
+                return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(ProcEventInfo& eventInfo)
             {
-                PreventDefaultAction();
+                Player* player = eventInfo.GetActor()->ToPlayer();
 
-                if (Player* player = GetTarget()->ToPlayer())
+                AuraEffect* aurEff = GetEffect(EFFECT_0);
+                if (!aurEff)
+                    return;
+
+                // Reset amplitude - set death rune remove timer to 30s
+                aurEff->ResetPeriodic(true);
+
+                uint32 runesLeft = 1;
+
+                // Death Rune Mastery
+                if (GetSpellInfo()->SpellIconID == 2622)
+                    runesLeft = 2;
+
+                for (uint8 i = 0; i < MAX_RUNES && runesLeft; ++i)
                 {
-                    AuraEffect* aurEff = GetEffect(EFFECT_0);
-                    if (!aurEff)
-                        return;
+                    if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                        player->GetBaseRune(i) == RUNE_BLOOD)
+                        continue;
 
-                    // Reset amplitude - set death rune remove timer to 30s
-                    aurEff->ResetPeriodic(true);
+                    if (player->GetRuneCooldown(i) != (player->GetRuneBaseCooldown(i) - player->GetLastRuneGraceTimer(i)))
+                        continue;
 
-                    uint32 runesLeft = 1;
-                    if (GetSpellInfo()->SpellIconID == 2622)
-                        runesLeft = 2;
-
-                    for (uint8 i = 0; i < MAX_RUNES && runesLeft; ++i)
-                    {
-                        if (GetSpellInfo()->SpellIconID == 2622)
-                        {
-                            if (player->GetCurrentRune(i) == RUNE_DEATH ||
-                                player->GetBaseRune(i) == RUNE_BLOOD)
-                                continue;
-                        }
-                        else
-                        {
-                            if (player->GetCurrentRune(i) == RUNE_DEATH ||
-                                player->GetBaseRune(i) != RUNE_BLOOD)
-                                continue;
-                        }
-                        if (player->GetRuneCooldown(i) != (player->GetRuneBaseCooldown(i) - player->GetLastRuneGraceTimer(i)))
-                            continue;
-
-                        --runesLeft;
-                        // Mark aura as used
-                        player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff);
-                    }
+                    --runesLeft;
+                    // Mark aura as used
+                    player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff);
                 }
             }
 
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_dk_death_rune_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_dk_death_rune_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnProc += AuraProcFn(spell_dk_death_rune_AuraScript::HandleProc);
             }
         };
 
