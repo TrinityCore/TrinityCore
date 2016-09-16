@@ -20726,12 +20726,8 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
     if (!mod || !spellInfo)
         return false;
 
-    // Mod is already affecting us
-    if (spell && spell->m_appliedMods.count(mod->ownerAura))
-        return false;
-
-    // Mod out of charges
-    if (mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges())
+    // First time this aura applies a mod to us and is out of charges
+    if (spell && mod->ownerAura->IsUsingCharges() && !mod->ownerAura->GetCharges() && !spell->m_appliedMods.count(mod->ownerAura))
         return false;
 
     // +duration to infinite duration spells making them limited
