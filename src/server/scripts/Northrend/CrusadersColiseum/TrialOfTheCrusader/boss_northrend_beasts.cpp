@@ -124,33 +124,33 @@ enum Events
 {
     // Gormok
     EVENT_IMPALE                = 1,
-    EVENT_STAGGERING_STOMP      = 2,
-    EVENT_THROW                 = 3,
+    EVENT_STAGGERING_STOMP,
+    EVENT_THROW,
 
     // Snobold
-    EVENT_FIRE_BOMB             = 4,
-    EVENT_BATTER                = 5,
-    EVENT_HEAD_CRACK            = 6,
-    EVENT_SNOBOLLED             = 7,
-    EVENT_CHECK_MOUNT           = 8,
+    EVENT_FIRE_BOMB,
+    EVENT_BATTER,
+    EVENT_HEAD_CRACK,
+    EVENT_SNOBOLLED,
+    EVENT_CHECK_MOUNT,
 
     // Acidmaw & Dreadscale
-    EVENT_BITE                  = 9,
-    EVENT_SPEW                  = 10,
-    EVENT_SLIME_POOL            = 11,
-    EVENT_SPIT                  = 12,
-    EVENT_SPRAY                 = 13,
-    EVENT_SWEEP                 = 14,
-    EVENT_SUBMERGE              = 15,
-    EVENT_EMERGE                = 16,
-    EVENT_SUMMON_ACIDMAW        = 17,
+    EVENT_BITE,
+    EVENT_SPEW,
+    EVENT_SLIME_POOL,
+    EVENT_SPIT,
+    EVENT_SPRAY,
+    EVENT_SWEEP,
+    EVENT_SUBMERGE,
+    EVENT_EMERGE,
+    EVENT_SUMMON_ACIDMAW,
 
     // Icehowl
-    EVENT_FEROCIOUS_BUTT        = 18,
-    EVENT_MASSIVE_CRASH         = 19,
-    EVENT_WHIRL                 = 20,
-    EVENT_ARCTIC_BREATH         = 21,
-    EVENT_TRAMPLE               = 22
+    EVENT_FEROCIOUS_BUTT,
+    EVENT_MASSIVE_CRASH,
+    EVENT_WHIRL,
+    EVENT_ARCTIC_BREATH,
+    EVENT_TRAMPLE
 };
 
 enum Phases
@@ -178,9 +178,9 @@ class boss_gormok : public CreatureScript
 
             void Reset() override
             {
-                events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(8), Seconds(10)));
+                events.ScheduleEvent(EVENT_IMPALE, Seconds(8), Seconds(10));
                 events.ScheduleEvent(EVENT_STAGGERING_STOMP, Seconds(15));
-                events.ScheduleEvent(EVENT_THROW, randtime(Seconds(15), Seconds(30)));
+                events.ScheduleEvent(EVENT_THROW, Seconds(15), Seconds(30));
 
                 summons.DespawnAll();
             }
@@ -259,11 +259,11 @@ class boss_gormok : public CreatureScript
                     {
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
-                            events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(8), Seconds(10)));
+                            events.Repeat(Seconds(8), Seconds(10));
                             break;
                         case EVENT_STAGGERING_STOMP:
                             DoCastVictim(SPELL_STAGGERING_STOMP);
-                            events.ScheduleEvent(EVENT_STAGGERING_STOMP, Seconds(15));
+                            events.Repeat(Seconds(15));
                             break;
                         case EVENT_THROW:
                             for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
@@ -277,7 +277,7 @@ class boss_gormok : public CreatureScript
                                     break;
                                 }
                             }
-                            events.ScheduleEvent(EVENT_THROW, randtime(Seconds(15), Seconds(30)));
+                            events.Repeat(Seconds(15), Seconds(30));
                             break;
                         default:
                             break;
@@ -321,26 +321,20 @@ class npc_snobold_vassal : public CreatureScript
 
         struct npc_snobold_vassalAI : public ScriptedAI
         {
-            npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature)
+            npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _isActive(false)
             {
-                _instance = creature->GetInstanceScript();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
-            }
-
-            void Initialize()
-            {
-                _targetGUID.Clear();
-                _isActive = false;
-                _events.Reset();
             }
 
             void Reset() override
             {
-                Initialize();
+                _targetGUID.Clear();
+                _isActive = false;
+                _events.Reset();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetInCombatWithZone();
                 _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE_BOMB, randtime(Seconds(5), Seconds(30)));
+                _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(5), Seconds(30));
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -355,7 +349,7 @@ class npc_snobold_vassal : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ENABLE_FIRE_BOMB:
-                        _events.ScheduleEvent(EVENT_FIRE_BOMB, randtime(Seconds(5), Seconds(30)));
+                        _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(5), Seconds(30));
                         break;
                     case ACTION_DISABLE_FIRE_BOMB:
                         _events.CancelEvent(EVENT_FIRE_BOMB);
@@ -388,6 +382,7 @@ class npc_snobold_vassal : public CreatureScript
                     return;
 
                 ScriptedAI::AttackStart(who);
+                SetCombatMovement(false);
             }
 
             void MountOnBoss()
@@ -428,16 +423,16 @@ class npc_snobold_vassal : public CreatureScript
                     {
                         case EVENT_FIRE_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
-                                me->CastSpell(target, SPELL_FIRE_BOMB, true);
-                            _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(20));
+                                me->CastSpell(target, SPELL_FIRE_BOMB);
+                            _events.Repeat(Seconds(20));
                             break;
                         case EVENT_HEAD_CRACK:
                             DoCast(me->GetVehicleBase(), SPELL_HEAD_CRACK);
-                            _events.ScheduleEvent(EVENT_HEAD_CRACK, Seconds(30));
+                            _events.Repeat(Seconds(30));
                             break;
                         case EVENT_BATTER:
                             DoCast(me->GetVehicleBase(), SPELL_BATTER);
-                            _events.ScheduleEvent(EVENT_BATTER, Seconds(10));
+                            _events.Repeat(Seconds(10));
                             break;
                         case EVENT_SNOBOLLED:
                             DoCastAOE(SPELL_SNOBOLLED);
@@ -1241,7 +1236,6 @@ public:
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-
             if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
                 return;
 
