@@ -1877,17 +1877,8 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
         return false;
 
     // check if we have charges to proc with
-    if (IsUsingCharges())
-    {
-        if (!GetCharges())
-            return false;
-
-        // do not take charge from this aura if not affecting
-        if (HasEffectType(SPELL_AURA_ADD_PCT_MODIFIER) || HasEffectType(SPELL_AURA_ADD_FLAT_MODIFIER))
-            if (Spell const* spell = eventInfo.GetProcSpell())
-                if (!spell->m_appliedMods.count(const_cast<Aura*>(this)))
-                    return false;
-    }
+    if (IsUsingCharges() && !GetCharges())
+        return false;
 
     // check proc cooldown
     if (IsProcOnCooldown(now))
