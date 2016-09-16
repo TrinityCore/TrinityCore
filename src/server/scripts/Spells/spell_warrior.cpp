@@ -300,6 +300,56 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         }
 };
 
+// -12834 - Deep Wounds Aura
+class spell_warr_deep_wounds_aura : public SpellScriptLoader
+{
+    public:
+        spell_warr_deep_wounds_aura() : SpellScriptLoader("spell_warr_deep_wounds_aura") { }
+
+        class spell_warr_deep_wounds_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_deep_wounds_aura_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && eventInfo.GetDamageInfo();
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* actor = eventInfo.GetActor();
+                float damage = 0.f;
+
+                if (eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK)
+                    damage = (actor->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + actor->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2.f;
+                else
+                    damage = (actor->GetFloatValue(UNIT_FIELD_MINDAMAGE) + actor->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.f;
+
+                actor->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT0, int32(damage), eventInfo.GetProcTarget(), true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warr_deep_wounds_aura_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_warr_deep_wounds_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_deep_wounds_aura_AuraScript();
+        }
+};
+
 // -5308 - Execute
 class spell_warr_execute : public SpellScriptLoader
 {
@@ -1007,6 +1057,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_concussion_blow();
     new spell_warr_damage_shield();
     new spell_warr_deep_wounds();
+    new spell_warr_deep_wounds_aura();
     new spell_warr_execute();
     new spell_warr_glyph_of_blocking();
     new spell_warr_glyph_of_sunder_armor();
