@@ -38,7 +38,6 @@
 #include "VehicleDefines.h"
 #include "ConditionMgr.h"
 #include "DBCStores.h"
-#include "ZoneScript.h"
 #include <string>
 #include <tuple>
 #include <map>
@@ -1328,10 +1327,6 @@ class TC_GAME_API ObjectMgr
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
-        typedef std::unordered_map<uint32, LocationScript*> LocationScriptContainer;
-        void LoadLocationScripts();
-        LocationScript* GetLocationScript(uint32 zoneId);
-
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1407,7 +1402,6 @@ class TC_GAME_API ObjectMgr
 
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
-        LocationScriptContainer _locationScriptsStore;
 
     private:
         void LoadScripts(ScriptsType type);

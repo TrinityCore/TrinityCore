@@ -5456,50 +5456,6 @@ void ObjectMgr::LoadInstanceTemplate()
     TC_LOG_INFO("server.loading", ">> Loaded %u instance templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadLocationScripts()
-{
-    uint32 oldMSTime = getMSTime();
-    
-    _locationScriptsStore.clear();
-    QueryResult result = WorldDatabase.Query("SELECT zone_entry, ScriptName FROM location_script");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 wold location scripts. DB table `location_scripts` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        ++count;
-        Field* fields = result->Fetch();
-        
-        uint32 zoneId       = fields[0].GetUInt32();
-        const char* ScriptName = fields[1].GetCString();
-
-        uint32 scriptId = GetScriptId(ScriptName);
-
-        LocationScript* _locationScript = sScriptMgr->CreateLocationScript(scriptId);
-        if (!_locationScript)
-            continue;
-
-        _locationScriptsStore[zoneId] = _locationScript;
-        _locationScript->Initialize();
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u location scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-LocationScript* ObjectMgr::GetLocationScript(uint32 zoneId)
-{
-    LocationScriptContainer::const_iterator itr = _locationScriptsStore.find(zoneId);
-    if (itr != _locationScriptsStore.end())
-        return itr->second;
-    return nullptr;
-}
-
 InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID) const
 {
     InstanceTemplateContainer::const_iterator itr = _instanceTemplateStore.find(uint16(mapID));
@@ -8798,9 +8754,7 @@ void ObjectMgr::LoadScriptNames()
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
         "UNION "
-        "SELECT DISTINCT(script) FROM instance_template WHERE script <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM location_scripts WHERE ScriptName <> '' ");
+        "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
     {
