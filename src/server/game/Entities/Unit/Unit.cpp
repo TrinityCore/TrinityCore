@@ -5405,22 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Deflection
-        case 52420:
-        {
-            if (!HealthBelowPct(35))
-                return false;
-            break;
-        }
-
-        // Cheat Death
-        case 28845:
-        {
-            // When your health drops below 20%
-            if (HealthBelowPctDamaged(20, damage) || HealthBelowPct(20))
-                return false;
-            break;
-        }
         // Deadly Swiftness (Rank 1)
         case 31255:
         {
