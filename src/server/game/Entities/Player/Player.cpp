@@ -24659,18 +24659,17 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = getLevel() < 10 ? 0 : getLevel()-9;
-
-    if (getClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
-
-    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+	if (getLevel() < 10) return 0;
+	if (getLevel() < 20) return (getLevel() - 9);
+	if (getLevel() < 30) return (getLevel() - 9 + 1);
+	if (getLevel() < 40) return (getLevel() - 9 + 2 + 1);
+	if (getLevel() < 50) return (getLevel() - 9 + 3 + 2 + 1);
+	if (getLevel() < 60) return (getLevel() - 9 + 4 + 3 + 2 + 1);
+	if (getLevel() < 70) return (getLevel() - 9 + 5 + 4 + 3 + 2 + 1);
+	if (getLevel() < 80) return (getLevel() - 9 + 6 + 5 + 4 + 3 + 2 + 1);
+	if (getLevel() == 80) return (getLevel() - 9 + 7 + 6 + 5 + 4 + 3 + 2 + 1);
+	
+	return 0;
 }
 
 bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
