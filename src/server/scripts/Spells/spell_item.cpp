@@ -1233,6 +1233,39 @@ class spell_item_heartpierce : public SpellScriptLoader
         }
 };
 
+// 40971 - Bonus Healing (Crystal Spire of Karabor)
+class spell_item_crystal_spire_of_karabor : public SpellScriptLoader
+{
+    public:
+        spell_item_crystal_spire_of_karabor() : SpellScriptLoader("spell_item_crystal_spire_of_karabor") { }
+
+        class spell_item_crystal_spire_of_karabor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_crystal_spire_of_karabor_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                int32 pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                if (HealInfo* healInfo = eventInfo.GetHealInfo())
+                    if (Unit* healTarget = healInfo->GetTarget())
+                        if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
+                            return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_item_crystal_spire_of_karabor_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_crystal_spire_of_karabor_AuraScript();
+        }
+};
+
 // http://www.wowhead.com/item=27388 Mr. Pinchy
 // 33060 Make a Wish
 enum MakeAWish
@@ -4287,6 +4320,7 @@ void AddSC_item_spell_scripts()
     new spell_item_healing_touch_refund();
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
+    new spell_item_crystal_spire_of_karabor();
     new spell_item_make_a_wish();
     new spell_item_mingos_fortune_generator();
     new spell_item_necrotic_touch();

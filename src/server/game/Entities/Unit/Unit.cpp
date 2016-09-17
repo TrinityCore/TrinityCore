@@ -5405,14 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Bonus Healing (Crystal Spire of Karabor mace)
-        case 40971:
-        {
-            // If your target is below $s1% health
-            if (!victim || !victim->IsAlive() || victim->HealthAbovePct(triggerAmount))
-                return false;
-            break;
-        }
         // Decimation
         case 63156:
         case 63158:

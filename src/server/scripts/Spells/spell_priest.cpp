@@ -1274,7 +1274,7 @@ class spell_pri_t5_heal_2p_bonus : public SpellScriptLoader
                 if (HealInfo* healInfo = eventInfo.GetHealInfo())
                     if (Unit* healTarget = healInfo->GetTarget())
                         if (healInfo->GetEffectiveHeal())
-                            if (healTarget->GetHealth() + healInfo->GetHeal() >= healTarget->GetMaxHealth())
+                            if (healTarget->GetHealth() >= healTarget->GetMaxHealth())
                                 return true;
 
                 return false;
