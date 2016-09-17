@@ -323,14 +323,13 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _isActive(false)
             {
+                _targetGUID.Clear();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
+                SetCombatMovement(false);
             }
 
             void Reset() override
             {
-                _targetGUID.Clear();
-                _isActive = false;
-                _events.Reset();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetInCombatWithZone();
                 _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(1));
@@ -382,7 +381,6 @@ class npc_snobold_vassal : public CreatureScript
                     return;
 
                 ScriptedAI::AttackStart(who);
-                SetCombatMovement(false);
             }
 
             void MountOnBoss()
@@ -1248,9 +1246,7 @@ public:
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* target = GetTarget();
-            target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-            target->RemoveVehicleKit();
+            GetTarget()->RemoveVehicleKit();
         }
 
         void Register() override
@@ -1282,7 +1278,7 @@ public:
             return true;
         }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
         {
             if (!GetTarget()->HasAura(SPELL_RIDE_PLAYER))
                 Remove();
@@ -1290,7 +1286,7 @@ public:
 
         void Register() override
         {
-            OnEffectApply += AuraEffectApplyFn(spell_gormok_snobolled_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gormok_snobolled_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
