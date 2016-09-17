@@ -366,7 +366,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
     };
 
     // Hook which is called before a creature is swapped
-    static void UnloadStage1(Creature* creature)
+    static void UnloadResetScript(Creature* creature)
     {
         // Remove deletable events only,
         // otherwise it causes crashes with non-deletable spell events.
@@ -381,7 +381,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         creature->AI()->EnterEvadeMode();
     }
 
-    static void UnloadStage2(Creature* creature)
+    static void UnloadDestroyScript(Creature* creature)
     {
         bool const destroyed = creature->AIM_Destroy();
         ASSERT(destroyed,
@@ -393,12 +393,12 @@ class CreatureGameObjectScriptRegistrySwapHooks
     }
 
     // Hook which is called before a gameobject is swapped
-    static void UnloadStage1(GameObject* gameobject)
+    static void UnloadResetScript(GameObject* gameobject)
     {
         gameobject->AI()->Reset();
     }
 
-    static void UnloadStage2(GameObject* gameobject)
+    static void UnloadDestroyScript(GameObject* gameobject)
     {
         gameobject->AIM_Destroy();
 
@@ -407,7 +407,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
     }
 
     // Hook which is called after a creature was swapped
-    static void LoadStage1(Creature* creature)
+    static void LoadInitializeScript(Creature* creature)
     {
         ASSERT(!creature->AI(),
                "The AI should be null here!");
@@ -421,7 +421,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         (void)created;
     }
 
-    static void LoadStage2(Creature* creature)
+    static void LoadResetScript(Creature* creature)
     {
         if (!creature->IsAlive())
             return;
@@ -435,7 +435,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
     }
 
     // Hook which is called after a gameobject was swapped
-    static void LoadStage1(GameObject* gameobject)
+    static void LoadInitializeScript(GameObject* gameobject)
     {
         ASSERT(!gameobject->AI(),
                "The AI should be null here!");
@@ -443,51 +443,108 @@ class CreatureGameObjectScriptRegistrySwapHooks
         gameobject->AIM_Initialize();
     }
 
-    static void LoadStage2(GameObject* gameobject)
+    static void LoadResetScript(GameObject* gameobject)
     {
         gameobject->AI()->Reset();
     }
 
+    static Creature* GetEntityFromMap(std::common_type<Creature>, Map* map, ObjectGuid const& guid)
+    {
+        return map->GetCreature(guid);
+    }
+
+    static GameObject* GetEntityFromMap(std::common_type<GameObject>, Map* map, ObjectGuid const& guid)
+    {
+        return map->GetGameObject(guid);
+    }
+
     template<typename T>
-    void RunOverAllEntities(T fn)
+    static void VisitObjectsToSwapOnMap(Map* map, std::unordered_set<uint32> const& idsToRemove, T visitor)
     {
         auto evaluator = [&](std::unordered_map<ObjectGuid, ObjectType*>& objects)
         {
             for (auto object : objects)
-                fn(object.second);
+            {
+                // When the script Id of the script isn't removed in this
+                // context change, do nothing.
+                if (idsToRemove.find(object.second->GetScriptId()) != idsToRemove.end())
+                    visitor(object.second);
+            }
         };
 
         AIFunctionMapWorker<typename std::decay<decltype(evaluator)>::type> worker(std::move(evaluator));
-        TypeContainerVisitor<decltype(worker), MapStoredObjectTypesContainer> visitor(worker);
+        TypeContainerVisitor<decltype(worker), MapStoredObjectTypesContainer> containerVisitor(worker);
 
+        containerVisitor.Visit(map->GetObjectsStore());
+    }
+
+    static void DestroyScriptIdsFromSet(std::unordered_set<uint32> const& idsToRemove)
+    {
+        // First reset all swapped scripts safe by guid
+        // Skip creatures and gameobjects with an empty guid
+        // (that were not added to the world as of now)
         sMapMgr->DoForAllMaps([&](Map* map)
         {
-            // Run the worker over all maps
-            visitor.Visit(map->GetObjectsStore());
+            std::vector<ObjectGuid> guidsToReset;
+
+            VisitObjectsToSwapOnMap(map, idsToRemove, [&](ObjectType* object)
+            {
+                if (object->AI() && !object->GetGUID().IsEmpty())
+                    guidsToReset.push_back(object->GetGUID());
+            });
+
+            for (ObjectGuid const& guid : guidsToReset)
+            {
+                if (auto entity = GetEntityFromMap(std::common_type<ObjectType>{}, map, guid))
+                    UnloadResetScript(entity);
+            }
+
+            VisitObjectsToSwapOnMap(map, idsToRemove, [&](ObjectType* object)
+            {
+                // Destroy the scripts instantly
+                UnloadDestroyScript(object);
+            });
+        });
+    }
+
+    static void InitializeScriptIdsFromSet(std::unordered_set<uint32> const& idsToRemove)
+    {
+        sMapMgr->DoForAllMaps([&](Map* map)
+        {
+            std::vector<ObjectGuid> guidsToReset;
+
+            VisitObjectsToSwapOnMap(map, idsToRemove, [&](ObjectType* object)
+            {
+                if (!object->AI() && !object->GetGUID().IsEmpty())
+                {
+                    // Initialize the script
+                    LoadInitializeScript(object);
+                    guidsToReset.push_back(object->GetGUID());
+                }
+            });
+
+            for (ObjectGuid const& guid : guidsToReset)
+            {
+                // Reset the script
+                if (auto entity = GetEntityFromMap(std::common_type<ObjectType>{}, map, guid))
+                {
+                    if (!entity->AI())
+                        LoadInitializeScript(entity);
+
+                    LoadResetScript(entity);
+                }
+            }
         });
     }
 
 public:
     void BeforeReleaseContext(std::string const& context) final override
     {
-        auto ids_to_remove = static_cast<Base*>(this)->GetScriptIDsToRemove(context);
-
-        std::vector<ObjectType*> stage2;
-
-        RunOverAllEntities([&](ObjectType* object)
-        {
-            if (ids_to_remove.find(object->GetScriptId()) != ids_to_remove.end())
-            {
-                UnloadStage1(object);
-                stage2.push_back(object);
-            }
-        });
-
-        for (auto object : stage2)
-            UnloadStage2(object);
+        auto idsToRemove = static_cast<Base*>(this)->GetScriptIDsToRemove(context);
+        DestroyScriptIdsFromSet(idsToRemove);
 
         // Add the new ids which are removed to the global ids to remove set
-        ids_removed_.insert(ids_to_remove.begin(), ids_to_remove.end());
+        ids_removed_.insert(idsToRemove.begin(), idsToRemove.end());
     }
 
     void BeforeSwapContext(bool initialize) override
@@ -501,32 +558,8 @@ public:
         ids_removed_.insert(static_cast<Base*>(this)->GetRecentlyAddedScriptIDs().begin(),
                             static_cast<Base*>(this)->GetRecentlyAddedScriptIDs().end());
 
-        std::vector<ObjectType*> remove;
-        std::vector<ObjectType*> stage2;
-
-        RunOverAllEntities([&](ObjectType* object)
-        {
-            if (ids_removed_.find(object->GetScriptId()) != ids_removed_.end())
-            {
-                if (object->AI())
-                {
-                    // Overwrite existing (default) AI's which are replaced by a new script
-                    UnloadStage1(object);
-                    remove.push_back(object);
-                }
-
-                stage2.push_back(object);
-            }
-        });
-
-        for (auto object : remove)
-            UnloadStage2(object);
-
-        for (auto object : stage2)
-            LoadStage1(object);
-
-        for (auto object : stage2)
-            LoadStage2(object);
+        DestroyScriptIdsFromSet(ids_removed_);
+        InitializeScriptIdsFromSet(ids_removed_);
 
         ids_removed_.clear();
     }
