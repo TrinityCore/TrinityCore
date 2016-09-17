@@ -1776,14 +1776,8 @@ class npc_wormhole : public CreatureScript
 
 enum PetTrainer
 {
-    MENU_ID_PET_TRAINING     = 4783,
     MENU_ID_PET_UNLEARN      = 6520,
-    NPC_TEXT_PET_FAMILIES    = 13474,
-    NPC_TEXT_PET_TRAINING    = 5838,
-    NPC_TEXT_UNLEARN         = 7722,
-    OPTION_ID_HOW_DO_I_TRAIN = 0,
-    OPTION_ID_UNTRAIN_MY_PET = 1,
-    OPTION_ID_PLEASE_DO      = 0,
+    OPTION_ID_PLEASE_DO      = 0
 };
 
 class npc_pet_trainer : public CreatureScript
@@ -1791,49 +1785,23 @@ class npc_pet_trainer : public CreatureScript
 public:
     npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) /*override*/
+    struct npc_pet_trainerAI : public ScriptedAI
     {
-        ClearGossipMenuFor(player);
+        npc_pet_trainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_UNTRAIN_MY_PET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            SendGossipMenuFor(player, NPC_TEXT_PET_TRAINING, creature->GetGUID());
+            if (menuId == MENU_ID_PET_UNLEARN && gossipListId == OPTION_ID_PLEASE_DO)
+            {
+                player->ResetPetTalents();
+                CloseGossipMenuFor(player);
+            }
         }
-        else
-        {
-            AddGossipItemFor(player, MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, NPC_TEXT_PET_TRAINING, creature->GetGUID());
-        }
-        return true;
-    }
+    };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) /*override*/
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        ClearGossipMenuFor(player);
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                SendGossipMenuFor(player, NPC_TEXT_PET_FAMILIES, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                {
-                    AddGossipItemFor(player, MENU_ID_PET_UNLEARN, OPTION_ID_PLEASE_DO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    SendGossipMenuFor(player, NPC_TEXT_UNLEARN, creature->GetGUID());
-                }
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                {
-                    player->ResetPetTalents();
-                    CloseGossipMenuFor(player);
-                }
-                break;
-        }
-        return true;
+        return new npc_pet_trainerAI(creature);
     }
 };
 
