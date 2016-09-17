@@ -410,6 +410,38 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
         }
 };
 
+// -49182 - Blade Barrier
+class spell_dk_blade_barrier : public SpellScriptLoader
+{
+    public:
+        spell_dk_blade_barrier() : SpellScriptLoader("spell_dk_blade_barrier") { }
+
+        class spell_dk_blade_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blade_barrier_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetSpellInfo() != nullptr)
+                    if (Player* player = eventInfo.GetActor()->ToPlayer())
+                        if (player->getClass() == CLASS_DEATH_KNIGHT && player->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
+                            return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_blade_barrier_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_blade_barrier_AuraScript();
+        }
+};
+
 // 48721 - Blood Boil
 class spell_dk_blood_boil : public SpellScriptLoader
 {
@@ -2861,6 +2893,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
+    new spell_dk_blade_barrier();
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
     new spell_dk_bloodworms();
