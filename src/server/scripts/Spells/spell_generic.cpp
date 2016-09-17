@@ -2718,44 +2718,6 @@ class spell_gen_orc_disguise : public SpellScriptLoader
         }
 };
 
-class spell_gen_proc_bellow_pct : public SpellScriptLoader
-{
-    public:
-        spell_gen_proc_bellow_pct(const char* name, int32 pct) : SpellScriptLoader(name), _pct(pct) { }
-
-        class spell_gen_proc_bellow_pct_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_proc_bellow_pct_AuraScript);
-
-        public:
-            spell_gen_proc_bellow_pct_AuraScript(int32 pct) : AuraScript(), _pct(pct) { }
-
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                if (GetTarget()->HealthBelowPct(_pct))
-                    return true;
-
-                return false;
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_gen_proc_bellow_pct_AuraScript::CheckProc);
-            }
-
-        private:
-            int32 _pct;
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_gen_proc_bellow_pct_AuraScript(_pct);
-        }
-
-    private:
-        int32 _pct;
-};
-
 class spell_gen_proc_bellow_pct_damaged : public SpellScriptLoader
 {
     public:
@@ -4431,8 +4393,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_orc_disguise();
-    new spell_gen_proc_bellow_pct("spell_warr_T3_8P_bonus_health", 20);
-    new spell_gen_proc_bellow_pct_damaged("spell_warr_T3_8P_bonus_damaged", 20);
     new spell_gen_proc_bellow_pct_damaged("spell_item_soul_harvesters_charm", 35);
     new spell_gen_parachute();
     new spell_gen_pet_summoned();

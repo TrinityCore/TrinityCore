@@ -923,6 +923,41 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         }
 };
 
+// 28845 - Cheat Death
+class spell_warr_T3_prot_8P_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warr_T3_prot_8P_bonus() : SpellScriptLoader("spell_warr_T3_prot_8P_bonus") { }
+
+        class spell_warr_T3_prot_8P_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_T3_prot_8P_bonus_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetActionTarget()->HealthBelowPct(20))
+                    return true;
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (damageInfo && damageInfo->GetDamage())
+                    if (GetTarget()->HealthBelowPctDamaged(20, damageInfo->GetDamage()))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warr_T3_prot_8P_bonus_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_T3_prot_8P_bonus_AuraScript();
+        }
+};
+
 // 50720 - Vigilance
 class spell_warr_vigilance : public SpellScriptLoader
 {
@@ -1072,6 +1107,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shattering_throw();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();
+    new spell_warr_T3_prot_8P_bonus();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }

@@ -5405,16 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Deadly Swiftness (Rank 1)
-        case 31255:
-        {
-            // whenever you deal damage to a target who is below 20% health.
-            if (!victim || !victim->IsAlive() || victim->HealthAbovePct(20))
-                return false;
-
-            target = this;
-            trigger_spell_id = 22588;
-        }
         // Greater Heal Refund (Avatar Raiment set)
         case 37594:
         {

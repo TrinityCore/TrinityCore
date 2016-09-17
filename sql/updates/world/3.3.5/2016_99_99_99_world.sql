@@ -7,14 +7,13 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (52420,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,    0, 0, 0, 0,  30000, 0), -- Deflection
 (28845,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,    0, 0, 0, 0,      0, 0); -- Cheat Death
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_T3_8P_bonus_health','spell_warr_T3_8P_bonus_damaged');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_T3_prot_8P_bonus');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-18213, 'spell_warl_improved_drain_soul'),
 (-12834, 'spell_warr_deep_wounds_aura'),
 (26467, 'spell_item_persistent_shield'),
 (52420, 'spell_item_soul_harvesters_charm'),
-(28845, 'spell_warr_T3_8P_bonus_health'),
-(28845, 'spell_warr_T3_8P_bonus_damaged');
+(28845, 'spell_warr_T3_prot_8P_bonus');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=24 AND `SourceGroup`=0 AND `SourceEntry`=38164;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
