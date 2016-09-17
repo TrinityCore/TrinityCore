@@ -388,6 +388,7 @@ class npc_snobold_vassal : public CreatureScript
                 if (gormok && gormok->IsAlive())
                 {
                     me->AttackStop();
+                    _targetGUID.Clear();
                     _isActive = false;
                     _events.CancelEvent(EVENT_BATTER);
                     _events.CancelEvent(EVENT_HEAD_CRACK);
