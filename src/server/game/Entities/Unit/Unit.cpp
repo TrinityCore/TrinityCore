@@ -5401,30 +5401,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     if (m_extraAttacks && triggerEntry->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
         return false;
 
-    // Custom requirements (not listed in procEx) Warning! damage dealing after this
-    // Custom triggered spells
-    switch (auraSpellInfo->Id)
-    {
-        // Professor Putricide - Ooze Spell Tank Protection
-        case 71770:
-            if (victim)
-                victim->CastSpell(victim, trigger_spell_id, true);    // EffectImplicitTarget is self
-            return true;
-        case 45057: // Evasive Maneuvers (Commendation of Kael`thas trinket)
-        case 71634: // Item - Icecrown 25 Normal Tank Trinket 1
-        case 71640: // Item - Icecrown 25 Heroic Tank Trinket 1
-        case 75475: // Item - Chamber of Aspects 25 Normal Tank Trinket
-        case 75481: // Item - Chamber of Aspects 25 Heroic Tank Trinket
-        {
-            // Procs only if damage takes health below $s1%
-            if (!HealthBelowPctDamaged(triggerAmount, damage))
-                return false;
-            break;
-        }
-        default:
-            break;
-    }
-
     // Blade Barrier
     if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85 && procSpell)
     {
