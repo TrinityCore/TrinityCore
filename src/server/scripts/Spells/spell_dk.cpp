@@ -2004,12 +2004,12 @@ class spell_dk_rime : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_blade_barrier_AuraScript);
 
-            bool CheckProc(ProcEventInfo& eventInfo)
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
                 return GetTarget()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 Unit* target = GetTarget();
                 target->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool

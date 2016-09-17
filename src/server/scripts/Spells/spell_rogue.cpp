@@ -1099,6 +1099,80 @@ public:
     }
 };
 
+// -51627 - Turn the Tables
+class spell_rog_turn_the_tables : public SpellScriptLoader
+{
+    public:
+        spell_rog_turn_the_tables() : SpellScriptLoader("spell_rog_turn_the_tables") { }
+
+        class spell_rog_turn_the_tables_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_turn_the_tables_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                Unit* target = GetTarget();
+                target->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff, caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_turn_the_tables_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_turn_the_tables_AuraScript();
+        }
+};
+
+// 52910,52914,52915 - Turn the Tables proc
+class spell_rog_turn_the_tables_proc : public SpellScriptLoader
+{
+    public:
+        spell_rog_turn_the_tables_proc() : SpellScriptLoader("spell_rog_turn_the_tables_proc") { }
+
+        class spell_rog_turn_the_tables_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_turn_the_tables_proc_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.clear();
+
+                Unit* target = GetOriginalCaster();
+                if (!target)
+                    return;
+
+                targets.push_back(target);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_turn_the_tables_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_turn_the_tables_proc_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1120,4 +1194,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
     new spell_rog_t10_2p_bonus();
+    new spell_rog_turn_the_tables();
+    new spell_rog_turn_the_tables_proc();
 }
