@@ -1563,8 +1563,6 @@ class spell_item_persistent_shield : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                PreventDefaultAction();
-
                 int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
                 GetTarget()->CastCustomSpell(SPELL_PERSISTENT_SHIELD_TRIGGERED, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }

@@ -56,7 +56,9 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
-    SPELL_PRIEST_BLESSED_HEALING                    = 70772
+    SPELL_PRIEST_BLESSED_HEALING                    = 70772,
+    SPELL_PRIEST_MIND_BLAST_R1                      = 8092,
+    SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379
 };
 
 enum PriestSpellIcons
@@ -590,6 +592,50 @@ class spell_pri_imp_shadowform : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pri_imp_shadowform_AuraScript();
+        }
+};
+
+// -15337 - Improved Spirit Tap
+class spell_pri_improved_spirit_tap : public SpellScriptLoader
+{
+    public:
+        spell_pri_improved_spirit_tap() : SpellScriptLoader("spell_pri_improved_spirit_tap") { }
+
+        class spell_pri_improved_spirit_tap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_improved_spirit_tap_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_MIND_BLAST_R1))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                {
+                    if (!spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH_R1)) &&
+                        !spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_MIND_BLAST_R1)))
+                        return roll_chance_i(50);
+                    else
+                        return true;
+                }
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_improved_spirit_tap_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_improved_spirit_tap_AuraScript();
         }
 };
 
@@ -1361,6 +1407,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_guardian_spirit();
     new spell_pri_hymn_of_hope();
     new spell_pri_imp_shadowform();
+    new spell_pri_improved_spirit_tap();
     new spell_pri_item_t6_trinket();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
