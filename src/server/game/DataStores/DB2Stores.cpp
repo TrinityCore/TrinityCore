@@ -250,6 +250,10 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
     {
         storage->LoadFromDB();
+        // LoadFromDB() always loads strings into enUS locale, other locales are expected to have data in corresponding _locale tables
+        // so we need to make additional call to load that data in case said locale is set as default by worldserver.conf (and we do not want to load all this data from .db2 file again)
+        if (defaultLocale != LOCALE_enUS)
+            storage->LoadStringsFromDB(defaultLocale);
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
