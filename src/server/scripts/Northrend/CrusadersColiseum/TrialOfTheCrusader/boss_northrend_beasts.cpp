@@ -323,7 +323,6 @@ class npc_snobold_vassal : public CreatureScript
         {
             npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _isActive(false)
             {
-                _targetGUID.Clear();
                 _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
                 SetCombatMovement(false);
             }
