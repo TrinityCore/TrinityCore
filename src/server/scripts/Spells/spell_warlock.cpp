@@ -265,6 +265,36 @@ class spell_warl_curse_of_doom : public SpellScriptLoader
         }
 };
 
+class spell_warl_decimation : public SpellScriptLoader
+{
+    public:
+        spell_warl_decimation() : SpellScriptLoader("spell_warl_decimation") { }
+
+        class spell_warl_decimation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_decimation_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    if (eventInfo.GetActionTarget()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellInfo, eventInfo.GetActor()))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warl_decimation_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_decimation_AuraScript();
+        }
+};
+
 // 48018 - Demonic Circle: Summon
 class spell_warl_demonic_circle_summon : public SpellScriptLoader
 {
@@ -1388,6 +1418,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_banish();
     new spell_warl_create_healthstone();
     new spell_warl_curse_of_doom();
+    new spell_warl_decimation();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
