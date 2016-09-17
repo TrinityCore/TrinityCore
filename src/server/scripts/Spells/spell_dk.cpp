@@ -1094,10 +1094,11 @@ class spell_dk_hungering_cold : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetDamageType() != DOT)
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo) // probably melee damage so let's proc
                     return true;
 
-                return false;
+                return (spellInfo->Dispel != DISPEL_DISEASE);
             }
 
             void Register() override
