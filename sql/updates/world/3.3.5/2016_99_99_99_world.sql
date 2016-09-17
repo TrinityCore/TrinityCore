@@ -31,7 +31,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-63156, 'spell_warl_decimation'),
 (72176 , 'spell_deathbringer_blood_beast_blood_link'),
 (-15337, 'spell_pri_improved_spirit_tap'),
-(71770 , 'spell_putricide_ooze_tank_protection');
+(71770 , 'spell_putricide_ooze_tank_protection'),
 (45057 , 'spell_item_commendation_of_kaelthas'),
 (71634 , 'spell_item_corpse_tongue_coin'),
 (71640 , 'spell_item_corpse_tongue_coin_heroic'),
