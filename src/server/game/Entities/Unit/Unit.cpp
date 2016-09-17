@@ -5405,20 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        // Greater Heal Refund (Avatar Raiment set)
-        case 37594:
-        {
-            if (!victim || !victim->IsAlive())
-                return false;
-
-            // Doesn't proc if target already has full health
-            if (victim->IsFullHealth())
-                return false;
-            // If your Greater Heal brings the target to full health, you gain $37595s1 mana.
-            if (victim->GetHealth() + damage < victim->GetMaxHealth())
-                return false;
-            break;
-        }
         // Bonus Healing (Crystal Spire of Karabor mace)
         case 40971:
         {

@@ -593,41 +593,6 @@ class spell_pri_imp_shadowform : public SpellScriptLoader
         }
 };
 
-// 37594 - Greater Heal Refund
-class spell_pri_item_greater_heal_refund : public SpellScriptLoader
-{
-    public:
-        spell_pri_item_greater_heal_refund() : SpellScriptLoader("spell_pri_item_greater_heal_refund") { }
-
-        class spell_pri_item_greater_heal_refund_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_item_greater_heal_refund_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ITEM_EFFICIENCY))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, true, NULL, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_pri_item_greater_heal_refund_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_item_greater_heal_refund_AuraScript();
-        }
-};
-
 // 40438 - Priest Tier 6 Trinket
 class spell_pri_item_t6_trinket : public SpellScriptLoader
 {
@@ -1287,6 +1252,53 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
         }
 };
 
+// 37594 - Greater Heal Refund
+class spell_pri_t5_heal_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_pri_t5_heal_2p_bonus() : SpellScriptLoader("spell_pri_t5_heal_2p_bonus") { }
+
+        class spell_pri_t5_heal_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_t5_heal_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ITEM_EFFICIENCY))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (HealInfo* healInfo = eventInfo.GetHealInfo())
+                    if (Unit* healTarget = healInfo->GetTarget())
+                        if (healInfo->GetEffectiveHeal())
+                            if (healTarget->GetHealth() + healInfo->GetHeal() >= healTarget->GetMaxHealth())
+                                return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_t5_heal_2p_bonus_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_t5_heal_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_t5_heal_2p_bonus_AuraScript();
+        }
+};
+
 // 70770 - Item - Priest T10 Healer 2P Bonus
 class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
 {
@@ -1349,7 +1361,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_guardian_spirit();
     new spell_pri_hymn_of_hope();
     new spell_pri_imp_shadowform();
-    new spell_pri_item_greater_heal_refund();
     new spell_pri_item_t6_trinket();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
@@ -1365,5 +1376,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_touch();
     new spell_pri_t3_4p_bonus();
+    new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
 }
