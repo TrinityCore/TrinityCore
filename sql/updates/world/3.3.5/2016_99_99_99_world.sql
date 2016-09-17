@@ -20,7 +20,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (-49182,   0, 15, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0), -- Blade Barrier
 (-49188,   0, 15, 0x00000000, 0x00020000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0); -- Rime
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_T3_prot_8P_bonus','spell_pri_item_greater_heal_refund',
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_t3_prot_8p_bonus','spell_pri_item_greater_heal_refund',
 'spell_pri_t5_heal_2p_bonus','spell_item_crystal_spire_of_karabor','spell_warl_decimation','spell_deathbringer_blood_beast_blood_link','spell_pri_improved_spirit_tap','spell_putricide_ooze_tank_protection','spell_item_commendation_of_kaelthas','spell_item_corpse_tongue_coin',
 'spell_item_corpse_tongue_coin_heroic','spell_item_petrified_twilight_scale','spell_item_petrified_twilight_scale_heroic','spell_dk_blade_barrier','spell_dk_rime');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
@@ -28,7 +28,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-12834, 'spell_warr_deep_wounds_aura'),
 (26467 , 'spell_item_persistent_shield'),
 (52420 , 'spell_item_soul_harvesters_charm'),
-(28845 , 'spell_warr_T3_prot_8P_bonus'),
+(28845 , 'spell_warr_t3_prot_8p_bonus'),
 (37594 , 'spell_pri_t5_heal_2p_bonus'),
 (40971 , 'spell_item_crystal_spire_of_karabor'),
 (-63156, 'spell_warl_decimation'),

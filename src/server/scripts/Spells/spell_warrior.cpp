@@ -924,14 +924,14 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 };
 
 // 28845 - Cheat Death
-class spell_warr_T3_prot_8P_bonus : public SpellScriptLoader
+class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
 {
     public:
-        spell_warr_T3_prot_8P_bonus() : SpellScriptLoader("spell_warr_T3_prot_8P_bonus") { }
+        spell_warr_t3_prot_8p_bonus() : SpellScriptLoader("spell_warr_t3_prot_8p_bonus") { }
 
-        class spell_warr_T3_prot_8P_bonus_AuraScript : public AuraScript
+        class spell_warr_t3_prot_8p_bonus_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_T3_prot_8P_bonus_AuraScript);
+            PrepareAuraScript(spell_warr_t3_prot_8p_bonus_AuraScript);
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
@@ -948,13 +948,13 @@ class spell_warr_T3_prot_8P_bonus : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_warr_T3_prot_8P_bonus_AuraScript::CheckProc);
+                DoCheckProc += AuraCheckProcFn(spell_warr_t3_prot_8p_bonus_AuraScript::CheckProc);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_warr_T3_prot_8P_bonus_AuraScript();
+            return new spell_warr_t3_prot_8p_bonus_AuraScript();
         }
 };
 
@@ -1107,7 +1107,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shattering_throw();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();
-    new spell_warr_T3_prot_8P_bonus();
+    new spell_warr_t3_prot_8p_bonus();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }
