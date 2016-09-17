@@ -1994,6 +1994,44 @@ class spell_dk_raise_dead : public SpellScriptLoader
         }
 };
 
+// -49188 - Rime
+class spell_dk_rime : public SpellScriptLoader
+{
+    public:
+        spell_dk_rime() : SpellScriptLoader("spell_dk_rime") { }
+
+        class spell_dk_blade_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blade_barrier_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetTarget()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                Unit* target = GetTarget();
+                target->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                    return spellInfo && spellInfo->GetCategory() == 1248;
+                }, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_blade_barrier_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_blade_barrier_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_blade_barrier_AuraScript();
+        }
+};
+
 // 59754 Rune Tap - Party
 class spell_dk_rune_tap_party : public SpellScriptLoader
 {
@@ -2921,6 +2959,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_pestilence();
     new spell_dk_presence();
     new spell_dk_raise_dead();
+    new spell_dk_rime();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
     new spell_dk_scourge_strike();
