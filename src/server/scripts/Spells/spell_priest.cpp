@@ -58,7 +58,8 @@ enum PriestSpells
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_MIND_BLAST_R1                      = 8092,
-    SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379
+    SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379,
+    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381
 };
 
 enum PriestSpellIcons
@@ -617,11 +618,11 @@ class spell_pri_improved_spirit_tap : public SpellScriptLoader
             {
                 if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
                 {
-                    if (!spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH_R1)) &&
-                        !spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_MIND_BLAST_R1)))
-                        return roll_chance_i(50);
-                    else
+                    if (spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SHADOW_WORD_DEATH_R1)) ||
+                        spellInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_PRIEST_MIND_BLAST_R1)))
                         return true;
+                    else if (spellInfo->Id == SPELL_PRIEST_MIND_FLAY_DAMAGE)
+                        return roll_chance_i(50);
                 }
 
                 return false;

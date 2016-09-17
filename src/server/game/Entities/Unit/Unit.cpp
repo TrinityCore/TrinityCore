@@ -5405,19 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        case 15337: // Improved Spirit Tap (Rank 1)
-        case 15338: // Improved Spirit Tap (Rank 2)
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->SpellFamilyFlags[0] & 0x800000)
-                if ((procSpell->Id != 58381) || !roll_chance_i(50))
-                    return false;
-
-            target = victim;
-            break;
-        }
         // Professor Putricide - Ooze Spell Tank Protection
         case 71770:
             if (victim)

@@ -3274,6 +3274,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29726: // Test Ribbon Pole Channel
                 spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
+            case 58381: // Mind Flay Damage (triggered)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
