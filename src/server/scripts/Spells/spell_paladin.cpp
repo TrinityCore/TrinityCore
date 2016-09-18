@@ -1226,6 +1226,41 @@ class spell_pal_improved_aura_effect : public SpellScriptLoader
         }
 };
 
+// -20234 - Improved Lay on Hands
+class spell_pal_improved_lay_of_hands : public SpellScriptLoader
+{
+    public:
+        spell_pal_improved_lay_of_hands() : SpellScriptLoader("spell_pal_improved_lay_of_hands") { }
+
+        class spell_pal_improved_lay_of_hands_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_improved_lay_of_hands_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActionTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff, GetTarget()->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_improved_lay_of_hands_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pal_improved_lay_of_hands_AuraScript();
+        }
+};
+
 // -53569 - Infusion of Light
 class spell_pal_infusion_of_light : public SpellScriptLoader
 {
@@ -2342,6 +2377,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
+    new spell_pal_improved_lay_of_hands();
     new spell_pal_infusion_of_light();
     new spell_pal_item_healing_discount();
     new spell_pal_item_t6_trinket();
