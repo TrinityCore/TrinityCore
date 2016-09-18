@@ -266,23 +266,6 @@ class npc_thrall_battle_undercity : public CreatureScript
 public:
     npc_thrall_battle_undercity() : CreatureScript("npc_thrall_battle_undercity") { }
 
-    /*bool OnGossipHello(Player* player, Creature* creature) override
-    {
-    if (creature->IsQuestGiver())
-    player->PrepareQuestMenu(creature->GetGUID());
-
-    float x, y, z;
-    creature->GetRespawnPosition(x, y, z);
-    if (creature->GetPositionX() != x || creature->GetPositionY() != y)
-    {
-    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-    return true;
-    }
-    else
-    return false;
-    }*/
-
     struct npc_thrall_battle_undercityAI : public npc_escortAI
     {
         npc_thrall_battle_undercityAI(Creature* creature) : npc_escortAI(creature), _summons(me)
@@ -320,16 +303,12 @@ public:
                 ChainTimer = urand(12000, 15000);
                 ThunderTimer = urand(6000, 8000);
                 LavaBurstTimer = urand(16000, 20000);
-                UpdateWorldState = false;
 
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 if (Creature* Sylvanas = ObjectAccessor::GetCreature(*me, zoneScript->GetGuidData(NPC_SYLVANAS)))
-                {
-                    std::cout << "location script works fine\n";
                     Sylvanas->SearchFormation();
-                }
             }
         }
 
@@ -729,7 +708,6 @@ public:
                                 Talk(THRALL_SAY_0);
                                 DoUpdateWorldState(WORLDSTATE_BATTLE_TIMER_STATE, 1);
                                 DoUpdateWorldState(WORLDSTATE_BATTLE_TIMER, EventRepeatCount);
-                                UpdateWorldState = true;
                                 --EventRepeatCount;
                                 _events.ScheduleEvent(EVENT_UPDATE_INTRO_WORLDSTATE, Seconds(60));
                                 JumpToNextStep(7000);
@@ -1276,7 +1254,6 @@ public:
                                 DoUpdateWorldState(WORLDSTATE_CONTROLL_ROYAL_QUARTER, 1);
                                 DoUpdateWorldState(WORLDSTATE_RESET_BATTLE, 1);
                                 DoUpdateWorldState(WORLDSTATE_RESET_TIMER, EventRepeatCount);
-                                UpdateWorldState = true;
                                 --EventRepeatCount;
                                 _events.ScheduleEvent(EVENT_START_OUTRO_BATTLE, 1 * MINUTE * IN_MILLISECONDS);
                                 JumpToNextStep(4000);
@@ -1410,8 +1387,6 @@ public:
         uint32 ChainTimer;
         uint32 ThunderTimer;
         uint32 LavaBurstTimer;
-
-        bool UpdateWorldState;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

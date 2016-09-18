@@ -9328,10 +9328,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 1497:  // Undercity
         {
             if (LocationScript* location = sObjectMgr->GetLocationScript(85))
-            {
-                std::cout << "boom\n";
                 location->FillInitialWorldStates(data);
-            }
             break;
         }
         // Wintergrasp
