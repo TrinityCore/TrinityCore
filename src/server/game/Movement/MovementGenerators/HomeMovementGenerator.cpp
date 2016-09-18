@@ -44,8 +44,8 @@ void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
 void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 {
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
-    { // if we are ROOT/STUNNED/DISTRACTED even after aura clear, immediately finalize - otherwise we would get stuck in evade
-        arrived = true;
+    { // if we are ROOT/STUNNED/DISTRACTED even after aura clear, finalize on next update - otherwise we would get stuck in evade
+        skipToHome = true;
         return;
     }
 
@@ -61,6 +61,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     init.SetWalk(false);
     init.Launch();
 
+    skipToHome = false;
     arrived = false;
 
     owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
@@ -68,6 +69,6 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 
 bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
-    arrived = arrived || owner->movespline->Finalized();
+    arrived = skipToHome || owner->movespline->Finalized();
     return !arrived;
 }

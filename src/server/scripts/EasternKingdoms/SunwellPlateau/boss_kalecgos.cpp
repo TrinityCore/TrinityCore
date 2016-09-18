@@ -365,17 +365,7 @@ public:
             if (isFriendly)
             {
                 me->setDeathState(JUST_DIED);
-
-                Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (!players.isEmpty())
-                {
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    {
-                        Player* player = itr->GetSource();
-                        if (player)
-                            me->GetMap()->ToInstanceMap()->PermBindAllPlayers(player);
-                    }
-                }
+                me->GetMap()->ToInstanceMap()->PermBindAllPlayers();
             }
             else
             {
