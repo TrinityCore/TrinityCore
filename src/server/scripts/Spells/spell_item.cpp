@@ -115,6 +115,79 @@ class spell_item_aegis_of_preservation : public SpellScriptLoader
         }
 };
 
+enum AlchemistStone
+{
+    SPELL_ALCHEMISTS_STONE_EXTRA_HEAL       = 21399,
+    SPELL_ALCHEMISTS_STONE_EXTRA_MANA       = 21400
+};
+
+// Item - 13503: Alchemist's Stone 
+// Item - 35748: Guardian's Alchemist Stone 
+// Item - 35749: Sorcerer's Alchemist Stone 
+// Item - 35750: Redeemer's Alchemist Stone 
+// Item - 35751: Assassin's Alchemist Stone 
+// Item - 44322: Mercurial Alchemist Stone 
+// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 44324: Mighty Alchemist's Stone
+
+// 17619 - Alchemist's Stone
+class spell_item_alchemists_stone : public SpellScriptLoader
+{
+    public:
+        spell_item_alchemists_stone() : SpellScriptLoader("spell_item_alchemists_stone") { }
+
+        class spell_item_alchemists_stone_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_alchemists_stone_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ALCHEMISTS_STONE_EXTRA_HEAL) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ALCHEMISTS_STONE_EXTRA_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
+
+                Unit* caster = eventInfo.GetActionTarget();
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    uint32 spellId;
+                    switch (spellInfo->Effects[i].Effect)
+                    {
+                        case SPELL_EFFECT_HEAL:
+                            spellId = SPELL_ALCHEMISTS_STONE_EXTRA_HEAL;
+                            break;
+                        case SPELL_EFFECT_ENERGIZE:
+                            spellId = SPELL_ALCHEMISTS_STONE_EXTRA_MANA;
+                            break;
+                        default:
+                            continue;
+                    }
+
+                    int32 amount = CalculatePct(spellInfo->Effects[i].CalcValue(caster), 40);
+                    caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_alchemists_stone_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_alchemists_stone_AuraScript();
+        }
+};
+
 enum AngerCapacitor
 {
     SPELL_MOTE_OF_ANGER             = 71432,
@@ -4137,6 +4210,7 @@ void AddSC_item_spell_scripts()
 
     new spell_item_aegis_of_preservation();
     new spell_item_arcane_shroud();
+    new spell_item_alchemists_stone();
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
     new spell_item_aura_of_madness();
