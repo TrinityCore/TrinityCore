@@ -1534,6 +1534,36 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
         }
 };
 
+// 29601 - Enlightenment (Pendant of the Violet Eye)
+class spell_item_pendant_of_the_violet_eye : public SpellScriptLoader
+{
+    public:
+        spell_item_pendant_of_the_violet_eye() : SpellScriptLoader("spell_item_pendant_of_the_violet_eye") { }
+
+        class spell_item_pendant_of_the_violet_eye_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_pendant_of_the_violet_eye_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    return spellInfo->PowerType == POWER_MANA || (spellInfo->ManaCost != 0 && spellInfo->ManaCostPercentage != 0 && spellInfo->ManaCostPerlevel != 0);
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_item_pendant_of_the_violet_eye_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_pendant_of_the_violet_eye_AuraScript();
+        }
+};
+
 enum PersistentShieldMisc
 {
     SPELL_PERSISTENT_SHIELD_TRIGGERED = 26470,
@@ -4324,6 +4354,7 @@ void AddSC_item_spell_scripts()
     new spell_item_necrotic_touch();
     new spell_item_net_o_matic();
     new spell_item_noggenfogger_elixir();
+    new spell_item_pendant_of_the_violet_eye();
     new spell_item_persistent_shield();
     new spell_item_pet_healing();
     new spell_item_piccolo_of_the_flaming_fire();

@@ -5405,13 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Enlightenment (trigger only from mana cost spells)
-        case 35095:
-        {
-            if (!procSpell || procSpell->PowerType != POWER_MANA || (procSpell->ManaCost == 0 && procSpell->ManaCostPercentage == 0 && procSpell->ManaCostPerlevel == 0))
-                return false;
-            break;
-        }
         // Demonic Pact
         case 48090:
         {
