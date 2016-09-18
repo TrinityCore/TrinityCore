@@ -1305,7 +1305,7 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                     return;
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BLESSED_HEALING);
-                int32 amount = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to healing done

@@ -2122,7 +2122,7 @@ class spell_pal_spiritual_attunement : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 HealInfo* healInfo = eventInfo.GetHealInfo();
-                int32 amount = CalculatePct(healInfo->GetEffectiveHeal(), aurEff->GetAmount());
+                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetEffectiveHeal()), aurEff->GetAmount());
 
                 eventInfo.GetActionTarget()->CastCustomSpell(SPELL_PALADIN_SPIRITUAL_ATTUNEMENT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
             }
