@@ -263,7 +263,10 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_1) || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_2) || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3))
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_RANK_3) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC))
                     return false;
                 return true;
             }
@@ -277,15 +280,11 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     ApplyPct(damage, 16 * GetSpellInfo()->GetRank());
 
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC);
-                    uint32 ticks = uint32(spellInfo->GetDuration()) / spellInfo->Effects[EFFECT_0].Amplitude;
+                    damage /= spellInfo->GetMaxTicks();
 
                     // Add remaining ticks to damage done
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, EFFECT_0, caster->GetGUID()))
-                        damage += (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct() * int32(ticks - aurEff->GetTickNumber());
-
-                    damage /= int32(ticks);
-
-                    caster->CastCustomSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, &damage, NULL, NULL, true);
+                    damage += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, SPELL_AURA_PERIODIC_DAMAGE);
+                    caster->CastCustomSpell(SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC,  SPELLVALUE_BASE_POINT0, damage, target, true);
                 }
             }
 
