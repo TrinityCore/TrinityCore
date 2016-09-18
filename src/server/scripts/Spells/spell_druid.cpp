@@ -1109,7 +1109,7 @@ class spell_dru_omen_of_clarity : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if (target->HasAura(SPELL_DRUID_BALANCE_T10_BONUS))
-                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_DRUID_BALANCE_T10_BONUS_PROC, true, nullptr);
+                    target->CastSpell((Unit*)nullptr, SPELL_DRUID_BALANCE_T10_BONUS_PROC, true, nullptr);
             }
 
             void Register() override
