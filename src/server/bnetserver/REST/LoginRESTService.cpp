@@ -288,6 +288,15 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
         AddLoginTicket(loginResult.login_ticket(), std::move(accountInfo));
     }
+	else
+	{
+		TC_LOG_ERROR("server.rest", "Bad login/password, login : %s", login);
+
+		PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+		stmt->setString(0, login);
+
+		LoginDatabase.Query(stmt);
+	}
 
     loginResult.set_authentication_state(Battlenet::JSON::Login::DONE);
     return SendResponse(soapClient, loginResult);
