@@ -1067,6 +1067,42 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         }
 };
 
+// -44404 - Missile Barrage
+class spell_mage_missile_barrage : public SpellScriptLoader
+{
+    public:
+        spell_mage_missile_barrage() : SpellScriptLoader("spell_mage_missile_barrage") { }
+
+        class spell_mage_missile_barrage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_missile_barrage_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return false;
+
+                // Arcane Blast - full chance
+                if (spellInfo->SpellFamilyFlags[0] & 0x20000000)
+                    return true;
+
+                // Rest of spells have half chance
+                return roll_chance_i(50);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_missile_barrage_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_missile_barrage_AuraScript();
+        }
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA   = 18744,
@@ -1186,6 +1222,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_magic_absorption();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
+    new spell_mage_missile_barrage();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
 }
