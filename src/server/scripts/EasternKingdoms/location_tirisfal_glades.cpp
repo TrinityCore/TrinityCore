@@ -38,10 +38,10 @@ public:
             {
                 BattleFor[i] = false;
                 Secured[i] = false;
+            }
 
-                if (i > 1)
-                    continue;
-
+            for (uint8 i = 0; i < 2; ++i)
+            {
                 Preparing[i] = true;
                 StartBattle[i] = false;
                 BattleTimerState[i] = false;
@@ -131,63 +131,63 @@ public:
                 // ToDo: change it later, will probably cause warning
                 // Alliance
                 case WORLDSTATE_UNDERCITY_CONTROLLED_A:
-                    Preparing[TEAM_ALLIANCE] = bool(data);
+                    Preparing[TEAM_ALLIANCE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_MANHUNT_TIMER_STATE:
-                    BattleTimerState[TEAM_ALLIANCE] = bool(data);
+                    BattleTimerState[TEAM_ALLIANCE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_MANHUNT_TIMER:
                     BattleTimer[TEAM_ALLIANCE] = data;
                     break;
                 case WORLDSTATE_MANHUNT_BEGUN:
-                    StartBattle[TEAM_ALLIANCE] = bool(data);
+                    StartBattle[TEAM_ALLIANCE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLING_SEWERS:
-                    BattleFor[SEWERS] = bool(data);
+                    BattleFor[SEWERS] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_SECURED_SEWERS:
-                    Secured[SEWERS] = bool(data);
+                    Secured[SEWERS] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLING_APOTHECARIUM:
-                    BattleFor[APOTHECARIUM] = bool(data);
+                    BattleFor[APOTHECARIUM] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_SECURED_APOTHECARIUM:
-                    Secured[APOTHECARIUM] = bool(data);
+                    Secured[APOTHECARIUM] = data == 0 ? false : true;
                     break;
 
                 // Horde
                 case WORLDSTATE_UNDERCITY_CONTROLLED_H:
-                    Preparing[TEAM_HORDE] = bool(data);
+                    Preparing[TEAM_HORDE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLE_TIMER_STATE:
-                    BattleTimerState[TEAM_HORDE] = bool(data);
+                    BattleTimerState[TEAM_HORDE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLE_TIMER:
                     BattleTimer[TEAM_HORDE] = data;
                     break;
                 case WORLDSTATE_BATTLE_BEGUN:
-                    StartBattle[TEAM_HORDE] = bool(data);
+                    StartBattle[TEAM_HORDE] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLING_COURTYARD:
-                    BattleFor[COURTYARD] = bool(data);
+                    BattleFor[COURTYARD] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_CONTROLL_COURTYARD:
-                    Secured[COURTYARD] = bool(data);
+                    Secured[COURTYARD] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLING_INNER_SANCTUM:
-                    BattleFor[INNER_SANCTUM] = bool(data);
+                    BattleFor[INNER_SANCTUM] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_CONTROLL_INNER_SANCTUM:
-                    Secured[INNER_SANCTUM] = bool(data);
+                    Secured[INNER_SANCTUM] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_BATTLING_ROYAL_QUARTER:
-                    BattleFor[ROYAL_QUARTER] = bool(data);
+                    BattleFor[ROYAL_QUARTER] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_CONTROLL_ROYAL_QUARTER:
-                    Secured[ROYAL_QUARTER] = bool(data);
+                    Secured[ROYAL_QUARTER] = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_RESET_BATTLE:
-                    ResetBattle = bool(data);
+                    ResetBattle = data == 0 ? false : true;
                     break;
                 case WORLDSTATE_RESET_TIMER:
                     ResetTimer = data;
@@ -195,7 +195,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data) const override
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -209,7 +209,7 @@ public:
                     return Trinity::Containers::SelectRandomContainerElement(AllianceSpawns);
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     private:
         bool Preparing[2];

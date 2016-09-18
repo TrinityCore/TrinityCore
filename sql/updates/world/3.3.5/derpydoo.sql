@@ -1,5 +1,9 @@
 -- Battle for the Undercity - Horde
 
+DELETE FROM `location_scripts` WHERE `zone_entry` = 85;
+INSERT INTO `location_scripts` VALUES
+(85, "location_trisfal_glades");
+
 -- Templates
 SET @THRALL := 31650;
 SET @SYLVANAS := 31651;
@@ -111,7 +115,7 @@ UPDATE `creature_template` SET `minlevel`=83, `maxlevel`=83, `faction`=1801, `un
 SET @CGUID := 302359; -- ToDo: change it
 SET @OGUID := 219091; -- ToDo: change it
 
-DELETE FROM `creature` WHERE `id` IN (@THRALL,@SYLVANAS,@VOJLIN,@DEMOLISHER,@STALKER_TESLA,@WARSONG_BATTLEGUARD,@BLIGHT_TRIGGER,@SLINGER_TRIGGER,@GUARDIAN,@DREADLORD,@FELBEAST,@MARAUDER,@BETRAYER,@CHEMIST,@COLLABORATOR,@DOCTOR,@BLIGHT_SLINGER,@BLIGHT_ABERRATION,@DREADGUARD_CORPSE);
+DELETE FROM `creature` WHERE `id` IN (@DEMOLISHER,@STALKER_TESLA,@WARSONG_BATTLEGUARD,@BLIGHT_TRIGGER,@SLINGER_TRIGGER,@GUARDIAN,@DREADLORD,@FELBEAST,@MARAUDER,@BETRAYER,@CHEMIST,@COLLABORATOR,@DOCTOR,@BLIGHT_SLINGER,@BLIGHT_ABERRATION,@DREADGUARD_CORPSE);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID,@CHEMIST,0,85,153,1,64,0,0,1805.93,265.096,65.3997,5.70485,600,0,0,0,0,0,0,256,0,0),
 (@CGUID+1,@CHEMIST,0,85,153,1,64,0,0,1804.45,213.158,65.3997,0.779858,600,0,0,0,0,0,0,256,0,0),
@@ -265,10 +269,10 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (@DREADGUARD_CORPSE,1,18167,18166,15460,0);
 
 -- Formations
-DELETE FROM `creature_formations` WHERE `leaderGUID` IN (@CGUID+43);
+DELETE FROM `creature_formations` WHERE `leaderGUID` IN (145495);
 INSERT INTO `creature_formations` VALUES
-(@CGUID+43,@CGUID+43,0,0,2,0,0),
-(@CGUID+43,@CGUID+44,5,45,2,0,0);
+(145495,145495,0,0,2,0,0),
+(145495,145493,5,45,2,0,0);
 
 -- Accessory_vehicle
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=@DEMOLISHER;
@@ -344,7 +348,7 @@ INSERT INTO `gossip_menu` VALUES
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10195;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
-(10195, 0, 0, "I am ready, Warchief!", 0, 0, 1, 0, 0, 0, 0, "", 32359, 0);
+(10195, 0, 0, "I am ready, Warchief!", 32359, 1, 1, 0, 0, 0, 0, "", 0, 0);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10195;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES

@@ -9327,16 +9327,10 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 85:    // Tirisfal Glades
         case 1497:  // Undercity
         {
-            bool script = false;
-            if (GetTeamId() == TEAM_ALLIANCE)
-                script = (GetQuestStatus(12499) == QUEST_STATUS_REWARDED && GetQuestStatus(13377) != QUEST_STATUS_REWARDED);
-            else
-                script = (GetQuestStatus(12500) == QUEST_STATUS_REWARDED && GetQuestStatus(13267) != QUEST_STATUS_REWARDED);
-
-            if (script || IsGameMaster())
+            if (LocationScript* location = sObjectMgr->GetLocationScript(85))
             {
-                if (LocationScript* location = sObjectMgr->GetLocationScript(85))
-                    location->FillInitialWorldStates(data);
+                std::cout << "boom\n";
+                location->FillInitialWorldStates(data);
             }
             break;
         }
