@@ -81,7 +81,9 @@ enum DruidSpells
     SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
     SPELL_DRUID_BLESSING_OF_CENARIUS        = 40452,
     SPELL_DRUID_LANGUISH                    = 71023,
-    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691
+    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
+    SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
+    SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721
 };
 
 // 1178 - Bear Form (Passive)
@@ -1082,6 +1084,43 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_dru_moonkin_form_passive_AuraScript();
+        }
+};
+
+// 16864 - Omen of Clarity
+class spell_dru_omen_of_clarity : public SpellScriptLoader
+{
+    public:
+        spell_dru_omen_of_clarity() : SpellScriptLoader("spell_dru_omen_of_clarity") { }
+
+        class spell_dru_omen_of_clarity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_omen_of_clarity_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_BALANCE_T10_BONUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_DRUID_BALANCE_T10_BONUS_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                Unit* target = GetTarget();
+                if (target->HasAura(SPELL_DRUID_BALANCE_T10_BONUS))
+                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_DRUID_BALANCE_T10_BONUS_PROC, true, nullptr);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_omen_of_clarity_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_omen_of_clarity_AuraScript();
         }
 };
 
@@ -2211,6 +2250,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_living_seed_proc();
     new spell_dru_maim_interrupt();
     new spell_dru_moonkin_form_passive();
+    new spell_dru_omen_of_clarity();
     new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
     new spell_dru_primal_tenacity();

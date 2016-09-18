@@ -1,4 +1,4 @@
-DELETE FROM `spell_proc` WHERE `SpellId` IN (-18213, -12834, 26467, 38164, 52420, 28845, 37594, 40971, -63156, 72176, -15337, 71770, 45057, 71634, 71640, 75475, 75481, -49182, -49188, -51627, -13983, -20234, 37168, -14156);
+DELETE FROM `spell_proc` WHERE `SpellId` IN (-18213, -12834, 26467, 38164, 52420, 28845, 37594, 40971, -63156, 72176, -15337, 71770, 45057, 71634, 71640, 75475, 75481, -49182, -49188, -51627, -13983, -20234, 37168, -14156, 16864);
 INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES
 (-18213,  32,  5, 0x00004000, 0x00000000, 0x00000000,     2, 0x0, 0x0,    0, 0, 0, 0,      0, 0), -- Improved Drain Soul
 (-12834,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x1, 0x2,    2, 0, 0, 0,      0, 0), -- Deep Wounds Aura
@@ -23,11 +23,13 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (-13983,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0, 0x18, 0, 0, 0,   1000, 0), -- Setup
 (-20234,   0, 10, 0x00008000, 0x00000000, 0x00000000,     0, 0x2, 0x2,    0, 0, 0, 0,      0, 0), -- Improved Lay on Hands
 (37168 ,   0,  8, 0x003E0000, 0x00000009, 0x00000000,     0, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Finisher Combo
-(-14156,   0,  8, 0x003E0000, 0x00000009, 0x00000000,     0, 0x0, 0x4,    0, 0, 0, 0,      0, 0); -- Ruthlessness
+(-14156,   0,  8, 0x003E0000, 0x00000009, 0x00000000,     0, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Ruthlessness
+(16864 ,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 6,  10000, 0); -- Omen of Clarity
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_t3_prot_8p_bonus','spell_pri_item_greater_heal_refund',
 'spell_pri_t5_heal_2p_bonus','spell_item_crystal_spire_of_karabor','spell_warl_decimation','spell_deathbringer_blood_beast_blood_link','spell_pri_improved_spirit_tap','spell_putricide_ooze_tank_protection','spell_item_commendation_of_kaelthas','spell_item_corpse_tongue_coin',
-'spell_item_corpse_tongue_coin_heroic','spell_item_petrified_twilight_scale','spell_item_petrified_twilight_scale_heroic','spell_dk_blade_barrier','spell_dk_rime','spell_rog_turn_the_tables','spell_rog_turn_the_tables_proc','spell_rog_setup','spell_pal_improved_lay_of_hands');
+'spell_item_corpse_tongue_coin_heroic','spell_item_petrified_twilight_scale','spell_item_petrified_twilight_scale_heroic','spell_dk_blade_barrier','spell_dk_rime','spell_rog_turn_the_tables','spell_rog_turn_the_tables_proc','spell_rog_setup','spell_pal_improved_lay_of_hands',
+'spell_dru_omen_of_clarity');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-18213, 'spell_warl_improved_drain_soul'),
 (-12834, 'spell_warr_deep_wounds_aura'),
@@ -52,7 +54,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (52914 , 'spell_rog_turn_the_tables_proc'),
 (52915 , 'spell_rog_turn_the_tables_proc'),
 (-13983, 'spell_rog_setup'),
-(-20234, 'spell_pal_improved_lay_of_hands');
+(-20234, 'spell_pal_improved_lay_of_hands'),
+(16864, 'spell_dru_omen_of_clarity');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=24 AND `SourceGroup`=0 AND `SourceEntry`=38164;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
