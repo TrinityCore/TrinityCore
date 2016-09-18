@@ -2095,7 +2095,7 @@ class spell_sha_windfury_weapon : public SpellScriptLoader
 
                 Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
-                uint32 enchantId = item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT);
+                int32 enchantId = static_cast<int32>(item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
                 int32 extraAttackPower = 0;
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_WINDFURY_WEAPON_R1);
                 while (spellInfo)
