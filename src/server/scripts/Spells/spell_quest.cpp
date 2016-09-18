@@ -1078,9 +1078,8 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 enum RedSnapperVeryTasty
 {
     ITEM_RED_SNAPPER             = 23614,
-
     SPELL_CAST_NET               = 29866,
-    SPELL_NEW_SUMMON_TEST        = 49214
+    SPELL_FISHED_UP_MURLOC       = 29869
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1103,7 +1102,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 if (roll_chance_i(66))
                     caster->AddItem(ITEM_RED_SNAPPER, 1);
                 else
-                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
+                    caster->CastSpell(caster, SPELL_FISHED_UP_MURLOC, true);
             }
 
             void HandleActiveObject(SpellEffIndex effIndex)
