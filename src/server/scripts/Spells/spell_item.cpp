@@ -1942,6 +1942,48 @@ class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
         }
 };
 
+enum TotemOfFlowingWater
+{
+    SPELL_LESSER_HEALING_WAVE_MANA      = 28850
+};
+
+// Item - 23005: Totem of Flowing Water
+// 28849 - Lesser Healing Wave
+class spell_item_totem_of_flowing_water : public SpellScriptLoader
+{
+    public:
+        spell_item_totem_of_flowing_water() : SpellScriptLoader("spell_item_totem_of_flowing_water") { }
+
+        class spell_item_totem_of_flowing_water_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_totem_of_flowing_water_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LESSER_HEALING_WAVE_MANA))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_LESSER_HEALING_WAVE_MANA, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_item_totem_of_flowing_water_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_totem_of_flowing_water_AuraScript();
+        }
+
+};
+
 // 28862 - The Eye of Diminution
 class spell_item_the_eye_of_diminution : public SpellScriptLoader
 {
@@ -4134,6 +4176,7 @@ void AddSC_item_spell_scripts()
     new spell_item_shadowmourne_soul_fragment();
     new spell_item_six_demon_bag();
     new spell_item_swift_hand_justice_dummy();
+    new spell_item_totem_of_flowing_water();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
     new spell_item_worn_troll_dice();
