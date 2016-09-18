@@ -795,6 +795,37 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
         }
 };
 
+// -13983 - Setup
+class spell_rog_setup : public SpellScriptLoader
+{
+    public:
+        spell_rog_setup() : SpellScriptLoader("spell_rog_setup") { }
+
+        class spell_rog_setup_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_setup_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (Player* target = GetTarget()->ToPlayer())
+                    if (eventInfo.GetActor() == target->GetSelectedUnit())
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_rog_setup_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_setup_AuraScript();
+        }
+};
+
 // 5938 - Shiv
 class spell_rog_shiv : public SpellScriptLoader
 {
@@ -1188,6 +1219,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_rupture();
     new spell_rog_glyph_of_backstab();
     new spell_rog_glyph_of_backstab_triggered();
+    new spell_rog_setup();
     new spell_rog_shiv();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();

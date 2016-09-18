@@ -5405,19 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Auras which should proc on area aura source (caster in this case):
-        // Turn the Tables
-        case 52914:
-        case 52915:
-        case 52910:
-        {
-            target = triggeredByAura->GetBase()->GetCaster();
-            if (!target)
-                return false;
-
-            target->CastSpell(target, trigger_spell_id, true, castItem, triggeredByAura);
-            return true;
-        }
         // Cast positive spell on enemy target
         case 7099:  // Curse of Mending
         case 39703: // Curse of Mending
@@ -5426,14 +5413,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         {
             target = victim;
             break;
-        }
-        // Combo points add triggers (need add combopoint only for main target, and after possible combopoints reset)
-        case 15250: // Rogue Setup
-        {
-            // applied only for main target
-            if (!victim || (GetTypeId() == TYPEID_PLAYER && victim != ToPlayer()->GetSelectedUnit()))
-                return false;
-            break;                                   // continue normal case
         }
         // Finish movies that add combo
         case 14189: // Seal Fate (Netherblade set)
