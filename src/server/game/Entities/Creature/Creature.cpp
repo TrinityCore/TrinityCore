@@ -528,7 +528,7 @@ void Creature::Update(uint32 diff)
             if (m_respawnTime <= now)
             {
                 // First check if there are any scripts that object to us respawning
-                if (!sScriptMgr->CanSpawn(GetSpawnId(), GetCreatureTemplate(), GetCreatureData(), GetMap()))
+                if (!sScriptMgr->CanSpawn(GetSpawnId(), GetEntry(), GetCreatureTemplate(), GetCreatureData(), GetMap()))
                     break; // Will be rechecked on next Update call
 
                 ObjectGuid dbtableHighGuid(HighGuid::Unit, GetEntry(), m_spawnId);
@@ -1399,7 +1399,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
     m_respawnTime  = GetMap()->GetCreatureRespawnTime(m_spawnId);
 
     // Is the creature script objecting to us spawning? If yes, delay by one second (then re-check in ::Update)
-    if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetCreatureTemplate(), GetCreatureData(), map))
+    if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetEntry(), GetCreatureTemplate(), GetCreatureData(), map))
         m_respawnTime = time(NULL)+1;
 
     if (m_respawnTime)                          // respawn on Update
