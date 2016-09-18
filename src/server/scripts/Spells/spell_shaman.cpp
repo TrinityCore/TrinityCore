@@ -1628,7 +1628,7 @@ class spell_sha_sentry_totem : public SpellScriptLoader
         }
 };
 
-// 30824 - Shamanistic Rage
+// 30823 - Shamanistic Rage
 class spell_sha_shamanistic_rage : public SpellScriptLoader
 {
     public:
