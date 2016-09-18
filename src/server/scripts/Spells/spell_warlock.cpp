@@ -963,13 +963,12 @@ class spell_warl_demonic_pact : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                Unit* actor = eventInfo.GetActor();
-                if (Unit* owner = actor->GetOwner())
+                if (Unit* owner = eventInfo.GetActor()->GetOwner())
                 {
                     if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
                     {
                         int32 bp0 = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
-                        actor->CastCustomSpell(SPELL_WARLOCK_DEMONIC_PACT_PROC, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true, nullptr, aurEff);
+                        owner->CastCustomSpell(SPELL_WARLOCK_DEMONIC_PACT_PROC, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true, nullptr, aurEff);
                     }
                 }
             }
