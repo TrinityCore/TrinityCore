@@ -288,7 +288,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
         AddLoginTicket(loginResult.login_ticket(), std::move(accountInfo));
     }
-    else if (const uint32 maxWrongPassword = (uint32)sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0))
+    else if (const uint32 maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0)))
     {
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
         stmt->setString(0, login);
