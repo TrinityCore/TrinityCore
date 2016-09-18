@@ -5405,20 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        case 46916:  // Slam! (Bloodsurge proc)
-        case 52437:  // Sudden Death
-        {
-            // Item - Warrior T10 Melee 4P Bonus
-            if (AuraEffect const* aurEff = GetAuraEffect(70847, 0))
-            {
-                if (!roll_chance_i(aurEff->GetAmount()))
-                    break;
-                CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
-                CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
-            }
-            break;
-        }
         // Sword and Board
         case 50227:
         {

@@ -32,6 +32,7 @@ enum WarriorSpells
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
+    SPELL_WARRIOR_BLOODSURGE_R1                     = 29723,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE              = 59653,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
@@ -39,6 +40,8 @@ enum WarriorSpells
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12868,
     SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
     SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_EXECUTE_GCD_REDUCED               = 71069,
+    SPELL_WARRIOR_EXTRA_CHARGE                      = 70849,
     SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
     SPELL_WARRIOR_GLYPH_OF_VIGILANCE                = 63326,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
@@ -46,6 +49,8 @@ enum WarriorSpells
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
     SPELL_WARRIOR_SLAM                              = 50783,
+    SPELL_WARRIOR_SLAM_GCD_REDUCED                  = 71072,
+    SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 46913,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -60,7 +65,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_1             = 29841,
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_2             = 29842,
     SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374,
-    SPELL_WARRIOR_STOICISM                          = 70845
+    SPELL_WARRIOR_STOICISM                          = 70845,
+    SPELL_WARRIOR_T10_MELEE_4P_BONUS                = 70847
 };
 
 enum WarriorSpellIcons
@@ -403,6 +409,58 @@ class spell_warr_execute : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_execute_SpellScript();
+        }
+};
+
+// -29723 - Bloodsurge
+// -46913 - Sudden Death
+class spell_warr_extra_proc : public SpellScriptLoader
+{
+    public:
+        spell_warr_extra_proc() : SpellScriptLoader("spell_warr_extra_proc") { }
+
+        class spell_warr_extra_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_extra_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_T10_MELEE_4P_BONUS) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_EXTRA_CHARGE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SLAM_GCD_REDUCED) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_EXECUTE_GCD_REDUCED))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                Unit* target = GetTarget();
+                AuraEffect const* bonusAurEff = target->GetAuraEffect(SPELL_WARRIOR_T10_MELEE_4P_BONUS, EFFECT_0);
+                if (!bonusAurEff)
+                    return;
+
+                if (!roll_chance_i(bonusAurEff->GetAmount()))
+                    return;
+
+                target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_EXTRA_CHARGE, true, nullptr, aurEff);
+
+                SpellInfo const* auraInfo = aurEff->GetSpellInfo();
+                if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODSURGE_R1)))
+                    target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_SLAM_GCD_REDUCED, true, nullptr, aurEff);
+                else if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_SUDDEN_DEATH_R1)))
+                    target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_EXECUTE_GCD_REDUCED, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_extra_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_extra_proc_AuraScript();
         }
 };
 
@@ -1094,6 +1152,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_deep_wounds();
     new spell_warr_deep_wounds_aura();
     new spell_warr_execute();
+    new spell_warr_extra_proc();
     new spell_warr_glyph_of_blocking();
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
