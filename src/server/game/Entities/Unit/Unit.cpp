@@ -5405,22 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Demonic Pact
-        case 48090:
-        {
-            // Get talent aura from owner
-            if (IsPet())
-                if (Unit* owner = GetOwner())
-                {
-                    if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 3220, 0))
-                    {
-                        basepoints0 = int32((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SpellSchoolMask(SPELL_SCHOOL_MASK_MAGIC)) + 100.0f) / 100.0f); /// @todo Is it right?
-                        CastCustomSpell(this, trigger_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
-                        return true;
-                    }
-                }
-            break;
-        }
         case 46916:  // Slam! (Bloodsurge proc)
         case 52437:  // Sudden Death
         {
