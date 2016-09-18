@@ -134,6 +134,13 @@ namespace MMAP
 
         return LISTFILE_OK;
     }
+
+	inline bool createDirectory(std::string dirName, std::string dirpath = ".")
+	{
+		std::string directoryToCreate = dirpath + "/" + dirName;
+
+		return CreateDirectory(directoryToCreate.c_str(), NULL);
+	}
 }
 
 #endif
