@@ -288,7 +288,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
         AddLoginTicket(loginResult.login_ticket(), std::move(accountInfo));
     }
-    else if (const int32 maxWrongPassword = sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0))
+    else if (const uint32 maxWrongPassword = (uint32)sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0))
     {
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
         stmt->setString(0, login);
@@ -302,7 +302,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
             const uint32 currentFailedLogins = LoginDatabase.Query(stmt)->Fetch()[0].GetUInt32();
 
             if(sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
-                TC_LOG_DEBUG("server.rest", "Account %s Id %u attempted to connect with wrong password", login, account_id);
+                TC_LOG_DEBUG("server.rest", "Account %s Id %u attempted to connect with wrong password", login.c_str(), account_id);
 
             if (currentFailedLogins >= maxWrongPassword)
             {
