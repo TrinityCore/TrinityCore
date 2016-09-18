@@ -57,8 +57,8 @@ private:
     friend int32 handle_post_plugin(soap* soapClient);
     int32 HandlePost(soap* soapClient);
 
-	void BanBnetAccount(const uint32 accountId, const uint32 banTime);
-	void BanIp(const std::string& ipAddress, const uint32 banTime);
+    void BanBnetAccount(const uint32 accountId, const uint32 banTime);
+    void BanIp(const std::string& ipAddress, const uint32 banTime);
 
     int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
 
