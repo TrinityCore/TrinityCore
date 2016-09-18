@@ -81,6 +81,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_R1     = 45284,
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_R1    = 45297,
     SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1     = 26364,
+    SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC          = 30824,
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832
 };
@@ -1627,6 +1628,44 @@ class spell_sha_sentry_totem : public SpellScriptLoader
         }
 };
 
+// 30824 - Shamanistic Rage
+class spell_sha_shamanistic_rage : public SpellScriptLoader
+{
+    public:
+        spell_sha_shamanistic_rage() : SpellScriptLoader("spell_sha_shamanistic_rage") { }
+
+        class spell_sha_shamanistic_rage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_shamanistic_rage_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                int32 amount = CalculatePct(static_cast<int32>(target->GetTotalAttackPowerValue(BASE_ATTACK)), aurEff->GetAmount());
+                target->CastCustomSpell(SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_shamanistic_rage_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_shamanistic_rage_AuraScript();
+        }
+};
+
 // 58877 - Spirit Hunt
 class spell_sha_spirit_hunt : public SpellScriptLoader
 {
@@ -2210,6 +2249,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
+    new spell_sha_shamanistic_rage();
     new spell_sha_spirit_hunt();
     new spell_sha_static_shock();
     new spell_sha_tidal_force_dummy();

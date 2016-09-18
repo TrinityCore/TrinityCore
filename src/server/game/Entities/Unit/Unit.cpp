@@ -5405,12 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Shamanistic Rage triggered spell
-        case 30824:
-        {
-            basepoints0 = int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), triggerAmount));
-            break;
-        }
         // Enlightenment (trigger only from mana cost spells)
         case 35095:
         {
