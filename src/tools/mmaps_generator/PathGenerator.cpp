@@ -23,6 +23,18 @@
 
 using namespace MMAP;
 
+bool createDir(std::string const& dirName, std::string const& dirpath = ".")
+{
+    std::string const path = dirpath + "/" + dirName;
+
+#ifdef WIN32
+    return (CreateDirectory(path.c_str(), NULL) != 0);
+#else
+    return (mkdir(path.c_str(), S_IRWXU) == 0);
+#endif
+}
+
+
 bool checkDirectories(bool debugOutput)
 {
     std::vector<std::string> dirFiles;
@@ -44,7 +56,12 @@ bool checkDirectories(bool debugOutput)
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
     {
         printf("'mmaps' directory does not exist\n");
-        return false;
+        printf("Should we create it? (y/n)\n");
+
+        if (getchar() == 'y')
+            return createDir("mmaps");
+        else
+            return false;
     }
 
     dirFiles.clear();
