@@ -40,7 +40,10 @@ enum PetSpellsMisc
     SPELL_PET_GUARD_DOG_HAPPINESS   = 54445,
     SPELL_PET_SILVERBACK_RANK_1     = 62800,
     SPELL_PET_SILVERBACK_RANK_2     = 62801,
-    PET_ICON_ID_GROWL               = 201
+    PET_ICON_ID_GROWL               = 201,
+    PET_ICON_ID_CLAW                = 262,
+    PET_ICON_ID_BITE                = 1680,
+    PET_ICON_ID_SMACK               = 473
 };
 
 class npc_pet_hunter_snake_trap : public CreatureScript
@@ -250,9 +253,53 @@ class spell_pet_silverback : public SpellScriptLoader
         }
 };
 
+// -61680 - Culling the Herd
+class spell_pet_culling_the_herd : public SpellScriptLoader
+{
+    public:
+        spell_pet_culling_the_herd() : SpellScriptLoader("spell_pet_culling_the_herd") { }
+
+        class spell_pet_culling_the_herd_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pet_culling_the_herd_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // Claw, Bite and Smack share FamilyFlags with other spells
+                // filter by spellIcon instead
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return false;
+
+                switch (spellInfo->SpellIconID)
+                {
+                    case PET_ICON_ID_CLAW:
+                    case PET_ICON_ID_BITE:
+                    case PET_ICON_ID_SMACK:
+                        break;
+                    default:
+                        return false;
+                }
+
+                return true;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pet_culling_the_herd_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pet_culling_the_herd_AuraScript();
+        }
+};
+
 void AddSC_hunter_pet_scripts()
 {
     new npc_pet_hunter_snake_trap();
     new spell_pet_guard_dog();
     new spell_pet_silverback();
+    new spell_pet_culling_the_herd();
 }
