@@ -54,15 +54,7 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-    {
-        printf("'mmaps' directory does not exist\n");
-        printf("Should we create it? (y/n)\n");
-
-        if (getchar() == 'y')
-            return createDir("mmaps");
-        else
-            return false;
-    }
+        return createDir("mmaps");
 
     dirFiles.clear();
     if (debugOutput)
