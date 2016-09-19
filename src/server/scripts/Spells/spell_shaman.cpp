@@ -233,6 +233,37 @@ class spell_sha_astral_shift : public SpellScriptLoader
         }
 };
 
+// -51474 - Astral Shift aura
+class spell_sha_astral_shift_aura : public SpellScriptLoader
+{
+    public:
+        spell_sha_astral_shift_aura() : SpellScriptLoader("spell_sha_astral_shift_aura") { }
+
+        class spell_sha_astral_shift_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_astral_shift_aura_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    if (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_SILENCE) | (1 << MECHANIC_STUN) | (1 << MECHANIC_FEAR)))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_astral_shift_aura_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_astral_shift_aura_AuraScript();
+        }
+};
+
 // 2825 - Bloodlust
 class spell_sha_bloodlust : public SpellScriptLoader
 {
@@ -2221,6 +2252,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_awakening();
     new spell_sha_ancestral_awakening_proc();
     new spell_sha_astral_shift();
+    new spell_sha_astral_shift_aura();
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_cleansing_totem_pulse();

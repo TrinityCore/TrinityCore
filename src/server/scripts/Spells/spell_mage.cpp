@@ -206,6 +206,37 @@ public:
     }
 };
 
+// -54747 - Burning Determination
+class spell_mage_burning_determination : public SpellScriptLoader
+{
+    public:
+        spell_mage_burning_determination() : SpellScriptLoader("spell_mage_burning_determination") { }
+
+        class spell_mage_burning_determination_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_burning_determination_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    if (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_INTERRUPT) | (1 << MECHANIC_SILENCE)))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_burning_determination_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_burning_determination_AuraScript();
+        }
+};
+
 // -44449 - Burnout
 class spell_mage_burnout : public SpellScriptLoader
 {
@@ -1210,6 +1241,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_arcane_potency();
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
+    new spell_mage_burning_determination();
     new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_combustion();

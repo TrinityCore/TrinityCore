@@ -5405,27 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Astral Shift
-        case 52179:
-        {
-            if (!procSpell || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
-                return false;
-
-            // Need stun, fear or silence mechanic
-            if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_SILENCE)|(1<<MECHANIC_STUN)|(1<<MECHANIC_FEAR))))
-                return false;
-            break;
-        }
-        // Burning Determination
-        case 54748:
-        {
-            if (!procSpell)
-                return false;
-            // Need Interrupt or Silenced mechanic
-            if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_INTERRUPT)|(1<<MECHANIC_SILENCE))))
-                return false;
-            break;
-        }
         // Glyph of Death's Embrace
         case 58679:
         {
