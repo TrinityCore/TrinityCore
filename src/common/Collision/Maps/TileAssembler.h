@@ -27,12 +27,6 @@
 #include "ModelInstance.h"
 #include "WorldModel.h"
 
-#ifdef WIN32
-    #include <Windows.h>
-#else
-    #include <sys/stat.h>
-#endif
-
 namespace VMAP
 {
     /**
