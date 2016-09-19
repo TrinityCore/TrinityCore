@@ -5694,22 +5694,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }, true);
             break;
         }
-        // Maelstrom Weapon
-        case 53817:
-        {
-            // has rank dependant proc chance, ignore too often cases
-            // PPM = 2.5 * (rank of talent),
-            uint32 rank = auraSpellInfo->GetRank();
-            // 5 rank -> 100% 4 rank -> 80% and etc from full rate
-            if (!roll_chance_i(20*rank))
-                return false;
-            // Item - Shaman T10 Enhancement 4P Bonus
-            if (AuraEffect const* aurEff = GetAuraEffect(70832, 0))
-                if (Aura const* maelstrom = GetAura(53817))
-                    if ((maelstrom->GetStackAmount() == maelstrom->GetSpellInfo()->StackAmount) && roll_chance_i(aurEff->GetAmount()))
-                        CastSpell(this, 70831, true, castItem, triggeredByAura);
-            break;
-        }
         // Astral Shift
         case 52179:
         {

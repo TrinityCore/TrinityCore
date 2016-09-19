@@ -80,7 +80,9 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_R1     = 45284,
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_R1    = 45297,
-    SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1     = 26364
+    SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1     = 26364,
+    SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
+    SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832
 };
 
 enum ShamanSpellIcons
@@ -1398,6 +1400,49 @@ public:
     }
 };
 
+// 53817 - Maelstrom Weapon
+class spell_sha_maelstrom_weapon : public SpellScriptLoader
+{
+    public:
+        spell_sha_maelstrom_weapon() : SpellScriptLoader("spell_sha_maelstrom_weapon") { }
+
+        class spell_sha_maelstrom_weapon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_maelstrom_weapon_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_MAELSTROM_POWER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS))
+                    return false;
+                return true;
+            }
+
+            void HandleBonus(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetStackAmount() < GetSpellInfo()->StackAmount)
+                    return;
+
+                Unit* caster = GetUnitOwner();
+                AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS, EFFECT_0);
+                if (!aurEff || !roll_chance_i(aurEff->GetAmount()))
+                    return;
+
+                caster->CastSpell((Unit*)nullptr, SPELL_SHAMAN_MAELSTROM_POWER, true);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sha_maelstrom_weapon_AuraScript::HandleBonus, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_CHANGE_AMOUNT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_maelstrom_weapon_AuraScript();
+        }
+};
+
 // 52031, 52033, 52034, 52035, 52036, 58778, 58779, 58780 - Mana Spring Totem
 class spell_sha_mana_spring_totem : public SpellScriptLoader
 {
@@ -2160,6 +2205,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_t10_elemental_2p_bonus();
     new spell_sha_lava_lash();
     new spell_sha_lightning_shield();
+    new spell_sha_maelstrom_weapon();
     new spell_sha_mana_spring_totem();
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
