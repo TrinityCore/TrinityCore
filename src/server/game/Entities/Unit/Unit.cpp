@@ -5405,17 +5405,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // dummy basepoints or other customs
     switch (trigger_spell_id)
     {
-        // Sword and Board
-        case 50227:
-        {
-            // Remove cooldown on Shield Slam
-            GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                return spellInfo && spellInfo->GetCategory() == 1209;
-            }, true);
-            break;
-        }
         // Astral Shift
         case 52179:
         {

@@ -100,7 +100,8 @@ enum DeathKnightSpellIcons
 enum Misc
 {
     NPC_DK_GHOUL                                = 26125,
-    NPC_DK_DANCING_RUNE_WEAPON                  = 27893
+    NPC_DK_DANCING_RUNE_WEAPON                  = 27893,
+    SPELL_CATEGORY_HOWLING_BLAST                = 1248
 };
 
 // -49200 - Acclimation
@@ -2011,11 +2012,10 @@ class spell_dk_rime : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
-                Unit* target = GetTarget();
-                target->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                    return spellInfo && spellInfo->GetCategory() == 1248;
+                    return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_HOWLING_BLAST;
                 }, true);
             }
 

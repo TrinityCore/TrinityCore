@@ -80,6 +80,7 @@ enum MiscSpells
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
     SPELL_PRIEST_RENEWED_HOPE                       = 63944,
     SPELL_GEN_DAMAGE_REDUCTION_AURA                 = 68066,
+    SPELL_CATEGORY_SHIELD_SLAM                      = 1209
 };
 
 // 23881 - Bloodthirst
@@ -981,6 +982,38 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         }
 };
 
+// -46951 - Sword and Board
+class spell_warr_sword_and_board : public SpellScriptLoader
+{
+    public:
+        spell_warr_sword_and_board() : SpellScriptLoader("spell_warr_sword_and_board") { }
+
+        class spell_warr_sword_and_board_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_sword_and_board_AuraScript);
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                // Remove cooldown on Shield Slam
+                GetTarget()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                    return spellInfo && spellInfo->GetCategory() == SPELL_CATEGORY_SHIELD_SLAM;
+                }, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_sword_and_board_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_sword_and_board_AuraScript();
+        }
+};
+
 // 28845 - Cheat Death
 class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
 {
@@ -1166,6 +1199,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shattering_throw();
     new spell_warr_slam();
     new spell_warr_sweeping_strikes();
+    new spell_warr_sword_and_board();
     new spell_warr_t3_prot_8p_bonus();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
