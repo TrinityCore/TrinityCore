@@ -34,7 +34,7 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (-46913,   0,  4, 0x00000040, 0x00000404, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0), -- Bloodsurge
 (46916 ,   0,  4, 0x00200000, 0x00000000, 0x00000000,     0, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Slam! (Bloodsurge proc)
 (52437 ,   1,  4, 0x20000000, 0x00000000, 0x00000000,    16, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Sudden Death proc
-(-46951,   0,  4, 0x00000400, 0x00000000, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0); -- Sword and Board
+(-46951,   0,  4, 0x00000400, 0x00000040, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0); -- Sword and Board
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_t3_prot_8p_bonus','spell_pri_item_greater_heal_refund',
 'spell_pri_t5_heal_2p_bonus','spell_item_crystal_spire_of_karabor','spell_warl_decimation','spell_deathbringer_blood_beast_blood_link','spell_pri_improved_spirit_tap','spell_putricide_ooze_tank_protection','spell_item_commendation_of_kaelthas','spell_item_corpse_tongue_coin',
