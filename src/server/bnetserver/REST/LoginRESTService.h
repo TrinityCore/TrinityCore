@@ -32,7 +32,11 @@
 struct soap;
 struct soap_plugin;
 
-enum BanMode { BAN_IP = 0, BAN_ACCOUNT = 1 };
+enum class BanMode 
+{ 
+    BAN_IP = 0, 
+    BAN_ACCOUNT = 1 
+};
 
 class LoginRESTService
 {
@@ -57,8 +61,8 @@ private:
     friend int32 handle_post_plugin(soap* soapClient);
     int32 HandlePost(soap* soapClient);
 
-    void BanBnetAccount(const uint32 accountId, const uint32 banTime);
-    void BanIp(const std::string& ipAddress, const uint32 banTime);
+    void BanBnetAccount(uint32 const accountId, uint32 const banTime);
+    void BanIp(std::string const& ipAddress, uint32 const banTime);
 
     int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
 

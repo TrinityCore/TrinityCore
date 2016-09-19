@@ -294,30 +294,30 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
         }
         else if (!accountInfo->IsBanned)
         {
-            const uint32 maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
+            uint32 const maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
 
             if (sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
                 TC_LOG_DEBUG("server.rest", "[%s, Account %s, Id %u] Attempted to connect with wrong password!", ip_address.c_str(), login.c_str(), accountInfo->Id);
 
             if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
             {
-                const enum BanMode banType = static_cast<enum BanMode>(sConfigMgr->GetIntDefault("WrongPass.BanType", BAN_IP));
-                const int32 banTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
+                BanMode const banType = BanMode(sConfigMgr->GetIntDefault("WrongPass.BanType", static_cast<uint16>(BanMode::BAN_IP)));
+                int32 const banTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
 
-                if (banType == BAN_ACCOUNT)
+                if (banType == BanMode::BAN_ACCOUNT)
                     BanBnetAccount(accountInfo->Id, banTime);
                 else
                     BanIp(ip_address, banTime);
 
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_RESET_FAILED_LOGINS);
                 stmt->setUInt32(0, accountInfo->Id);
-                LoginDatabase.AsyncQuery(stmt);
+                LoginDatabase.Execute(stmt);
             }
             else
             {
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
                 stmt->setUInt32(0, accountInfo->Id);
-                LoginDatabase.AsyncQuery(stmt);
+                LoginDatabase.Execute(stmt);
             }
         }  
     }
@@ -326,22 +326,22 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
     return SendResponse(soapClient, loginResult);
 }
 
-void LoginRESTService::BanBnetAccount(const uint32 accountId, const uint32 banTime)
+void LoginRESTService::BanBnetAccount(uint32 const accountId, uint32 const banTime)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT_AUTO_BANNED);
     stmt->setUInt32(0, accountId);
     stmt->setUInt32(1, banTime);
 
-    LoginDatabase.AsyncQuery(stmt);
+    LoginDatabase.Execute(stmt);
 }
 
-void LoginRESTService::BanIp(const std::string& ipAddress, const uint32 banTime)
+void LoginRESTService::BanIp(std::string const& ipAddress, uint32 const banTime)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
     stmt->setString(0, ipAddress);
     stmt->setUInt32(1, banTime);
 
-    LoginDatabase.AsyncQuery(stmt);
+    LoginDatabase.Execute(stmt);
 }
 
 int32 LoginRESTService::SendResponse(soap* soapClient, google::protobuf::Message const& response)
