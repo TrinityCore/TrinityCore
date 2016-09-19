@@ -207,6 +207,7 @@ public:
 };
 
 // -54747 - Burning Determination
+// 54748 - Burning Determination
 class spell_mage_burning_determination : public SpellScriptLoader
 {
     public:

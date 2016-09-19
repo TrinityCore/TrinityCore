@@ -1566,7 +1566,7 @@ class spell_item_pendant_of_the_violet_eye : public SpellScriptLoader
 
 enum PersistentShieldMisc
 {
-    SPELL_PERSISTENT_SHIELD_TRIGGERED = 26470,
+    SPELL_PERSISTENT_SHIELD_TRIGGERED = 26470
 };
 
 // 26467 - Persistent Shield
@@ -1593,8 +1593,16 @@ class spell_item_persistent_shield : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
+                Unit* caster = eventInfo.GetActor();
+                Unit* target = eventInfo.GetProcTarget();
                 int32 bp0 = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), 15);
-                GetTarget()->CastCustomSpell(SPELL_PERSISTENT_SHIELD_TRIGGERED, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+
+                // Scarab Brooch does not replace stronger shields
+                if (AuraEffect const* shield = target->GetAuraEffect(SPELL_PERSISTENT_SHIELD_TRIGGERED, EFFECT_0, caster->GetGUID()))
+                    if (shield->GetAmount() > bp0)
+                        return;
+
+                caster->CastCustomSpell(SPELL_PERSISTENT_SHIELD_TRIGGERED, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
             }
 
             void Register() override
