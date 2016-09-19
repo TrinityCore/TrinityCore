@@ -2718,17 +2718,14 @@ class spell_gen_orc_disguise : public SpellScriptLoader
         }
 };
 
-class spell_gen_proc_bellow_pct_damaged : public SpellScriptLoader
+class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 {
     public:
-        spell_gen_proc_bellow_pct_damaged(const char* name, SpellEffIndex effIndex = EFFECT_0, int32 pct = 0) : SpellScriptLoader(name), _effIndex(effIndex), _pct(pct) { }
+        spell_gen_proc_below_pct_damaged(const char* name) : SpellScriptLoader(name) { }
 
-        class spell_gen_proc_bellow_pct_damaged_AuraScript : public AuraScript
+        class spell_gen_proc_below_pct_damaged_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_gen_proc_bellow_pct_damaged_AuraScript);
-
-        public:
-            spell_gen_proc_bellow_pct_damaged_AuraScript(SpellEffIndex effIndex, int32 pct) : AuraScript(), _effIndex(effIndex), _pct(pct) { }
+            PrepareAuraScript(spell_gen_proc_below_pct_damaged_AuraScript);
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
@@ -2736,10 +2733,9 @@ class spell_gen_proc_bellow_pct_damaged : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return false;
 
-                if (!_pct)
-                    _pct = GetSpellInfo()->Effects[_effIndex].BasePoints;
+                int32 pct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
 
-                if (GetTarget()->HealthBelowPctDamaged(_pct, damageInfo->GetDamage()))
+                if (eventInfo.GetActionTarget()->HealthBelowPctDamaged(pct, damageInfo->GetDamage()))
                     return true;
 
                 return false;
@@ -2747,22 +2743,14 @@ class spell_gen_proc_bellow_pct_damaged : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_gen_proc_bellow_pct_damaged_AuraScript::CheckProc);
+                DoCheckProc += AuraCheckProcFn(spell_gen_proc_below_pct_damaged_AuraScript::CheckProc);
             }
-
-        private:
-            SpellEffIndex _effIndex;
-            int32 _pct;
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_gen_proc_bellow_pct_damaged_AuraScript(_effIndex, _pct);
+            return new spell_gen_proc_below_pct_damaged_AuraScript();
         }
-
-    private:
-        SpellEffIndex _effIndex;
-        int32 _pct;
 };
 
 enum ParachuteSpells
@@ -4398,12 +4386,12 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_orc_disguise();
-    new spell_gen_proc_bellow_pct_damaged("spell_item_soul_harvesters_charm");
-    new spell_gen_proc_bellow_pct_damaged("spell_item_commendation_of_kaelthas");
-    new spell_gen_proc_bellow_pct_damaged("spell_item_corpse_tongue_coin");
-    new spell_gen_proc_bellow_pct_damaged("spell_item_corpse_tongue_coin_heroic");
-    new spell_gen_proc_bellow_pct_damaged("spell_item_petrified_twilight_scale");
-    new spell_gen_proc_bellow_pct_damaged("spell_item_petrified_twilight_scale_heroic");
+    new spell_gen_proc_below_pct_damaged("spell_item_soul_harvesters_charm");
+    new spell_gen_proc_below_pct_damaged("spell_item_commendation_of_kaelthas");
+    new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin");
+    new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin_heroic");
+    new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale");
+    new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale_heroic");
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_profession_research();
