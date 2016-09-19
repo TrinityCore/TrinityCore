@@ -294,14 +294,14 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
         }
         else if (!accountInfo->IsBanned)
         {
-            uint32 const maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
+            uint32 const maxWrongPassword = uint32(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
 
             if (sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
                 TC_LOG_DEBUG("server.rest", "[%s, Account %s, Id %u] Attempted to connect with wrong password!", ip_address.c_str(), login.c_str(), accountInfo->Id);
 
             if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
             {
-                BanMode const banType = BanMode(sConfigMgr->GetIntDefault("WrongPass.BanType", static_cast<uint16>(BanMode::BAN_IP)));
+                BanMode const banType = BanMode(sConfigMgr->GetIntDefault("WrongPass.BanType", uint16(BanMode::BAN_IP)));
                 int32 const banTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
 
                 if (banType == BanMode::BAN_ACCOUNT)
