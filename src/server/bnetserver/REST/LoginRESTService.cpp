@@ -297,7 +297,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
             const uint32 maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
 
             if (sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
-                TC_LOG_DEBUG("server.rest", "Account %s Id %u attempted to connect with wrong password", login.c_str(), accountInfo->Id);
+                TC_LOG_DEBUG("server.rest", "[%s, Account %s, Id %u] Attempted to connect with wrong password!", ip_address.c_str(), login.c_str(), accountInfo->Id);
 
             if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
             {
