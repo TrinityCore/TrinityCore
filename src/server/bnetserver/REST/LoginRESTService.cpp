@@ -247,84 +247,79 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, login);
-    stmt->setString(1, CalculateShaPassHash(login, std::move(password)));
+
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
+        std::string pass_hash = result->Fetch()[13].GetString();
+
         std::unique_ptr<Battlenet::Session::AccountInfo> accountInfo = Trinity::make_unique<Battlenet::Session::AccountInfo>();
         accountInfo->LoadResult(result);
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_BNET_ID);
-        stmt->setUInt32(0, accountInfo->Id);
-        if (PreparedQueryResult characterCountsResult = LoginDatabase.Query(stmt))
+        if (CalculateShaPassHash(login, std::move(password)) == pass_hash)
         {
-            do
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_BNET_ID);
+            stmt->setUInt32(0, accountInfo->Id);
+            if (PreparedQueryResult characterCountsResult = LoginDatabase.Query(stmt))
             {
-                Field* fields = characterCountsResult->Fetch();
-                accountInfo->GameAccounts[fields[0].GetUInt32()]
-                    .CharacterCounts[Battlenet::RealmHandle{ fields[3].GetUInt8(), fields[4].GetUInt8(), fields[2].GetUInt32() }.GetAddress()] = fields[1].GetUInt8();
+                do
+                {
+                    Field* fields = characterCountsResult->Fetch();
+                    accountInfo->GameAccounts[fields[0].GetUInt32()]
+                        .CharacterCounts[Battlenet::RealmHandle{ fields[3].GetUInt8(), fields[4].GetUInt8(), fields[2].GetUInt32() }.GetAddress()] = fields[1].GetUInt8();
 
-            } while (characterCountsResult->NextRow());
-        }
+                } while (characterCountsResult->NextRow());
+            }
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_LAST_PLAYER_CHARACTERS);
-        stmt->setUInt32(0, accountInfo->Id);
-        if (PreparedQueryResult lastPlayerCharactersResult = LoginDatabase.Query(stmt))
-        {
-            Field* fields = lastPlayerCharactersResult->Fetch();
-            Battlenet::RealmHandle realmId{ fields[1].GetUInt8(), fields[2].GetUInt8(), fields[3].GetUInt32() };
-            Battlenet::Session::LastPlayedCharacterInfo& lastPlayedCharacter = accountInfo->GameAccounts[fields[0].GetUInt32()]
-                .LastPlayedCharacters[realmId.GetSubRegionAddress()];
-
-            lastPlayedCharacter.RealmId = realmId;
-            lastPlayedCharacter.CharacterName = fields[4].GetString();
-            lastPlayedCharacter.CharacterGUID = fields[5].GetUInt64();
-            lastPlayedCharacter.LastPlayedTime = fields[6].GetUInt32();
-        }
-
-        BigNumber ticket;
-        ticket.SetRand(20 * 8);
-
-        loginResult.set_login_ticket("TC-" + ByteArrayToHexStr(ticket.AsByteArray(20).get(), 20));
-
-        AddLoginTicket(loginResult.login_ticket(), std::move(accountInfo));
-    }
-    else if (const uint32 maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0)))
-    {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL);
-        stmt->setString(0, login);
-
-        if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-        {
-            const uint32 account_id = result->Fetch()[0].GetUInt32();
-
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_FAILED_LOGINS);
-            stmt->setUInt32(0, account_id);
-            const uint32 currentFailedLogins = LoginDatabase.Query(stmt)->Fetch()[0].GetUInt32();
-
-            if(sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
-                TC_LOG_DEBUG("server.rest", "Account %s Id %u attempted to connect with wrong password", login.c_str(), account_id);
-
-            if (currentFailedLogins >= maxWrongPassword)
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_LAST_PLAYER_CHARACTERS);
+            stmt->setUInt32(0, accountInfo->Id);
+            if (PreparedQueryResult lastPlayerCharactersResult = LoginDatabase.Query(stmt))
             {
-                const enum BanMode banType = (enum BanMode)sConfigMgr->GetIntDefault("WrongPass.BanType", BAN_IP);
+                Field* fields = lastPlayerCharactersResult->Fetch();
+                Battlenet::RealmHandle realmId{ fields[1].GetUInt8(), fields[2].GetUInt8(), fields[3].GetUInt32() };
+                Battlenet::Session::LastPlayedCharacterInfo& lastPlayedCharacter = accountInfo->GameAccounts[fields[0].GetUInt32()]
+                    .LastPlayedCharacters[realmId.GetSubRegionAddress()];
+
+                lastPlayedCharacter.RealmId = realmId;
+                lastPlayedCharacter.CharacterName = fields[4].GetString();
+                lastPlayedCharacter.CharacterGUID = fields[5].GetUInt64();
+                lastPlayedCharacter.LastPlayedTime = fields[6].GetUInt32();
+            }
+
+            BigNumber ticket;
+            ticket.SetRand(20 * 8);
+
+            loginResult.set_login_ticket("TC-" + ByteArrayToHexStr(ticket.AsByteArray(20).get(), 20));
+
+            AddLoginTicket(loginResult.login_ticket(), std::move(accountInfo));
+        }
+        else if (!accountInfo->IsBanned)
+        {
+            const uint32 maxWrongPassword = static_cast<uint32>(sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0));
+
+            if (sConfigMgr->GetIntDefault("WrongPass.Logging", 0))
+                TC_LOG_DEBUG("server.rest", "Account %s Id %u attempted to connect with wrong password", login.c_str(), accountInfo->Id);
+
+            if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
+            {
+                const enum BanMode banType = static_cast<enum BanMode>(sConfigMgr->GetIntDefault("WrongPass.BanType", BAN_IP));
                 const int32 banTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
 
                 if (banType == BAN_ACCOUNT)
-                    BanBnetAccount(account_id, banTime);
+                    BanBnetAccount(accountInfo->Id, banTime);
                 else
                     BanIp(ip_address, banTime);
 
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_RESET_FAILED_LOGINS);
-                stmt->setUInt32(0, account_id);
+                stmt->setUInt32(0, accountInfo->Id);
                 LoginDatabase.AsyncQuery(stmt);
             }
             else
             {
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
-                stmt->setUInt32(0, account_id);
-                LoginDatabase.Query(stmt);
+                stmt->setUInt32(0, accountInfo->Id);
+                LoginDatabase.AsyncQuery(stmt);
             }
-        }
+        }  
     }
 
     loginResult.set_authentication_state(Battlenet::JSON::Login::DONE);
@@ -333,36 +328,20 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
 void LoginRESTService::BanBnetAccount(const uint32 accountId, const uint32 banTime)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_BANNED_BY_ID);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT_AUTO_BANNED);
     stmt->setUInt32(0, accountId);
+    stmt->setUInt32(1, banTime);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
-    {
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT_AUTO_BANNED);
-        stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, banTime);
-
-        LoginDatabase.AsyncQuery(stmt);
-    }
+    LoginDatabase.AsyncQuery(stmt);
 }
 
 void LoginRESTService::BanIp(const std::string& ipAddress, const uint32 banTime)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED_BY_IP);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
     stmt->setString(0, ipAddress);
+    stmt->setUInt32(1, banTime);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (!result)
-    {
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
-        stmt->setString(0, ipAddress);
-        stmt->setUInt32(1, banTime);
-
-        LoginDatabase.AsyncQuery(stmt);
-    }
+    LoginDatabase.AsyncQuery(stmt);
 }
 
 int32 LoginRESTService::SendResponse(soap* soapClient, google::protobuf::Message const& response)
