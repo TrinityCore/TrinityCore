@@ -1,5 +1,5 @@
 DELETE FROM `spell_proc` WHERE `SpellId` IN (-18213, -12834, 26467, 38164, 52420, 28845, 37594, 40971, -63156, 72176, -15337, 71770, 45057, 71634, 71640, 75475, 75481, -49182, -49188, -51627, -13983, -20234, 37168, -14156, 16864, 30823, 29601, 53646, 54909, -29723,
--46913, 46916, 52437, -46951, -54747, -51474);
+-46913, 46916, 52437, -46951, -54747, -51474, 54748);
 INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`, `ProcsPerMinute`, `Chance`, `Cooldown`, `Charges`) VALUES
 (-18213,  32,  5, 0x00004000, 0x00000000, 0x00000000,     2, 0x0, 0x0,    0, 0, 0, 0,      0, 0), -- Improved Drain Soul
 (-12834,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x1, 0x2,    2, 0, 0, 0,      0, 0), -- Deep Wounds Aura
@@ -35,8 +35,9 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (46916 ,   0,  4, 0x00200000, 0x00000000, 0x00000000,     0, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Slam! (Bloodsurge proc)
 (52437 ,   1,  4, 0x20000000, 0x00000000, 0x00000000,    16, 0x0, 0x4,    0, 0, 0, 0,      0, 0), -- Sudden Death proc
 (-46951,   0,  4, 0x00000400, 0x00000040, 0x00000000,     0, 0x0, 0x2,    0, 0, 0, 0,      0, 0), -- Sword and Board
-(-54747,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x4,    3, 0, 0, 0,      0, 0), -- Burning Determination
-(-51474,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x4,    3, 0, 0, 0,      0, 0); -- Astral Shift
+(-54747,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,    3, 0, 0, 0,      0, 0), -- Burning Determination
+(-51474,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,    3, 0, 0, 0,      0, 0), -- Astral Shift
+(54748 ,   0,  0, 0x00000000, 0x00000000, 0x00000000,     0, 0x0, 0x0,  256, 0, 0, 0,      0, 0); -- Burning Determination proc
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_warl_improved_drain_soul','spell_warr_deep_wounds_aura','spell_gen_dummy_trigger','spell_item_persistent_shield','spell_item_soul_harvesters_charm','spell_warr_t3_prot_8p_bonus','spell_pri_item_greater_heal_refund',
 'spell_pri_t5_heal_2p_bonus','spell_item_crystal_spire_of_karabor','spell_warl_decimation','spell_deathbringer_blood_beast_blood_link','spell_pri_improved_spirit_tap','spell_putricide_ooze_tank_protection','spell_item_commendation_of_kaelthas','spell_item_corpse_tongue_coin',
@@ -67,16 +68,17 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (52915 , 'spell_rog_turn_the_tables_proc'),
 (-13983, 'spell_rog_setup'),
 (-20234, 'spell_pal_improved_lay_of_hands'),
-(16864, 'spell_dru_omen_of_clarity'),
-(30823, 'spell_sha_shamanistic_rage'),
-(29601, 'spell_item_pendant_of_the_violet_eye'),
-(53646, 'spell_warl_demonic_pact'),
-(54909, 'spell_warl_demonic_pact'),
+(16864 , 'spell_dru_omen_of_clarity'),
+(30823 , 'spell_sha_shamanistic_rage'),
+(29601 , 'spell_item_pendant_of_the_violet_eye'),
+(53646 , 'spell_warl_demonic_pact'),
+(54909 , 'spell_warl_demonic_pact'),
 (-29723, 'spell_warr_extra_proc'),
 (-46913, 'spell_warr_extra_proc'),
 (-46951, 'spell_warr_sword_and_board'),
 (-54747, 'spell_mage_burning_determination'),
-(-51474, 'spell_sha_astral_shift_aura');
+(-51474, 'spell_sha_astral_shift_aura'),
+(54748 , 'spell_mage_burning_determination');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=24 AND `SourceGroup`=0 AND `SourceEntry`=38164;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
