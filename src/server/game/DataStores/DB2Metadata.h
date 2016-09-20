@@ -3973,7 +3973,7 @@ struct PowerTypeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ssffhhhbbbbb";
+        static char const* types = "SSffhhhbbbbb";
         static uint8 const arraySizes[12] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 12, 0x042B76A1, types, arraySizes);
         return &instance;
