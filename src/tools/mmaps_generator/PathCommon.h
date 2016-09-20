@@ -31,7 +31,6 @@
 
 #ifdef __linux__
     #include <errno.h>
-    #include <sys/stat.h>
 #endif
 
 enum NavTerrain
