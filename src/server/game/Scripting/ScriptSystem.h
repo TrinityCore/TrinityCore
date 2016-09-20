@@ -95,7 +95,7 @@ class TC_GAME_API SystemMgr
             return &it->second;
         }
 
-        SplineChain const* GetSplineChain(Creature const* who, uint8 id) const;
+        SplineChain const* GetSplineChain(Creature const* who, uint16 id) const;
 
     protected:
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
