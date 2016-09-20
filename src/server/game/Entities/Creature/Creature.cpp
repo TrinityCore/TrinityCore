@@ -2800,10 +2800,10 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
-        SetFacingTo(GetAngle(target));
+        SetFacingToObject(target);
     else if (!canTurnDuringCast)
         if (Unit* victim = GetVictim())
-            SetFacingTo(GetAngle(victim)); // ensure orientation is correct at beginning of cast
+            SetFacingToObject(victim); // ensure orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
@@ -2849,7 +2849,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         if (!m_suppressedTarget.IsEmpty())
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                SetFacingTo(GetAngle(objTarget));
+                SetFacingToObject(objTarget);
         }
         else
             SetFacingTo(m_suppressedOrientation);
