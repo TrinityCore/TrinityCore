@@ -106,7 +106,8 @@ void SystemMgr::LoadScriptSplineChains()
         {
             Field* fieldsMeta = resultMeta->Fetch();
             uint32 entry = fieldsMeta[0].GetUInt32();
-            uint8 chainId = fieldsMeta[1].GetUInt8(), splineId = fieldsMeta[2].GetUInt8();
+            uint16 chainId = fieldsMeta[1].GetUInt16();
+            uint8 splineId = fieldsMeta[2].GetUInt8();
             SplineChain& chain = m_mSplineChainsMap[{entry,chainId}];
             
             if (splineId != chain.size())
@@ -127,7 +128,8 @@ void SystemMgr::LoadScriptSplineChains()
         {
             Field* fieldsWP = resultWP->Fetch();
             uint32 entry = fieldsWP[0].GetUInt32();
-            uint8 chainId = fieldsWP[1].GetUInt8(), splineId = fieldsWP[2].GetUInt8(), wpId = fieldsWP[3].GetUInt8();
+            uint16 chainId = fieldsWP[1].GetUInt16();
+            uint8 splineId = fieldsWP[2].GetUInt8(), wpId = fieldsWP[3].GetUInt8();
             float posX = fieldsWP[4].GetFloat(), posY = fieldsWP[5].GetFloat(), posZ = fieldsWP[6].GetFloat();
             auto it = m_mSplineChainsMap.find({entry,chainId});
             if (it == m_mSplineChainsMap.end())

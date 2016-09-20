@@ -210,7 +210,7 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
         void MoveSmoothPath(uint32 pointId, Movement::PointsArray const& points, bool walk);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
-        void MoveAlongSplineChain(uint32 pointId, uint32 dbChainId, bool walk);
+        void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
         void MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk);
         void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0);

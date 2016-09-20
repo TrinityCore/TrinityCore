@@ -481,7 +481,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
-void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint32 dbChainId, bool walk)
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
 {
     Creature* owner = _owner->ToCreature();
     if (!owner)
