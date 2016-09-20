@@ -159,6 +159,7 @@ DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", PhaseMe
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP);
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", PlayerConditionMeta::Instance(), HOTFIX_SEL_PLAYER_CONDITION);
 DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay.db2", PowerDisplayMeta::Instance(), HOTFIX_SEL_POWER_DISPLAY);
+DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeMeta::Instance(), HOTFIX_SEL_POWER_TYPE);
 DB2Storage<PvPDifficultyEntry>                  sPvpDifficultyStore("PvpDifficulty.db2", PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY);
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardMeta::Instance(), HOTFIX_SEL_QUEST_MONEY_REWARD);
@@ -437,6 +438,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPhaseXPhaseGroupStore);
     LOAD_DB2(sPlayerConditionStore);
     LOAD_DB2(sPowerDisplayStore);
+    LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPvpDifficultyStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
@@ -748,6 +750,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
+
+    for (PowerTypeEntry const* powerType : sPowerTypeStore)
+    {
+        ASSERT(powerType->PowerTypeEnum < MAX_POWERS);
+        ASSERT(!_powerTypes[powerType->PowerTypeEnum]);
+
+        _powerTypes[powerType->PowerTypeEnum] = powerType;
+    }
 
     for (PvPDifficultyEntry const* entry : sPvpDifficultyStore)
     {
@@ -1602,6 +1612,12 @@ std::set<uint32> DB2Manager::GetPhasesForGroup(uint32 group) const
         return itr->second;
 
     return std::set<uint32>();
+}
+
+PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
+{
+    ASSERT(power < MAX_POWERS);
+    return _powerTypes[power];
 }
 
 uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
