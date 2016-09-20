@@ -8,6 +8,8 @@
 #include "ScriptMgr.h"
 #include "SplineChain.h"
 
+class Creature;
+
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
 /// @todo find better namings and definitions.
@@ -79,10 +81,7 @@ class TC_GAME_API SystemMgr
             return &it->second;
         }
 
-        SplineChain const* GetSplineChain(Creature const* who, uint8 id) const
-        {
-            return GetSplineChain(who->GetEntry(), id);
-        }
+        SplineChain const* GetSplineChain(Creature const* who, uint8 id) const;
 
     protected:
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
