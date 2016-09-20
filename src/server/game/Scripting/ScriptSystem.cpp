@@ -157,7 +157,7 @@ void SystemMgr::LoadScriptSplineChains()
     }
 }
 
-SplineChain const* SystemMgr::GetSplineChain(Creature const* who, uint8 id) const
+SplineChain const* SystemMgr::GetSplineChain(Creature const* who, uint16 id) const
 {
     return GetSplineChain(who->GetEntry(), id);
 }
