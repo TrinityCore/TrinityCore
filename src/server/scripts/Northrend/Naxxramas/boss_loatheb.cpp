@@ -140,8 +140,8 @@ class boss_loatheb : public CreatureScript
             }
 
         private:
-            bool _sporeLoser;
             uint8 _doomCounter;
+            bool _sporeLoser;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
