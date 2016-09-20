@@ -20,6 +20,7 @@
 #include "ObjectMgr.h"
 #include "DatabaseEnv.h"
 #include "ScriptMgr.h"
+#include "Creature.h"
 
 SystemMgr* SystemMgr::instance()
 {
@@ -152,4 +153,9 @@ void SystemMgr::LoadScriptSplineChains()
 
         TC_LOG_INFO("server.loading", ">> Loaded spline chain data for %u chains, consisting of %u splines with %u waypoints in %u ms", chainCount, splineCount, wpCount, GetMSTimeDiffToNow(oldMSTime));
     }
+}
+
+SplineChain const* SystemMgr::GetSplineChain(Creature const* who, uint8 id) const
+{
+    return GetSplineChain(who->GetEntry(), id);
 }
