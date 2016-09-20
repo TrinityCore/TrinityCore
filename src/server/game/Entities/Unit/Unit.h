@@ -1625,8 +1625,8 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool packetOnly = false);
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float ori);
-        void SetFacingToObject(WorldObject const* object);
+        void SetFacingTo(float ori, bool force = false);
+        void SetFacingToObject(WorldObject const* object, bool force = false);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
