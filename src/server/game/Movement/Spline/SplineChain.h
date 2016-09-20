@@ -33,6 +33,7 @@ typedef std::vector<SplineChainLink> SplineChain;
 
 struct TC_GAME_API SplineChainResumeInfo
 {
+    SplineChainResumeInfo() : PointID(0), Chain(nullptr), IsWalkMode(false), SplineIndex(0), PointIndex(0), TimeToNext(0) { }
     SplineChainResumeInfo(uint32 id, SplineChain const* chain, bool walk, uint8 splineIndex, uint8 wpIndex, uint32 msToNext) :
         PointID(id), Chain(chain), IsWalkMode(walk), SplineIndex(splineIndex), PointIndex(wpIndex), TimeToNext(msToNext) { }
     uint32 PointID;
