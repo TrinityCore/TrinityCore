@@ -2306,7 +2306,7 @@ void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTempla
     ASSERT(player);
     ASSERT(sceneTemplate);
 
-    GET_SCRIPT(SceneScript, sceneTemplate->scriptId, tmpscript);
+    GET_SCRIPT(SceneScript, sceneTemplate->ScriptId, tmpscript);
     tmpscript->OnSceneStart(player, sceneInstanceID, sceneTemplate);
 }
 
@@ -2316,7 +2316,7 @@ void ScriptMgr::OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemp
     ASSERT(player);
     ASSERT(sceneTemplate);
 
-    GET_SCRIPT(SceneScript, sceneTemplate->scriptId, tmpscript);
+    GET_SCRIPT(SceneScript, sceneTemplate->ScriptId, tmpscript);
     tmpscript->OnSceneTriggerEvent(player, sceneInstanceID, sceneTemplate, triggerName);
 }
 
@@ -2325,7 +2325,7 @@ void ScriptMgr::OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTempl
     ASSERT(player);
     ASSERT(sceneTemplate);
 
-    GET_SCRIPT(SceneScript, sceneTemplate->scriptId, tmpscript);
+    GET_SCRIPT(SceneScript, sceneTemplate->ScriptId, tmpscript);
     tmpscript->OnSceneCancel(player, sceneInstanceID, sceneTemplate);
 }
 
@@ -2334,7 +2334,7 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     ASSERT(player);
     ASSERT(sceneTemplate);
 
-    GET_SCRIPT(SceneScript, sceneTemplate->scriptId, tmpscript);
+    GET_SCRIPT(SceneScript, sceneTemplate->ScriptId, tmpscript);
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 

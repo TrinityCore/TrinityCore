@@ -9625,12 +9625,12 @@ void ObjectMgr::LoadSceneTemplates()
         Field* fields = templates->Fetch();
 
         SceneTemplate sceneTemplate;
-        sceneTemplate.sceneId           = fields[0].GetUInt32();
-        sceneTemplate.playbackflags     = fields[1].GetUInt32();
-        sceneTemplate.scenePackageId    = fields[2].GetUInt32();
-        sceneTemplate.scriptId          = sObjectMgr->GetScriptId(fields[3].GetCString());
+        sceneTemplate.SceneId           = fields[0].GetUInt32();
+        sceneTemplate.Playbackflags     = fields[1].GetUInt32();
+        sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
+        sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[3].GetCString());
 
-        _sceneTemplateStore[sceneTemplate.sceneId] = sceneTemplate;
+        _sceneTemplateStore[sceneTemplate.SceneId] = sceneTemplate;
 
     } while (templates->NextRow());
 

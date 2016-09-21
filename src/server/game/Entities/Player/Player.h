@@ -32,13 +32,14 @@
 #include "WorldSession.h"
 #include "PlayerTaxi.h"
 #include "TradeData.h"
-#include "ObjectMgr.h"
+#include "SceneMgr.h"
 
 struct CreatureTemplate;
 struct Mail;
 struct ItemExtendedCostEntry;
 struct TrainerSpell;
 struct VendorItem;
+struct SceneTemplate;
 
 class PlayerAchievementMgr;
 class ReputationMgr;
@@ -56,7 +57,6 @@ class SpellCastTargets;
 class PlayerAI;
 
 typedef std::deque<Mail*> PlayerMails;
-typedef std::map<uint32, SceneTemplate const*> SceneTemplateByInstance;
 
 #define PLAYER_MAX_SKILLS                       128
 enum SkillFieldOffset
@@ -2439,7 +2439,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         float GetAverageItemLevel() const;
         bool isDebugAreaTriggers;
-        bool m_isDebugScenes;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
         void AddWhisperWhiteList(ObjectGuid guid) { WhisperList.push_back(guid); }
@@ -2479,36 +2478,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
-        /*********************************************************/
-        /***                  SCENES SYSTEM                    ***/
-        /*********************************************************/
-        uint32 PlayScene(uint32 sceneId, Position const* position = nullptr);
-        uint32 PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Position const* position = nullptr);
-        uint32 PlaySceneByPackageId(uint32 sceneScriptPackageId, uint32 playbackflags = SCENEFLAG_UNK16, Position const* position = nullptr);
-        void CancelScene(uint32 sceneInstanceID, bool removeFromMap = true);
-
-        void OnSceneTrigger(uint32 sceneInstanceID, std::string triggerName);
-        void OnSceneCancel(uint32 sceneInstanceID);
-        void OnSceneComplete(uint32 sceneInstanceID);
-
-        void RecreateScene(uint32 sceneScriptPackageId, uint32 playbackflags = SCENEFLAG_UNK16, Position const* position = nullptr)
-        {
-            CancelSceneByPackageId(sceneScriptPackageId);
-            PlaySceneByPackageId(sceneScriptPackageId, playbackflags, position);
-        }
-
-        bool HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId = 0) const;
-
-        void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
-        void CancelSceneByPackageId(uint32 sceneScriptPackageId);
-        void RemoveSceneInstanceId(uint32 sceneInstanceID);
-        void RemoveAurasDueToSceneId(uint32 sceneId);
-
-        SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID);
-        uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0);
-        SceneTemplateByInstance GetSceneTemplateByInstanceMap() const { return m_scenesByInstance; }
-
-        uint32 GetNewStandaloneSceneInstanceID() { return ++m_StandaloneSceneInstanceID; }
+        SceneMgr* GetSceneMgr() const { return m_sceneMgr; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2860,9 +2830,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldLocation _corpseLocation;
 
-        // Scenes variables
-        SceneTemplateByInstance m_scenesByInstance;
-        uint32 m_StandaloneSceneInstanceID;
+        SceneMgr* m_sceneMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

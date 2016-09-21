@@ -2053,9 +2053,9 @@ struct SceneScriptEntry
 {
     uint32 Entry;
     char const* Name;
-    char const* Script;
-    uint32 PrevScriptId;
-    uint32 NextScriptId;
+    LocalizedString* Script;
+    uint16 PrevScriptId;
+    uint16 NextScriptId;
 };
 
 struct SceneScriptPackageEntry

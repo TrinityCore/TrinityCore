@@ -6725,10 +6725,10 @@ void AuraEffect::HandleScenePlay(AuraApplication const* aurApp, uint8 mode, bool
     uint32 sceneId = GetMiscValue();
 
     if (apply)
-        player->PlayScene(sceneId);
+        player->GetSceneMgr()->PlayScene(sceneId);
     else
     {
         const SceneTemplate* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
-        player->CancelSceneByPackageId(sceneTemplate->scenePackageId);
+        player->GetSceneMgr()->CancelSceneByPackageId(sceneTemplate->ScenePackageId);
     }
 }

@@ -626,10 +626,10 @@ typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer
 
 struct SceneTemplate
 {
-    uint32 sceneId;
-    uint32 playbackflags;
-    uint32 scenePackageId;
-    uint32 scriptId;
+    uint32 SceneId;
+    uint32 Playbackflags;
+    uint32 ScenePackageId;
+    uint32 ScriptId;
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
@@ -1415,7 +1415,6 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        SceneTemplateContainer const& GetSceneTemplates() const { return _sceneTemplateStore; }
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
             auto itr = _sceneTemplateStore.find(sceneId);

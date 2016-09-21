@@ -592,12 +592,12 @@ public:
             return false;
         }
 
-        SceneTemplateByInstance instanceByPackageMap = target->GetSceneTemplateByInstanceMap();
+        SceneTemplateByInstance instanceByPackageMap = target->GetSceneMgr()->GetSceneTemplateByInstanceMap();
 
-        handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetActiveSceneCount());
+        handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr()->GetActiveSceneCount());
 
         for (auto instanceByPackage : instanceByPackageMap)
-            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->scenePackageId, instanceByPackage.first);
+            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->ScenePackageId, instanceByPackage.first);
 
         return true;
     }
