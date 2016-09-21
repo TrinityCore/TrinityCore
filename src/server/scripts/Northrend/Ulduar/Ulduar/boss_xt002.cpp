@@ -752,10 +752,10 @@ class npc_life_spark : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 DoCastSelf(SPELL_STATIC_CHARGED);
-                _scheduler.Schedule(Seconds(12), [this](TaskContext spellChock)
+                _scheduler.Schedule(Seconds(12), [this](TaskContext spellShock)
                 {
                     DoCastVictim(SPELL_SHOCK);
-                    spellChock.Repeat();
+                    spellShock.Repeat();
                 });
             }
 
