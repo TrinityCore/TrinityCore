@@ -4,7 +4,7 @@ INSERT IGNORE INTO rbac_permissions (id, NAME) VALUES
 ( 847, 'Command : scene play' ),
 ( 848, 'Command : scene play package' ),
 ( 849, 'Command : scene cancel' ),
-( 850, 'Command : list scenes' )
+( 850, 'Command : list scenes' ),
 ( 851, 'Command : reload scenes' );
 
 INSERT IGNORE INTO `rbac_linked_permissions` VALUES
