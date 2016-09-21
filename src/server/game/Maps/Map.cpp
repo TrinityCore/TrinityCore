@@ -3547,7 +3547,14 @@ void InstanceMap::PermBindAllPlayers()
         InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficultyID());
         if (bind && bind->perm)
         {
-            TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a save for the map on ID %u!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), GetId(), GetDifficultyID(), GetInstanceId(), save->GetInstanceId());
+            if (bind->save && bind->save->GetInstanceId() != save->GetInstanceId())
+            {
+                TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a save for the map on ID %u!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), save->GetMapId(), save->GetDifficultyID(), save->GetInstanceId(), bind->save->GetInstanceId());
+            }
+            else if (!bind->save)
+            {
+                TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a bind (without associated save) for the map!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), save->GetMapId(), save->GetDifficultyID(), save->GetInstanceId());
+            }
         }
         else
         {
