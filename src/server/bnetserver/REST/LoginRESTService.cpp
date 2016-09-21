@@ -303,6 +303,8 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
             stmt->setUInt32(0, accountInfo->Id);
             LoginDatabase.Execute(stmt);
 
+            accountInfo->FailedLogins++;
+
             if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
             {
                 BanMode const banType = BanMode(sConfigMgr->GetIntDefault("WrongPass.BanType", uint16(BanMode::BAN_IP)));
