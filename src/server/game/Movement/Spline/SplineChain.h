@@ -37,6 +37,7 @@ struct TC_GAME_API SplineChainResumeInfo
     SplineChainResumeInfo(uint32 id, SplineChain const* chain, bool walk, uint8 splineIndex, uint8 wpIndex, uint32 msToNext) :
         PointID(id), Chain(chain), IsWalkMode(walk), SplineIndex(splineIndex), PointIndex(wpIndex), TimeToNext(msToNext) { }
     bool Empty() const { return Chain == nullptr; }
+    void Clear() { Chain = nullptr; }
     uint32 PointID;
     SplineChain const* Chain;
     bool IsWalkMode;
