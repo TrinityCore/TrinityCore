@@ -2053,7 +2053,7 @@ struct SceneScriptEntry
 {
     uint32 Entry;
     char const* Name;
-    LocalizedString* Script;
+    char const* Script;
     uint16 PrevScriptId;
     uint16 NextScriptId;
 };

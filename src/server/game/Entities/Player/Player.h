@@ -39,7 +39,6 @@ struct Mail;
 struct ItemExtendedCostEntry;
 struct TrainerSpell;
 struct VendorItem;
-struct SceneTemplate;
 
 class PlayerAchievementMgr;
 class ReputationMgr;
