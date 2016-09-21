@@ -505,6 +505,11 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, SplineChain const& chain
 
 void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
 {
+    if (info.Empty())
+    {
+        TC_LOG_ERROR("misc", "MotionMaster::ResumeSplineChain: unit with entry %u tried to resume a spline chain from empty info.", _owner->GetEntry());
+        return;
+    }
     Mutate(new SplineChainMovementGenerator(info), MOTION_SLOT_ACTIVE);
 }
 

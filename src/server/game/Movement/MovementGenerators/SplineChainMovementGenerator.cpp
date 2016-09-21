@@ -138,3 +138,16 @@ SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* me
         return SplineChainResumeInfo(_id, &_chain, _walk, _nextIndex, 0, 1u);
     return SplineChainResumeInfo(_id, &_chain, _walk, uint8(_nextIndex - 1), uint8(me->movespline->_currentSplineIdx()), _msToNext);
 }
+
+/* static */ void SplineChainMovementGenerator::GetResumeInfo(Unit const* me, SplineChainResumeInfo& info)
+{
+    if (MovementGenerator const* activeGen = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_ACTIVE))
+    {
+        if (activeGen->GetMovementGeneratorType() == SPLINE_CHAIN_MOTION_TYPE)
+        {
+            info = reinterpret_cast<SplineChainMovementGenerator const*>(activeGen)->GetResumeInfo(me);
+            return;
+        }
+    }
+    info.Chain = nullptr;
+}
