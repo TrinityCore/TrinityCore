@@ -299,6 +299,10 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
             if (sConfigMgr->GetBoolDefault("WrongPass.Logging", false))
                 TC_LOG_DEBUG("server.rest", "[%s, Account %s, Id %u] Attempted to connect with wrong password!", ip_address.c_str(), login.c_str(), accountInfo->Id);
 
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+            stmt->setUInt32(0, accountInfo->Id);
+            LoginDatabase.Execute(stmt);
+
             if (maxWrongPassword && accountInfo->FailedLogins >= maxWrongPassword)
             {
                 BanMode const banType = BanMode(sConfigMgr->GetIntDefault("WrongPass.BanType", uint16(BanMode::BAN_IP)));
@@ -310,12 +314,6 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
                     BanIp(ip_address, banTime);
 
                 stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_RESET_FAILED_LOGINS);
-                stmt->setUInt32(0, accountInfo->Id);
-                LoginDatabase.Execute(stmt);
-            }
-            else
-            {
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
                 stmt->setUInt32(0, accountInfo->Id);
                 LoginDatabase.Execute(stmt);
             }
