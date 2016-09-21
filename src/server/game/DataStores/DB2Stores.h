@@ -322,6 +322,7 @@ public:
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
+    PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     static PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
@@ -375,6 +376,7 @@ private:
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
+    PowerTypeEntry const* _powerTypes[MAX_POWERS];
     QuestPackageItemContainer _questPackages;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;

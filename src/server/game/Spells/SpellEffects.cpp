@@ -1580,9 +1580,6 @@ void Spell::EffectEnergize(SpellEffIndex /*effIndex*/)
 
     Powers power = Powers(effectInfo->MiscValue);
 
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER && unitTarget->getPowerType() != power && !m_spellInfo->HasAttribute(SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER))
-        return;
-
     if (unitTarget->GetMaxPower(power) == 0)
         return;
 
@@ -1688,10 +1685,6 @@ void Spell::EffectEnergizePct(SpellEffIndex /*effIndex*/)
         return;
 
     Powers power = Powers(effectInfo->MiscValue);
-
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER && unitTarget->getPowerType() != power && !m_spellInfo->HasAttribute(SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER))
-        return;
-
     uint32 maxPower = unitTarget->GetMaxPower(power);
     if (maxPower == 0)
         return;
