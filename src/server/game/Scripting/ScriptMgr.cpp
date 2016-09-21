@@ -2312,7 +2312,6 @@ void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTempla
 
 void ScriptMgr::OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string triggerName)
 {
-
     ASSERT(player);
     ASSERT(sceneTemplate);
 

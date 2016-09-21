@@ -48,7 +48,6 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     if (position == nullptr)
         position = GetPlayer();;
 
-    uint64 transportGUID = 0;
     uint32 sceneInstanceID = GetNewStandaloneSceneInstanceID();
 
     if (m_isDebugScenes)
