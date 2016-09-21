@@ -178,7 +178,7 @@ void SceneMgr::RemoveAurasDueToSceneId(uint32 sceneId)
     Player::AuraEffectList const& scenePlayAuras = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_SCENE_PLAY);
     for (AuraEffect* scenePlayAura : scenePlayAuras)
     {
-        if (scenePlayAura->GetMiscValue() == sceneId)
+        if (static_cast<uint32>(scenePlayAura->GetMiscValue()) == sceneId)
         {
             GetPlayer()->RemoveAura(scenePlayAura->GetBase());
             break;
