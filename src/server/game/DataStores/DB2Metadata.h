@@ -4402,7 +4402,7 @@ struct SceneScriptMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sshh";
+        static char const* types = "ssii";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xE564690A, types, arraySizes);
         return &instance;

@@ -489,7 +489,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_SCALE_PLAYER_LEVEL
     &AuraEffect::HandleNULL,                                      //428
     &AuraEffect::HandleNULL,                                      //429
-    &AuraEffect::HandleNULL,                                      //430
+    &AuraEffect::HandleScenePlay,                                 //430 SPELL_AURA_SCENE_PLAY
     &AuraEffect::HandleNULL,                                      //431
     &AuraEffect::HandleNULL,                                      //432
     &AuraEffect::HandleNULL,                                      //433
@@ -6714,4 +6714,25 @@ void AuraEffect::HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* 
         aurApp->GetTarget()->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
     else if (!aurApp->GetTarget()->HasAuraType(SPELL_AURA_ALLOW_USING_GAMEOBJECTS_WHILE_MOUNTED))
         aurApp->GetTarget()->RemoveFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED);
+}
+
+void AuraEffect::HandleScenePlay(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* player = aurApp->GetTarget()->ToPlayer();
+
+    if (!player)
+        return;
+
+    uint32 sceneId = GetMiscValue();
+
+    if (apply)
+        player->PlayScene(sceneId);
+    else
+    {
+        const SceneTemplate* sceneTemplate = sObjectMgr->GetSceneTemplate(sceneId);
+        player->CancelSceneByPackageId(sceneTemplate->scenePackageId);
+    }
 }
