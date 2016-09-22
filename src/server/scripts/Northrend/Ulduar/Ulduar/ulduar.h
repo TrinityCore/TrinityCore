@@ -80,6 +80,9 @@ enum UlduarNPCs
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
 
+    //XT002
+    NPC_XS013_SCRAPBOT                      = 33343,
+
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,
     NPC_BRANN_BRONZEBEARD_INTRO             = 33579,
