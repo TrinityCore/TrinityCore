@@ -308,7 +308,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_LFG_PROPOSAL_RESULT,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgProposalResultOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_BOOT_VOTE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetBootVoteOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_COMMENT,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleLfgSetCommentOpcode       );
-    DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_ROLES,                                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetRolesOpcode         );
+    DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_ROLES,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetRolesOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_TELEPORT,                                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgTeleportOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_ADD_RECRUIT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderAddRecruit     );
     DEFINE_OPCODE_HANDLER(CMSG_LF_GUILD_BROWSE,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderBrowse         );
