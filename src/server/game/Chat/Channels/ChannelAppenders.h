@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CHHANELAPPENDERS_H
-#define _CHHANELAPPENDERS_H
+#ifndef _CHANNELAPPENDERS_H
+#define _CHANNELAPPENDERS_H
 
 #include "Channel.h"
 
@@ -473,4 +473,4 @@ private:
     ObjectGuid _guid;
 };
 
-#endif // _CHHANELAPPENDERS_H
+#endif // _CHANNELAPPENDERS_H
