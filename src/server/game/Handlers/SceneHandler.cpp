@@ -26,7 +26,7 @@ void WorldSession::HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEve
     TC_LOG_DEBUG("scenes", "HandleSceneTriggerEvent: SceneInstanceID: %u Event: %s", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event.c_str());
 
     if (Player* player = GetPlayer())
-        player->GetSceneMgr()->OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+        player->GetSceneMgr().OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 }
 
 void WorldSession::HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete)
@@ -34,7 +34,7 @@ void WorldSession::HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlayba
     TC_LOG_DEBUG("scenes", "HandleScenePlaybackComplete: SceneInstanceID: %u", scenePlaybackComplete.SceneInstanceID);
 
     if (Player* player = GetPlayer())
-        player->GetSceneMgr()->OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
+        player->GetSceneMgr().OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
 }
 
 void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled& scenePlaybackCanceled)
@@ -42,5 +42,5 @@ void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlayba
     TC_LOG_DEBUG("scenes", "HandleScenePlaybackCanceled: SceneInstanceID: %u", scenePlaybackCanceled.SceneInstanceID);
 
     if (Player* player = GetPlayer())
-        player->GetSceneMgr()->OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
+        player->GetSceneMgr().OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
 }

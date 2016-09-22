@@ -54,8 +54,8 @@ public:
     static bool HandleDebugSceneCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        player->GetSceneMgr()->ToggleDebugSceneMode();
-        handler->PSendSysMessage(player->GetSceneMgr()->IsInDebugSceneMode() ? LANG_COMMAND_SCENE_DEBUG_ON : LANG_COMMAND_SCENE_DEBUG_OFF);
+        player->GetSceneMgr().ToggleDebugSceneMode();
+        handler->PSendSysMessage(player->GetSceneMgr().IsInDebugSceneMode() ? LANG_COMMAND_SCENE_DEBUG_ON : LANG_COMMAND_SCENE_DEBUG_OFF);
         return true;
     }
 
@@ -85,7 +85,7 @@ public:
         if (!sObjectMgr->GetSceneTemplate(sceneId))
             return false;
 
-        target->GetSceneMgr()->PlayScene(sceneId);
+        target->GetSceneMgr().PlayScene(sceneId);
         return true;
     }
 
@@ -117,7 +117,7 @@ public:
         if (!sSceneScriptPackageStore.HasRecord(scenePackageId))
             return false;
 
-        target->GetSceneMgr()->PlaySceneByPackageId(scenePackageId, flags);
+        target->GetSceneMgr().PlaySceneByPackageId(scenePackageId, flags);
         return true;
     }
 
@@ -143,7 +143,7 @@ public:
         if (!sSceneScriptPackageStore.HasRecord(id))
             return false;
 
-        target->GetSceneMgr()->CancelSceneByPackageId(id);
+        target->GetSceneMgr().CancelSceneByPackageId(id);
         return true;
     }
 };

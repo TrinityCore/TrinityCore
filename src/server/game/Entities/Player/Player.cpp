@@ -113,7 +113,7 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint64 const MAX_MONEY_AMOUNT = 9999999999ULL;
 
-Player::Player(WorldSession* session) : Unit(true)
+Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -337,8 +337,6 @@ Player::Player(WorldSession* session) : Unit(true)
         _CUFProfiles[i] = nullptr;
 
     _advancedCombatLoggingEnabled = false;
-
-    m_sceneMgr = new SceneMgr(this);
 }
 
 Player::~Player()
@@ -369,7 +367,6 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
-    delete m_sceneMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];

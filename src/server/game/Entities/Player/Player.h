@@ -2477,7 +2477,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
-        SceneMgr* GetSceneMgr() const { return m_sceneMgr; }
+        SceneMgr GetSceneMgr() const { return m_sceneMgr; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2829,7 +2829,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldLocation _corpseLocation;
 
-        SceneMgr* m_sceneMgr;
+        SceneMgr m_sceneMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
