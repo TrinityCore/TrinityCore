@@ -579,7 +579,7 @@ void WorldSession::HandleGravityAckMessage(WorldPacket& recvData)
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
     if (movementInfo.guid != _player->m_mover->GetGUID())
-        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, uint64(movementInfo.guid), GetLogNameForGuid(movementInfo.guid), GUID_ENPART(movementInfo.guid), _player->m_mover->GetGUID());
+        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is %s and should be %s.", movementInfo.guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
 
 }
 
