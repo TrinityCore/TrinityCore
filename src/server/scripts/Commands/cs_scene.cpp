@@ -39,10 +39,10 @@ public:
     {
         static std::vector<ChatCommand> sceneCommandTable =
         {
-            { "debug",          rbac::RBAC_PERM_COMMAND_SCENE_DEBUG,        true, &HandleDebugSceneCommand,         "" },
-            { "play",           rbac::RBAC_PERM_COMMAND_SCENE_PLAY,         true, &HandlePlaySceneCommand,          "" },
-            { "playpackage",    rbac::RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE, true, &HandlePlayScenePackageCommand,   "" },
-            { "cancel",         rbac::RBAC_PERM_COMMAND_SCENE_CANCEL,       true, &HandleCancelSceneCommand,        "" }
+            { "debug",          rbac::RBAC_PERM_COMMAND_SCENE_DEBUG,        false, &HandleDebugSceneCommand,        "" },
+            { "play",           rbac::RBAC_PERM_COMMAND_SCENE_PLAY,         false, &HandlePlaySceneCommand,         "" },
+            { "playpackage",    rbac::RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE, false, &HandlePlayScenePackageCommand,  "" },
+            { "cancel",         rbac::RBAC_PERM_COMMAND_SCENE_CANCEL,       false, &HandleCancelSceneCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -53,9 +53,12 @@ public:
 
     static bool HandleDebugSceneCommand(ChatHandler* handler, char const* /*args*/)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-        player->GetSceneMgr().ToggleDebugSceneMode();
-        handler->PSendSysMessage(player->GetSceneMgr().IsInDebugSceneMode() ? LANG_COMMAND_SCENE_DEBUG_ON : LANG_COMMAND_SCENE_DEBUG_OFF);
+        if (Player* player = handler->GetSession()->GetPlayer())
+        {
+            player->GetSceneMgr().ToggleDebugSceneMode();
+            handler->PSendSysMessage(player->GetSceneMgr().IsInDebugSceneMode() ? LANG_COMMAND_SCENE_DEBUG_ON : LANG_COMMAND_SCENE_DEBUG_OFF);
+        }
+
         return true;
     }
 
@@ -70,10 +73,7 @@ public:
             return false;
 
         uint32 sceneId = atoi(sceneIdStr);
-        Player* target = handler->getSelectedPlayer();
-
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
 
         if (!target)
         {
@@ -102,10 +102,7 @@ public:
 
         uint32 scenePackageId = atoi(scenePackageIdStr);
         uint16 flags = flagsStr ? atoi(flagsStr) : SCENEFLAG_UNK16;
-        Player* target = handler->getSelectedPlayer();
-
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
 
         if (!target)
         {
@@ -126,10 +123,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
-
-        if (!target)
-            target = handler->GetSession()->GetPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
 
         if (!target)
         {

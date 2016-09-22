@@ -46,7 +46,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
 
     // By default, take player position
     if (position == nullptr)
-        position = GetPlayer();;
+        position = GetPlayer();
 
     uint32 sceneInstanceID = GetNewStandaloneSceneInstanceID();
 
@@ -145,10 +145,10 @@ bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 
 {
     auto itr = m_scenesByInstance.find(sceneInstanceID);
     
-    if (itr == m_scenesByInstance.end())
-        return false;
+    if (itr != m_scenesByInstance.end())
+        return !sceneScriptPackageId || sceneScriptPackageId == itr->second->ScenePackageId;
 
-    return !sceneScriptPackageId || sceneScriptPackageId == itr->second->ScenePackageId;
+    return false;
 }
 
 void SceneMgr::AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
@@ -190,10 +190,10 @@ SceneTemplate const* SceneMgr::GetSceneTemplateFromInstanceId(uint32 sceneInstan
 {
     auto itr = m_scenesByInstance.find(sceneInstanceID);
 
-    if (itr == m_scenesByInstance.end())
-        return nullptr;
+    if (itr != m_scenesByInstance.end())
+        return itr->second;
 
-    return itr->second;
+    return nullptr;
 }
 
 uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/)
