@@ -574,6 +574,15 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     _player->SendMessageToSet(&data, false);
 }
 
+void WorldSession::HandleGravityAckMessage(WorldPacket& recvData)
+{
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
+    if (movementInfo.guid != _player->m_mover->GetGUID())
+        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, uint64(movementInfo.guid), GetLogNameForGuid(movementInfo.guid), GUID_ENPART(movementInfo.guid), _player->m_mover->GetGUID());
+
+}
+
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_HOVER_ACK");

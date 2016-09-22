@@ -5360,6 +5360,50 @@ MovementStatusElements const CastSpellEmbeddedMovement[] =
     MSEEnd,
 };
 
+MovementStatusElements const MoveGravityDisable[] =
+{
+    MSEHasGuidByte0,
+    MSEHasGuidByte1,
+    MSEHasGuidByte5,
+    MSEHasGuidByte7,
+    MSEHasGuidByte6,
+    MSEHasGuidByte4,
+    MSEHasGuidByte3,
+    MSEHasGuidByte2,
+    MSEGuidByte7,
+    MSEGuidByte2,
+    MSEGuidByte0,
+    MSECounter,
+    MSEGuidByte5,
+    MSEGuidByte1,
+    MSEGuidByte3,
+    MSEGuidByte4,
+    MSEGuidByte6,
+    MSEEnd,
+};
+
+MovementStatusElements const MoveGravityEnable[] =
+{
+    MSEHasGuidByte1,
+    MSEHasGuidByte4,
+    MSEHasGuidByte7,
+    MSEHasGuidByte5,
+    MSEHasGuidByte2,
+    MSEHasGuidByte0,
+    MSEHasGuidByte3,
+    MSEHasGuidByte6,
+    MSEGuidByte3,
+    MSECounter,
+    MSEGuidByte7,
+    MSEGuidByte6,
+    MSEGuidByte4,
+    MSEGuidByte0,
+    MSEGuidByte1,
+    MSEGuidByte5,
+    MSEGuidByte2,
+    MSEEnd,
+};
+
 void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 {
     MovementStatusElements const element = _elements[_index++];
@@ -5699,6 +5743,10 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
         case CMSG_PET_CAST_SPELL:
         case CMSG_USE_ITEM:
             return CastSpellEmbeddedMovement;
+        case SMSG_MOVE_GRAVITY_DISABLE:
+            return MoveGravityDisable;
+        case SMSG_MOVE_GRAVITY_ENABLE:
+            return MoveGravityEnable;
         default:
             break;
     }
