@@ -657,7 +657,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(SMSG_AURA_UPDATE_ALL,                                  STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_AUTH_CHALLENGE,                                   STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_AUTH_RESPONSE,                                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    DEFINE_OPCODE_HANDLER(SMSG_AVAILABLE_VOICE_CHANNEL,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+    DEFINE_OPCODE_HANDLER(SMSG_AVAILABLE_VOICE_CHANNEL,                          STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_AVERAGE_ITEM_LEVEL_INFORM,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BARBER_SHOP_RESULT,                               STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_BATTLEFIELD_LIST,                                 STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
