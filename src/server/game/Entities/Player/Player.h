@@ -2477,7 +2477,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
-        SceneMgr GetSceneMgr() const { return m_sceneMgr; }
+        SceneMgr& GetSceneMgr() { return m_sceneMgr; }
 
     protected:
         // Gamemaster whisper whitelist

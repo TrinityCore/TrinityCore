@@ -62,7 +62,7 @@ public:
     uint32 GetNewStandaloneSceneInstanceID() { return ++m_StandaloneSceneInstanceID; }
 
     void ToggleDebugSceneMode() { m_isDebugScenes = !m_isDebugScenes; }
-    bool IsInDebugSceneMode() { return m_isDebugScenes; }
+    bool IsInDebugSceneMode() const { return m_isDebugScenes; }
 
 private:
 
