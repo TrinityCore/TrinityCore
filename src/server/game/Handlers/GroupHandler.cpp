@@ -841,11 +841,11 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
-    std::string unk1;
-    std::string unk2;
+    std::string name1;
+    std::string name2;
 
-    recvData >> unk1;
-    recvData >> unk2;
+    recvData >> name1;
+    recvData >> name2;
 }
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
