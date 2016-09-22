@@ -578,7 +578,7 @@ public:
         return true;
     }
 
-    static bool HandleListScenesCommand(ChatHandler* handler, char const* args)
+    static bool HandleListScenesCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* target = handler->getSelectedPlayer();
 

@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS `scene_template` (
   PRIMARY KEY (`SceneId`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
-REPLACE INTO trinity_string (entry, content_default) VALUES
+DELETE FROM `trinity_string` WHERE `entry` IN ( 5062, 5063, 5064, 5065, 5066, 5067, 5068, 5069 );
+INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
 ( 5062, 'Scene debugging turned on.' ),
 ( 5063, 'Scene debugging turned off.' ),
 ( 5064, 'Scene : started (instance : %u - package : %u - flags : %u)' ),
@@ -16,4 +17,5 @@ REPLACE INTO trinity_string (entry, content_default) VALUES
 ( 5068, 'Player have %u active(s) scene(s)' ),
 ( 5069, 'ScenePackageId : %u - SceneInstanceId : %u' );
 
-REPLACE INTO scene_template (SceneId, Flags, ScriptPackageID, ScriptName) VALUES (1181, 16, 1550, "Scene_DeathwingSimulator");
+DELETE FROM `scene_template` WHERE `SceneId` = 1181;
+INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `ScriptName`) VALUES (1181, 16, 1550, "Scene_DeathwingSimulator");

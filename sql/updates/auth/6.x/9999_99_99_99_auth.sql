@@ -1,4 +1,5 @@
-INSERT IGNORE INTO rbac_permissions (id, NAME) VALUES
+DELETE FROM `rbac_permissions` WHERE `id` IN (845, 846, 847, 848, 849, 850, 851);
+INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 ( 845, 'Command : scene' ),
 ( 846, 'Command : scene debug' ),
 ( 847, 'Command : scene play' ),
@@ -7,7 +8,8 @@ INSERT IGNORE INTO rbac_permissions (id, NAME) VALUES
 ( 850, 'Command : list scenes' ),
 ( 851, 'Command : reload scenes' );
 
-INSERT IGNORE INTO `rbac_linked_permissions` VALUES
+DELETE FROM `rbac_linked_permissions` WHERE `id` = 192 AND `linkedId` IN (845, 846, 847, 848, 849, 850, 851);
+INSERT INTO `rbac_linked_permissions` (`id`, `linkedId`) VALUES
 ( 192, 845 ),
 ( 192, 846 ),
 ( 192, 847 ),
