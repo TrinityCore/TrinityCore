@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `scene_template` (
   `ScriptPackageID` INT(10) UNSIGNED NOT NULL,
   `ScriptName` CHAR(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`SceneId`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8;
+) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
 DELETE FROM `trinity_string` WHERE `entry` IN ( 5062, 5063, 5064, 5065, 5066, 5067, 5068, 5069 );
 INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
