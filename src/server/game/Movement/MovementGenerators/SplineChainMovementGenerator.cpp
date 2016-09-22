@@ -135,7 +135,12 @@ SplineChainResumeInfo SplineChainMovementGenerator::GetResumeInfo(Unit const* me
     if (!_nextIndex)
         return SplineChainResumeInfo(_id, &_chain, _walk, 0, 0, _msToNext);
     if (me->movespline->Finalized())
-        return SplineChainResumeInfo(_id, &_chain, _walk, _nextIndex, 0, 1u);
+    {
+        if (_nextIndex < _chainSize)
+            return SplineChainResumeInfo(_id, &_chain, _walk, _nextIndex, 0, 1u);
+        else
+            return SplineChainResumeInfo();
+    }
     return SplineChainResumeInfo(_id, &_chain, _walk, uint8(_nextIndex - 1), uint8(me->movespline->_currentSplineIdx()), _msToNext);
 }
 
