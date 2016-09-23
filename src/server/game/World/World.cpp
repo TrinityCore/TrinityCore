@@ -2103,7 +2103,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
-        m_NextDailyQuestReset += DAY;
+        InitDailyQuestResetTime();
     }
 
     /// Handle weekly quests reset time
