@@ -408,6 +408,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
+        uint8 m_buffedTeam;
 
         ObjectGuid m_titansRelicGUID;
 };
