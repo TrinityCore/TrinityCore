@@ -91,7 +91,7 @@ enum Spells
     SPELL_DEATHCHILL_BOLT           = 70594,
     SPELL_DEATHCHILL_BLAST          = 70906,
     SPELL_CURSE_OF_TORPOR           = 71237,
-    SPELL_SHORUD_OF_THE_OCCULT      = 70768,
+    SPELL_SHROUD_OF_THE_OCCULT      = 70768,
     SPELL_ADHERENT_S_DETERMINATION  = 71234,
     SPELL_DARK_MARTYRDOM_ADHERENT   = 70903,
 
@@ -402,7 +402,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);
                     DoStartMovement(me->GetVictim());
-                    me->getThreatManager().resetAllAggro();
+                    DoResetThreat();
                     damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -588,7 +588,7 @@ class npc_cult_fanatic : public CreatureScript
 
         struct npc_cult_fanaticAI : public ScriptedAI
         {
-            npc_cult_fanaticAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_cult_fanaticAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void Reset() override
             {
@@ -650,12 +650,8 @@ class npc_cult_fanatic : public CreatureScript
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DoZoneInCombat(me);
 
-                                if (me->IsSummon())
-                                {
-                                    Unit* owner = me->ToTempSummon()->GetSummoner();
-                                    if (owner && owner->GetTypeId() == TYPEID_UNIT)
-                                        owner->ToCreature()->AI()->Talk(SAY_ANIMATE_DEAD);
-                                }
+                                if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
+                                    ladyDeathwhisper->AI()->Talk(SAY_ANIMATE_DEAD);
                             });
                         break;
                     default:
@@ -676,6 +672,7 @@ class npc_cult_fanatic : public CreatureScript
 
         protected:
             TaskScheduler _scheduler;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -691,7 +688,7 @@ class npc_cult_adherent : public CreatureScript
 
         struct npc_cult_adherentAI : public ScriptedAI
         {
-            npc_cult_adherentAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_cult_adherentAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void Reset() override
             {
@@ -711,7 +708,7 @@ class npc_cult_adherent : public CreatureScript
                    })
                    .Schedule(Seconds(15), [this](TaskContext shroud_of_the_occult)
                    {
-                       DoCastSelf(SPELL_SHORUD_OF_THE_OCCULT);
+                       DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
                        shroud_of_the_occult.Repeat(Seconds(10));
                    })
                    .Schedule(Seconds(15), [this](TaskContext curse_of_torpor)
@@ -750,15 +747,11 @@ class npc_cult_adherent : public CreatureScript
                                 me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                DoCastSelf(SPELL_SHORUD_OF_THE_OCCULT);
+                                DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
                                 DoZoneInCombat(me);
 
-                                if (me->IsSummon())
-                                {
-                                    Unit* owner = me->ToTempSummon()->GetSummoner();
-                                    if (owner && owner->GetTypeId() == TYPEID_UNIT)
-                                        owner->ToCreature()->AI()->Talk(SAY_ANIMATE_DEAD);
-                                }
+                                if (Creature* ladyDeathwhisper = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
+                                    ladyDeathwhisper->AI()->Talk(SAY_ANIMATE_DEAD);
                             });
                         break;
                     default:
@@ -776,6 +769,7 @@ class npc_cult_adherent : public CreatureScript
 
         protected:
             TaskScheduler _scheduler;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -871,9 +865,9 @@ class npc_darnavan : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(10));
-                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, randtime(Seconds(20), Seconds(25)));
-                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, randtime(Seconds(25), Seconds(30)));
-                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, randtime(Seconds(5), Seconds(8)));
+                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(20), Seconds(25));
+                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(25), Seconds(30));
+                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(5), Seconds(8));
                 Initialize();
             }
 
@@ -938,25 +932,25 @@ class npc_darnavan : public CreatureScript
                     {
                         case EVENT_DARNAVAN_BLADESTORM:
                             DoCast(SPELL_BLADESTORM);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, randtime(Seconds(90), Seconds(100)));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(90), Seconds(100));
                             break;
                         case EVENT_DARNAVAN_CHARGE:
                             _canCharge = true;
                             break;
                         case EVENT_DARNAVAN_INTIMIDATING_SHOUT:
                             DoCast(SPELL_INTIMIDATING_SHOUT);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, randtime(Seconds(90), Minutes(2)));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(90), Minutes(2));
                             break;
                         case EVENT_DARNAVAN_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, randtime(Seconds(15), Seconds(30)));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(15), Seconds(30));
                             break;
                         case EVENT_DARNAVAN_SHATTERING_THROW:
                             _canShatter = true;
                             break;
                         case EVENT_DARNAVAN_SUNDER_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, randtime(Seconds(3), Seconds(7)));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(3), Seconds(7));
                             break;
                     }
                 }
