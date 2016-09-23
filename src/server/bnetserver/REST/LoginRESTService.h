@@ -61,9 +61,6 @@ private:
     friend int32 handle_post_plugin(soap* soapClient);
     int32 HandlePost(soap* soapClient);
 
-    void BanBnetAccount(uint32 const accountId, uint32 const banTime);
-    void BanIp(std::string const& ipAddress, uint32 const banTime);
-
     int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
 
     std::string CalculateShaPassHash(std::string const& name, std::string const& password);

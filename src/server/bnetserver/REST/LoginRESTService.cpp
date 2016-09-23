@@ -301,11 +301,20 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
             if (maxWrongPassword)
             {
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
-                stmt->setUInt32(0, accountInfo->Id);
-                LoginDatabase.Execute(stmt);
+                SQLTransaction trans = LoginDatabase.BeginTransaction();
+                
+                PreparedStatement* updateFailedLogins;
+                PreparedStatement* insertBan = nullptr;
+                PreparedStatement* resetFailedLogins = nullptr;
+
+                updateFailedLogins = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+                updateFailedLogins->setUInt32(0, accountInfo->Id);
+                
+                trans->Append(updateFailedLogins);
 
                 accountInfo->FailedLogins++;
+
+                TC_LOG_DEBUG("server.rest", "MaxWrongPass : %u, failed_login : %u", maxWrongPassword, accountInfo->Id);
 
                 if (accountInfo->FailedLogins >= maxWrongPassword)
                 {
@@ -313,38 +322,38 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
                     int32 const banTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
 
                     if (banType == BanMode::BAN_ACCOUNT)
-                        BanBnetAccount(accountInfo->Id, banTime);
+                    {
+                        insertBan = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT_AUTO_BANNED);
+                        insertBan->setUInt32(0, accountInfo->Id);
+                    }
                     else
-                        BanIp(ip_address, banTime);
+                    {
+                        insertBan = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
+                        insertBan->setString(0, ip_address);
+                    }
 
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_RESET_FAILED_LOGINS);
-                    stmt->setUInt32(0, accountInfo->Id);
-                    LoginDatabase.Execute(stmt);
+                    insertBan->setUInt32(1, banTime);
+
+                    trans->Append(insertBan);
+
+                    resetFailedLogins = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_RESET_FAILED_LOGINS);
+                    resetFailedLogins->setUInt32(0, accountInfo->Id);
+                    
+                    trans->Append(resetFailedLogins);
                 }
+
+                LoginDatabase.CommitTransaction(trans);
+
+                /*if (insertBan)
+                    delete insertBan;
+                if (resetFailedLogins)
+                    delete resetFailedLogins;*/
             }
         }  
     }
 
     loginResult.set_authentication_state(Battlenet::JSON::Login::DONE);
     return SendResponse(soapClient, loginResult);
-}
-
-void LoginRESTService::BanBnetAccount(uint32 const accountId, uint32 const banTime)
-{
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT_AUTO_BANNED);
-    stmt->setUInt32(0, accountId);
-    stmt->setUInt32(1, banTime);
-
-    LoginDatabase.Execute(stmt);
-}
-
-void LoginRESTService::BanIp(std::string const& ipAddress, uint32 const banTime)
-{
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
-    stmt->setString(0, ipAddress);
-    stmt->setUInt32(1, banTime);
-
-    LoginDatabase.Execute(stmt);
 }
 
 int32 LoginRESTService::SendResponse(soap* soapClient, google::protobuf::Message const& response)
