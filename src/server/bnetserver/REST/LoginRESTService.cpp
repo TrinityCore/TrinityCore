@@ -343,11 +343,6 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
                 }
 
                 LoginDatabase.CommitTransaction(trans);
-
-                /*if (insertBan)
-                    delete insertBan;
-                if (resetFailedLogins)
-                    delete resetFailedLogins;*/
             }
         }  
     }
