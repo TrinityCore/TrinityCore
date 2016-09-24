@@ -92,7 +92,8 @@
 // start74
 // start75
 // start76
-// start77
+// Start Guild
+    void AddSC_gon_playerscripts();
 // start78
 // start79
 // start80
@@ -297,7 +298,8 @@ void AddCustomScripts()
 // end74
 // end75
 // end76
-// end77
+// Start Guild
+    AddSC_gon_playerscripts();
 // end78
 // end79
 // end80

@@ -3791,6 +3791,31 @@ Metric.OverallStatusInterval = 1
 #
 ###################################################################################################
 
+# Start Guild
+#
+# These settings set all new characters into a starting guild based on faction.
+#
+#    StartGuild.Alliance
+#        Description: Guild entry number for Alliance(Taken from guildid field in characters.guild table)
+#        Default: 45 (Default guildid)
+#                 1+ (guildid entry)
+#
+
+StartGuild.Alliance = 45
+
+#
+#    StartGuild.Horde
+#        Description: Guild entry number for Horde (Taken from guildid field in characters.guild table)
+#        Default: 46 (Default guildid)
+#                 1+ (guildid entry)
+
+#
+
+StartGuild.Horde = 46
+
+#
+###################################################################################################
+
 #
 # Prepatch by LordPsyan.
 # See http://www.realmsofwarcraft.com/bb for forums and information.
