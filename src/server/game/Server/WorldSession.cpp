@@ -195,8 +195,6 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
-    ASSERT(packet->GetOpcode() != NULL_OPCODE);
-
     // Playerbot mod: send packet to bot AI
     if (GetPlayer()) {
         if (GetPlayer()->GetPlayerbotAI())
@@ -204,6 +202,8 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         else if (GetPlayer()->GetPlayerbotMgr())
             GetPlayer()->GetPlayerbotMgr()->HandleMasterOutgoingPacket(*packet);
     }
+    // end of playerbot mod
+    ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
     if (!m_Socket)
         return;
@@ -1630,8 +1630,8 @@ void WorldSession::HandleBotPackets()
     WorldPacket* packet;
     while (_recvQueue.next(packet))
     {
-        ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
-		opHandle->Call(this, *packet);
+        const ClientOpcodeHandler* handler = opcodeTable[(Opcodes)packet->GetOpcode()];
+        handler->Call(this, *packet);
         delete packet;
     }
 }
