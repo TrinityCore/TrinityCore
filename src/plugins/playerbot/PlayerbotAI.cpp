@@ -198,7 +198,8 @@ void PlayerbotAI::HandleTeleportAck()
 	}
 	else if (bot->IsBeingTeleportedFar())
 	{
-		bot->GetSession()->HandleMoveWorldportAck();
+	    WorldPacket p;
+		bot->GetSession()->HandleMoveWorldportAckOpcode(p);
 		SetNextCheckDelay(1000);
 	}
 }
