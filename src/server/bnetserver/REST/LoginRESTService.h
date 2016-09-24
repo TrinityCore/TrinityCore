@@ -32,6 +32,12 @@
 struct soap;
 struct soap_plugin;
 
+enum class BanMode 
+{ 
+    BAN_IP = 0, 
+    BAN_ACCOUNT = 1 
+};
+
 class LoginRESTService
 {
 public:
