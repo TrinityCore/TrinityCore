@@ -37,6 +37,7 @@ void AddSC_GOMove_commandscript();
 void AddSC_custom_commands();
 void AddSC_FireWorksOnLevelUp();
 void AddSC_accontmounts();
+void MercenarySetup();
 //Bots
 void AddSC_death_knight_bot();
 void AddSC_druid_bot();
@@ -79,6 +80,7 @@ void AddCustomScripts()
 	AddSC_custom_commands();
 	AddSC_FireWorksOnLevelUp();
 	AddSC_accontmounts();
+	MercenarySetup();
     //Bots
     AddSC_death_knight_bot();
     AddSC_druid_bot();

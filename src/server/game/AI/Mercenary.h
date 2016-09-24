@@ -140,7 +140,7 @@ enum RaceModels
     DRAENEI_FEMALE_MODEL = 16126
 };
 
-#define MERCENARY_DEFAULT_ENTRY 70000
+#define MERCENARY_DEFAULT_ENTRY 72000
 
 class Mercenary
 {
