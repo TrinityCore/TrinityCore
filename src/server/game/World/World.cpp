@@ -2103,7 +2103,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
-        InitDailyQuestResetTime();
+        InitDailyQuestResetTime(false);
     }
 
     /// Handle weekly quests reset time
@@ -2934,18 +2934,19 @@ void World::InitWeeklyQuestResetTime()
     m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
-void World::InitDailyQuestResetTime()
+void World::InitDailyQuestResetTime(bool loading)
 {
-    time_t mostRecentQuestTime;
+    time_t mostRecentQuestTime = 0;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
-    if (result)
+    if (loading)
     {
-        Field* fields = result->Fetch();
-        mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        }
     }
-    else
-        mostRecentQuestTime = 0;
 
     // client built-in time for reset is 6:00 AM
     // FIX ME: client not show day start time
