@@ -16,7 +16,9 @@ CMakeLists.txt.user
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
+/cmake/
 nbproject/*
+workspace
 .idea/*
 .browse.VC*
 .vscode

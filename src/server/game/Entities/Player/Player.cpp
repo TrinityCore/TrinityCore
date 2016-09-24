@@ -102,7 +102,9 @@
 // 77
 // 78
 // 79
-// 80
+// Playerbot mod:
+#include "../../../../plugins/playerbot/playerbot.h"
+#include "../../../../plugins/playerbot/GuildTaskMgr.h"
 // Visit http://www.realmsofwarcraft.com/bb for forums and information
 //
 // End of prepatch
@@ -555,6 +557,10 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    // playerbot mod
+    m_playerbotAI = NULL;
+    m_playerbotMgr = NULL;
 }
 
 Player::~Player()
@@ -1590,7 +1596,11 @@ void Player::Update(uint32 p_time)
     // 97
     // 98
     // 99
-    // 100
+    // Playerbot mod
+    if (m_playerbotAI)
+       m_playerbotAI->UpdateAI(p_time);
+    if (m_playerbotMgr)
+       m_playerbotMgr->UpdateAI(p_time);
     // Visit http://www.realmsofwarcraft.com/bb for forums and information
     //
     // End of prepatch
@@ -15191,7 +15201,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpellCast() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpellCast());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
+        if (spellInfo && questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpellCast(), true);
@@ -15202,7 +15212,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
+        if (spellInfo && questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -23784,6 +23794,9 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
     KillRewarder(this, victim, isBattleGround).Reward();
+    // playerbot mod
+    sGuildTaskMgr.CheckKillTask(this, victim);
+    // end of playerbot mod
 }
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
