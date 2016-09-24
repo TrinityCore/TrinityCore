@@ -1449,9 +1449,9 @@ void BattlefieldWG::UpdateTenacity()
     if (newStack == int32(m_tenacityStack))
         return;
 
-    if (m_buffedTeam == 0)               // old buff was on alliance
+    if (m_buffedTeam == TEAM_ALLIANCE)            // old buff was on alliance
         team = TEAM_ALLIANCE;
-    else if (m_buffedTeam == 1)          // old buff was on horde
+    else if (m_buffedTeam == TEAM_HORDE)          // old buff was on horde
         team = TEAM_HORDE;
 
     m_tenacityStack = newStack;
@@ -1507,7 +1507,7 @@ void BattlefieldWG::UpdateTenacity()
         }
     }
     else
-        m_buffedTeam = 2;
+        m_buffedTeam = TEAM_NEUTRAL;
 }
 
 WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl) : BfCapturePoint(battlefield)
