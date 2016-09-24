@@ -15706,7 +15706,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo)
     {
-        if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+        if (qInfo->IsSeasonal() && qInfo->IsRepeatable())
         {
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
             auto seasonalQuestItr = m_seasonalquests.find(eventId);
@@ -15736,7 +15736,7 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
-            if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+            if (qInfo->IsSeasonal() && qInfo->IsRepeatable())
             {
                 uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
                 auto seasonalQuestItr = m_seasonalquests.find(eventId);
