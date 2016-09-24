@@ -282,6 +282,7 @@ void BanExpiryHandler(boost::system::error_code const& error)
     {
         LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
         LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
+        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_EXPERIED_ACCOUNT_BANNED));
 
         _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
         _banExpiryCheckTimer->async_wait(BanExpiryHandler);
