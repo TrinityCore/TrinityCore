@@ -532,6 +532,30 @@ enum CharacterDatabaseStatements
     CHAR_UPD_QUEST_TRACK_ABANDON_TIME,
 
     CHAR_INS_DESERTER_TRACK,
+    // Prepatch by LordPsyan
+    // 01
+    // 02
+    // 03
+    // 04
+    // 05
+    // 06
+    // 07
+    // 08
+    // 09
+    // 10
+    // 11
+    // 12
+    // 13
+    // 14
+    // 15
+    // 16
+    // 17
+    // 18
+    // 19
+    // 20
+    // Visit http://www.realmsofwarcraft.com/bb for forums and information
+    //
+    // End of prepatch
 
     MAX_CHARACTERDATABASE_STATEMENTS
 };
