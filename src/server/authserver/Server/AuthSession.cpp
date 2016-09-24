@@ -671,7 +671,7 @@ bool AuthSession::HandleLogonProof()
             stmt->setString(0, _accountInfo.Login);
             LoginDatabase.Execute(stmt);
 
-            if (_accountInfo.FailedLogins >= MaxWrongPassCount)
+            if (++_accountInfo.FailedLogins >= MaxWrongPassCount)
             {
                 uint32 WrongPassBanTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
                 bool WrongPassBanType = sConfigMgr->GetBoolDefault("WrongPass.BanType", false);
