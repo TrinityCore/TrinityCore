@@ -470,9 +470,158 @@ enum ExorcismMisc
 enum ExorcismEvents
 {
     EVENT_BARADAS_TALK = 1,
+    EVENT_RESET        = 2,
 
     //Colonel Jules
     EVENT_SUMMON_SKULL = 1,
+};
+
+/*######
+## npc_colonel_jules
+######*/
+
+class npc_colonel_jules : public CreatureScript
+{
+public:
+    npc_colonel_jules() : CreatureScript("npc_colonel_jules") { }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        if (ENSURE_AI(npc_colonel_jules::npc_colonel_julesAI, creature->AI())->success)
+            player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
+
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
+    struct npc_colonel_julesAI : public ScriptedAI
+    {
+        npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            point = 3;
+            wpreached = false;
+            success = false;
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+
+            summons.DespawnAll();
+            Initialize();
+        }
+
+        bool success;
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+            case ACTION_JULES_HOVER:
+                me->AddAura(SPELL_JULES_GOES_PRONE, me);
+                me->AddAura(SPELL_JULES_THREATENS_AURA, me);
+
+                me->SetCanFly(true);
+                me->SetSpeedRate(MOVE_RUN, 0.2f);
+
+                me->SetFacingTo(3.207566f);
+                me->GetMotionMaster()->MoveJump(exorcismPos[2], 2.0f, 2.0f);
+
+                success = false;
+
+                events.ScheduleEvent(EVENT_SUMMON_SKULL, 10000);
+                break;
+            case ACTION_JULES_FLIGHT:
+                me->RemoveAura(SPELL_JULES_GOES_PRONE);
+
+                me->AddAura(SPELL_JULES_GOES_UPRIGHT, me);
+                me->AddAura(SPELL_JULES_VOMITS_AURA, me);
+
+                wpreached = true;
+                me->GetMotionMaster()->MovePoint(point, exorcismPos[point]);
+                break;
+            case ACTION_JULES_MOVE_HOME:
+                wpreached = false;
+                me->SetSpeedRate(MOVE_RUN, 1.0f);
+                me->GetMotionMaster()->MovePoint(11, exorcismPos[2]);
+
+                events.CancelEvent(EVENT_SUMMON_SKULL);
+                break;
+            }
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            summons.Summon(summon);
+            summon->GetMotionMaster()->MoveRandom(10.0f);
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (id < 10)
+                wpreached = true;
+
+            if (id == 8)
+            {
+                for (uint8 i = 0; i < 2; i++)
+                    DoSummon(NPC_FOUL_PURGE, exorcismPos[8]);
+            }
+
+            if (id == 10)
+            {
+                wpreached = true;
+                point = 3;
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (wpreached)
+            {
+                me->GetMotionMaster()->MovePoint(point, exorcismPos[point]);
+                point++;
+                wpreached = false;
+            }
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_SUMMON_SKULL:
+                    uint8 summonCount = urand(1, 3);
+
+                    for (uint8 i = 0; i < summonCount; i++)
+                        me->SummonCreature(NPC_DARKNESS_RELEASED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 1.5f, 0, TEMPSUMMON_MANUAL_DESPAWN);
+
+                    events.ScheduleEvent(EVENT_SUMMON_SKULL, urand(10000, 15000));
+                    break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        SummonList summons;
+
+        uint8 point;
+
+        bool wpreached;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_colonel_julesAI(creature);
+    }
 };
 
 /*######
@@ -706,11 +855,11 @@ public:
                                 break;
                             case 21:
                                 //End
-                                if (Player* player = ObjectAccessor::FindPlayer(playerGUID))
-                                    player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
-
                                 if (Creature* jules = ObjectAccessor::GetCreature(*me, julesGUID))
+                                {
+                                    ENSURE_AI(npc_colonel_jules::npc_colonel_julesAI, jules->AI())->success = true;
                                     jules->RemoveAllAuras();
+                                }
 
                                 me->RemoveAura(SPELL_BARADAS_COMMAND);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -718,8 +867,13 @@ public:
                                 Talk(SAY_BARADA_8);
                                 me->GetMotionMaster()->MoveTargetedHome();
                                 EnterEvadeMode();
+                                events.ScheduleEvent(EVENT_RESET, Minutes(2));
                                 break;
                         }
+                        break;
+                    case EVENT_RESET:
+                        if (Creature* jules = ObjectAccessor::GetCreature(*me, julesGUID))
+                            ENSURE_AI(npc_colonel_jules::npc_colonel_julesAI, jules->AI())->success = false;
                         break;
                 }
             }
@@ -738,151 +892,12 @@ public:
     }
 };
 
-/*######
-## npc_colonel_jules
-######*/
-
-class npc_colonel_jules : public CreatureScript
-{
-public:
-    npc_colonel_jules() : CreatureScript("npc_colonel_jules") { }
-
-    struct npc_colonel_julesAI : public ScriptedAI
-    {
-        npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            circleRounds = 0;
-            point = 3;
-            wpreached = false;
-        }
-
-        void Reset() override
-        {
-            events.Reset();
-
-            summons.DespawnAll();
-            Initialize();
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-                case ACTION_JULES_HOVER:
-                    me->AddAura(SPELL_JULES_GOES_PRONE, me);
-                    me->AddAura(SPELL_JULES_THREATENS_AURA, me);
-
-                    me->SetCanFly(true);
-                    me->SetSpeedRate(MOVE_RUN, 0.2f);
-
-                    me->SetFacingTo(3.207566f);
-                    me->GetMotionMaster()->MoveJump(exorcismPos[2], 2.0f, 2.0f);
-
-                    events.ScheduleEvent(EVENT_SUMMON_SKULL, 10000);
-                    break;
-                case ACTION_JULES_FLIGHT:
-                    circleRounds++;
-
-                    me->RemoveAura(SPELL_JULES_GOES_PRONE);
-
-                    me->AddAura(SPELL_JULES_GOES_UPRIGHT, me);
-                    me->AddAura(SPELL_JULES_VOMITS_AURA, me);
-
-                    wpreached = true;
-                    me->GetMotionMaster()->MovePoint(point, exorcismPos[point]);
-                    break;
-                case ACTION_JULES_MOVE_HOME:
-                    wpreached = false;
-                    me->SetSpeedRate(MOVE_RUN, 1.0f);
-                    me->GetMotionMaster()->MovePoint(11, exorcismPos[2]);
-
-                    events.CancelEvent(EVENT_SUMMON_SKULL);
-                    break;
-            }
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
-            summon->GetMotionMaster()->MoveRandom(10.0f);
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id < 10)
-                wpreached = true;
-
-            if (id == 8)
-            {
-                for (uint8 i = 0; i < circleRounds; i++)
-                    DoSummon(NPC_FOUL_PURGE, exorcismPos[8]);
-            }
-
-            if (id == 10)
-            {
-                wpreached = true;
-                point = 3;
-                circleRounds++;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (wpreached)
-            {
-                me->GetMotionMaster()->MovePoint(point, exorcismPos[point]);
-                point++;
-                wpreached = false;
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SUMMON_SKULL:
-                        uint8 summonCount = urand(1,3);
-
-                        for (uint8 i = 0; i < summonCount; i++)
-                            me->SummonCreature(NPC_DARKNESS_RELEASED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 1.5f, 0, TEMPSUMMON_MANUAL_DESPAWN);
-
-                        events.ScheduleEvent(EVENT_SUMMON_SKULL, urand(10000, 15000));
-                        break;
-                }
-            }
-        }
-
-        private:
-            EventMap events;
-            SummonList summons;
-
-            uint8 circleRounds;
-            uint8 point;
-
-            bool wpreached;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_colonel_julesAI(creature);
-    }
-};
-
 void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
     new npc_ancestral_wolf();
     new npc_wounded_blood_elf();
     new npc_fel_guard_hound();
-    new npc_barada();
     new npc_colonel_jules();
+    new npc_barada();
 }

@@ -32,6 +32,9 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         bool Update(Unit* me, uint32 diff) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return SPLINE_CHAIN_MOTION_TYPE; }
         // Builds info that can later be used to resume this spline chain movement at the current position
+        static void GetResumeInfo(Unit const* me, SplineChainResumeInfo& info);
+        // Leaving the object method public for people that know what they're doing to use
+        // But really, 99% of the time you should be using the static one instead
         SplineChainResumeInfo GetResumeInfo(Unit const* me) const;
 
     private:

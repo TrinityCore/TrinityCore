@@ -498,7 +498,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
-void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint32 dbChainId, bool walk)
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
 {
     Creature* owner = _owner->ToCreature();
     if (!owner)
@@ -522,6 +522,11 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, SplineChain const& chain
 
 void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
 {
+    if (info.Empty())
+    {
+        TC_LOG_ERROR("misc", "MotionMaster::ResumeSplineChain: unit with entry %u tried to resume a spline chain from empty info.", _owner->GetEntry());
+        return;
+    }
     Mutate(new SplineChainMovementGenerator(info), MOTION_SLOT_ACTIVE);
 }
 

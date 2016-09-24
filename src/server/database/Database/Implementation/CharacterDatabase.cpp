@@ -634,4 +634,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 	PrepareStatement(CHAR_INS_NPCBOT, "INSERT INTO characters_npcbot (entry, roles) VALUES (?, ?)", CONNECTION_SYNCH);
 	PrepareStatement(CHAR_UPD_NPCBOT_FACTION, "UPDATE characters_npcbot SET faction = ? WHERE entry = ?", CONNECTION_SYNCH);
 	PrepareStatement(CHAR_SEL_NPCBOT_FACTION, "SELECT faction FROM characters_npcbot WHERE entry = ?", CONNECTION_SYNCH);
+
+    // Mercenary
+    PrepareStatement(CHAR_INS_MERCENARY, "INSERT INTO mercenaries VALUES(?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_BOTH);
+    PrepareStatement(CHAR_DEL_MERCENARY, "DELETE FROM mercenaries WHERE Id=?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_MERCENARY_SUMMON, "UPDATE mercenaries SET summoned=? WHERE Id=?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_MERCENARY_GEAR, "INSERT INTO mercenary_gear (guid, itemId, slot) VALUES (?, ?, ?)", CONNECTION_BOTH);
+    PrepareStatement(CHAR_UPD_MERCENARY_GEAR, "UPDATE mercenary_gear SET itemId=? WHERE guid=? AND slot=?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_MERCENARY_NAME, "UPDATE character_pet SET name=? WHERE Id=? and owner=?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_MERCENARY_GEAR, "DELETE FROM mercenary_gear WHERE guid=?", CONNECTION_ASYNC);
 }
