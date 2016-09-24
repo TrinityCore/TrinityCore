@@ -445,10 +445,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (updateLevel)
         SelectLevel();
 
+    UpdateLevelDependantStats();
+
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
-    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
-    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
     SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FIRE]));
     SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_NATURE]));
@@ -1190,15 +1189,18 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    uint32 rank = IsPet() ? 0 : cInfo->rank;
-
     // level
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
+}
 
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+void Creature::UpdateLevelDependantStats()
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    uint32 rank = IsPet() ? 0 : cInfo->rank;
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
 
     // health
     float healthmod = _GetHealthMod(rank);
@@ -1250,6 +1252,9 @@ void Creature::SelectLevel()
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+
+    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
+    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
 float Creature::_GetHealthMod(int32 Rank)
