@@ -24,6 +24,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "World.h"
+#include "MercenaryMgr.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -958,6 +959,9 @@ bool Creature::UpdateStats(Stats /*stat*/)
 
 bool Creature::UpdateAllStats()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return false;
+
     UpdateMaxHealth();
     UpdateAttackPowerAndDamage();
     UpdateAttackPowerAndDamage(true);
@@ -983,18 +987,27 @@ void Creature::UpdateResistances(uint32 school)
 
 void Creature::UpdateArmor()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
     SetArmor(int32(value));
 }
 
 void Creature::UpdateMaxHealth()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
     SetMaxHealth(uint32(value));
 }
 
 void Creature::UpdateMaxPower(Powers power)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float value  = GetTotalAuraModValue(unitMod);
@@ -1003,6 +1016,9 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
@@ -1036,6 +1052,9 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 
 void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     float variance = 1.0f;
     UnitMods unitMod;
     switch (attType)
@@ -1102,6 +1121,9 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
 
 bool Guardian::UpdateStats(Stats stat)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return false;
+
     if (stat >= MAX_STATS)
         return false;
 
@@ -1197,6 +1219,9 @@ bool Guardian::UpdateStats(Stats stat)
 
 bool Guardian::UpdateAllStats()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return false;
+
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         UpdateStats(Stats(i));
 
@@ -1226,6 +1251,9 @@ void Guardian::UpdateResistances(uint32 school)
 
 void Guardian::UpdateArmor()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     float value = 0.0f;
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
@@ -1245,6 +1273,9 @@ void Guardian::UpdateArmor()
 
 void Guardian::UpdateMaxHealth()
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
 
@@ -1270,6 +1301,9 @@ void Guardian::UpdateMaxHealth()
 
 void Guardian::UpdateMaxPower(Powers power)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
@@ -1295,6 +1329,9 @@ void Guardian::UpdateMaxPower(Powers power)
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     if (ranged)
         return;
 
@@ -1388,6 +1425,9 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 {
+    if (GetScriptName() == sMercenaryMgr->GetAIName())
+        return;
+
     if (attType > BASE_ATTACK)
         return;
 
