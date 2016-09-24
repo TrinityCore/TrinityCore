@@ -1889,7 +1889,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(std::fabs(addvalue));
+    int32 integerValue = int32(std::fabs(addvalue));
 
     if (powerType->RegenerationCenter)
     {
