@@ -363,7 +363,7 @@ public:
                         me->GetMotionMaster()->MoveIdle();
                         if (Creature* gryshka = ObjectAccessor::GetCreature(*me, gryshkaGUID))
                         {
-                            me->SetFacingTo(me->GetAngle(gryshka->GetPositionX(), gryshka->GetPositionY()));
+                            me->SetFacingToObject(gryshka);
                             gryshka->AI()->Talk(SAY_GRYSHKA_1);
                         }
                         events.ScheduleEvent(EVENT_SCENE_2, 4500);
@@ -631,7 +631,7 @@ public:
 
                 if (Creature* jaina = me->SummonCreature(NPC_JAINA_PROUDMOORE, PortalSpawnPosition))
                 {
-                    me->SetFacingTo(me->GetAngle(jaina->GetPositionX(), jaina->GetPositionY()));
+                    me->SetFacingToObject(jaina);
                     jainaGUID = jaina->GetGUID();
                     jaina->CastSpell(jaina, SPELL_JAINA_SPAWNIN);
                 }
@@ -689,7 +689,7 @@ public:
                     case EVENT_HERALD_SCENE2:
                         Talk(SAY_THRALL_1);
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
-                            me->SetFacingTo(me->GetAngle(jaina->GetPositionX(), jaina->GetPositionY()));
+                            me->SetFacingToObject(jaina);
                         events.ScheduleEvent(EVENT_HERALD_SCENE3, 3500);
                         break;
                     case EVENT_HERALD_SCENE3:
