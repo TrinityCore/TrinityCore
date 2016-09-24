@@ -174,7 +174,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 {
                     if (id == 1)
                     {
-                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation());
+                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation(), true);
                         TurnAudience();
 
                         switch (talkWing)
