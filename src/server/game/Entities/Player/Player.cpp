@@ -15048,7 +15048,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SetWeeklyQuestStatus(quest_id);
     else if (quest->IsMonthly())
         SetMonthlyQuestStatus(quest_id);
-    else if (quest->IsSeasonal())
+    else if (quest->IsSeasonal() && quest->IsRepeatable())
         SetSeasonalQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id, false);
