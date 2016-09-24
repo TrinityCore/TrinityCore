@@ -38,6 +38,7 @@ void AddSC_custom_commands();
 void AddSC_FireWorksOnLevelUp();
 void AddSC_accontmounts();
 void MercenarySetup();
+void AddSC_accountachievement();
 //Bots
 void AddSC_death_knight_bot();
 void AddSC_druid_bot();
@@ -81,6 +82,7 @@ void AddCustomScripts()
 	AddSC_FireWorksOnLevelUp();
 	AddSC_accontmounts();
 	MercenarySetup();
+	AddSC_accountachievement();
     //Bots
     AddSC_death_knight_bot();
     AddSC_druid_bot();
