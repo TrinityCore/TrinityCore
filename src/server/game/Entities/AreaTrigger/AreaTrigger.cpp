@@ -29,7 +29,7 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0)
+AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _areaTriggerTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -38,8 +38,6 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisua
 
     m_valuesCount = AREATRIGGER_END;
     _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
-
-    _areaTriggerTemplate = nullptr;
 }
 
 AreaTrigger::~AreaTrigger()
@@ -215,20 +213,20 @@ void AreaTrigger::SearchUnitInBox()
     float halfExtentsY = extentsY / 2.0;
     float halfExtentsZ = extentsZ / 2.0;
 
-    targetList.remove_if([this, halfExtentsX, halfExtentsY, halfExtentsZ](Unit* unit) -> bool
+    float minX = GetPositionX() - halfExtentsX;
+    float maxX = GetPositionX() + halfExtentsX;
+
+    float minY = GetPositionY() - halfExtentsY;
+    float maxY = GetPositionY() + halfExtentsY;
+
+    float minZ = GetPositionZ() - halfExtentsZ;
+    float maxZ = GetPositionZ() + halfExtentsZ;
+
+    G3D::AABox box({ minX, minY, minZ }, { maxX, maxY, maxZ });
+
+    targetList.remove_if([this, box](Unit* unit) -> bool
     {
-        float minX = GetPositionX() - halfExtentsX;
-        float maxX = GetPositionX() + halfExtentsX;
-
-        float minY = GetPositionY() - halfExtentsY;
-        float maxY = GetPositionY() + halfExtentsY;
-
-        float minZ = GetPositionZ() - halfExtentsZ;
-        float maxZ = GetPositionZ() + halfExtentsZ;
-
-        return  unit->GetPositionX() < minX || unit->GetPositionX() > maxX ||
-                unit->GetPositionY() < minY || unit->GetPositionY() > maxY ||
-                unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+        return !box.contains({ unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ() });
     });
 
     HandleUnitEnterExit(targetList);
