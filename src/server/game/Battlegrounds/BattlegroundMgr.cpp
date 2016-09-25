@@ -117,7 +117,7 @@ void BattlegroundMgr::Update(uint32 diff)
     }
 
     // update events timer
-    for (uint32 qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
+    for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
         m_BattlegroundQueues[qtype].UpdateEvents(diff);
 
     // update scheduled queues
@@ -126,7 +126,7 @@ void BattlegroundMgr::Update(uint32 diff)
         std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (uint32 i = 0; i < scheduled.size(); ++i)
+        for (uint8 i = 0; i < scheduled.size(); i++)
         {
             uint32 arenaMMRating = scheduled[i] >> 32;
             uint8 arenaType = scheduled[i] >> 24 & 255;
@@ -173,7 +173,7 @@ void BattlegroundMgr::Update(uint32 diff)
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
-            if (time(nullptr) > m_NextAutoDistributionTime)
+            if (time(NULL) > m_NextAutoDistributionTime)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
                 m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
@@ -278,14 +278,14 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
     //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
     Battleground* bg = GetBattlegroundTemplate(bgTypeId);
     if (!bg)
-        return nullptr;
+        return NULL;
 
     if (bg->isArena())
         return GetBattleground(instanceId, bgTypeId);
 
     BattlegroundDataContainer::const_iterator it = bgDataStore.find(bgTypeId);
     if (it == bgDataStore.end())
-        return nullptr;
+        return NULL;
 
     for (BattlegroundContainer::const_iterator itr = it->second.m_Battlegrounds.begin(); itr != it->second.m_Battlegrounds.end(); ++itr)
     {
@@ -293,13 +293,13 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
             return itr->second;
     }
 
-    return nullptr;
+    return NULL;
 }
 
 Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     if (!instanceId)
-        return nullptr;
+        return NULL;
 
     BattlegroundDataContainer::const_iterator begin, end;
 
@@ -312,7 +312,7 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTy
     {
         end = bgDataStore.find(bgTypeId);
         if (end == bgDataStore.end())
-            return nullptr;
+            return NULL;
         begin = end++;
     }
 
@@ -324,18 +324,18 @@ Battleground* BattlegroundMgr::GetBattleground(uint32 instanceId, BattlegroundTy
            return itr->second;
     }
 
-    return nullptr;
+    return NULL;
 }
 
 Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
 {
     BattlegroundDataContainer::const_iterator itr = bgDataStore.find(bgTypeId);
     if (itr == bgDataStore.end())
-        return nullptr;
+        return NULL;
 
     BattlegroundContainer const& bgs = itr->second.m_Battlegrounds;
     //map is sorted and we can be sure that lowest instance id has only BG template
-    return bgs.empty() ? nullptr : bgs.begin()->second;
+    return bgs.empty() ? NULL : bgs.begin()->second;
 }
 
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
@@ -374,10 +374,10 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     if (!bg_template)
     {
         TC_LOG_ERROR("bg.battleground", "Battleground: CreateNewBattleground - bg template not found for %u", bgTypeId);
-        return nullptr;
+        return NULL;
     }
 
-    Battleground* bg = nullptr;
+    Battleground* bg = NULL;
     // create a copy of the BG template
     switch (bgTypeId)
     {
@@ -417,7 +417,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_RB:
         case BATTLEGROUND_AA:
         default:
-            return nullptr;
+            return NULL;
     }
 
     bool isRandom = bgTypeId != originalBgTypeId && !bg->isArena();
@@ -554,7 +554,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         BattlegroundTypeId bgTypeId = BattlegroundTypeId(fields[0].GetUInt32());
 
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeId, nullptr))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeId, NULL))
             continue;
 
         // can be overwrite by values from DB
@@ -637,7 +637,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
         return;
 
     time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
-    time_t curtime = time(nullptr);
+    time_t curtime = time(NULL);
     TC_LOG_DEBUG("bg.battleground", "Initializing Automatic Arena Point Distribution");
     if (wstime < curtime)
     {

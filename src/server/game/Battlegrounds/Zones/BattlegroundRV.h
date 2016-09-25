@@ -24,10 +24,8 @@ enum BattlegroundRVObjectTypes
 {
     BG_RV_OBJECT_BUFF_1,
     BG_RV_OBJECT_BUFF_2,
-
     BG_RV_OBJECT_FIRE_1,
     BG_RV_OBJECT_FIRE_2,
-
     BG_RV_OBJECT_FIREDOOR_1,
     BG_RV_OBJECT_FIREDOOR_2,
 
@@ -48,7 +46,6 @@ enum BattlegroundRVObjectTypes
 
     BG_RV_OBJECT_ELEVATOR_1,
     BG_RV_OBJECT_ELEVATOR_2,
-
     BG_RV_OBJECT_MAX
 };
 
