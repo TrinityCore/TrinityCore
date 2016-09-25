@@ -173,67 +173,6 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
         }
 };
 
-enum AlchemistStone
-{
-    ALECHEMIST_STONE_HEAL      = 21399,
-    ALECHEMIST_STONE_MANA      = 21400,
-};
-
-// 17619 - Alchemist Stone
-class spell_gen_alchemist_stone : public SpellScriptLoader
-{
-    public:
-        spell_gen_alchemist_stone() : SpellScriptLoader("spell_gen_alchemist_stone") { }
-
-        class spell_gen_alchemist_stone_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_alchemist_stone_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(ALECHEMIST_STONE_HEAL) ||
-                    !sSpellMgr->GetSpellInfo(ALECHEMIST_STONE_MANA))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_POTION;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                uint32 spellId = 0;
-                int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 0.4f);
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_HEAL))
-                    spellId = ALECHEMIST_STONE_HEAL;
-                else if (eventInfo.GetDamageInfo()->GetSpellInfo()->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_ENERGIZE))
-                    spellId = ALECHEMIST_STONE_MANA;
-
-                if (!spellId)
-                    return;
-
-                GetTarget()->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
-            }
-
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_gen_alchemist_stone_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_gen_alchemist_stone_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_gen_alchemist_stone_AuraScript();
-        }
-};
-
 class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 {
     public:
@@ -1467,51 +1406,6 @@ class spell_gen_ds_flush_knockback : public SpellScriptLoader
         }
 };
 
-enum DummyTrigger
-{
-    SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
-    SPELL_PERSISTANT_SHIELD                 = 26467
-};
-
-class spell_gen_dummy_trigger : public SpellScriptLoader
-{
-    public:
-        spell_gen_dummy_trigger() : SpellScriptLoader("spell_gen_dummy_trigger") { }
-
-        class spell_gen_dummy_trigger_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD_TRIGGERED) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                int32 damage = GetEffectValue();
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                    if (SpellInfo const* triggeredByAuraSpell = GetTriggeringSpell())
-                        if (triggeredByAuraSpell->Id == SPELL_PERSISTANT_SHIELD_TRIGGERED)
-                            caster->CastCustomSpell(target, SPELL_PERSISTANT_SHIELD_TRIGGERED, &damage, NULL, NULL, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_dummy_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_dummy_trigger_SpellScript();
-        }
-};
-
 class spell_gen_dungeon_credit : public SpellScriptLoader
 {
     public:
@@ -2664,6 +2558,41 @@ class spell_gen_orc_disguise : public SpellScriptLoader
         }
 };
 
+class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
+{
+    public:
+        spell_gen_proc_below_pct_damaged(const char* name) : SpellScriptLoader(name) { }
+
+        class spell_gen_proc_below_pct_damaged_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_proc_below_pct_damaged_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return false;
+
+                int32 pct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
+
+                if (eventInfo.GetActionTarget()->HealthBelowPctDamaged(pct, damageInfo->GetDamage()))
+                    return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_proc_below_pct_damaged_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_proc_below_pct_damaged_AuraScript();
+        }
+};
+
 enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
@@ -3626,6 +3555,53 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_gen_upper_deck_create_foam_sword_SpellScript();
+        }
+};
+
+enum VampiricTouch
+{
+    SPELL_VAMPIRIC_TOUCH_HEAL   = 52724
+};
+
+// 52723 - Vampiric Touch
+// 60501 - Vampiric Touch
+class spell_gen_vampiric_touch : public SpellScriptLoader
+{
+    public:
+        spell_gen_vampiric_touch() : SpellScriptLoader("spell_gen_vampiric_touch") { }
+
+        class spell_gen_vampiric_touch_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_vampiric_touch_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VAMPIRIC_TOUCH_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                Unit* caster = eventInfo.GetActor();
+                int32 bp = damageInfo->GetDamage() / 2;
+                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_vampiric_touch_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_vampiric_touch_AuraScript();
         }
 };
 
@@ -4623,7 +4599,6 @@ void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_adaptive_warding();
-    new spell_gen_alchemist_stone();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_animal_blood();
     new spell_gen_aura_of_anger();
@@ -4651,7 +4626,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_despawn_self();
     new spell_gen_divine_storm_cd_reset();
     new spell_gen_ds_flush_knockback();
-    new spell_gen_dummy_trigger();
     new spell_gen_dungeon_credit();
     new spell_gen_elune_candle();
     new spell_gen_fishing();
@@ -4677,6 +4651,12 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_orc_disguise();
+    new spell_gen_proc_below_pct_damaged("spell_item_soul_harvesters_charm");
+    new spell_gen_proc_below_pct_damaged("spell_item_commendation_of_kaelthas");
+    new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin");
+    new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin_heroic");
+    new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale");
+    new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale_heroic");
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_profession_research();
@@ -4700,6 +4680,7 @@ void AddSC_generic_spell_scripts()
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
+    new spell_gen_vampiric_touch();
     new spell_gen_vehicle_scaling();
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();
