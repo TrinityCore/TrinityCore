@@ -967,6 +967,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
             break;
         case TYPEID_CONVERSATION:
             flags = ConversationDynamicUpdateFieldFlags;
+
+            if (Conversation const* conversation = ToConversation())
+                if (conversation->GetCasterGuid() == target->GetGUID())
+                    visibleFlag |= UF_FLAG_0x100;
             break;
         default:
             flags = nullptr;

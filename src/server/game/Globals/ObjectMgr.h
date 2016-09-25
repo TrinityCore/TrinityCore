@@ -24,6 +24,7 @@
 #include "Bag.h"
 #include "Creature.h"
 #include "DynamicObject.h"
+#include "Conversation.h"
 #include "GameObject.h"
 #include "TemporarySummon.h"
 #include "Corpse.h"
@@ -624,6 +625,10 @@ struct CharacterTemplate
 
 typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
 
+typedef std::unordered_map<uint32, ConversationTemplate> ConversationTemplateContainer;
+typedef std::unordered_map<uint32, ConversationActorTemplate> ConversationActorTemplateContainer;
+typedef std::unordered_map<uint32, ConversationLineTemplate> ConversationLineTemplateContainer;
+
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1069,6 +1074,8 @@ class TC_GAME_API ObjectMgr
         void LoadTerrainWorldMaps();
         void LoadAreaPhases();
 
+        void LoadConversationTemplates();
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1403,6 +1410,15 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        ConversationTemplate const* GetConversationTemplate(uint32 id) const
+        {
+            auto itr = _conversationTemplateStore.find(id);
+            if (itr != _conversationTemplateStore.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1556,6 +1572,10 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         CharacterTemplateContainer _characterTemplateStore;
+
+        ConversationTemplateContainer       _conversationTemplateStore;
+        ConversationActorTemplateContainer  _conversationActorTemplateStore;
+        ConversationLineTemplateContainer   _conversationLineTemplateStore;
 
         enum CreatureLinkedRespawnType
         {

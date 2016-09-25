@@ -28,7 +28,7 @@
 #include "Unit.h"
 #include "UpdateData.h"
 
-Conversation::Conversation() : WorldObject(false)
+Conversation::Conversation() : WorldObject(false), _duration(0)
 {
     m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
@@ -63,7 +63,28 @@ void Conversation::RemoveFromWorld()
     }
 }
 
-bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, SpellInfo const* spell, Position const& pos)
+void Conversation::Update(uint32 p_time)
+{
+    if (GetDuration() > int32(p_time))
+        _duration -= p_time;
+    else
+        Remove(); // expired
+
+    WorldObject::Update(p_time);
+}
+
+void Conversation::Remove()
+{
+    if (IsInWorld())
+    {
+        SendObjectDeSpawnAnim(GetGUID());
+        RemoveFromWorld();
+        AddObjectToRemoveList();
+    }
+}
+
+
+bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, Position const& pos)
 {
     _casterGuid = caster->GetGUID();
 
@@ -72,34 +93,20 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
+    CopyPhaseFrom(caster);
 
-    conversationEntry = 585;
     SetEntry(conversationEntry);
     SetObjectScale(1);
 
-    uint32 lastLineDuration = 3992;
-    std::vector<ConversationActor> actors;
-    std::vector<ConversationLine> lines;
+    ConversationTemplate const* conversationTemplate = sObjectMgr->GetConversationTemplate(conversationEntry);
 
-    ConversationActor actor;
-    actor.Id = 49935;
-    actor.CreatureId = 93802;
-    actor.Unk1 = 65935;
-    actor.Unk2 = 0;
-    actor.Unk3 = 1;
-    actor.Unk4 = 0;
-    actors.push_back(actor);
+    if (!conversationTemplate)
+        return false;
 
-    ConversationLine line;
-    line.Id = 1519;
-    line.Unk1 = 0;
-    line.Unk2 = 262;
-    line.Unk3 = 0;
-    lines.push_back(line);
+    SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, conversationTemplate->LastLineDuration);
+    _duration = (conversationTemplate->Lines.size() - 1) * 10000 + conversationTemplate->LastLineDuration; // Estimated duration, need further investigation
 
-    SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, lastLineDuration);
-
-    for (ConversationActor actor : actors)
+    for (ConversationActorTemplate actor : conversationTemplate->Actors)
     {
         AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Id);
         AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.CreatureId);
@@ -109,7 +116,7 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
         AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk4);
     }
 
-    for (ConversationLine line : lines)
+    for (ConversationLineTemplate line : conversationTemplate->Lines)
     {
         AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Id);
         AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk1);

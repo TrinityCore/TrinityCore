@@ -5696,7 +5696,7 @@ void Spell::EffectCreateConversation(SpellEffIndex effIndex)
     uint32 conversationEntry = effectInfo->MiscValue;
 
     Conversation* conversation = new Conversation;
-    if (!conversation->CreateConversation(GetCaster()->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, GetCaster(), GetSpellInfo(), pos))
+    if (!conversation->CreateConversation(GetCaster()->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, GetCaster(), pos))
         delete conversation;
 }
 
