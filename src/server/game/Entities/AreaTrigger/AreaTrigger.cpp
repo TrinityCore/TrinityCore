@@ -97,10 +97,15 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
     SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, spell->GetDuration()); // Todo
 
-    if (GetTemplate()->IsSphere())
-        SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->SphereDatas.Radius);
-    else if (GetTemplate()->IsCylinder())
-        SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
+    switch (GetTemplate()->GetType())
+    {
+        case AREATRIGGER_TYPE_SPHERE:
+            SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->SphereDatas.Radius);
+            break;
+        case AREATRIGGER_TYPE_CYLINDER:
+            SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
+            break;
+    }
 
     CopyPhaseFrom(caster);
 
@@ -143,21 +148,20 @@ void AreaTrigger::Update(uint32 p_time)
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
 
-    if (GetTemplate()->IsSphere())
+    switch (GetTemplate()->GetType())
     {
-        SearchUnitInSphere();
-    }
-    else if (GetTemplate()->IsBox())
-    {
-        SearchUnitInBox();
-    }
-    else if (GetTemplate()->IsPolygon())
-    {
-        SearchUnitInPolygon();
-    }
-    else if (GetTemplate()->IsCylinder())
-    {
-        SearchUnitInCylinder();
+        case AREATRIGGER_TYPE_SPHERE:
+            SearchUnitInSphere();
+            break;
+        case AREATRIGGER_TYPE_BOX:
+            SearchUnitInBox();
+            break;
+        case AREATRIGGER_TYPE_POLYGON:
+            SearchUnitInPolygon();
+            break;
+        case AREATRIGGER_TYPE_CYLINDER:
+            SearchUnitInCylinder();
+            break;
     }
 }
 
