@@ -31,10 +31,6 @@
 
 enum MageSpells
 {
-    SPELL_ARCANCE_POTENCY_RANK_1                 = 31571,
-    SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
-    SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
-    SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
@@ -46,6 +42,7 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_MANA_SURGE                        = 37445,
     SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_PERMAFROST                        = 91394,
     SPELL_MAGE_SLOW                              = 31589,
@@ -73,54 +70,6 @@ enum MiscSpells
     SPELL_SHAMAN_EXHAUSTION                      = 57723,
     SPELL_SHAMAN_SATED                           = 57724,
     SPELL_MAGE_CHILLED                           = 205708
-};
-
-// -31571 - Arcane Potency
-class spell_mage_arcane_potency : public SpellScriptLoader
-{
-    public:
-        spell_mage_arcane_potency () : SpellScriptLoader("spell_mage_arcane_potency") { }
-
-        class spell_mage_arcane_potency_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_arcane_potency_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                uint32 spellId = 0;
-
-                if (GetSpellInfo()->Id == SPELL_ARCANCE_POTENCY_RANK_1)
-                    spellId = SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1;
-                else if (GetSpellInfo()->Id == SPELL_ARCANCE_POTENCY_RANK_2)
-                    spellId = SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2;
-                if (!spellId)
-                    return;
-
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
-
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_mage_arcane_potency_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_arcane_potency_AuraScript();
-        }
 };
 
 // 235313 - Blazing Barrier
@@ -168,6 +117,37 @@ class spell_mage_blazing_barrier : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_mage_blazing_barrier_AuraScript();
+        }
+};
+
+// 198063 - Burning Determination
+class spell_mage_burning_determination : public SpellScriptLoader
+{
+    public:
+        spell_mage_burning_determination() : SpellScriptLoader("spell_mage_burning_determination") { }
+
+        class spell_mage_burning_determination_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_burning_determination_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                    if (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_INTERRUPT) | (1 << MECHANIC_SILENCE)))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_burning_determination_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_burning_determination_AuraScript();
         }
 };
 
@@ -338,45 +318,34 @@ class spell_mage_focus_magic : public SpellScriptLoader
         }
 };
 
-// 56372 - Glyph of Ice Block
-class spell_mage_glyph_of_ice_block : public SpellScriptLoader
+// 195283 - Hot Streak
+class spell_mage_hot_streak : public SpellScriptLoader
 {
     public:
-        spell_mage_glyph_of_ice_block() : SpellScriptLoader("spell_mage_glyph_of_ice_block") { }
+        spell_mage_hot_streak() : SpellScriptLoader("spell_mage_hot_streak") { }
 
-        class spell_mage_glyph_of_ice_block_AuraScript : public AuraScript
+        class spell_mage_hot_streak_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mage_glyph_of_ice_block_AuraScript);
+            PrepareAuraScript(spell_mage_hot_streak_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_NOVA))
-                    return false;
                 return true;
             }
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                return GetTarget()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                // Remove Frost Nova cooldown
-                GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_MAGE_FROST_NOVA, true);
             }
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_mage_glyph_of_ice_block_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_ice_block_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_mage_hot_streak_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_mage_glyph_of_ice_block_AuraScript();
+            return new spell_mage_hot_streak_AuraScript();
         }
 };
 
@@ -446,6 +415,42 @@ class spell_mage_glyph_of_polymorph : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_mage_glyph_of_polymorph_AuraScript();
+        }
+};
+
+// 37447 - Improved Mana Gems
+// 61062 - Improved Mana Gems
+class spell_mage_imp_mana_gems : public SpellScriptLoader
+{
+    public:
+        spell_mage_imp_mana_gems() : SpellScriptLoader("spell_mage_imp_mana_gems") { }
+
+        class spell_mage_imp_mana_gems_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_imp_mana_gems_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MANA_SURGE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_imp_mana_gems_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_imp_mana_gems_AuraScript();
         }
 };
 
@@ -1140,17 +1145,18 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 
 void AddSC_mage_spell_scripts()
 {
-    new spell_mage_arcane_potency();
     new spell_mage_blazing_barrier();
+    new spell_mage_burning_determination();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
     new spell_mage_focus_magic();
+    new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
-    new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
+    new spell_mage_imp_mana_gems();
     new spell_mage_living_bomb();
     new spell_mage_master_of_elements();
     new spell_mage_nether_vortex();
