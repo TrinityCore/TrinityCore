@@ -29,6 +29,13 @@ WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Scenes::CancelScene::Write()
+{
+    _worldPacket << SceneInstanceID;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Scenes::SceneTriggerEvent::Read()
 {
     uint32 len = _worldPacket.ReadBits(6);

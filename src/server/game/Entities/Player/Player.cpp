@@ -113,7 +113,7 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint64 const MAX_MONEY_AMOUNT = 9999999999ULL;
 
-Player::Player(WorldSession* session) : Unit(true)
+Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;

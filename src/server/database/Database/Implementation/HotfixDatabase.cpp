@@ -687,6 +687,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, ItemLevelCurveID, MinLevel, MaxLevel FROM scaling_stat_distribution"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // SceneScript.db2
+    PrepareStatement(HOTFIX_SEL_SCENE_SCRIPT, "SELECT ID, Name, Script, PrevScriptId, NextScriptId FROM scene_script ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // SceneScriptPackage.db2
+    PrepareStatement(HOTFIX_SEL_SCENE_SCRIPT_PACKAGE, "SELECT ID, Name FROM scene_script_package ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // SkillLine.db2
     PrepareStatement(HOTFIX_SEL_SKILL_LINE, "SELECT ID, DisplayName, Description, AlternateVerb, SpellIconID, Flags, CategoryID, CanLink, "
         "ParentSkillLineID FROM skill_line ORDER BY ID DESC", CONNECTION_SYNCH);
