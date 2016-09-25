@@ -1192,7 +1192,7 @@ class npc_crok_scourgebane : public CreatureScript
                             }
                             else
                             {
-                                me->DealHeal(me, me->CountPctFromMaxHealth(5));
+                                me->ModifyHealth(me->CountPctFromMaxHealth(5));
                                 _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
                             }
                             break;

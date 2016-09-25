@@ -46,8 +46,6 @@ class TC_GAME_API AuraEffect
         template <typename Container>
         void GetApplicationList(Container& applicationContainer) const;
 
-        SpellModifier* GetSpellModifier() const { return m_spellmod; }
-
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
         uint32 GetEffIndex() const { return m_effIndex; }
@@ -95,8 +93,9 @@ class TC_GAME_API AuraEffect
         bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
-        void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
+        void PeriodicTick(AuraApplication* aurApp, Unit* caster) const;
 
+        bool CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         void CleanupTriggeredSpells(Unit* target);
@@ -314,6 +313,7 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
+        void HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
