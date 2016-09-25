@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "Conversation.h"
+#include "CellImpl.h"
+#include "Chat.h"
+#include "DB2Stores.h"
+#include "GridNotifiersImpl.h"
+#include "Log.h"
+#include "Object.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "SpellInfo.h"
+#include "Unit.h"
+#include "UpdateData.h"
+
+Conversation::Conversation() : WorldObject(false)
+{
+    m_objectType |= TYPEMASK_CONVERSATION;
+    m_objectTypeId = TYPEID_CONVERSATION;
+
+    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
+
+    m_valuesCount = CONVERSATION_END;
+    _dynamicValuesCount = CONVERSATION_DYNAMIC_END;
+}
+
+Conversation::~Conversation()
+{
+}
+
+void Conversation::AddToWorld()
+{
+    ///- Register the AreaTrigger for guid lookup and for caster
+    if (!IsInWorld())
+    {
+        GetMap()->GetObjectsStore().Insert<Conversation>(GetGUID(), this);
+        WorldObject::AddToWorld();
+    }
+}
+
+void Conversation::RemoveFromWorld()
+{
+    ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
+    if (IsInWorld())
+    {
+        WorldObject::RemoveFromWorld();
+        GetMap()->GetObjectsStore().Remove<Conversation>(GetGUID());
+    }
+}
+
+bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, SpellInfo const* spell, Position const& pos)
+{
+    _casterGuid = caster->GetGUID();
+
+    SetMap(caster->GetMap());
+    Relocate(pos);
+
+    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
+
+    conversationEntry = 585;
+    SetEntry(conversationEntry);
+    SetObjectScale(1);
+
+    uint32 lastLineDuration = 3992;
+    std::vector<ConversationActor> actors;
+    std::vector<ConversationLine> lines;
+
+    ConversationActor actor;
+    actor.Id = 49935;
+    actor.CreatureId = 93802;
+    actor.Unk1 = 65935;
+    actor.Unk2 = 0;
+    actor.Unk3 = 1;
+    actor.Unk4 = 0;
+    actors.push_back(actor);
+
+    ConversationLine line;
+    line.Id = 1519;
+    line.Unk1 = 0;
+    line.Unk2 = 262;
+    line.Unk3 = 0;
+    lines.push_back(line);
+
+    SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, lastLineDuration);
+
+    for (ConversationActor actor : actors)
+    {
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Id);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.CreatureId);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk1);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk2);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk3);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk4);
+    }
+
+    for (ConversationLine line : lines)
+    {
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Id);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk1);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk2);
+        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk3);
+    }
+
+    if (!GetMap()->AddToMap(this))
+        return false;
+
+    return true;
+}
