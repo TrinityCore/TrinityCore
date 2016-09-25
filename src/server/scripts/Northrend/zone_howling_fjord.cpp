@@ -180,7 +180,7 @@ public:
                         me->SetSheath(SHEATH_STATE_MELEE);
                         break;
                     case EVENT_BURN_CRATES:
-                        me->DoCastSelf(SPELL_BURN, true);
+                        DoCastAOE(SPELL_BURN, true);
                         break;
                     case EVENT_TALK_3:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
