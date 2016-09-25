@@ -52,8 +52,4 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
 
         MaxSearchRadius = std::sqrt((radius * radius) + (height * height));
     }
-    else if (IsSpline())
-    {
-        // TODO
-    }
 }

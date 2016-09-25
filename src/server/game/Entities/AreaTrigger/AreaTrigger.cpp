@@ -159,10 +159,6 @@ void AreaTrigger::Update(uint32 p_time)
     {
         SearchUnitInCylinder();
     }
-    else if (GetTemplate()->IsSpline())
-    {
-        //SearchUnitInSline();
-    }
 }
 
 void AreaTrigger::Remove()
