@@ -1507,7 +1507,8 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
         healthGain = m_caster->SpellHealingBonusDone(m_caster, m_spellInfo, healthGain, HEAL);
         healthGain = m_caster->SpellHealingBonusTaken(m_caster, m_spellInfo, healthGain, HEAL);
 
-        m_caster->HealBySpell(m_caster, m_spellInfo, uint32(healthGain));
+        HealInfo healInfo(m_caster, m_caster, healthGain, m_spellInfo, m_spellSchoolMask);
+        m_caster->HealBySpell(healInfo);
     }
 }
 
@@ -2197,7 +2198,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+        modOwner->ApplySpellMod<SPELLMOD_DURATION>(m_spellInfo->Id, duration);
 
     TempSummon* summon = NULL;
 
@@ -5442,18 +5443,8 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     m_runesState = m_caster->ToPlayer()->GetRunesState();
 
     uint32 count = damage;
-    if (count == 0) count = 1;
-    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
-    {
-        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
-        {
-            if (m_spellInfo->Id == 45529)
-                if (player->GetBaseRune(j) != RuneType(m_spellInfo->Effects[effIndex].MiscValueB))
-                    continue;
-            player->SetRuneCooldown(j, 0);
-            --count;
-        }
-    }
+    if (count == 0)
+        count = 1;
 
     // Blood Tap
     if (m_spellInfo->Id == 45529 && count > 0)
@@ -5461,11 +5452,12 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
         {
             // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetBaseRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
+            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RUNE_BLOOD) && (player->GetRuneCooldown(l + 1) && player->GetBaseRune(l + 1) == RUNE_BLOOD))
             {
                 // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
-                    l++;
+                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l + 1))
+                    ++l;
+
                 player->SetRuneCooldown(l, 0);
                 --count;
                 // is needed to push through to the client that the rune is active
@@ -5473,6 +5465,15 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             }
             else
                 break;
+        }
+    }
+
+    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+    {
+        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
+        {
+            player->SetRuneCooldown(j, 0);
+            --count;
         }
     }
 
@@ -5485,7 +5486,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
         for (uint32 i = 0; i < MAX_RUNES; ++i)
         {
-            if (player->GetRuneCooldown(i) && (player->GetCurrentRune(i) == RUNE_FROST ||  player->GetCurrentRune(i) == RUNE_DEATH))
+            if (player->GetRuneCooldown(i) && (player->GetBaseRune(i) == RUNE_FROST))
                 player->SetRuneCooldown(i, 0);
         }
     }
@@ -5614,7 +5615,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
     int32 duration = m_spellInfo->GetDuration();
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+        modOwner->ApplySpellMod<SPELLMOD_DURATION>(m_spellInfo->Id, duration);
 
     //TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map* map = caster->GetMap();
