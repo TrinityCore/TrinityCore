@@ -918,10 +918,6 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_CONVERSATION:
             flags = ConversationUpdateFieldFlags;
-
-            if (Conversation const* conversation = ToConversation())
-                if (conversation->GetCasterGuid() == target->GetGUID())
-                    visibleFlag |= UF_FLAG_0x100;
             break;
         case TYPEID_OBJECT:
             ABORT();
