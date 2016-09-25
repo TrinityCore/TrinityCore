@@ -114,7 +114,7 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint64 const MAX_MONEY_AMOUNT = 9999999999ULL;
 
-Player::Player(WorldSession* session) : Unit(true)
+Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -137,10 +137,9 @@ Player::Player(WorldSession* session) : Unit(true)
     if (!GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS))
         SetAcceptWhispers(true);
 
+    m_combatExitTime = 0;
     m_regenTimer = 0;
     m_regenTimerCount = 0;
-    m_holyPowerRegenTimerCount = 0;
-    m_focusRegenTimerCount = 0;
     m_weaponChangeTimer = 0;
 
     m_zoneUpdateId = uint32(-1);
@@ -666,7 +665,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     }
     // all item positions resolved
 
-    if (ChrSpecializationEntry const* defaultSpec = sChrSpecializationStore.LookupEntry(cEntry->DefaultSpec))
+    if (ChrSpecializationEntry const* defaultSpec = sDB2Manager.GetDefaultChrSpecializationForClass(getClass()))
     {
         SetActiveTalentGroup(defaultSpec->OrderIndex);
         SetPrimarySpecialization(defaultSpec->ID);
@@ -1795,19 +1794,11 @@ bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) co
 
 void Player::RegenerateAll()
 {
-    //if (m_regenTimer <= 500)
-    //    return;
-
     m_regenTimerCount += m_regenTimer;
 
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount += m_regenTimer;
-
-    if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_regenTimer;
-
-    Regenerate(POWER_ENERGY);
-    Regenerate(POWER_MANA);
+    for (Powers power = POWER_MANA; power < MAX_POWERS; power = Powers(power + 1))
+        if (power != POWER_RUNES)
+            Regenerate(power);
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
@@ -1830,33 +1821,13 @@ void Player::RegenerateAll()
         }
     }
 
-    if (m_focusRegenTimerCount >= 1000 && getClass() == CLASS_HUNTER)
-    {
-        Regenerate(POWER_FOCUS);
-        m_focusRegenTimerCount -= 1000;
-    }
-
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
-        if (!IsInCombat() || IsPolymorphed() || m_baseHealthRegen ||
-            HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
-        {
+        if (!IsInCombat() || IsPolymorphed() || m_baseHealthRegen || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) || HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
             RegenerateHealth();
-        }
-
-        Regenerate(POWER_RAGE);
-        if (getClass() == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
-    }
-
-    if (m_holyPowerRegenTimerCount >= 10000 && getClass() == CLASS_PALADIN)
-    {
-        Regenerate(POWER_HOLY_POWER);
-        m_holyPowerRegenTimerCount -= 10000;
     }
 
     m_regenTimer = 0;
@@ -1864,77 +1835,58 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    uint32 maxValue = GetMaxPower(power);
-    if (!maxValue)
-        return;
-
-    uint32 curValue = GetPower(power);
-
-    /// @todo possible use of miscvalueb instead of amount
-    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
-        return;
-
     // Skip regeneration for power type we cannot have
     uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
+    /// @todo possible use of miscvalueb instead of amount
+    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
+        return;
+
+    int32 curValue = GetPower(power);
+
+    // TODO: updating haste should update UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER for certain power types
+    PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power);
+    if (!powerType)
+        return;
+
     float addvalue = 0.0f;
-
-    // Powers now benefit from haste.
-    float rangedHaste = GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
-    float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
-    float spellHaste = GetFloatValue(UNIT_MOD_CAST_SPEED);
-
-    switch (power)
+    if (!IsInCombat())
     {
-        case POWER_MANA:
-        {
-            float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-
-            if (IsInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
-            else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * m_regenTimer) + CalculatePct(0.001f, spellHaste));
-        }
-        break;
-        case POWER_RAGE:                                                // Regenerate rage
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
-                addvalue += -25 * RageDecreaseRate / meleeHaste;                // 2.5 rage by tick (= 2 seconds => 1.25 rage/sec)
-            }
-        }
-        break;
-        case POWER_FOCUS:
-            addvalue += (6.0f + CalculatePct(6.0f, rangedHaste)) * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        case POWER_ENERGY:                                              // Regenerate energy (rogue)
-            addvalue += ((0.01f * m_regenTimer) + CalculatePct(0.01f, meleeHaste)) * sWorld->getRate(RATE_POWER_ENERGY);
-            break;
-        case POWER_RUNIC_POWER:
-        {
-            if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
-            {
-                float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
-            }
-        }
-        break;
-        case POWER_HOLY_POWER:                                          // Regenerate holy power
-        {
-            if (!IsInCombat())
-                addvalue += -1.0f;      // remove 1 every 10 sec, first one removed 20s after leaving combat
-        }
-        break;
-        case POWER_RUNES:
-            break;
-        case POWER_HEALTH:
+        if (powerType->RegenerationDelay && GetMSTimeDiffToNow(m_combatExitTime) < powerType->RegenerationDelay)
             return;
-        default:
-            break;
+
+        addvalue = (powerType->RegenerationPeace + GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex)) * 0.001f * m_regenTimer;
     }
+    else
+        addvalue = (powerType->RegenerationCombat + GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex)) * 0.001f * m_regenTimer;
+
+    static Rates const RatesForPower[MAX_POWERS] =
+    {
+        RATE_POWER_MANA,
+        RATE_POWER_RAGE_LOSS,
+        RATE_POWER_FOCUS,
+        RATE_POWER_ENERGY,
+        RATE_POWER_COMBO_POINTS_LOSS,
+        MAX_RATES, // runes
+        RATE_POWER_RUNIC_POWER_LOSS,
+        RATE_POWER_SOUL_SHARDS,
+        RATE_POWER_LUNAR_POWER,
+        RATE_POWER_HOLY_POWER,
+        MAX_RATES, // alternate
+        RATE_POWER_MAELSTROM,
+        RATE_POWER_CHI,
+        RATE_POWER_INSANITY,
+        MAX_RATES, // burning embers, unused
+        MAX_RATES, // demonic fury, unused
+        RATE_POWER_ARCANE_CHARGES,
+        RATE_POWER_FURY,
+        RATE_POWER_PAIN,
+    };
+
+    if (RatesForPower[power] != MAX_RATES)
+        addvalue *= sWorld->getRate(RatesForPower[power]);
 
     // Mana regen calculated in Player::UpdateManaRegen()
     if (power != POWER_MANA)
@@ -1944,51 +1896,69 @@ void Player::Regenerate(Powers power)
             if (Powers((*i)->GetMiscValue()) == power)
                 AddPct(addvalue, (*i)->GetAmount());
 
-        // Butchery requires combat for this effect
-        if (power != POWER_RUNIC_POWER || IsInCombat())
-            addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
+        addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * ((power != POWER_ENERGY) ? m_regenTimerCount : m_regenTimer) / (5 * IN_MILLISECONDS);
     }
+
+    int32 minPower = powerType->RegenerationMin;
+    int32 maxPower = GetMaxPower(power);
 
     if (addvalue < 0.0f)
     {
-        if (curValue == 0)
+        if (curValue <= minPower)
             return;
     }
     else if (addvalue > 0.0f)
     {
-        if (curValue == maxValue)
+        if (curValue >= maxPower)
             return;
     }
     else
         return;
 
     addvalue += m_powerFraction[powerIndex];
-    uint32 integerValue = uint32(std::fabs(addvalue));
+    int32 integerValue = int32(std::fabs(addvalue));
+
+    if (powerType->RegenerationCenter)
+    {
+        if (curValue > powerType->RegenerationCenter)
+        {
+            addvalue = -std::abs(addvalue);
+            minPower = powerType->RegenerationCenter;
+        }
+        else if (curValue < powerType->RegenerationCenter)
+        {
+            addvalue = std::abs(addvalue);
+            maxPower = powerType->RegenerationCenter;
+        }
+        else
+            return;
+    }
 
     if (addvalue < 0.0f)
     {
-        if (curValue > integerValue)
+        if (curValue > minPower + integerValue)
         {
             curValue -= integerValue;
             m_powerFraction[powerIndex] = addvalue + integerValue;
         }
         else
         {
-            curValue = 0;
+            curValue = minPower;
             m_powerFraction[powerIndex] = 0;
         }
     }
     else
     {
-        curValue += integerValue;
-
-        if (curValue > maxValue)
+        if (curValue + integerValue <= maxPower)
         {
-            curValue = maxValue;
-            m_powerFraction[powerIndex] = 0;
+            curValue += integerValue;
+            m_powerFraction[powerIndex] = addvalue - integerValue;
         }
         else
-            m_powerFraction[powerIndex] = addvalue - integerValue;
+        {
+            curValue = maxPower;
+            m_powerFraction[powerIndex] = 0;
+        }
     }
 
     if (m_regenTimerCount >= 2000)
@@ -11029,7 +10999,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 }
                 else if (type == INVTYPE_WEAPONOFFHAND)
                 {
-                    if (!CanDualWield() && !(pProto->GetFlags3() & ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED))
+                    if (!CanDualWield() && !(pProto->GetFlags3() & ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD))
                         return EQUIP_ERR_2HSKILLNOTFOUND;
                 }
                 else if (type == INVTYPE_2HWEAPON)
@@ -11404,13 +11374,13 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if (proto->GetFlags2() & ITEM_FLAG2_UNAVAILABLE_FOR_PLAYERS)
+    if (proto->GetFlags2() & ITEM_FLAG2_INTERNAL_ITEM)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY) && GetTeam() != HORDE)
+    if ((proto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && GetTeam() != HORDE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->GetFlags2() & ITEM_FLAG2_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+    if ((proto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() != ALLIANCE)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
@@ -11635,9 +11605,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         if (!pItem)
             return nullptr;
 
-        if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP ||
-            pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM ||
-            (pItem->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED && IsBagPos(pos)))
+        if (pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE ||
+            pItem->GetTemplate()->GetBonding() == BIND_QUEST ||
+            (pItem->GetTemplate()->GetBonding() == BIND_ON_EQUIP && IsBagPos(pos)))
             pItem->SetBinding(true);
 
         Bag* pBag = (bag == INVENTORY_SLOT_BAG_0) ? NULL : GetBagByPos(bag);
@@ -11678,9 +11648,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     }
     else
     {
-        if (pItem2->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP ||
-            pItem2->GetTemplate()->GetBonding() == BIND_QUEST_ITEM ||
-            (pItem2->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED && IsBagPos(pos)))
+        if (pItem2->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE ||
+            pItem2->GetTemplate()->GetBonding() == BIND_QUEST ||
+            (pItem2->GetTemplate()->GetBonding() == BIND_ON_EQUIP && IsBagPos(pos)))
             pItem2->SetBinding(true);
 
         pItem2->SetCount(pItem2->GetCount() + count);
@@ -11981,8 +11951,8 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     if (!pItem)
         return;
 
-    // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (pItem->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || pItem->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || pItem->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
+    // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
+    if (pItem->GetTemplate()->GetBonding() == BIND_ON_EQUIP || pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || pItem->GetTemplate()->GetBonding() == BIND_QUEST)
     {
         pItem->SetBinding(true);
         if (IsInWorld())
@@ -12222,7 +12192,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
         if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->GetFlags() & ITEM_FLAG_OPENABLE)
+            if (pTmp->GetFlags() & ITEM_FLAG_HAS_LOOT)
                 pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
         if (IsInWorld() && update)
@@ -13330,7 +13300,7 @@ void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
         Item* item = *itr;
         ++itr;                                              // current element can be erased in UpdateDuration
 
-        if (!realtimeonly || item->GetTemplate()->FlagsCu & ITEM_FLAGS_CU_DURATION_REAL_TIME)
+        if (!realtimeonly || item->GetTemplate()->GetFlags() & ITEM_FLAG_REAL_DURATION)
             item->UpdateDuration(this, time);
     }
 }
@@ -15206,13 +15176,13 @@ void Player::FailQuest(uint32 questId)
         for (QuestObjective const& obj : quest->GetObjectives())
             if (obj.Type == QUEST_OBJECTIVE_ITEM)
                 if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
-                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                    if (itemTemplate->GetBonding() == BIND_QUEST)
                         DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
 
         // Destroy items received during the quest.
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
-                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                if (quest->ItemDropQuantity[i] && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
@@ -15225,13 +15195,13 @@ void Player::AbandonQuest(uint32 questId)
         for (QuestObjective const& obj : quest->GetObjectives())
             if (obj.Type == QUEST_OBJECTIVE_ITEM)
                 if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(obj.ObjectID))
-                    if (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1)
+                    if (itemTemplate->GetBonding() == BIND_QUEST)
                         DestroyItemCount(obj.ObjectID, obj.Amount, true, true);
 
         // Destroy items received during the quest.
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
-                if (quest->ItemDropQuantity[i] && (itemTemplate->GetBonding() == BIND_QUEST_ITEM || itemTemplate->GetBonding() == BIND_QUEST_ITEM1))
+                if (quest->ItemDropQuantity[i] && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
     }
 }
@@ -21857,7 +21827,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (!bStore)
             AutoUnequipOffhandIfNeed();
 
-        if (pProto->GetFlags() & ITEM_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
+        if (pProto->GetFlags() & ITEM_FLAG_ITEM_PURCHASE_RECORD && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID());
@@ -22046,13 +22016,13 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    if (!(pProto->GetAllowableClass() & getClassMask()) && pProto->GetBonding() == BIND_WHEN_PICKED_UP && !IsGameMaster())
+    if (!(pProto->GetAllowableClass() & getClassMask()) && pProto->GetBonding() == BIND_ON_ACQUIRE && !IsGameMaster())
     {
         SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, item, 0);
         return false;
     }
 
-    if (!IsGameMaster() && ((pProto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->GetFlags2() == ITEM_FLAG2_ALLIANCE_ONLY && GetTeam() == HORDE)))
+    if (!IsGameMaster() && ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE && GetTeam() == ALLIANCE) || (pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE && GetTeam() == HORDE)))
         return false;
 
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
@@ -23566,6 +23536,9 @@ void Player::SendAurasForTarget(Unit* target) const
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
+    if (target->HasAura(SPELL_DH_DOUBLE_JUMP))
+        target->SetDoubleJump(true, true);
+
     Unit::VisibleAuraContainer const& visibleAuras = target->GetVisibleAuras();
 
     WorldPackets::Spells::AuraUpdate update;
@@ -24041,7 +24014,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
 
      // unequip offhand weapon if player doesn't have dual wield anymore
     if (!CanDualWield()
-        && ((offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND && !(offItem->GetTemplate()->GetFlags3() & ITEM_FLAG3_DUAL_WIELD_NOT_REQUIRED))
+        && ((offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND && !(offItem->GetTemplate()->GetFlags3() & ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD))
             || offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPON))
         force = true;
 
@@ -25331,7 +25304,7 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot, uint32 limit_count) const
 {
     // check unique-equipped on item
-    if (itemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPED)
+    if (itemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPABLE)
     {
         // there is an equip limit on this item
         if (HasItemOrGemWithIdEquipped(itemProto->GetId(), 1, except_slot))
@@ -25577,7 +25550,7 @@ void Player::ResetTalentSpecialization()
 
     RemoveSpecializationSpells();
 
-    ChrSpecializationEntry const* defaultSpec = sChrSpecializationStore.LookupEntry(sChrClassesStore.AssertEntry(getClass())->DefaultSpec);
+    ChrSpecializationEntry const* defaultSpec = ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(getClass()));
     SetPrimarySpecialization(defaultSpec->ID);
     SetActiveTalentGroup(defaultSpec->OrderIndex);
     SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, defaultSpec->ID);
@@ -26570,8 +26543,7 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 void Player::OnCombatExit()
 {
     UpdatePotionCooldown();
-    if (getClass() == CLASS_PALADIN)
-        m_holyPowerRegenTimerCount = 20000; // first charge of holy power decays 20 seconds after leaving combat
+    m_combatExitTime = getMSTime();
 }
 
 void Player::CreateGarrison(uint32 garrSiteId)
@@ -27164,10 +27136,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
 
 uint32 Player::GetDefaultSpecId() const
 {
-    ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
-    if (entry)
-        return entry->DefaultSpec;
-    return 0;
+    return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(getClass()))->ID;
 }
 
 void Player::SendSpellCategoryCooldowns() const

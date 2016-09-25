@@ -123,7 +123,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
 
     // Validate item's color
     uint32 colorQuality = _item->GetQuality();
-    if (_item->GetFlags3() & ITEM_FLAG3_HEIRLOOM_QUALITY)
+    if (_item->GetFlags3() & ITEM_FLAG3_DISPLAY_AS_HEIRLOOM)
         colorQuality = ITEM_QUALITY_HEIRLOOM;
 
     if (_color != ItemQualityColors[colorQuality])

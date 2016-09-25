@@ -3973,7 +3973,7 @@ struct PowerTypeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ssffhhhbbbbb";
+        static char const* types = "SSffhhhbbbbb";
         static uint8 const arraySizes[12] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 12, 0x042B76A1, types, arraySizes);
         return &instance;
@@ -4402,7 +4402,7 @@ struct SceneScriptMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sshh";
+        static char const* types = "SShh";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xE564690A, types, arraySizes);
         return &instance;
@@ -4413,7 +4413,7 @@ struct SceneScriptPackageMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "s";
+        static char const* types = "S";
         static uint8 const arraySizes[1] = { 1 };
         static DB2Meta instance(-1, 1, 0x67818447, types, arraySizes);
         return &instance;

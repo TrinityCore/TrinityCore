@@ -159,6 +159,7 @@ DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", PhaseMe
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP);
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", PlayerConditionMeta::Instance(), HOTFIX_SEL_PLAYER_CONDITION);
 DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay.db2", PowerDisplayMeta::Instance(), HOTFIX_SEL_POWER_DISPLAY);
+DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeMeta::Instance(), HOTFIX_SEL_POWER_TYPE);
 DB2Storage<PvPDifficultyEntry>                  sPvpDifficultyStore("PvpDifficulty.db2", PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY);
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardMeta::Instance(), HOTFIX_SEL_QUEST_MONEY_REWARD);
@@ -172,6 +173,8 @@ DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("S
 DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioMeta::Instance(), HOTFIX_SEL_SCENARIO);
 DB2Storage<ScenarioEventEntry>                  sScenarioEventEntryStore("ScenarioEventEntry.db2", ScenarioEventEntryMeta::Instance(), HOTFIX_SEL_SCENARIO_EVENT_ENTRY);
 DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", ScenarioStepMeta::Instance(), HOTFIX_SEL_SCENARIO_STEP);
+DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", SceneScriptMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT);
+DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneScriptPackage.db2", SceneScriptPackageMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_PACKAGE);
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", SkillLineMeta::Instance(), HOTFIX_SEL_SKILL_LINE);
 DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLineAbility.db2", SkillLineAbilityMeta::Instance(), HOTFIX_SEL_SKILL_LINE_ABILITY);
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", SkillRaceClassInfoMeta::Instance(), HOTFIX_SEL_SKILL_RACE_CLASS_INFO);
@@ -253,6 +256,10 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
     {
         storage->LoadFromDB();
+        // LoadFromDB() always loads strings into enUS locale, other locales are expected to have data in corresponding _locale tables
+        // so we need to make additional call to load that data in case said locale is set as default by worldserver.conf (and we do not want to load all this data from .db2 file again)
+        if (defaultLocale != LOCALE_enUS)
+            storage->LoadStringsFromDB(defaultLocale);
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
@@ -436,6 +443,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPhaseXPhaseGroupStore);
     LOAD_DB2(sPlayerConditionStore);
     LOAD_DB2(sPowerDisplayStore);
+    LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPvpDifficultyStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
@@ -449,6 +457,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sScenarioStore);
     LOAD_DB2(sScenarioEventEntryStore);
     LOAD_DB2(sScenarioStepStore);
+    LOAD_DB2(sSceneScriptStore);
+    LOAD_DB2(sSceneScriptPackageStore);
     LOAD_DB2(sSkillLineStore);
     LOAD_DB2(sSkillLineAbilityStore);
     LOAD_DB2(sSkillRaceClassInfoStore);
@@ -522,6 +532,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
         _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->Rank }] = artifactPowerRank;
+
+    ASSERT(BATTLE_PET_SPECIES_MAX_ID >= sBattlePetSpeciesStore.GetNumRows(),
+        "BATTLE_PET_SPECIES_MAX_ID (%d) must be equal to or greater than %u", BATTLE_PET_SPECIES_MAX_ID, sBattlePetSpeciesStore.GetNumRows());
 
     std::unordered_map<uint32, std::set<std::pair<uint8, uint8>>> addedSections;
     for (CharSectionsEntry const* charSection : sCharSectionsStore)
@@ -606,6 +619,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         }
 
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
+        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_RECOMMENDED)
+            _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
 
     for (CurvePointEntry const* curvePoint : sCurvePointStore)
@@ -746,6 +761,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
 
+    for (PowerTypeEntry const* powerType : sPowerTypeStore)
+    {
+        ASSERT(powerType->PowerTypeEnum < MAX_POWERS);
+        ASSERT(!_powerTypes[powerType->PowerTypeEnum]);
+
+        _powerTypes[powerType->PowerTypeEnum] = powerType;
+    }
+
     for (PvPDifficultyEntry const* entry : sPvpDifficultyStore)
     {
         ASSERT(entry->BracketID < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->BracketID, MAX_BATTLEGROUND_BRACKETS);
@@ -885,13 +908,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(8478) ||                // last area (areaflag) added in 7.0.3 (22293)
-        !sCharTitlesStore.LookupEntry(486) ||                // last char title added in 7.0.3 (22293)
-        !sGemPropertiesStore.LookupEntry(3363) ||            // last gem property added in 7.0.3 (22293)
-        !sItemStore.LookupEntry(142074) ||                   // last item added in 7.0.3 (22293)
-        !sItemExtendedCostStore.LookupEntry(6121) ||         // last item extended cost added in 7.0.3 (22293)
-        !sMapStore.LookupEntry(1670) ||                      // last map added in 7.0.3 (22293)
-        !sSpellStore.LookupEntry(229118))                    // last spell added in 7.0.3 (22293)
+    if (!sAreaTableStore.LookupEntry(8485) ||                // last area (areaflag) added in 7.0.3 (22594)
+        !sCharTitlesStore.LookupEntry(486) ||                // last char title added in 7.0.3 (22594)
+        !sGemPropertiesStore.LookupEntry(3363) ||            // last gem property added in 7.0.3 (22594)
+        !sItemStore.LookupEntry(142526) ||                   // last item added in 7.0.3 (22594)
+        !sItemExtendedCostStore.LookupEntry(6125) ||         // last item extended cost added in 7.0.3 (22594)
+        !sMapStore.LookupEntry(1670) ||                      // last map added in 7.0.3 (22594)
+        !sSpellStore.LookupEntry(231371))                    // last spell added in 7.0.3 (22594)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1062,6 +1085,15 @@ char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEF
 ChrSpecializationEntry const* DB2Manager::GetChrSpecializationByIndex(uint32 class_, uint32 index) const
 {
     return _chrSpecializationsByIndex[class_][index];
+}
+
+ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(uint32 class_) const
+{
+    auto itr = _defaultChrSpecializationsByClass.find(class_);
+    if (itr != _defaultChrSpecializationsByClass.end())
+        return itr->second;
+
+    return nullptr;
 }
 
 char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, uint32 locale)
@@ -1590,6 +1622,12 @@ std::set<uint32> DB2Manager::GetPhasesForGroup(uint32 group) const
         return itr->second;
 
     return std::set<uint32>();
+}
+
+PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
+{
+    ASSERT(power < MAX_POWERS);
+    return _powerTypes[power];
 }
 
 uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const

@@ -1957,6 +1957,23 @@ struct PowerDisplayEntry
     uint8 Blue;
 };
 
+struct PowerTypeEntry
+{
+    uint32 ID;
+    char const* PowerTypeToken;
+    char const* PowerCostToken;
+    float RegenerationPeace;
+    float RegenerationCombat;
+    int16 MaxPower;
+    uint16 RegenerationDelay;
+    uint16 Flags;
+    uint8 PowerTypeEnum;
+    int8 RegenerationMin;
+    int8 RegenerationCenter;
+    int8 RegenerationMax;
+    uint8 UIModifier;
+};
+
 struct PvPDifficultyEntry
 {
     uint32 ID;
@@ -2066,6 +2083,21 @@ struct ScenarioStepEntry
     {
         return Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE;
     }
+};
+
+struct SceneScriptEntry
+{
+    uint32 ID;
+    char const* Name;
+    char const* Script;
+    uint16 PrevScriptId;
+    uint16 NextScriptId;
+};
+
+struct SceneScriptPackageEntry
+{
+    uint32 ID;
+    char const* Name;
 };
 
 struct SkillLineEntry

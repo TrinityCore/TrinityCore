@@ -140,6 +140,8 @@ TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioSto
 TC_GAME_API extern DB2Storage<ScenarioEventEntry>                   sScenarioEventEntryStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
 TC_GAME_API extern DB2Storage<SkillLineEntry>                       sSkillLineStore;
+TC_GAME_API extern DB2Storage<SceneScriptEntry>                     sSceneScriptStore;
+TC_GAME_API extern DB2Storage<SceneScriptPackageEntry>              sSceneScriptPackageStore;
 TC_GAME_API extern DB2Storage<SkillLineAbilityEntry>                sSkillLineAbilityStore;
 TC_GAME_API extern DB2Storage<SkillRaceClassInfoEntry>              sSkillRaceClassInfoStore;
 TC_GAME_API extern DB2Storage<SoundKitEntry>                        sSoundKitStore;
@@ -236,6 +238,7 @@ public:
     typedef std::unordered_multimap<uint32, CharSectionsEntry const*> CharSectionsContainer;
     typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
     typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
+    typedef std::unordered_map<uint32, ChrSpecializationEntry const*> ChrSpecialzationByClassContainer;
     typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
     typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
     typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
@@ -291,6 +294,7 @@ public:
     uint32 GetPowerIndexByClass(uint32 powerType, uint32 classId) const;
     static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
     ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
+    ChrSpecializationEntry const* GetDefaultChrSpecializationForClass(uint32 class_) const;
     static char const* GetCreatureFamilyPetName(uint32 petfamily, uint32 locale);
     float GetCurveValueAt(uint32 curveId, float x) const;
     EmotesTextSoundEntry const* GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const;
@@ -321,6 +325,7 @@ public:
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
+    PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     static PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
@@ -351,6 +356,7 @@ private:
     CharStartOutfitContainer _charStartOutfits;
     uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
+    ChrSpecialzationByClassContainer _defaultChrSpecializationsByClass;
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
     FactionTeamContainer _factionTeams;
@@ -373,6 +379,7 @@ private:
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
+    PowerTypeEntry const* _powerTypes[MAX_POWERS];
     QuestPackageItemContainer _questPackages;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;

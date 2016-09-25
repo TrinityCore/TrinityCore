@@ -670,8 +670,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
             SetSpellCharges(i, atoi(tokens[i]));
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
-    // Remove bind flag for items vs NO_BIND set
-    if (IsSoulBound() && proto->GetBonding() == NO_BIND)
+    // Remove bind flag for items vs BIND_NONE set
+    if (IsSoulBound() && proto->GetBonding() == BIND_NONE)
     {
         ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
         need_save = true;
@@ -1652,7 +1652,7 @@ bool Item::IsValidTransmogrificationTarget() const
     if (proto->GetClass() == ITEM_CLASS_WEAPON && proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->GetFlags2() & ITEM_FLAG2_CANNOT_BE_TRANSMOG)
+    if (proto->GetFlags2() & ITEM_FLAG2_NO_ALTER_ITEM_VISUAL)
         return false;
 
     if (!HasStats())
@@ -1827,7 +1827,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
 {
     normalSellPrice = true;
 
-    if (proto->GetFlags2() & ITEM_FLAG2_HAS_NORMAL_PRICE)
+    if (proto->GetFlags2() & ITEM_FLAG2_OVERRIDE_GOLD_COST)
     {
         return proto->GetBuyPrice();
     }
@@ -1946,7 +1946,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
 {
     uint32 cost = 0;
 
-    if (proto->GetFlags2() & ITEM_FLAG2_HAS_NORMAL_PRICE)
+    if (proto->GetFlags2() & ITEM_FLAG2_OVERRIDE_GOLD_COST)
         cost = proto->GetSellPrice();
     else
     {

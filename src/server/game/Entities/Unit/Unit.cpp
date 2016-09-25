@@ -11101,47 +11101,11 @@ uint32 Unit::GetPowerIndex(uint32 powerType) const
 
 int32 Unit::GetCreatePowers(Powers power) const
 {
-    switch (power)
-    {
-        case POWER_MANA:
-            return GetCreateMana();
-        case POWER_RAGE:
-        case POWER_PAIN:
-            return 1000;
-        case POWER_FOCUS:
-            if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
-                return 100;
-            return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:
-        case POWER_FURY:
-            return 100;
-        case POWER_COMBO_POINTS:
-            return 5;
-        case POWER_RUNIC_POWER:
-            return 1000;
-        case POWER_RUNES:
-            return 6;
-        case POWER_SOUL_SHARDS:
-            return 400;
-        case POWER_LUNAR_POWER:
-            return 100;
-        case POWER_HOLY_POWER:
-            return 3;
-        case POWER_CHI:
-            return 4;
-        case POWER_INSANITY:
-            return 3;
-        case POWER_BURNING_EMBERS:
-            return 40;
-        case POWER_DEMONIC_FURY:
-            return 1000;
-        case POWER_ARCANE_CHARGES:
-            return 4;
-        case POWER_HEALTH:
-            return 0;
-        default:
-            break;
-    }
+    if (power == POWER_MANA)
+        return GetCreateMana();
+
+    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+        return powerType->MaxPower;
 
     return 0;
 }
@@ -15677,6 +15641,40 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
     if (Player* playerMover = GetPlayerMover())
     {
         WorldPackets::Movement::MoveSetFlag packet(swimToFlyTransOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.movementInfo = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetDoubleJump(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP))
+            return false;
+
+        if (enable)
+            AddExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP);
+        else
+            RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_DOUBLE_JUMP);
+    }
+
+    static OpcodeServer const doubleJumpOpcodeTable[2] =
+    {
+        SMSG_MOVE_DISABLE_DOUBLE_JUMP,
+        SMSG_MOVE_ENABLE_DOUBLE_JUMP
+    };
+
+    if (Player* playerMover = GetPlayerMover())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(doubleJumpOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());
