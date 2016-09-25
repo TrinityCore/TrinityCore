@@ -19,12 +19,19 @@
 
 WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
 {
-    _worldPacket << SceneID;
-    _worldPacket << PlaybackFlags;
-    _worldPacket << SceneInstanceID;
-    _worldPacket << SceneScriptPackageID;
+    _worldPacket << int32(SceneID);
+    _worldPacket << int32(PlaybackFlags);
+    _worldPacket << int32(SceneInstanceID);
+    _worldPacket << int32(SceneScriptPackageID);
     _worldPacket << TransportGUID;
     _worldPacket << Location.PositionXYZOStream();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Scenes::CancelScene::Write()
+{
+    _worldPacket << int32(SceneInstanceID);
 
     return &_worldPacket;
 }
@@ -33,7 +40,7 @@ void WorldPackets::Scenes::SceneTriggerEvent::Read()
 {
     uint32 len = _worldPacket.ReadBits(6);
     _worldPacket >> SceneInstanceID;
-    _Event = _worldPacket.ReadString(len);
+    Event = _worldPacket.ReadString(len);
 }
 
 void WorldPackets::Scenes::ScenePlaybackComplete::Read()

@@ -748,8 +748,14 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842,
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
-    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 844,
-    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 845,
+    RBAC_PERM_COMMAND_SCENE                                  = 844,
+    RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845,
+    RBAC_PERM_COMMAND_SCENE_PLAY                             = 846,
+    RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE                     = 847,
+    RBAC_PERM_COMMAND_SCENE_CANCEL                           = 848,
+    RBAC_PERM_COMMAND_LIST_SCENES                            = 849,
+    RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850,
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
