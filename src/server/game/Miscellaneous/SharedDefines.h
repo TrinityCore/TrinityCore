@@ -4586,7 +4586,7 @@ enum DiminishingReturnsType
 };
 
 // Diminishing Return Groups
-enum DiminishingGroup
+enum DiminishingGroup : uint16
 {
     DIMINISHING_NONE             = 0,
     DIMINISHING_ROOT             = 1,

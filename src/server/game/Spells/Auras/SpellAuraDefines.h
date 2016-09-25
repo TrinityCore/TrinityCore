@@ -290,9 +290,9 @@ enum AuraType
     SPELL_AURA_MOD_RATING_FROM_STAT                         = 220,
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_222                                          = 222,
-    SPELL_AURA_RAID_PROC_FROM_CHARGE                        = 223,
+    SPELL_AURA_223                                          = 223,  // old SPELL_AURA_RAID_PROC_FROM_CHARGE
     SPELL_AURA_224                                          = 224,
-    SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE             = 225,
+    SPELL_AURA_MOD_VISIBILITY_RANGE                         = 225,
     SPELL_AURA_PERIODIC_DUMMY                               = 226,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,
     SPELL_AURA_DETECT_STEALTH                               = 228,
