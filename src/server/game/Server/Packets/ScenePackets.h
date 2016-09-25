@@ -40,6 +40,16 @@ namespace WorldPackets
             Position Location;
         };
 
+        class TC_GAME_API CancelScene final : public ServerPacket
+        {
+        public:
+            CancelScene() : ServerPacket(SMSG_CANCEL_SCENE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SceneInstanceID = 0;
+        };
+
         class SceneTriggerEvent final : public ClientPacket
         {
         public:
@@ -48,7 +58,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SceneInstanceID = 0;
-            std::string _Event;
+            std::string Event;
         };
 
         class ScenePlaybackComplete final : public ClientPacket
