@@ -51,23 +51,19 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ~Scenario();
 
         void Reset() override;
-
-        void AdvanceStep();
         void SetStep(ScenarioStepEntry const* step);
-        void SetDisableRewards() { _canReward = false; }
-        void SetEnableRewards() { _canReward = true; }
 
         virtual void CompleteStep(ScenarioStepEntry const* step);
-        virtual void CompleteScenario();
+        virtual void CompleteScenario() { return SendPacket(WorldPackets::Scenario::ScenarioCompleted(_data->Entry->ID).Write()); }
         
         virtual void OnPlayerEnter(Player* player);
         virtual void OnPlayerExit(Player* player);
         virtual void Update(uint32) { }
         
-        bool IsComplete() const { return _complete; }
+        bool IsComplete();
+        bool IsStepCompleted(ScenarioStepEntry const* step);
         ScenarioStepEntry const* GetStep() const { return _currentstep; }
-        ScenarioStepEntry const* GetFirstStep() const { return _firstStep; }
-        ScenarioStepEntry const* GetLastStep() const { return _lastStep; }
+        ScenarioStepEntry const* GetFirstStep() const;
 
         void SendScenarioState(Player* player);
         void SendBootPlayer(Player* player) const;
@@ -80,7 +76,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 
         bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;
-        bool CanCompleteCriteriaTree(CriteriaTree const* tree) override { return CanUpdateCriteriaTree(nullptr, tree, nullptr); }
+        bool CanCompleteCriteriaTree(CriteriaTree const* tree) override;
         void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) override;
         void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) override { }
         
@@ -98,11 +94,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ScenarioData const* _data;
 
     private:
+        bool _isComplete; // A much less expensive alternative to IsComplete();
         ScenarioStepEntry const* _currentstep;
-        ScenarioStepEntry const* _lastStep;
-        ScenarioStepEntry const* _firstStep;
-        bool _complete;
-        bool _canReward;
 };
 
 #endif
