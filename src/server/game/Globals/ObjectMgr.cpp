@@ -8764,6 +8764,8 @@ void ObjectMgr::LoadScriptNames()
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM scene_template WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
@@ -9602,6 +9604,36 @@ void ObjectMgr::LoadCreatureQuestItems()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadSceneTemplates()
+{
+    uint32 oldMSTime = getMSTime();
+    _sceneTemplateStore.clear();
+
+    QueryResult templates = WorldDatabase.Query("SELECT SceneId, Flags, ScriptPackageID, ScriptName FROM scene_template");
+
+    if (!templates)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 scene templates. DB table `scene_template` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = templates->Fetch();
+
+        uint32 sceneId = fields[0].GetUInt32();
+        SceneTemplate& sceneTemplate = _sceneTemplateStore[sceneId];
+        sceneTemplate.SceneId = sceneId;
+        sceneTemplate.PlaybackFlags = fields[1].GetUInt32();
+        sceneTemplate.ScenePackageId = fields[2].GetUInt32();
+        sceneTemplate.ScriptId = sObjectMgr->GetScriptId(fields[3].GetCString());
+
+    } while (templates->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
 
 void ObjectMgr::LoadConversationTemplates()
 {
@@ -9609,8 +9641,8 @@ void ObjectMgr::LoadConversationTemplates()
     _conversationLineTemplateStore.clear();
     _conversationTemplateStore.clear();
 
-    PreparedStatement* actorTemplateStmt    = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTOR_TEMPLATE);
-    PreparedQueryResult actorTemplates      = WorldDatabase.Query(actorTemplateStmt);
+    PreparedStatement* actorTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTOR_TEMPLATE);
+    PreparedQueryResult actorTemplates = WorldDatabase.Query(actorTemplateStmt);
 
     if (actorTemplates)
     {
@@ -9621,12 +9653,12 @@ void ObjectMgr::LoadConversationTemplates()
             Field* fields = actorTemplates->Fetch();
 
             ConversationActorTemplate conversationActor;
-            conversationActor.Id            = fields[0].GetUInt32();
-            conversationActor.CreatureId    = fields[1].GetUInt32();
-            conversationActor.Unk1          = fields[2].GetUInt32();
-            conversationActor.Unk2          = fields[3].GetUInt32();
-            conversationActor.Unk3          = fields[4].GetUInt32();
-            conversationActor.Unk4          = fields[5].GetUInt32();
+            conversationActor.Id = fields[0].GetUInt32();
+            conversationActor.CreatureId = fields[1].GetUInt32();
+            conversationActor.Unk1 = fields[2].GetUInt32();
+            conversationActor.Unk2 = fields[3].GetUInt32();
+            conversationActor.Unk3 = fields[4].GetUInt32();
+            conversationActor.Unk4 = fields[5].GetUInt32();
             _conversationActorTemplateStore[conversationActor.Id] = conversationActor;
 
             ++count;
@@ -9636,7 +9668,7 @@ void ObjectMgr::LoadConversationTemplates()
     }
 
     PreparedStatement* lineTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_LINE_TEMPLATE);
-    PreparedQueryResult lineTemplates   = WorldDatabase.Query(lineTemplateStmt);
+    PreparedQueryResult lineTemplates = WorldDatabase.Query(lineTemplateStmt);
 
     if (lineTemplates)
     {
@@ -9647,10 +9679,10 @@ void ObjectMgr::LoadConversationTemplates()
             Field* fields = lineTemplates->Fetch();
 
             ConversationLineTemplate conversationLine;
-            conversationLine.Id     = fields[0].GetUInt32();
-            conversationLine.Unk1   = fields[1].GetUInt32();
-            conversationLine.Unk2   = fields[2].GetUInt32();
-            conversationLine.Unk3   = fields[3].GetUInt32();
+            conversationLine.Id = fields[0].GetUInt32();
+            conversationLine.Unk1 = fields[1].GetUInt32();
+            conversationLine.Unk2 = fields[2].GetUInt32();
+            conversationLine.Unk3 = fields[3].GetUInt32();
             _conversationLineTemplateStore[conversationLine.Id] = conversationLine;
 
             ++count;
@@ -9660,7 +9692,7 @@ void ObjectMgr::LoadConversationTemplates()
     }
 
     PreparedStatement* templateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_TEMPLATE);
-    PreparedQueryResult templates   = WorldDatabase.Query(templateStmt);
+    PreparedQueryResult templates = WorldDatabase.Query(templateStmt);
 
     if (templates)
     {
@@ -9671,8 +9703,8 @@ void ObjectMgr::LoadConversationTemplates()
             Field* fields = templates->Fetch();
 
             ConversationTemplate conversationTemplate;
-            conversationTemplate.Id                 = fields[0].GetUInt32();
-            conversationTemplate.LastLineDuration   = fields[1].GetUInt32();
+            conversationTemplate.Id = fields[0].GetUInt32();
+            conversationTemplate.LastLineDuration = fields[1].GetUInt32();
 
             PreparedStatement* actorsStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTORS);
             actorsStmt->setUInt32(0, conversationTemplate.Id);

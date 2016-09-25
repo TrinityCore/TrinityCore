@@ -69,7 +69,6 @@ public:
             { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
-            { "playscene",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE,     false, &HandleDebugSendPlaySceneCommand,       "" },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
@@ -1481,49 +1480,6 @@ public:
             handler->PSendSysMessage("Target's current phases: %s", phases.str().c_str());
         else
             handler->SendSysMessage("Target is not phased");
-        return true;
-    }
-
-    static bool HandleDebugSendPlaySceneCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        int32 sceneID = 0;
-        int32 playbackFlags = 0;
-        int32 sceneInstanceID = 0;
-        int32 sceneScriptPackageID = 0;
-
-        char* a = strtok((char*)args, " ");
-        char* b = strtok(NULL, " ");
-        char* c = strtok(NULL, " ");
-        char* d = strtok(NULL, " ");
-
-        if (!a || !b || !c || !d)
-            return false;
-
-        if (a)
-            sceneID = atoi(a);
-        if (b)
-            playbackFlags = atoi(b);
-        if (c)
-            sceneInstanceID = atoi(c);
-        if (d)
-            sceneScriptPackageID = atoi(d);
-
-        Player* me = handler->GetSession()->GetPlayer();
-
-        WorldPackets::Scenes::PlayScene packet;
-        packet.SceneID = sceneID;
-        packet.PlaybackFlags = playbackFlags;
-        packet.SceneInstanceID = sceneInstanceID;
-        packet.SceneScriptPackageID = sceneScriptPackageID;
-        packet.TransportGUID = me->GetTransGUID();
-        packet.Location = me->GetPosition();
-        handler->GetSession()->SendPacket(packet.Write(), true);
-
-        TC_LOG_DEBUG("network", "Sent SMSG_PLAY_SCENE to %s, SceneID: %d, PlaybackFlags: %d, SceneInstanceID: %d, SceneScriptPackageID: %d", me->GetName().c_str(), sceneID, playbackFlags, sceneInstanceID, sceneScriptPackageID);
-
         return true;
     }
 

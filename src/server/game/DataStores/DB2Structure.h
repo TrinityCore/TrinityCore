@@ -2049,6 +2049,21 @@ struct ScalingStatDistributionEntry
     uint32 MaxLevel;
 };
 
+struct SceneScriptEntry
+{
+    uint32 ID;
+    char const* Name;
+    char const* Script;
+    uint16 PrevScriptId;
+    uint16 NextScriptId;
+};
+
+struct SceneScriptPackageEntry
+{
+    uint32 ID;
+    char const* Name;
+};
+
 struct SkillLineEntry
 {
     uint32 ID;

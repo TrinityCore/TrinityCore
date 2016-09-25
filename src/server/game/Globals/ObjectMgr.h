@@ -625,9 +625,19 @@ struct CharacterTemplate
 
 typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
 
-typedef std::unordered_map<uint32, ConversationTemplate> ConversationTemplateContainer;
-typedef std::unordered_map<uint32, ConversationActorTemplate> ConversationActorTemplateContainer;
-typedef std::unordered_map<uint32, ConversationLineTemplate> ConversationLineTemplateContainer;
+struct SceneTemplate
+{
+    uint32 SceneId;
+    uint32 PlaybackFlags;
+    uint32 ScenePackageId;
+    uint32 ScriptId;
+};
+
+typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
+
+typedef std::unordered_map<uint32, ConversationTemplate>        ConversationTemplateContainer;
+typedef std::unordered_map<uint32, ConversationActorTemplate>   ConversationActorTemplateContainer;
+typedef std::unordered_map<uint32, ConversationLineTemplate>    ConversationLineTemplateContainer;
 
 enum SkillRangeType
 {
@@ -1074,6 +1084,7 @@ class TC_GAME_API ObjectMgr
         void LoadTerrainWorldMaps();
         void LoadAreaPhases();
 
+        void LoadSceneTemplates();
         void LoadConversationTemplates();
 
         std::string GeneratePetName(uint32 entry);
@@ -1409,6 +1420,14 @@ class TC_GAME_API ObjectMgr
 
             return nullptr;
         }
+        SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
+        {
+            auto itr = _sceneTemplateStore.find(sceneId);
+            if (itr != _sceneTemplateStore.end())
+                return &itr->second;
+
+            return nullptr;
+        }
 
         ConversationTemplate const* GetConversationTemplate(uint32 id) const
         {
@@ -1572,6 +1591,7 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         CharacterTemplateContainer _characterTemplateStore;
+        SceneTemplateContainer _sceneTemplateStore;
 
         ConversationTemplateContainer       _conversationTemplateStore;
         ConversationActorTemplateContainer  _conversationActorTemplateStore;
