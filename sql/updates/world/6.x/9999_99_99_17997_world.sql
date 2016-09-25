@@ -1,27 +1,29 @@
 CREATE TABLE `areatrigger_template` (
-  `id` int(11) unsigned NOT NULL,
-  `flags` int(11) unsigned NOT NULL DEFAULT '0',
-  `moveCurveId` int(11) unsigned NOT NULL DEFAULT '0',
-  `scaleCurveId` int(11) unsigned NOT NULL DEFAULT '0',
-  `morphCurveId` int(11) unsigned NOT NULL DEFAULT '0',
-  `facingCurveId` int(11) unsigned NOT NULL DEFAULT '0',
-  `data0` float NOT NULL DEFAULT '0',
-  `data1` float NOT NULL DEFAULT '0',
-  `data2` float NOT NULL DEFAULT '0',
-  `data3` float NOT NULL DEFAULT '0',
-  `data4` float NOT NULL DEFAULT '0',
-  `data5` float NOT NULL DEFAULT '0',
-  `scriptName` char(64) NOT NULL DEFAULT '',
+  `Id` int(10) unsigned NOT NULL,
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `Data0` float NOT NULL DEFAULT '0',
+  `Data1` float NOT NULL DEFAULT '0',
+  `Data2` float NOT NULL DEFAULT '0',
+  `Data3` float NOT NULL DEFAULT '0',
+  `Data4` float NOT NULL DEFAULT '0',
+  `Data5` float NOT NULL DEFAULT '0',
+  `ScriptName` char(64) NOT NULL DEFAULT '',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE `areatrigger_template_polygon_vertices` (
-  `areatriggerId` int(11) unsigned NOT NULL,
-  `index` int(11) unsigned NOT NULL,
-  `verticeX` float NOT NULL DEFAULT '0',
-  `verticeY` float NOT NULL DEFAULT '0',
-  `verticeTargetX` float NOT NULL DEFAULT '0',
-  `verticeTargetY` float NOT NULL DEFAULT '0',
+  `AreaTriggerId` int(10) unsigned NOT NULL,
+  `Idx` int(10) unsigned NOT NULL,
+  `VerticeX` float NOT NULL DEFAULT '0',
+  `VerticeY` float NOT NULL DEFAULT '0',
+  `VerticeTargetX` float NOT NULL DEFAULT '0',
+  `VerticeTargetY` float NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`areatriggerId`,`index`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
