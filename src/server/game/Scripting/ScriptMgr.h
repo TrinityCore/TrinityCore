@@ -28,6 +28,7 @@
 #include "Weather.h"
 
 class AccountMgr;
+class AreaTrigger;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -836,6 +837,29 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnDisband(Group* /*group*/) { }
 };
 
+class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
+{
+    protected:
+
+        AreaTriggerEntityScript(const char* name);
+
+    public:
+        // Called when the AreaTrigger has just been created
+        void OnCreate(AreaTrigger* areaTrigger) { }
+
+        // Called on each AreaTrigger update
+        void OnUpdate(AreaTrigger* areaTrigger, uint32 diff) { }
+
+        // Called when an unit enter the AreaTrigger
+        void OnUnitEnter(AreaTrigger* areaTrigger, Unit* unit) { }
+
+        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
+        void OnUnitExit(AreaTrigger* areaTrigger, Unit* unit) { }
+
+        // Called when the AreaTrigger is removed
+        void OnRemove(AreaTrigger* areaTrigger) { }
+};
+
 class TC_GAME_API SceneScript : public ScriptObject
 {
     protected:
@@ -1132,6 +1156,14 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+
+    public: /* AreaTriggerEntityScript */
+
+        void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
+        void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
+        void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);
 
     public: /* SceneScript */
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
