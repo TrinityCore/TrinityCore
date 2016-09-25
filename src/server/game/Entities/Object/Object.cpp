@@ -346,7 +346,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool VehicleCreate = (flags & UPDATEFLAG_VEHICLE) != 0;
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
-    bool HasAreaTrigger = false;
+    bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
     bool HasGameObject = false;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool SmoothPhasing = false;
@@ -509,111 +509,163 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << self->m_movementInfo.transport;
     }
 
-    //if (AreaTrigger)
-    //{
-    //    *data << uint32(ElapsedMs);
-    //    *data << Vector3(RollPitchYaw);
-    //    data->WriteBit(HasAbsoluteOrientation);
-    //    data->WriteBit(HasDynamicShape);
-    //    data->WriteBit(HasAttached);
-    //    data->WriteBit(HasFaceMovementDir);
-    //    data->WriteBit(HasFollowsTerrain);
-    //    data->WriteBit(Unknown_1);
-    //    data->WriteBit(HasTargetRollPitchYaw);
-    //    data->WriteBit(HasScaleCurveID);
-    //    data->WriteBit(HasMorphCurveID);
-    //    data->WriteBit(HasFacingCurveID);
-    //    data->WriteBit(HasMoveCurveID);
-    //    data->WriteBit(HasAreaTriggerSphere);
-    //    data->WriteBit(HasAreaTriggerBox);
-    //    data->WriteBit(HasAreaTriggerPolygon);
-    //    data->WriteBit(HasAreaTriggerCylinder);
-    //    data->WriteBit(HasAreaTriggerSpline);
-    //    data->WriteBit(HasAreaTriggerUnkType);
+    if (HasAreaTrigger)
+    {
+        AreaTrigger const* areaTrigger = this->ToAreaTrigger();
+        AreaTriggerTemplate const* areaTriggerTemplate = areaTrigger->GetTemplate();
 
-    //    if (HasAreaTriggerUnkType)
-    //    {
-    //        data->WriteBit(Unk_1);
-    //        data->WriteBit(HasCenter);
-    //        data->WriteBit(Unk_3);
-    //        data->WriteBit(Unk_4);
+        uint32 elapsedMs = areaTrigger->GetTimeSinceCreated();
 
-    //        *data << uint32();
-    //        *data << int32();
-    //        *data << uint32();
-    //        *data << float(Radius);
-    //        *data << float(BlendFromRadius);
-    //        *data << float(InitialAngel);
-    //        *data << float(ZOffset);
+        *data << uint32(elapsedMs);
 
-    //        if (Unk_1)
-    //            *data << ObjectGuid();
+        *data << float(0); // RollPitchYaw X
+        *data << float(0); // RollPitchYaw Y
+        *data << float(0); // RollPitchYaw Z
 
-    //        if (HasCenter)
-    //            *data << Vector3(Center);
-    //    }
+        bool hasAbsoluteOrientation = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
+        bool hasDynamicShape        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
+        bool hasAttached            = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED);
+        bool hasFaceMovementDir     = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
+        bool hasFollowsTerrain      = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
+        bool hasUnk1                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK1);
+        bool hasTargetRollPitchYaw  = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
+        bool hasScaleCurveID        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SCALE_CURVE);
+        bool hasMorphCurveID        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_MORPH_CURVE);
+        bool hasFacingCurveID       = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACING_CURVE);
+        bool hasMoveCurveID         = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_MOVE_CURVE);
+        bool hasUnk2                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK2);
+        bool hasUnk3                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3);
+        bool hasUnk4                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK4);
+        bool hasAreaTriggerSphere   = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPHERE);
+        bool hasAreaTriggerBox      = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_BOX);
+        bool hasAreaTriggerPolygon  = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);
+        bool hasAreaTriggerCylinder = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);
+        bool hasAreaTriggerSpline   = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);
+        bool hasAreaTriggerUnkType  = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_UNK5);
 
-    //    if (HasTargetRollPitchYaw)
-    //        *data << Vector3(TargetRollPitchYaw);
+        data->WriteBit(hasAbsoluteOrientation);
+        data->WriteBit(hasDynamicShape);
+        data->WriteBit(hasAttached);
+        data->WriteBit(hasFaceMovementDir);
+        data->WriteBit(hasFollowsTerrain);
+        data->WriteBit(hasUnk1);
+        data->WriteBit(hasTargetRollPitchYaw);
+        data->WriteBit(hasScaleCurveID);
+        data->WriteBit(hasMorphCurveID);
+        data->WriteBit(hasFacingCurveID);
+        data->WriteBit(hasMoveCurveID);
+        data->WriteBit(hasUnk2);
+        data->WriteBit(hasUnk3);
+        data->WriteBit(hasUnk4);
+        data->WriteBit(hasAreaTriggerSphere);
+        data->WriteBit(hasAreaTriggerBox);
+        data->WriteBit(hasAreaTriggerPolygon);
+        data->WriteBit(hasAreaTriggerCylinder);
+        data->WriteBit(hasAreaTriggerSpline);
+        data->WriteBit(hasAreaTriggerUnkType);
 
-    //    if (HasScaleCurveID)
-    //        *data << uint32(ScaleCurveID);
+        if (areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3))
+            data->WriteBit(0);
 
-    //    if (HasMorphCurveID)
-    //        *data << uint32(MorphCurveID);
+        if (hasAreaTriggerSpline)
+            ;//AreaTriggerHandler.ReadAreaTriggerSpline(packet, index);
 
-    //    if (HasFacingCurveID)
-    //        *data << uint32(FacingCurveID);
+        if (hasTargetRollPitchYaw)
+        {
+            *data << float(0); // X
+            *data << float(0); // Y
+            *data << float(0); // Z
+        }
 
-    //    if (HasMoveCurveID)
-    //        *data << uint32(MoveCurveID);
+        if (hasScaleCurveID)
+            *data << areaTriggerTemplate->ScaleCurveId;
 
-    //    if (HasAreaTriggerSphere)
-    //    {
-    //        *data << float(Radius);
-    //        *data << float(RadiusTarget);
-    //    }
+        if (hasMorphCurveID)
+            *data << areaTriggerTemplate->MorphCurveId;
 
-    //    if (HasAreaTriggerBox)
-    //    {
-    //        *data << Vector3(Extents);
-    //        *data << Vector3(ExtentsTarget);
-    //    }
+        if (hasFacingCurveID)
+            *data << areaTriggerTemplate->FacingCurveId;
 
-    //    if (HasAreaTriggerPolygon)
-    //    {
-    //        *data << uint32(Vertices.size());
-    //        *data << uint32(VerticesTarget.size());
-    //        *data << float(Height);
-    //        *data << float(HeightTarget);
+        if (hasMoveCurveID)
+            *data << areaTriggerTemplate->MoveCurveId;
 
-    //        for (std::size_t i = 0; i < Vertices.size(); ++i)
-    //            *data << Vector2(Vertices[i]);
+        if (hasUnk2)
+            *data << int32(0);
 
-    //        for (std::size_t i = 0; i < VerticesTarget.size(); ++i)
-    //            *data << Vector2(VerticesTarget[i]);
-    //    }
+        if (hasUnk4)
+            *data << uint32(0);
 
-    //    if (HasAreaTriggerCylinder)
-    //    {
-    //        *data << float(Radius);
-    //        *data << float(RadiusTarget);
-    //        *data << float(Height);
-    //        *data << float(HeightTarget);
-    //        *data << float(LocationZOffset);
-    //        *data << float(LocationZOffsetTarget);
-    //    }
+        if (hasAreaTriggerSphere)
+        {
+            *data << areaTriggerTemplate->SphereDatas.Radius;
+            *data << areaTriggerTemplate->SphereDatas.RadiusTarget;
+        }
 
-    //    if (HasAreaTriggerSpline)
-    //    {
-    //        *data << uint32(TimeToTarget);
-    //        *data << uint32(ElapsedTimeForMovement);
-    //        *data << uint32(Points.size());
+        if (hasAreaTriggerBox)
+        {
+            *data << areaTriggerTemplate->BoxDatas.Extents[0];
+            *data << areaTriggerTemplate->BoxDatas.Extents[1];
+            *data << areaTriggerTemplate->BoxDatas.Extents[2];
+            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[0];
+            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[1];
+            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[2];
+        }
 
-    //        for (std::size_t i = 0; i < Points.size(); ++i)
-    //            *data << Vector3(Points[i]);
-    //    }
-    //}
+        if (hasAreaTriggerPolygon)
+        {
+            int32 verticeCount = areaTriggerTemplate->PolygonVertices.size();
+
+            *data << int32(verticeCount);
+            *data << int32(verticeCount);
+            *data << areaTriggerTemplate->PolygonDatas.Height;
+            *data << areaTriggerTemplate->PolygonDatas.HeightTarget;
+
+            for (int32 i = 0; i < verticeCount; ++i)
+            {
+                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeX);
+                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeY);
+            }
+
+            for (int32 i = 0; i <verticeCount; ++i)
+            {
+                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeTargetX);
+                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeTargetY);
+            }
+        }
+
+        if (hasAreaTriggerCylinder)
+        {
+            *data << areaTriggerTemplate->CylinderDatas.Radius;
+            *data << areaTriggerTemplate->CylinderDatas.RadiusTarget;
+            *data << areaTriggerTemplate->CylinderDatas.Height;
+            *data << areaTriggerTemplate->CylinderDatas.HeightTarget;
+            *data << areaTriggerTemplate->CylinderDatas.LocationZOffset;
+            *data << areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget;
+        }
+
+        if (hasAreaTriggerUnkType)
+        {
+            /*packet.ResetBitReader();
+            var unk1 = packet.ReadBit("AreaTriggerUnk1");
+            var hasCenter = packet.ReadBit("HasCenter", index);
+            packet.ReadBit("Unk bit 703 1", index);
+            packet.ReadBit("Unk bit 703 2", index);
+
+            packet.ReadUInt32();
+            packet.ReadInt32();
+            packet.ReadUInt32();
+            packet.ReadSingle("Radius", index);
+            packet.ReadSingle("BlendFromRadius", index);
+            packet.ReadSingle("InitialAngel", index);
+            packet.ReadSingle("ZOffset", index);
+
+            if (unk1)
+                packet.ReadPackedGuid128("AreaTriggerUnkGUID", index);
+
+            if (hasCenter)
+                packet.ReadVector3("Center", index);*/
+        }
+    }
 
     //if (GameObject)
     //{

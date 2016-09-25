@@ -91,4 +91,6 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA, "UPDATE creature SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA, "UPDATE gameobject SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS, "SELECT AchievementRequired FROM guild_rewards_req_achievements WHERE ItemID = ?", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_AREATRIGGER_TEMPLATES, "SELECT id, flags, moveCurveId, scaleCurveId, morphCurveId, facingCurveId, data0, data1, data2, data3, data4, data5, scriptName FROM `areatrigger_template`", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_AREATRIGGER_POLYGON_VERTICES, "SELECT verticeX, verticeY, verticeTargetX, verticeTargetY FROM `areatrigger_template_polygon_vertices` WHERE `areatriggerId` = ? ORDER BY `index`", CONNECTION_SYNCH);
 }
