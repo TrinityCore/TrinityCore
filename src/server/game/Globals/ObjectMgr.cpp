@@ -9641,7 +9641,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         areaTriggerTemplate.MorphCurveId    = fields[4].GetInt32();
         areaTriggerTemplate.FacingCurveId   = fields[5].GetInt32();
 
-        for (uint8 i = 0; i < MAX_SPELL_AREATRIGGER_DATA; ++i)
+        for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
             areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
 
         areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[12].GetCString());

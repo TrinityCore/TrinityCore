@@ -24,7 +24,7 @@
 class Unit;
 class SpellInfo;
 
-#define MAX_SPELL_AREATRIGGER_DATA 6
+#define MAX_AREATRIGGER_ENTITY_DATA 6
 
 enum AreaTriggerFlags
 {
@@ -99,7 +99,7 @@ public:
     {
         struct
         {
-            float Data[MAX_SPELL_AREATRIGGER_DATA];
+            float Data[MAX_AREATRIGGER_ENTITY_DATA];
         } DefaultDatas;
 
         // AREATRIGGER_FLAG_IS_SPHERE
