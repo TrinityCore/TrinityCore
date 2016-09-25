@@ -25,13 +25,13 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   PRIMARY KEY (`areatriggerId`,`index`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-delete from `areatrigger_template` where `id` IN (2472, 4424);
-insert into `areatrigger_template`(`id`,`flags`,`moveCurveId`,`scaleCurveId`,`morphCurveId`,`facingCurveId`,`data0`,`data1`,`data2`,`data3`,`data4`,`data5`,`scriptName`) values
+DELETE FROM `areatrigger_template` WHERE `id` IN (2472, 4424);
+INSERT INTO `areatrigger_template`(`id`,`flags`,`moveCurveId`,`scaleCurveId`,`morphCurveId`,`facingCurveId`,`data0`,`data1`,`data2`,`data3`,`data4`,`data5`,`scriptName`) VALUES
 (2472,65536,0,0,0,0,0,0,0,0,0,0,''),
-(4424,131072,0,0,0,0,5,5,5,5,1,1,'');
+(4424,131072,0,0,0,0,3,3,4,4,1,1,'');
 
-delete from `areatrigger_template_polygon_vertices` where `areatriggerId` = 2472;
-insert into `areatrigger_template_polygon_vertices`(`areatriggerId`,`index`,`verticeX`,`verticeY`,`verticeTargetX`,`verticeTargetY`) values
+DELETE FROM `areatrigger_template_polygon_vertices` WHERE `areatriggerId` = 2472;
+INSERT INTO `areatrigger_template_polygon_vertices`(`areatriggerId`,`index`,`verticeX`,`verticeY`,`verticeTargetX`,`verticeTargetY`) VALUEs
 (2472,0,-1,0.75,0,0),
 (2472,1,-1,-0.75,0,0),
 (2472,2,4,-0.75,0,0),

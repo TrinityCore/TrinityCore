@@ -568,7 +568,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             data->WriteBit(0);
 
         if (hasAreaTriggerSpline)
-            ;//AreaTriggerHandler.ReadAreaTriggerSpline(packet, index);
+        {
+            //AreaTriggerHandler.ReadAreaTriggerSpline(packet, index);
+        }
 
         if (hasTargetRollPitchYaw)
         {

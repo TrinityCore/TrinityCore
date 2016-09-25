@@ -17,39 +17,62 @@
 
 #include "AreaTriggerTemplate.h"
 
-// Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
-void AreaTriggerTemplate::InitMaxSearchRadius()
+AreaTriggerTypes AreaTriggerTemplate::GetType()
 {
     if (IsSphere())
     {
-        MaxSearchRadius = SphereDatas.Radius;
+        return AREATRIGGER_TYPE_SPHERE;
     }
     else if (IsBox())
     {
-        float extentsX = BoxDatas.Extents[0];
-        float extentsY = BoxDatas.Extents[1];
-        float extentsZ = BoxDatas.Extents[2];
-
-        MaxSearchRadius = std::max(std::max(extentsX, extentsY), extentsZ);
+        return AREATRIGGER_TYPE_BOX;
     }
     else if (IsPolygon())
     {
-        if (PolygonDatas.Height <= 0.0f)
-            PolygonDatas.Height = 1.0f;
-
-        for (AreaTriggerPolygonVertice vertice : PolygonVertices)
-        {
-            float pointDist = std::sqrt((vertice.VerticeX * vertice.VerticeX) + (vertice.VerticeY * vertice.VerticeY));
-
-            if (pointDist > MaxSearchRadius)
-                MaxSearchRadius = pointDist;
-        }
+        return AREATRIGGER_TYPE_POLYGON;
     }
     else if (IsCylinder())
     {
-        float radius = CylinderDatas.Radius;
-        float height = CylinderDatas.Height;
+        return AREATRIGGER_TYPE_CYLINDER;
+    }
 
-        MaxSearchRadius = std::sqrt((radius * radius) + (height * height));
+    return AREATRIGGER_TYPE_NONE;
+}
+
+// Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
+void AreaTriggerTemplate::InitMaxSearchRadius()
+{
+    switch (GetType())
+    {
+        case AREATRIGGER_TYPE_SPHERE:
+        {
+            MaxSearchRadius = SphereDatas.Radius;
+            break;
+        }
+        case AREATRIGGER_TYPE_BOX:
+        {
+            MaxSearchRadius = std::max(std::max(BoxDatas.Extents[0], BoxDatas.Extents[1]), BoxDatas.Extents[2]);
+            break;
+        }
+        case AREATRIGGER_TYPE_POLYGON:
+        {
+            if (PolygonDatas.Height <= 0.0f)
+                PolygonDatas.Height = 1.0f;
+
+            for (AreaTriggerPolygonVertice vertice : PolygonVertices)
+            {
+                float pointDist = std::sqrt((vertice.VerticeX * vertice.VerticeX) + (vertice.VerticeY * vertice.VerticeY));
+
+                if (pointDist > MaxSearchRadius)
+                    MaxSearchRadius = pointDist;
+            }
+
+            break;
+        }
+        case AREATRIGGER_TYPE_CYLINDER:
+        {
+            MaxSearchRadius = std::sqrt((CylinderDatas.Radius * CylinderDatas.Radius) + (CylinderDatas.Height * CylinderDatas.Height));
+            break;
+        }
     }
 }

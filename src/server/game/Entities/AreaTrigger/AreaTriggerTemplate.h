@@ -50,6 +50,15 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_UNK5                       = 0x80000
 };
 
+enum AreaTriggerTypes
+{
+    AREATRIGGER_TYPE_NONE       = 0,
+    AREATRIGGER_TYPE_SPHERE     = 1,
+    AREATRIGGER_TYPE_BOX        = 2,
+    AREATRIGGER_TYPE_POLYGON    = 3,
+    AREATRIGGER_TYPE_CYLINDER   = 4
+};
+
 struct AreaTriggerPolygonVertice
 {
     float VerticeX;
@@ -82,6 +91,7 @@ public:
     bool IsPolygon()    const { return HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);   }
     bool IsCylinder()   const { return HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);  }
 
+    AreaTriggerTypes GetType() const;
     void InitMaxSearchRadius();
 
     uint32 Id;
