@@ -17,7 +17,7 @@
 
 #include "AreaTriggerTemplate.h"
 
-AreaTriggerTypes AreaTriggerTemplate::GetType()
+AreaTriggerTypes AreaTriggerTemplate::GetType() const
 {
     if (IsSphere())
     {

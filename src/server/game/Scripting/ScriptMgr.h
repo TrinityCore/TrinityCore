@@ -840,19 +840,19 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
 
     public:
         // Called when the AreaTrigger has just been created
-        void OnCreate(AreaTrigger* areaTrigger) { }
+        virtual void OnCreate(AreaTrigger* areaTrigger) { }
 
         // Called on each AreaTrigger update
-        void OnUpdate(AreaTrigger* areaTrigger, uint32 diff) { }
+        virtual void OnUpdate(AreaTrigger* areaTrigger, uint32 diff) { }
 
         // Called when an unit enter the AreaTrigger
-        void OnUnitEnter(AreaTrigger* areaTrigger, Unit* unit) { }
+        virtual void OnUnitEnter(AreaTrigger* areaTrigger, Unit* unit) { }
 
         // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        void OnUnitExit(AreaTrigger* areaTrigger, Unit* unit) { }
+        virtual void OnUnitExit(AreaTrigger* areaTrigger, Unit* unit) { }
 
         // Called when the AreaTrigger is removed
-        void OnRemove(AreaTrigger* areaTrigger) { }
+        virtual void OnRemove(AreaTrigger* areaTrigger) { }
 };
 
 // Manages registration, loading, and execution of scripts.
