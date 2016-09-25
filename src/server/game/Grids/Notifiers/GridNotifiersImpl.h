@@ -477,6 +477,15 @@ void Trinity::PlayerListSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Check>
+void Trinity::PlayerListSearcherByPosition<Check>::Visit(PlayerMapType &m)
+{
+    for (PlayerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+        if (itr->GetSource()->InSamePhase(i_phaseMask))
+            if (i_check(itr->GetSource()))
+                i_objects.push_back(itr->GetSource());
+}
+
+template<class Check>
 void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 {
     // already found
