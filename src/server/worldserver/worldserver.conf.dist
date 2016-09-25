@@ -2033,28 +2033,27 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #    Rate.RunicPower.Loss
 #    Rate.Focus
 #    Rate.Energy
-#    Rate.Loyalty
-#        Description: Multiplier to configure health, mana, incoming rage, loss of rage, focus
-#                     energy and loyalty increase or decrease.
-#        Default:     1 - (Rate.Health)
-#                     1 - (Rate.Mana)
-#                     1 - (Rate.Rage.Income)
-#                     1 - (Rate.Rage.Loss)
-#                     1 - (Rate.RunicPower.Income)
-#                     1 - (Rate.RunicPower.Loss)
-#                     1 - (Rate.Focus)
-#                     1 - (Rate.Energy)
-#                     1 - (Rate.Loyalty)
+#        Description: Multiplier to configure health and power increase or decrease.
+#        Default:     1 for all regen rates
 
 Rate.Health            = 1
 Rate.Mana              = 1
-Rate.Rage.Income       = 1
+Rate.Rage.Gain         = 1
 Rate.Rage.Loss         = 1
-Rate.RunicPower.Income = 1
-Rate.RunicPower.Loss   = 1
 Rate.Focus             = 1
 Rate.Energy            = 1
-Rate.Loyalty           = 1
+Rate.ComboPoints.Loss  = 1
+Rate.RunicPower.Gain   = 1
+Rate.RunicPower.Loss   = 1
+Rate.SoulShards.Loss   = 1
+Rate.LunarPower.Loss   = 1
+Rate.HolyPower.Loss    = 1
+Rate.Maelstrom.Loss    = 1
+Rate.Chi.Loss          = 1
+Rate.Insanity.Loss     = 1
+Rate.ArcaneCharges.Loss= 1
+Rate.Fury.Loss         = 1
+Rate.Pain.Loss         = 1
 
 #
 #    Rate.Skill.Discovery
