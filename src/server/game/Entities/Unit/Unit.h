@@ -2317,7 +2317,7 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;
 
-        typedef std::list<AreaTrigger*> AreaTriggerList;
+        typedef std::vector<AreaTrigger*> AreaTriggerList;
         AreaTriggerList m_areaTrigger;
 
         uint32 m_transform;
