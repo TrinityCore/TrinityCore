@@ -2197,7 +2197,7 @@ Group* GameObject::GetLootRecipientGroup() const
     return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
 }
 
-void GameObject::SetLootRecipient(Unit* unit)
+void GameObject::SetLootRecipient(Unit* unit, Group* group)
 {
     // set the player whose group should receive the right
     // to loot the creature after it dies
@@ -2206,7 +2206,7 @@ void GameObject::SetLootRecipient(Unit* unit)
     if (!unit)
     {
         m_lootRecipient.Clear();
-        m_lootRecipientGroup = 0;
+        m_lootRecipientGroup = group ? group->GetLowGUID() : 0;
         return;
     }
 
@@ -2218,8 +2218,12 @@ void GameObject::SetLootRecipient(Unit* unit)
         return;
 
     m_lootRecipient = player->GetGUID();
-    if (Group* group = player->GetGroup())
+
+    // either get the group from the passed parameter or from unit's one
+    if (group)
         m_lootRecipientGroup = group->GetLowGUID();
+    else if (Group* unitGroup = player->GetGroup())
+        m_lootRecipientGroup = unitGroup->GetLowGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
