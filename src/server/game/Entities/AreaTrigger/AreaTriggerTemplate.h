@@ -81,7 +81,6 @@ public:
     bool IsBox()        const { return HasFlag(AREATRIGGER_FLAG_HAS_BOX);       }
     bool IsPolygon()    const { return HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);   }
     bool IsCylinder()   const { return HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);  }
-    bool IsSpline()     const { return HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);    }
 
     void InitMaxSearchRadius();
 
@@ -102,28 +101,28 @@ public:
             float Data[MAX_AREATRIGGER_ENTITY_DATA];
         } DefaultDatas;
 
-        // AREATRIGGER_FLAG_IS_SPHERE
+        // AREATRIGGER_FLAG_HAS_SPHERE
         struct
         {
             float Radius;
             float RadiusTarget;
         } SphereDatas;
 
-        // AREATRIGGER_FLAG_IS_BOX
+        // AREATRIGGER_FLAG_HAS_BOX
         struct
         {
             float Extents[3];
             float ExtentsTarget[3];
         } BoxDatas;
 
-        // AREATRIGGER_FLAG_IS_POLYGON
+        // AREATRIGGER_FLAG_HAS_POLYGON
         struct
         {
             float  Height;
             float  HeightTarget;
         } PolygonDatas;
 
-        // AREATRIGGER_FLAG_IS_CYLINDER
+        // AREATRIGGER_FLAG_HAS_CYLINDER
         struct
         {
             float Radius;
@@ -133,18 +132,6 @@ public:
             float LocationZOffset;
             float LocationZOffsetTarget;
         } CylinderDatas;
-
-        // AREATRIGGER_FLAG_IS_SPLINE
-        struct
-        {
-            // TODO
-        } SplineDatas;
-
-        // AREATRIGGER_FLAG_IS_UNK
-        struct
-        {
-            // TODO
-        } UnkDatas;
     };
 };
 
