@@ -9628,7 +9628,7 @@ void ObjectMgr::LoadSceneTemplates()
         sceneTemplate.SceneId           = sceneId;
         sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
-        sceneTemplate.ScriptId = sObjectMgr->GetScriptId(fields[3].GetCString());
+        sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[3].GetCString());
 
     } while (templates->NextRow());
 
@@ -9743,6 +9743,6 @@ void ObjectMgr::LoadConversationTemplates()
             ++count;
         } while (templates->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u conversation template actors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded %u conversation templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }

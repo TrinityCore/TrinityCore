@@ -1580,8 +1580,11 @@ public:
             return false;
 
         Conversation* conversation = new Conversation;
-        if (!conversation->CreateConversation(target->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, target, target->GetPosition()))
+        if (!conversation->CreateConversation(target->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, target, nullptr, target->GetPosition()))
+        {
             delete conversation;
+            return false;
+        }
 
         return true;
     }

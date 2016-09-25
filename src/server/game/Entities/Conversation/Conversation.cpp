@@ -84,7 +84,7 @@ void Conversation::Remove()
 }
 
 
-bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, Position const& pos)
+bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, SpellInfo const* spell, Position const& pos)
 {
     _casterGuid = caster->GetGUID();
 
