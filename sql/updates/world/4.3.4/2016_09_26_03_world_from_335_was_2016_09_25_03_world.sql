@@ -60,7 +60,7 @@ DELETE FROM `creature_equip_template` WHERE `creatureid`=23784;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`, `ItemID3`, `VerifiedBuild`) VALUES
 (23784, 2, 1906, 0, 0, 0);
 
-UPDATE `spell_dbc` SET `Effect1`=76, `EffectMiscValue1`=182071 WHERE `Id`=42686;
+UPDATE `spelleffect_dbc` SET `Effect`=76, `EffectMiscValue`=182071 WHERE `EffectSpellId`=42686;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=42685;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
