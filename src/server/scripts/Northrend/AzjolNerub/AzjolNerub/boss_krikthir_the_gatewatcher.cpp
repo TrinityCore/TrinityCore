@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "PassiveAI.h"
+#include "SpellAuras.h"
 #include "azjol_nerub.h"
 
 enum Events
