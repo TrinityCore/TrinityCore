@@ -234,9 +234,6 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
             {
                 Creature* creature = itr->second;
                 ++itr;
-                // For dynamic spawns, save respawn time here
-                if (!creature->GetRespawnCompatibilityMode())
-                    creature->SaveRespawnTime(0, false);
                 creature->AddObjectToRemoveList();
             }
         }
@@ -259,10 +256,6 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
             {
                 GameObject* go = itr->second;
                 ++itr;
-
-                // For dynamic spawns, save respawn time here
-                if (!go->GetRespawnCompatibilityMode())
-                    go->SaveRespawnTime(0, false);
                 go->AddObjectToRemoveList();
             }
         }

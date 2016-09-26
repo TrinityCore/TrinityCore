@@ -1127,24 +1127,7 @@ enum TrinityStrings
     LANG_COMMAND_MUTEHISTORY_EMPTY      = 5060,
     LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
 
-    // Strings added for dynamic spawns
-    LANG_NPCINFO_GROUP_ID               = 5062,
-    LANG_NPCINFO_COMPATIBILITY_MODE     = 5063,
-    LANG_GOINFO_GROUP_ID                = 5064,
-    LANG_GOINFO_COMPATIBILITY_MODE      = 5065,
-    LANG_GOINFO_GUIDINFO                = 5066,
-    LANG_GOINFO_SPAWNID_LOCATION        = 5067,
-    LANG_GOINFO_DISTANCEFROMPLAYER      = 5068,
-    LANG_NPCSPAWNGROUP_BADGROUP         = 5069,
-    LANG_GOSPAWNGROUP_BADGROUP          = 5070,
-    LANG_LIST_RESPAWNS                  = 5071,
-    LANG_LIST_RESPAWNS_LISTHEADER       = 5072,
-    LANG_LIST_RESPAWNS_LISTDATA         = 5073,
-    LANG_LIST_RESPAWNS_OVERDUE          = 5074,
-    LANG_LIST_RESPAWNS_CREATURES        = 5075,
-    LANG_LIST_RESPAWNS_GAMEOBJECTS      = 5076,
-
-    // Room for more Trinity strings      5077-6603
+    // Room for more Trinity strings      5062-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

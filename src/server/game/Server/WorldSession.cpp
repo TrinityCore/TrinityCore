@@ -198,8 +198,6 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
-    ASSERT(packet->GetOpcode() != NULL_OPCODE);
-
     // Playerbot mod: send packet to bot AI
     if (GetPlayer()) {
         if (GetPlayer()->GetPlayerbotAI())
@@ -207,6 +205,8 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         else if (GetPlayer()->GetPlayerbotMgr())
             GetPlayer()->GetPlayerbotMgr()->HandleMasterOutgoingPacket(*packet);
     }
+    // end of playerbot mod
+    ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
     if (!m_Socket)
         return;
@@ -1495,6 +1495,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_BEGIN_TRADE:                          //   0               2.5
         case CMSG_INITIATE_TRADE:                       //   0               3
         case CMSG_MESSAGECHAT:                          //   0               3.5
+        case CMSG_GET_MIRRORIMAGE_DATA:                 // not profiled
         case CMSG_INSPECT:                              //   0               3.5
         case CMSG_AREA_SPIRIT_HEALER_QUERY:             // not profiled
         case CMSG_STANDSTATECHANGE:                     // not profiled
@@ -1657,8 +1658,8 @@ void WorldSession::HandleBotPackets()
     WorldPacket* packet;
     while (_recvQueue.next(packet))
     {
-		ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
-		opHandle->Call(this, *packet);
+        const ClientOpcodeHandler* handler = opcodeTable[(Opcodes)packet->GetOpcode()];
+        handler->Call(this, *packet);
         delete packet;
     }
 }

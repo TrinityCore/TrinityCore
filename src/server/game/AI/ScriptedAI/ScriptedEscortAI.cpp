@@ -251,15 +251,10 @@ void npc_escortAI::UpdateAI(uint32 diff)
                         return;
                     }
 
-                    if (m_bCanInstantRespawn && !sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC))
+                    if (m_bCanInstantRespawn)
                     {
                         me->setDeathState(JUST_DIED);
                         me->Respawn();
-                    }
-                    else if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC))
-                    {
-                        me->GetMap()->RemoveCreatureRespawnTime(me->GetSpawnId(), 0, 0, true);
-                        me->DespawnOrUnsummon();
                     }
                     else
                         me->DespawnOrUnsummon();
@@ -297,19 +292,11 @@ void npc_escortAI::UpdateAI(uint32 diff)
             {
                 TC_LOG_DEBUG("scripts", "EscortAI failed because player/group was to far away or not found");
 
-                uint32 groupFlags = 0;
-
-                if (const CreatureData* cdata = me->GetCreatureData())
-                    if (const CreatureGroupTemplateData* groupData = cdata->groupdata)
-                        groupFlags = groupData->flags;
-
-                if (m_bCanInstantRespawn && !(sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (groupFlags & CREATUREGROUP_FLAG_ESCORTQUESTNPC)))
+                if (m_bCanInstantRespawn)
                 {
                     me->setDeathState(JUST_DIED);
                     me->Respawn();
                 }
-                else if (m_bCanInstantRespawn && (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (groupFlags & CREATUREGROUP_FLAG_ESCORTQUESTNPC)))
-                    me->GetMap()->RemoveCreatureRespawnTime(me->GetSpawnId(), 0, 0, true);
                 else
                     me->DespawnOrUnsummon();
 
@@ -415,12 +402,11 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
 
 void npc_escortAI::FillPointMovementListForCreature()
 {
-    ScriptPointVector const& movePoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
-    if (movePoints.empty())
+    ScriptPointVector const* movePoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
+    if (!movePoints)
         return;
 
-    ScriptPointVector::const_iterator itrEnd = movePoints.end();
-    for (ScriptPointVector::const_iterator itr = movePoints.begin(); itr != itrEnd; ++itr)
+    for (ScriptPointVector::const_iterator itr = movePoints->begin(); itr != movePoints->end(); ++itr)
     {
         Escort_Waypoint point(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
         WaypointList.push_back(point);
@@ -450,23 +436,6 @@ void npc_escortAI::SetRun(bool on)
 /// @todo get rid of this many variables passed in function.
 void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = NULL */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
-    // Queue respawn from the point it starts
-    if (Map* map = me->GetMap())
-    {
-        if (const CreatureData* cdata = me->GetCreatureData())
-        {
-            if (const CreatureGroupTemplateData* groupdata = cdata->groupdata)
-            {
-                if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (groupdata->flags & CREATUREGROUP_FLAG_ESCORTQUESTNPC) && !map->GetCreatureRespawnTime(me->GetSpawnId()))
-                {
-                    me->SetRespawnTime(me->GetRespawnDelay());
-                    me->SaveRespawnTime();
-                }
-            }
-
-        }
-    }
-
     if (me->GetVictim())
     {
         TC_LOG_ERROR("scripts.escortai", "TSCR ERROR: EscortAI (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
@@ -593,11 +562,11 @@ bool npc_escortAI::SetNextWaypoint(uint32 pointId, bool setPosition, bool resetW
 
 bool npc_escortAI::GetWaypointPosition(uint32 pointId, float& x, float& y, float& z)
 {
-    ScriptPointVector const& waypoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
-    if (waypoints.empty())
+    ScriptPointVector const* waypoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
+    if (!waypoints)
         return false;
 
-    for (ScriptPointVector::const_iterator itr = waypoints.begin(); itr != waypoints.end(); ++itr)
+    for (ScriptPointVector::const_iterator itr = waypoints->begin(); itr != waypoints->end(); ++itr)
     {
         if (itr->uiPointId == pointId)
         {
