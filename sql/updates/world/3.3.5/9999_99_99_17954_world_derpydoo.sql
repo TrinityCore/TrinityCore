@@ -10,6 +10,10 @@ DELETE FROM `location_scripts` WHERE `zone_entry` = 85;
 INSERT INTO `location_scripts` VALUES
 (85, "location_trisfal_glades");
 
+-- Spawns
+SET @CGUID := 302359; -- ToDo: change it
+SET @OGUID := 219091; -- ToDo: change it
+
 -- Templates
 SET @THRALL := 31650;
 SET @SYLVANAS := 31651;
@@ -116,10 +120,6 @@ UPDATE `creature_template` SET `minlevel`=83, `maxlevel`=83, `faction`=1802, `un
 UPDATE `creature_template` SET `minlevel`=74, `maxlevel`=75, `faction`=1802, `unit_flags`=768 WHERE `entry`=@STORMWIND_ELITE;
 
 UPDATE `creature_template` SET `minlevel`=83, `maxlevel`=83, `faction`=1801, `unit_flags`=0 WHERE `entry`=@SAURFANG;
-
--- Spawns
-SET @CGUID := 302359; -- ToDo: change it
-SET @OGUID := 219091; -- ToDo: change it
 
 DELETE FROM `creature` WHERE `id` IN (@DEMOLISHER,@STALKER_TESLA,@WARSONG_BATTLEGUARD,@BLIGHT_TRIGGER,@SLINGER_TRIGGER,@GUARDIAN,@DREADLORD,@FELBEAST,@MARAUDER,@BETRAYER,@CHEMIST,@COLLABORATOR,@DOCTOR,@BLIGHT_SLINGER,@BLIGHT_ABERRATION,@DREADGUARD_CORPSE);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
