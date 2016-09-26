@@ -1,6 +1,7 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore
 
-[![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/issue)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/pr)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](http://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue")  
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](http://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
 
 ## Build Status
 
