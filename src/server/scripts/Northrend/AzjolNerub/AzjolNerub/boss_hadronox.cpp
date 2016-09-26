@@ -252,7 +252,7 @@ public:
             }
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             std::list<Creature*> triggers;
             me->GetCreatureListWithEntryInGrid(triggers, NPC_WORLDTRIGGER_LARGE);
