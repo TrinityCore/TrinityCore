@@ -13,7 +13,7 @@
 class AccountAchievements : public PlayerScript
 {
 	static const bool limitrace = true; // This set to true will only achievements from chars on the same team, do what you want. NOT RECOMMANDED TO BE CHANGED!!!
-	static const bool limitlevel = false; // This checks the player's level and will only add achievements to players of that level.
+	static const bool limitlevel = true; // This checks the player's level and will only add achievements to players of that level.
 	int minlevel = 80; // It's set to players of the level 60. Requires limitlevel to be set to true.
 	int setlevel = 1; // Dont Change
 
