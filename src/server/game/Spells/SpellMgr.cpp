@@ -3029,9 +3029,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
-            case 70743: // AoD Special
-            case 70614: // AoD Special - Vegard
-            case 4020: // Safirdrang's Chill
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
@@ -3128,6 +3125,14 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 61588: // Blazing Harpoon
             case 55479: // Force Obedience
             case 28560: // Summon Blizzard (Sapphiron)
+            case 53096: // Quetz'lun's Judgment
+            case 70743: // AoD Special
+            case 70614: // AoD Special - Vegard
+            case 4020: // Safirdrang's Chill
+            case 52438: // Summon Skittering Swarmer (Force Cast)
+            case 52449: // Summon Skittering Infector (Force Cast)
+            case 53609: // Summon Anub'ar Assassin (Force Cast)
+            case 53457: // Summon Impale Trigger (AoE)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
