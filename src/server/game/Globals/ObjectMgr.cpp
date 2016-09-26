@@ -9641,8 +9641,7 @@ void ObjectMgr::LoadConversationTemplates()
     _conversationLineTemplateStore.clear();
     _conversationTemplateStore.clear();
 
-    PreparedStatement* actorTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTOR_TEMPLATE);
-    PreparedQueryResult actorTemplates = WorldDatabase.Query(actorTemplateStmt);
+    QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, Unk1, Unk2, Unk3, Unk4 FROM conversation_actor_template");
 
     if (actorTemplates)
     {
@@ -9667,8 +9666,7 @@ void ObjectMgr::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded %u conversation template actors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
-    PreparedStatement* lineTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_LINE_TEMPLATE);
-    PreparedQueryResult lineTemplates = WorldDatabase.Query(lineTemplateStmt);
+    QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, Unk1, Unk2, Unk3 FROM conversation_line_template");
 
     if (lineTemplates)
     {
@@ -9691,8 +9689,7 @@ void ObjectMgr::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded %u conversation template lines in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
-    PreparedStatement* templateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_TEMPLATE);
-    PreparedQueryResult templates = WorldDatabase.Query(templateStmt);
+    QueryResult templates = WorldDatabase.Query("SELECT Id, LastLineDuration, VerifiedBuild FROM conversation_template");
 
     if (templates)
     {
@@ -9706,9 +9703,7 @@ void ObjectMgr::LoadConversationTemplates()
             conversationTemplate.Id = fields[0].GetUInt32();
             conversationTemplate.LastLineDuration = fields[1].GetUInt32();
 
-            PreparedStatement* actorsStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTORS);
-            actorsStmt->setUInt32(0, conversationTemplate.Id);
-            PreparedQueryResult actors = WorldDatabase.Query(actorsStmt);
+            QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = ? ORDER BY Idx", conversationTemplate.Id);
 
             if (actors)
             {
@@ -9722,9 +9717,7 @@ void ObjectMgr::LoadConversationTemplates()
                 } while (actors->NextRow());
             }
 
-            PreparedStatement* linesStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_LINES);
-            linesStmt->setUInt32(0, conversationTemplate.Id);
-            PreparedQueryResult lines = WorldDatabase.Query(linesStmt);
+            QueryResult lines = WorldDatabase.PQuery("SELECT ConversationLineId FROM conversation_lines WHERE ConversationId = ? ORDER BY Idx", conversationTemplate.Id);
 
             if (lines)
             {

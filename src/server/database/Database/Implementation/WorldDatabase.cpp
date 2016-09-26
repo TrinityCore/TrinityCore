@@ -91,9 +91,4 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA, "UPDATE creature SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA, "UPDATE gameobject SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS, "SELECT AchievementRequired FROM guild_rewards_req_achievements WHERE ItemID = ?", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_CONVERSATION_TEMPLATE, "SELECT Id, LastLineDuration, VerifiedBuild FROM conversation_template", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_CONVERSATION_ACTOR_TEMPLATE, "SELECT Id, CreatureId, Unk1, Unk2, Unk3, Unk4 FROM conversation_actor_template", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_CONVERSATION_LINE_TEMPLATE, "SELECT Id, Unk1, Unk2, Unk3 FROM conversation_line_template", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_CONVERSATION_ACTORS, "SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = ? ORDER BY Idx", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_CONVERSATION_LINES, "SELECT ConversationLineId FROM conversation_lines WHERE ConversationId = ? ORDER BY Idx", CONNECTION_SYNCH);
 }

@@ -45,7 +45,7 @@ Conversation::~Conversation()
 
 void Conversation::AddToWorld()
 {
-    ///- Register the AreaTrigger for guid lookup and for caster
+    ///- Register the Conversation for guid lookup and for caster
     if (!IsInWorld())
     {
         GetMap()->GetObjectsStore().Insert<Conversation>(GetGUID(), this);
@@ -55,7 +55,7 @@ void Conversation::AddToWorld()
 
 void Conversation::RemoveFromWorld()
 {
-    ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
+    ///- Remove the Conversation from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
         WorldObject::RemoveFromWorld();
@@ -106,23 +106,13 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
     SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, conversationTemplate->LastLineDuration);
     _duration = (conversationTemplate->Lines.size() - 1) * 10000 + conversationTemplate->LastLineDuration; // Estimated duration, need further investigation
 
+    uint16 actorsIndex = 0;
     for (ConversationActorTemplate actor : conversationTemplate->Actors)
-    {
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Id);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.CreatureId);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk1);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk2);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk3);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actor.Unk4);
-    }
+        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actor);
 
+    uint16 linesIndex = 0;
     for (ConversationLineTemplate line : conversationTemplate->Lines)
-    {
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Id);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk1);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk2);
-        AddDynamicValue(CONVERSATION_DYNAMIC_FIELD_LINES, line.Unk3);
-    }
+        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
 
     if (!GetMap()->AddToMap(this))
         return false;

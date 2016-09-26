@@ -1420,6 +1420,7 @@ class TC_GAME_API ObjectMgr
 
             return nullptr;
         }
+
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
             auto itr = _sceneTemplateStore.find(sceneId);
