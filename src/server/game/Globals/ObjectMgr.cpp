@@ -5999,7 +5999,7 @@ void ObjectMgr::LoadGraveyardZones()
 
         
         /*
-        JaredNinja: commented code, because we want to be able to load subzones too. So we can appoint graveyards to subzones.
+        Commented code, because we want to be able to load subzones too. So we can appoint graveyards to subzones.
         This is required for Northshire (Elwynn) for instance (subzone 6170 has own graveyard: 105)
         Part of my total solution for graveyards: https://github.com/TrinityCore/TrinityCore/issues/14089
         
