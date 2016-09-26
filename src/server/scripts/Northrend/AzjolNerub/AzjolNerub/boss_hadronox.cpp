@@ -413,7 +413,7 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 id) override
     {
         if (type == POINT_MOTION_TYPE && id == ACTION_PACK_WALK)
             _doFacing = true;
@@ -735,7 +735,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
             _nextMovement = Movements(id+1);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->DespawnOrUnsummon();
     }
@@ -1123,19 +1123,19 @@ class spell_hadronox_web_doors : public SpellScriptLoader
 class achievement_hadronox_denied : public AchievementCriteriaScript
 {
     public:
-    achievement_hadronox_denied() : AchievementCriteriaScript("achievement_hadronox_denied") { }
+        achievement_hadronox_denied() : AchievementCriteriaScript("achievement_hadronox_denied") { }
 
-    bool OnCheck(Player* /*player*/, Unit* target) override
-    {
-        if (!target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (Creature* cTarget = target->ToCreature())
+                if (!cTarget->AI()->GetData(DATA_HADRONOX_WEBBED_DOORS))
+                    return true;
+
             return false;
-
-        if (Creature* cTarget = target->ToCreature())
-            if (!cTarget->AI()->GetData(DATA_HADRONOX_WEBBED_DOORS))
-                return true;
-
-        return false;
-    }
+        }
 };
 
 void AddSC_boss_hadronox()
