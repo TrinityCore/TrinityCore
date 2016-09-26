@@ -5997,11 +5997,18 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
+        
+        /*
+        JaredNinja: commented code, because we want to be able to load subzones too. So we can appoint graveyards to subzones.
+        This is required for Northshire (Elwynn) for instance (subzone 6170 has own graveyard: 105)
+        Part of my total solution for graveyards: https://github.com/TrinityCore/TrinityCore/issues/14089
+        
         if (areaEntry->ParentAreaID != 0)
         {
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for SubZone (ID: %u) instead of zone, skipped.", zoneId);
             continue;
         }
+        */
 
         if (team != 0 && team != HORDE && team != ALLIANCE)
         {
