@@ -899,7 +899,10 @@ enum TrinityStrings
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
     LANG_ACCOUNT_INVALID_BNET_NAME      = 1029,
     LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030,
-    // Room for more level 4              1031-1099 not used
+    LANG_ACCOUNT_PASS_TOO_LONG          = 1031,
+    LANG_ACCOUNT_CREATED_BNET_WITH_GAME = 1032,
+    LANG_ACCOUNT_CREATED_BNET           = 1033,
+    // Room for more level 4              1034-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
