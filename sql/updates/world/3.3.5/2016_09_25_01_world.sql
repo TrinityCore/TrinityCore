@@ -1,4 +1,4 @@
-SET @CGUID = 500000; -- creature GUIDs (14 creatures)
+SET @CGUID = 87530; -- creature GUIDs (14 creatures)
 
 SET @IMMUNEMASK = (1|2|4|16|32|64|128|256|512|2048|4096|8192|65536|131072|524288|4194304|8388608|67108864|536870912);
 -- Correct immunity mask (all bosses)
@@ -49,7 +49,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`scriptname`) VALUES (52536,"spell_
 DELETE FROM `spell_script_names` WHERE `scriptname` = "spell_gatewatcher_web_wrap";
 INSERT INTO `spell_script_names` (`spell_id`,`scriptname`) VALUES (52086,"spell_gatewatcher_web_wrap");
 UPDATE `creature_template` SET `AIName`='',`ScriptName`="npc_gatewatcher_web_wrap" WHERE `entry`=28619;
-
 
 -- -------- --
 -- Hadronox --
@@ -133,7 +132,6 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=4244;
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
 (4244,11,"achievement_hadronox_denied");
 DELETE FROM `disables` WHERE `sourceType`=4 AND `entry`=4244;
-
 
 -- --------- --
 -- Anub'arak --
