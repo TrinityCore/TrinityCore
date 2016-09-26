@@ -3031,14 +3031,18 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 45027: // Revitalize
             case 45976: // Muru Portal Channel
             case 52124: // Sky Darkener Assault
-            case 53096: // Quetz'lun's Judgment
-            case 70743: // AoD Special
-            case 70614: // AoD Special - Vegard
-            case 4020:  // Safirdrang's Chill
             case 52479: // Gift of the Harvester
             case 61588: // Blazing Harpoon
             case 55479: // Force Obedience
             case 28560: // Summon Blizzard (Sapphiron)
+            case 53096: // Quetz'lun's Judgment
+            case 70743: // AoD Special
+            case 70614: // AoD Special - Vegard
+            case 4020: // Safirdrang's Chill
+            case 52438: // Summon Skittering Swarmer (Force Cast)
+            case 52449: // Summon Skittering Infector (Force Cast)
+            case 53609: // Summon Anub'ar Assassin (Force Cast)
+            case 53457: // Summon Impale Trigger (AoE)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 36384: // Skartax Purple Beam
