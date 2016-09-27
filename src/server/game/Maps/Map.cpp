@@ -2937,17 +2937,17 @@ void Map::RemoveFromActive(DynamicObject* obj)
     RemoveFromActiveHelper(obj);
 }
 
-TC_GAME_API template bool Map::AddToMap(Corpse*);
-TC_GAME_API template bool Map::AddToMap(Creature*);
-TC_GAME_API template bool Map::AddToMap(GameObject*);
-TC_GAME_API template bool Map::AddToMap(DynamicObject*);
-TC_GAME_API template bool Map::AddToMap(AreaTrigger*);
+template TC_GAME_API bool Map::AddToMap(Corpse*);
+template TC_GAME_API bool Map::AddToMap(Creature*);
+template TC_GAME_API bool Map::AddToMap(GameObject*);
+template TC_GAME_API bool Map::AddToMap(DynamicObject*);
+template TC_GAME_API bool Map::AddToMap(AreaTrigger*);
 
-TC_GAME_API template void Map::RemoveFromMap(Corpse*, bool);
-TC_GAME_API template void Map::RemoveFromMap(Creature*, bool);
-TC_GAME_API template void Map::RemoveFromMap(GameObject*, bool);
-TC_GAME_API template void Map::RemoveFromMap(DynamicObject*, bool);
-TC_GAME_API template void Map::RemoveFromMap(AreaTrigger*, bool);
+template TC_GAME_API void Map::RemoveFromMap(Corpse*, bool);
+template TC_GAME_API void Map::RemoveFromMap(Creature*, bool);
+template TC_GAME_API void Map::RemoveFromMap(GameObject*, bool);
+template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
+template TC_GAME_API void Map::RemoveFromMap(AreaTrigger*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
