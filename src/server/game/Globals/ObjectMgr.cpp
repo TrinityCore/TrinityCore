@@ -9703,7 +9703,7 @@ void ObjectMgr::LoadConversationTemplates()
             conversationTemplate.Id = fields[0].GetUInt32();
             conversationTemplate.LastLineDuration = fields[1].GetUInt32();
 
-            QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = ? ORDER BY Idx", conversationTemplate.Id);
+            QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id);
 
             if (actors)
             {
@@ -9717,7 +9717,7 @@ void ObjectMgr::LoadConversationTemplates()
                 } while (actors->NextRow());
             }
 
-            QueryResult lines = WorldDatabase.PQuery("SELECT ConversationLineId FROM conversation_lines WHERE ConversationId = ? ORDER BY Idx", conversationTemplate.Id);
+            QueryResult lines = WorldDatabase.PQuery("SELECT ConversationLineId FROM conversation_lines WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id);
 
             if (lines)
             {
