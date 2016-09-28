@@ -219,7 +219,7 @@ public:
             {
                 case 4:
                     SetEscortPaused(true);
-                    me->SetFacingTo(1.775791f);
+                    me->SetFacingTo(1.775791f, true);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_MORRIDUNE_2);
                     break;
