@@ -406,9 +406,9 @@ class TC_GAME_API BattlefieldWG : public Battlefield
         GuidVector KeepCreature[BG_TEAMS_COUNT];
         GuidVector OutsideCreature[BG_TEAMS_COUNT];
 
+        TeamId m_tenacityTeam;
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
-        uint8 m_buffedTeam;
 
         ObjectGuid m_titansRelicGUID;
 };
