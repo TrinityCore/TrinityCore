@@ -312,7 +312,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
+        void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
         {
             JumpToNextStep(100);
             PlayerGUID = player->GetGUID();
