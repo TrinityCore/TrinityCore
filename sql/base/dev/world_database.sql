@@ -3309,6 +3309,60 @@ CREATE TABLE `reputation_spillover_template` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `script_spline_chain_meta`
+--
+
+DROP TABLE IF EXISTS `script_spline_chain_meta`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `script_spline_chain_meta` (
+  `entry` int(10) unsigned NOT NULL,
+  `chainId` smallint(5) unsigned NOT NULL,
+  `splineId` tinyint(3) unsigned NOT NULL,
+  `expectedDuration` int(10) unsigned NOT NULL,
+  `msUntilNext` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`entry`,`chainId`,`splineId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `script_spline_chain_meta`
+--
+
+LOCK TABLES `script_spline_chain_meta` WRITE;
+/*!40000 ALTER TABLE `script_spline_chain_meta` DISABLE KEYS */;
+/*!40000 ALTER TABLE `script_spline_chain_meta` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `script_spline_chain_waypoints`
+--
+
+DROP TABLE IF EXISTS `script_spline_chain_waypoints`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `script_spline_chain_waypoints` (
+  `entry` int(10) unsigned NOT NULL,
+  `chainId` smallint(5) unsigned NOT NULL,
+  `splineId` tinyint(3) unsigned NOT NULL,
+  `wpId` tinyint(3) unsigned NOT NULL,
+  `x` float NOT NULL,
+  `y` float NOT NULL,
+  `z` float NOT NULL,
+  PRIMARY KEY (`entry`,`chainId`,`splineId`,`wpId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `script_spline_chain_waypoints`
+--
+
+LOCK TABLES `script_spline_chain_waypoints` WRITE;
+/*!40000 ALTER TABLE `script_spline_chain_waypoints` DISABLE KEYS */;
+/*!40000 ALTER TABLE `script_spline_chain_waypoints` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `script_waypoint`
 --
 
@@ -3426,7 +3480,7 @@ CREATE TABLE `smart_scripts` (
   `event_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `event_phase_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `event_chance` tinyint(3) unsigned NOT NULL DEFAULT '100',
-  `event_flags` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `event_flags` smallint(3) unsigned NOT NULL DEFAULT '0',
   `event_param1` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param2` int(10) unsigned NOT NULL DEFAULT '0',
   `event_param3` int(10) unsigned NOT NULL DEFAULT '0',
