@@ -28,8 +28,8 @@ WaypointMgr::~WaypointMgr()
 {
     for (WaypointPathContainer::iterator itr = _waypointStore.begin(); itr != _waypointStore.end(); ++itr)
     {
-        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            delete *it;
+        for (WaypointData* path : itr->second)
+            delete path;
 
         itr->second.clear();
     }
@@ -105,8 +105,8 @@ void WaypointMgr::ReloadPath(uint32 id)
     WaypointPathContainer::iterator itr = _waypointStore.find(id);
     if (itr != _waypointStore.end())
     {
-        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            delete *it;
+        for (WaypointData* path : itr->second)
+            delete path;
 
         _waypointStore.erase(itr);
     }

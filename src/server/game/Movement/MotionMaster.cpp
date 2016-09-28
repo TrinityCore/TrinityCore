@@ -653,7 +653,7 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
     }
 }
 
-void MotionMaster::MovePath(uint32 path_id, bool repeatable)
+void MotionMaster::MovePath(int32 path_id, bool repeatable, bool loadFromDB /* = true*/)
 {
     if (!path_id)
         return;
@@ -670,7 +670,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 
     //_owner->GetTypeId() == TYPEID_PLAYER ?
         //Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
-    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable, loadFromDB), MOTION_SLOT_IDLE);
 
     TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
         _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
