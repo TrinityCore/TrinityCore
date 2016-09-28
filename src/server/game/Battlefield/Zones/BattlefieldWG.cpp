@@ -1221,6 +1221,7 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROL_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROL_PHASE_SHIFT);
+    UpdateTenacity();
 }
 
 void BattlefieldWG::OnPlayerLeaveZone(Player* player)
