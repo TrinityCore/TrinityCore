@@ -15,7 +15,7 @@ UPDATE `creature_template` SET `difficulty_entry_1`=53816, `difficulty_entry_2`=
 UPDATE `creature_template` SET `difficulty_entry_1`=53813, `difficulty_entry_2`=53814, `difficulty_entry_3`=53815 WHERE `entry`=53500;
 UPDATE `creature_template` SET `difficulty_entry_1`=53810, `difficulty_entry_2`=53811, `difficulty_entry_3`=53812 WHERE `entry`=53189;
 UPDATE `creature_template` SET `difficulty_entry_1`=53803 WHERE `entry`=53619;
-UPDATE `creature_template` SET `difficulty_entry_1`=53800, `difficulty_entry_2`=53801, `difficulty_entry_3`=53802 WHERE `entry`=53140) LIMIT 1
+UPDATE `creature_template` SET `difficulty_entry_1`=53800, `difficulty_entry_2`=53801, `difficulty_entry_3`=53802 WHERE `entry`=53140;
 
 UPDATE `creature_template` SET `minlevel`=88, `maxlevel`=88, `exp`=3, `faction`=16, `unit_class`=4, `unit_flags`=832, `unit_flags2`=134219776 WHERE `entry`=53856;
 UPDATE `creature_template` SET `minlevel`=88, `maxlevel`=88, `exp`=3, `faction`=16, `unit_class`=4, `unit_flags`=832, `unit_flags2`=134219776 WHERE `entry`=53857;
