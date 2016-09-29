@@ -33,7 +33,7 @@ enum WaypointMoveType
 
 struct WaypointData
 {
-    WaypointData() : id(0), x(0.0f), y(0.0f), z(0.0f), orientation(0.0f), delay(0), event_id(0), event_chance(0), move_type(WAYPOINT_MOVE_TYPE_RUN) { }
+    WaypointData() : id(0), x(0.0f), y(0.0f), z(0.0f), orientation(0.0f), delay(0), event_id(0), move_type(WAYPOINT_MOVE_TYPE_RUN), event_chance(0) { }
 
     uint32 id;
     float x, y, z, orientation;

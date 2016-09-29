@@ -433,10 +433,10 @@ void npc_escortAI::FillPointMovementListForCreature()
 
     WaypointPath& path = sWaypointMgr->GetWaypointPathContainer()[entry];
 
-    ScriptPointVector::const_iterator itrEnd = movePoints.end() - 1;
+    ScriptPointVector::const_iterator itrEnd = movePoints->end() - 1;
     LastWP = itrEnd->uiPointId;
 
-    for (ScriptPointVector::const_iterator itr = movePoints.begin(); itr != movePoints.end(); ++itr)
+    for (ScriptPointVector::const_iterator itr = movePoints->begin(); itr != movePoints->end(); ++itr)
     {
         WaypointData* wp = new WaypointData();
 
