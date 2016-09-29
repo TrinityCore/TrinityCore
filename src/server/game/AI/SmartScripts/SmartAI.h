@@ -211,7 +211,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         WPPath* mWayPoints;
         uint32 mEscortState;
         uint32 mCurrentWPID;
-        uint32 mLastWPIDReached;
         bool mWPReached;
         bool mOOCReached;
         bool m_Ended;
