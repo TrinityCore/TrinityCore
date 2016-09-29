@@ -27,6 +27,7 @@
 #include "SmartScript.h"
 #include "SmartScriptMgr.h"
 #include "GameObjectAI.h"
+#include "WaypointManager.h"
 
 enum SmartEscortState
 {
@@ -45,7 +46,7 @@ enum SmartEscortVars
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){ }
+        ~SmartAI();
         explicit SmartAI(Creature* c);
 
         // Check whether we are currently permitted to make the creature take action
@@ -226,6 +227,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mInvincibilityHpLevel;
         bool AssistPlayerInCombatAgainst(Unit* who);
 
+        WaypointPath _path;
         uint32 mDespawnTime;
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);

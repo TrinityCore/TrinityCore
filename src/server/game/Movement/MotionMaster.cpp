@@ -687,7 +687,7 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
     }
 }
 
-void MotionMaster::MovePath(int32 path_id, bool repeatable, bool loadFromDB /* = true*/)
+void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 {
     if (!path_id)
         return;
@@ -704,11 +704,20 @@ void MotionMaster::MovePath(int32 path_id, bool repeatable, bool loadFromDB /* =
 
     //_owner->GetTypeId() == TYPEID_PLAYER ?
         //Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
-    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable, loadFromDB), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
 
     TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
         _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
         _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s (GUID: %u) start moving over path(repeatable: %s)",
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+        _owner->GetGUID().GetCounter(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)

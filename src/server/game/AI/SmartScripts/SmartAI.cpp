@@ -26,7 +26,6 @@
 #include "SmartAI.h"
 #include "ScriptMgr.h"
 #include "WaypointMovementGenerator.h"
-#include "WaypointManager.h"
 
 SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 {
@@ -68,6 +67,14 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mInvincibilityHpLevel = 0;
 
     mJustReset = false;
+}
+
+SmartAI::~SmartAI()
+{
+    for (WaypointData* point : _path)
+        delete point;
+
+    _path.clear();
 }
 
 bool SmartAI::IsAIControlled() const
@@ -131,7 +138,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
 
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, mCurrentWPID, GetScript()->GetPathId());
 
-    me->GetMotionMaster()->MovePath(-int32(GetScript()->GetPathId()), mCanRepeatPath, false);
+    me->GetMotionMaster()->MovePath(_path, mCanRepeatPath);
 }
 
 bool SmartAI::LoadPath(uint32 entry)
@@ -145,19 +152,6 @@ bool SmartAI::LoadPath(uint32 entry)
         GetScript()->SetPathId(0);
         return false;
     }
-
-    int32 PathEntry = -int32(entry);
-
-    WaypointPathContainer::iterator itr = sWaypointMgr->GetWaypointPathContainer().find(PathEntry);
-    if (itr != sWaypointMgr->GetWaypointPathContainer().end())
-    {
-        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            delete *it;
-
-        sWaypointMgr->GetWaypointPathContainer().erase(itr);
-    }
-
-    WaypointPath& path = sWaypointMgr->GetWaypointPathContainer()[PathEntry];
 
     for (WPPath::const_iterator WpItr = mWayPoints->begin(); WpItr != mWayPoints->end(); ++WpItr)
     {
@@ -174,13 +168,13 @@ bool SmartAI::LoadPath(uint32 entry)
         wp->x = x;
         wp->y = y;
         wp->z = z;
-        wp->orientation = 0;
+        wp->orientation = 0.f;
         wp->move_type = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
         wp->delay = 0;
         wp->event_id = 0;
         wp->event_chance = 100;
 
-        path.push_back(wp);
+        _path.push_back(wp);
     }
 
     GetScript()->SetPathId(entry);
@@ -334,7 +328,8 @@ void SmartAI::UpdatePath(const uint32 diff)
         }
         mEscortInvokerCheckTimer = 1000;
     }
-    else mEscortInvokerCheckTimer -= diff;
+    else
+        mEscortInvokerCheckTimer -= diff;
 
     // handle pause
     if (HasEscortState(SMART_ESCORT_PAUSED))

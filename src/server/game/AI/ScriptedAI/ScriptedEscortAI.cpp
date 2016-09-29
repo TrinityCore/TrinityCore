@@ -53,6 +53,14 @@ npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
     m_bEnded(false)
 { }
 
+npc_escortAI::~npc_escortAI()
+{
+    for (WaypointData* point : _path)
+        delete point;
+
+    _path.clear();
+}
+
 //see followerAI
 bool npc_escortAI::AssistPlayerInCombatAgainst(Unit* who)
 {
@@ -239,7 +247,7 @@ void npc_escortAI::UpdateAI(uint32 diff)
                 if (!m_bStarted)
                 {
                     m_bStarted = true;
-                    me->GetMotionMaster()->MovePath(-int32(me->GetEntry()), false, false);
+                    me->GetMotionMaster()->MovePath(_path, false);
                 }
                 else if (WaypointMovementGenerator<Creature>* move = (WaypointMovementGenerator<Creature>*)(me->GetMotionMaster()->top()))
                     WaypointStart(move->GetCurrentNode());
@@ -366,25 +374,8 @@ void npc_escortAI::OnPossess(bool apply)
 
 void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime)
 {
-    int32 entry = -int32(me->GetEntry());
-
-    WaypointPathContainer::iterator itr = sWaypointMgr->GetWaypointPathContainer().find(entry);
-    if (itr != sWaypointMgr->GetWaypointPathContainer().end())
-    {
-        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-        {
-            if ((*it)->id == id)
-            {
-                itr->second.erase(it);
-                break;
-            }
-        }
-    }
-
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
-
-    WaypointPath& path = sWaypointMgr->GetWaypointPathContainer()[entry];
 
     WaypointData* wp = new WaypointData();
 
@@ -392,13 +383,13 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
     wp->x = x;
     wp->y = y;
     wp->z = z;
-    wp->orientation = 0;
+    wp->orientation = 0.f;
     wp->move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     wp->delay = waitTime;
     wp->event_id = 0;
     wp->event_chance = 100;
 
-    path.push_back(wp);
+    _path.push_back(wp);
 
     LastWP = id;
 
@@ -420,19 +411,6 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (!movePoints)
         return;
 
-    int32 entry = -int32(me->GetEntry());
-
-    WaypointPathContainer::iterator itr = sWaypointMgr->GetWaypointPathContainer().find(entry);
-    if (itr != sWaypointMgr->GetWaypointPathContainer().end())
-    {
-        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            delete *it;
-
-        sWaypointMgr->GetWaypointPathContainer().erase(itr);
-    }
-
-    WaypointPath& path = sWaypointMgr->GetWaypointPathContainer()[entry];
-
     ScriptPointVector::const_iterator itrEnd = movePoints->end() - 1;
     LastWP = itrEnd->uiPointId;
 
@@ -451,13 +429,13 @@ void npc_escortAI::FillPointMovementListForCreature()
         wp->x = x;
         wp->y = y;
         wp->z = z;
-        wp->orientation = 0;
+        wp->orientation = 0.f;
         wp->move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
         wp->delay = itr->uiWaitTime;
         wp->event_id = 0;
         wp->event_chance = 100;
 
-        path.push_back(wp);
+        _path.push_back(wp);
     }
 }
 

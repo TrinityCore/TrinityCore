@@ -44,7 +44,7 @@ struct WaypointData
 };
 
 typedef std::vector<WaypointData*> WaypointPath;
-typedef std::unordered_map<int32, WaypointPath> WaypointPathContainer;
+typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
 
 class TC_GAME_API WaypointMgr
 {
@@ -58,7 +58,7 @@ class TC_GAME_API WaypointMgr
         void Load();
 
         // Returns the path from a given id
-        WaypointPath const* GetPath(int32 id) const
+        WaypointPath const* GetPath(uint32 id) const
         {
             WaypointPathContainer::const_iterator itr = _waypointStore.find(id);
             if (itr != _waypointStore.end())
@@ -66,8 +66,6 @@ class TC_GAME_API WaypointMgr
 
             return nullptr;
         }
-
-        WaypointPathContainer& GetWaypointPathContainer() { return _waypointStore; }
 
     private:
         WaypointMgr();

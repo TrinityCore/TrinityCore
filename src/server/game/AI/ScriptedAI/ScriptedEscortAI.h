@@ -37,7 +37,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
 {
     public:
         explicit npc_escortAI(Creature* creature);
-        ~npc_escortAI() { }
+        ~npc_escortAI();
 
         // CreatureAI functions
 
@@ -97,6 +97,8 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         uint32 m_uiEscortState;
         float MaxPlayerDistance;
         uint32 LastWP;
+
+        WaypointPath _path;
 
         Quest const* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
 
