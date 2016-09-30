@@ -1735,9 +1735,9 @@ Creature.MovingStopTimeForPlayer = 180000
 #                     invisible symbols. Not applied to the addon language, but may break old
 #                     addons that use normal languages for sending data to other clients.
 #        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#                     1 - (Enabled, Blizzlike)
 
-ChatFakeMessagePreventing = 0
+ChatFakeMessagePreventing = 1
 
 #
 #    ChatStrictLinkChecking.Severity
