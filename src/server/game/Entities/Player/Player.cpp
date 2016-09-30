@@ -17958,7 +17958,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //                                  24                        25                          26                         27                         28
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
     //                29           30           31          32           33           34          35           36           37   40    41
-    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot
+    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY (ii.flags & 0x80000) ASC, bag ASC, slot ASC
+    //NOTE: ORDER BY ii.flags & 0x80000 makes child items load last - they need their parents to be already loaded
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
@@ -17997,7 +17998,6 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
 
         std::map<ObjectGuid, Bag*> bagMap;                               // fast guid lookup for bags
         std::map<ObjectGuid, Item*> invalidBagMap;                       // fast guid lookup for bags
-        std::vector<Item*> childItems;
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -18019,6 +18019,17 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
 
                 InventoryResult err = EQUIP_ERR_OK;
+                if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
+                {
+                    if (Item* parent = GetItemByGuid(item->GetGuidValue(ITEM_FIELD_CREATOR)))
+                    {
+                        parent->SetChildItem(item->GetGUID());
+                        item->CopyArtifactDataFromParent(parent);
+                    }
+                    else
+                        err = EQUIP_ERR_WRONG_BAG_TYPE_3; // send by mail
+                }
+
                 // Item is not in bag
                 if (!bagGuid)
                 {
@@ -18085,16 +18096,11 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                         delete item;
                         continue;
                     }
-
                 }
 
                 // Item's state may have changed after storing
                 if (err == EQUIP_ERR_OK)
-                {
                     item->SetState(ITEM_UNCHANGED, this);
-                    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
-                        childItems.push_back(item);
-                }
                 else
                 {
                     TC_LOG_ERROR("entities.player", "Player::_LoadInventory: Player '%s' (%s) has item (%s, entry: %u) which can't be loaded into inventory (Bag %s, slot: %u) by reason %u. Item will be sent by mail.",
@@ -18119,19 +18125,6 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 problematicItems.pop_front();
             }
             draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
-        }
-
-        for (Item* childItem : childItems)
-        {
-            if (Item* parent = GetItemByGuid(childItem->GetGuidValue(ITEM_FIELD_CREATOR)))
-            {
-                parent->SetChildItem(childItem->GetGUID());
-                childItem->CopyArtifactDataFromParent(parent);
-                if (childItem->IsEquipped())
-                    SetVisibleItemSlot(childItem->GetSlot(), childItem);
-            }
-            else
-                childItem->SetState(ITEM_REMOVED, this);
         }
 
         CharacterDatabase.CommitTransaction(trans);
