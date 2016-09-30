@@ -96,7 +96,12 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
 
 void WaypointMovementGenerator<Creature>::FormationMove(Creature* creature)
 {
-    bool transportPath = creature->GetTransGUID();
+    bool transportPath = false;
+
+    if (creature->GetTransGUID())
+        transportPath = true;
+    else
+        transportPath = false;
 
     WaypointData const* node = i_path->at(i_currentNode);
 
@@ -122,7 +127,11 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (!i_path || i_path->empty())
         return false;
 
-    bool transportPath = creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && creature->GetTransGUID();
+    bool transportPath = false;
+    if (creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && creature->GetTransGUID())
+        transportPath = true;
+    else
+        transportPath = false;
 
     if (IsArrivalDone)
     {

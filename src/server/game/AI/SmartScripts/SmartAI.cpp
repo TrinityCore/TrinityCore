@@ -295,7 +295,7 @@ void SmartAI::EndPath(bool fail)
 void SmartAI::ResumePath()
 {
     SetRun(mRun);
-    if (WaypointMovementGenerator<Creature>* move = (WaypointMovementGenerator<Creature>*)(me->GetMotionMaster()->top()))
+    if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
         move->GetTrackerTimer().Reset(1);
 }
 
@@ -346,7 +346,7 @@ void SmartAI::UpdatePath(const uint32 diff)
 
             if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING) && (mWPReached || mForcedPaused))
             {
-                GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, NULL, mCurrentWPID, GetScript()->GetPathId());
+                GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, mCurrentWPID, GetScript()->GetPathId());
 
                 RemoveEscortState(SMART_ESCORT_PAUSED);
 
@@ -483,7 +483,7 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     if (MovementType == POINT_MOTION_TYPE && Data == SMART_ESCORT_LAST_OOC_POINT)
         me->ClearUnitState(UNIT_STATE_EVADE);
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, NULL, MovementType, Data);
+    GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, nullptr, MovementType, Data);
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
 

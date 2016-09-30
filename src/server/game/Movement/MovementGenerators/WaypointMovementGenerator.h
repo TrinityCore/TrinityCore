@@ -59,7 +59,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
             : i_nextMoveTime(0), IsArrivalDone(false), path_id(_path_id), repeating(_repeating), LoadedFromDB(true)  { }
 
         WaypointMovementGenerator(WaypointPath& path, bool _repeating = true)
-            : path_id(0), repeating(_repeating), i_nextMoveTime(0), IsArrivalDone(false), LoadedFromDB(false)
+            : i_nextMoveTime(0), IsArrivalDone(false), path_id(0), repeating(_repeating), LoadedFromDB(false)
         {
             i_path = &path;
         }
