@@ -1047,6 +1047,15 @@ Quests.IgnoreAutoAccept = 0
 Quests.IgnoreAutoComplete = 0
 
 #
+#    Quests.DailyResetTime
+#        Description: Hour of the day when daily quest reset occurs.
+#        Range:       0-23
+#        Default:     3 - (3:00 AM, Blizzlike)
+#
+
+Quests.DailyResetTime = 3
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.
