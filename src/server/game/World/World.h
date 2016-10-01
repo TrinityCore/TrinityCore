@@ -177,6 +177,7 @@ enum WorldBoolConfigs
     CONFIG_HOTSWAP_INSTALL_ENABLED,
     CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED,
     CONFIG_PREVENT_RENAME_CUSTOMIZATION,
+    CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
 	CONFIG_GAIN_HONOR_GUARD,
 	CONFIG_GAIN_HONOR_ELITE,
 	CONFIG_FAST_FISHING,
@@ -209,6 +210,9 @@ enum WorldFloatConfigs
     CONFIG_ARENA_WIN_RATING_MODIFIER_2,
     CONFIG_ARENA_LOSE_RATING_MODIFIER,
     CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER,
+    CONFIG_RESPAWN_DYNAMICRADIUS,
+    CONFIG_RESPAWN_DYNAMICRATE_CREATURE,
+    CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT,
 	CONFIG_RESPAWNSPEED,
 	CONFIG_ATTACKSPEED_PLAYER,
 	CONFIG_ATTACKSPEED_ALL,
@@ -256,6 +260,7 @@ enum WorldIntConfigs
     CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE,
     CONFIG_INSTANCE_RESET_TIME_HOUR,
     CONFIG_INSTANCE_UNLOAD_DELAY,
+    CONFIG_DAILY_QUEST_RESET_TIME_HOUR,
     CONFIG_MAX_PRIMARY_TRADE_SKILL,
     CONFIG_MIN_PETITION_SIGNS,
     CONFIG_GM_LOGIN_STATE,
@@ -394,6 +399,16 @@ enum WorldIntConfigs
     CONFIG_AUCTION_GETALL_DELAY,
     CONFIG_AUCTION_SEARCH_DELAY,
     CONFIG_TALENTS_INSPECTING,
+    CONFIG_RESPAWN_MINCELLCHECKMS,
+    CONFIG_RESPAWN_DYNAMICMODE,
+    CONFIG_RESPAWN_GUIDWARNLEVEL,
+    CONFIG_RESPAWN_GUIDALERTLEVEL,
+    CONFIG_RESPAWN_RESTARTQUIETTIME,
+    CONFIG_RESPAWN_ACTIVITYSCOPECREATURE,
+    CONFIG_RESPAWN_ACTIVITYSCOPEGAMEOBJECT,
+    CONFIG_RESPAWN_DYNAMICMINIMUM_CREATURE,
+    CONFIG_RESPAWN_DYNAMICMINIMUM_GAMEOBJECT,
+    CONFIG_RESPAWN_GUIDWARNING_FREQUENCY,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -828,13 +843,17 @@ class TC_GAME_API World
         void ReloadRBAC();
 
         void RemoveOldCorpses();
+        void TriggerGuidWarning();
+        void TriggerGuidAlert();
+        bool isGuidWarning() { return guidWarn; }
+        bool isGuidAlert() { return guidAlert; }
 
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
 
-        void InitDailyQuestResetTime();
+        void InitDailyQuestResetTime(bool loading = true);
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
@@ -939,7 +958,21 @@ class TC_GAME_API World
         void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
+
+        void SendGuidWarning();
+        void DoGuidWarningRestart();
+        void DoGuidAlertRestart();
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+
+        std::string respawnWarningMsg;
+        std::string alertRestartReason;
+
+        std::mutex _guidAlertLock;
+
+        bool guidWarn;
+        bool guidAlert;
+        uint32 warnDiff;
+        time_t warnShutdownTime;
 };
 
 TC_GAME_API extern Realm realm;

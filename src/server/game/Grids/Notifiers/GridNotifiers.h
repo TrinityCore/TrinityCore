@@ -508,6 +508,22 @@ namespace Trinity
     };
 
     template<class Check>
+    struct PlayerListSearcherByPosition
+    {
+        uint32 i_phaseMask;
+        std::list<Player*> &i_objects;
+        Check& i_check;
+
+        PlayerListSearcherByPosition(uint32 phaseMask, std::list<Player*> &objects, Check & check)
+            : i_phaseMask(phaseMask), i_objects(objects), i_check(check) { }
+
+        void Visit(PlayerMapType &m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+
+    template<class Check>
     struct PlayerLastSearcher
     {
         uint32 i_phaseMask;
@@ -1193,6 +1209,27 @@ namespace Trinity
             WorldObject const* _obj;
             float _range;
             bool _reqAlive;
+    };
+
+    class AnyPlayerInPositionRangeCheck
+    {
+    public:
+        AnyPlayerInPositionRangeCheck(const Position* pos, float range, bool reqAlive = true) : _pos(pos), _range(range), _reqAlive(reqAlive) { }
+        bool operator()(Player* u)
+        {
+            if (_reqAlive && !u->IsAlive())
+                return false;
+
+            if (!u->IsWithinDist3d(_pos, _range))
+                return false;
+
+            return true;
+        }
+
+    private:
+        const Position* const _pos;
+        float _range;
+        bool _reqAlive;
     };
 
     class NearestPlayerInObjectRangeCheck
