@@ -54,7 +54,7 @@ namespace WorldPackets
             uint8 Index = 0;
             bool Usable = false;
             std::vector<InspectEnchantData> Enchants;
-            std::vector<Item::ItemGemInstanceData> Gems;
+            std::vector<Item::ItemGemData> Gems;
         };
 
         struct InspectGuildData

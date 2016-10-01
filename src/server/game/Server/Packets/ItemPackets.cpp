@@ -232,17 +232,26 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData const& itemGemInstanceData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemEnchantData const& itemEnchantData)
 {
-    data << uint8(itemGemInstanceData.Slot);
-    data << itemGemInstanceData.Item;
+    data << int32(itemEnchantData.ID);
+    data << uint32(itemEnchantData.Expiration);
+    data << int32(itemEnchantData.Charges);
+    data << uint8(itemEnchantData.Slot);
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData& itemGemInstanceData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemData const& itemGemData)
 {
-    data >> itemGemInstanceData.Slot;
-    data >> itemGemInstanceData.Item;
+    data << uint8(itemGemData.Slot);
+    data << itemGemData.Item;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemData& itemGemData)
+{
+    data >> itemGemData.Slot;
+    data >> itemGemData.Item;
     return data;
 }
 

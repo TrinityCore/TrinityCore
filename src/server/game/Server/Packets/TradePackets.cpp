@@ -94,7 +94,7 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::Un
     buffer.WriteBit(unwrappedTradeItem.Lock);
     buffer.FlushBits();
 
-    for (WorldPackets::Item::ItemGemInstanceData const& gem : unwrappedTradeItem.Gems)
+    for (WorldPackets::Item::ItemGemData const& gem : unwrappedTradeItem.Gems)
         buffer << gem;
 
     return buffer;
