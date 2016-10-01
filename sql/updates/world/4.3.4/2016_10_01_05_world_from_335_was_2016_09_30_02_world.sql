@@ -1,6 +1,6 @@
 --
 SET @GUID := 94777;
-DELETE FROM `creature` WHERE `id` IN (25090, 25091, 25092);
+DELETE FROM `creature` WHERE `id` IN (26520,25090, 25091, 25092);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@GUID   , 25090, 530, 0, 0, 1, 1, 0, 0, 13199.25, -7050.695, 14.45722, 3.700098, 300, 0, 0, 42, 0, 0, 0, 0, 0, 14007),
 (@GUID+1 , 25090, 530, 0, 0, 1, 1, 0, 0, 13196.12, -7049.336, 16.22812, 0.8552113, 300, 0, 0, 42, 0, 0, 0, 0, 0, 14007),
