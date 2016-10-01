@@ -616,12 +616,14 @@ class TC_GAME_API Battleground
         GuidDeque m_OfflineQueue;                           // Player GUID
 
         // Spawn containers
+	public:
         GuidVector BgObjects;
         GuidVector BgCreatures;
 
         // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
         // Invited counters will be changed only when removing already invited player from queue, removing player from battleground and inviting player to BG
         // Invited players counters
+	private:
         uint32 m_InvitedAlliance;
         uint32 m_InvitedHorde;
 
