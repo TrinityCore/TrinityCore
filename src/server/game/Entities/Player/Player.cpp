@@ -21365,7 +21365,7 @@ void Player::SetRestBonus(float rest_bonus_new)
     SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_RESTED_XP, uint32(m_rest_bonus));
 }
 
-bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
+bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/)
 {
     if (nodes.size() < 2)
     {
@@ -21438,11 +21438,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // check node starting pos data set case if provided
     if (node->Pos.X != 0.0f || node->Pos.Y != 0.0f || node->Pos.Z != 0.0f)
     {
-        if (node->MapID != GetMapId() ||
-            (node->Pos.X - GetPositionX())*(node->Pos.X - GetPositionX())+
-            (node->Pos.Y - GetPositionY())*(node->Pos.Y - GetPositionY())+
-            (node->Pos.Z - GetPositionZ())*(node->Pos.Z - GetPositionZ()) >
-            (2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE))
+        if (node->MapID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
             return false;
@@ -21602,10 +21598,7 @@ void Player::ContinueTaxiFlight() const
     TaxiPathNodeList const& nodeList = sTaxiPathNodesByPath[path];
 
     float distPrev;
-    float distNext =
-        (nodeList[0]->Loc.X - GetPositionX())*(nodeList[0]->Loc.X - GetPositionX()) +
-        (nodeList[0]->Loc.Y - GetPositionY())*(nodeList[0]->Loc.Y - GetPositionY()) +
-        (nodeList[0]->Loc.Z - GetPositionZ())*(nodeList[0]->Loc.Z - GetPositionZ());
+    float distNext = GetExactDistSq(nodeList[0]->Loc.X, nodeList[0]->Loc.Y, nodeList[0]->Loc.Z);
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
@@ -21618,10 +21611,7 @@ void Player::ContinueTaxiFlight() const
 
         distPrev = distNext;
 
-        distNext =
-            (node->Loc.X - GetPositionX()) * (node->Loc.X - GetPositionX()) +
-            (node->Loc.Y - GetPositionY()) * (node->Loc.Y - GetPositionY()) +
-            (node->Loc.Z - GetPositionZ()) * (node->Loc.Z - GetPositionZ());
+        distNext = GetExactDistSq(node->Loc.X, node->Loc.Y, node->Loc.Z);
 
         float distNodes =
             (node->Loc.X - prevNode->Loc.X) * (node->Loc.X - prevNode->Loc.X) +
