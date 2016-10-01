@@ -1202,7 +1202,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     continue;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-                if (!spellInfo || !(spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
+                if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
                 if (spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
@@ -3468,25 +3468,19 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
     /// @todo optimalize this cycle - use RemoveAurasWithInterruptFlags call or something else
-    if ((apply)
+    if (apply
         && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        && GetSpellInfo()->IsPositive())                       //Only positive immunity removes auras
+        && GetSpellInfo()->IsPositive())                    // Only positive immunity removes auras
     {
-        uint32 school_mask = GetMiscValue();
-        Unit::AuraApplicationMap& Auras = target->GetAppliedAuras();
-        for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
+        uint32 schoolMask = GetMiscValue();
+        target->RemoveAppliedAuras([this, schoolMask](AuraApplication const* aurApp)
         {
-            SpellInfo const* spell = iter->second->GetBase()->GetSpellInfo();
-            if ((spell->GetSchoolMask() & school_mask)//Check for school mask
+            SpellInfo const* spell = aurApp->GetBase()->GetSpellInfo();
+            return (spell->GetSchoolMask() & schoolMask)    // Check for school mask
                 && GetSpellInfo()->CanDispelAura(spell)
-                && !iter->second->IsPositive()          //Don't remove positive spells
-                && spell->Id != GetId())               //Don't remove self
-            {
-                target->RemoveAura(iter);
-            }
-            else
-                ++iter;
-        }
+                && !aurApp->IsPositive()                    // Don't remove positive spells
+                && spell->Id != GetId();                    // Don't remove self
+        });
     }
 }
 
@@ -5896,6 +5890,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
     int32 dmg = damage;
+
     if (!GetSpellInfo()->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
         caster->ApplyResilience(target, &dmg);
     damage = dmg;
