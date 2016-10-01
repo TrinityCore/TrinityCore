@@ -18,7 +18,6 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
-#define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
 uint32 const EncounterCount = 3;
@@ -26,14 +25,15 @@ uint32 const EncounterCount = 3;
 enum DataTypes
 {
     // Encounter States/Boss GUIDs
-    DATA_KRIKTHIR_THE_GATEWATCHER   = 0,
+    DATA_KRIKTHIR                   = 0,
     DATA_HADRONOX                   = 1,
     DATA_ANUBARAK                   = 2,
 
     // Additional Data
-    DATA_WATCHER_GASHRA             = 3,
-    DATA_WATCHER_SILTHIK            = 4,
-    DATA_WATCHER_NARJIL             = 5
+    DATA_WATCHER_NARJIL,
+    DATA_WATCHER_GASHRA,
+    DATA_WATCHER_SILTHIK,
+    DATA_ANUBARAK_WALL
 };
 
 enum CreatureIds
@@ -47,6 +47,12 @@ enum CreatureIds
     NPC_WATCHER_SILTHIK             = 28731
 };
 
+// These are passed as -action to AI's DoAction to differentiate between them and boss scripts' own actions
+enum InstanceActions
+{
+    ACTION_GATEWATCHER_GREET        = 1
+};
+
 enum GameObjectIds
 {
     GO_KRIKTHIR_DOOR                = 192395,
@@ -54,11 +60,5 @@ enum GameObjectIds
     GO_ANUBARAK_DOOR_2              = 192397,
     GO_ANUBARAK_DOOR_3              = 192398
 };
-
-template<class AI>
-AI* GetAzjolNerubAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
-}
 
 #endif // AZJOL_NERUB_H_
