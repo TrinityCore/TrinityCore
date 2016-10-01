@@ -1055,7 +1055,7 @@ bool SpellInfo::IsPassive() const
 
 bool SpellInfo::IsAutocastable() const
 {
-    if (HasAttribute(SPELL_ATTR0_PASSIVE))
+    if (IsPassive())
         return false;
     if (HasAttribute(SPELL_ATTR1_UNAUTOCASTABLE_BY_PET))
         return false;
@@ -1113,7 +1113,10 @@ bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
 
 bool SpellInfo::IsCooldownStartedOnEvent() const
 {
-    return HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE) || (CategoryEntry && CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT);
+    if (HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
+        return true;
+
+    return CategoryEntry && CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT;
 }
 
 bool SpellInfo::IsDeathPersistent() const
@@ -1233,7 +1236,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
         return true;
 
     // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
-    if ((HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
+    if (HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
         return true;
 
     return false;
@@ -1604,7 +1607,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     else return SPELL_CAST_OK;
 
     // corpseOwner and unit specific target checks
-    if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && !unitTarget->ToPlayer())
+    if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && unitTarget->GetTypeId() != TYPEID_PLAYER)
        return SPELL_FAILED_TARGET_NOT_PLAYER;
 
     if (!IsAllowingDeadTarget() && !unitTarget->IsAlive())
@@ -1618,7 +1621,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
     //    return SPELL_FAILED_BAD_TARGETS;
 
-    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS)
+    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS))
 
     if (!CheckTargetCreatureType(unitTarget))
     {
@@ -1639,7 +1642,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !(AttributesCu & SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !HasAttribute(SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
     /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to

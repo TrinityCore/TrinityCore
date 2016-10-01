@@ -514,20 +514,15 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     if (!player->IsGameMaster())
                     {
                         // remove auras with duration lower than 30s
-                        Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        player->RemoveAppliedAuras([](AuraApplication const* aurApp)
                         {
-                            AuraApplication * aurApp = iter->second;
                             Aura* aura = aurApp->GetBase();
-                            if (!aura->IsPermanent()
-                                && aura->GetDuration() <= 30*IN_MILLISECONDS
+                            return !aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
-                                && (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                                player->RemoveAura(iter);
-                            else
-                                ++iter;
-                        }
+                                && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+                                && !aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY);
+                        });
                     }
                 }
 
