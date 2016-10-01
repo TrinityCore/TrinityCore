@@ -479,7 +479,11 @@ struct TrinityString
 
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
+typedef std::unordered_map<uint32, CreatureGroupTemplateData> CreatureGroupDataContainer;
+typedef std::multimap<uint32, ObjectGuid::LowType> CreatureGroupLinkContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
+typedef std::unordered_map<uint32, GameObjectGroupTemplateData> GameObjectGroupDataContainer;
+typedef std::multimap<uint32, ObjectGuid::LowType> GameObjectGroupLinkContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
@@ -653,6 +657,8 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 #define MAX_CHARTER_NAME         24                         // max allowed by client name length
 
 TC_GAME_API bool normalizePlayerName(std::string& name);
+#define SPAWNGROUP_MAP_UNSET            0xFFFFFFFF
+#define SPAWNGROUP_MAX_SYSTEMGROUPID    0xFF
 
 struct LanguageDesc
 {
@@ -745,6 +751,9 @@ class TC_GAME_API ObjectMgr
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
+
+        uint32 GetCreaturesInGroup(uint32 groupid, std::vector<ObjectGuid::LowType>& creatureList);
+        uint32 GetGameObjectsInGroup(uint32 groupid, std::vector<ObjectGuid::LowType>& gameobjectList);
 
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId) const
         {
@@ -1001,6 +1010,8 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureQuestItems();
         void LoadTempSummons();
         void LoadCreatures();
+        void LoadCreatureGroupTemplates();
+        void LoadCreatureGroups();
         void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(ObjectGuid::LowType guid, ObjectGuid::LowType linkedGuid);
         void LoadCreatureAddons();
@@ -1009,6 +1020,8 @@ class TC_GAME_API ObjectMgr
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
+        void LoadGameObjectGroupTemplates();
+        void LoadGameObjectGroups();
         void LoadItemTemplates();
         void LoadItemLocales();
         void LoadItemSetNames();
@@ -1089,8 +1102,17 @@ class TC_GAME_API ObjectMgr
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
-        uint32 GenerateCreatureSpawnId();
-        uint32 GenerateGameObjectSpawnId();
+        ObjectGuid::LowType GenerateCreatureSpawnId();
+        ObjectGuid::LowType GenerateGameObjectSpawnId();
+
+        bool SpawnCreatureGroup(uint32 groupId, Map* map, bool ignoreRespawn = false, bool force = false, std::vector<ObjectGuid>* creatureList = nullptr);
+        bool DespawnCreatureGroup(uint32 groupId, Map* map, bool deleteRespawnTimes = false);
+        bool SpawnGOGroup(uint32 groupId, Map* map, bool ignoreRespawn = false, bool force = false, std::vector<ObjectGuid>* gameobjectList = nullptr);
+        bool DespawnGOGroup(uint32 groupId, Map* map, bool deleteRespawnTimes = false);
+        bool isCreatureGroupActive(uint32 groupId) { return (((_creatureGroupDataStore.find(groupId) != _creatureGroupDataStore.end()) & _creatureGroupDataStore[groupId].isActive)); }
+        bool isGOGroupActive(uint32 groupId) { return (((_gameObjectGroupDataStore.find(groupId) != _gameObjectGroupDataStore.end()) & _gameObjectGroupDataStore[groupId].isActive)); }
+        void setCreatureGroupActive(uint32 groupId, bool isActive) { _creatureGroupDataStore[groupId].isActive = isActive; }
+        void setGOGroupActive(uint32 groupId, bool isActive) { _gameObjectGroupDataStore[groupId].isActive = isActive; }
 
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
         typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
@@ -1352,9 +1374,8 @@ class TC_GAME_API ObjectMgr
         uint32 _itemTextId;
         uint32 _mailId;
         uint32 _hiPetNumber;
-
-        uint32 _creatureSpawnId;
-        uint32 _gameObjectSpawnId;
+        ObjectGuid::LowType _creatureSpawnId;
+        ObjectGuid::LowType _gameObjectSpawnId;
 
         // first free low guid for selected guid type
         template<HighGuid high>
@@ -1460,6 +1481,8 @@ class TC_GAME_API ObjectMgr
 
         MapObjectGuids _mapObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
+        CreatureGroupDataContainer _creatureGroupDataStore;
+        CreatureGroupLinkContainer _creatureGroupMapStore;
         CreatureTemplateContainer _creatureTemplateStore;
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
@@ -1474,6 +1497,8 @@ class TC_GAME_API ObjectMgr
         GameObjectLocaleContainer _gameObjectLocaleStore;
         GameObjectTemplateContainer _gameObjectTemplateStore;
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
+        GameObjectGroupDataContainer _gameObjectGroupDataStore;
+        GameObjectGroupLinkContainer _gameObjectGroupMapStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
 

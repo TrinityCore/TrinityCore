@@ -128,6 +128,11 @@ World::World()
     memset(m_int_configs, 0, sizeof(m_int_configs));
     memset(m_bool_configs, 0, sizeof(m_bool_configs));
     memset(m_float_configs, 0, sizeof(m_float_configs));
+
+    guidWarn = false;
+    guidAlert = false;
+    warnDiff = 0;
+    warnShutdownTime = time(NULL);
 }
 
 /// World destructor
@@ -200,6 +205,58 @@ void World::SetMotd(const std::string& motd)
 const char* World::GetMotd() const
 {
     return m_motd.c_str();
+}
+
+void World::TriggerGuidWarning()
+{
+    // Lock this only to prevent multiple maps triggering at the same time
+    std::lock_guard<std::mutex> lock(_guidAlertLock);
+
+    time_t today = (m_gameTime / DAY) * DAY;
+
+    // Check if our window to restart today has passed. 5 mins until quiet time
+    while (m_gameTime >= (today + (m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME]) * HOUR) - 1810)
+        today += DAY;
+
+    // Schedule restart for 30 minutes before quiet time, or as long as we have
+    warnShutdownTime = today + (m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME] * HOUR) - 1800;
+
+    guidWarn = true;
+    SendGuidWarning();
+}
+
+void World::TriggerGuidAlert()
+{
+    // Lock this only to prevent multiple maps triggering at the same time
+    std::lock_guard<std::mutex> lock(_guidAlertLock);
+
+    DoGuidAlertRestart();
+    guidAlert = true;
+    guidWarn = false;
+}
+
+void World::DoGuidWarningRestart()
+{
+    if (m_ShutdownTimer)
+        return;
+
+    ShutdownServ(1800, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+    warnShutdownTime += HOUR;
+}
+
+void World::DoGuidAlertRestart()
+{
+    if (m_ShutdownTimer)
+        return;
+
+    ShutdownServ(300, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE, alertRestartReason);
+}
+
+void World::SendGuidWarning()
+{
+    if (!m_ShutdownTimer && guidWarn && m_int_configs[CONFIG_RESPAWN_GUIDWARNING_FREQUENCY] > 0)
+        SendServerMessage(SERVER_MSG_STRING, respawnWarningMsg.c_str());
+    warnDiff = 0;
 }
 
 /// Find a session by its id
@@ -882,6 +939,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CAST_UNSTUCK] = sConfigMgr->GetBoolDefault("CastUnstuck", true);
     m_int_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = sConfigMgr->GetIntDefault("Instance.ResetTimeHour", 4);
     m_int_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = sConfigMgr->GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
+    m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] = sConfigMgr->GetIntDefault("Quests.DailyResetTime", 3);
 
     m_int_configs[CONFIG_MAX_PRIMARY_TRADE_SKILL] = sConfigMgr->GetIntDefault("MaxPrimaryTradeSkill", 2);
     m_int_configs[CONFIG_MIN_PETITION_SIGNS] = sConfigMgr->GetIntDefault("MinPetitionSigns", 9);
@@ -1211,6 +1269,68 @@ void World::LoadConfigSettings(bool reload)
        m_int_configs[CONFIG_NO_GRAY_AGGRO_BELOW] = m_int_configs[CONFIG_NO_GRAY_AGGRO_ABOVE];
     }
 
+    // Respawn Settings
+    m_int_configs[CONFIG_RESPAWN_MINCELLCHECKMS] = sConfigMgr->GetIntDefault("Respawn.MinCellCheckMS", 5000);
+    m_int_configs[CONFIG_RESPAWN_DYNAMICMODE] = sConfigMgr->GetIntDefault("Respawn.DynamicMode", 0);
+    if (m_int_configs[CONFIG_RESPAWN_DYNAMICMODE] > 2)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.DynamicMode (%u) can only be 0, 1 or 2. Setting to 0", m_int_configs[CONFIG_RESPAWN_DYNAMICMODE]);
+        m_int_configs[CONFIG_RESPAWN_DYNAMICMODE] = 0;
+    }
+    m_bool_configs[CONFIG_RESPAWN_DYNAMIC_ESCORTNPC] = sConfigMgr->GetBoolDefault("Respawn.DynamicEscortNPC", true);
+    m_int_configs[CONFIG_RESPAWN_GUIDWARNLEVEL] = sConfigMgr->GetIntDefault("Respawn.GuidWarnLevel", 12000000);
+    if (m_int_configs[CONFIG_RESPAWN_GUIDWARNLEVEL] > 16777215)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.GuidWarnLevel (%u) cannot be greater than maximum guids (16777215). Setting to 16777215", m_int_configs[CONFIG_RESPAWN_GUIDWARNLEVEL]);
+        m_int_configs[CONFIG_RESPAWN_GUIDWARNLEVEL] = 16777215;
+    }
+    m_int_configs[CONFIG_RESPAWN_GUIDALERTLEVEL] = sConfigMgr->GetIntDefault("Respawn.GuidAlertLevel", 16000000);
+    if (m_int_configs[CONFIG_RESPAWN_GUIDALERTLEVEL] > 16777215)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.GuidWarnLevel (%u) cannot be greater than maximum guids (16777215). Setting to 16777215", m_int_configs[CONFIG_RESPAWN_GUIDALERTLEVEL]);
+        m_int_configs[CONFIG_RESPAWN_GUIDALERTLEVEL] = 16777215;
+    }
+    m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME] = sConfigMgr->GetIntDefault("Respawn.RestartQuietTime", 3);
+    if (m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME] > 23)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.RestartQuietTime (%u) must be an hour, between 0 and 23. Setting to 3", m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME]);
+        m_int_configs[CONFIG_RESPAWN_RESTARTQUIETTIME] = 3;
+    }
+    m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPECREATURE] = sConfigMgr->GetIntDefault("Respawn.ActivityScopeCreature", 0);
+    if (m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPECREATURE] > 2)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.ActivityScopeCreature (%u) can only be 0, 1 or 2. Setting to 0", m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPECREATURE]);
+        m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPECREATURE] = 0;
+    }
+    m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPEGAMEOBJECT] = sConfigMgr->GetIntDefault("Respawn.ActivityScopeGameObject", 2);
+    if (m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPEGAMEOBJECT] > 2)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.ActivityScopeGameObject (%u) can only be 0, 1 or 2. Setting to 2", m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPEGAMEOBJECT]);
+        m_int_configs[CONFIG_RESPAWN_ACTIVITYSCOPEGAMEOBJECT] = 2;
+    }
+    m_float_configs[CONFIG_RESPAWN_DYNAMICRADIUS] = sConfigMgr->GetFloatDefault("Respawn.DynamicRadius", 300.0f);
+    if (m_float_configs[CONFIG_RESPAWN_DYNAMICRADIUS] > SIZE_OF_GRIDS)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.DynamicRadius (%f) is larger than grid max size. Setting to %f", m_float_configs[CONFIG_RESPAWN_DYNAMICRADIUS], SIZE_OF_GRIDS);
+        m_float_configs[CONFIG_RESPAWN_DYNAMICRADIUS] = SIZE_OF_GRIDS;
+    }
+    m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_CREATURE] = sConfigMgr->GetFloatDefault("Respawn.DynamicRateCreature", 0.05f);
+    if (m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_CREATURE] < 0.0f || m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_CREATURE] > 1.0f)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.DynamicRateCreature (%f) must be between 0 and 1. Setting to 0.05", m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_CREATURE]);
+        m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_CREATURE] = 0.05f;
+    }
+    m_int_configs[CONFIG_RESPAWN_DYNAMICMINIMUM_CREATURE] = sConfigMgr->GetIntDefault("Respawn.DynamicMinimumCreature", 10);
+    m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT] = sConfigMgr->GetFloatDefault("Respawn.DynamicRateGameObject", 0.01f);
+    if (m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT] < 0.0f || m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT] > 1.0f)
+    {
+        TC_LOG_ERROR("server.loading", "Respawn.DynamicRateGameObject (%f) must be between 0 and 1. Setting to 0.01", m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT]);
+        m_float_configs[CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT] = 0.01f;
+    }
+    m_int_configs[CONFIG_RESPAWN_DYNAMICMINIMUM_GAMEOBJECT] = sConfigMgr->GetIntDefault("Respawn.DynamicMinimumGameObject", 10);
+    respawnWarningMsg = sConfigMgr->GetStringDefault("Respawn.WarningMessage", "There will be an unscheduled server restart at 03:00. The server will be available again shortly after.");
+    alertRestartReason = sConfigMgr->GetStringDefault("Respawn.AlertRestartReason", "Urgent Maintenance");
+    m_int_configs[CONFIG_RESPAWN_GUIDWARNING_FREQUENCY] = sConfigMgr->GetIntDefault("Respawn.WarningFrequency", 1800);
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfigMgr->GetStringDefault("DataDir", "./");
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
@@ -1634,8 +1754,14 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Base Stats...");
     sObjectMgr->LoadCreatureClassLevelStats();
 
+    TC_LOG_INFO("server.loading", "Loading Creature Group Templates...");
+    sObjectMgr->LoadCreatureGroupTemplates();
+
     TC_LOG_INFO("server.loading", "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
+
+    TC_LOG_INFO("server.loading", "Loading Creature Group Data");
+    sObjectMgr->LoadCreatureGroups();
 
     TC_LOG_INFO("server.loading", "Loading Temporary Summon Data...");
     sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
@@ -1649,8 +1775,14 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
+    TC_LOG_INFO("server.loading", "Loading GameObject Group Templates...");
+    sObjectMgr->LoadGameObjectGroupTemplates();
+
     TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
+
+    TC_LOG_INFO("server.loading", "Loading GameObject Group Data...");
+    sObjectMgr->LoadGameObjectGroups();
 
     TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
     sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameobjects()
@@ -2182,7 +2314,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
-        m_NextDailyQuestReset += DAY;
+        InitDailyQuestResetTime(false);
     }
 
     /// Handle weekly quests reset time
@@ -2361,6 +2493,16 @@ void World::Update(uint32 diff)
 
     // update the instance reset times
     sInstanceSaveMgr->Update();
+
+    // Check for shutdown warning
+    if (guidWarn && !guidAlert)
+    {
+        warnDiff += diff;
+        if (m_gameTime >= warnShutdownTime)
+            DoGuidWarningRestart();
+        else if (warnDiff > (m_int_configs[CONFIG_RESPAWN_GUIDWARNING_FREQUENCY]) * IN_MILLISECONDS)
+            SendGuidWarning();
+    }
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
@@ -3025,25 +3167,25 @@ void World::InitWeeklyQuestResetTime()
     m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
-void World::InitDailyQuestResetTime()
+void World::InitDailyQuestResetTime(bool loading)
 {
-    time_t mostRecentQuestTime;
+    time_t mostRecentQuestTime = 0;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
-    if (result)
+    if (loading)
     {
-        Field* fields = result->Fetch();
-        mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        }
     }
-    else
-        mostRecentQuestTime = 0;
 
-    // client built-in time for reset is 6:00 AM
     // FIX ME: client not show day start time
     time_t curTime = time(NULL);
     tm localTm;
     localtime_r(&curTime, &localTm);
-    localTm.tm_hour = 6;
+    localTm.tm_hour = getIntConfig(CONFIG_DAILY_QUEST_RESET_TIME_HOUR);
     localTm.tm_min  = 0;
     localTm.tm_sec  = 0;
 

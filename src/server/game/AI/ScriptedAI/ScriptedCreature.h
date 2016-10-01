@@ -89,6 +89,12 @@ public:
         return storage_.size();
     }
 
+    // Clear the underlying storage. This does NOT despawn the creatures - use DespawnAll for that!
+    void clear()
+    {
+        storage_.clear();
+    }
+
     void Summon(Creature const* summon) { storage_.push_back(summon->GetGUID()); }
     void Despawn(Creature const* summon) { storage_.remove(summon->GetGUID()); }
     void DespawnEntry(uint32 entry);
@@ -367,8 +373,8 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
-        void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr);
-        void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
+        void _DespawnAtEvade(Seconds delayToRespawn,  Creature* who = nullptr);
+        void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr) { _DespawnAtEvade(Seconds(delayToRespawn), who); }
 
         void TeleportCheaters();
 

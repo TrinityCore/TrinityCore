@@ -7369,6 +7369,8 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    GetMap()->UpdatePlayerAreaStats(m_areaUpdateId, newArea);
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
@@ -7410,6 +7412,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
+
+    GetMap()->UpdatePlayerZoneStats(m_zoneUpdateId, newZone);
 
     // group update
     if (GetGroup())
@@ -15400,10 +15404,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     RemoveActiveQuest(quest_id, false);
     if (quest->CanIncreaseRewardedQuestCounters())
-    {
-        m_RewardedQuests.insert(quest_id);
-        m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
-    }
+        SetRewardedQuest(quest_id);
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -15457,6 +15458,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(false);
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
+}
+
+void Player::SetRewardedQuest(uint32 quest_id)
+{
+    m_RewardedQuests.insert(quest_id);
+    m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
 }
 
 void Player::FailQuest(uint32 questId)
