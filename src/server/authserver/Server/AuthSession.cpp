@@ -657,7 +657,7 @@ bool AuthSession::HandleLogonProof()
         if (sConfigMgr->GetBoolDefault("WrongPass.Logging", false))
         {
             PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
-            logstmt->setString(0, _accountInfo.Login);
+            logstmt->setUInt32(0, _accountInfo.Id);
             logstmt->setString(1, GetRemoteIpAddress().to_string());
             logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
 
