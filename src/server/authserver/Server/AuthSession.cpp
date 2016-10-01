@@ -657,7 +657,7 @@ bool AuthSession::HandleLogonProof()
         if (sConfigMgr->GetBoolDefault("WrongPass.Logging", false))
         {
             PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
-            logstmt->setString(0, _accountInfo.Login);
+            logstmt->setUInt32(0, _accountInfo.Id);
             logstmt->setString(1, GetRemoteIpAddress().to_string());
             logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
 
@@ -671,7 +671,7 @@ bool AuthSession::HandleLogonProof()
             stmt->setString(0, _accountInfo.Login);
             LoginDatabase.Execute(stmt);
 
-            if (_accountInfo.FailedLogins >= MaxWrongPassCount)
+            if (++_accountInfo.FailedLogins >= MaxWrongPassCount)
             {
                 uint32 WrongPassBanTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
                 bool WrongPassBanType = sConfigMgr->GetBoolDefault("WrongPass.BanType", false);
