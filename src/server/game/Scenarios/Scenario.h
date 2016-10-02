@@ -61,7 +61,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32) { }
         
         bool IsComplete();
-        bool IsStepCompleted(ScenarioStepEntry const* step);
+        bool IsStepComplete(ScenarioStepEntry const* step);
+        void SetStepComplete(ScenarioStepEntry const* step, bool complete = true) { _scenarioStepCompleteMap[step] = complete; }
         ScenarioStepEntry const* GetStep() const { return _currentstep; }
         ScenarioStepEntry const* GetFirstStep() const;
 
@@ -94,8 +95,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ScenarioData const* _data;
 
     private:
-        bool _isComplete; // A much less expensive alternative to IsComplete();
         ScenarioStepEntry const* _currentstep;
+        std::map<ScenarioStepEntry const*, bool> _scenarioStepCompleteMap;
 };
 
 #endif
