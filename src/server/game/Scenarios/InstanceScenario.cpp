@@ -47,15 +47,25 @@ void InstanceScenario::SaveToDB()
         return;
     }
 
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     for (auto iter = _criteriaProgress.begin(); iter != _criteriaProgress.end(); ++iter)
     {
         if (!iter->second.Changed)
             continue;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA_BY_CRITERIA);
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        Criteria const* criteria = sCriteriaMgr->GetCriteria(iter->first);
+        switch (CriteriaTypes(criteria->Entry->Type))
+        {
+            // Blizzard only appears to store creature kills
+            case CRITERIA_TYPE_KILL_CREATURE:
+                break;
+            default:
+                continue;
+        }
 
-        stmt->setUInt32(0, iter->first);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, iter->first);
         trans->Append(stmt);
 
         if (iter->second.Counter)
@@ -70,6 +80,8 @@ void InstanceScenario::SaveToDB()
 
         iter->second.Changed = false;
     }
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void InstanceScenario::LoadInstanceData(uint32 instanceId)
@@ -102,6 +114,15 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
 
             if (criteria->Entry->StartTimer && time_t(date + criteria->Entry->StartTimer) < now)
                 continue;
+
+            switch (CriteriaTypes(criteria->Entry->Type))
+            {
+                // Blizzard appears to only stores creatures killed progress for unknown reasons. Either technical shortcoming or intentional
+                case CRITERIA_TYPE_KILL_CREATURE:
+                    break;
+                default:
+                    continue;
+            }
 
             SetCriteriaProgress(criteria, counter, nullptr, PROGRESS_SET);
         }
