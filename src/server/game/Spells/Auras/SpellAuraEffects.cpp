@@ -3438,6 +3438,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
             return (spell->GetSchoolMask() & schoolMask)    // Check for school mask
                 && GetSpellInfo()->CanDispelAura(spell)
                 && !aurApp->IsPositive()                    // Don't remove positive spells
+                && !spell->IsPassive()                      // Don't remove passive auras
                 && spell->Id != GetId();                    // Don't remove self
         });
     }
