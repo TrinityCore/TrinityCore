@@ -1487,29 +1487,38 @@ void SpellMgr::LoadSpellLearnSkills()
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
+    for (SpellInfo const* entry : mSpellInfoMap)
     {
-        SpellInfo const* entry = GetSpellInfo(spell);
-
         if (!entry)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (entry->Effects[i].Effect == SPELL_EFFECT_SKILL)
+            SpellLearnSkillNode dbc_node;
+            switch (entry->Effects[i].Effect)
             {
-                SpellLearnSkillNode dbc_node;
-                dbc_node.skill = entry->Effects[i].MiscValue;
-                dbc_node.step  = entry->Effects[i].CalcValue();
-                if (dbc_node.skill != SKILL_RIDING)
+                case SPELL_EFFECT_SKILL:
+                    dbc_node.skill = entry->Effects[i].MiscValue;
+                    dbc_node.step = entry->Effects[i].CalcValue();
+                    if (dbc_node.skill != SKILL_RIDING)
+                        dbc_node.value = 1;
+                    else
+                        dbc_node.value = dbc_node.step * 75;
+                    dbc_node.maxvalue = dbc_node.step * 75;
+                    break;
+                case SPELL_EFFECT_DUAL_WIELD:
+                    dbc_node.skill = SKILL_DUAL_WIELD;
+                    dbc_node.step = 1;
                     dbc_node.value = 1;
-                else
-                    dbc_node.value = dbc_node.step * 75;
-                dbc_node.maxvalue = dbc_node.step * 75;
-                mSpellLearnSkills[spell] = dbc_node;
-                ++dbc_count;
-                break;
+                    dbc_node.maxvalue = 1;
+                    break;
+                default:
+                    continue;
             }
+
+            mSpellLearnSkills[entry->Id] = dbc_node;
+            ++dbc_count;
+            break;
         }
     }
 
