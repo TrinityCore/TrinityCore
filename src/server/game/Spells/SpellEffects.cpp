@@ -5219,13 +5219,13 @@ void Spell::EffectDiscoverTaxi(SpellEffIndex /*effIndex*/)
         unitTarget->ToPlayer()->GetSession()->SendDiscoverNewTaxiNode(nodeid);
 }
 
-void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
+void Spell::EffectTitanGrip(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+        m_caster->ToPlayer()->SetCanTitanGrip(true, uint32(effectInfo->MiscValue));
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
