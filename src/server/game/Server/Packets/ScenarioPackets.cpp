@@ -116,6 +116,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioPOIs::Write()
             _worldPacket << int32(scenarioPOI->WorldEffectID);
             _worldPacket << int32(scenarioPOI->PlayerConditionID);
 
+            _worldPacket << int32(scenarioPOI->Points.size());
             for (ScenarioPOIPoint const& scenarioPOIBlobPoint : scenarioPOI->Points)
             {
                 _worldPacket << int32(scenarioPOIBlobPoint.X);
