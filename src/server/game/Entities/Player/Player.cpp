@@ -25428,19 +25428,18 @@ void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint6
 {
     m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 
+    // Update only individual achievement criteria here, otherwise we may get multiple updates
+    // from a single boss kill
+    if (CriteriaMgr::IsGroupCriteriaType(type))
+        return;
+
     if (IsInWorld())
         if (InstanceMap* instanceMap = GetMap()->ToInstanceMap())
             if (InstanceScenario* scenario = instanceMap->GetInstanceScenario())
                 scenario->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 
-    Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
-    if (!guild)
-        return;
-
-    // Update only individual achievement criteria here, otherwise we may get multiple updates
-    // from a single boss kill
-    if (CriteriaMgr::IsGroupCriteriaType(type))
-        return;
+    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+        guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 
     guild->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 }
