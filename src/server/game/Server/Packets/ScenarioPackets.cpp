@@ -90,10 +90,9 @@ WorldPacket const* WorldPackets::Scenario::ScenarioBoot::Write()
 
 void WorldPackets::Scenario::QueryScenarioPOI::Read()
 {
-    _worldPacket >> MissingScenarioPOICount;
-
-    for (uint8 i = 0; i < MissingScenarioPOICount; ++i)
-        _worldPacket >> MissingScenarioPOIs[i];
+    MissingScenarioPOIs.resize(_worldPacket.read<uint32>());
+    for (int32& scenarioPOI : MissingScenarioPOIs)
+        _worldPacket >> scenarioPOI;
 }
 
 WorldPacket const* WorldPackets::Scenario::ScenarioPOIs::Write()

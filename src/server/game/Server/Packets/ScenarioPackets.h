@@ -98,7 +98,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 MissingScenarioPOICount = 0;
             std::vector<int32> MissingScenarioPOIs;
         };
 
