@@ -13311,14 +13311,15 @@ bool Player::IsTwoHandUsed() const
 
 bool Player::IsUsingTwoHandedWeaponInOneHand() const
 {
-    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
     Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    if (offItem && offItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON)
+        return true;
 
-    if (!mainItem || !offItem)
+    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    if (!mainItem || mainItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON)
         return false;
 
-    if (mainItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON &&
-        offItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON)
+    if (!offItem)
         return false;
 
     return true;
