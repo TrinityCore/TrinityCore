@@ -447,12 +447,12 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemT
 
 void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI)
 {
+    WorldPackets::Scenario::ScenarioPOIs response;
+
     // Read criteria tree ids and add the in a unordered_set so we don't send POIs for the same criteria tree multiple times
     std::unordered_set<int32> criteriaTreeIds;
     for (int32 i = 0; i < queryScenarioPOI.MissingScenarioPOICount; ++i)
         criteriaTreeIds.insert(queryScenarioPOI.MissingScenarioPOIs[i]); // CriteriaTreeID
-
-    WorldPackets::Scenario::ScenarioPOIs response;
 
     for (auto criteriaTreeId : criteriaTreeIds)
     {
@@ -465,5 +465,5 @@ void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioP
         response.ScenarioPOIDataStats.push_back(sCriteriaMgr->GetScenarioPOIsForCriteriaTree(criteriaTreeId));
     }
 
-    response.Write();
+    SendPacket(response.Write());
 }

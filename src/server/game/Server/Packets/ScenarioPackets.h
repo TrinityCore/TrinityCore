@@ -99,7 +99,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingScenarioPOICount = 0;
-            int32 MissingScenarioPOIs[50];
+            std::vector<int32> MissingScenarioPOIs;
         };
 
         class ScenarioPOIs final : public ServerPacket

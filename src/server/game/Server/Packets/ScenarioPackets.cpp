@@ -92,7 +92,7 @@ void WorldPackets::Scenario::QueryScenarioPOI::Read()
 {
     _worldPacket >> MissingScenarioPOICount;
 
-    for (uint8 i = 0; i < 50; ++i)
+    for (uint8 i = 0; i < MissingScenarioPOICount; ++i)
         _worldPacket >> MissingScenarioPOIs[i];
 }
 

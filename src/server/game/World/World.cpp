@@ -2157,6 +2157,9 @@ void World::SetInitialWorldSettings()
     sScenarioMgr->LoadDBCData();
     sScenarioMgr->LoadDBData();
 
+    TC_LOG_INFO("server.loading", "Loading scenario poi data");
+    sObjectMgr->LoadScenarioPOI();
+
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
     {
