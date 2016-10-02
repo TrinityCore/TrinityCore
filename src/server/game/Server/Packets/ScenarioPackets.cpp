@@ -35,16 +35,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Scenario::UnkScenarioStat
 
 WorldPacket const* WorldPackets::Scenario::ScenarioState::Write()
 {
-    _worldPacket << uint32(ScenarioId);
+    _worldPacket << int32(ScenarioId);
     _worldPacket << int32(CurrentStep);
     _worldPacket << int32(DifficultyId);
     _worldPacket << int32(WaveCurrent);
     _worldPacket << int32(WaveMax);
     _worldPacket << int32(TimerDuration);
-    _worldPacket << uint32(CriteriaProgress.size());
-    _worldPacket << uint32(BonusObjectiveData.size());
-    _worldPacket << uint32(TraversedSteps.size());
-    _worldPacket << uint32(UnkData.size());
+
+    _worldPacket << int32(CriteriaProgress.size());
+    _worldPacket << int32(BonusObjectiveData.size());
+    _worldPacket << int32(TraversedSteps.size());
+    _worldPacket << int32(UnkData.size());
 
     for (uint32 i = 0; i < TraversedSteps.size(); ++i)
         _worldPacket << uint32(TraversedSteps[i]);
