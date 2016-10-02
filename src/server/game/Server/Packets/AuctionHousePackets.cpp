@@ -38,16 +38,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionItem
     data.WriteBit(auctionItem.CensorBidInfo);
     data.FlushBits();
 
-    for (auto const& gem : auctionItem.Gems)
+    for (WorldPackets::Item::ItemGemData const& gem : auctionItem.Gems)
         data << gem;
 
-    for (WorldPackets::AuctionHouse::AuctionItem::AuctionItemEnchant const& enchant : auctionItem.Enchantments)
-    {
-        data << int32(enchant.ID);
-        data << uint32(enchant.Expiration);
-        data << int32(enchant.Charges);
-        data << uint8(enchant.Slot);
-    }
+    for (WorldPackets::Item::ItemEnchantData const& enchant : auctionItem.Enchantments)
+        data << enchant;
 
     if (!auctionItem.CensorServerSideInfo)
     {

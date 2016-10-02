@@ -1,3 +1,7 @@
+[//]: # (***************************************************************)
+[//]: # (** DON'T DELETE THIS TEMPLATE ELSE YOUR ISSUE WILL BE CLOSED **)
+[//]: # (***************************************************************)
+
 **Description**:
 
 **Current behaviour**: Tell us what happens

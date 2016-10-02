@@ -3860,22 +3860,6 @@ Currency.ResetDay = 3
 Currency.ResetHour = 6
 
 #
-#    Currency.StartHonorPoints
-#        Amount of honor points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartHonorPoints = 0
-
-#
-#    Currency.MaxHonorPoints
-#        Amount honor points a player can have
-#        Default: 4000
-#
-
-Currency.MaxHonorPoints = 4000
-
-#
 #    Currency.StartApexisCrystals
 #        Amount of Apexis Crystals that new players will start with
 #        Default: 0 (with precision)
@@ -3906,30 +3890,6 @@ Currency.StartJusticePoints = 0
 #
 
 Currency.MaxJusticePoints = 4000
-
-#
-#    Currency.StartConquestPoints
-#        Amount of conquest points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartConquestPoints = 0
-
-#
-#    Currency.ConquestPointsWeekCap
-#        Amount of conquest points that player can earn per week
-#        Default: 1350
-#
-
-Currency.ConquestPointsWeekCap = 1350
-
-#
-#    Currency.ConquestPointsArenaReward
-#        Amount of conquest points rewarded by winning arenas
-#        Default: 180
-#
-
-Currency.ConquestPointsArenaReward = 180
 
 #
 ###################################################################################################
