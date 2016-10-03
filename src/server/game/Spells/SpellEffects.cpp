@@ -5682,7 +5682,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
     unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);
 }
 
-void Spell::EffectCreateConversation(SpellEffIndex effIndex)
+void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
