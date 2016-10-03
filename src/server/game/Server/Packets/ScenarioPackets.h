@@ -71,7 +71,7 @@ namespace WorldPackets
         class ScenarioCompleted final : public ServerPacket
         {
             public:
-                ScenarioCompleted(uint32 scenarioId) : ScenarioId(scenarioId), ServerPacket(SMSG_SCENARIO_COMPLETED, 4) { }
+                ScenarioCompleted(uint32 scenarioId) : ServerPacket(SMSG_SCENARIO_COMPLETED, 4), ScenarioId(scenarioId) { }
 
                 WorldPacket const* Write() override;
 
