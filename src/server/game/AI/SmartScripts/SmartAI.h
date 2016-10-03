@@ -209,7 +209,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void ReturnToLastOOCPos();
         void UpdatePath(const uint32 diff);
         SmartScript mScript;
-        WPPath* mWayPoints;
         uint32 mEscortState;
         uint32 mCurrentWPID;
         bool mWPReached;
@@ -217,7 +216,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool m_Ended;
         uint32 mWPPauseTimer;
         uint32 mEscortNPCFlags;
-        uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
         bool mCanRepeatPath;
         bool mRun;
         bool mEvadeDisabled;

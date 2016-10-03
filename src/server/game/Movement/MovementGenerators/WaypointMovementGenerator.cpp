@@ -74,38 +74,37 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     if (!i_path || i_path->empty())
         return;
 
-    if (i_path->at(i_currentNode)->delay)
+    WaypointData const &waypoint = i_path->at(i_currentNode);
+    if (waypoint.delay)
     {
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        Stop(i_path->at(i_currentNode)->delay);
+        Stop(waypoint.delay);
     }
 
-    if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
+    if (waypoint.event_id && urand(0, 99) < waypoint.event_chance)
     {
-        TC_LOG_DEBUG("maps.script", "Creature movement start script %u at point %u for %s.", i_path->at(i_currentNode)->event_id, i_currentNode, creature->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("maps.script", "Creature movement start script %u at point %u for %s.", waypoint.event_id, i_currentNode, creature->GetGUID().ToString().c_str());
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        creature->GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, creature, NULL);
+        creature->GetMap()->ScriptsStart(sWaypointScripts, waypoint.event_id, creature, nullptr);
     }
 
     // Inform script
     MovementInform(creature);
     creature->UpdateWaypointID(i_currentNode);
 
-    creature->SetWalk(i_path->at(i_currentNode)->move_type != WAYPOINT_MOVE_TYPE_RUN);
+    creature->SetWalk(waypoint.move_type != WAYPOINT_MOVE_TYPE_RUN);
 }
 
 void WaypointMovementGenerator<Creature>::FormationMove(Creature* creature)
 {
     bool transportPath = false;
 
-    if (creature->GetTransGUID())
+    if (!creature->GetTransGUID().IsEmpty())
         transportPath = true;
-    else
-        transportPath = false;
 
-    WaypointData const* node = i_path->at(i_currentNode);
+    WaypointData const &waypoint = i_path->at(i_currentNode);
 
-    Movement::Location formationDest(node->x, node->y, node->z, 0.0f);
+    Movement::Location formationDest(waypoint.x, waypoint.y, waypoint.z, 0.0f);
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
@@ -128,18 +127,17 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         return false;
 
     bool transportPath = false;
-    if (creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && creature->GetTransGUID())
+    if (creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !creature->GetTransGUID().IsEmpty())
         transportPath = true;
-    else
-        transportPath = false;
 
     if (IsArrivalDone)
     {
         if ((i_currentNode == i_path->size() - 1) && !repeating) // If that's our last waypoint
         {
-            float x = i_path->at(i_currentNode)->x;
-            float y = i_path->at(i_currentNode)->y;
-            float z = i_path->at(i_currentNode)->z;
+            WaypointData const &waypoint = i_path->at(i_currentNode);
+            float x = waypoint.x;
+            float y = waypoint.y;
+            float z = waypoint.z;
             float o = creature->GetOrientation();
 
             if (!transportPath)
@@ -167,26 +165,24 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     creature->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 
-    WaypointData const* node = nullptr;
     Movement::PointsArray pathing;
+    pathing.reserve((i_path->size() - i_currentNode) + 1);
     pathing.push_back(G3D::Vector3(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ()));
     for (uint32 i = i_currentNode; i < i_path->size(); ++i)
     {
-        node = i_path->at(i);
-        if (!node)
-            break;
+        WaypointData const &waypoint = i_path->at(i);
 
-        pathing.push_back(G3D::Vector3(node->x, node->y, node->z));
+        pathing.push_back(G3D::Vector3(waypoint.x, waypoint.y, waypoint.z));
 
         /* ToDo: figure this out
            client breaks smooth pathing in linear mode with more than 12 points in path, sniffs has more than 12 points and moves smoothly
            temp code
         */
-        if (pathing.size() >= 12)
-            break;
+        //if (pathing.size() >= 12)
+            //break;
         //end of temp
 
-        if (node->delay)
+        if (waypoint.delay)
             break;
     }
 
@@ -194,9 +190,11 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (pathing.size() < 2)
         return false;
 
+    WaypointData const &waypoint = i_path->at(i_currentNode);
+
     Movement::MoveSplineInit init(creature);
 
-    Movement::Location formationDest(i_path->at(i_currentNode)->x, i_path->at(i_currentNode)->y, i_path->at(i_currentNode)->z, 0.0f);
+    Movement::Location formationDest(waypoint.x, waypoint.y, waypoint.z, 0.0f);
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
@@ -212,7 +210,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     else
         init.MovebyPath(pathing, i_currentNode);
 
-    switch (node->move_type)
+    switch (waypoint.move_type)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
             init.SetAnimation(Movement::ToGround);
@@ -228,8 +226,8 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             break;
     }
 
-    if (node->orientation != 0.0f)
-        init.SetFacing(node->orientation);
+    if (waypoint.orientation != 0.0f)
+        init.SetFacing(waypoint.orientation);
 
     init.Launch();
 
@@ -321,8 +319,11 @@ bool WaypointMovementGenerator<Creature>::GetResetPos(Creature*, float& x, float
     if (!i_path || i_path->empty())
         return false;
 
-    const WaypointData* node = i_path->at(i_currentNode);
-    x = node->x; y = node->y; z = node->z;
+    WaypointData const &waypoint = i_path->at(i_currentNode);
+
+    x = waypoint.x;
+    y = waypoint.y;
+    z = waypoint.z;
     return true;
 }
 

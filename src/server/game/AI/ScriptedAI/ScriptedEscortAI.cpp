@@ -55,9 +55,6 @@ npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
 
 npc_escortAI::~npc_escortAI()
 {
-    for (WaypointData* point : _path)
-        delete point;
-
     _path.clear();
 }
 
@@ -377,19 +374,19 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointData* wp = new WaypointData();
+    WaypointData wp;
 
-    wp->id = id;
-    wp->x = x;
-    wp->y = y;
-    wp->z = z;
-    wp->orientation = 0.f;
-    wp->move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-    wp->delay = waitTime;
-    wp->event_id = 0;
-    wp->event_chance = 100;
+    wp.id = id;
+    wp.x = x;
+    wp.y = y;
+    wp.z = z;
+    wp.orientation = 0.f;
+    wp.move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    wp.delay = waitTime;
+    wp.event_id = 0;
+    wp.event_chance = 100;
 
-    _path.push_back(wp);
+    _path.push_back(std::move(wp));
 
     LastWP = id;
 
@@ -411,31 +408,31 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (!movePoints)
         return;
 
-    ScriptPointVector::const_iterator itrEnd = movePoints->end() - 1;
-    LastWP = itrEnd->uiPointId;
+    LastWP = movePoints->back().uiPointId;
 
-    for (ScriptPointVector::const_iterator itr = movePoints->begin(); itr != movePoints->end(); ++itr)
+    _path.reserve(_path.size() + movePoints->size());
+    for (const ScriptPointMove &point : *movePoints)
     {
-        WaypointData* wp = new WaypointData();
+        WaypointData wp;
 
-        float x = itr->fX;
-        float y = itr->fY;
-        float z = itr->fZ;
+        float x = point.fX;
+        float y = point.fY;
+        float z = point.fZ;
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
 
-        wp->id = itr->uiPointId;
-        wp->x = x;
-        wp->y = y;
-        wp->z = z;
-        wp->orientation = 0.f;
-        wp->move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-        wp->delay = itr->uiWaitTime;
-        wp->event_id = 0;
-        wp->event_chance = 100;
+        wp.id = point.uiPointId;
+        wp.x = x;
+        wp.y = y;
+        wp.z = z;
+        wp.orientation = 0.f;
+        wp.move_type = m_bIsRunning ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+        wp.delay = point.uiWaitTime;
+        wp.event_id = 0;
+        wp.event_chance = 100;
 
-        _path.push_back(wp);
+        _path.push_back(std::move(wp));
     }
 }
 

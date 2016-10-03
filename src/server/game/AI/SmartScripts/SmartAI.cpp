@@ -32,7 +32,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mIsCharmed = false;
     // copy script to local (protection for table reload)
 
-    mWayPoints = nullptr;
+    _path.clear();
     mEscortState = SMART_ESCORT_NONE;
     mCurrentWPID = 0;//first wp id is 1 !!
     mWPReached = false;
@@ -71,9 +71,6 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 
 SmartAI::~SmartAI()
 {
-    for (WaypointData* point : _path)
-        delete point;
-
     _path.clear();
 }
 
@@ -121,7 +118,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
         if (!LoadPath(path))
             return;
 
-    if (!mWayPoints || mWayPoints->empty())
+    if (_path.empty())
         return;
 
     mCurrentWPID = 1;
@@ -146,35 +143,35 @@ bool SmartAI::LoadPath(uint32 entry)
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         return false;
 
-    mWayPoints = sSmartWaypointMgr->GetPath(entry);
-    if (!mWayPoints)
+    WPPath const &path = sSmartWaypointMgr->GetPath(entry);
+    if (path.empty())
     {
         GetScript()->SetPathId(0);
         return false;
     }
 
-    for (WPPath::const_iterator WpItr = mWayPoints->begin(); WpItr != mWayPoints->end(); ++WpItr)
+    _path.reserve(path.size());
+    for (WayPoint const &waypoint : path)
     {
-        WaypointData* wp = new WaypointData();
-
-        float x = WpItr->second->x;
-        float y = WpItr->second->y;
-        float z = WpItr->second->z;
+        float x = waypoint.x;
+        float y = waypoint.y;
+        float z = waypoint.z;
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
 
-        wp->id = WpItr->second->id;
-        wp->x = x;
-        wp->y = y;
-        wp->z = z;
-        wp->orientation = 0.f;
-        wp->move_type = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-        wp->delay = 0;
-        wp->event_id = 0;
-        wp->event_chance = 100;
+        WaypointData wp;
+        wp.id = waypoint.id;
+        wp.x = x;
+        wp.y = y;
+        wp.z = z;
+        wp.orientation = 0.f;
+        wp.move_type = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+        wp.delay = 0;
+        wp.event_id = 0;
+        wp.event_chance = 100;
 
-        _path.push_back(wp);
+        _path.push_back(std::move(wp));
     }
 
     GetScript()->SetPathId(entry);
@@ -194,7 +191,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     AddEscortState(SMART_ESCORT_PAUSED);
     mWPPauseTimer = delay;
-    if (forced && !mWPReached)
+    if (forced)
     {
         mForcedPaused = forced;
         SetRun(mRun);
@@ -224,7 +221,7 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 void SmartAI::EndPath(bool fail)
 {
     RemoveEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING);
-    mWayPoints = nullptr;
+    _path.clear();
     mWPPauseTimer = 0;
 
     if (mEscortNPCFlags)
@@ -282,8 +279,8 @@ void SmartAI::EndPath(bool fail)
 
     if (mCanRepeatPath)
     {
-        if (IsAIControlled())
-            StartPath(mRun, GetScript()->GetPathId(), true);
+        //if (IsAIControlled()) test
+            StartPath(mRun, GetScript()->GetPathId(), mCanRepeatPath);
     }
     else
         GetScript()->SetPathId(0);
@@ -349,7 +346,6 @@ void SmartAI::UpdatePath(const uint32 diff)
                 GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, mCurrentWPID, GetScript()->GetPathId());
 
                 RemoveEscortState(SMART_ESCORT_PAUSED);
-
                 mForcedPaused = false;
                 mWPReached = false;
 
@@ -463,11 +459,10 @@ void SmartAI::MovepointReached(uint32 id)
 
     if (HasEscortState(SMART_ESCORT_PAUSED))
         me->StopMoving();
-
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
         mWPReached = false;
-        if (mCurrentWPID == GetWPCount())
+        if (mCurrentWPID == _path.size())
         {
             AddEscortState(SMART_ESCORT_PAUSED);
             mWPPauseTimer = 50;
