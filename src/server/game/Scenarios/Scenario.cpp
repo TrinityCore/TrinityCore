@@ -152,22 +152,14 @@ bool Scenario::CanUpdateCriteriaTree(Criteria const * /*criteria*/, CriteriaTree
     if (step->ScenarioID != _data->Entry->ID)
         return false;
 
-    if (tree->ScenarioStep->IsBonusObjective())
-        return !(tree->ScenarioStep->Flags & SCENARIO_STEP_FLAG_SCENARIO_NOT_DONE);
-
     ScenarioStepEntry const* currentStep = GetStep();
     if (!currentStep)
         return false;
 
+    if (step->IsBonusObjective())
+        return true;
+
     return currentStep == step;
-    //ScenarioStepEntry const* step = GetStep();
-    //if (!tree->ScenarioStep || !step || tree->ScenarioStep->ScenarioID != step->ScenarioID)
-    //    return false;
-
-    //if (tree->ScenarioStep->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
-    //    return !(tree->ScenarioStep->Flags & SCENARIO_STEP_FLAG_SCENARIO_NOT_DONE);
-
-    //return step->Step == tree->ScenarioStep->Step;
 }
 
 bool Scenario::CanCompleteCriteriaTree(CriteriaTree const* tree)
@@ -179,8 +171,8 @@ bool Scenario::CanCompleteCriteriaTree(CriteriaTree const* tree)
     if (step->ScenarioID != _data->Entry->ID)
         return false;
 
-    if (tree->ScenarioStep->IsBonusObjective())
-        return !(tree->ScenarioStep->Flags & SCENARIO_STEP_FLAG_SCENARIO_NOT_DONE);
+    if (step->IsBonusObjective())
+        return !IsComplete();
 
     if (step != GetStep())
         return false;
@@ -221,7 +213,7 @@ void Scenario::BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenari
     // We don't actually know what this does, can only guess behavior
     for (auto state : ScenarioState)
     {
-        if (state.first->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
+        if (state.first->IsBonusObjective())
             continue;
 
         if (state.second != SCENARIO_STEP_IN_PROGRESS ||
@@ -261,7 +253,7 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
     std::vector<WorldPackets::Scenario::BonusObjectiveData> bonusObjectivesData;
     for (auto itr = _data->Steps.begin(); itr != _data->Steps.end(); ++itr)
     {
-        if (!(itr->second->Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE))
+        if (!itr->second->IsBonusObjective())
             continue;
 
         CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(itr->second->CriteriaTreeID);
@@ -269,7 +261,7 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
         {
             WorldPackets::Scenario::BonusObjectiveData bonusObjectiveData;
             bonusObjectiveData.Id = itr->second->ID;
-            bonusObjectiveData.ObjectiveCompleted = IsCompletedCriteriaTree(tree);
+            bonusObjectiveData.ObjectiveCompleted = IsStepComplete(itr->second);
             bonusObjectivesData.push_back(bonusObjectiveData);
         }
     }
@@ -295,11 +287,6 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
     }
 
     return criteriasProgress;
-}
-
-std::string Scenario::GetOwnerInfo() const
-{
-    return std::string();
 }
 
 CriteriaList const & Scenario::GetCriteriaByType(CriteriaTypes type) const

@@ -708,7 +708,7 @@ enum QuestPackageFilter
 enum ScenarioStepFlags
 {
     SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
-    SCENARIO_STEP_FLAG_SCENARIO_NOT_DONE    = 0x2 // Guessing that this indicates it can only be completed if the scenario has not yet ended (Only applies when used in conjunction with SCENARIO_STEP_FLAG_BONUS_OBJECTIVE)
+    SCENARIO_STEP_FLAG_UNK1                 = 0x2
 };
 
 enum SkillRaceClassInfoFlags

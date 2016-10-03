@@ -9323,12 +9323,12 @@ void ObjectMgr::LoadScenarioPOI()
             _scenarioPOIStore[CriteriaTreeID].push_back(POI);
         }
         else
-            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown quest points for criteria tree id %i POI id %i", CriteriaTreeID, BlobIndex);
+            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", CriteriaTreeID, BlobIndex);
 
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u quest POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry) const

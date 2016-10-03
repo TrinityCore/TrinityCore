@@ -34,6 +34,7 @@ class TC_GAME_API InstanceScenario : public Scenario
         void LoadInstanceData(uint32 instanceId);
 
     protected:
+        std::string GetOwnerInfo() const override;
         void SendPacket(WorldPacket const* data) const override { _map->SendToPlayers(data); }
 
         Map* _map;

@@ -2014,8 +2014,6 @@ WorldPackets::Query::ScenarioPOIData CriteriaMgr::GetScenarioPOIsForCriteriaTree
         for (auto poi = poiVector->begin(); poi != poiVector->end(); ++poi)
             scenarioPOIData.ScenarioPOIs.push_back(*poi);
     }
-    else
-        TC_LOG_ERROR("misc", "Table 'scenario_poi' missing POI data for Criteria Tree (id: %u)", criteriaTreeId);
 
     return scenarioPOIData;
 }

@@ -120,7 +120,7 @@ void ScenarioMgr::LoadDBData()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u scenario entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u instance scenario entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ScenarioMgr::LoadDBCData()

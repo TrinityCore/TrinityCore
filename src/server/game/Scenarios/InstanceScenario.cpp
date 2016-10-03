@@ -63,19 +63,30 @@ void InstanceScenario::SaveToDB()
                 continue;
         }
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
-        stmt->setUInt32(0, id);
-        stmt->setUInt32(1, iter->first);
-        trans->Append(stmt);
-
         if (iter->second.Counter)
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SCENARIO_INSTANCE_CRITERIA);
             stmt->setUInt32(0, id);
             stmt->setUInt32(1, iter->first);
-            stmt->setUInt64(2, iter->second.Counter);
-            stmt->setUInt32(3, uint32(iter->second.Date));
-            trans->Append(stmt);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+            if (result)
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SCENARIO_INSTANCE_CRITERIA);
+                stmt->setUInt64(0, iter->second.Counter);
+                stmt->setUInt32(1, uint32(iter->second.Date));
+                stmt->setUInt32(2, id);
+                stmt->setUInt32(3, iter->first);
+                trans->Append(stmt);
+            }
+            else
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
+                stmt->setUInt32(0, id);
+                stmt->setUInt32(1, iter->first);
+                stmt->setUInt64(2, iter->second.Counter);
+                stmt->setUInt32(3, uint32(iter->second.Date));
+                trans->Append(stmt);
+            }
         }
 
         iter->second.Changed = false;
@@ -92,7 +103,10 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
         time_t now = time(nullptr);
+
+        std::vector<CriteriaTree const*> criteriaTrees;
         do
         {
             Field* fields = result->Fetch();
@@ -104,11 +118,12 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             if (!criteria)
             {
                 // Removing non-existing criteria data for all instances
-                TC_LOG_ERROR("criteria.scenarios", "Non-existing achievement criteria %u data has been removed from the table `instance_scenario_progress`.", id);
+                TC_LOG_ERROR("criteria.instancescenarios", "Removing scenario criteria %u data from the table `instance_scenario_progress`.", id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SCENARIO_INSTANCE_CRITERIA);
-                stmt->setUInt32(0, uint32(id));
-                CharacterDatabase.Execute(stmt);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SCENARIO_INSTANCE_CRITERIA);
+                stmt->setUInt32(0, instanceId);
+                stmt->setUInt32(1, uint32(id));
+                trans->Append(stmt);
                 continue;
             }
 
@@ -125,7 +140,28 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
             }
 
             SetCriteriaProgress(criteria, counter, nullptr, PROGRESS_SET);
+            
+            if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
+                for (CriteriaTree const* tree : *trees)
+                    criteriaTrees.push_back(tree);
         }
         while (result->NextRow());
+
+        CharacterDatabase.CommitTransaction(trans);
+
+        for (CriteriaTree const* tree : criteriaTrees)
+        {
+            ScenarioStepEntry const* step = tree->ScenarioStep;
+            if (!step)
+                continue;
+
+            if (IsCompletedCriteriaTree(tree))
+                SetStepComplete(step, true);
+        }
     }
+}
+
+std::string InstanceScenario::GetOwnerInfo() const
+{
+    return Trinity::StringFormat("Instance ID %u", _map->GetInstanceId());
 }

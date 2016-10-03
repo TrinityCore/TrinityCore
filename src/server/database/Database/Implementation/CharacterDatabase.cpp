@@ -737,9 +737,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_SCENARIO_INSTANCE_CRITERIA_FOR_INSTANCE, "SELECT criteria, counter, date FROM instance_scenario_progress WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_SCENARIO_INSTANCE_CRITERIA, "SELECT counter, date FROM instance_scenario_progress WHERE id = ? AND criteria = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA, "INSERT INTO instance_scenario_progress (id, criteria, counter, date) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA, "DELETE FROM instance_scenario_progress WHERE id = ? AND criteria = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA_FOR_INSTANCE, "DELETE FROM instance_scenario_progress WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_SCENARIO_INSTANCE_CRITERIA, "UPDATE instance_scenario_progress SET counter = ?, date = ? WHERE id = ? AND criteria = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INVALID_SCENARIO_INSTANCE_CRITERIA, "DELETE FROM instance_scenario_progress WHERE id = ? AND criteria = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA_BY_CRITERIA, "DELETE FROM instance_scenario_progress WHERE criteria = ?", CONNECTION_ASYNC);
 }

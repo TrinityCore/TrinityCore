@@ -90,7 +90,6 @@ class TC_GAME_API Scenario : public CriteriaHandler
         std::vector<WorldPackets::Scenario::BonusObjectiveData> GetBonusObjectivesData();
         std::vector<WorldPackets::Achievement::CriteriaProgress> GetCriteriasProgress();
 
-        std::string GetOwnerInfo() const override;
         CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
         ScenarioData const* _data;
 
