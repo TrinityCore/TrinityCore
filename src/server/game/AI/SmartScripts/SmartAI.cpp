@@ -279,7 +279,7 @@ void SmartAI::EndPath(bool fail)
 
     if (mCanRepeatPath)
     {
-        //if (IsAIControlled()) test
+        if (IsAIControlled())
             StartPath(mRun, GetScript()->GetPathId(), mCanRepeatPath);
     }
     else
