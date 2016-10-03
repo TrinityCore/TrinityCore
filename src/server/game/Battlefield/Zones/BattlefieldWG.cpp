@@ -492,6 +492,7 @@ bool BattlefieldWG::SetupBattlefield()
     m_StartGroupingTimer = 15 * MINUTE * IN_MILLISECONDS;
     m_StartGrouping = false;
 
+    m_tenacityTeam = TEAM_NEUTRAL;
     m_tenacityStack = 0;
 
     KickPosition.Relocate(5728.117f, 2714.346f, 697.733f, 0);
