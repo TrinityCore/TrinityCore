@@ -401,6 +401,10 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
+    // Don't show bind-when-picked-up unique items if player already has the maximum allowed quantity.
+    if (pProto->GetBonding() == BIND_ON_ACQUIRE && pProto->GetMaxCount() && int32(player->GetItemCount(itemid, true)) >= pProto->GetMaxCount())
+        return false;
+
     return true;
 }
 
