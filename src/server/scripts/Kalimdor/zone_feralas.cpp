@@ -156,7 +156,8 @@ public:
 
 enum GordunniTrap
 {
-    GO_GORDUNNI_DIRT_MOUND = 144064,
+    GO_GORDUNNI_DIRT_MOUND_1 = 144064,
+    GO_GORDUNNI_DIRT_MOUND_2 = 177681
 };
 
 class spell_gordunni_trap : public SpellScriptLoader
@@ -171,7 +172,7 @@ class spell_gordunni_trap : public SpellScriptLoader
             void HandleDummy()
             {
                 Unit* caster = GetCaster();
-                if (GameObject* chest = caster->SummonGameObject(GO_GORDUNNI_DIRT_MOUND, *caster, G3D::Quat(), 0))
+                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, G3D::Quat(), 0))
                 {
                     chest->SetSpellId(GetSpellInfo()->Id);
                     caster->RemoveGameObject(chest, false);
