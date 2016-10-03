@@ -74,5 +74,7 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
             MaxSearchRadius = std::sqrt((CylinderDatas.Radius * CylinderDatas.Radius) + (CylinderDatas.Height * CylinderDatas.Height));
             break;
         }
+        default:
+            break;
     }
 }

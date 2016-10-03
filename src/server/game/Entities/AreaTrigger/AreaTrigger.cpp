@@ -103,6 +103,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         case AREATRIGGER_TYPE_CYLINDER:
             SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
             break;
+        default:
+            break;
     }
 
     CopyPhaseFrom(caster);
