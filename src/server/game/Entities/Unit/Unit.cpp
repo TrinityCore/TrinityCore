@@ -6824,7 +6824,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     }
 
     // delay offhand weapon attack to next attack time
-    if (haveOffhandWeapon())
+    if (haveOffhandWeapon() && GetTypeId() != TYPEID_PLAYER)
         resetAttackTimer(OFF_ATTACK);
 
     if (meleeAttack)
