@@ -3887,7 +3887,11 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     if (spell_id == 46917 && m_canTitanGrip)
+    {
+        RemoveAurasDueToSpell(m_titanGripPenaltySpellId);
         SetCanTitanGrip(false);
+    }
+
     if (m_canDualWield)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
@@ -13140,9 +13144,6 @@ void Player::SetCanTitanGrip(bool value, uint32 penaltySpellId /*= 0*/)
 {
     if (value == m_canTitanGrip)
         return;
-
-    if (!value)
-        CheckTitanGripPenalty();
 
     m_canTitanGrip = value;
     m_titanGripPenaltySpellId = penaltySpellId;
