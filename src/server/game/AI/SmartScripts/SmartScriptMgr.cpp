@@ -38,9 +38,6 @@ void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (auto &path : waypoint_map)
-        path.second.clear();
-
     waypoint_map.clear();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);

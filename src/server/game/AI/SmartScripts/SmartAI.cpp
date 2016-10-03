@@ -191,7 +191,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     AddEscortState(SMART_ESCORT_PAUSED);
     mWPPauseTimer = delay;
-    if (forced)
+    if (forced && !mWPReached)
     {
         mForcedPaused = forced;
         SetRun(mRun);
