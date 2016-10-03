@@ -24,16 +24,6 @@
 
 WaypointMgr::WaypointMgr() { }
 
-WaypointMgr::~WaypointMgr()
-{
-    for (WaypointPathContainer::iterator itr = _waypointStore.begin(); itr != _waypointStore.end(); ++itr)
-    {
-        itr->second.clear();
-    }
-
-    _waypointStore.clear();
-}
-
 void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();

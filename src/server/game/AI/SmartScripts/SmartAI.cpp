@@ -124,7 +124,8 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
     mCurrentWPID = 1;
     m_Ended = false;
 
-    AddEscortState(SMART_ESCORT_ESCORTING);
+    // Do not use AddEscortState, removing everything from previous cycle
+    mEscortState = SMART_ESCORT_ESCORTING;
     mCanRepeatPath = repeat;
 
     if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
@@ -185,7 +186,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), mCurrentWPID);
         return;
     }
 
@@ -291,7 +292,13 @@ void SmartAI::EndPath(bool fail)
 
 void SmartAI::ResumePath()
 {
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, NULL, mCurrentWPID, GetScript()->GetPathId());
+    RemoveEscortState(SMART_ESCORT_PAUSED);
+    mForcedPaused = false;
+    mWPReached = false;
+    mWPPauseTimer = 0;
     SetRun(mRun);
+
     if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
         move->GetTrackerTimer().Reset(1);
 }
@@ -333,29 +340,19 @@ void SmartAI::UpdatePath(const uint32 diff)
     {
         if (mWPPauseTimer <= diff)
         {
-            if (m_Ended)
-            {
-                m_Ended = false;
-                RemoveEscortState(SMART_ESCORT_PAUSED);
-                StopPath();
-                return;
-            }
-
             if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING) && (mWPReached || mForcedPaused))
             {
-                GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, mCurrentWPID, GetScript()->GetPathId());
-
-                RemoveEscortState(SMART_ESCORT_PAUSED);
-                mForcedPaused = false;
-                mWPReached = false;
-
                 ResumePath();
-
-                mWPPauseTimer = 0;
             }
         }
         else
             mWPPauseTimer -= diff;
+    }
+    else if (m_Ended) // end path
+    {
+        m_Ended = false;
+        StopPath();
+        return;
     }
 
     if (HasEscortState(SMART_ESCORT_RETURNING))
@@ -463,11 +460,7 @@ void SmartAI::MovepointReached(uint32 id)
     {
         mWPReached = false;
         if (mCurrentWPID == _path.size())
-        {
-            AddEscortState(SMART_ESCORT_PAUSED);
-            mWPPauseTimer = 50;
             m_Ended = true;
-        }
         else
             SetRun(mRun);
     }

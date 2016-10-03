@@ -1466,7 +1466,7 @@ class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
-        ~SmartWaypointMgr();
+        ~SmartWaypointMgr() { }
 
     public:
         static SmartWaypointMgr* instance();

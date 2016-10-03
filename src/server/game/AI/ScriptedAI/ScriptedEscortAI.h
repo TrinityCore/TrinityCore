@@ -37,7 +37,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
 {
     public:
         explicit npc_escortAI(Creature* creature);
-        ~npc_escortAI();
+        ~npc_escortAI() { }
 
         // CreatureAI functions
 

@@ -69,7 +69,7 @@ class TC_GAME_API WaypointMgr
 
     private:
         WaypointMgr();
-        ~WaypointMgr();
+        ~WaypointMgr() { }
 
         WaypointPathContainer _waypointStore;
 };

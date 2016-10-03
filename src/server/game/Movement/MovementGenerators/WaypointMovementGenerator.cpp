@@ -204,11 +204,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             trans->CalculatePassengerPosition(formationDest.x, formationDest.y, formationDest.z, &formationDest.orientation);
     }
 
-    // Only 2 points (current position + 1 point) - move to point
-    if (pathing.size() == 2)
-        init.MoveTo(pathing[1]);
-    else
-        init.MovebyPath(pathing, i_currentNode);
+    init.MovebyPath(pathing, i_currentNode);
 
     switch (waypoint.move_type)
     {
