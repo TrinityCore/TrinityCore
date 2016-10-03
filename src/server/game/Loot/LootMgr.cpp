@@ -394,6 +394,10 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
+    // Don't show unique items if player already has the maximum allowed quantity.
+    if (pProto->MaxCount && int32(player->GetItemCount(itemid, true)) >= pProto->MaxCount)
+        return false;
+
     return true;
 }
 
