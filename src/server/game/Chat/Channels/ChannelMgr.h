@@ -19,32 +19,34 @@
 #define __TRINITY_CHANNELMGR_H
 
 #include "Common.h"
-#include "Channel.h"
 
-#define MAX_CHANNEL_NAME_STR 0x31
-#define MAX_CHANNEL_PASS_STR 31
+class Channel;
 
 class TC_GAME_API ChannelMgr
 {
-    typedef std::map<std::wstring, Channel*> ChannelMap;
+    typedef std::unordered_map<std::wstring, Channel*> CustomChannelContainer; // custom channels only differ in name
+    typedef std::unordered_map<std::pair<uint32 /*channelId*/, uint32 /*zoneId*/>, Channel*> BuiltinChannelContainer; // identify builtin (DBC) channels by zoneId instead, since name changes by client locale
 
     protected:
-        ChannelMgr() : _team(0) { }
+        explicit ChannelMgr(uint32 team) : _team(team) { }
         ~ChannelMgr();
 
     public:
         static ChannelMgr* ForTeam(uint32 team);
-        void SetTeam(uint32 newTeam) { _team = newTeam; }
+        static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);
 
-        Channel* GetJoinChannel(std::string const& name, uint32 channelId);
-        Channel* GetChannel(std::string const& name, Player* player, bool notify = true);
+        Channel* GetJoinChannel(uint32 channelId, std::string const& name, AreaTableEntry const* zoneEntry = nullptr);
+        Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool notify = true, AreaTableEntry const* zoneEntry = nullptr) const;
         void LeftChannel(std::string const& name);
+        void LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry);
 
     private:
-        ChannelMap _channels;
-        uint32 _team;
+        CustomChannelContainer _customChannels;
+        BuiltinChannelContainer _channels;
+        uint32 const _team;
 
         static void SendNotOnChannelNotify(Player const* player, std::string const& name);
+        ChannelMgr() = delete;
 };
 
 #endif
