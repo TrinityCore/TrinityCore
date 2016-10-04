@@ -4278,8 +4278,10 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
+                if (!caster)
+                    return;
                 Player* owner = caster->GetOwner()->ToPlayer();
-                if (!caster || !owner || !owner->HasAchieved(ACHIEV_PONY_UP))
+                if (!owner || !owner->HasAchieved(ACHIEV_PONY_UP))
                     return;
 
                 if (owner->IsMounted())
