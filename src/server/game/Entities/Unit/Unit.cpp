@@ -2701,7 +2701,7 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
     chance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
 
     // reduce dodge by SPELL_AURA_MOD_ENEMY_DODGE
-    chance += GetTotalAuraModifier(SPELL_AURA_MOD_ENEMY_DODGE) * 100;
+    chance += GetTotalAuraModifier(SPELL_AURA_MOD_ENEMY_DODGE);
 
     // Reduce dodge chance by attacker expertise rating
     if (GetTypeId() == TYPEID_PLAYER)
