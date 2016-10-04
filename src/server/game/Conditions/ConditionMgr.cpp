@@ -499,7 +499,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_WINTERGRASP_HORDE:
         {
             condMeets = false;
-            if (object->ToPlayer())
+            if (object->GetTypeId() == TYPEID_PLAYER)
                 if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                     if (wintergrasp->IsEnabled())
                         if (wintergrasp->GetDefenderTeam() == TEAM_HORDE)
