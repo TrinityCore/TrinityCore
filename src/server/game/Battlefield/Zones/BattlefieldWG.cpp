@@ -1336,7 +1336,7 @@ uint32 const WGQuest[2][6] =
 // Called when a tower is broke
 void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
 {
-    // Destroy an attack tower
+    // Southern tower
     if (team == GetAttackerTeam())
     {
         // Update counter
@@ -1348,12 +1348,13 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->RemoveAuraFromStack(SPELL_TOWER_CONTROL);
 
-        // Add buff stack to defenders
+        // Add buff stack to defenders and give achievement/quest credit
         for (auto itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
         {
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
+                player->KilledMonsterCredit(QUEST_CREDIT_TOWERS_DESTROYED);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         }
@@ -1368,7 +1369,7 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
             SendInitWorldStatesToAll();
         }
     }
-    else
+    else // Keep tower
     {
         UpdateData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_DEF, -1);
         UpdateData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_DEF, 1);
