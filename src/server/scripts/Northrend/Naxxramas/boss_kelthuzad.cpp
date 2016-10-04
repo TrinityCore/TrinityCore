@@ -601,7 +601,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 DoZoneInCombat();
                 return;
             }
-            
+
             if (!pocketId)
                 return;
 
