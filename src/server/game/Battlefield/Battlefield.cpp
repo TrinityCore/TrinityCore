@@ -373,6 +373,14 @@ void Battlefield::AskToLeaveQueue(Player* player)
     m_PlayersInQueue[player->GetTeamId()].erase(player->GetGUID());
 }
 
+// Called in WorldSession::HandleHearthAndResurrect
+void Battlefield::PlayerAskToLeave(Player* player)
+{
+    // Player leaving Wintergrasp, teleport to Dalaran.
+    // ToDo: confirm teleport destination.
+    player->TeleportTo(571, 5804.1499f, 624.7710f, 647.7670f, 1.6400f);
+}
+
 // Called in WorldSession::HandleBfEntryInviteResponse
 void Battlefield::PlayerAcceptInviteToWar(Player* player)
 {
