@@ -18,6 +18,7 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "BattlefieldMgr.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
@@ -109,7 +110,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Charmed",             false, false, false },
     { "Pet type",             true, false, false },
     { "On Taxi",             false, false, false },
-    { "Quest state mask",     true,  true, false }
+    { "Quest state mask",     true,  true, false },
+    { "Wintergrasp is horde",false, false, false }
 };
 
 // Checks if object meets the condition
@@ -499,6 +501,18 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_WINTERGRASP_HORDE:
+        {
+            condMeets = false;
+            if (Player* player = object->ToPlayer())
+            {
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(1);
+                if (wintergrasp->IsEnabled())
+                    if (wintergrasp->GetDefenderTeam() == TEAM_HORDE)
+                        condMeets = true;
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -693,6 +707,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_WINTERGRASP_HORDE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2312,6 +2329,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+        case CONDITION_WINTERGRASP_HORDE:
         default:
             break;
     }
