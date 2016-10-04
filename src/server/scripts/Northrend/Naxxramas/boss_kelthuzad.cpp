@@ -580,7 +580,7 @@ static const float MINION_AGGRO_DISTANCE = 20.0f;
 struct npc_kelthuzad_minionAI : public ScriptedAI
 {
     public:
-        npc_kelthuzad_minionAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()), _movementTimer(urandms(4,12)), _home(me->GetPosition()) { }
+        npc_kelthuzad_minionAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()), pocketId(0), _movementTimer(urandms(4,12)), _home(me->GetPosition()) { }
 
         void Reset() override
         {
@@ -601,6 +601,9 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 DoZoneInCombat();
                 return;
             }
+
+            if (!pocketId)
+                return;
 
             std::list<Creature*> others;
             me->GetCreatureListWithEntryInGrid(others, me->GetEntry(), 80.0f);
