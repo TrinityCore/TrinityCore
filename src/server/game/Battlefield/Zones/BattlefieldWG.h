@@ -150,6 +150,12 @@ enum WintergraspAreaIds
     AREA_THE_CHILLED_QUAGMIRE       = 4589
 };
 
+enum WintergraspQuests
+{
+    QUEST_VICTORY_WINTERGRASP_A = 13181,
+    QUEST_VICTORY_WINTERGRASP_H = 13183
+};
+
 /*#########################
  *####### Graveyards ######
  *#########################*/
