@@ -499,13 +499,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_WINTERGRASP_HORDE:
         {
             condMeets = false;
-            if (Player* player = object->ToPlayer())
-            {
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(1);
-                if (wintergrasp->IsEnabled())
-                    if (wintergrasp->GetDefenderTeam() == TEAM_HORDE)
-                        condMeets = true;
-            }
+            if (object->ToPlayer())
+                if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+                    if (wintergrasp->IsEnabled())
+                        if (wintergrasp->GetDefenderTeam() == TEAM_HORDE)
+                            condMeets = true;
             break;
         }
         default:
