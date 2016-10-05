@@ -3110,6 +3110,14 @@ void WorldObject::PlayDirectSound(uint32 soundId, Player* target /*= nullptr*/)
         SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), soundId).Write(), true);
 }
 
+void WorldObject::PlayDirectMusic(uint32 musicId, Player* target /*= nullptr*/)
+{
+    if (target)
+        target->SendDirectMessage(WorldPackets::Misc::PlayMusic(musicId).Write());
+    else
+        SendMessageToSet(WorldPackets::Misc::PlayMusic(musicId).Write(), true);
+}
+
 void WorldObject::DestroyForNearbyPlayers()
 {
     if (!IsInWorld())
