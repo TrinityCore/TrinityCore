@@ -22713,6 +22713,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
     if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN))
         return;
 
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         _Spell const& spellData = pItem->GetTemplate()->Spells[i];
@@ -22720,6 +22721,18 @@ void Player::ApplyEquipCooldown(Item* pItem)
         // no spell
         if (spellData.SpellId <= 0)
             continue;
+
+        // apply proc cooldown to equip auras if we have any
+        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
+        {
+            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(spellData.SpellId);
+            if (!procEntry)
+                continue;
+
+            if (Aura* itemAura = GetAura(spellData.SpellId, GetGUID(), pItem->GetGUID()))
+                itemAura->AddProcCooldown(now + procEntry->Cooldown);
+            continue;
+        }
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
         if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
