@@ -3628,12 +3628,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
     });
 
-    // Reverberating Hymn
-    ApplySpellFix({ 75323 }, [](SpellInfo* spellInfo)
-    {
-        // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
-    });
     // ENDOF HALLS OF ORIGINATION SPELLS
 
     // Threatening Gaze
