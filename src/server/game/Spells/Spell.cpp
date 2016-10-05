@@ -6880,8 +6880,10 @@ void Spell::HandleLaunchPhase()
     for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
     {
         if ((*j)->IsAffectedOnSpell(m_spellInfo))
-            usesAmmo=false;
+            usesAmmo = false;
     }
+
+    PrepareTargetProcessing();
 
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
@@ -6916,8 +6918,11 @@ void Spell::HandleLaunchPhase()
                     break;
             }
         }
+
         DoAllEffectOnLaunchTarget(target, multiplier);
     }
+
+    FinishTargetProcessing();
 }
 
 void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
