@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Spells
