@@ -3331,41 +3331,53 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
         }
 };
 
-
-
 enum PvPTrinketTriggeredSpells
 {
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757
 };
 
+template <uint32 TriggeredSpellId>
 class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 {
     public:
-        spell_pvp_trinket_wotf_shared_cd() : SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") { }
+        spell_pvp_trinket_wotf_shared_cd(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
 
+        template <uint32 Triggered>
         class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript);
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF))
+                if (!sSpellMgr->GetSpellInfo(Triggered))
                     return false;
                 return true;
             }
 
             void HandleScript()
             {
-                // This is only needed because spells cast from spell_linked_spell are triggered by default
-                // Spell::SendSpellCooldown() skips all spells with TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD
-                GetCaster()->GetSpellHistory()->StartCooldown(GetSpellInfo(), 0, GetSpell());
+                /*
+                 * @workaround: PendingCast flag normally means 'triggered' spell, however
+                 * if the spell is cast triggered, the core won't send SMSG_SPELL_GO packet
+                 * so client never registers the cooldown (see Spell::IsNeedSendToClient)
+                 *
+                 * ServerToClient: SMSG_SPELL_GO (0x0132) Length: 42 ConnIdx: 0 Time: 07/19/2010 02:32:35.000 Number: 362675
+                 * Caster GUID: Full: Player
+                 * Caster Unit GUID: Full: Player
+                 * Cast Count: 0
+                 * Spell ID: 72752 (72752)
+                 * Cast Flags: PendingCast, Unknown3, Unknown7 (265)
+                 * Time: 3901468825
+                 * Hit Count: 1
+                 * [0] Hit GUID: Player
+                 * Miss Count: 0
+                 * Target Flags: Unit (2)
+                 * Target GUID: 0x0
+                */
+
+                // Spell flags need further research, until then just cast not triggered
+                GetCaster()->CastSpell((Unit*)nullptr, Triggered, false);
             }
 
             void Register() override
@@ -3376,7 +3388,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_pvp_trinket_wotf_shared_cd_SpellScript();
+            return new spell_pvp_trinket_wotf_shared_cd_SpellScript<TriggeredSpellId>();
         }
 };
 
@@ -4308,7 +4320,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_throw_shield();
     new spell_gen_tournament_duel();
     new spell_gen_tournament_pennant();
-    new spell_pvp_trinket_wotf_shared_cd();
+    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER>("spell_pvp_trinket_shared_cd");
+    new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF>("spell_wotf_shared_cd");
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_vehicle_scaling();
