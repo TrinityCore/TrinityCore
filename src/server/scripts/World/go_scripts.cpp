@@ -51,6 +51,7 @@ EndContentData */
 #include "Spell.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameEventMgr.h"
 
 /*######
 ## go_cat_figurine
