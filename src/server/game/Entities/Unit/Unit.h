@@ -863,6 +863,7 @@ struct CleanDamage
     MeleeHitOutcome hitOutCome;
 };
 
+struct CalcDamageInfo;
 struct SpellNonMeleeDamage;
 
 class TC_GAME_API DamageInfo
