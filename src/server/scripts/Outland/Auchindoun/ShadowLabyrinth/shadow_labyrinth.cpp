@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum Spells
 {
