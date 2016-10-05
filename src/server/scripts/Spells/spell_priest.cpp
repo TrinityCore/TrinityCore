@@ -822,6 +822,33 @@ class spell_pri_mind_sear : public SpellScriptLoader
         }
 };
 
+// -47580 - Pain and Suffering (dummy aura)
+class spell_pri_pain_and_suffering_dummy : public SpellScriptLoader
+{
+    public:
+        spell_pri_pain_and_suffering_dummy() : SpellScriptLoader("spell_pri_pain_and_suffering_dummy") { }
+
+        class spell_pri_pain_and_suffering_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_pain_and_suffering_dummy_AuraScript);
+
+            bool CheckDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_pain_and_suffering_dummy_AuraScript::CheckDummy, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_pain_and_suffering_dummy_AuraScript;
+        }
+};
+
 // 47948 - Pain and Suffering (Proc)
 class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 {
@@ -1231,6 +1258,11 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                 return true;
             }
 
+            bool CheckDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                return false;
+            }
+
             void HandleDispel(DispelInfo* /*dispelInfo*/)
             {
                 if (Unit* caster = GetCaster())
@@ -1255,6 +1287,8 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
             void Register() override
             {
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_vampiric_touch_AuraScript::CheckDummy, EFFECT_0, SPELL_AURA_DUMMY);
+
                 AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
                 OnEffectProc += AuraEffectProcFn(spell_pri_vampiric_touch_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
             }
@@ -1416,6 +1450,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();
     new spell_pri_mind_sear();
+    new spell_pri_pain_and_suffering_dummy();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
     new spell_pri_power_word_shield();
