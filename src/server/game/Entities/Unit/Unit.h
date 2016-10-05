@@ -319,7 +319,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
     TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
-    // reuse                                          0x00020000
+    TRIGGERED_DONT_RESET_PERIODIC_TIMER             = 0x00020000,   //! Will allow periodic aura timers to keep ticking (instead of resetting)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //! Will ignore equipped item requirements
     TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //! Will ignore most target checks (mostly DBC target checks)
@@ -1429,16 +1429,14 @@ class TC_GAME_API Unit : public WorldObject
         bool InitTamedPet(Pet* pet, uint8 level, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
-        Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
+        Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool resetPeriodicTimer = true, int32 castItemLevel = -1);
         void _AddAura(UnitAura* aura, Unit* caster);
         AuraApplication * _CreateAuraApplication(Aura* aura, uint32 effMask);
         void _ApplyAuraEffect(Aura* aura, uint8 effIndex);
         void _ApplyAura(AuraApplication * aurApp, uint32 effMask);
         void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
         void _UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode);
-        void _RemoveNoStackAuraApplicationsDueToAura(Aura* aura);
         void _RemoveNoStackAurasDueToAura(Aura* aura);
-        bool _IsNoStackAuraDueToAura(Aura* appliedAura, Aura* existingAura) const;
         void _RegisterAuraEffect(AuraEffect* aurEff, bool apply);
 
         // m_ownedAuras container management

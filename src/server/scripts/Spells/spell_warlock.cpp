@@ -527,6 +527,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
+                {
                     // Refresh corruption on target
                     if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, flag128(0x2, 0, 0), caster->GetGUID()))
                     {
@@ -536,6 +537,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                         aurEff->CalculatePeriodic(caster, false, false);
                         aurEff->GetBase()->RefreshDuration(true);
                     }
+                }
             }
 
             void Register() override

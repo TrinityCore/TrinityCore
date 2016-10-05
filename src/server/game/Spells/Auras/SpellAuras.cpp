@@ -224,7 +224,7 @@ void AuraApplication::ClientUpdate(bool remove)
     _target->SendMessageToSet(update.Write(), true);
 }
 
-uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner)
+uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner)
 {
     ASSERT(spellProto);
     ASSERT(owner);
@@ -247,12 +247,14 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
             }
             break;
         default:
+            ABORT();
             break;
     }
-    return effMask & avalibleEffectMask;
+
+    return effMask & availableEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= NULL*/, int32 castItemLevel /*= -1*/)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool* refresh /*= nullptr*/, bool resetPeriodicTimer /*= true*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -260,26 +262,28 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid cast
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     if (refresh)
         *refresh = false;
+
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
-        return NULL;
+        return nullptr;
 
-    if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, castItemLevel))
+    if (Aura* foundAura = owner->ToUnit()->_TryStackingOrRefreshingExistingAura(spellproto, effMask, caster, baseAmount, castItem, casterGUID, resetPeriodicTimer, castItemLevel))
     {
         // we've here aura, which script triggered removal after modding stack amount
         // check the state here, so we won't create new Aura object
         if (foundAura->IsRemoved())
-            return NULL;
+            return nullptr;
 
         if (refresh)
             *refresh = true;
+
         return foundAura;
     }
     else
         return Create(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
 }
 
-Aura* Aura::TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, int32 castItemLevel /*= -1*/)
+Aura* Aura::TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -287,7 +291,8 @@ Aura* Aura::TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 try
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if (!effMask)
-        return NULL;
+        return nullptr;
+
     return Create(spellproto, castId, effMask, owner, caster, baseAmount, castItem, casterGUID, castItemLevel);
 }
 
@@ -314,9 +319,9 @@ Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMas
         if (!owner->IsInWorld() || ((Unit*)owner)->IsDuringRemoveFromWorld())
             // owner not in world so don't allow to own not self cast single target auras
             if (casterGUID != owner->GetGUID() && spellproto->IsSingleTarget())
-                return NULL;
+                return nullptr;
 
-    Aura* aura = NULL;
+    Aura* aura = nullptr;
     switch (owner->GetTypeId())
     {
         case TYPEID_UNIT:
@@ -328,11 +333,12 @@ Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMas
             break;
         default:
             ABORT();
-            return NULL;
+            return nullptr;
     }
+
     // aura can be removed in Unit::_AddAura call
     if (aura->IsRemoved())
-        return NULL;
+        return nullptr;
     return aura;
 }
 
@@ -807,10 +813,9 @@ void Aura::RefreshDuration(bool withMods)
         m_timeCla = 1 * IN_MILLISECONDS;
 }
 
-void Aura::RefreshTimers()
+void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
-    bool resetPeriodic = true;
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER))
     {
         int32 minPeriod = m_maxDuration;
@@ -823,15 +828,16 @@ void Aura::RefreshTimers()
         if (GetDuration() <= minPeriod)
         {
             m_maxDuration += GetDuration();
-            resetPeriodic = false;
+            resetPeriodicTimer = false;
         }
     }
 
     RefreshDuration();
+
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (HasEffect(i))
-            GetEffect(i)->CalculatePeriodic(caster, resetPeriodic, false);
+        if (AuraEffect* aurEff = GetEffect(i))
+            aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -926,7 +932,7 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
-bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
+bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
 
@@ -954,7 +960,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
     if (refresh)
     {
         RefreshSpellMods();
-        RefreshTimers();
+        RefreshTimers(resetPeriodicTimer);
 
         // reset charges
         SetCharges(CalcMaxCharges());

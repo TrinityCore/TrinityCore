@@ -115,14 +115,14 @@ struct AuraLoadEffectInfo
 
 class TC_GAME_API Aura
 {
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, int32 castItemLevel);
     public:
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
-        static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = NULL, int32 castItemLevel = -1);
-        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
-        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = nullptr, bool resetPeriodicTimer = true, int32 castItemLevel = -1);
+        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
+        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
         Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
@@ -165,7 +165,7 @@ class TC_GAME_API Aura
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool withMods = false);
-        void RefreshTimers();
+        void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
@@ -180,7 +180,7 @@ class TC_GAME_API Aura
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
-        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
         void RefreshSpellMods();
 
