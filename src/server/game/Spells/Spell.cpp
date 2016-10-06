@@ -3498,12 +3498,12 @@ void Spell::_handle_finish_phase()
             m_caster->m_playerMovingMe->GainSpellComboPoints(m_comboPointGain);
     }
 
-    if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+    if (m_caster->HasExtraAttacksPending() && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
     {
         if (Unit* victim = ObjectAccessor::GetUnit(*m_caster, m_targets.GetOrigUnitTargetGUID()))
             m_caster->HandleProcExtraAttackFor(victim);
         else
-            m_caster->m_extraAttacks = 0;
+            m_caster->SetExtraAttacks(0);
     }
 
     // Handle procs on finish

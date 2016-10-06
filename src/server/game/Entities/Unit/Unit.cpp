@@ -2088,11 +2088,13 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
 void Unit::HandleProcExtraAttackFor(Unit* victim)
 {
-    while (m_extraAttacks)
+    while (m_extraAttacks > 0)
     {
         AttackerStateUpdate(victim, BASE_ATTACK, true);
         --m_extraAttacks;
     }
+
+    m_extraAttacks = 0;
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackType attType) const

@@ -1296,7 +1296,10 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWithinMeleeRange(Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
-        uint32 m_extraAttacks;
+
+        bool HasExtraAttacksPending() const { return m_extraAttacks > 0; }
+        void SetExtraAttacks(uint32 val) { m_extraAttacks = static_cast<int32>(val); }
+
         bool m_canDualWield;
 
         void _addAttacker(Unit* pAttacker);                  // must be called only from Unit::Attack(Unit*)
@@ -2284,6 +2287,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
         TimeTrackerSmall m_movesplineTimer;
+
+        int32 m_extraAttacks;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

@@ -4495,10 +4495,10 @@ void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->IsAlive())
         return;
 
-    if (unitTarget->m_extraAttacks)
+    if (unitTarget->HasExtraAttacksPending())
         return;
 
-    unitTarget->m_extraAttacks = damage;
+    unitTarget->SetExtraAttacks(damage);
 
     ExecuteLogEffectExtraAttacks(effIndex, unitTarget, damage);
 }
