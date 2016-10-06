@@ -2918,12 +2918,7 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
 
     // reduce crit chance from Rating for players
     if (attackType != RANGED_ATTACK)
-    {
         ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_MELEE);
-        // Glyph of barkskin
-        if (victim->HasAura(63057) && victim->HasAura(22812))
-            crit -= 25.0f;
-    }
     else
         ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_RANGED);
 
