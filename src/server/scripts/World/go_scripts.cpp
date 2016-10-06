@@ -1316,6 +1316,9 @@ public:
 
     struct go_brewfest_musicAI : public GameObjectAI
     {
+        uint32 rnd;
+        uint32 musicTime = 1000;
+		
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
             _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
@@ -1325,8 +1328,6 @@ public:
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
-            uint32 rnd;
-            uint32 musicTime = 1000;
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
