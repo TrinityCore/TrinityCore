@@ -118,7 +118,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
     m_owner->UpdateUnderwaterState(m_owner->GetMap(), m_owner->GetPositionX(), m_owner->GetPositionY(), m_owner->GetPositionZ());
 }
 
-void MotionMaster::Clear(bool reset = true)
+void MotionMaster::Clear(bool reset /*= true*/)
 {
     if (m_cleanFlag & MMCF_UPDATE)
     {
@@ -132,7 +132,7 @@ void MotionMaster::Clear(bool reset = true)
         DirectClean(reset);
 }
 
-void MotionMaster::MovementExpired(bool reset = true)
+void MotionMaster::MovementExpired(bool reset /*= true*/)
 {
     if (m_cleanFlag & MMCF_UPDATE)
     {
