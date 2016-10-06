@@ -87,19 +87,19 @@ class TC_GAME_API MotionMaster
         typedef std::vector<MovementGenerator*> ExpireList;
 
     public:
-        explicit MotionMaster(Unit* unit) : m_expireList(nullptr), m_top(-1), m_owner(unit), m_cleanFlag(MMCF_NONE)
+        explicit MotionMaster(Unit* unit) : _expireList(nullptr), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
         {
             for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
             {
-                m_slot[i] = NULL;
-                m_initialize[i] = true;
+                _slot[i] = nullptr;
+                _initialize[i] = true;
             }
         }
         ~MotionMaster();
 
-        bool empty() const { return (m_top < 0); }
-        int size() const { return m_top + 1; }
-        MovementGenerator* top() const { ASSERT(!empty()); return m_slot[m_top]; }
+        bool empty() const { return (_top < 0); }
+        int size() const { return _top + 1; }
+        MovementGenerator* top() const { ASSERT(!empty()); return _slot[_top]; }
 
         void Initialize();
         void InitDefault();
@@ -179,12 +179,12 @@ class TC_GAME_API MotionMaster
         void DirectDelete(MovementGenerator* curr);
         void DelayedDelete(MovementGenerator* curr);
 
-        ExpireList* m_expireList;
-        MovementGenerator* m_slot[MAX_MOTION_SLOT];
-        int m_top;
-        Unit* m_owner;
-        bool m_initialize[MAX_MOTION_SLOT];
-        uint8 m_cleanFlag;
+        ExpireList* _expireList;
+        MovementGenerator* _slot[MAX_MOTION_SLOT];
+        int _top;
+        Unit* _owner;
+        bool _initialize[MAX_MOTION_SLOT];
+        uint8 _cleanFlag;
 };
 
 #endif // MOTIONMASTER_H
