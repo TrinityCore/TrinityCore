@@ -11642,9 +11642,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             }
         }
 
-        // Don't give kill credit if creature killed itself
-        if (this != victim)
-            player->RewardPlayerAndGroupAtKill(victim, false);
+        player->RewardPlayerAndGroupAtKill(victim, false);
     }
 
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
@@ -11661,11 +11659,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     // Proc auras on death - must be before aura/combat remove
     victim->ProcSkillsAndAuras(victim, PROC_FLAG_NONE, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
-    // update get killing blow achievements (only if creature did not kill itself), must be done before setDeathState to be able to require auras on target
+    // update get killing blow achievements, must be done before setDeathState to be able to require auras on target
     // and before Spirit of Redemption as it also removes auras
-    if (this != victim)
-        if (Player* killerPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
-            killerPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, victim);
+    if (Player* killerPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
+        killerPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, victim);
 
     // if talent known but not triggered (check priest class for speedup check)
     bool spiritOfRedemption = false;
