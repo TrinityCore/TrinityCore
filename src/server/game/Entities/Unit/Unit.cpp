@@ -1150,9 +1150,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 }
 
                 if (attackType != RANGED_ATTACK)
-                    ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_MELEE);
+                    ApplyResilience(victim, nullptr, &damage, crit, CR_CRIT_TAKEN_MELEE);
                 else
-                    ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_RANGED);
+                    ApplyResilience(victim, nullptr, &damage, crit, CR_CRIT_TAKEN_RANGED);
                 break;
             }
                 // Magical Attacks
@@ -1166,7 +1166,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     damage = SpellCriticalDamageBonus(spellInfo, damage, victim);
                 }
 
-                ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_SPELL);
+                ApplyResilience(victim, nullptr, &damage, crit, CR_CRIT_TAKEN_SPELL);
                 break;
             }
             default:
@@ -2208,10 +2208,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     // 6.CRIT
     tmp = crit_chance;
     if (tmp > 0 && roll < (sum += tmp))
-    {
-        if (GetTypeId() != TYPEID_UNIT || !(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
-            return MELEE_HIT_CRIT;
-    }
+        return MELEE_HIT_CRIT;
 
     // 7. CRUSHING
     // mobs can score crushing blows if they're 4 or more levels above victim
@@ -2871,39 +2868,46 @@ float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) con
 
 float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victim) const
 {
-    float crit;
+    int32 const attackerWeaponSkill = GetWeaponSkillValue(attackType, victim);
+    int32 const victimMaxSkillValueForLevel = victim->GetMaxSkillValueForLevel(this);
+    int32 const skillDiff = victimMaxSkillValueForLevel - attackerWeaponSkill;
 
+    float chance = 0.0f;
+    float skillBonus = 0.0f;
     if (GetTypeId() == TYPEID_PLAYER)
     {
         switch (attackType)
         {
             case BASE_ATTACK:
-                crit = GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                chance = GetFloatValue(PLAYER_CRIT_PERCENTAGE);
                 break;
             case OFF_ATTACK:
-                crit = GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                chance = GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
                 break;
             case RANGED_ATTACK:
-                crit = GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                chance = GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
                 break;
                 // Just for good manner
             default:
-                crit = 0.0f;
+                chance = 0.0f;
                 break;
         }
     }
     else
     {
-        crit = 5.0f;
-        crit += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
-        crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+        if (!(ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+        {
+            chance = 5.0f;
+            chance += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+            chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+        }
     }
 
     // flat aura mods
     if (attackType == RANGED_ATTACK)
-        crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
+        chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
     else
-        crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
+        chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
     AuraEffectList const& critChanceForCaster = victim->GetAuraEffectsByType(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER);
     for (AuraEffect const* aurEff : critChanceForCaster)
@@ -2911,23 +2915,29 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
         if (aurEff->GetCasterGUID() != GetGUID())
             continue;
 
-        crit += aurEff->GetAmount();
+        chance += aurEff->GetAmount();
     }
 
-    crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
+    chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
 
     // reduce crit chance from Rating for players
     if (attackType != RANGED_ATTACK)
-        ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_MELEE);
+        ApplyResilience(victim, &chance, nullptr, false, CR_CRIT_TAKEN_MELEE);
     else
-        ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_RANGED);
+        ApplyResilience(victim, &chance, nullptr, false, CR_CRIT_TAKEN_RANGED);
 
     // Apply crit chance from defense skill
-    crit += (int32(GetMaxSkillValueForLevel(victim)) - int32(victim->GetDefenseSkillValue(this))) * 0.04f;
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+        skillBonus = -skillDiff * 0.04f;
+    else
+    {
+        skillBonus = -skillDiff * 0.12f;
+        if (skillDiff >= 15)
+            skillBonus -= 3.0f;
+    }
 
-    if (crit < 0.0f)
-        crit = 0.0f;
-    return crit;
+    chance += skillBonus;
+    return std::max(chance, 0.0f);
 }
 
 uint32 Unit::GetWeaponSkillValue(WeaponAttackType attType, Unit const* target) const
@@ -7241,17 +7251,17 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-                    ApplyResilience(victim, &crit_chance, NULL, false, CR_CRIT_TAKEN_SPELL);
+                    ApplyResilience(victim, &crit_chance, nullptr, false, CR_CRIT_TAKEN_SPELL);
                 }
                 // scripted (increase crit chance ... against ... target by x%
                 AuraEffectList const& mOverrideClassScript = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+                for (AuraEffect const* aurEff : mOverrideClassScript)
                 {
-                    if (!((*i)->IsAffectedOnSpell(spellProto)))
+                    if (!aurEff->IsAffectedOnSpell(spellProto))
                         continue;
 
                     float modChance = 0.f;
-                    switch ((*i)->GetMiscValue())
+                    switch (aurEff->GetMiscValue())
                     {
                         case 911: // Shatter (Rank 3)
                             modChance += 16.f;
@@ -7266,12 +7276,12 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
-                                crit_chance += (*i)->GetAmount();
+                                crit_chance += aurEff->GetAmount();
                             break;
                         case 7997: // Renewed Hope
                         case 7998:
                             if (victim->HasAura(6788))
-                                crit_chance += (*i)->GetAmount();
+                                crit_chance += aurEff->GetAmount();
                             break;
                         default:
                             break;
@@ -7338,6 +7348,13 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         }
                         break;
                 }
+
+                // Spell crit suppression
+                if (victim->GetTypeId() == TYPEID_UNIT)
+                {
+                    int32 const levelDiff = static_cast<int32>(victim->getLevelForTarget(this)) - getLevel();
+                    crit_chance -= levelDiff * 0.7f;
+                }
             }
             break;
         }
@@ -7401,7 +7418,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
         }
     }
 
-    return crit_chance > 0.0f ? crit_chance : 0.0f;
+    return std::max(crit_chance, 0.0f);
 }
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage, Unit* victim)
