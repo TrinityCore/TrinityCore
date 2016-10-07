@@ -17,17 +17,19 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
 enum Spells
 {
-    SPELL_CARRION_SWARM     = 31306,
-    SPELL_SLEEP             = 31298,
-    SPELL_VAMPIRIC_AURA     = 38196,
-    SPELL_INFERNO           = 31299,
-    SPELL_IMMOLATION        = 31303,
-    SPELL_INFERNO_EFFECT    = 31302,
+    SPELL_CARRION_SWARM         = 31306,
+    SPELL_SLEEP                 = 31298,
+    SPELL_VAMPIRIC_AURA         = 38196,
+    SPELL_VAMPIRIC_AURA_HEAL    = 31285,
+    SPELL_INFERNO               = 31299,
+    SPELL_IMMOLATION            = 31303,
+    SPELL_INFERNO_EFFECT        = 31302
 };
 
 enum Texts
@@ -261,8 +263,48 @@ public:
 
 };
 
+class spell_anetheron_vampiric_aura : public SpellScriptLoader
+{
+    public:
+        spell_anetheron_vampiric_aura() : SpellScriptLoader("spell_anetheron_vampiric_aura") { }
+
+        class spell_anetheron_vampiric_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_anetheron_vampiric_aura_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VAMPIRIC_AURA_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 bp = damageInfo->GetDamage() * 3;
+                eventInfo.GetActor()->CastCustomSpell(SPELL_VAMPIRIC_AURA_HEAL, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetActor(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_anetheron_vampiric_aura_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_anetheron_vampiric_aura_AuraScript();
+        }
+};
+
 void AddSC_boss_anetheron()
 {
     new boss_anetheron();
     new npc_towering_infernal();
+    new spell_anetheron_vampiric_aura();
 }
