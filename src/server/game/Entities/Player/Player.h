@@ -1847,6 +1847,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateLocalChannels(uint32 newZone);
         void LeaveLFGChannel();
 
+        typedef std::list<Channel*> JoinedChannelsList;
+        JoinedChannelsList const& GetJoinedChannels() const { return m_channels; }
+
         void UpdateDefense();
         void UpdateWeaponSkill (WeaponAttackType attType);
         void UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense);
@@ -2454,7 +2457,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldSession* m_session;
 
-        typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList m_channels;
 
         uint8 m_cinematic;
