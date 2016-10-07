@@ -33,6 +33,8 @@ namespace WorldPackets
     }
 }
 
+struct AreaTableEntry;
+
 enum ChatNotify
 {
     CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
