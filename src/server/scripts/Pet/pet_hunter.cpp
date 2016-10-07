@@ -152,6 +152,34 @@ class npc_pet_hunter_snake_trap : public CreatureScript
         }
 };
 
+// 57627 - Charge
+class spell_pet_charge : public SpellScriptLoader
+{
+    public:
+        spell_pet_charge() : SpellScriptLoader("spell_pet_charge") { }
+
+        class spell_pet_charge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pet_charge_AuraScript);
+
+            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                // Prevent console log
+                PreventDefaultAction();
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pet_charge_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pet_charge_AuraScript();
+        }
+};
+
 // -53178 - Guard Dog
 class spell_pet_guard_dog : public SpellScriptLoader
 {
@@ -301,6 +329,7 @@ class spell_pet_culling_the_herd : public SpellScriptLoader
 void AddSC_hunter_pet_scripts()
 {
     new npc_pet_hunter_snake_trap();
+    new spell_pet_charge();
     new spell_pet_guard_dog();
     new spell_pet_silverback();
     new spell_pet_culling_the_herd();

@@ -201,68 +201,90 @@ class spell_dru_dash : public SpellScriptLoader
         }
 };
 
+// -48516 - Eclipse
 class spell_dru_eclipse : public SpellScriptLoader
 {
-public:
-    spell_dru_eclipse() : SpellScriptLoader("spell_dru_eclipse") { }
+    public:
+        spell_dru_eclipse() : SpellScriptLoader("spell_dru_eclipse") { }
 
-    class spell_dru_eclipse_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_eclipse_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_dru_eclipse_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_ECLIPSE_LUNAR_PROC))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_ECLIPSE_SOLAR_PROC))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_dru_eclipse_AuraScript);
 
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            if (!eventInfo.GetSpellInfo())
-                return false;
-
-            if (eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PROC) || eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PROC))
-                return false;
-
-            // Triggered by Wrath?
-            if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 1)
-                return roll_chance_f(GetSpellInfo()->ProcChance * 0.6f) && _lunarProcCooldownEnd <= std::chrono::steady_clock::now();
-
-            return _solarProcCooldownEnd <= std::chrono::steady_clock::now();
-        }
-
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-            if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 1)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                _lunarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(aurEff->GetAmount());
-                eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_ECLIPSE_LUNAR_PROC))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_ECLIPSE_SOLAR_PROC))
+                    return false;
+                return true;
             }
-            else
+
+            bool CheckProc(ProcEventInfo& eventInfo)
             {
-                _solarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(aurEff->GetAmount());
+                if (eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_PROC) || eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_PROC))
+                    return false;
+
+                return true;
+            }
+
+            bool CheckSolar(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 4)) // Starfire
+                    return false;
+
+                return _solarProcCooldownEnd <= std::chrono::steady_clock::now();
+            }
+
+            bool CheckLunar(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 1)) // Wrath
+                    return false;
+
+                // Reduced lunar proc chance (60% of normal)
+                if (!roll_chance_i(60))
+                    return false;
+
+                return _lunarProcCooldownEnd <= std::chrono::steady_clock::now();
+            }
+
+            void ProcSolar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                _solarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(30);
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_SOLAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
-        }
 
-        void Register() override
+            void ProcLunar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                _lunarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(30);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dru_eclipse_AuraScript::CheckProc);
+
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_eclipse_AuraScript::CheckSolar, EFFECT_0, SPELL_AURA_DUMMY);
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_eclipse_AuraScript::CheckLunar, EFFECT_1, SPELL_AURA_DUMMY);
+
+                OnEffectProc += AuraEffectProcFn(spell_dru_eclipse_AuraScript::ProcSolar, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_eclipse_AuraScript::ProcLunar, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+
+            std::chrono::steady_clock::time_point _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+            std::chrono::steady_clock::time_point _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            DoCheckProc += AuraCheckProcFn(spell_dru_eclipse_AuraScript::CheckProc);
-            OnEffectProc += AuraEffectProcFn(spell_dru_eclipse_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            return new spell_dru_eclipse_AuraScript();
         }
-
-        std::chrono::steady_clock::time_point _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
-        std::chrono::steady_clock::time_point _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dru_eclipse_AuraScript();
-    }
 };
 
 // 5229 - Enrage
