@@ -2550,7 +2550,7 @@ struct SummonPropertiesEntry
     uint32 Category;
     uint32 Faction;
     uint32 Type;
-    uint32  Slot;
+    int32 Slot;
 };
 
 #define TACTKEY_SIZE 16
