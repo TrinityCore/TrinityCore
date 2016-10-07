@@ -506,7 +506,7 @@ public:
     static uint32 GetDispelMask(DispelType type);
     uint32 GetExplicitTargetMask() const;
 
-    AuraStateType GetAuraState(uint32 difficulty) const;
+    AuraStateType GetAuraState() const;
     SpellSpecificType GetSpellSpecific() const;
 
     float GetMinRange(bool positive = false) const;
@@ -544,6 +544,8 @@ public:
     bool _IsPositiveEffect(uint32 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+    void _LoadSpellSpecific();
+    void _LoadAuraState();
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
@@ -553,9 +555,12 @@ public:
     SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
     SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
 
+private:
     SpellEffectInfoMap _effects;
     SpellVisualMap _visuals;
     bool _hasPowerDifficultyData;
+    SpellSpecificType _spellSpecific;
+    AuraStateType _auraState;
 };
 
 #endif // _SPELLINFO_H
