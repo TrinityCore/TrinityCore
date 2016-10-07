@@ -46,7 +46,6 @@ class TC_GAME_API ChannelMgr
         uint32 const _team;
 
         static void SendNotOnChannelNotify(Player const* player, std::string const& name);
-        ChannelMgr() = delete;
 };
 
 #endif
