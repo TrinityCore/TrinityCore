@@ -32,7 +32,10 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 
-inline bool IsStatic(MovementGenerator *mv) { return (mv == &si_idleMovement); }
+inline bool IsStatic(MovementGenerator* movement)
+{
+    return (movement == &si_idleMovement);
+}
 
 MotionMaster::~MotionMaster()
 {
