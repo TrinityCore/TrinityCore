@@ -1,3 +1,2 @@
 ALTER TABLE `summon_properties`
 	CHANGE COLUMN `Flags` `Flags` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ID`;
-	
