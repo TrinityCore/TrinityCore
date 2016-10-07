@@ -166,9 +166,10 @@ class TC_GAME_API MotionMaster
         void MoveRotate(uint32 time, RotateDirection direction);
 
     private:
+        void pop();
+
         bool NeedInitTop() const;
         void InitTop();
-        void Pop();
 
         void Mutate(MovementGenerator *m, MovementSlot slot);
 

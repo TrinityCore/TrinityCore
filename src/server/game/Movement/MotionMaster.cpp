@@ -43,7 +43,7 @@ MotionMaster::~MotionMaster()
     while (!empty())
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         if (curr && !IsStatic(curr))
             delete curr;    // Skip finalizing on delete, it might launch new movement
     }
@@ -55,7 +55,7 @@ void MotionMaster::Initialize()
     while (!empty())
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         if (curr)
             DirectDelete(curr);
     }
@@ -692,6 +692,16 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 
 /******************** Private methods ********************/
 
+void MotionMaster::pop()
+{
+    if (empty())
+        return;
+
+    _slot[_top] = nullptr;
+    while (!empty() && !top())
+        --_top;
+}
+
 bool MotionMaster::NeedInitTop() const
 {
     if (empty())
@@ -705,21 +715,11 @@ void MotionMaster::InitTop()
     _initialize[_top] = false;
 }
 
-void MotionMaster::Pop()
-{
-    if (empty())
-        return;
-
-    _slot[_top] = NULL;
-    while (!empty() && !top())
-        --_top;
-}
-
 void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
 {
     if (MovementGenerator *curr = _slot[slot])
     {
-        _slot[slot] = NULL; // in case a new one is generated in this slot during directdelete
+        _slot[slot] = nullptr; // in case a new one is generated in this slot during directdelete
         if (_top == slot && (_cleanFlag & MMCF_UPDATE))
             DelayedDelete(curr);
         else
@@ -745,7 +745,7 @@ void MotionMaster::DirectClean(bool reset)
     while (size() > 1)
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         if (curr) DirectDelete(curr);
     }
 
@@ -763,7 +763,7 @@ void MotionMaster::DelayedClean()
     while (size() > 1)
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         if (curr)
             DelayedDelete(curr);
     }
@@ -774,7 +774,7 @@ void MotionMaster::DirectExpire(bool reset)
     if (size() > 1)
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         DirectDelete(curr);
     }
 
@@ -794,7 +794,7 @@ void MotionMaster::DelayedExpire()
     if (size() > 1)
     {
         MovementGenerator *curr = top();
-        Pop();
+        pop();
         DelayedDelete(curr);
     }
 
