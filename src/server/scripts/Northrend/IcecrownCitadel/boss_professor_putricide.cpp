@@ -838,9 +838,23 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
                 }
             }
 
+            void HandleProc(ProcEventInfo& eventInfo)
+            {
+                uint32 stack = GetStackAmount();
+                Unit* caster = eventInfo.GetActor();
+
+                int32 const mod = caster->GetMap()->Is25ManRaid() ? 1500 : 1250;
+                int32 dmg = 0;
+                for (uint8 i = 1; i <= stack; ++i)
+                    dmg += mod * i;
+
+                caster->CastCustomSpell(SPELL_EXPUNGED_GAS, SPELLVALUE_BASE_POINT0, dmg);
+            }
+
             void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_putricide_gaseous_bloat_AuraScript::HandleExtraEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnProc += AuraProcFn(spell_putricide_gaseous_bloat_AuraScript::HandleProc);
             }
         };
 
@@ -1075,6 +1089,45 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_putricide_ooze_eruption_searcher_SpellScript();
+        }
+};
+
+// 71770 - Ooze Spell Tank Protection
+class spell_putricide_ooze_tank_protection : public SpellScriptLoader
+{
+    public:
+        spell_putricide_ooze_tank_protection() : SpellScriptLoader("spell_putricide_ooze_tank_protection") { }
+
+        class spell_putricide_ooze_tank_protection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_putricide_ooze_tank_protection_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell) ||
+                    !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* actionTarget = eventInfo.GetActionTarget();
+                actionTarget->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_putricide_ooze_tank_protection_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_putricide_ooze_tank_protection_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_putricide_ooze_tank_protection_AuraScript();
         }
 };
 
@@ -1602,6 +1655,7 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_slime_puddle_aura();
     new spell_putricide_unstable_experiment();
     new spell_putricide_ooze_eruption_searcher();
+    new spell_putricide_ooze_tank_protection();
     new spell_putricide_choking_gas_bomb();
     new spell_putricide_unbound_plague();
     new spell_putricide_eat_ooze();

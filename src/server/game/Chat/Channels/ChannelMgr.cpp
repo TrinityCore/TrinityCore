@@ -16,20 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "Player.h"
 #include "World.h"
 
 ChannelMgr::~ChannelMgr()
 {
-    for (ChannelMap::iterator itr = channels.begin(); itr != channels.end(); ++itr)
+    for (auto itr = _channels.begin(); itr != _channels.end(); ++itr)
+        delete itr->second;
+
+    for (auto itr = _customChannels.begin(); itr != _customChannels.end(); ++itr)
         delete itr->second;
 }
 
 ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
-    static ChannelMgr allianceChannelMgr;
-    static ChannelMgr hordeChannelMgr;
+    static ChannelMgr allianceChannelMgr(ALLIANCE);
+    static ChannelMgr hordeChannelMgr(HORDE);
+
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         return &allianceChannelMgr;        // cross-faction
 
@@ -42,69 +47,148 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
     return nullptr;
 }
 
-Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
+Channel* ChannelMgr::GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher)
 {
-    std::wstring wname;
-    if (!Utf8toWStr(name, wname))
+    std::wstring channelNamePart;
+    if (!Utf8toWStr(namePart, channelNamePart))
         return nullptr;
 
-    wstrToLower(wname);
-
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    wstrToLower(channelNamePart);
+    for (Channel* channel : playerSearcher->GetJoinedChannels())
     {
-        Channel* nchan = new Channel(name, channelId, team);
-        channels[wname] = nchan;
-        return nchan;
+        std::string chanName = channel->GetName(playerSearcher->GetSession()->GetSessionDbcLocale());
+
+        std::wstring channelNameW;
+        if (!Utf8toWStr(chanName, channelNameW))
+            continue;
+
+        wstrToLower(channelNameW);
+        if (!channelNameW.compare(0, channelNamePart.size(), channelNamePart))
+            return channel;
     }
 
-    return i->second;
+    return nullptr;
 }
 
-Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pkt)
+Channel* ChannelMgr::GetJoinChannel(uint32 channelId, std::string const& name, AreaTableEntry const* zoneEntry /*= nullptr*/)
 {
-    std::wstring wname;
-    if (!Utf8toWStr(name, wname))
-        return nullptr;
-
-    wstrToLower(wname);
-
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    if (channelId) // builtin
     {
-        if (pkt)
-        {
-            WorldPacket data;
-            MakeNotOnPacket(&data, name);
-            player->GetSession()->SendPacket(&data);
-        }
+        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+        uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
+        if (channelEntry->flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
+            zoneId = 0;
 
-        return nullptr;
+        std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
+
+        auto itr = _channels.find(key);
+        if (itr != _channels.end())
+            return itr->second;
+
+        Channel* newChannel = new Channel(channelId, _team, zoneEntry);
+        _channels[key] = newChannel;
+        return newChannel;
+    }
+    else // custom
+    {
+        std::wstring channelName;
+        if (!Utf8toWStr(name, channelName))
+            return nullptr;
+
+        wstrToLower(channelName);
+        auto itr = _customChannels.find(channelName);
+        if (itr != _customChannels.end())
+            return itr->second;
+
+        Channel* newChannel = new Channel(name, _team);
+        _customChannels[channelName] = newChannel;
+        return newChannel;
+    }
+}
+
+Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt /*= true*/, AreaTableEntry const* zoneEntry /*= nullptr*/) const
+{
+    Channel* ret = nullptr;
+    bool send = false;
+
+    if (channelId) // builtin
+    {
+        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+        uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
+        if (channelEntry->flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
+            zoneId = 0;
+
+        std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
+
+        auto itr = _channels.find(key);
+        if (itr != _channels.end())
+            ret = itr->second;
+        else
+            send = true;
+    }
+    else // custom
+    {
+        std::wstring channelName;
+        if (!Utf8toWStr(name, channelName))
+            return nullptr;
+
+        wstrToLower(channelName);
+        auto itr = _customChannels.find(channelName);
+        if (itr != _customChannels.end())
+            ret = itr->second;
+        else
+            send = true;
     }
 
-    return i->second;
+    if (send && pkt)
+    {
+        std::string channelName = name;
+        Channel::GetChannelName(channelName, channelId, player->GetSession()->GetSessionDbcLocale(), zoneEntry);
+
+        WorldPacket data;
+        ChannelMgr::MakeNotOnPacket(&data, channelName);
+        player->SendDirectMessage(&data);
+    }
+
+    return ret;
 }
 
 void ChannelMgr::LeftChannel(std::string const& name)
 {
-    std::wstring wname;
-    if (!Utf8toWStr(name, wname))
+    std::wstring channelName;
+    if (!Utf8toWStr(name, channelName))
         return;
 
-    wstrToLower(wname);
-
-    ChannelMap::const_iterator i = channels.find(wname);
-
-    if (i == channels.end())
+    wstrToLower(channelName);
+    auto itr = _customChannels.find(channelName);
+    if (itr == _customChannels.end())
         return;
 
-    Channel* channel = i->second;
-
-    if (!channel->GetNumPlayers() && !channel->IsConstant())
+    Channel* channel = itr->second;
+    if (!channel->GetNumPlayers())
     {
-        channels.erase(wname);
+        _customChannels.erase(itr);
+        delete channel;
+    }
+}
+
+void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
+{
+    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
+    if (channelEntry->flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
+        zoneId = 0;
+
+    std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
+
+    auto itr = _channels.find(key);
+    if (itr == _channels.end())
+        return;
+
+    Channel* channel = itr->second;
+    if (!channel->GetNumPlayers())
+    {
+        _channels.erase(itr);
         delete channel;
     }
 }
@@ -112,5 +196,5 @@ void ChannelMgr::LeftChannel(std::string const& name)
 void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string const& name)
 {
     data->Initialize(SMSG_CHANNEL_NOTIFY, 1 + name.size());
-    (*data) << uint8(5) << name;
+    (*data) << uint8(CHAT_NOT_MEMBER_NOTICE) << name;
 }
