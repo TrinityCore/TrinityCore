@@ -280,9 +280,6 @@ class boss_gormok : public CreatureScript
                         default:
                             return;
                     }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -617,9 +614,6 @@ struct boss_jormungarAI : public BossAI
                 default:
                     return;
             }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
         if (events.IsInPhase(PHASE_MOBILE))
             DoMeleeAttackIfReady();
