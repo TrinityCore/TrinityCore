@@ -290,7 +290,7 @@ class TC_GAME_API UnitAura : public Aura
         DiminishingGroup GetDiminishGroup() const { return m_AuraDRGroup; }
 
     private:
-        DiminishingGroup m_AuraDRGroup:8;               // Diminishing
+        DiminishingGroup m_AuraDRGroup;               // Diminishing
 };
 
 class TC_GAME_API DynObjAura : public Aura
