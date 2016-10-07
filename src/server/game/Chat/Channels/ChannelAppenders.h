@@ -20,6 +20,7 @@
 
 #include "Channel.h"
 #include "ChannelPackets.h"
+#include "ObjectMgr.h"
 #include "World.h"
 
 // initial packet data (notify type and channel name)
