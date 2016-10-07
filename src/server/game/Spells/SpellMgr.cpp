@@ -3731,3 +3731,20 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
+
+void SpellMgr::LoadSpellInfoSpellSpecificAndAuraState()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        // AuraState depends on SpellSpecific
+        spellInfo->_LoadSpellSpecific();
+        spellInfo->_LoadAuraState();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo SpellSpecific and AuraState in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
