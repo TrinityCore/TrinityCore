@@ -666,7 +666,7 @@ const float m_diminishing_k[MAX_CLASSES] =
     0.9720f   // Druid
 };
 
-float Player::GetMissPercentageFromDefence() const
+float Player::GetMissPercentageFromDefense() const
 {
     float const miss_cap[MAX_CLASSES] =
     {
