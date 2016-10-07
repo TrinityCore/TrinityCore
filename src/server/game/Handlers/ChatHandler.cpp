@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -515,17 +516,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
             }
 
-            if (ChannelMgr* cMgr = ChannelMgr::forTeam(sender->GetTeam()))
+            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(channel, sender))
             {
-                if (Channel* chn = cMgr->GetChannel(channel, sender))
-                {
-                    sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
+                sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
 #ifdef ELUNA
-                    if(!sEluna->OnChat(sender, type, lang, msg, chn))
-                        return;
+                if(!sEluna->OnChat(sender, type, lang, msg, chn))
+                    return;
 #endif
-                    chn->Say(sender->GetGUID(), msg.c_str(), lang);
-                }
+                chn->Say(sender->GetGUID(), msg.c_str(), lang);
             }
             break;
         }

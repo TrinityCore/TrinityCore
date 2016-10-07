@@ -170,6 +170,31 @@ namespace Trinity
 
     // WorldObject searchers & workers
 
+    // Generic base class to insert elements into arbitrary containers using push_back
+    template<typename Type>
+    class ContainerInserter {
+        using InserterType = void(*)(void*, Type&&);
+
+        void* ref;
+        InserterType inserter;
+
+        // MSVC workaround
+        template<typename T>
+        static void InserterOf(void* ref, Type&& type)
+        {
+            static_cast<T*>(ref)->push_back(std::move(type));
+        }
+
+    protected:
+        template<typename T>
+        ContainerInserter(T& ref_) : ref(&ref_), inserter(&InserterOf<T>) { }
+
+        void Insert(Type type)
+        {
+            inserter(ref, std::move(type));
+        }
+    };
+
     template<class Check>
     struct WorldObjectSearcher
     {
@@ -211,15 +236,16 @@ namespace Trinity
     };
 
     template<class Check>
-    struct WorldObjectListSearcher
+    struct WorldObjectListSearcher : ContainerInserter<WorldObject*>
     {
         uint32 i_mapTypeMask;
         uint32 i_phaseMask;
-        std::list<WorldObject*> &i_objects;
         Check& i_check;
 
-        WorldObjectListSearcher(WorldObject const* searcher, std::list<WorldObject*> &objects, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : ContainerInserter<WorldObject*>(container),
+              i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -321,14 +347,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct GameObjectListSearcher
+    struct GameObjectListSearcher : ContainerInserter<GameObject*>
     {
         uint32 i_phaseMask;
-        std::list<GameObject*> &i_objects;
         Check& i_check;
 
-        GameObjectListSearcher(WorldObject const* searcher, std::list<GameObject*> &objects, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        GameObjectListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<GameObject*>(container),
+              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
         void Visit(GameObjectMapType &m);
 
@@ -393,14 +420,15 @@ namespace Trinity
 
     // All accepted by Check units if any
     template<class Check>
-    struct UnitListSearcher
+    struct UnitListSearcher : ContainerInserter<Unit*>
     {
         uint32 i_phaseMask;
-        std::list<Unit*> &i_objects;
         Check& i_check;
 
-        UnitListSearcher(WorldObject const* searcher, std::list<Unit*> &objects, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : ContainerInserter<Unit*>(container),
+              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -442,14 +470,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct CreatureListSearcher
+    struct CreatureListSearcher : ContainerInserter<Creature*>
     {
         uint32 i_phaseMask;
-        std::list<Creature*> &i_objects;
         Check& i_check;
 
-        CreatureListSearcher(WorldObject const* searcher, std::list<Creature*> &objects, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<Creature*>(container),
+              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
         void Visit(CreatureMapType &m);
 
@@ -493,14 +522,15 @@ namespace Trinity
     };
 
     template<class Check>
-    struct PlayerListSearcher
+    struct PlayerListSearcher : ContainerInserter<Player*>
     {
         uint32 i_phaseMask;
-        std::list<Player*> &i_objects;
         Check& i_check;
 
-        PlayerListSearcher(WorldObject const* searcher, std::list<Player*> &objects, Check & check)
-            : i_phaseMask(searcher->GetPhaseMask()), i_objects(objects), i_check(check) { }
+        template<typename Container>
+        PlayerListSearcher(WorldObject const* searcher, Container& container, Check & check)
+            : ContainerInserter<Player*>(container),
+              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
         void Visit(PlayerMapType &m);
 
