@@ -23038,10 +23038,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // worldServerInfo.XRealmPvpAlert;  /// @todo
     SendDirectMessage(worldServerInfo.Write());
 
-    if (InstanceMap* instanceMap = GetMap()->ToInstanceMap())
-        if (InstanceScenario* scenario = instanceMap->GetInstanceScenario())
-            scenario->SendScenarioState(this);
-
     // SMSG_ACCOUNT_MOUNT_UPDATE
     WorldPackets::Misc::AccountMountUpdate mountUpdate;
     mountUpdate.IsFullUpdate = true;
