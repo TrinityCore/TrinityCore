@@ -482,7 +482,7 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < WG_MAX_WORKSHOP; i++)
     {
         WintergraspWorkshop* workshop = new WintergraspWorkshop(this, i);
-        if (i < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+        if (i < BATTLEFIELD_WG_WORKSHOP_NE)
             workshop->GiveControlTo(GetAttackerTeam(), true);
         else
             workshop->GiveControlTo(GetDefenderTeam(), true);
@@ -1810,8 +1810,8 @@ void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool init /*= false*/)
 
 void WintergraspWorkshop::UpdateGraveyardAndWorkshop()
 {
-    if (_staticInfo->WorkshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
-        _wg->GetGraveyardById(_staticInfo->WorkshopId)->GiveControlTo(_teamControl);
+    if (_staticInfo->WorkshopId < BATTLEFIELD_WG_WORKSHOP_NE)
+        GiveControlTo(_wg->GetAttackerTeam(), true);
     else
         GiveControlTo(_wg->GetDefenderTeam(), true);
 }
