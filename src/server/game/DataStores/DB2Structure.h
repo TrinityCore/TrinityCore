@@ -555,7 +555,7 @@ struct CreatureTypeEntry
 struct CriteriaEntry
 {
     uint32 ID;
-    union
+    union AssetNameAlias
     {
         uint32 ID;
         // CRITERIA_TYPE_KILL_CREATURE          = 0
