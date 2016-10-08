@@ -389,6 +389,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
+        void HandlePromotion(Player* killer, Unit* killed);
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
@@ -411,8 +412,6 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         GuidUnorderedSet m_vehicles[BG_TEAMS_COUNT];
         GuidVector CanonList;
-        GuidVector KeepCreature[BG_TEAMS_COUNT];
-        GuidVector OutsideCreature[BG_TEAMS_COUNT];
 
         uint32 m_tenacityStack;
         uint32 m_saveTimer;

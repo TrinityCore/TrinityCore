@@ -487,6 +487,56 @@ class npc_wg_quest_giver : public CreatureScript
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
+
+        struct npc_wg_quest_giverAI : public ScriptedAI
+        {
+            npc_wg_quest_giverAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void JustDied(Unit* killer) override
+            {
+                if (killer->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                BattlefieldWG* wintergrasp = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                if (!wintergrasp)
+                    return;
+
+                wintergrasp->HandlePromotion(killer->ToPlayer(), me);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_wg_quest_giverAI(creature);
+        }
+};
+
+class npc_wg_guard : public CreatureScript
+{
+public:
+    npc_wg_guard() : CreatureScript("npc_wg_guard") { }
+
+    struct npc_wg_guardAI : public ScriptedAI
+    {
+        npc_wg_guardAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void JustDied(Unit* killer) override
+        {
+            if (killer->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            BattlefieldWG* wintergrasp = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+            if (!wintergrasp)
+                return;
+
+            wintergrasp->HandlePromotion(killer->ToPlayer(), me);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_wg_guardAI(creature);
+    }
 };
 
 class spell_wintergrasp_force_building : public SpellScriptLoader
@@ -679,6 +729,7 @@ void AddSC_wintergrasp()
     new npc_wg_demolisher_engineer();
     new go_wg_vehicle_teleporter();
     new npc_wg_quest_giver();
+    new npc_wg_guard();
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
