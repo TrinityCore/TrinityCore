@@ -955,8 +955,6 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     if (victim->GetTypeId() == TYPEID_PLAYER)
         HandlePromotion(killer, victim);
 
-    return;
-
     /// @todoRecent PvP activity worldstate
 }
 
