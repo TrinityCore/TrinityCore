@@ -1317,25 +1317,17 @@ void BattlefieldWG::SendInitWorldStatesToAll()
                 SendInitWorldStatesTo(player);
 }
 
-void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
+void BattlefieldWG::BrokenWallOrTower(TeamId team, BfWGGameObjectBuilding* building)
 {
-/*
-uint32 const WGQuest[2][6] =
-{
-    { 13186, 13181, 13222, 13538, 13177, 13179 },
-    { 13185, 13183, 13223, 13539, 13178, 13180 },
-};
-*/
-
-// might be some use for this in the future. old code commented out below. KL
-/*    if (team == GetDefenderTeam())
+    if (team == GetDefenderTeam())
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+        for (auto itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         {
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
+                if (player->GetDistance2d(GetGameObject(building->GetGUID())) < 50.0f)
+                    player->KilledMonsterCredit(QUEST_CREDIT_DEFEND_SIEGE);
         }
-    }*/
+    }
 }
 
 // Called when a tower is broke
@@ -1634,7 +1626,7 @@ void BfWGGameObjectBuilding::Destroyed()
             break;
     }
 
-    _wg->BrokenWallOrTower(_teamControl);
+    _wg->BrokenWallOrTower(_teamControl, this);
 }
 
 void BfWGGameObjectBuilding::Init(GameObject* go)
