@@ -39,9 +39,9 @@ struct ScenarioData
 
 enum ScenarioStepState
 {
-    SCENARIO_STEP_NOT_STARTED   = 0,
-    SCENARIO_STEP_IN_PROGRESS   = 1,
-    SCENARIO_STEP_DONE          = 2
+    SCENARIO_STEP_NOT_STARTED   = 1,
+    SCENARIO_STEP_IN_PROGRESS   = 2,
+    SCENARIO_STEP_DONE          = 3
 };
 
 class TC_GAME_API Scenario : public CriteriaHandler
@@ -61,8 +61,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32) { }
         
         bool IsComplete();
-        bool IsStepComplete(ScenarioStepEntry const* step);
-        void SetStepComplete(ScenarioStepEntry const* step, bool complete = true) { _scenarioStepCompleteMap[step] = complete; }
+        void SetStepState(ScenarioStepEntry const* step, ScenarioStepState state) { _stepStates[step] = state; }
+        ScenarioStepState GetStepState(ScenarioStepEntry const* step);
         ScenarioStepEntry const* GetStep() const { return _currentstep; }
         ScenarioStepEntry const* GetFirstStep() const;
 
@@ -71,7 +71,6 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
     protected:
         GuidSet m_players;
-        std::map<ScenarioStepEntry const*, ScenarioStepState> ScenarioState;
 
         void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
         void SendCriteriaProgressRemoved(uint32 criteriaId) override;
@@ -95,7 +94,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
     private:
         ScenarioStepEntry const* _currentstep;
-        std::map<ScenarioStepEntry const*, bool> _scenarioStepCompleteMap;
+        std::map<ScenarioStepEntry const*, ScenarioStepState> _stepStates;
 };
 
 #endif

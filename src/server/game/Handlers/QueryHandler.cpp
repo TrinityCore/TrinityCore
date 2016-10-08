@@ -451,7 +451,7 @@ void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioP
 
     // Read criteria tree ids and add the in a unordered_set so we don't send POIs for the same criteria tree multiple times
     std::unordered_set<int32> criteriaTreeIds;
-    for (int32 i = 0; i < queryScenarioPOI.MissingScenarioPOIs.size(); ++i)
+    for (size_t i = 0; i < queryScenarioPOI.MissingScenarioPOIs.size(); ++i)
         criteriaTreeIds.insert(queryScenarioPOI.MissingScenarioPOIs[i]); // CriteriaTreeID
 
     for (auto criteriaTreeId : criteriaTreeIds)

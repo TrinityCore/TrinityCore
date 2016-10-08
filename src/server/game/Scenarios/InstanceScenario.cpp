@@ -156,7 +156,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
                 continue;
 
             if (IsCompletedCriteriaTree(tree))
-                SetStepComplete(step, true);
+                SetStepState(step, SCENARIO_STEP_DONE);
         }
     }
 }

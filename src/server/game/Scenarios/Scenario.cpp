@@ -26,10 +26,13 @@ Scenario::Scenario(ScenarioData const* scenarioData) : _data(scenarioData), _cur
 {
     ASSERT(_data);
 
+    for (auto step : _data->Steps)
+        SetStepState(step.second, SCENARIO_STEP_NOT_STARTED);
+
     if (ScenarioStepEntry const* step = GetFirstStep())
         SetStep(step);
     else
-        TC_LOG_ERROR("scenario", "Scenario::Scenario: Could not launch Scenario (id: %u), found no valid scenario step");
+        TC_LOG_ERROR("scenario", "Scenario::Scenario: Could not launch Scenario (id: %u), found no valid scenario step", _data->Entry->ID);
 }
 
 Scenario::~Scenario()
@@ -63,7 +66,7 @@ void Scenario::CompleteStep(ScenarioStepEntry const* step)
         if (_step.second->IsBonusObjective())
             continue;
 
-        if (IsStepComplete(_step.second))
+        if (GetStepState(_step.second) == SCENARIO_STEP_DONE)
             continue;
 
         if (!newStep || _step.second->Step < newStep->Step)
@@ -71,7 +74,7 @@ void Scenario::CompleteStep(ScenarioStepEntry const* step)
     }
 
     SetStep(newStep);
-    if (IsComplete()) // Redundant check?
+    if (IsComplete())
         CompleteScenario();
     else
         TC_LOG_ERROR("scenario", "Scenario::CompleteStep: Scenario (id: %u, step: %u) was completed, but could not determine new step, or validate scenario completion.", step->ScenarioID, step->ID);
@@ -80,6 +83,8 @@ void Scenario::CompleteStep(ScenarioStepEntry const* step)
 void Scenario::SetStep(ScenarioStepEntry const* step)
 {
     _currentstep = step;
+    if (step)
+        SetStepState(step, SCENARIO_STEP_IN_PROGRESS);
 
     WorldPackets::Scenario::ScenarioState scenarioState;
     BuildScenarioState(&scenarioState);
@@ -105,18 +110,18 @@ bool Scenario::IsComplete()
         if (step.second->IsBonusObjective())
             continue;
 
-        if (!IsStepComplete(step.second))
+        if (GetStepState(step.second) != SCENARIO_STEP_DONE)
             return false;
     }
 
     return true;
 }
 
-bool Scenario::IsStepComplete(ScenarioStepEntry const* step)
+ScenarioStepState Scenario::GetStepState(ScenarioStepEntry const* step)
 {
-    std::map<ScenarioStepEntry const*, bool>::const_iterator itr = _scenarioStepCompleteMap.find(step);
-    if (itr == _scenarioStepCompleteMap.end())
-        return false;
+    std::map<ScenarioStepEntry const*, ScenarioStepState>::const_iterator itr = _stepStates.find(step);
+    if (itr == _stepStates.end())
+        return ScenarioStepState(NULL);
 
     return itr->second;
 }
@@ -189,10 +194,10 @@ void Scenario::CompletedCriteriaTree(CriteriaTree const * tree, Player * referen
     if (!step->IsBonusObjective() && step != GetStep())
         return;
 
-    if (IsStepComplete(step))
+    if (GetStepState(step) == SCENARIO_STEP_DONE)
         return;
 
-    SetStepComplete(step);
+    SetStepState(step, SCENARIO_STEP_DONE);
     CompleteStep(step);
 }
 
@@ -210,8 +215,8 @@ void Scenario::BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenari
         scenarioState->CurrentStep = step->ID;
     scenarioState->CriteriaProgress = GetCriteriasProgress();
     scenarioState->BonusObjectiveData = GetBonusObjectivesData();
-    // We don't actually know what this does, can only guess behavior
-    for (auto state : ScenarioState)
+    // Don't know exactly what this is for, but seems to contain list of scenario steps that we're either on or that are completed
+    for (auto state : _stepStates)
     {
         if (state.first->IsBonusObjective())
             continue;
@@ -227,7 +232,7 @@ void Scenario::BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenari
 
 ScenarioStepEntry const* Scenario::GetFirstStep() const
 {
-    // Do it like this because we don't know what order they're in, inside the container.
+    // Do it like this because we don't know what order they're in inside the container.
     ScenarioStepEntry const* firstStep = nullptr;
     for (auto scenarioStep : _data->Steps)
     {
@@ -261,7 +266,7 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
         {
             WorldPackets::Scenario::BonusObjectiveData bonusObjectiveData;
             bonusObjectiveData.Id = itr->second->ID;
-            bonusObjectiveData.ObjectiveCompleted = IsStepComplete(itr->second);
+            bonusObjectiveData.ObjectiveCompleted = GetStepState(itr->second) == SCENARIO_STEP_DONE;
             bonusObjectivesData.push_back(bonusObjectiveData);
         }
     }

@@ -61,7 +61,7 @@ InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map* map, TeamId team)
     ScenarioDataContainer::iterator itr = _scenarioData.find(scenarioID);
     if (itr == _scenarioData.end())
     {
-        TC_LOG_ERROR("scenario", "Table `scenarios` contained data linking scenario (Id: %u) to map (Id: %u), difficulty (Id: %u) but no scenario data was found related to that scenario Id.");
+        TC_LOG_ERROR("scenario", "Table `scenarios` contained data linking scenario (Id: %u) to map (Id: %u), difficulty (Id: %u) but no scenario data was found related to that scenario Id.", scenarioID, map->GetId(), map->GetDifficultyID());
         return nullptr;
     }
 
