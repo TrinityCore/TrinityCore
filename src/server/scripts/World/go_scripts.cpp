@@ -1316,7 +1316,7 @@ public:
 
     struct go_brewfest_musicAI : public GameObjectAI
     {
-        uint32 rnd;
+        uint32 rnd = 0;
         uint32 musicTime = 1000;
 		
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
@@ -1489,8 +1489,6 @@ public:
 
     struct go_darkmoon_faire_musicAI : public GameObjectAI
     {
-        uint32 rnd;
-
         go_darkmoon_faire_musicAI(GameObject* go) : GameObjectAI(go)
         {
             _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1000);
@@ -1545,8 +1543,6 @@ public:
 
     struct go_pirate_day_musicAI : public GameObjectAI
     {
-        uint32 rnd;
-
         go_pirate_day_musicAI(GameObject* go) : GameObjectAI(go)
         {
             _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1000);
