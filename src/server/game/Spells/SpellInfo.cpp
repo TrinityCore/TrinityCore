@@ -3191,6 +3191,7 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                         return true;
                     return false;
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_MOD_ROOT_2:
                 case SPELL_AURA_MOD_SILENCE:
                 case SPELL_AURA_GHOST:
                 case SPELL_AURA_PERIODIC_LEECH:

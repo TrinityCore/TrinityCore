@@ -2400,7 +2400,7 @@ void Item::CopyArtifactDataFromParent(Item* parent)
 
 void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId)
 {
-    Player const* owner = GetOwner();
+    Player* owner = GetOwner();
     if (!owner)
         return;
 
@@ -2430,6 +2430,8 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
     artifactXpGain.ArtifactGUID = GetGUID();
     artifactXpGain.Amount = amount;
     owner->SendDirectMessage(artifactXpGain.Write());
+
+    SetState(ITEM_CHANGED, owner);
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

@@ -23101,7 +23101,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         SetRooted(true);
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
-    if (HasAuraType(SPELL_AURA_MOD_ROOT))
+    if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
         SetRooted(true, true);
 
     SendAurasForTarget(this);

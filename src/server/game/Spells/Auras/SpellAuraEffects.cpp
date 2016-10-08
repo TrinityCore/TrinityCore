@@ -514,7 +514,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //452
     &AuraEffect::HandleNoImmediateEffect,                         //453 SPELL_AURA_CHARGE_RECOVERY_MOD implemented in SpellHistory::GetChargeRecoveryTime
     &AuraEffect::HandleNoImmediateEffect,                         //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER implemented in SpellHistory::GetChargeRecoveryTime
-    &AuraEffect::HandleNULL,                                      //455
+    &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNoImmediateEffect,                         //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE implemented in SpellHistory::GetChargeRecoveryTime
     &AuraEffect::HandleNoImmediateEffect,                         //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN implemented in SpellHistory::GetChargeRecoveryTime
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
@@ -653,6 +653,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
         case SPELL_AURA_TRANSFORM:
+        case SPELL_AURA_MOD_ROOT_2:
             m_canBeRecalculated = false;
             if (!m_spellInfo->ProcFlags)
                 break;
@@ -3216,6 +3217,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
             }
             break;
         }
@@ -3247,6 +3249,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
             }
             break;
         }
@@ -3284,6 +3287,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
             }
             break;
         }
@@ -3327,6 +3331,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
             }
             break;
         }
@@ -3361,6 +3366,7 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
                 aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
             }
             break;
         }
@@ -3395,7 +3401,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8
             if (miscVal & (1<<6))
                 aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
             if (miscVal & (1<<0))
+            {
                 aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
+                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT_2);
+            }
             if (miscVal & (1<<2))
                 aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
             if (miscVal & (1<<9))

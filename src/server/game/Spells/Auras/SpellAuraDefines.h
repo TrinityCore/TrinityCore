@@ -512,7 +512,7 @@ enum AuraType
     SPELL_AURA_452                                          = 452,
     SPELL_AURA_CHARGE_RECOVERY_MOD                          = 453,
     SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER                   = 454,
-    SPELL_AURA_455                                          = 455,
+    SPELL_AURA_MOD_ROOT_2                                   = 455,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,
     SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY                = 458,  // NYI

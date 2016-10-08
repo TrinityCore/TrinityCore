@@ -261,6 +261,7 @@ public:
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
     typedef std::array<std::vector<std::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+    typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
     typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
@@ -379,7 +380,7 @@ private:
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
-    PowerTypeEntry const* _powerTypes[MAX_POWERS];
+    PowerTypesContainer _powerTypes;
     QuestPackageItemContainer _questPackages;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
