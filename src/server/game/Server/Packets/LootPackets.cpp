@@ -28,7 +28,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << Owner;
     _worldPacket << uint8(FailureReason);
     _worldPacket << uint8(AcquireReason);
-    _worldPacket << uint8(LootMethod);
+    _worldPacket << uint8(_LootMethod);
     _worldPacket << uint8(Threshold);
     _worldPacket << uint32(Coins);
     _worldPacket << uint32(Items.size());

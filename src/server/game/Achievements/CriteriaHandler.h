@@ -88,7 +88,7 @@ enum CriteriaDataType
     CRITERIA_DATA_TYPE_T_LEVEL              = 9,  // Minlevel                     minlevel of target
     CRITERIA_DATA_TYPE_T_GENDER             = 10, // Gender                       0=male; 1=female
     CRITERIA_DATA_TYPE_SCRIPT               = 11, // Scripted requirement
-    // REUSE
+    CRITERIA_DATA_TYPE_MAP_DIFFICULTY       = 12, // used on 3.3.5a branch
     CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT     = 13, // Count                        "with less than %u people in the zone"
     CRITERIA_DATA_TYPE_T_TEAM               = 14, // Team                         HORDE(67), ALLIANCE(469)
     CRITERIA_DATA_TYPE_S_DRUNK              = 15, // DrunkenState   0             (enum DrunkenState) of player
@@ -98,7 +98,7 @@ enum CriteriaDataType
     CRITERIA_DATA_TYPE_S_EQUIPED_ITEM       = 19, // ItemLevel      Quality       for equipped item in slot to check item level and quality
     CRITERIA_DATA_TYPE_MAP_ID               = 20, // MapId          0             player must be on map with id in map_id
     CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE  = 21, // Class          Race
-    // REUSE
+    CRITERIA_DATA_TYPE_NTH_BIRTHDAY         = 22, // used on 3.3.5a branch
     CRITERIA_DATA_TYPE_S_KNOWN_TITLE        = 23, // TitleId                      known (pvp) title, values from dbc
     CRITERIA_DATA_TYPE_GAME_EVENT           = 24, // GameEventId    0
 

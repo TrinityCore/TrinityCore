@@ -161,7 +161,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << int32(questObjective.ObjectID);
             _worldPacket << int32(questObjective.Amount);
             _worldPacket << uint32(questObjective.Flags);
-            _worldPacket << float(questObjective.UnkFloat);
+            _worldPacket << float(questObjective.ProgressBarWeight);
 
             _worldPacket << int32(questObjective.VisualEffects.size());
             for (int32 visualEffect : questObjective.VisualEffects)
@@ -573,6 +573,22 @@ void WorldPackets::Quest::PushQuestToParty::Read()
 WorldPacket const* WorldPackets::Quest::DailyQuestsReset::Write()
 {
     _worldPacket << int32(Count);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::WorldQuestUpdate::Write()
+{
+    _worldPacket << uint32(WorldQuestUpdates.size());
+
+    for (WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
+    {
+        _worldPacket << int32(worldQuestUpdate.LastUpdate);
+        _worldPacket << uint32(worldQuestUpdate.QuestID);
+        _worldPacket << uint32(worldQuestUpdate.Timer);
+        _worldPacket << int32(worldQuestUpdate.VariableID);
+        _worldPacket << int32(worldQuestUpdate.Value);
+    }
 
     return &_worldPacket;
 }

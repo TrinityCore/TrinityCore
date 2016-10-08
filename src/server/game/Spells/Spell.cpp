@@ -4588,7 +4588,7 @@ void Spell::TakeReagents()
     ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : NULL;
 
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
+    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -4712,7 +4712,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 SpellCastResult Spell::CheckCast(bool strict)
 {
     // check death state
-    if (!m_caster->IsAlive() && !m_spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) && !((m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD)) || (IsTriggered() && !m_triggeredByAuraSpell)))
+    if (!m_caster->IsAlive() && !m_spellInfo->IsPassive() && !(m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
 
     // check cooldowns to prevent cheating
@@ -4876,7 +4876,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // those spells may have incorrect target entries or not filled at all (for example 15332)
     // such spells when learned are not targeting anyone using targeting system, they should apply directly to caster instead
     // also, such casts shouldn't be sent to client
-    if (!((m_spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE)) && (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget() == m_caster)))
+    if (!(m_spellInfo->IsPassive() && (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget() == m_caster)))
     {
         // Check explicit target for m_originalCaster - todo: get rid of such workarounds
         SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_originalCaster ? m_originalCaster : m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
@@ -5100,10 +5100,60 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_APPLY_GLYPH:
             {
-                uint32 glyphId = effect->MiscValue;
-                if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
-                    if (m_caster->HasAura(gp->SpellID))
-                        return SPELL_FAILED_UNIQUE_GLYPH;
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_GLYPH_NO_SPEC;
+
+                Player* caster = m_caster->ToPlayer();
+                if (!caster->HasSpell(m_misc.SpellId))
+                    return SPELL_FAILED_NOT_KNOWN;
+
+                if (uint32 glyphId = effect->MiscValue)
+                {
+                    GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId);
+                    if (!glyphProperties)
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    std::vector<uint32> const* glyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphId);
+                    if (!glyphBindableSpells)
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    if (std::find(glyphBindableSpells->begin(), glyphBindableSpells->end(), m_misc.SpellId) == glyphBindableSpells->end())
+                        return SPELL_FAILED_INVALID_GLYPH;
+
+                    if (std::vector<uint32> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
+                    {
+                        if (!caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                            return SPELL_FAILED_GLYPH_NO_SPEC;
+
+                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)) == glyphRequiredSpecs->end())
+                            return SPELL_FAILED_GLYPH_INVALID_SPEC;
+                    }
+
+                    uint32 replacedGlyph = 0;
+                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
+                    {
+                        if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(activeGlyphId))
+                        {
+                            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
+                            {
+                                replacedGlyph = activeGlyphId;
+                                break;
+                            }
+                        }
+                    }
+
+                    for (uint32 activeGlyphId : caster->GetGlyphs(caster->GetActiveTalentGroup()))
+                    {
+                        if (activeGlyphId == replacedGlyph)
+                            continue;
+
+                        if (activeGlyphId == glyphId)
+                            return SPELL_FAILED_UNIQUE_GLYPH;
+
+                        if (sGlyphPropertiesStore.AssertEntry(activeGlyphId)->GlyphExclusiveCategoryID == glyphProperties->GlyphExclusiveCategoryID)
+                            return SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY;
+                    }
+                }
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
@@ -5416,6 +5466,25 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_UNTALENT;
                 break;
             }
+            case SPELL_EFFECT_GIVE_ARTIFACT_POWER:
+            case SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS:
+            {
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                Aura* artifactAura = m_caster->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
+                if (!artifactAura)
+                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
+                Item* artifact = m_caster->ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID());
+                if (!artifact)
+                    return SPELL_FAILED_NO_ARTIFACT_EQUIPPED;
+                if (effect->Effect == SPELL_EFFECT_GIVE_ARTIFACT_POWER)
+                {
+                    ArtifactEntry const* artifactEntry = sArtifactStore.LookupEntry(artifact->GetTemplate()->GetArtifactID());
+                    if (!artifactEntry || artifactEntry->ArtifactCategoryID != effect->MiscValue)
+                        return SPELL_FAILED_WRONG_ARTIFACT_EQUIPPED;
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -5652,20 +5721,27 @@ SpellCastResult Spell::CheckCasterAuras() const
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
     if (unitflag & UNIT_FLAG_STUNNED)
     {
-        // spell is usable while stunned, check if caster has only mechanic stun auras, another stun types must prevent cast spell
+        // spell is usable while stunned, check if caster has allowed stun auras, another stun types must prevent cast spell
         if (usableInStun)
         {
+            static uint32 const allowedStunMask =
+                  1 << MECHANIC_STUN
+                | 1 << MECHANIC_FREEZE
+                | 1 << MECHANIC_SAPPED
+                | 1 << MECHANIC_SLEEP;
+
             bool foundNotStun = false;
             Unit::AuraEffectList const& stunAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_STUN);
             for (Unit::AuraEffectList::const_iterator i = stunAuras.begin(); i != stunAuras.end(); ++i)
             {
-                if ((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() && !((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN)))
+                uint32 mechanicMask = (*i)->GetSpellInfo()->GetAllEffectsMechanicMask();
+                if (mechanicMask && !(mechanicMask & allowedStunMask))
                 {
                     foundNotStun = true;
                     break;
                 }
             }
-            if (foundNotStun && m_spellInfo->Id != 22812)
+            if (foundNotStun)
                 prevented_reason = SPELL_FAILED_STUNNED;
         }
         else
@@ -5882,7 +5958,7 @@ SpellCastResult Spell::CheckRange(bool strict)
 
         if (target && m_caster->isMoving() && target->isMoving() && !m_caster->IsWalking() && !target->IsWalking() &&
             (m_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 5.0f / 3.0f;
+            rangeMod += 8.0f / 3.0f;
     }
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -6056,7 +6132,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST))
+    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST))
     {
         bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
         // Not own traded item (in trader trade slot) requires reagents even if triggered spell
@@ -6183,7 +6259,7 @@ SpellCastResult Spell::CheckItems()
                     if (m_targets.GetItemTarget()->GetOwner() != m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_TRIGGERED_CAST)
+                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
@@ -6207,9 +6283,7 @@ SpellCastResult Spell::CheckItems()
                 ItemTemplate const* proto = targetItem->GetTemplate();
                 for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    if (proto->Effects[e]->SpellID && (
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e]->SpellID && proto->Effects[e]->Trigger == ITEM_SPELLTRIGGER_ON_USE)
                     {
                         isItemUsable = true;
                         break;
@@ -6306,7 +6380,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //ensure item is a prospectable ore
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_PROSPECTABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //prevent prospecting in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6329,7 +6403,7 @@ SpellCastResult Spell::CheckItems()
                 if (!m_targets.GetItemTarget())
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //ensure item is a millable herb
-                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_MILLABLE))
+                if (!(m_targets.GetItemTarget()->GetTemplate()->GetFlags() & ITEM_FLAG_IS_MILLABLE))
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //prevent milling in trade slot
                 if (m_targets.GetItemTarget()->GetOwnerGUID() != m_caster->GetGUID())
@@ -6621,46 +6695,19 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
         return true;
 
     /// @todo shit below shouldn't be here, but it's temporary
-    //Check targets for LOS visibility (except spells without range limitations)
-    switch (effect->Effect)
+    //Check targets for LOS visibility
+    if (losPosition)
+        return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
+    else
     {
-        case SPELL_EFFECT_RESURRECT_NEW:
-            // player far away, maybe his corpse near?
-            if (target != m_caster && !target->IsWithinLOSInMap(m_caster))
-            {
-                if (!m_targets.GetCorpseTargetGUID())
-                    return false;
-
-                Corpse* corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
-                if (!corpse)
-                    return false;
-
-                if (target->GetGUID() != corpse->GetOwnerGUID())
-                    return false;
-
-                if (!corpse->IsWithinLOSInMap(m_caster))
-                    return false;
-            }
-
-            // all ok by some way or another, skip normal check
-            break;
-        default:                                            // normal case
-        {
-            if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
-            else
-            {
-                // Get GO cast coordinates if original caster -> GO
-                WorldObject* caster = NULL;
-                if (m_originalCasterGUID.IsGameObject())
-                    caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
-                if (!caster)
-                    caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster))
-                    return false;
-            }
-            break;
-        }
+        // Get GO cast coordinates if original caster -> GO
+        WorldObject* caster = NULL;
+        if (m_originalCasterGUID.IsGameObject())
+            caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
+        if (!caster)
+            caster = m_caster;
+        if (target != m_caster && !target->IsWithinLOSInMap(caster))
+            return false;
     }
 
     return true;

@@ -507,7 +507,7 @@ void WorldSession::LogoutPlayer(bool save)
 {
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
-        HandleMoveWorldportAckOpcode();
+        HandleMoveWorldportAck();
 
     m_playerLogout = true;
     m_playerSave = save;
@@ -562,7 +562,7 @@ void WorldSession::LogoutPlayer(bool save)
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
         while (_player->IsBeingTeleportedFar())
-            HandleMoveWorldportAckOpcode();
+            HandleMoveWorldportAck();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
@@ -1079,6 +1079,7 @@ public:
         BATTLE_PET_SLOTS,
         GLOBAL_ACCOUNT_HEIRLOOMS,
         GLOBAL_REALM_CHARACTER_COUNTS,
+        MOUNTS,
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
 
@@ -1106,6 +1107,10 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_HEIRLOOMS);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(GLOBAL_ACCOUNT_HEIRLOOMS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(MOUNTS, stmt) && ok;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID);
         stmt->setUInt32(0, accountId);
@@ -1152,6 +1157,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
     _collectionMgr->LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
     _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
+    _collectionMgr->LoadAccountMounts(holder->GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
     _collectionMgr->LoadAccountItemAppearances(holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
 
     if (!m_inQueue)

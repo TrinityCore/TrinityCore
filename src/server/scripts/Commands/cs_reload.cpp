@@ -128,6 +128,7 @@ public:
             { "reputation_reward_rate",        rbac::RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE,           true,  &HandleReloadReputationRewardRateCommand,       "" },
             { "reputation_spillover_template", rbac::RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE,               true,  &HandleReloadReputationRewardRateCommand,       "" },
             { "skill_discovery_template",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE,         true,  &HandleReloadSkillDiscoveryTemplateCommand,     "" },
+            { "scene_template",                rbac::RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE,                   true,  &HandleReloadSceneTemplateCommand,              "" },
             { "skill_extra_item_template",     rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE,        true,  &HandleReloadSkillExtraItemTemplateCommand,     "" },
             { "skill_fishing_base_level",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL,         true,  &HandleReloadSkillFishingBaseLevelCommand,      "" },
             { "skinning_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE,           true,  &HandleReloadLootTemplatesSkinningCommand,      "" },
@@ -1118,12 +1119,20 @@ public:
         return true;
     }
 
-
     static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading terrain_phase_info table...");
         sObjectMgr->LoadTerrainPhaseInfo();
         handler->SendGlobalGMSysMessage("Terrain phase infos reloaded.");
+        return true;
+    }
+
+
+    static bool HandleReloadSceneTemplateCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading scene_template table...");
+        sObjectMgr->LoadSceneTemplates();
+        handler->SendGlobalGMSysMessage("Scenes templates reloaded. New scriptname need a reboot.");
         return true;
     }
 

@@ -25,8 +25,20 @@
 #include <algorithm>
 #include <stdio.h>
 
-bool ExtractSingleModel(std::string& name)
+bool ExtractSingleModel(std::string& fname)
 {
+    if (fname.substr(fname.length() - 4, 4) == ".mdx")
+    {
+        fname.erase(fname.length() - 2, 2);
+        fname.append("2");
+    }
+
+    std::string originalName = fname;
+
+    char* name = GetPlainName((char*)fname.c_str());
+    FixNameCase(name, strlen(name));
+    FixNameSpaces(name, strlen(name));
+
     std::string output(szWorkDirWmo);
     output += "/";
     output += name;
@@ -34,7 +46,7 @@ bool ExtractSingleModel(std::string& name)
     if (FileExists(output.c_str()))
         return true;
 
-    Model mdl(name);
+    Model mdl(originalName);
     if (!mdl.open())
         return false;
 
@@ -64,22 +76,22 @@ enum ModelTypes : uint32
 {
     MODEL_MD20 = '02DM',
     MODEL_MD21 = '12DM',
-    MODEL_WMO  = 'REVM'
+    MODEL_WMO  = 'MVER'
 };
 
-uint32 GetHeaderMagic(std::string const& fileName)
+bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 {
+    *magic = 0;
     HANDLE file;
     if (!CascOpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
-        return 0;
+        return false;
 
     std::unique_ptr<HANDLE, CascFileHandleDeleter> modelFile(file);
-    uint32 magic = 0;
     DWORD bytesRead = 0;
-    if (!CascReadFile(file, &magic, 4, &bytesRead) || bytesRead != 4)
-        return 0;
+    if (!CascReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
+        return false;
 
-    return magic;
+    return true;
 }
 
 void ExtractGameobjectModels()
@@ -116,12 +128,18 @@ void ExtractGameobjectModels()
         if (!fileId)
             continue;
 
-        std::string fileName = Trinity::StringFormat("FILE%08X", fileId);
+        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", fileId);
         bool result = false;
-        if (GetHeaderMagic(fileName) == MODEL_WMO)
+        uint32 header;
+        if (!GetHeaderMagic(fileName, &header))
+            continue;
+
+        if (header == MODEL_WMO)
             result = ExtractSingleWmo(fileName);
-        else
+        else if (header == MODEL_MD20 || header == MODEL_MD21)
             result = ExtractSingleModel(fileName);
+        else
+            ASSERT(false, "%s header: %d - %c%c%c%c", fileName.c_str(), header, (header >> 24) & 0xFF, (header >> 16) & 0xFF, (header >> 8) & 0xFF, header & 0xFF);
 
         if (result)
         {

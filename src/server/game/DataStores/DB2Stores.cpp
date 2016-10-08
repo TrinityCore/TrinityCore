@@ -30,6 +30,14 @@ DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroup
 DB2Storage<AreaTableEntry>                      sAreaTableStore("AreaTable.db2", AreaTableMeta::Instance(), HOTFIX_SEL_AREA_TABLE);
 DB2Storage<AreaTriggerEntry>                    sAreaTriggerStore("AreaTrigger.db2", AreaTriggerMeta::Instance(), HOTFIX_SEL_AREA_TRIGGER);
 DB2Storage<ArmorLocationEntry>                  sArmorLocationStore("ArmorLocation.db2", ArmorLocationMeta::Instance(), HOTFIX_SEL_ARMOR_LOCATION);
+DB2Storage<ArtifactEntry>                       sArtifactStore("Artifact.db2", ArtifactMeta::Instance(), HOTFIX_SEL_ARTIFACT);
+DB2Storage<ArtifactAppearanceEntry>             sArtifactAppearanceStore("ArtifactAppearance.db2", ArtifactAppearanceMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE);
+DB2Storage<ArtifactAppearanceSetEntry>          sArtifactAppearanceSetStore("ArtifactAppearanceSet.db2", ArtifactAppearanceSetMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE_SET);
+DB2Storage<ArtifactCategoryEntry>               sArtifactCategoryStore("ArtifactCategory.db2", ArtifactCategoryMeta::Instance(), HOTFIX_SEL_ARTIFACT_CATEGORY);
+DB2Storage<ArtifactPowerEntry>                  sArtifactPowerStore("ArtifactPower.db2", ArtifactPowerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER);
+DB2Storage<ArtifactPowerLinkEntry>              sArtifactPowerLinkStore("ArtifactPowerLink.db2", ArtifactPowerLinkMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_LINK);
+DB2Storage<ArtifactPowerRankEntry>              sArtifactPowerRankStore("ArtifactPowerRank.db2", ArtifactPowerRankMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_RANK);
+DB2Storage<ArtifactQuestXPEntry>                sArtifactQuestXPStore("ArtifactQuestXP.db2", ArtifactQuestXPMeta::Instance(), HOTFIX_SEL_ARTIFACT_QUEST_XP);
 DB2Storage<AuctionHouseEntry>                   sAuctionHouseStore("AuctionHouse.db2", AuctionHouseMeta::Instance(), HOTFIX_SEL_AUCTION_HOUSE);
 DB2Storage<BankBagSlotPricesEntry>              sBankBagSlotPricesStore("BankBagSlotPrices.db2", BankBagSlotPricesMeta::Instance(), HOTFIX_SEL_BANK_BAG_SLOT_PRICES);
 DB2Storage<BannedAddOnsEntry>                   sBannedAddOnsStore("BannedAddOns.db2", BannedAddOnsMeta::Instance(), HOTFIX_SEL_BANNED_ADDONS);
@@ -57,6 +65,7 @@ DB2Storage<CreatureTypeEntry>                   sCreatureTypeStore("CreatureType
 DB2Storage<CriteriaEntry>                       sCriteriaStore("Criteria.db2", CriteriaMeta::Instance(), HOTFIX_SEL_CRITERIA);
 DB2Storage<CriteriaTreeEntry>                   sCriteriaTreeStore("CriteriaTree.db2", CriteriaTreeMeta::Instance(), HOTFIX_SEL_CRITERIA_TREE);
 DB2Storage<CurrencyTypesEntry>                  sCurrencyTypesStore("CurrencyTypes.db2", CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES);
+DB2Storage<CurveEntry>                          sCurveStore("Curve.db2", CurveMeta::Instance(), HOTFIX_SEL_CURVE);
 DB2Storage<CurvePointEntry>                     sCurvePointStore("CurvePoint.db2", CurvePointMeta::Instance(), HOTFIX_SEL_CURVE_POINT);
 DB2Storage<DestructibleModelDataEntry>          sDestructibleModelDataStore("DestructibleModelData.db2", DestructibleModelDataMeta::Instance(), HOTFIX_SEL_DESTRUCTIBLE_MODEL_DATA);
 DB2Storage<DifficultyEntry>                     sDifficultyStore("Difficulty.db2", DifficultyMeta::Instance(), HOTFIX_SEL_DIFFICULTY);
@@ -82,7 +91,9 @@ DB2Storage<GarrPlotInstanceEntry>               sGarrPlotInstanceStore("GarrPlot
 DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLevel.db2", GarrSiteLevelMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL);
 DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST);
 DB2Storage<GemPropertiesEntry>                  sGemPropertiesStore("GemProperties.db2", GemPropertiesMeta::Instance(), HOTFIX_SEL_GEM_PROPERTIES);
+DB2Storage<GlyphBindableSpellEntry>             sGlyphBindableSpellStore("GlyphBindableSpell.db2", GlyphBindableSpellMeta::Instance(), HOTFIX_SEL_GLYPH_BINDABLE_SPELL);
 DB2Storage<GlyphPropertiesEntry>                sGlyphPropertiesStore("GlyphProperties.db2", GlyphPropertiesMeta::Instance(), HOTFIX_SEL_GLYPH_PROPERTIES);
+DB2Storage<GlyphRequiredSpecEntry>              sGlyphRequiredSpecStore("GlyphRequiredSpec.db2", GlyphRequiredSpecMeta::Instance(), HOTFIX_SEL_GLYPH_REQUIRED_SPEC);
 DB2Storage<GuildColorBackgroundEntry>           sGuildColorBackgroundStore("GuildColorBackground.db2", GuildColorBackgroundMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BACKGROUND);
 DB2Storage<GuildColorBorderEntry>               sGuildColorBorderStore("GuildColorBorder.db2", GuildColorBorderMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BORDER);
 DB2Storage<GuildColorEmblemEntry>               sGuildColorEmblemStore("GuildColorEmblem.db2", GuildColorEmblemMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_EMBLEM);
@@ -99,9 +110,10 @@ DB2Storage<ItemArmorShieldEntry>                sItemArmorShieldStore("ItemArmor
 DB2Storage<ItemArmorTotalEntry>                 sItemArmorTotalStore("ItemArmorTotal.db2", ItemArmorTotalMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_TOTAL);
 DB2Storage<ItemBagFamilyEntry>                  sItemBagFamilyStore("ItemBagFamily.db2", ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY);
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS);
+DB2Storage<ItemBonusListLevelDeltaEntry>        sItemBonusListLevelDeltaStore("ItemBonusListLevelDelta.db2", ItemBonusListLevelDeltaMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
-DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
 DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
+DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST);
 DB2Storage<ItemDamageAmmoEntry>                 sItemDamageAmmoStore("ItemDamageAmmo.db2", ItemDamageAmmoMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_AMMO);
 DB2Storage<ItemDamageOneHandEntry>              sItemDamageOneHandStore("ItemDamageOneHand.db2", ItemDamageOneHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND);
@@ -120,7 +132,7 @@ DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRand
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", ItemSearchNameMeta::Instance(), HOTFIX_SEL_ITEM_SEARCH_NAME);
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", ItemSetMeta::Instance(), HOTFIX_SEL_ITEM_SET);
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", ItemSetSpellMeta::Instance(), HOTFIX_SEL_ITEM_SET_SPELL);
-DB2SparseStorage<ItemSparseEntry>               sItemSparseStore("Item-sparse.db2", ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE);
+DB2Storage<ItemSparseEntry>                     sItemSparseStore("Item-sparse.db2", ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE);
 DB2Storage<ItemSpecEntry>                       sItemSpecStore("ItemSpec.db2", ItemSpecMeta::Instance(), HOTFIX_SEL_ITEM_SPEC);
 DB2Storage<ItemSpecOverrideEntry>               sItemSpecOverrideStore("ItemSpecOverride.db2", ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE);
 DB2Storage<ItemUpgradeEntry>                    sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeMeta::Instance(), HOTFIX_SEL_ITEM_UPGRADE);
@@ -147,6 +159,7 @@ DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", PhaseMe
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP);
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", PlayerConditionMeta::Instance(), HOTFIX_SEL_PLAYER_CONDITION);
 DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay.db2", PowerDisplayMeta::Instance(), HOTFIX_SEL_POWER_DISPLAY);
+DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeMeta::Instance(), HOTFIX_SEL_POWER_TYPE);
 DB2Storage<PvPDifficultyEntry>                  sPvpDifficultyStore("PvpDifficulty.db2", PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY);
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardMeta::Instance(), HOTFIX_SEL_QUEST_MONEY_REWARD);
@@ -157,6 +170,8 @@ DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", Que
 DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPoints.db2", RandPropPointsMeta::Instance(), HOTFIX_SEL_RAND_PROP_POINTS);
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE);
 DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionMeta::Instance(), HOTFIX_SEL_SCALING_STAT_DISTRIBUTION);
+DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", SceneScriptMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT);
+DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneScriptPackage.db2", SceneScriptPackageMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_PACKAGE);
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", SkillLineMeta::Instance(), HOTFIX_SEL_SKILL_LINE);
 DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLineAbility.db2", SkillLineAbilityMeta::Instance(), HOTFIX_SEL_SKILL_LINE_ABILITY);
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", SkillRaceClassInfoMeta::Instance(), HOTFIX_SEL_SKILL_RACE_CLASS_INFO);
@@ -196,6 +211,7 @@ DB2Storage<SpellTargetRestrictionsEntry>        sSpellTargetRestrictionsStore("S
 DB2Storage<SpellTotemsEntry>                    sSpellTotemsStore("SpellTotems.db2", SpellTotemsMeta::Instance(), HOTFIX_SEL_SPELL_TOTEMS);
 DB2Storage<SpellXSpellVisualEntry>              sSpellXSpellVisualStore("SpellXSpellVisual.db2", SpellXSpellVisualMeta::Instance(), HOTFIX_SEL_SPELL_X_SPELL_VISUAL);
 DB2Storage<SummonPropertiesEntry>               sSummonPropertiesStore("SummonProperties.db2", SummonPropertiesMeta::Instance(), HOTFIX_SEL_SUMMON_PROPERTIES);
+DB2Storage<TactKeyEntry>                        sTactKeyStore("TactKey.db2", TactKeyMeta::Instance(), HOTFIX_SEL_TACT_KEY);
 DB2Storage<TalentEntry>                         sTalentStore("Talent.db2", TalentMeta::Instance(), HOTFIX_SEL_TALENT);
 DB2Storage<TaxiNodesEntry>                      sTaxiNodesStore("TaxiNodes.db2", TaxiNodesMeta::Instance(), HOTFIX_SEL_TAXI_NODES);
 DB2Storage<TaxiPathEntry>                       sTaxiPathStore("TaxiPath.db2", TaxiPathMeta::Instance(), HOTFIX_SEL_TAXI_PATH);
@@ -237,6 +253,10 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
     {
         storage->LoadFromDB();
+        // LoadFromDB() always loads strings into enUS locale, other locales are expected to have data in corresponding _locale tables
+        // so we need to make additional call to load that data in case said locale is set as default by worldserver.conf (and we do not want to load all this data from .db2 file again)
+        if (defaultLocale != LOCALE_enUS)
+            storage->LoadStringsFromDB(defaultLocale);
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
@@ -292,6 +312,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sAreaTableStore);
     LOAD_DB2(sAreaTriggerStore);
     LOAD_DB2(sArmorLocationStore);
+    LOAD_DB2(sArtifactStore);
+    LOAD_DB2(sArtifactAppearanceStore);
+    LOAD_DB2(sArtifactAppearanceSetStore);
+    LOAD_DB2(sArtifactCategoryStore);
+    LOAD_DB2(sArtifactPowerStore);
+    LOAD_DB2(sArtifactPowerLinkStore);
+    LOAD_DB2(sArtifactPowerRankStore);
     LOAD_DB2(sAuctionHouseStore);
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddOnsStore);
@@ -319,6 +346,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sCriteriaStore);
     LOAD_DB2(sCriteriaTreeStore);
     LOAD_DB2(sCurrencyTypesStore);
+    LOAD_DB2(sCurveStore);
     LOAD_DB2(sCurvePointStore);
     LOAD_DB2(sDestructibleModelDataStore);
     LOAD_DB2(sDifficultyStore);
@@ -344,7 +372,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrSiteLevelStore);
     LOAD_DB2(sGarrSiteLevelPlotInstStore);
     LOAD_DB2(sGemPropertiesStore);
+    LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
+    LOAD_DB2(sGlyphRequiredSpecStore);
     LOAD_DB2(sGuildColorBackgroundStore);
     LOAD_DB2(sGuildColorBorderStore);
     LOAD_DB2(sGuildColorEmblemStore);
@@ -361,9 +391,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemArmorTotalStore);
     LOAD_DB2(sItemBagFamilyStore);
     LOAD_DB2(sItemBonusStore);
+    LOAD_DB2(sItemBonusListLevelDeltaStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
-    LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemChildEquipmentStore);
+    LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
@@ -409,6 +440,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPhaseXPhaseGroupStore);
     LOAD_DB2(sPlayerConditionStore);
     LOAD_DB2(sPowerDisplayStore);
+    LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPvpDifficultyStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
@@ -419,6 +451,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sRandPropPointsStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sScalingStatDistributionStore);
+    LOAD_DB2(sSceneScriptStore);
+    LOAD_DB2(sSceneScriptPackageStore);
     LOAD_DB2(sSkillLineStore);
     LOAD_DB2(sSkillLineAbilityStore);
     LOAD_DB2(sSkillRaceClassInfoStore);
@@ -458,6 +492,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sSpellTotemsStore);
     LOAD_DB2(sSpellXSpellVisualStore);
     LOAD_DB2(sSummonPropertiesStore);
+    LOAD_DB2(sTactKeyStore);
     LOAD_DB2(sTalentStore);
     LOAD_DB2(sTaxiNodesStore);
     LOAD_DB2(sTaxiPathStore);
@@ -479,6 +514,21 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
+
+    for (ArtifactPowerEntry const* artifactPower : sArtifactPowerStore)
+        _artifactPowers[artifactPower->ArtifactID].push_back(artifactPower);
+
+    for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
+    {
+        _artifactPowerLinks[artifactPowerLink->FromArtifactPowerID].insert(artifactPowerLink->ToArtifactPowerID);
+        _artifactPowerLinks[artifactPowerLink->ToArtifactPowerID].insert(artifactPowerLink->FromArtifactPowerID);
+    }
+
+    for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
+        _artifactPowerRanks[std::pair<uint32, uint8>{ artifactPowerRank->ArtifactPowerID, artifactPowerRank->Rank }] = artifactPowerRank;
+
+    ASSERT(BATTLE_PET_SPECIES_MAX_ID >= sBattlePetSpeciesStore.GetNumRows(),
+        "BATTLE_PET_SPECIES_MAX_ID (%d) must be equal to or greater than %u", BATTLE_PET_SPECIES_MAX_ID, sBattlePetSpeciesStore.GetNumRows());
 
     std::unordered_map<uint32, std::set<std::pair<uint8, uint8>>> addedSections;
     for (CharSectionsEntry const* charSection : sCharSectionsStore)
@@ -563,7 +613,16 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         }
 
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
+        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_RECOMMENDED)
+            _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
+
+    for (CurvePointEntry const* curvePoint : sCurvePointStore)
+        if (sCurveStore.LookupEntry(curvePoint->CurveID))
+            _curvePoints[curvePoint->CurveID].push_back(curvePoint);
+
+    for (auto itr = _curvePoints.begin(); itr != _curvePoints.end(); ++itr)
+        std::sort(itr->second.begin(), itr->second.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->Index < point2->Index; });
 
     ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
         "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
@@ -589,8 +648,17 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (HeirloomEntry const* heirloom : sHeirloomStore)
         _heirlooms[heirloom->ItemID] = heirloom;
 
+    for (GlyphBindableSpellEntry const* glyphBindableSpell : sGlyphBindableSpellStore)
+        _glyphBindableSpells[glyphBindableSpell->GlyphPropertiesID].push_back(glyphBindableSpell->SpellID);
+
+    for (GlyphRequiredSpecEntry const* glyphRequiredSpec : sGlyphRequiredSpecStore)
+        _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(glyphRequiredSpec->ChrSpecializationID);
+
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
+
+    for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
+        _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->Delta] = itemBonusListLevelDelta->ID;
 
     for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
     {
@@ -615,6 +683,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
         _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearanceMod;
+        auto defaultAppearance = _itemDefaultAppearancesByItem.find(appearanceMod->ItemID);
+        if (defaultAppearance == _itemDefaultAppearancesByItem.end() || defaultAppearance->second->Index > appearanceMod->Index)
+            _itemDefaultAppearancesByItem[appearanceMod->ItemID] = appearanceMod;
     }
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
@@ -625,16 +696,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
         _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
-
-    {
-        std::set<uint32> scalingCurves;
-        for (ScalingStatDistributionEntry const* ssd : sScalingStatDistributionStore)
-            scalingCurves.insert(ssd->ItemLevelCurveID);
-
-        for (CurvePointEntry const* curvePoint : sCurvePointStore)
-            if (scalingCurves.count(curvePoint->CurveID))
-                _heirloomCurvePoints[curvePoint->CurveID][curvePoint->Index] = curvePoint;
-    }
 
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
@@ -652,8 +713,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (NamesProfanityEntry const* namesProfanity : sNamesProfanityStore)
     {
         ASSERT(namesProfanity->Language < TOTAL_LOCALES || namesProfanity->Language == -1);
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesProfanity->Name, name));
         if (namesProfanity->Language != -1)
-            _nameValidators[namesProfanity->Language].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+            _nameValidators[namesProfanity->Language].emplace_back(name, std::regex::icase | std::regex::optimize);
         else
         {
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
@@ -661,30 +724,44 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 if (i == LOCALE_none)
                     continue;
 
-                _nameValidators[i].emplace_back(namesProfanity->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
             }
         }
     }
 
     for (NamesReservedEntry const* namesReserved : sNamesReservedStore)
-        _nameValidators[TOTAL_LOCALES].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+    {
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesReserved->Name, name));
+        _nameValidators[TOTAL_LOCALES].emplace_back(name, std::regex::icase | std::regex::optimize);
+    }
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
     {
         ASSERT(!(namesReserved->LocaleMask & ~((1 << TOTAL_LOCALES) - 1)));
+        std::wstring name;
+        ASSERT(Utf8toWStr(namesReserved->Name, name));
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (i == LOCALE_none)
                 continue;
 
             if (namesReserved->LocaleMask & (1 << i))
-                _nameValidators[i].emplace_back(namesReserved->Name, boost::regex::perl | boost::regex::icase | boost::regex::optimize);
+                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
         }
     }
 
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
             _phasesByGroup[group->PhaseGroupID].insert(phase->ID);
+
+    for (PowerTypeEntry const* powerType : sPowerTypeStore)
+    {
+        ASSERT(powerType->PowerTypeEnum < MAX_POWERS);
+        ASSERT(!_powerTypes[powerType->PowerTypeEnum]);
+
+        _powerTypes[powerType->PowerTypeEnum] = powerType;
+    }
 
     for (PvPDifficultyEntry const* entry : sPvpDifficultyStore)
     {
@@ -825,13 +902,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(8343) ||                // last area (areaflag) added in 7.0.3 (21414)
-        !sCharTitlesStore.LookupEntry(480) ||                // last char title added in 7.0.3 (21414)
-        !sGemPropertiesStore.LookupEntry(3217) ||            // last gem property added in 7.0.3 (21414)
-        !sItemStore.LookupEntry(139410) ||                   // last item added in 7.0.3 (21414)
-        !sItemExtendedCostStore.LookupEntry(6038) ||         // last item extended cost added in 7.0.3 (21414)
-        !sMapStore.LookupEntry(1632) ||                      // last map added in 7.0.3 (21414)
-        !sSpellStore.LookupEntry(220019))                    // last spell added in 7.0.3 (21414)
+    if (!sAreaTableStore.LookupEntry(8485) ||                // last area (areaflag) added in 7.0.3 (22594)
+        !sCharTitlesStore.LookupEntry(486) ||                // last char title added in 7.0.3 (22594)
+        !sGemPropertiesStore.LookupEntry(3363) ||            // last gem property added in 7.0.3 (22594)
+        !sItemStore.LookupEntry(142526) ||                   // last item added in 7.0.3 (22594)
+        !sItemExtendedCostStore.LookupEntry(6125) ||         // last item extended cost added in 7.0.3 (22594)
+        !sMapStore.LookupEntry(1670) ||                      // last map added in 7.0.3 (22594)
+        !sSpellStore.LookupEntry(231371))                    // last spell added in 7.0.3 (22594)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -908,6 +985,33 @@ std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
     return std::vector<uint32>();
 }
 
+std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
+{
+    auto itr = _artifactPowers.find(artifactId);
+    if (itr != _artifactPowers.end())
+        return itr->second;
+
+    return std::vector<ArtifactPowerEntry const*>{};
+}
+
+std::unordered_set<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
+{
+    auto itr = _artifactPowerLinks.find(artifactPowerId);
+    if (itr != _artifactPowerLinks.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const
+{
+    auto itr = _artifactPowerRanks.find({ artifactPowerId, rank });
+    if (itr != _artifactPowerRanks.end())
+        return itr->second;
+
+    return nullptr;
+}
+
 char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)
 {
     if (gender == GENDER_FEMALE && (forceGender || broadcastText->FemaleText->Str[DEFAULT_LOCALE][0] != '\0'))
@@ -977,6 +1081,15 @@ ChrSpecializationEntry const* DB2Manager::GetChrSpecializationByIndex(uint32 cla
     return _chrSpecializationsByIndex[class_][index];
 }
 
+ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(uint32 class_) const
+{
+    auto itr = _defaultChrSpecializationsByClass.find(class_);
+    if (itr != _defaultChrSpecializationsByClass.end())
+        return itr->second;
+
+    return nullptr;
+}
+
 char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, uint32 locale)
 {
     if (!petfamily)
@@ -987,6 +1100,162 @@ char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, uint32 locale
         return nullptr;
 
     return petFamily->Name->Str[locale][0] != '\0' ? petFamily->Name->Str[locale] : nullptr;
+}
+
+enum class CurveInterpolationMode : uint8
+{
+    Linear = 0,
+    Cosine = 1,
+    CatmullRom = 2,
+    Bezier3 = 3,
+    Bezier4 = 4,
+    Bezier = 5,
+    Constant = 6,
+};
+
+static CurveInterpolationMode DetermineCurveType(CurveEntry const* curve, std::vector<CurvePointEntry const*> const& points)
+{
+    switch (curve->Type)
+    {
+        case 1:
+            return points.size() < 4 ? CurveInterpolationMode::Cosine : CurveInterpolationMode::CatmullRom;
+        case 2:
+        {
+            switch (points.size())
+            {
+                case 1:
+                    return CurveInterpolationMode::Constant;
+                case 2:
+                    return CurveInterpolationMode::Linear;
+                case 3:
+                    return CurveInterpolationMode::Bezier3;
+                case 4:
+                    return CurveInterpolationMode::Bezier4;
+                default:
+                    break;
+            }
+            return CurveInterpolationMode::Bezier;
+        }
+        case 3:
+            return CurveInterpolationMode::Cosine;
+        default:
+            break;
+    }
+
+    return points.size() != 1 ? CurveInterpolationMode::Linear : CurveInterpolationMode::Constant;
+}
+
+float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
+{
+    auto itr = _curvePoints.find(curveId);
+    if (itr == _curvePoints.end())
+        return 0.0f;
+
+    CurveEntry const* curve = sCurveStore.AssertEntry(curveId);
+    std::vector<CurvePointEntry const*> const& points = itr->second;
+    if (points.empty())
+        return 0.0f;
+
+    switch (DetermineCurveType(curve, points))
+    {
+        case CurveInterpolationMode::Linear:
+        {
+            std::size_t pointIndex = 0;
+            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+                ++pointIndex;
+            if (!pointIndex)
+                return points[0]->Y;
+            if (pointIndex >= points.size())
+                return points.back()->Y;
+            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+            if (xDiff == 0.0)
+                return points[pointIndex]->Y;
+            return (((x - points[pointIndex - 1]->X) / xDiff) * (points[pointIndex]->Y - points[pointIndex - 1]->Y)) + points[pointIndex - 1]->Y;
+        }
+        case CurveInterpolationMode::Cosine:
+        {
+            std::size_t pointIndex = 0;
+            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+                ++pointIndex;
+            if (!pointIndex)
+                return points[0]->Y;
+            if (pointIndex >= points.size())
+                return points.back()->Y;
+            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+            if (xDiff == 0.0)
+                return points[pointIndex]->Y;
+            return ((points[pointIndex]->Y - points[pointIndex - 1]->Y) * (1.0f - std::cos((x - points[pointIndex - 1]->X) / xDiff * float(M_PI))) * 0.5f) + points[pointIndex - 1]->Y;
+        }
+        case CurveInterpolationMode::CatmullRom:
+        {
+            std::size_t pointIndex = 1;
+            while (pointIndex < points.size() && points[pointIndex]->X <= x)
+                ++pointIndex;
+            if (pointIndex == 1)
+                return points[1]->Y;
+            if (pointIndex >= points.size() - 1)
+                return points[points.size() - 2]->Y;
+            float xDiff = points[pointIndex]->X - points[pointIndex - 1]->X;
+            if (xDiff == 0.0)
+                return points[pointIndex]->Y;
+
+            float mu = (x - points[pointIndex - 1]->X) / xDiff;
+            float a0 = -0.5f * points[pointIndex - 2]->Y + 1.5f * points[pointIndex - 1]->Y - 1.5f * points[pointIndex]->Y + 0.5f * points[pointIndex + 1]->Y;
+            float a1 = points[pointIndex - 2]->Y - 2.5f * points[pointIndex - 1]->Y + 2.0f * points[pointIndex]->Y - 0.5f * points[pointIndex + 1]->Y;
+            float a2 = -0.5f * points[pointIndex - 2]->Y + 0.5f * points[pointIndex]->Y;
+            float a3 = points[pointIndex - 1]->Y;
+
+            return a0 * mu * mu * mu + a1 * mu * mu + a2 * mu + a3;
+        }
+        case CurveInterpolationMode::Bezier3:
+        {
+            float xDiff = points[2]->X - points[0]->X;
+            if (xDiff == 0.0)
+                return points[1]->Y;
+            float mu = (x - points[0]->X) / xDiff;
+            return ((1.0f - mu) * (1.0f - mu) * points[0]->Y) + (1.0f - mu) * 2.0f * mu * points[1]->Y + mu * mu * points[2]->Y;
+        }
+        case CurveInterpolationMode::Bezier4:
+        {
+            float xDiff = points[3]->X - points[0]->X;
+            if (xDiff == 0.0)
+                return points[1]->Y;
+            float mu = (x - points[0]->X) / xDiff;
+            return (1.0f - mu) * (1.0f - mu) * (1.0f - mu) * points[0]->Y
+                + 3.0f * mu * (1.0f - mu) * (1.0f - mu) * points[1]->Y
+                + 3.0f * mu * mu * (1.0f - mu) * points[2]->Y
+                + mu * mu * mu * points[3]->Y;
+        }
+        case CurveInterpolationMode::Bezier:
+        {
+            float xDiff = points.back()->X - points[0]->X;
+            if (xDiff == 0.0f)
+                return points.back()->Y;
+
+            std::vector<float> tmp(points.size());
+            for (std::size_t i = 0; i < points.size(); ++i)
+                tmp[i] = points[i]->Y;
+
+            float mu = (x - points[0]->X) / xDiff;
+            int32 i = int32(points.size()) - 1;
+            while (i > 0)
+            {
+                for (int32 k = 0; k < i; ++k)
+                {
+                    float val = tmp[k] + mu * (tmp[k + 1] - tmp[k]);
+                    tmp[k] = val;
+                }
+                --i;
+            }
+            return tmp[0];
+        }
+        case CurveInterpolationMode::Constant:
+            return points[0]->Y;
+        default:
+            break;
+    }
+
+    return 0.0f;
 }
 
 EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const
@@ -1011,30 +1280,29 @@ std::vector<uint32> const* DB2Manager::GetFactionTeamList(uint32 faction) const
     return nullptr;
 }
 
-uint32 DB2Manager::GetHeirloomItemLevel(uint32 curveId, uint32 level) const
-{
-    // Assuming linear item level scaling for heirlooms
-    auto itr = _heirloomCurvePoints.find(curveId);
-    if (itr == _heirloomCurvePoints.end())
-        return 0;
-
-    auto it2 = itr->second.begin(); // Highest scaling point
-    if (level >= it2->second->X)
-        return it2->second->Y;
-
-    auto previousItr = it2++;
-    for (; it2 != itr->second.end(); ++it2, ++previousItr)
-        if (level >= it2->second->X)
-            return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
-
-    return uint32(previousItr->second->Y);  // Lowest scaling point
-}
-
 HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
 {
     auto itr = _heirlooms.find(itemId);
     if (itr != _heirlooms.end())
         return itr->second;
+
+    return nullptr;
+}
+
+std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphPropertiesId) const
+{
+    auto itr = _glyphBindableSpells.find(glyphPropertiesId);
+    if (itr != _glyphBindableSpells.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+std::vector<uint32> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const
+{
+    auto itr = _glyphRequiredSpecs.find(glyphPropertiesId);
+    if (itr != _glyphRequiredSpecs.end())
+        return &itr->second;
 
     return nullptr;
 }
@@ -1046,6 +1314,15 @@ DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId
         return &itr->second;
 
     return nullptr;
+}
+
+uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
+{
+    auto itr = _itemLevelDeltaToBonusListContainer.find(delta);
+    if (itr != _itemLevelDeltaToBonusListContainer.end())
+        return itr->second;
+
+    return 0;
 }
 
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
@@ -1094,12 +1371,18 @@ ItemModifiedAppearanceEntry const* DB2Manager::GetItemModifiedAppearance(uint32 
         return itr->second;
 
     // Fall back to unmodified appearance
-    if (appearanceModId)
-    {
-        itr = _itemModifiedAppearancesByItem.find(itemId);
-        if (itr != _itemModifiedAppearancesByItem.end())
-            return itr->second;
-    }
+    itr = _itemDefaultAppearancesByItem.find(itemId);
+    if (itr != _itemDefaultAppearancesByItem.end())
+        return itr->second;
+
+    return nullptr;
+}
+
+ItemModifiedAppearanceEntry const* DB2Manager::GetDefaultItemModifiedAppearance(uint32 itemId) const
+{
+    auto itr = _itemDefaultAppearancesByItem.find(itemId);
+    if (itr != _itemDefaultAppearancesByItem.end())
+        return itr->second;
 
     return nullptr;
 }
@@ -1260,15 +1543,15 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
     return data->Str[sWorld->GetDefaultDbcLocale()];
 }
 
-ResponseCodes DB2Manager::ValidateName(std::string const& name, LocaleConstant locale) const
+ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const
 {
-    for (boost::regex const& regex : _nameValidators[locale])
-        if (boost::regex_search(name, regex))
+    for (std::wregex const& regex : _nameValidators[locale])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (boost::regex const& regex : _nameValidators[TOTAL_LOCALES])
-        if (boost::regex_search(name, regex))
+    for (std::wregex const& regex : _nameValidators[TOTAL_LOCALES])
+        if (std::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;
@@ -1333,6 +1616,12 @@ std::set<uint32> DB2Manager::GetPhasesForGroup(uint32 group) const
         return itr->second;
 
     return std::set<uint32>();
+}
+
+PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
+{
+    ASSERT(power < MAX_POWERS);
+    return _powerTypes[power];
 }
 
 uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
@@ -1452,7 +1741,7 @@ bool DB2Manager::IsToyItem(uint32 toy) const
 
 WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
 {
-    auto i = _wmoAreaTableLookup.find(WMOAreaTableKey(int8(rootId), int16(adtId), groupId));
+    auto i = _wmoAreaTableLookup.find(WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
     if (i != _wmoAreaTableLookup.end())
         return i->second;
 

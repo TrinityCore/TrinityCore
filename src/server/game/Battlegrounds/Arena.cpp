@@ -224,7 +224,6 @@ void Arena::EndBattleground(uint32 winner)
                     uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
                     player->UpdateCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                     player->UpdateCriteria(CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
 
                     // Last standing - Rated 5v5 arena & be solely alive player
                     if (GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->IsAlive())

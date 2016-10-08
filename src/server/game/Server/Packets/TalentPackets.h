@@ -93,6 +93,25 @@ namespace WorldPackets
             int32 SpellID = 0;
             std::vector<uint16> Talents;
         };
+
+        struct GlyphBinding
+        {
+            GlyphBinding(uint32 spellId = 0, uint16 glyphId = 0) : SpellID(spellId), GlyphID(glyphId) { }
+
+            uint32 SpellID;
+            uint16 GlyphID;
+        };
+
+        class ActiveGlyphs final : public ServerPacket
+        {
+        public:
+            ActiveGlyphs() : ServerPacket(SMSG_ACTIVE_GLYPHS) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GlyphBinding> Glyphs;
+            bool IsFullUpdate = false;
+        };
     }
 }
 

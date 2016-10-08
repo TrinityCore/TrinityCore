@@ -594,6 +594,36 @@ namespace WorldPackets
 
             int32 Count = 0;
         };
+
+        class RequestWorldQuestUpdate final : public ClientPacket
+        {
+        public:
+            RequestWorldQuestUpdate(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WORLD_QUEST_UPDATE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct WorldQuestUpdateInfo
+        {
+            WorldQuestUpdateInfo(int32 lastUpdate, uint32 questID, uint32 timer, int32 variableID, int32 value) :
+                LastUpdate(lastUpdate), QuestID(questID), Timer(timer), VariableID(variableID), Value(value) { }
+            int32 LastUpdate;
+            uint32 QuestID;
+            uint32 Timer;
+            // WorldState
+            int32 VariableID;
+            int32 Value;
+        };
+
+        class WorldQuestUpdate final : public ServerPacket
+        {
+        public:
+            WorldQuestUpdate() : ServerPacket(SMSG_WORLD_QUEST_UPDATE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
+        };
     }
 }
 

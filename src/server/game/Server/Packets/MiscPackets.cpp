@@ -626,3 +626,41 @@ WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
+{
+    _worldPacket << uint32(Error);
+    _worldPacket.WriteBit(Arg.is_initialized());
+    _worldPacket.WriteBit(Arg2.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (Arg)
+        _worldPacket << int32(*Arg);
+
+    if (Arg2)
+        _worldPacket << int32(*Arg2);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket << uint32(Mounts->size());
+
+    for (auto const& spell : *Mounts)
+    {
+        _worldPacket << int32(spell.first);
+        _worldPacket.WriteBits(spell.second, 2);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::MountSetFavorite::Read()
+{
+    _worldPacket >> MountSpellID;
+    IsFavorite = _worldPacket.ReadBit();
+}

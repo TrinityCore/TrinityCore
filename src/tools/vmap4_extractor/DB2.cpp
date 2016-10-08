@@ -16,6 +16,7 @@
  */
 
 #include "DB2.h"
+#include <cassert>
 
 DB2FileLoader::DB2FileLoader()
 {

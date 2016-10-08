@@ -198,7 +198,7 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.ObjectID = fields[4].GetInt32();
     obj.Amount = fields[5].GetInt32();
     obj.Flags = fields[6].GetUInt32();
-    obj.UnkFloat = fields[7].GetFloat();
+    obj.ProgressBarWeight = fields[7].GetFloat();
     obj.Description = fields[8].GetString();
 
     Objectives.push_back(obj);

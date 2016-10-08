@@ -119,6 +119,91 @@ struct ArmorLocationEntry
     float Modifier[5];
 };
 
+struct ArtifactEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint32 BarConnectedColor;
+    uint32 BarDisconnectedColor;
+    uint32 TitleColor;
+    uint16 ClassUiTextureKitID;
+    uint16 SpecID;
+    uint8 ArtifactCategoryID;
+    uint8 Flags;
+};
+
+struct ArtifactAppearanceEntry
+{
+    LocalizedString* Name;
+    uint32 SwatchColor;
+    float ModelDesaturation;
+    float ModelAlpha;
+    uint32 ShapeshiftDisplayID;
+    uint16 ArtifactAppearanceSetID;
+    uint16 PlayerConditionID;
+    uint16 Unknown;
+    uint8 DisplayIndex;
+    uint8 AppearanceModID;
+    uint8 Flags;
+    uint8 ModifiesShapeshiftFormDisplay;
+    uint32 ID;
+    uint32 ItemAppearanceID;
+    uint32 AltItemAppearanceID;
+};
+
+struct ArtifactAppearanceSetEntry
+{
+    LocalizedString* Name;
+    LocalizedString* Name2;
+    uint16 UiCameraID;
+    uint16 AltHandUICameraID;
+    uint8 ArtifactID;
+    uint8 DisplayIndex;
+    uint8 AttachmentPoint;
+    uint8 Flags;
+    uint32 ID;
+};
+
+struct ArtifactCategoryEntry
+{
+    uint32 ID;
+    uint16 ArtifactKnowledgeCurrencyID;
+    uint16 ArtifactKnowledgeMultiplierCurveID;
+};
+
+struct ArtifactPowerEntry
+{
+    DBCPosition2D Pos;
+    uint8 ArtifactID;
+    uint8 Flags;
+    uint8 MaxRank;
+    uint32 ID;
+    uint32 RelicType;
+};
+
+struct ArtifactPowerLinkEntry
+{
+    uint32 ID;
+    uint16 FromArtifactPowerID;
+    uint16 ToArtifactPowerID;
+};
+
+struct ArtifactPowerRankEntry
+{
+    uint32 ID;
+    uint32 SpellID;
+    float Value;
+    uint16 ArtifactPowerID;
+    uint16 Unknown;
+    uint8 Rank;
+};
+
+struct ArtifactQuestXPEntry
+{
+    uint32 ID;
+    uint32 Exp[10];
+};
+
 struct AuctionHouseEntry
 {
     uint32 ID;
@@ -470,7 +555,7 @@ struct CreatureTypeEntry
 struct CriteriaEntry
 {
     uint32 ID;
-    union
+    union AssetNameAlias
     {
         uint32 ID;
         // CRITERIA_TYPE_KILL_CREATURE          = 0
@@ -626,6 +711,13 @@ struct CurrencyTypesEntry
     uint8 SpellCategory;
     uint8 Quality;
     uint32 SpellWeight;
+};
+
+struct CurveEntry
+{
+    uint32 ID;
+    uint8 Type;
+    uint8 Unused;
 };
 
 struct CurvePointEntry
@@ -1016,6 +1108,13 @@ struct GemPropertiesEntry
     uint16 MinItemLevel;
 };
 
+struct GlyphBindableSpellEntry
+{
+    uint32 ID;
+    uint32 SpellID;
+    uint16 GlyphPropertiesID;
+};
+
 struct GlyphPropertiesEntry
 {
     uint32 ID;
@@ -1023,6 +1122,13 @@ struct GlyphPropertiesEntry
     uint16 SpellIconID;
     uint8 Type;
     uint8 GlyphExclusiveCategoryID;
+};
+
+struct GlyphRequiredSpecEntry
+{
+    uint32 ID;
+    uint16 GlyphPropertiesID;
+    uint16 ChrSpecializationID;
 };
 
 struct GuildColorBackgroundEntry
@@ -1171,6 +1277,12 @@ struct ItemBonusEntry
     uint16 BonusListID;
     uint8 Type;
     uint8 Index;
+};
+
+struct ItemBonusListLevelDeltaEntry
+{
+    int16 Delta;
+    uint32 ID;
 };
 
 struct ItemBonusTreeNodeEntry
@@ -1845,6 +1957,23 @@ struct PowerDisplayEntry
     uint8 Blue;
 };
 
+struct PowerTypeEntry
+{
+    uint32 ID;
+    char const* PowerTypeToken;
+    char const* PowerCostToken;
+    float RegenerationPeace;
+    float RegenerationCombat;
+    int16 MaxPower;
+    uint16 RegenerationDelay;
+    uint16 Flags;
+    uint8 PowerTypeEnum;
+    int8 RegenerationMin;
+    int8 RegenerationCenter;
+    int8 RegenerationMax;
+    uint8 UIModifier;
+};
+
 struct PvPDifficultyEntry
 {
     uint32 ID;
@@ -1918,6 +2047,21 @@ struct ScalingStatDistributionEntry
     uint16 ItemLevelCurveID;
     uint32 MinLevel;
     uint32 MaxLevel;
+};
+
+struct SceneScriptEntry
+{
+    uint32 ID;
+    char const* Name;
+    char const* Script;
+    uint16 PrevScriptId;
+    uint16 NextScriptId;
+};
+
+struct SceneScriptPackageEntry
+{
+    uint32 ID;
+    char const* Name;
 };
 
 struct SkillLineEntry
@@ -2402,11 +2546,19 @@ struct SpellXSpellVisualEntry
 struct SummonPropertiesEntry
 {
     uint32 ID;
+    uint32 Flags;
     uint32 Category;
     uint32 Faction;
     uint32 Type;
     int32 Slot;
-    uint32 Flags;
+};
+
+#define TACTKEY_SIZE 16
+
+struct TactKeyEntry
+{
+    uint32 ID;
+    uint8 Key[TACTKEY_SIZE];
 };
 
 #define MAX_TALENT_TIERS 7

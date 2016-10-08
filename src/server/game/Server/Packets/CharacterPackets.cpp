@@ -330,10 +330,8 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     return &_worldPacket;
 }
 
-WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
-    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet))
 {
-
 }
 
 void WorldPackets::Character::ReorderCharacters::Read()

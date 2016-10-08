@@ -394,7 +394,6 @@ class TC_GAME_API Spell
         void EffectMilling(SpellEffIndex effIndex);
         void EffectRenamePet(SpellEffIndex effIndex);
         void EffectSendTaxi(SpellEffIndex effIndex);
-        void EffectSummonCritter(SpellEffIndex effIndex);
         void EffectKnockBack(SpellEffIndex effIndex);
         void EffectPullTowards(SpellEffIndex effIndex);
         void EffectDispelMechanic(SpellEffIndex effIndex);
@@ -453,6 +452,8 @@ class TC_GAME_API Spell
         void EffectApplyEnchantIllusion(SpellEffIndex effIndex);
         void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
+        void EffectGiveArtifactPower(SpellEffIndex effIndex);
+        void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -569,7 +570,9 @@ class TC_GAME_API Spell
         {
             // Alternate names for this value
             uint32 TalentId;
-            uint32 GlyphSlot;
+
+            // SPELL_EFFECT_APPLY_GLYPH
+            uint32 SpellId;
 
             // SPELL_EFFECT_TALENT_SPEC_SELECT
             uint32 SpecializationId;

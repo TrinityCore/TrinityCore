@@ -77,7 +77,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
     }
 
     // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_USEABLE_IN_ARENA) && user->InArena())
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && user->InArena())
     {
         user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, NULL);
         return;
@@ -105,8 +105,8 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         }
     }
 
-    // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (item->GetTemplate()->GetBonding() == BIND_WHEN_USE || item->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || item->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
+    // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
+    if (item->GetTemplate()->GetBonding() == BIND_ON_USE || item->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || item->GetTemplate()->GetBonding() == BIND_QUEST)
     {
         if (!item->IsSoulBound())
         {
@@ -150,7 +150,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->GetFlags() & ITEM_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+    if (!(proto->GetFlags() & ITEM_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
     {
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [%s] tried to open item [%s, entry: %u] which is not openable!",

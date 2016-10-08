@@ -346,7 +346,7 @@ void Garrison::LearnBlueprint(uint32 garrBuildingId)
     if (!sGarrBuildingStore.LookupEntry(garrBuildingId))
         learnBlueprintResult.Result = GARRISON_ERROR_INVALID_BUILDINGID;
     else if (_knownBuildings.count(garrBuildingId))
-        learnBlueprintResult.Result = GARRISON_ERROR_BLUEPRINT_KNOWN;
+        learnBlueprintResult.Result = GARRISON_ERROR_BLUEPRINT_EXISTS;
     else
         _knownBuildings.insert(garrBuildingId);
 
@@ -363,7 +363,7 @@ void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
     if (!sGarrBuildingStore.LookupEntry(garrBuildingId))
         unlearnBlueprintResult.Result = GARRISON_ERROR_INVALID_BUILDINGID;
     else if (!_knownBuildings.count(garrBuildingId))
-        unlearnBlueprintResult.Result = GARRISON_ERROR_BLUEPRINT_NOT_KNOWN;
+        unlearnBlueprintResult.Result = GARRISON_ERROR_REQUIRES_BLUEPRINT;
     else
         _knownBuildings.erase(garrBuildingId);
 
@@ -497,7 +497,7 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(garrFollowerId);
     if (_followerIds.count(garrFollowerId) || !followerEntry)
     {
-        addFollowerResult.Result = GARRISON_GENERIC_UNKNOWN_ERROR;
+        addFollowerResult.Result = GARRISON_ERROR_FOLLOWER_EXISTS;
         _owner->SendDirectMessage(addFollowerResult.Write());
         return;
     }
@@ -609,7 +609,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
     GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
     Plot const* plot = GetPlot(garrPlotInstanceId);
     if (!plotInstance || !plot)
-        return GARRISON_ERROR_INVALID_PLOT;
+        return GARRISON_ERROR_INVALID_PLOT_INSTANCEID;
 
     GarrBuildingEntry const* building = sGarrBuildingStore.LookupEntry(garrBuildingId);
     if (!building)
@@ -625,7 +625,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
     if (building->Flags & GARRISON_BUILDING_FLAG_NEEDS_PLAN)
     {
         if (!_knownBuildings.count(garrBuildingId))
-            return GARRISON_ERROR_BLUEPRINT_NOT_KNOWN;
+            return GARRISON_ERROR_REQUIRES_BLUEPRINT;
     }
     else // Building is built as a quest reward
         return GARRISON_ERROR_INVALID_BUILDINGID;
@@ -661,7 +661,7 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
 {
     Plot const* plot = GetPlot(garrPlotInstanceId);
     if (!plot)
-        return GARRISON_ERROR_INVALID_PLOT;
+        return GARRISON_ERROR_INVALID_PLOT_INSTANCEID;
 
     if (!plot->BuildingInfo.PacketInfo)
         return GARRISON_ERROR_NO_BUILDING;
