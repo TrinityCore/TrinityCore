@@ -555,7 +555,7 @@ struct CreatureTypeEntry
 struct CriteriaEntry
 {
     uint32 ID;
-    union
+    union AssetNameAlias
     {
         uint32 ID;
         // CRITERIA_TYPE_KILL_CREATURE          = 0
@@ -2582,11 +2582,11 @@ struct SpellXSpellVisualEntry
 struct SummonPropertiesEntry
 {
     uint32 ID;
+    uint32 Flags;
     uint32 Category;
     uint32 Faction;
     uint32 Type;
     int32 Slot;
-    uint32 Flags;
 };
 
 #define TACTKEY_SIZE 16
