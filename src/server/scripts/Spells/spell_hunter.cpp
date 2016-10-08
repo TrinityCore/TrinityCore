@@ -442,26 +442,33 @@ class spell_hun_lock_and_load : public SpellScriptLoader
             {
                 if (eventInfo.GetActor()->HasAura(SPELL_LOCK_AND_LOAD_MARKER))
                     return false;
-
                 return true;
             }
 
-            template <uint32 mask>
-            void HandleProcs(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            bool CheckTrapProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_TRAP_ACTIVATION))
+                    return false;
+
+                // Do not proc on traps for immolation/explosive trap
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !(damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                    return false;
+
+                return roll_chance_i(aurEff->GetAmount());
+            }
+
+            bool CheckPeriodicProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_PERIODIC))
+                    return false;
+
+                return roll_chance_i(aurEff->GetAmount());
+            }
+
+            void HandleProc(ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-
-                if (!(eventInfo.GetTypeMask() & mask))
-                    return;
-
-                // Additional check: do not proc on traps for immolation/explosive trap
-                // (But still do it for the periodic damage part)
-                if (mask == PROC_FLAG_DONE_TRAP_ACTIVATION)
-                    if (!(eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
-                        return;
-
-                if (!roll_chance_i(aurEff->GetAmount()))
-                    return;
 
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell(caster, SPELL_LOCK_AND_LOAD_TRIGGER, true);
@@ -472,14 +479,45 @@ class spell_hun_lock_and_load : public SpellScriptLoader
             {
                 DoCheckProc += AuraCheckProcFn(spell_hun_lock_and_load_AuraScript::CheckProc);
 
-                OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_TRAP_ACTIVATION>, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-                OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load_AuraScript::HandleProcs<PROC_FLAG_DONE_PERIODIC>, EFFECT_1, SPELL_AURA_DUMMY);
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load_AuraScript::CheckTrapProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load_AuraScript::CheckPeriodicProc, EFFECT_1, SPELL_AURA_DUMMY);
+
+                OnProc += AuraProcFn(spell_hun_lock_and_load_AuraScript::HandleProc);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_lock_and_load_AuraScript();
+        }
+};
+
+// 56342 - Lock and Load (Rank 1)
+class spell_hun_lock_and_load_dummy : public SpellScriptLoader
+{
+    public:
+        spell_hun_lock_and_load_dummy() : SpellScriptLoader("spell_hun_lock_and_load_dummy") { }
+
+        class spell_hun_lock_and_load_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lock_and_load_dummy_AuraScript);
+
+            bool DummyCheck(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                // Prevents Aura proc from this dummy effect
+                // Only rank 1 has this aura
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load_dummy_AuraScript::DummyCheck, EFFECT_2, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_lock_and_load_dummy_AuraScript();
         }
 };
 
@@ -1155,6 +1193,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
+    new spell_hun_lock_and_load_dummy();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
