@@ -154,7 +154,8 @@ enum WintergraspQuests
 {
     QUEST_VICTORY_WINTERGRASP_A   = 13181,
     QUEST_VICTORY_WINTERGRASP_H   = 13183,
-    QUEST_CREDIT_TOWERS_DESTROYED = 35074
+    QUEST_CREDIT_TOWERS_DESTROYED = 35074,
+    QUEST_CREDIT_DEFEND_SIEGE     = 31284
 };
 
 /*#########################
@@ -343,7 +344,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
          * \brief Called when a wall/tower is broken
          * - Update quest
          */
-        void BrokenWallOrTower(TeamId team);
+        void BrokenWallOrTower(TeamId team, BfWGGameObjectBuilding* building);
 
         /**
          * \brief Called when a tower is damaged
