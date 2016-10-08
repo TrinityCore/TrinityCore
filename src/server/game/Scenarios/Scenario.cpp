@@ -221,9 +221,15 @@ void Scenario::BuildScenarioState(WorldPackets::Scenario::ScenarioState* scenari
         if (state.first->IsBonusObjective())
             continue;
 
-        if (state.second != SCENARIO_STEP_IN_PROGRESS ||
-            state.second != SCENARIO_STEP_DONE)
-            continue;
+        switch (state.second)
+        {
+            case SCENARIO_STEP_IN_PROGRESS:
+            case SCENARIO_STEP_DONE:
+                break;
+            case SCENARIO_STEP_NOT_STARTED:
+            default:
+                continue;
+        }
 
         scenarioState->TraversedSteps.push_back(state.first->ID);
     }
