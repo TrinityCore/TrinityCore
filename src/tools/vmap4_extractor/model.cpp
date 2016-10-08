@@ -51,9 +51,11 @@ bool Model::open()
     {
         ++m2start;
         ++ptr;
+        if (m2start + sizeof(ModelHeader) > f.getSize())
+            return false;
     }
 
-    memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
+    memcpy(&header, f.getBuffer() + m2start, sizeof(ModelHeader));
     if (header.nBoundingTriangles > 0)
     {
         f.seek(m2start);
@@ -185,21 +187,21 @@ ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID
         return;
 
     uint16 adtId = 0;// not used for models
-    uint32 flags = MOD_M2;
+    uint32 tcflags = MOD_M2;
     if (tileX == 65 && tileY == 65)
-        flags |= MOD_WORLDSPAWN;
+        tcflags |= MOD_WORLDSPAWN;
 
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
-    fwrite(&flags, sizeof(uint32), 1, pDirfile);
+    fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
     fwrite(&adtId, sizeof(uint16), 1, pDirfile);
     fwrite(&id, sizeof(uint32), 1, pDirfile);
     fwrite(&pos, sizeof(float), 3, pDirfile);
     fwrite(&rot, sizeof(float), 3, pDirfile);
     fwrite(&sc, sizeof(float), 1, pDirfile);
-    uint32 nlen=strlen(ModelInstName);
+    uint32 nlen = strlen(ModelInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
 

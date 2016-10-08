@@ -112,7 +112,9 @@ enum TrinityStrings
     LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 79,
     LANG_PVPSTATS                       = 80,
     LANG_PVPSTATS_DISABLED              = 81,
-    // Free 82 - 95
+    LANG_COMMAND_NEARGRAVEYARD          = 82,
+    LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
+    // Free 84 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -897,7 +899,10 @@ enum TrinityStrings
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
     LANG_ACCOUNT_INVALID_BNET_NAME      = 1029,
     LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030,
-    // Room for more level 4              1031-1099 not used
+    LANG_ACCOUNT_PASS_TOO_LONG          = 1031,
+    LANG_ACCOUNT_CREATED_BNET_WITH_GAME = 1032,
+    LANG_ACCOUNT_CREATED_BNET           = 1033,
+    // Room for more level 4              1034-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
@@ -1130,7 +1135,17 @@ enum TrinityStrings
     LANG_COMMAND_MUTEHISTORY_EMPTY      = 5060,
     LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
 
-    // Room for more Trinity strings      5062-9999
+    // Scene debugs commands
+    LANG_COMMAND_SCENE_DEBUG_ON         = 5062,
+    LANG_COMMAND_SCENE_DEBUG_OFF        = 5063,
+    LANG_COMMAND_SCENE_DEBUG_PLAY       = 5064,
+    LANG_COMMAND_SCENE_DEBUG_TRIGGER    = 5065,
+    LANG_COMMAND_SCENE_DEBUG_CANCEL     = 5066,
+    LANG_COMMAND_SCENE_DEBUG_COMPLETE   = 5067,
+    LANG_DEBUG_SCENE_OBJECT_LIST        = 5068,
+    LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069,
+
+    // Room for more Trinity strings      5070-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
@@ -1218,6 +1233,8 @@ enum TrinityStrings
     LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
     LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
     LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
-    LANG_INSTANCE_BIND_MISMATCH                   = 11014
+    LANG_INSTANCE_BIND_MISMATCH                   = 11014,
+    LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
+    LANG_SELECT_PLAYER_OR_PET                     = 11016,
 };
 #endif

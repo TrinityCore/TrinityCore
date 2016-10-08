@@ -35,7 +35,7 @@ namespace Connection_Patcher
 
             struct x64
             {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0xC6, 0x44, 0x24, 0x28, 0x01 }; }
+                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x41, 0xB1, 0x01 }; }
                 static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0xEB }; }
             };
         };

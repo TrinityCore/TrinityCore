@@ -44,11 +44,11 @@ enum LevelLimit
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
     // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 100,
+    DEFAULT_MAX_LEVEL = 110,
 
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
     // also see GT_MAX_LEVEL define
-    MAX_LEVEL = 100,
+    MAX_LEVEL = 110,
 
     // Server side limitation. Base at used code requirements.
     // also see MAX_LEVEL and GT_MAX_LEVEL define
@@ -137,6 +137,17 @@ enum AreaFlags
     AREA_FLAG_NO_FLY_ZONE           = 0x20000000,                // Marks zones where you cannot fly
     AREA_FLAG_UNK9                  = 0x40000000
 };
+
+enum ArtifactPowerFlag : uint8
+{
+    ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
+    ARTIFACT_POWER_FLAG_FIRST                       = 0x02,
+    ARTIFACT_POWER_FLAG_FINAL                       = 0x04,
+    ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS      = 0x08,
+    ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
+};
+
+#define BATTLE_PET_SPECIES_MAX_ID 1942
 
 enum ChrSpecializationFlag
 {
@@ -456,6 +467,11 @@ enum CharSectionType
     SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
 };
 
+enum Curves
+{
+    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS = 1718
+};
+
 enum Difficulty : uint8
 {
     DIFFICULTY_NONE                 = 0,
@@ -566,15 +582,19 @@ enum GlyphSlotType
 
 enum ItemEnchantmentType
 {
-    ITEM_ENCHANTMENT_TYPE_NONE             = 0,
-    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL     = 1,
-    ITEM_ENCHANTMENT_TYPE_DAMAGE           = 2,
-    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL      = 3,
-    ITEM_ENCHANTMENT_TYPE_RESISTANCE       = 4,
-    ITEM_ENCHANTMENT_TYPE_STAT             = 5,
-    ITEM_ENCHANTMENT_TYPE_TOTEM            = 6,
-    ITEM_ENCHANTMENT_TYPE_USE_SPELL        = 7,
-    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET = 8
+    ITEM_ENCHANTMENT_TYPE_NONE                              = 0,
+    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL                      = 1,
+    ITEM_ENCHANTMENT_TYPE_DAMAGE                            = 2,
+    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL                       = 3,
+    ITEM_ENCHANTMENT_TYPE_RESISTANCE                        = 4,
+    ITEM_ENCHANTMENT_TYPE_STAT                              = 5,
+    ITEM_ENCHANTMENT_TYPE_TOTEM                             = 6,
+    ITEM_ENCHANTMENT_TYPE_USE_SPELL                         = 7,
+    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET                  = 8,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE = 9,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID   = 10,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_ID                     = 11,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12
 };
 
 enum ItemExtendedCostFlags
@@ -589,18 +609,20 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL                = 1,
-    ITEM_BONUS_STAT                      = 2,
-    ITEM_BONUS_QUALITY                   = 3,
-    ITEM_BONUS_DESCRIPTION               = 4,
-    ITEM_BONUS_SUFFIX                    = 5,
-    ITEM_BONUS_SOCKET                    = 6,
-    ITEM_BONUS_APPEARANCE                = 7,
-    ITEM_BONUS_REQUIRED_LEVEL            = 8,
-    ITEM_BONUS_DISPLAY_TOAST_METHOD      = 9,
-    ITEM_BONUS_REPAIR_COST_MULTIPLIER    = 10,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION = 11,
-    ITEM_BONUS_UNK_12                    = 12
+    ITEM_BONUS_ITEM_LEVEL                   = 1,
+    ITEM_BONUS_STAT                         = 2,
+    ITEM_BONUS_QUALITY                      = 3,
+    ITEM_BONUS_DESCRIPTION                  = 4,
+    ITEM_BONUS_SUFFIX                       = 5,
+    ITEM_BONUS_SOCKET                       = 6,
+    ITEM_BONUS_APPEARANCE                   = 7,
+    ITEM_BONUS_REQUIRED_LEVEL               = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD         = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER       = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
+    ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
+    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14
 };
 
 enum ItemLimitCategoryMode
@@ -711,7 +733,20 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
 
-#define TaxiMaskSize 236
+enum SpellShapeshiftFormFlags
+{
+    SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT         = 0x0001,
+    SHAPESHIFT_FORM_CANNOT_CANCEL               = 0x0002,   // player cannot cancel the aura giving this shapeshift
+    SHAPESHIFT_FORM_CAN_INTERACT                = 0x0008,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag must be present to allow NPC interaction
+    SHAPESHIFT_FORM_CAN_EQUIP_ITEMS             = 0x0040,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows equipping items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    SHAPESHIFT_FORM_CAN_USE_ITEMS               = 0x0080,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows using items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    SHAPESHIFT_FORM_CAN_AUTO_UNSHIFT            = 0x0100,   // clientside
+    SHAPESHIFT_FORM_PREVENT_LFG_TELEPORT        = 0x0200,
+    SHAPESHIFT_FORM_PREVENT_USING_OWN_SKILLS    = 0x0400,   // prevents using spells that don't have any shapeshift requirement
+    SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
+};
+
+#define TaxiMaskSize 239
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -846,13 +881,19 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
-    CURRENCY_TYPE_CONQUEST_POINTS       = 390,
-    CURRENCY_TYPE_HONOR_POINTS          = 392,
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
-    CURRENCY_TYPE_CONQUEST_META_ARENA   = 483,
-    CURRENCY_TYPE_CONQUEST_META_RBG     = 484,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum SceneFlags
+{
+    SCENEFLAG_UNK1              = 0x01,
+    SCENEFLAG_UNK2              = 0x02,
+    SCENEFLAG_NOT_CANCELABLE    = 0x04,
+    SCENEFLAG_UNK8              = 0x08,
+    SCENEFLAG_UNK16             = 0x10, // 16, most common value
 };
 
 #endif

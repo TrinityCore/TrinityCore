@@ -28,8 +28,6 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <stdarg.h>
-#include <cstring>
 #include <ctime>
 
 // Searcher for map of structs

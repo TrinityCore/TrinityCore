@@ -232,17 +232,26 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData const& itemGemInstanceData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemEnchantData const& itemEnchantData)
 {
-    data << uint8(itemGemInstanceData.Slot);
-    data << itemGemInstanceData.Item;
+    data << int32(itemEnchantData.ID);
+    data << uint32(itemEnchantData.Expiration);
+    data << int32(itemEnchantData.Charges);
+    data << uint8(itemEnchantData.Slot);
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemInstanceData& itemGemInstanceData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemData const& itemGemData)
 {
-    data >> itemGemInstanceData.Slot;
-    data >> itemGemInstanceData.Item;
+    data << uint8(itemGemData.Slot);
+    data << itemGemData.Item;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemData& itemGemData)
+{
+    data >> itemGemData.Slot;
+    data >> itemGemData.Item;
     return data;
 }
 
@@ -319,10 +328,15 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     ItemID = voidItem->ItemEntry;
     RandomPropertiesID = voidItem->ItemRandomPropertyId;
     RandomPropertiesSeed = voidItem->ItemSuffixFactor;
-    if (voidItem->ItemUpgradeId)
+    if (voidItem->ItemUpgradeId || voidItem->FixedScalingLevel || voidItem->ArtifactKnowledgeLevel)
     {
         Modifications = boost::in_place();
-        Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+        if (voidItem->ItemUpgradeId)
+            Modifications->Insert(ITEM_MODIFIER_UPGRADE_ID, voidItem->ItemUpgradeId);
+        if (voidItem->FixedScalingLevel)
+            Modifications->Insert(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, voidItem->FixedScalingLevel);
+        if (voidItem->ArtifactKnowledgeLevel)
+            Modifications->Insert(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, voidItem->ArtifactKnowledgeLevel);
     }
 
     if (!voidItem->BonusListIDs.empty())

@@ -84,7 +84,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 {
                     if (gemData.ItemId)
                     {
-                        WorldPackets::Item::ItemGemInstanceData gem;
+                        WorldPackets::Item::ItemGemData gem;
                         gem.Slot = i;
                         gem.Item.Initialize(&gemData);
                         tradeItem.Unwrapped->Gems.push_back(gem);

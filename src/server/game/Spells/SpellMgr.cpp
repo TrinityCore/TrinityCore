@@ -2655,11 +2655,11 @@ void SpellMgr::LoadSpellInfoStore()
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
-        ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect->EffectIndex);
-        ASSERT(effect->Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect->Effect);
-        ASSERT(effect->EffectAura < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect->EffectAura);
-        ASSERT(effect->ImplicitTarget[0] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[0]);
-        ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1]);
+        ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect->EffectIndex + 1);
+        ASSERT(effect->Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect->Effect + 1);
+        ASSERT(effect->EffectAura < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect->EffectAura + 1);
+        ASSERT(effect->ImplicitTarget[0] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[0] + 1);
+        ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1] + 1);
 
         SpellEffectEntryVector& effectsForDifficulty = effectsBySpell[effect->SpellID][effect->DifficultyID];
         if (effectsForDifficulty.size() <= effect->EffectIndex)
@@ -3487,13 +3487,9 @@ void SpellMgr::LoadPetFamilySpellsStore()
         if (!levels->DifficultyID)
             levelsBySpell[levels->SpellID] = levels;
 
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
-        if (!skillLine)
-            continue;
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
+        SpellInfo const* spellInfo = GetSpellInfo(skillLine->SpellID);
         if (!spellInfo)
             continue;
 
@@ -3501,24 +3497,17 @@ void SpellMgr::LoadPetFamilySpellsStore()
         if (levels != levelsBySpell.end() && levels->second->SpellLevel)
             continue;
 
-        if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))
+        if (spellInfo->IsPassive())
         {
-            if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
+            for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
             {
-                for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
-                {
-                    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
-                    if (!cFamily)
-                        continue;
+                if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
+                    continue;
 
-                    if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
-                        continue;
+                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                    continue;
 
-                    if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
-                        continue;
-
-                    sPetFamilySpellsStore[i].insert(spellInfo->ID);
-                }
+                sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->Id);
             }
         }
     }

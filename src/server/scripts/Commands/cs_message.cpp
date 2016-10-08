@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "Language.h"
 #include "Player.h"
@@ -63,21 +64,50 @@ public:
         if (!*args)
             return false;
         char const* channelStr = strtok((char*)args, " ");
-        char const* argStr = strtok(NULL, "");
+        char const* argStr = strtok(nullptr, "");
 
         if (!channelStr || !argStr)
             return false;
 
+        uint32 channelId = 0;
+        for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+        {
+            ChatChannelsEntry const* channelEntry = sChatChannelsStore.LookupEntry(i);
+            if (!channelEntry)
+                continue;
+
+            if (strstr(channelEntry->Name->Str[handler->GetSessionDbcLocale()], channelStr))
+            {
+                channelId = i;
+                break;
+            }
+        }
+
+        AreaTableEntry const* zoneEntry = nullptr;
+        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
+        {
+            AreaTableEntry const* entry = sAreaTableStore.LookupEntry(i);
+            if (!entry)
+                continue;
+
+            if (strstr(entry->AreaName->Str[handler->GetSessionDbcLocale()], channelStr))
+            {
+                zoneEntry = entry;
+                break;
+            }
+        }
+
         Player* player = handler->GetSession()->GetPlayer();
-        Channel* channcel = NULL;
+        Channel* channel = nullptr;
 
         if (ChannelMgr* cMgr = ChannelMgr::ForTeam(player->GetTeam()))
-            channcel = cMgr->GetChannel(channelStr, player);
+            channel = cMgr->GetChannel(channelId, channelStr, player, false, zoneEntry);
 
         if (strcmp(argStr, "on") == 0)
         {
-            if (channcel)
-                channcel->SetOwnership(true);
+            if (channel)
+                channel->SetOwnership(true);
+
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 1);
             stmt->setString(1, channelStr);
@@ -86,8 +116,9 @@ public:
         }
         else if (strcmp(argStr, "off") == 0)
         {
-            if (channcel)
-                channcel->SetOwnership(false);
+            if (channel)
+                channel->SetOwnership(false);
+
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 0);
             stmt->setString(1, channelStr);

@@ -824,6 +824,42 @@ namespace WorldPackets
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
         };
+
+        class DisplayGameError final : public ServerPacket
+        {
+        public:
+            DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
+            DisplayGameError(GameError error, int32 arg) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4), Error(error), Arg(arg) { }
+            DisplayGameError(GameError error, int32 arg1, int32 arg2) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4 + 4), Error(error), Arg(arg1), Arg2(arg2) { }
+
+            WorldPacket const* Write() override;
+
+            GameError Error;
+            Optional<int32> Arg;
+            Optional<int32> Arg2;
+        };
+
+        class AccountMountUpdate final : public ServerPacket
+        {
+        public:
+            AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            MountContainer const* Mounts = nullptr;
+        };
+
+        class MountSetFavorite final : public ClientPacket
+        {
+        public:
+            MountSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SET_FAVORITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MountSpellID = 0;
+            bool IsFavorite = false;
+        };
     }
 }
 

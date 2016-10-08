@@ -88,6 +88,7 @@ LogsDir = ""
 #    LoginDatabaseInfo
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
+#    HotfixDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -115,6 +116,7 @@ HotfixDatabaseInfo    = "127.0.0.1;3306;trinity;trinity;hotfixes"
 #    LoginDatabase.WorkerThreads
 #    WorldDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
+#    HotfixDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. Each worker thread is mirrored with its own connection to the
 #                     MySQL server and their own thread on the MySQL server.
@@ -132,11 +134,12 @@ HotfixDatabase.WorkerThreads    = 1
 #    LoginDatabase.SynchThreads
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
+#    HotfixDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
-#                     1 - (HotfixDatabase.WorkerThreads)
+#        Default:     1 - (LoginDatabase.SynchThreads)
+#                     1 - (WorldDatabase.SynchThreads)
+#                     2 - (CharacterDatabase.SynchThreads)
+#                     1 - (HotfixDatabase.SynchThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
@@ -668,14 +671,15 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     5 - (Expansion 5)
+#        Default:     6 - (Expansion 6)
+#                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
 #                     3 - (Expansion 3)
 #                     2 - (Expansion 2)
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 5
+Expansion = 6
 
 #
 #    MinPlayerName
@@ -796,7 +800,7 @@ CharactersPerRealm = 12
 #
 #    HeroicCharactersPerRealm
 #        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
+#        Range:       1-12
 #        Default:     1
 
 HeroicCharactersPerRealm = 1
@@ -810,6 +814,24 @@ HeroicCharactersPerRealm = 1
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForHeroicCharacter = 55
+
+#
+#    DemonHuntersPerRealm
+#        Description: Limit number of demon hunter characters per account on this realm.
+#        Range:       1-12
+#        Default:     1
+
+DemonHuntersPerRealm = 1
+
+#
+#    CharacterCreating.MinLevelForDemonHunter
+#        Description: Limit creating demon hunters only for account with another
+#                     character of specific level.
+#        Default:     70 - (Enabled, Requires at least another level 70 character)
+#                     0  - (Disabled)
+#                     1  - (Enabled, Requires at least another level 1 character)
+
+CharacterCreating.MinLevelForDemonHunter = 70
 
 #
 #    SkipCinematics
@@ -852,6 +874,14 @@ StartPlayerLevel = 1
 #        Default:     55
 
 StartHeroicPlayerLevel = 55
+
+#
+#    StartDemonHunterPlayerLevel
+#        Description: Staring level for demon hunters after creation.
+#        Range:       98-MaxPlayerLevel
+#        Default:     98
+
+StartDemonHunterPlayerLevel = 98
 
 #
 #    StartPlayerMoney
@@ -1889,6 +1919,13 @@ GM.AllowInvite = 0
 GM.LowerSecurity = 0
 
 #
+#    GM.ForceShutdownThreshold
+#        Description: Minimum shutdown time in seconds before 'force' is required if other players are connected.
+#        Default:     30
+
+GM.ForceShutdownThreshold = 30
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1996,28 +2033,27 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #    Rate.RunicPower.Loss
 #    Rate.Focus
 #    Rate.Energy
-#    Rate.Loyalty
-#        Description: Multiplier to configure health, mana, incoming rage, loss of rage, focus
-#                     energy and loyalty increase or decrease.
-#        Default:     1 - (Rate.Health)
-#                     1 - (Rate.Mana)
-#                     1 - (Rate.Rage.Income)
-#                     1 - (Rate.Rage.Loss)
-#                     1 - (Rate.RunicPower.Income)
-#                     1 - (Rate.RunicPower.Loss)
-#                     1 - (Rate.Focus)
-#                     1 - (Rate.Energy)
-#                     1 - (Rate.Loyalty)
+#        Description: Multiplier to configure health and power increase or decrease.
+#        Default:     1 for all regen rates
 
 Rate.Health            = 1
 Rate.Mana              = 1
-Rate.Rage.Income       = 1
+Rate.Rage.Gain         = 1
 Rate.Rage.Loss         = 1
-Rate.RunicPower.Income = 1
-Rate.RunicPower.Loss   = 1
 Rate.Focus             = 1
 Rate.Energy            = 1
-Rate.Loyalty           = 1
+Rate.ComboPoints.Loss  = 1
+Rate.RunicPower.Gain   = 1
+Rate.RunicPower.Loss   = 1
+Rate.SoulShards.Loss   = 1
+Rate.LunarPower.Loss   = 1
+Rate.HolyPower.Loss    = 1
+Rate.Maelstrom.Loss    = 1
+Rate.Chi.Loss          = 1
+Rate.Insanity.Loss     = 1
+Rate.ArcaneCharges.Loss= 1
+Rate.Fury.Loss         = 1
+Rate.Pain.Loss         = 1
 
 #
 #    Rate.Skill.Discovery
@@ -3111,6 +3147,20 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#     Creature.CheckInvalidPosition
+#        Description: Check possible invalid position for creatures at startup (WARNING: SLOW WORLD SERVER STARTUP)
+#        Default:     0  - (Do not show)
+
+Creature.CheckInvalidPosition = 0
+
+#
+#     GameObject.CheckInvalidPosition
+#        Description: Check possible invalid position for game objects at startup (WARNING: SLOW WORLD SERVER STARTUP)
+#        Default:     0  - (Do not show)
+
+GameObject.CheckInvalidPosition = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -3810,22 +3860,6 @@ Currency.ResetDay = 3
 Currency.ResetHour = 6
 
 #
-#    Currency.StartHonorPoints
-#        Amount of honor points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartHonorPoints = 0
-
-#
-#    Currency.MaxHonorPoints
-#        Amount honor points a player can have
-#        Default: 4000
-#
-
-Currency.MaxHonorPoints = 4000
-
-#
 #    Currency.StartApexisCrystals
 #        Amount of Apexis Crystals that new players will start with
 #        Default: 0 (with precision)
@@ -3856,30 +3890,6 @@ Currency.StartJusticePoints = 0
 #
 
 Currency.MaxJusticePoints = 4000
-
-#
-#    Currency.StartConquestPoints
-#        Amount of conquest points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartConquestPoints = 0
-
-#
-#    Currency.ConquestPointsWeekCap
-#        Amount of conquest points that player can earn per week
-#        Default: 1350
-#
-
-Currency.ConquestPointsWeekCap = 1350
-
-#
-#    Currency.ConquestPointsArenaReward
-#        Amount of conquest points rewarded by winning arenas
-#        Default: 180
-#
-
-Currency.ConquestPointsArenaReward = 180
 
 #
 ###################################################################################################

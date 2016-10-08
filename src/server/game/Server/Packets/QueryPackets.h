@@ -53,7 +53,9 @@ namespace WorldPackets
             bool Leader = false;
             std::vector<int32> QuestItems;
             uint32 CreatureMovementInfoID = 0;
+            int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;
+            uint32 VignetteID = 0;
             uint32 Flags[2];
             uint32 ProxyCreatureID[MAX_KILL_CREDIT];
             uint32 CreatureDisplayID[MAX_CREATURE_MODELS];
@@ -237,7 +239,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 Expansion = 0;
+            uint32 RequiredLevel = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket

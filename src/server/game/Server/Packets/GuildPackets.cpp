@@ -624,7 +624,7 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket.WriteBit(item.Locked);
         _worldPacket.FlushBits();
 
-        for (Item::ItemGemInstanceData const& socketEnchant : item.SocketEnchant)
+        for (Item::ItemGemData const& socketEnchant : item.SocketEnchant)
             _worldPacket << socketEnchant;
     }
 

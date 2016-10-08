@@ -420,6 +420,8 @@ enum OpcodeClient : uint32
     CMSG_MOVE_CHANGE_VEHICLE_SEATS                    = 0x3A31,
     CMSG_MOVE_CHARM_TELEPORT_CHEAT                    = 0x39F6,
     CMSG_MOVE_DISMISS_VEHICLE                         = 0x3A30,
+    CMSG_MOVE_DOUBLE_JUMP                             = 0x39EB,
+    CMSG_MOVE_ENABLE_DOUBLE_JUMP_ACK                  = 0x3A1B,
     CMSG_MOVE_ENABLE_SWIM_TO_FLY_TRANS_ACK            = 0x3A21,
     CMSG_MOVE_FALL_LAND                               = 0x39F9,
     CMSG_MOVE_FALL_RESET                              = 0x3A16,
@@ -592,6 +594,7 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                    = 0x321C,
     CMSG_REQUEST_VEHICLE_PREV_SEAT                    = 0x321B,
     CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x321D,
+    CMSG_REQUEST_WORLD_QUEST_UPDATE                   = 0x3323,
     CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE               = 0x36EC,
     CMSG_RESET_CHALLENGE_MODE                         = 0x31EB,
     CMSG_RESET_INSTANCES                              = 0x366D,
@@ -775,6 +778,7 @@ enum OpcodeServer : uint32
     SMSG_ARTIFACT_APPEARANCE_CHANGED                  = 0x27E3,
     SMSG_ARTIFACT_FORGE_OPENED                        = 0x27E1,
     SMSG_ARTIFACT_POWERS_UPDATED                      = 0x27E2,
+    SMSG_ARTIFACT_RESPEC_CONFIRM                      = 0x27E4,
     SMSG_ARTIFACT_XP_GAIN                             = 0x2823,
     SMSG_ATTACKER_STATE_UPDATE                        = 0x27CE,
     SMSG_ATTACK_START                                 = 0x2669,
@@ -1255,9 +1259,11 @@ enum OpcodeServer : uint32
     SMSG_MOUNT_RESULT                                 = 0x257A,
     SMSG_MOVE_APPLY_MOVEMENT_FORCE                    = 0x2DE1,
     SMSG_MOVE_DISABLE_COLLISION                       = 0x2DDD,
+    SMSG_MOVE_DISABLE_DOUBLE_JUMP                     = 0x2DCB,
     SMSG_MOVE_DISABLE_GRAVITY                         = 0x2DDB,
     SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x2DDA,
     SMSG_MOVE_ENABLE_COLLISION                        = 0x2DDE,
+    SMSG_MOVE_ENABLE_DOUBLE_JUMP                      = 0x2DCA,
     SMSG_MOVE_ENABLE_GRAVITY                          = 0x2DDC,
     SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY  = 0x2DD9,
     SMSG_MOVE_KNOCK_BACK                              = 0x2DD1,
@@ -1673,6 +1679,7 @@ enum OpcodeServer : uint32
     SMSG_WEEKLY_SPELL_USAGE                           = 0x2C18,
     SMSG_WHO                                          = 0x2BAE,
     SMSG_WHO_IS                                       = 0x26CB,
+    SMSG_WORLD_QUEST_UPDATE                           = 0x283C,
     SMSG_WORLD_SERVER_INFO                            = 0x25C0,
     SMSG_WORLD_TEXT                                   = 0x2824,
     SMSG_WOW_TOKEN_AUCTION_SOLD                       = 0x2813,
@@ -1693,7 +1700,7 @@ enum OpcodeServer : uint32
     SMSG_ZONE_UNDER_ATTACK                            = 0x2BBA,
 
     // Opcodes that are not generated automatically
-    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0xBADD, // no client handler
+    SMSG_ACCOUNT_HEIRLOOM_UPDATE                      = 0x25C3, // no client handler
     SMSG_ITEM_UPGRADE_RESULT                          = 0xBADD, // no client handler
     SMSG_COMPRESSED_PACKET                            = 0x3052,
     SMSG_MULTIPLE_PACKETS                             = 0x3051,
@@ -1815,7 +1822,7 @@ class OpcodeTable
         }
 
     private:
-        template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
+        template<typename Handler, Handler HandlerFunction>
         void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
 
         void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);

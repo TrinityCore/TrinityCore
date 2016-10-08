@@ -246,7 +246,7 @@ void strToLower(char* str)
     }
 }
 
-// copied from contrib/extractor/System.cpp
+// copied from src\tools\map_extractor\System.cpp
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
@@ -264,7 +264,7 @@ void ReadLiquidTypeTableDBC()
         exit(1);
     }
 
-    LiqType.resize(db2.GetMaxId(), 0xFFFF);
+    LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
 
     for (uint32 x = 0; x < db2.GetNumRows(); ++x)
     {

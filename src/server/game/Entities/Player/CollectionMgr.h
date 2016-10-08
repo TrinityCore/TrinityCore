@@ -48,12 +48,22 @@ struct HeirloomData
 typedef std::map<uint32, bool> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
+enum MountStatusFlags : uint8
+{
+    MOUNT_STATUS_NONE   = 0x00,
+    MOUNT_NEEDS_FANFARE = 0x01,
+    MOUNT_IS_FAVORITE   = 0x02
+};
+
+typedef std::map<uint32, MountStatusFlags> MountContainer;
+typedef std::unordered_map<uint32, uint32> MountDefinitionMap;
+
 class TC_GAME_API CollectionMgr
 {
 public:
     explicit CollectionMgr(WorldSession* owner);
 
-    WorldSession* GetOwner() const { return _owner; }
+    static void LoadMountDefinitions();
 
     // Account-wide toys
     void LoadToys();
@@ -83,6 +93,13 @@ public:
     HeirloomContainer const& GetAccountHeirlooms() const { return _heirlooms; }
 
     // Account-wide mounts
+    void LoadMounts();
+    void LoadAccountMounts(PreparedQueryResult result);
+    void SaveAccountMounts(SQLTransaction& trans);
+    bool AddMount(uint32 spellId, MountStatusFlags flags, bool factionMount = false, bool learned = false);
+    void MountSetFavorite(uint32 spellId, bool favorite);
+    void SendSingleMountUpdate(std::pair<uint32, MountStatusFlags> mount);
+    MountContainer const& GetAccountMounts() const { return _mounts; }
 
     // Appearances
     void LoadItemAppearances();
@@ -114,6 +131,7 @@ private:
 
     ToyBoxContainer _toys;
     HeirloomContainer _heirlooms;
+    MountContainer _mounts;
     boost::dynamic_bitset<uint32> _appearances;
     std::unordered_map<uint32, std::unordered_set<ObjectGuid>> _temporaryAppearances;
     std::unordered_map<uint32, FavoriteAppearanceState> _favoriteAppearances;

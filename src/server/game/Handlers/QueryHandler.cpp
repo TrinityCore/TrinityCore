@@ -99,7 +99,9 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.EnergyMulti = creatureInfo->ModMana;
 
         stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->expansionUnknown;
+        stats.RequiredExpansion = creatureInfo->RequiredExpansion;
+        stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
+        stats.VignetteID = creatureInfo->VignetteID;
 
         stats.Title = creatureInfo->SubName;
         //stats.TitleAlt = ;
@@ -158,7 +160,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
                 stats.QuestItems.push_back(item);
 
         memcpy(stats.Data, gameObjectInfo->raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
-        stats.Expansion = gameObjectInfo->unkInt32;
+        stats.RequiredLevel = gameObjectInfo->RequiredLevel;
     }
 
     SendPacket(response.Write());
@@ -234,8 +236,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
 
     if (!response.Allow)
         TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text %u in `npc_text table`", packet.TextID);
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 
     SendPacket(response.Write());
 }

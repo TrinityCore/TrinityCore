@@ -28,8 +28,11 @@
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "MoveSplineInit.h"
+#include <boost/container/flat_set.hpp>
 
 #define WORLD_TRIGGER   12999
+#define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
+#define SPELL_DH_DOUBLE_JUMP 196055
 
 enum SpellInterruptFlags
 {
@@ -772,7 +775,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_SPELLCLICK            = 0x0001000000,     // cause client to send 1015 opcode (spell click)
     UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x0002000000,     // players with mounts that have vehicle data should have it set
     UNIT_NPC_FLAG_MAILBOX               = 0x0004000000,     // mailbox
-    UNIT_NPC_FLAG_REFORGER              = 0x0008000000,     // reforging
+    UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC = 0x0008000000,     // artifact powers reset
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x0010000000,     // transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x0020000000,     // void storage
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
@@ -863,7 +866,8 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK12                    = 0x00001000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00004000,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000,
+    MOVEMENTFLAG2_DOUBLE_JUMP              = 0x00010000
 };
 
 enum UnitTypeMask
@@ -1339,7 +1343,8 @@ class TC_GAME_API Unit : public WorldObject
         typedef std::list<AuraApplication *> AuraApplicationList;
         typedef std::list<DiminishingReturn> Diminishing;
 
-        typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
+        struct VisibleAuraSlotCompare { bool operator()(AuraApplication* left, AuraApplication* right) const; };
+        typedef std::set<AuraApplication*, VisibleAuraSlotCompare> VisibleAuraContainer;
 
         virtual ~Unit();
 
@@ -1476,7 +1481,7 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyCastTimePercentMod(float val, bool apply);
 
         SheathState GetSheath() const { return SheathState(GetByteValue(UNIT_FIELD_BYTES_2, 0)); }
-        virtual void SetSheath(SheathState sheathed) { SetByteValue(UNIT_FIELD_BYTES_2, 0, sheathed); }
+        void SetSheath(SheathState sheathed) { SetByteValue(UNIT_FIELD_BYTES_2, 0, sheathed); }
 
         // faction template id
         uint32 getFaction() const { return GetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE); }
@@ -1613,7 +1618,6 @@ class TC_GAME_API Unit : public WorldObject
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
-        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
@@ -1693,6 +1697,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool packetOnly = false);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
+        bool SetDoubleJump(bool enable, bool packetOnly = false);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
@@ -2020,10 +2025,11 @@ class TC_GAME_API Unit : public WorldObject
         void removeHatedBy(HostileReference* /*pHostileReference*/) { /* nothing to do yet */ }
         HostileRefManager& getHostileRefManager() { return m_HostileRefManager; }
 
-        VisibleAuraMap const* GetVisibleAuras() { return &m_visibleAuras; }
-        AuraApplication * GetVisibleAura(uint8 slot) const;
-        void SetVisibleAura(uint8 slot, AuraApplication * aur);
-        void RemoveVisibleAura(uint8 slot);
+        VisibleAuraContainer const& GetVisibleAuras() const { return m_visibleAuras; }
+        bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.count(aurApp) > 0; }
+        void SetVisibleAura(AuraApplication* aurApp);
+        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
+        void RemoveVisibleAura(AuraApplication* aurApp);
 
         uint32 GetInterruptMask() const { return m_interruptMask; }
         void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
@@ -2133,11 +2139,11 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetUnitMovementFlags() const { return m_movementInfo.GetMovementFlags(); }
         void SetUnitMovementFlags(uint32 f) { m_movementInfo.SetMovementFlags(f); }
 
-        void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.AddExtraMovementFlag(f); }
-        void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.RemoveExtraMovementFlag(f); }
-        bool HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
-        uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.GetExtraMovementFlags(); }
-        void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.SetExtraMovementFlags(f); }
+        void AddExtraUnitMovementFlag(uint32 f) { m_movementInfo.AddExtraMovementFlag(f); }
+        void RemoveExtraUnitMovementFlag(uint32 f) { m_movementInfo.RemoveExtraMovementFlag(f); }
+        bool HasExtraUnitMovementFlag(uint32 f) const { return m_movementInfo.HasExtraMovementFlag(f); }
+        uint32 GetExtraUnitMovementFlags() const { return m_movementInfo.GetExtraMovementFlags(); }
+        void SetExtraUnitMovementFlags(uint32 f) { m_movementInfo.SetExtraMovementFlags(f); }
         bool IsSplineEnabled() const;
 
         float GetPositionZMinusOffset() const;
@@ -2158,7 +2164,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateReactives(uint32 p_time);
 
         // group updates
-        void UpdateAuraForGroup(uint8 slot);
+        void UpdateAuraForGroup();
 
         // proc trigger system
         bool CanProc() const {return !m_procDeep;}
@@ -2309,7 +2315,9 @@ class TC_GAME_API Unit : public WorldObject
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
-        VisibleAuraMap m_visibleAuras;
+
+        VisibleAuraContainer m_visibleAuras;
+        boost::container::flat_set<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
         float m_speed_rate[MAX_MOVE_TYPE];
 

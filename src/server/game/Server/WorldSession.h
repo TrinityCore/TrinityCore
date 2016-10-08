@@ -80,6 +80,13 @@ namespace WorldPackets
         class GuildSetFocusedAchievement;
     }
 
+    namespace Artifact
+    {
+        class ArtifactAddPower;
+        class ArtifactSetAppearance;
+        class ConfirmArtifactRespec;
+    }
+
     namespace AuctionHouse
     {
         class AuctionHelloRequest;
@@ -425,6 +432,7 @@ namespace WorldPackets
         class WorldTeleport;
         class MountSpecial;
         class SetTaxiBenchmarkMode;
+        class MountSetFavorite;
     }
 
     namespace Movement
@@ -551,6 +559,7 @@ namespace WorldPackets
         class QuestLogRemoveQuest;
         class QuestPushResult;
         class PushQuestToParty;
+        class RequestWorldQuestUpdate;
     }
 
     namespace RaF
@@ -1238,7 +1247,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
 
         void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& packet);
-        void HandleMoveWorldportAckOpcode();                // for server-side calls
+        void HandleMoveWorldportAck();                // for server-side calls
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
@@ -1457,6 +1466,7 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
+        void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
@@ -1672,6 +1682,8 @@ class TC_GAME_API WorldSession
         void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
 
+        void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
+
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
         void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
@@ -1717,6 +1729,11 @@ class TC_GAME_API WorldSession
         void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
 
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
+
+        // Artifact
+        void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
+        void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
+        void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
 
         union ConnectToKey
         {

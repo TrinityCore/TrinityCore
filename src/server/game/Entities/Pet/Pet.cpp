@@ -302,6 +302,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         castData.CasterGUID = owner->GetGUID();
         castData.CasterUnit = owner->GetGUID();
+        castData.CastID = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, summonSpellId, map->GenerateLowGuid<HighGuid::Cast>());
         castData.SpellID = summonSpellId;
         castData.CastFlags = CAST_FLAG_UNKNOWN_9;
         castData.CastTime = getMSTime();
@@ -871,7 +872,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         // remove elite bonuses included in DB values
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
-        SetCreateHealth(stats->BaseHealth[cinfo->expansion]);
+        SetCreateHealth(stats->BaseHealth[cinfo->HealthScalingExpansion]);
         SetCreateMana(stats->BaseMana);
 
         SetCreateStat(STAT_STRENGTH, 22);

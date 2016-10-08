@@ -317,8 +317,6 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCance
         //! DISABLE_ROTATE
         GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
 void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
@@ -1155,4 +1153,9 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
     WorldPackets::Misc::SpecialMountAnim specialMountAnim;
     specialMountAnim.UnitGUID = _player->GetGUID();
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
+}
+
+void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite)
+{
+    _collectionMgr->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
 }

@@ -33,8 +33,8 @@ script:
   - ./contrib/check_updates.sh characters 6.x characters
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - mysql -utrinity -ptrinity hotfixes < sql/base/dev/hotfixes_database.sql
-  - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
-  - cat sql/updates/hotfixes/*.sql | mysql -utrinity -ptrinity hotfixes
+  - cat sql/updates/world/6.x/*.sql | mysql -utrinity -ptrinity world
+  - cat sql/updates/hotfixes/6.x/*.sql | mysql -utrinity -ptrinity hotfixes
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 8 -k && make install

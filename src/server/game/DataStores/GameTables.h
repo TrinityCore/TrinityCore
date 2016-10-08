@@ -26,6 +26,11 @@ struct GtArmorMitigationByLvlEntry
     float Mitigation = 0.0f;
 };
 
+struct GtArtifactLevelXPEntry
+{
+    float XP = 0.0f;
+};
+
 struct GtBarberShopCostBaseEntry
 {
     float Cost = 0.0f;
@@ -182,6 +187,7 @@ private:
 };
 
 TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>       sArmorMitigationByLvlGameTable;
+TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>            sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>         sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                     sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>              sCombatRatingsGameTable;
