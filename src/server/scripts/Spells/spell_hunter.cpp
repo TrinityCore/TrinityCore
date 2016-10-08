@@ -237,20 +237,15 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             {
                                 spellId = SPELL_HUNTER_CHIMERA_SHOT_VIPER;
 
-                                // Amount of one aura tick (C&P from AuraEffect::HandlePeriodicManaLeechAuraTick)
-                                basePoint = aurEff->GetAmount();
-                                    // max value
-                                    int32 maxmana = CalculatePct(caster->GetMaxPower(POWER_MANA), basePoint * 2.0f);
-                                    ApplyPct(basePoint, caster->GetMaxPower(POWER_MANA));
-                                    if (basePoint > maxmana)
-                                        basePoint = maxmana;
+                                // % of mana drained in max duration
+                                basePoint = aurEff->GetAmount() * aurEff->GetTotalTicks();
 
-                                basePoint = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
-                                int32 casterBasePoint = CalculatePct(caster->GetMaxPower(POWER_MANA), aurEff->GetAmount() * 2.0f);
-                                if (basePoint > casterBasePoint)
-                                    basePoint = casterBasePoint;
+                                // max value
+                                int32 maxManaReturn = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), basePoint * 2);
+                                ApplyPct(basePoint, unitTarget->GetMaxPower(POWER_MANA));
+                                if (basePoint > maxManaReturn)
+                                    basePoint = maxManaReturn;
 
-                                basePoint *= aurEff->GetTotalTicks();
                                 ApplyPct(basePoint, 60);
                             }
                             // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
@@ -265,8 +260,6 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
                     if (spellId)
                         caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, basePoint, unitTarget, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
-                    if (spellId == SPELL_HUNTER_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
-                        caster->GetSpellHistory()->AddCooldown(spellId, 0, std::chrono::minutes(1));
                 }
             }
 
