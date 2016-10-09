@@ -129,9 +129,9 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (eventInfo.GetDamageInfo())
+            if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
             {
-                switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+                switch (GetFirstSchoolInMask(damageInfo->GetSchoolMask()))
                 {
                     case SPELL_SCHOOL_HOLY:
                     case SPELL_SCHOOL_FIRE:
@@ -529,8 +529,12 @@ class spell_dk_blood_gorged : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 1.5f);
-                GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, _procTarget, true, NULL, aurEff);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 bp = static_cast<int32>(damageInfo->GetDamage() * 1.5f);
+                GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, _procTarget, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1436,7 +1440,7 @@ public:
         {
             PreventDefaultAction();
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
-                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL, SPELLVALUE_BASE_POINT0, CalculatePct(int32(dmgInfo->GetDamage()), aurEff->GetAmount()),
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_IMPROVED_BLOOD_PRESENCE_HEAL, SPELLVALUE_BASE_POINT0, CalculatePct(static_cast<int32>(dmgInfo->GetDamage()), aurEff->GetAmount()),
                     eventInfo.GetActor(), true, nullptr, aurEff);
         }
 
