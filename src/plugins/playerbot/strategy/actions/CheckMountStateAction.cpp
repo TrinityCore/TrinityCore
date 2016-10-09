@@ -36,7 +36,10 @@ bool CheckMountStateAction::Mount()
     ai->RemoveShapeshift();
 
     Unit::AuraEffectList const& auras = master->GetAuraEffectsByType(SPELL_AURA_MOUNTED);
-    const SpellInfo* masterSpell = auras.front()->GetSpellInfo();
+    AuraEffect* front = auras.front();
+    if (!front) return false;
+
+    const SpellInfo* masterSpell = front->GetSpellInfo();
     int32 masterSpeed = max(masterSpell->Effects[1].BasePoints, masterSpell->Effects[2].BasePoints);
 
     map<uint32, map<int32, vector<uint32> > > allSpells;
