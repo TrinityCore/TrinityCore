@@ -598,15 +598,19 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return false;
+
+                return GetTarget()->GetGuardianPet();
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff); // TARGET_UNIT_PET
+                int32 heal = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff); // TARGET_UNIT_PET
             }
 
             void Register() override
@@ -969,7 +973,7 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo)
+                if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
                 int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
@@ -1026,7 +1030,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo)
+                if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
                 int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();

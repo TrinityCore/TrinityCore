@@ -805,9 +805,16 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_ROAR_OF_SACRIFICE_TRIGGERED });
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
+            bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                return GetCaster() && (eventInfo.GetDamageInfo()->GetSchoolMask() & GetEffect(EFFECT_1)->GetMiscValue()) != 0;
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !(damageInfo->GetSchoolMask() & aurEff->GetMiscValue()))
+                    return false;
+
+                if (!GetCaster())
+                    return false;
+
+                return true;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -820,7 +827,7 @@ class spell_hun_roar_of_sacrifice : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc);
+                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc, EFFECT_1, SPELL_AURA_DUMMY);
                 OnEffectProc += AuraEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
