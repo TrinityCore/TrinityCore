@@ -2228,13 +2228,8 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
 
     if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(float(M_PI), this))
     {
-        // Check creatures flags_extra for disable block
-        if (victim->GetTypeId() == TYPEID_UNIT &&
-            victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
-                return false;
-
         float blockChance = GetUnitBlockChance(attackType, victim);
-        if (roll_chance_f(blockChance))
+        if (blockChance && roll_chance_f(blockChance))
             return true;
     }
 
@@ -2339,7 +2334,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canDodge = false;
 
         // only if in front
-        if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+        if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp += deflect_chance;
@@ -2484,8 +2479,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     int32 tmp = 10000 - HitChance;
 
-    int32 rand = irand(0, 10000);
-
+    int32 rand = irand(0, 9999);
     if (rand < tmp)
         return SPELL_MISS_MISS;
 
