@@ -44,4 +44,13 @@ struct TC_COMMON_API DB2Meta
     uint8 const* ArraySizes;
 };
 
+struct TC_COMMON_API DB2FieldMeta
+{
+    DB2FieldMeta(bool isSigned, DBCFormer type, char const* name);
+
+    bool IsSigned;
+    DBCFormer Type;
+    char const* Name;
+};
+
 #endif // DB2Meta_h__
