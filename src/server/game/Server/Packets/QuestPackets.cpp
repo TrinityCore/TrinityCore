@@ -288,9 +288,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferRew
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestData; // WorldPackets::Quest::QuestGiverOfferReward
+    _worldPacket << int32(QuestPackageID);
     _worldPacket << int32(PortraitTurnIn);
     _worldPacket << int32(PortraitGiver);
-    _worldPacket << int32(QuestPackageID);
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(RewardText.size(), 12);
