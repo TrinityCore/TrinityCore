@@ -1827,7 +1827,7 @@ bool InitTriggerAuraData()
     return true;
 }
 
-+void SpellMgr::LoadSpellProcs()
+void SpellMgr::LoadSpellProcs()
 {
     uint32 oldMSTime = getMSTime();
 
