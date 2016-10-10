@@ -3004,6 +3004,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 56342: // Lock and Load (Rank 1)
+                // @workaround: Delete dummy effect from rank 1,
+                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
+                // core bug?
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 53480: // Roar of Sacrifice
                 // missing spell effect 2 data, taken from 4.3.4
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;

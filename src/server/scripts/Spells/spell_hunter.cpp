@@ -664,35 +664,6 @@ class spell_hun_lock_and_load : public SpellScriptLoader
         }
 };
 
-// 56342 - Lock and Load (Rank 1)
-class spell_hun_lock_and_load_dummy : public SpellScriptLoader
-{
-    public:
-        spell_hun_lock_and_load_dummy() : SpellScriptLoader("spell_hun_lock_and_load_dummy") { }
-
-        class spell_hun_lock_and_load_dummy_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_lock_and_load_dummy_AuraScript);
-
-            bool DummyCheck(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevents Aura proc from this dummy effect
-                // Only rank 1 has this aura
-                return false;
-            }
-
-            void Register() override
-            {
-                DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load_dummy_AuraScript::DummyCheck, EFFECT_2, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hun_lock_and_load_dummy_AuraScript();
-        }
-};
-
 // 53271 - Masters Call
 class spell_hun_masters_call : public SpellScriptLoader
 {
@@ -1514,7 +1485,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_kill_command_pet();
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
-    new spell_hun_lock_and_load_dummy();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
