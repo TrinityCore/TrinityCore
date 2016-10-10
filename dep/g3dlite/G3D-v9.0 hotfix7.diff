@@ -1,0 +1,16 @@
+ dep/g3dlite/include/G3D/g3dmath.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dep/g3dlite/include/G3D/g3dmath.h b/dep/g3dlite/include/G3D/g3dmath.h
+index a32fdaf..54cc6ed 100644
+--- a/dep/g3dlite/include/G3D/g3dmath.h
++++ b/dep/g3dlite/include/G3D/g3dmath.h
+@@ -934,7 +934,7 @@ inline double signedPow(double b, double e) {
+ 
+ namespace std {
+ inline int pow(int a, int b) {
+-    return (int)pow(double(a), double(b));
++    return (int)::pow(double(a), double(b));
+ }
+ 
+ }
