@@ -2801,17 +2801,25 @@ public:
 class player_ghoulAI : public PlayerAI
 {
     public:
-        player_ghoulAI(Player* player, ObjectGuid ghoulGUID) : PlayerAI(player), _ghoulGUID(ghoulGUID) { }
+        player_ghoulAI(Player* player, ObjectGuid ghoulGUID) : PlayerAI(player), _ghoulGUID(ghoulGUID), _ghoulCheckTimer(1000){ }
 
-        void UpdateAI(uint32 /*diff*/) override
+        void UpdateAI(uint32 diff) override
         {
-            Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID);
-            if (!ghoul || !ghoul->IsAlive())
-                me->RemoveAura(SPELL_DK_RAISE_ALLY);
+            if (_ghoulCheckTimer <= diff)
+            {
+                _ghoulCheckTimer = 1000;
+
+                Creature* ghoul = ObjectAccessor::GetCreature(*me, _ghoulGUID);
+                if (!ghoul || !ghoul->IsAlive())
+                    me->RemoveAura(SPELL_DK_RAISE_ALLY);
+            }
+            else
+                _ghoulCheckTimer -= diff;
         }
 
     private:
         ObjectGuid _ghoulGUID;
+        uint32 _ghoulCheckTimer;
 };
 
 // 46619 - Raise Ally
@@ -2833,7 +2841,7 @@ public:
         void SendText()
         {
             if (Unit* original = GetOriginalCaster())
-                original->Whisper(TEXT_RISE_ALLY, GetCaster()->ToPlayer(), true);
+                original->Unit::Whisper(TEXT_RISE_ALLY, GetCaster()->ToPlayer(), true);
         }
 
         void HandleSummon(SpellEffIndex effIndex)
