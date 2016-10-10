@@ -4680,4 +4680,4 @@ struct WorldSafeLocsLoadInfo
     }
 };
 
-#endif DB2LoadInfo_h__
+#endif // DB2LoadInfo_h__
