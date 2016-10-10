@@ -239,8 +239,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     //calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
     {
-        uint32 rnd = urand(1, 100);
-        if (e.event.event_chance <= rnd)
+        if (!roll_chance_i(e.event.event_chance))
             return;
     }
     e.runOnce = true;//used for repeat check
