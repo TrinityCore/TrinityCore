@@ -9,7 +9,8 @@ using namespace std;
 enum RandomItemType
 {
     RANDOM_ITEM_GUILD_TASK,
-    RANDOM_ITEM_GUILD_TASK_REWARD
+    RANDOM_ITEM_GUILD_TASK_REWARD_EQUIP,
+    RANDOM_ITEM_GUILD_TASK_REWARD_TRADE
 };
 
 class RandomItemPredicate

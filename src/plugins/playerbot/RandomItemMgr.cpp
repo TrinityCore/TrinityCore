@@ -37,6 +37,8 @@ public:
 class RandomItemGuildTaskRewardPredicate : public RandomItemPredicate
 {
 public:
+    RandomItemGuildTaskRewardPredicate(bool equip) { this->equip = equip; }
+
     virtual bool Apply(ItemTemplate const* proto)
     {
         if (proto->Bonding == BIND_WHEN_PICKED_UP ||
@@ -50,14 +52,24 @@ public:
         if (proto->Class == ITEM_CLASS_QUEST)
             return false;
 
-        return true;
+        if (equip && (proto->Class == ITEM_CLASS_ARMOR || proto->Class == ITEM_CLASS_WEAPON))
+            return true;
+
+        if (!equip && (proto->Class == ITEM_CLASS_TRADE_GOODS || proto->Class == ITEM_CLASS_CONSUMABLE))
+            return true;
+
+        return false;
     }
+
+private:
+    bool equip;
 };
 
 RandomItemMgr::RandomItemMgr()
 {
     predicates[RANDOM_ITEM_GUILD_TASK] = new RandomItemGuildTaskPredicate();
-    predicates[RANDOM_ITEM_GUILD_TASK_REWARD] = new RandomItemGuildTaskRewardPredicate();
+    predicates[RANDOM_ITEM_GUILD_TASK_REWARD_EQUIP] = new RandomItemGuildTaskRewardPredicate(true);
+    predicates[RANDOM_ITEM_GUILD_TASK_REWARD_TRADE] = new RandomItemGuildTaskRewardPredicate(false);
 }
 
 RandomItemMgr::~RandomItemMgr()

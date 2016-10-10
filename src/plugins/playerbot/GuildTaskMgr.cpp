@@ -378,6 +378,8 @@ uint32 GuildTaskMgr::GetMaxItemTaskCount(uint32 itemId)
 
     if (proto->Quality < ITEM_QUALITY_RARE && proto->Stackable && proto->GetMaxStackSize() > 1)
         return proto->GetMaxStackSize();
+    else if (proto->Stackable && proto->GetMaxStackSize() > 1)
+        return urand(1 + proto->GetMaxStackSize() / 4, proto->GetMaxStackSize());
 
     return 1;
 }
@@ -657,6 +659,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
     body << "Hello, " << player->GetName() << ",\n";
     body << "\n";
 
+    RandomItemType rewardType;
     if (itemTask)
     {
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemTask);
@@ -668,6 +671,7 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
         body << "Many thanks,\n";
         body << guild->GetName() << "\n";
         body << leader->GetName() << "\n";
+        rewardType = RANDOM_ITEM_GUILD_TASK_REWARD_EQUIP;
     }
     else if (killTask)
     {
@@ -680,12 +684,13 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
         body << "Many thanks,\n";
         body << guild->GetName() << "\n";
         body << leader->GetName() << "\n";
+        rewardType = RANDOM_ITEM_GUILD_TASK_REWARD_TRADE;
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     MailDraft draft("Thank You", body.str());
 
-    uint32 itemId = sRandomItemMgr.GetRandomItem(RANDOM_ITEM_GUILD_TASK_REWARD);
+    uint32 itemId = sRandomItemMgr.GetRandomItem(rewardType);
     if (itemId)
     {
         Item* item = Item::CreateItem(itemId, 1, leader);
