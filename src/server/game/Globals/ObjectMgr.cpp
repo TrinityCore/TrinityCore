@@ -518,8 +518,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
+    //                                                0       1       2      3       4       5            6           7
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, visibilityRange, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -547,8 +547,15 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
+        creatureAddon.visibilityRange = fields[6].GetUInt32();
 
-        Tokenizer tokens(fields[6].GetString(), ' ');
+        if (creatureAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry %u) has invalid value %u for visibilityRange field in `creature_template_addon`. Value cannot exceed %u.", entry, creatureAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            creatureAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
+        }
+
+        Tokenizer tokens(fields[7].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -6850,8 +6857,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold FROM gameobject_template_addon");
+    //                                                 0       1       2       3        4           5
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, visibilityRange FROM gameobject_template_addon");
 
     if (!result)
     {
@@ -6878,6 +6885,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.flags   = fields[2].GetUInt32();
         gameObjectAddon.mingold = fields[3].GetUInt32();
         gameObjectAddon.maxgold = fields[4].GetUInt32();
+        gameObjectAddon.visibilityRange = fields[5].GetUInt32();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -6894,6 +6902,12 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
                     break;
             }
+        }
+
+        if (gameObjectAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
+        {
+            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u) has invalid value %u for visibilityRange field in `gameobject_template_addon`. Value cannot exceed %u.", entry, gameObjectAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            gameObjectAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
         }
 
         ++count;

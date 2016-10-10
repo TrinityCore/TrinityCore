@@ -250,7 +250,6 @@ _lastDamagedTime(0)
 
     DisableReputationGain = false;
 
-    m_SightDistance = sWorld->getFloatConfig(CONFIG_SIGHT_MONSTER);
     m_CombatDistance = 0;//MELEE_RANGE;
 
     ResetLootMode(); // restore default loot mode
@@ -554,6 +553,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         SetControlled(true, UNIT_STATE_ROOT);
 
     UpdateMovementFlags();
+    SetVisibilityRange(GetMap()->GetVisibilityRange());
     LoadCreaturesAddon();
     LoadMechanicTemplateImmunity();
     return true;
@@ -2446,6 +2446,9 @@ bool Creature::LoadCreaturesAddon()
             TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());
         }
     }
+
+    if (uint32 visibilityRange = cainfo->visibilityRange)
+        SetVisibilityRange(visibilityRange);
 
     return true;
 }
