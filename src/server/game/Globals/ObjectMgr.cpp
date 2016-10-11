@@ -551,7 +551,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         if (creatureAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry %u) has invalid value %u for visibilityRange field in `creature_template_addon`. Value cannot exceed %u.", entry, creatureAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry %u) has invalid value %u for visibilityRange field in `creature_template_addon`. Value cannot exceed %f.", entry, creatureAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
             creatureAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
         }
 
@@ -6906,7 +6906,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 
         if (gameObjectAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
         {
-            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u) has invalid value %u for visibilityRange field in `gameobject_template_addon`. Value cannot exceed %u.", entry, gameObjectAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u) has invalid value %u for visibilityRange field in `gameobject_template_addon`. Value cannot exceed %f.", entry, gameObjectAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
             gameObjectAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
         }
 
