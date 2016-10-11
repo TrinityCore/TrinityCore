@@ -574,7 +574,7 @@ struct GameObjectTemplateAddon
     uint32  flags;
     uint32  mingold;
     uint32  maxgold;
-    uint32  visibilityRange;
+    float  visibilityRange;
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -903,8 +903,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void AIM_Destroy();
         bool AIM_Initialize();
 
-        uint32 GetVisibilityRange() const { return m_visibilityRange; }
-        void SetVisibilityRange(uint32 visibilityRange) { m_visibilityRange = visibilityRange; }
+        float GetVisibilityRange() const { return m_visibilityRange; }
+        void SetVisibilityRange(float visibilityRange) { m_visibilityRange = visibilityRange; }
 
     protected:
         GameObjectModel* CreateModel();
@@ -942,7 +942,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 m_lootGenerationTime;
-        uint32 m_visibilityRange;
+        float m_visibilityRange;
 
         ObjectGuid m_linkedTrap;
 

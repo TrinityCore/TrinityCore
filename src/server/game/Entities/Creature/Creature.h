@@ -343,7 +343,7 @@ struct CreatureAddon
     uint32 bytes2;
     uint32 emote;
     std::vector<uint32> auras;
-    uint32 visibilityRange;
+    float visibilityRange;
 };
 
 typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
@@ -725,8 +725,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
 
-        uint32 GetVisibilityRange() const { return m_VisibilityRange; }
-        void SetVisibilityRange(uint32 visibilityRange) { m_VisibilityRange = visibilityRange; }
+        float GetVisibilityRange() const { return m_VisibilityRange; }
+        void SetVisibilityRange(float visibilityRange) { m_VisibilityRange = visibilityRange; }
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -804,7 +804,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
-        uint32 m_VisibilityRange;
+        float m_VisibilityRange;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

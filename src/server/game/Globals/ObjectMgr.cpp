@@ -547,11 +547,11 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
         creatureAddon.emote   = fields[5].GetUInt32();
-        creatureAddon.visibilityRange = fields[6].GetUInt32();
+        creatureAddon.visibilityRange = fields[6].GetFloat();
 
         if (creatureAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry %u) has invalid value %u for visibilityRange field in `creature_template_addon`. Value cannot exceed %f.", entry, creatureAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry %u) has invalid value %f for visibilityRange field in `creature_template_addon`. Value cannot exceed %f.", entry, creatureAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
             creatureAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
         }
 
@@ -6885,7 +6885,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.flags   = fields[2].GetUInt32();
         gameObjectAddon.mingold = fields[3].GetUInt32();
         gameObjectAddon.maxgold = fields[4].GetUInt32();
-        gameObjectAddon.visibilityRange = fields[5].GetUInt32();
+        gameObjectAddon.visibilityRange = fields[5].GetFloat();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -6906,7 +6906,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 
         if (gameObjectAddon.visibilityRange > MAX_VISIBILITY_DISTANCE)
         {
-            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u) has invalid value %u for visibilityRange field in `gameobject_template_addon`. Value cannot exceed %f.", entry, gameObjectAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
+            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u) has invalid value %f for visibilityRange field in `gameobject_template_addon`. Value cannot exceed %f.", entry, gameObjectAddon.visibilityRange, MAX_VISIBILITY_DISTANCE);
             gameObjectAddon.visibilityRange = MAX_VISIBILITY_DISTANCE;
         }
 
