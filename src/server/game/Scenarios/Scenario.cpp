@@ -144,10 +144,6 @@ void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress co
     SendPacket(progressUpdate.Write());
 }
 
-void Scenario::SendCriteriaProgressRemoved(uint32 criteriaId)
-{
-}
-
 bool Scenario::CanUpdateCriteriaTree(Criteria const * /*criteria*/, CriteriaTree const * tree, Player * /*referencePlayer*/) const
 {
     ScenarioStepEntry const* step = tree->ScenarioStep;
