@@ -1485,23 +1485,21 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 
 void Creature::SetSpawnHealth()
 {
+    if (!m_creatureData)
+        return;
+
     uint32 curhealth;
 
     if (!m_regenHealth)
     {
-        if (m_creatureData)
+        curhealth = m_creatureData->curhealth;
+        if (curhealth)
         {
-            curhealth = m_creatureData->curhealth;
-            if (curhealth)
-            {
-                curhealth = uint32(curhealth*_GetHealthMod(GetCreatureTemplate()->rank));
-                if (curhealth < 1)
-                    curhealth = 1;
-            }
-            SetPower(POWER_MANA, m_creatureData->curmana);
+            curhealth = uint32(curhealth*_GetHealthMod(GetCreatureTemplate()->rank));
+            if (curhealth < 1)
+                curhealth = 1;
         }
-        else
-            curhealth = GetHealth();
+        SetPower(POWER_MANA, m_creatureData->curmana);
     }
     else
     {
