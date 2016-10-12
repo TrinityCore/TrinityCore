@@ -3287,6 +3287,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
             case 42767: // Sic'em
+            case 43092: // Stop the Ascension!: Halfdan's Soul Destruction
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
                 break;
             // VIOLET HOLD SPELLS
