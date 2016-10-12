@@ -890,10 +890,13 @@ namespace Trinity
     class AnyGroupedUnitInObjectRangeCheck
     {
         public:
-            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) { }
+            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid, bool playerOnly = false) : _source(obj), _refUnit(funit), _range(range), _raid(raid), _playerOnly(playerOnly) { }
             bool operator()(Unit* u)
             {
-                if (G3D::fuzzyEq(_range, 0))
+                if (G3D::fuzzyEq(_range, 0.0f))
+                    return false;
+
+                if (_playerOnly && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
                 if (_raid)
@@ -912,6 +915,7 @@ namespace Trinity
             Unit const* _refUnit;
             float _range;
             bool _raid;
+            bool _playerOnly;
     };
 
     class AnyUnitInObjectRangeCheck
@@ -958,16 +962,18 @@ namespace Trinity
     class AnyAoETargetUnitInObjectRangeCheck
     {
         public:
-            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range)
-                : i_obj(obj), i_funit(funit), _spellInfo(NULL), i_range(range)
+            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, SpellInfo const* spellInfo = nullptr)
+                : i_obj(obj), i_funit(funit), _spellInfo(spellInfo), i_range(range)
             {
                 Unit const* check = i_funit;
                 Unit const* owner = i_funit->GetOwner();
                 if (owner)
                     check = owner;
                 i_targetForPlayer = (check->GetTypeId() == TYPEID_PLAYER);
-                if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                    _spellInfo = sSpellMgr->GetSpellInfo(dynObj->GetSpellId());
+
+                if (!_spellInfo)
+                    if (DynamicObject const* dynObj = i_obj->ToDynObject())
+                        _spellInfo = sSpellMgr->GetSpellInfo(dynObj->GetSpellId());
             }
             bool operator()(Unit* u)
             {
@@ -975,10 +981,10 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : NULL) && i_obj->IsWithinDistInMap(u, i_range))
-                    return true;
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
 
-                return false;
+                return i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range);
             }
         private:
             bool i_targetForPlayer;
