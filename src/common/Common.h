@@ -115,6 +115,9 @@ enum AccountTypes
 
 enum LocaleConstant
 {
+	LOCALE_ERROR = -1,
+
+	LOCALE_enGB = 0,
     LOCALE_enUS = 0,
     LOCALE_koKR = 1,
     LOCALE_frFR = 2,
@@ -128,7 +131,7 @@ enum LocaleConstant
     LOCALE_ptBR = 10,
     LOCALE_itIT = 11,
 
-    TOTAL_LOCALES
+    TOTAL_LOCALES = 12
 };
 
 const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
