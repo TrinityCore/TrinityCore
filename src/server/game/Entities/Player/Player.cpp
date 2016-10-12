@@ -23176,10 +23176,9 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
 
 void Player::ApplyEquipCooldown(Item* pItem)
 {
-    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
-        return;
-
     ItemTemplate const* proto = pItem->GetTemplate();
+    if (proto->GetFlags() & ITEM_FLAG_NO_EQUIP_COOLDOWN)
+        return;
 
     for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
