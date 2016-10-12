@@ -16,7 +16,7 @@ INSERT INTO `creature_template_addon` (`entry`, `bytes1`, `auras`) VALUES
 
 UPDATE `creature_template` SET `unit_flags`=33587456, `dynamicflags`=32, `inhabittype`=4, `speed_walk`=0.6 WHERE `entry`=24119;
 
-SET @CGUID := 900001;
+SET @CGUID := 42887;
 DELETE FROM `creature` WHERE `guid` IN (@CGUID, @CGUID+1);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID  , 24118, 571, 0, 0, 1, 2, 0, 0, 1676.912, -4108.803, 278.9944, 0.1675403, 300, 0, 0, 1, 0, 0, 0, 0, 0, 0),
