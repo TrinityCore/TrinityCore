@@ -9911,6 +9911,17 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
                 if (speed > max_speed)
                     speed = max_speed;
             }
+
+            if (mtype == MOVE_RUN)
+            {
+                // force minimum speed rate @ aura 437 SPELL_AURA_MOD_MINIMUM_SPEED_RATE
+                if (int32 minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED_RATE))
+                {
+                    float minSpeed = minSpeedMod / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
+                    if (speed < minSpeed)
+                        speed = minSpeed;
+                }
+            }
             break;
         }
         default:

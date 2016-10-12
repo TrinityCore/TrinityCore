@@ -496,7 +496,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //434
     &AuraEffect::HandleNULL,                                      //435
     &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_MOD_ENVIRONMENTAL_DAMAGE_TAKEN
-    &AuraEffect::HandleNULL,                                      //437
+    &AuraEffect::HandleAuraModMinimumSpeedRate,                   //437 SPELL_AURA_MOD_MINIMUM_SPEED_RATE
     &AuraEffect::HandleNULL,                                      //438 SPELL_AURA_PRELOAD_PHASE
     &AuraEffect::HandleNULL,                                      //439
     &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_MOD_MULTISTRIKE_DAMAGE
@@ -3166,6 +3166,16 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
     target->UpdateSpeed(MOVE_RUN);
     target->UpdateSpeed(MOVE_SWIM);
     target->UpdateSpeed(MOVE_FLIGHT);
+}
+
+void AuraEffect::HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    target->UpdateSpeed(MOVE_RUN);
 }
 
 /*********************************************************/
