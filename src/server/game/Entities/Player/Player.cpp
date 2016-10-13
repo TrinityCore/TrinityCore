@@ -10213,7 +10213,9 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
             return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
         }
 
-        if (limitEntry->mode == ITEM_LIMIT_CATEGORY_MODE_HAVE)
+        // For some unknown reason, the "mode" field in ItemLimitCategory.dbc is not an integer, but a string that is either empty or contains the value "Jeweler's Gems".
+        // If it is empty, item limit is applied to owned items (same behavior as Unique flag). If it's not empty, item limit is applied to equipped items (Jewelcrafting gems, normal/heroic ICC trinkets).
+        if (!*limitEntry->mode)
         {
             uint32 curcount = GetItemCountWithLimitCategory(pProto->ItemLimitCategory, pItem);
             if (curcount + count > uint32(limitEntry->maxCount))

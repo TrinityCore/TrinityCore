@@ -876,7 +876,7 @@ struct ItemLimitCategoryEntry
     //char*     name[16]                                    // 1-16     m_name_lang
                                                             // 17 name flags
     uint32      maxCount;                                   // 18, max allowed equipped as item or in gem slot
-    uint32      mode;                                       // 19, 0 = have, 1 = equip (enum ItemLimitCategoryMode)
+    char*       mode;                                       // 19, "Jeweler's Gems" = have, empty string = equip
 };
 
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
