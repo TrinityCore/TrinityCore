@@ -181,7 +181,7 @@ bool Scenario::CanCompleteCriteriaTree(CriteriaTree const* tree)
     return true;
 }
 
-void Scenario::CompletedCriteriaTree(CriteriaTree const * tree, Player * referencePlayer)
+void Scenario::CompletedCriteriaTree(CriteriaTree const* tree, Player* /*referencePlayer*/)
 {
     ScenarioStepEntry const* step = tree->ScenarioStep;
     if (!step)
@@ -301,7 +301,7 @@ CriteriaList const & Scenario::GetCriteriaByType(CriteriaTypes type) const
     return sCriteriaMgr->GetScenarioCriteriaByType(type);
 }
 
-void Scenario::SendBootPlayer(Player* player) const
+void Scenario::SendBootPlayer(Player* player)
 {
     player->SendDirectMessage(WorldPackets::Scenario::ScenarioBoot().Write());
 }

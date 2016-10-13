@@ -67,7 +67,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ScenarioStepEntry const* GetFirstStep() const;
 
         void SendScenarioState(Player* player);
-        void SendBootPlayer(Player* player) const;
+        static void SendBootPlayer(Player* player);
 
     protected:
         GuidSet m_players;
