@@ -3290,6 +3290,16 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 43092: // Stop the Ascension!: Halfdan's Soul Destruction
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
                 break;
+            case 14621: // Polymorph (Six Demon Bag)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(4); // Medium Range
+                break;
+            case 35101: // Concussive Barrage
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(155); // Hunter Range (Long)
+                break;
+            case 55741: // Desecration (Rank 1)
+            case 68766: // Desecration (Rank 2)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Melee Range
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
