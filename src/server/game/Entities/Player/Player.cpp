@@ -10291,7 +10291,7 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
     return false;
 }
 
-bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
+bool Player::HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
 {
     uint32 tempcount = 0;
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -10313,6 +10313,26 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 
             if (tempcount >= count)
                 return true;
         }
+    }
+
+    return false;
+}
+
+bool Player::HasGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
+{
+    uint32 tempcount = 0;
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        if (i == except_slot)
+            continue;
+
+        Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (!pItem)
+            continue;
+
+        ItemTemplate const* pProto = pItem->GetTemplate();
+        if (!pProto)
+            continue;
 
         if (pProto->Socket[0].Color || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
         {
@@ -25525,7 +25545,9 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemOrGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->maxCount - limit_count + 1, except_slot))
+        if (HasItemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->maxCount - limit_count + 1, except_slot))
+            return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED;
+        else if (HasGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->maxCount - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
