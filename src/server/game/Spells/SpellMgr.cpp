@@ -811,7 +811,8 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         return true;
 
     // do triggered cast checks
-    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC))
+    // Do not consider autoattacks as triggered spells
+    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
     {
         if (Spell const* spell = eventInfo.GetProcSpell())
         {
@@ -1941,11 +1942,14 @@ void SpellMgr::LoadSpellProcs()
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
-        procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
         procEntry.ProcFlags = spellInfo->ProcFlags;
+        procEntry.SpellFamilyName = 0;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (spellInfo->Effects[i].IsEffect() && isTriggerAura[spellInfo->Effects[i].ApplyAuraName])
                 procEntry.SpellFamilyMask |= spellInfo->Effects[i].SpellClassMask;
+
+        if (procEntry.SpellFamilyMask)
+            procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
 
         procEntry.SpellTypeMask   = PROC_SPELL_TYPE_MASK_ALL;
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
@@ -3004,6 +3008,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 56342: // Lock and Load (Rank 1)
+                // @workaround: Delete dummy effect from rank 1,
+                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
+                // core bug?
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 53480: // Roar of Sacrifice
                 // missing spell effect 2 data, taken from 4.3.4
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -3277,7 +3287,18 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
             case 42767: // Sic'em
+            case 43092: // Stop the Ascension!: Halfdan's Soul Destruction
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
+                break;
+            case 14621: // Polymorph (Six Demon Bag)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(4); // Medium Range
+                break;
+            case 35101: // Concussive Barrage
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(155); // Hunter Range (Long)
+                break;
+            case 55741: // Desecration (Rank 1)
+            case 68766: // Desecration (Rank 2)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Melee Range
                 break;
             // VIOLET HOLD SPELLS
             //

@@ -326,7 +326,11 @@ class spell_warr_deep_wounds_aura : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && eventInfo.GetDamageInfo();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo)
+                    return false;
+
+                return eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -950,18 +954,18 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                if (eventInfo.GetDamageInfo())
+                if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
-                    SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
+                    SpellInfo const* spellInfo = damageInfo->GetSpellInfo();
                     if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
                     {
                         // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
-                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, NULL, aurEff);
+                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, nullptr, aurEff);
                     }
                     else
                     {
-                        int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
+                        int32 damage = damageInfo->GetDamage();
+                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
                     }
                 }
             }
