@@ -153,6 +153,7 @@ enum AuctionBotConfigUInt32Values
     CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_KEY,
     CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_MISC,
     CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_GLYPH,
+    CONFIG_AHBOT_ACCOUNT_ID,
     CONFIG_UINT32_AHBOT_UINT32_COUNT
 };
 
@@ -200,10 +201,10 @@ enum AuctionBotConfigFloatValues
 class TC_GAME_API AuctionBotConfig
 {
 private:
-    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) {}
-    ~AuctionBotConfig() {}
-    AuctionBotConfig(const AuctionBotConfig&);
-    AuctionBotConfig& operator=(const AuctionBotConfig&);
+    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20) { }
+    ~AuctionBotConfig() { }
+    AuctionBotConfig(AuctionBotConfig const&) = delete;
+    AuctionBotConfig& operator=(AuctionBotConfig const&) = delete;
 
 public:
     static AuctionBotConfig* instance();
@@ -225,6 +226,9 @@ public:
 
     uint32 GetItemPerCycleBoost() const { return _itemsPerCycleBoost; }
     uint32 GetItemPerCycleNormal() const { return _itemsPerCycleNormal; }
+    ObjectGuid::LowType GetRandChar() const;
+    ObjectGuid::LowType GetRandCharExclude(ObjectGuid::LowType exclude) const;
+    bool IsBotChar(ObjectGuid::LowType characterID) const;
     void Reload() { GetConfigFromFile(); }
 
     static char const* GetHouseTypeName(AuctionHouseType houseType);
@@ -232,6 +236,7 @@ public:
 private:
     std::string _AHBotIncludes;
     std::string _AHBotExcludes;
+    std::vector<ObjectGuid::LowType> _AHBotCharacters;
     uint32 _itemsPerCycleBoost;
     uint32 _itemsPerCycleNormal;
 
