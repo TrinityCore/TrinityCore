@@ -2778,15 +2778,18 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
             skillBonus = 0.04f * skillDiff;
         }
     }
-    else if (victim->GetTypeId() == TYPEID_UNIT && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
+    else
     {
-        chance = 5.0f;
-        chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
+        {
+            chance = 5.0f;
+            chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
 
-        if (skillDiff <= 10)
-            skillBonus = skillDiff * 0.1f;
-        else
-            skillBonus = 1.0f + (skillDiff - 10) * 1.6f;
+            if (skillDiff <= 10)
+                skillBonus = skillDiff * 0.1f;
+            else
+                skillBonus = 1.0f + (skillDiff - 10) * 1.6f;
+        }
     }
 
     chance += skillBonus;
