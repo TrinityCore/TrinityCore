@@ -2124,7 +2124,6 @@ void Unit::FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType /*= BA
 
     damageInfo.procAttacker = PROC_FLAG_NONE;
     damageInfo.procVictim = PROC_FLAG_NONE;
-    damageInfo.procEx = PROC_EX_NONE;
     damageInfo.hitOutCome = MELEE_HIT_NORMAL;
 
     SendAttackStateUpdate(&damageInfo);
