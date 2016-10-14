@@ -4351,7 +4351,7 @@ enum MindControlCap
     ROLL_CHANCE_DULLARD             = 32,
     ROLL_CHANCE_NO_BACKFIRE         = 95,
     SPELL_GNOMISH_MIND_CONTROL_CAP  = 13181,
-    SPELL_DULLARD                   = 67809     // joschiwald: "I'm not sure if both items use both spells"
+    SPELL_DULLARD                   = 67809
 };
 
 class spell_item_mind_control_cap : public SpellScriptLoader
@@ -4409,13 +4409,6 @@ enum UniversalRemote
     SPELL_TARGET_LOCK           = 8347
 };
 
-static std::unordered_map<uint32 /*spellId*/, double /*probability*/> const UniversalRemoteActions =
-{
-    { SPELL_CONTROL_MACHINE,      60.0 },
-    { SPELL_MOBILITY_MALFUNCTION, 25.0 },
-    { SPELL_TARGET_LOCK,          15.0 }
-};
-
 class spell_item_universal_remote : public SpellScriptLoader
 {
     public:
@@ -4434,21 +4427,23 @@ class spell_item_universal_remote : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (auto const& action : UniversalRemoteActions)
-                    if (!sSpellMgr->GetSpellInfo(action.first))
-                        return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONTROL_MACHINE) || !sSpellMgr->GetSpellInfo(SPELL_MOBILITY_MALFUNCTION) || !sSpellMgr->GetSpellInfo(SPELL_TARGET_LOCK))
+                    return false;
                 return true;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                auto itr = Trinity::Containers::SelectRandomWeightedContainerElement(UniversalRemoteActions, [](std::unordered_map<uint32, double>::value_type const& v) -> double
-                {
-                    return v.second;
-                });
-
                 if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, itr->first, true, GetCastItem());
+                {
+                    uint8 chance = urand(0, 99);
+                    if (chance < 15)
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                    else if (chance < 25)
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                    else
+                        GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
+                }
             }
 
             void Register() override
