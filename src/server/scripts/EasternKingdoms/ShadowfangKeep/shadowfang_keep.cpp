@@ -238,7 +238,7 @@ class boss_archmage_arugal : public CreatureScript
         struct boss_archmage_arugalAI : public BossAI
         {
             boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
-            
+
             uint32 teleportSpells[NUM_TELEPORT_SPELLS] =
             {
                 SPELL_TELE_SPAWN,
