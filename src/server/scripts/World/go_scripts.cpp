@@ -49,7 +49,6 @@ EndContentData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -1359,30 +1358,23 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_MM_START_MUSIC:
-                {
-                    if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
-                        break;
-
-                    Map::PlayerList const &players = go->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    case EVENT_MM_START_MUSIC:
                     {
-                        if (Player* player = itr->GetSource())
+                        if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
+                            break;
+
+                        std::deque<Player*> playersNearby;
+                        go->GetPlayerListInGrid(playersNearby, go->GetMap()->GetVisibilityRange());
+                        for (Player* player : playersNearby)
                         {
                             if (player->GetTeamId() == TEAM_HORDE)
-                            {
                                 go->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_H, player);
-                            }
                             else
-                            {
                                 go->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_A, player);
-                            }
                         }
+                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                        break;
                     }
-
-                    _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
-                    break;
-                }
                 default:
                     break;
                 }
