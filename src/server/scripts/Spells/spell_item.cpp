@@ -2789,6 +2789,120 @@ class spell_item_taunt_flag_targeting : public SpellScriptLoader
         }
 };
 
+
+// 13180 - Gnomish Mind Control Cap
+enum MindControlCap
+{
+    ROLL_CHANCE_DULLARD             = 32,
+    ROLL_CHANCE_NO_BACKFIRE         = 95,
+    SPELL_GNOMISH_MIND_CONTROL_CAP  = 13181,
+    SPELL_DULLARD                   = 67809
+};
+
+class spell_item_mind_control_cap : public SpellScriptLoader
+{
+    public:
+        spell_item_mind_control_cap() : SpellScriptLoader("spell_item_mind_control_cap") { }
+
+        class spell_item_mind_control_cap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_mind_control_cap_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_MIND_CONTROL_CAP) || !sSpellMgr->GetSpellInfo(SPELL_DULLARD))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
+                        caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, true, GetCastItem());
+                    else
+                        target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_mind_control_cap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_mind_control_cap_SpellScript();
+        }
+};
+
+// 8344 - Universal Remote (Gnomish Universal Remote)
+enum UniversalRemote
+{
+    SPELL_CONTROL_MACHINE       = 8345,
+    SPELL_MOBILITY_MALFUNCTION  = 8346,
+    SPELL_TARGET_LOCK           = 8347
+};
+
+class spell_item_universal_remote : public SpellScriptLoader
+{
+    public:
+        spell_item_universal_remote() : SpellScriptLoader("spell_item_universal_remote") { }
+
+        class spell_item_universal_remote_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_universal_remote_SpellScript);
+
+            bool Load() override
+            {
+                if (!GetCastItem())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONTROL_MACHINE) || !sSpellMgr->GetSpellInfo(SPELL_MOBILITY_MALFUNCTION) || !sSpellMgr->GetSpellInfo(SPELL_TARGET_LOCK))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    uint8 chance = urand(0, 99);
+                    if (chance < 15)
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                    else if (chance < 25)
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                    else
+                        GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_universal_remote_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_universal_remote_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2860,4 +2974,7 @@ void AddSC_item_spell_scripts()
     new spell_item_greatmothers_soulcatcher();
     new spell_item_toy_train_set_pulse();
     new spell_item_taunt_flag_targeting();
+
+    new spell_item_mind_control_cap();
+    new spell_item_universal_remote();
 }
