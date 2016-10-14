@@ -61,7 +61,7 @@ class TC_GAME_API SmartScript
         static bool IsUnit(WorldObject* obj);
         static bool IsPlayer(WorldObject* obj);
         static bool IsCreature(WorldObject* obj);
-        static bool IsCreatureInControlOfSelf(WorldObject* obj);
+        static bool IsCharmedCreature(WorldObject* obj);
         static bool IsGameObject(WorldObject* obj);
 
         void OnUpdate(const uint32 diff);
