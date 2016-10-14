@@ -78,12 +78,15 @@ class TC_GAME_API SmartScript
             return obj && obj->GetTypeId() == TYPEID_UNIT;
         }
 
-        static bool IsCreatureInControlOfSelf(WorldObject* obj)
+        static bool IsCharmedCreature(WorldObject* obj)
         {
-            if (Creature* creatureObj = obj ? obj->ToCreature() : nullptr)
-                return !creatureObj->IsCharmed() && !creatureObj->IsControlledByPlayer();
-            else
+            if (!obj)
                 return false;
+
+            if (Creature* creatureObj = obj->ToCreature())
+                return creatureObj->IsCharmed();
+
+            return false;
         }
 
         static bool IsGameObject(WorldObject* obj)
