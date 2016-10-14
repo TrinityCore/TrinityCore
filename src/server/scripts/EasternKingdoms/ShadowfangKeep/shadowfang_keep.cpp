@@ -235,13 +235,16 @@ class boss_archmage_arugal : public CreatureScript
     public:
         boss_archmage_arugal() : CreatureScript("boss_archmage_arugal") { }
 
-        static const uint32 teleportSpells[NUM_TELEPORT_SPELLS];
-
         struct boss_archmage_arugalAI : public BossAI
         {
-            boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) {
-                std::copy(teleportSpells, teleportSpells + NUM_TELEPORT_SPELLS, _teleportSpells);
-            }
+            boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
+            
+            uint32 teleportSpells[NUM_TELEPORT_SPELLS]
+            {
+                SPELL_TELE_SPAWN,
+                SPELL_TELE_UPPER,
+                SPELL_TELE_STAIRS
+            };
 
             void KilledUnit(Unit* who) override
             {
@@ -293,8 +296,8 @@ class boss_archmage_arugal : public CreatureScript
                         {
                             // ensure we never cast the same teleport twice in a row
                             uint8 spellIndex = urand(1, NUM_TELEPORT_SPELLS-1);
-                            std::swap(_teleportSpells[0], _teleportSpells[spellIndex]);
-                            DoCast(_teleportSpells[0]);
+                            std::swap(teleportSpells[0], teleportSpells[spellIndex]);
+                            DoCast(teleportSpells[0]);
                             events.Repeat(Seconds(20));
                             break;
                         }
@@ -313,8 +316,6 @@ class boss_archmage_arugal : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
-
-            uint32 _teleportSpells[NUM_TELEPORT_SPELLS];
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -322,7 +323,6 @@ class boss_archmage_arugal : public CreatureScript
             return GetInstanceAI<boss_archmage_arugalAI>(creature);
         }
 };
-const uint32 boss_archmage_arugal::teleportSpells[NUM_TELEPORT_SPELLS] = { SPELL_TELE_SPAWN, SPELL_TELE_UPPER, SPELL_TELE_STAIRS };
 
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
