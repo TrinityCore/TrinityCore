@@ -239,7 +239,7 @@ class boss_archmage_arugal : public CreatureScript
         {
             boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
             
-            uint32 teleportSpells[NUM_TELEPORT_SPELLS]
+            uint32 teleportSpells[NUM_TELEPORT_SPELLS] =
             {
                 SPELL_TELE_SPAWN,
                 SPELL_TELE_UPPER,
