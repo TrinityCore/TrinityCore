@@ -162,6 +162,8 @@ void AreaTrigger::Update(uint32 p_time)
         case AREATRIGGER_TYPE_CYLINDER:
             SearchUnitInCylinder();
             break;
+        default:
+            break;
     }
 }
 
