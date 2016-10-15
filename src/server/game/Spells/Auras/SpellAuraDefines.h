@@ -379,7 +379,7 @@ enum AuraType
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_MOD_RANGED_HASTE_2                           = 320,
     SPELL_AURA_MOD_NO_ACTIONS                               = 321,
-    SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
+    SPELL_AURA_INTERFERE_TARGETTING                         = 322,
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
     SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
