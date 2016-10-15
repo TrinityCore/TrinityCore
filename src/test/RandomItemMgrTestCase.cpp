@@ -76,7 +76,7 @@ protected:
 
  	void guildTaskRewardItems()
  	{
- 	   checkRandomItems(RANDOM_ITEM_GUILD_TASK_REWARD);
+ 	   checkRandomItems(RANDOM_ITEM_GUILD_TASK_REWARD_EQUIP);
 	}
 
 };
