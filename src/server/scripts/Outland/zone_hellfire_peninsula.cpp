@@ -910,7 +910,7 @@ class npc_magister_aledis : public CreatureScript
 public:
     npc_magister_aledis() : CreatureScript("npc_magister_aledis") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         CloseGossipMenuFor(player);
         creature->StopMoving();
