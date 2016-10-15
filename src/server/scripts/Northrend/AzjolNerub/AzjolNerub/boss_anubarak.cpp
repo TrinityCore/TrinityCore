@@ -128,6 +128,8 @@ public:
             _petCount = 0;
         }
 
+        bool CanAIAttack(Unit const* /*who*/) const override { return true; } // do not check boundary here
+
         void EnterCombat(Unit* who) override
         {
             BossAI::EnterCombat(who);
