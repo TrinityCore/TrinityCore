@@ -184,7 +184,7 @@ uint16 DB2FileLoaderRegularImpl::Record::GetByteSize(uint32 field) const
 uint32 DB2FileLoaderRegularImpl::Record::GetVarInt(uint32 field, uint32 arrayIndex, bool isSigned) const
 {
     ASSERT(field < file._header->FieldCount);
-    uint32 val = *reinterpret_cast<uint32*>(offset + GetOffset(field) + arrayIndex * sizeof(uint32));
+    uint32 val = *reinterpret_cast<uint32*>(offset + GetOffset(field) + arrayIndex * (4 - file.fields[field].UnusedBits / 8));
     EndianConvert(val);
     if (isSigned)
         return int32(val) << file.fields[field].UnusedBits >> file.fields[field].UnusedBits;
@@ -332,7 +332,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
     for (uint32 y = 0; y < _header->RecordCount; y++)
     {
         Record rec = getRecord(y);
-        uint32 indexVal = _loadInfo.Meta->HasIndexFieldInData() ? rec.getUInt(indexField, 0, _loadInfo.Fields[0].IsSigned) : ((uint32*)idTable)[y];
+        uint32 indexVal = _loadInfo.Meta->HasIndexFieldInData() ? rec.getUInt(indexField, 0, false) : ((uint32*)idTable)[y];
 
         indexTable[indexVal] = &dataTable[offset];
 
