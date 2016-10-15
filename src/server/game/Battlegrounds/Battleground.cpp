@@ -1910,7 +1910,7 @@ void Battleground::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
             player->StartCriteriaTimer(type, entry);
 }
 
-void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)
+void Battleground::SetBracket(PvpDifficultyEntry const* bracketEntry)
 {
     m_BracketId = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->MinLevel, bracketEntry->MaxLevel);
