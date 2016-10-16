@@ -31,6 +31,7 @@ enum TotemType
 #define SENTRY_TOTEM_SPELLID  6495
 
 #define SENTRY_TOTEM_ENTRY    3968
+#define STONECLAW_TOTEM_ENTRY 3579
 
 class TC_GAME_API Totem : public Minion
 {
