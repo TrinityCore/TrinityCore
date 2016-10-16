@@ -2049,6 +2049,42 @@ struct ScalingStatDistributionEntry
     uint32 MaxLevel;
 };
 
+struct ScenarioEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint16 Data; // Seems to indicate different things, for zone invasions, this is the area id
+    uint8 Flags;
+    uint8 Type;
+};
+
+struct ScenarioEventEntry
+{
+    uint32 ID;
+    uint16 Value;
+    uint8 Operator;
+};
+
+struct ScenarioStepEntry
+{
+    uint32 ID;
+    LocalizedString* Description;
+    LocalizedString* Name;
+    uint16 CriteriaTreeID;
+    uint16 ScenarioID;
+    uint16 PreviousStepID; // Seems to be used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
+    uint16 QuestRewardID;
+    uint8 Step;
+    uint8 Flags; // DBCEnums.h - ScenarioStepFlags
+    uint32 Unk1; // Always zero (rev 22747)
+
+    // helpers
+    bool IsBonusObjective() const
+    {
+        return Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE;
+    }
+};
+
 struct SceneScriptEntry
 {
     uint32 ID;

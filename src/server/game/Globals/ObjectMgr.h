@@ -709,6 +709,38 @@ typedef std::unordered_map<uint32, std::vector<uint32 /*id*/>> TerrainPhaseInfo;
 typedef std::unordered_map<uint32, std::vector<uint32>> TerrainUIPhaseInfo; // worldmaparea swap
 typedef std::unordered_map<uint32, std::vector<PhaseInfoStruct>> PhaseInfo; // phase
 
+struct ScenarioPOIPoint
+{
+    int32 X;
+    int32 Y;
+
+    ScenarioPOIPoint() : X(0), Y(0) { }
+    ScenarioPOIPoint(int32 _X, int32 _Y) : X(_X), Y(_Y) { }
+};
+
+struct ScenarioPOI
+{
+    int32 BlobIndex;
+    int32 ObjectiveIndex;
+    int32 QuestObjectiveID;
+    int32 QuestObjectID;
+    int32 MapID;
+    int32 WorldMapAreaID;
+    int32 Floor;
+    int32 Priority;
+    int32 Flags;
+    int32 WorldEffectID;
+    int32 PlayerConditionID;
+    std::vector<ScenarioPOIPoint> Points;
+
+    ScenarioPOI() : BlobIndex(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0) { }
+    ScenarioPOI(int32 _BlobIndex, int32 _MapID, int32 _WorldMapAreaID, int32 _Floor, int32 _Priority, int32 _Flags, int32 _WorldEffectID, int32 _PlayerConditionID) :
+        BlobIndex(_BlobIndex), MapID(_MapID), WorldMapAreaID(_WorldMapAreaID), Floor(_Floor), Priority(_Priority), Flags(_Flags), WorldEffectID(_WorldEffectID), PlayerConditionID(_PlayerConditionID) { }
+};
+
+typedef std::vector<ScenarioPOI const*> ScenarioPOIVector;
+typedef std::unordered_map<uint32, ScenarioPOIVector> ScenarioPOIContainer;
+
 class PlayerDumpReader;
 
 class TC_GAME_API ObjectMgr
@@ -927,6 +959,15 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        ScenarioPOIVector const* GetScenarioPOIs(int32 CriteriaTreeID)
+        {
+            ScenarioPOIContainer::const_iterator itr = _scenarioPOIStore.find(CriteriaTreeID);
+            if (itr != _scenarioPOIStore.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const
@@ -1079,6 +1120,8 @@ class TC_GAME_API ObjectMgr
         void LoadTerrainWorldMaps();
         void LoadAreaPhases();
 
+        void LoadScenarioPOI();
+		
         void LoadSceneTemplates();
 
         std::string GeneratePetName(uint32 entry);
@@ -1506,6 +1549,8 @@ class TC_GAME_API ObjectMgr
         TerrainPhaseInfo _terrainMapDefaultStore;
         TerrainUIPhaseInfo _terrainWorldMapStore;
         PhaseInfo _phases;
+
+        ScenarioPOIContainer _scenarioPOIStore;
 
     private:
         void LoadScripts(ScriptsType type);

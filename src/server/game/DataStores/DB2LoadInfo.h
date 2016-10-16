@@ -3359,6 +3359,57 @@ struct ScalingStatDistributionLoadInfo
     }
 };
 
+struct ScenarioLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "Data" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "Type" },
+        };
+        return{ &fields[0], std::extent<decltype(fields)>::value, ScenarioMeta::Instance(), HOTFIX_SEL_SCENARIO };
+    }
+};
+
+struct ScenarioEventEntryLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "Value" },
+            { false, FT_BYTE, "Operator" }
+        };
+        return { &fields[0], std::extent<decltype(fields)>::value, ScenarioEventEntryMeta::Instance(), HOTFIX_SEL_SCENARIO_EVENT_ENTRY };
+    }
+};
+
+struct ScenarioStepLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "CriteriaTreeID" },
+            { false, FT_SHORT, "ScenarioID" },
+            { false, FT_SHORT, "PreviousStepID" },
+            { false, FT_SHORT, "QuestRewardID" },
+            { false, FT_BYTE, "Step" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_INT, "Unk1" }
+        };
+        return{ &fields[0], std::extent<decltype(fields)>::value, ScenarioStepMeta::Instance(), HOTFIX_SEL_SCENARIO_STEP };
+    }
+};
+
 struct SceneScriptLoadInfo
 {
     static DB2LoadInfo Instance()

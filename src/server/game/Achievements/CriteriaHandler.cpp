@@ -31,6 +31,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "QueryPackets.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -1998,6 +1999,25 @@ CriteriaMgr::~CriteriaMgr()
         delete itr->second;
 }
 
+WorldPackets::Query::ScenarioPOIData CriteriaMgr::GetScenarioPOIsForCriteriaTree(uint32 criteriaTreeId) const
+{
+    WorldPackets::Query::ScenarioPOIData scenarioPOIData;
+
+    if (!GetCriteriaTree(criteriaTreeId))
+        return scenarioPOIData;
+
+    ScenarioPOIVector const* poiVector = sObjectMgr->GetScenarioPOIs(criteriaTreeId);
+    if (poiVector)
+    {
+        scenarioPOIData.CriteriaTreeID = criteriaTreeId;
+
+        for (auto poi = poiVector->begin(); poi != poiVector->end(); ++poi)
+            scenarioPOIData.ScenarioPOIs.push_back(*poi);
+    }
+
+    return scenarioPOIData;
+}
+
 void CriteriaMgr::LoadCriteriaModifiersTree()
 {
     uint32 oldMSTime = getMSTime();
@@ -2073,9 +2093,9 @@ void CriteriaMgr::LoadCriteriaList()
             achievementCriteriaTreeIds[achievement->CriteriaTree] = achievement;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
-    //for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-    //    if (scenarioStep->CriteriaTreeID)
-    //        scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+    for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
+        if (scenarioStep->CriteriaTreeID)
+            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)

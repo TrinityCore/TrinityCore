@@ -170,6 +170,9 @@ DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", Que
 DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPoints.db2", RandPropPointsLoadInfo::Instance());
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeLoadInfo::Instance());
 DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionLoadInfo::Instance());
+DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioLoadInfo::Instance());
+DB2Storage<ScenarioEventEntry>                  sScenarioEventEntryStore("ScenarioEventEntry.db2", ScenarioEventEntryLoadInfo::Instance());
+DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", ScenarioStepLoadInfo::Instance());
 DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", SceneScriptLoadInfo::Instance());
 DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneScriptPackage.db2", SceneScriptPackageLoadInfo::Instance());
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", SkillLineLoadInfo::Instance());
@@ -465,6 +468,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sRandPropPointsStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sScalingStatDistributionStore);
+    LOAD_DB2(sScenarioStore);
+    LOAD_DB2(sScenarioEventEntryStore);
+    LOAD_DB2(sScenarioStepStore);
     LOAD_DB2(sSceneScriptStore);
     LOAD_DB2(sSceneScriptPackageStore);
     LOAD_DB2(sSkillLineStore);

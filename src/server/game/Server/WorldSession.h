@@ -581,6 +581,11 @@ namespace WorldPackets
         class UseToy;
     }
 
+    namespace Scenario
+    {
+        class QueryScenarioPOI;
+    }
+
     namespace Scenes
     {
         class SceneTriggerEvent;
@@ -1734,6 +1739,9 @@ class TC_GAME_API WorldSession
         void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
         void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
         void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
+
+        // Scenario
+        void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
 
         union ConnectToKey
         {

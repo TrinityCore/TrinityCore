@@ -27,6 +27,8 @@
 #include "NPCHandler.h"
 #include "MapManager.h"
 #include "QueryPackets.h"
+#include <Scenario.h>
+#include <ScenarioPackets.h>
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -441,4 +443,27 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemT
     }
 
     SendPacket(queryItemTextResponse.Write());
+}
+
+void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI)
+{
+    WorldPackets::Scenario::ScenarioPOIs response;
+
+    // Read criteria tree ids and add the in a unordered_set so we don't send POIs for the same criteria tree multiple times
+    std::unordered_set<int32> criteriaTreeIds;
+    for (size_t i = 0; i < queryScenarioPOI.MissingScenarioPOIs.size(); ++i)
+        criteriaTreeIds.insert(queryScenarioPOI.MissingScenarioPOIs[i]); // CriteriaTreeID
+
+    for (auto criteriaTreeId : criteriaTreeIds)
+    {
+        if (!sCriteriaMgr->GetCriteriaTree(criteriaTreeId))
+        {
+            TC_LOG_ERROR("network", "HandleQueryScenarioPOI: %s requested POI data for non existing criteria tree (id: %u)", GetPlayerInfo().c_str(), criteriaTreeId);
+            continue;
+        }
+
+        response.ScenarioPOIDataStats.push_back(sCriteriaMgr->GetScenarioPOIsForCriteriaTree(criteriaTreeId));
+    }
+
+    SendPacket(response.Write());
 }

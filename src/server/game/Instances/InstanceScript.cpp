@@ -32,6 +32,7 @@
 #include "Opcodes.h"
 #include "ScriptReloadMgr.h"
 #include "ScriptMgr.h"
+#include "InstanceScenario.h"
 
 BossBoundaryData::~BossBoundaryData()
 {
@@ -54,6 +55,10 @@ _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatRes
 
 void InstanceScript::SaveToDB()
 {
+    if (InstanceMap* instanceMap = dynamic_cast<InstanceMap*>(instance))
+        if (InstanceScenario* scenario = instanceMap->GetInstanceScenario())
+            scenario->SaveToDB();
+
     std::string data = GetSaveData();
     if (data.empty())
         return;

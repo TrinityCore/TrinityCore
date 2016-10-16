@@ -23,6 +23,7 @@
 #include "NPCHandler.h"
 #include "G3D/Vector3.h"
 #include "DB2Stores.h"
+#include "ObjectMgr.h"
 
 class Player;
 
@@ -447,6 +448,12 @@ namespace WorldPackets
             ObjectGuid Id;
             bool Valid = false;
             ItemTextCache Item;
+        };
+
+        struct ScenarioPOIData
+        {
+            int32 CriteriaTreeID = 0;
+            ScenarioPOIVector ScenarioPOIs;
         };
     }
 }

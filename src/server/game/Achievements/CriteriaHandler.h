@@ -22,6 +22,8 @@
 #include "ObjectGuid.h"
 #include "Transaction.h"
 #include "Common.h"
+#include <ObjectMgr.h>
+#include "QueryPackets.h"
 
 class Player;
 class Unit;
@@ -337,6 +339,8 @@ public:
         CriteriaDataMap::const_iterator iter = _criteriaDataMap.find(Criteria->ID);
         return iter != _criteriaDataMap.end() ? &iter->second : NULL;
     }
+
+    WorldPackets::Query::ScenarioPOIData GetScenarioPOIsForCriteriaTree(uint32 criteriaTreeId) const;
 
     static bool IsGroupCriteriaType(CriteriaTypes type)
     {
