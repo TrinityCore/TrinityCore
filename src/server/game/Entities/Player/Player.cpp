@@ -23464,6 +23464,9 @@ void Player::SendAurasForTarget(Unit* target) const
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
+    if (target->HasAuraType(SPELL_AURA_CAN_TURN_WHILE_FALLING))
+        target->SetCanTurnWhileFalling(true, true);
+
     if (target->HasAura(SPELL_DH_DOUBLE_JUMP))
         target->SetDoubleJump(true, true);
 

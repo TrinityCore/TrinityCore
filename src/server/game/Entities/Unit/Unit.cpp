@@ -15646,13 +15646,47 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
 
     static OpcodeServer const swimToFlyTransOpcodeTable[2] =
     {
-        SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY,
-        SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
+        SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY,
+        SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
     };
 
     if (Player* playerMover = GetPlayerMover())
     {
         WorldPackets::Movement::MoveSetFlag packet(swimToFlyTransOpcodeTable[enable]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        playerMover->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.movementInfo = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), playerMover);
+    }
+
+    return true;
+}
+
+bool Unit::SetCanTurnWhileFalling(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING))
+            return false;
+
+        if (enable)
+            AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING);
+        else
+            RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING);
+    }
+
+    static OpcodeServer const canTurnWhileFallingOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING,
+        SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING
+    };
+
+    if (Player* playerMover = GetPlayerMover())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(canTurnWhileFallingOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
         packet.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(packet.Write());
