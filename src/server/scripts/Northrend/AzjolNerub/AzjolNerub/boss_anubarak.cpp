@@ -136,6 +136,8 @@ public:
 
             if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                 door->SetGoState(GO_STATE_ACTIVE); // open door for now
+            if (GameObject* door2 = instance->GetGameObject(DATA_ANUBARAK_WALL_2))
+                door2->SetGoState(GO_STATE_ACTIVE);
 
             Talk(SAY_AGGRO);
             instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
@@ -188,6 +190,8 @@ public:
                     case EVENT_CLOSE_DOOR:
                         if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                             door->SetGoState(GO_STATE_READY);
+                        if (GameObject* door2 = instance->GetGameObject(DATA_ANUBARAK_WALL_2))
+                            door2->SetGoState(GO_STATE_READY);
                         break;
                     case EVENT_POUND:
                         DoCastVictim(SPELL_POUND);
