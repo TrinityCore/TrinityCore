@@ -863,7 +863,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK9                     = 0x00000200,
     MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS    = 0x00000400,
     MOVEMENTFLAG2_UNK11                    = 0x00000800,
-    MOVEMENTFLAG2_UNK12                    = 0x00001000,
+    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING   = 0x00001000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00004000,
     MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000,
@@ -1697,6 +1697,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool packetOnly = false);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
+        bool SetCanTurnWhileFalling(bool enable, bool packetOnly = false);
         bool SetDoubleJump(bool enable, bool packetOnly = false);
         void SendSetVehicleRecId(uint32 vehicleId);
 

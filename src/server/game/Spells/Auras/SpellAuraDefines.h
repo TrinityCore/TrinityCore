@@ -466,7 +466,7 @@ enum AuraType
     SPELL_AURA_406                                          = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
     SPELL_AURA_408                                          = 408,
-    SPELL_AURA_409                                          = 409,
+    SPELL_AURA_CAN_TURN_WHILE_FALLING                       = 409,
     SPELL_AURA_410                                          = 410,
     SPELL_AURA_MOD_MAX_CHARGES                              = 411,
     SPELL_AURA_412                                          = 412,

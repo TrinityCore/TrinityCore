@@ -182,6 +182,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceMoveForward(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  threat
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
