@@ -187,7 +187,7 @@ bool GuildTaskMgr::CreateKillTask(uint32 owner, uint32 guildId)
         if (co.rank != CREATURE_ELITE_RARE)
             continue;
 
-        if (co.minlevel > player->getLevel() || co.maxlevel < player->getLevel() - 5)
+        if (co.maxlevel > player->getLevel() + 4 || co.minlevel < player->getLevel() - 3)
             continue;
 
         ids.push_back(i->first);
