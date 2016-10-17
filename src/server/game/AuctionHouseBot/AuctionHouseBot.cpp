@@ -57,11 +57,11 @@ bool AuctionBotConfig::Initialize()
     _itemsPerCycleBoost = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_BOOST);
     _itemsPerCycleNormal = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_NORMAL);
 
-    if (GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
+    if (uint32 ahBotAccId = GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
     {
         // find account guids associated with ahbot account
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
-        stmt->setUInt32(0, GetConfig(CONFIG_AHBOT_ACCOUNT_ID));
+        stmt->setUInt32(0, ahBotAccId);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
             do
@@ -72,14 +72,7 @@ bool AuctionBotConfig::Initialize()
             TC_LOG_DEBUG("ahbot", "AuctionHouseBot found " UI64FMTD " characters", result->GetRowCount());
         }
         else
-        {
-            _AHBotCharacters.push_back(ObjectGuid::LowType(0));
-            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID has no associated characters.");
-        }
-    }
-    else
-    {
-        _AHBotCharacters.push_back(ObjectGuid::LowType(0));
+            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID %u has no associated characters.", ahBotAccId);
     }
 
     return true;
@@ -303,6 +296,9 @@ char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 // Picks a random character from the list of AHBot chars
 ObjectGuid::LowType AuctionBotConfig::GetRandChar() const
 {
+    if (_AHBotCharacters.empty())
+        return ObjectGuid::LowType(0);
+
     return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
 }
 
@@ -310,18 +306,20 @@ ObjectGuid::LowType AuctionBotConfig::GetRandChar() const
 // to have another character than the auction owner place bids
 ObjectGuid::LowType AuctionBotConfig::GetRandCharExclude(ObjectGuid::LowType exclude) const
 {
-    // avoid freezing if only one ahbot char (which defeats the purpose but oh well)
-    if (_AHBotCharacters.size() == 1)
-        return _AHBotCharacters[0];
+    if (_AHBotCharacters.empty())
+        return ObjectGuid::LowType(0);
 
-    ObjectGuid::LowType result;
-    do
-    {
-        result = GetRandChar();
-    }
-    while (result == exclude);
-    
-    return result;
+    std::vector<uint32> filteredCharacters;
+    filteredCharacters.reserve(_AHBotCharacters.size() - 1);
+
+    for (uint32 charId : _AHBotCharacters)
+        if (charId != exclude)
+            filteredCharacters.push_back(charId);
+
+    if (filteredCharacters.empty())
+        return ObjectGuid::LowType(0);
+
+    return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
 }
 
 bool AuctionBotConfig::IsBotChar(ObjectGuid::LowType characterID) const
