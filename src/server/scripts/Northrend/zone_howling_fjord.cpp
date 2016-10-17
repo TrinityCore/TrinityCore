@@ -626,7 +626,6 @@ public:
         void JustDied(Unit* killer) override
         {
             Player* player = killer->ToPlayer();
-            uint8 uiRand = urand(0, 99);
 
             if (!player)
                 return;
