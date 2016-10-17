@@ -10171,7 +10171,7 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
             if (uint32 procEffectMask = aurApp->GetBase()->IsProcTriggeredOnEvent(aurApp, eventInfo, now))
             {
                 aurApp->GetBase()->PrepareProcToTrigger(aurApp, eventInfo, now);
-                aurasTriggeringProc.emplace_back(std::make_pair(procEffectMask, aurApp));
+                aurasTriggeringProc.emplace_back(procEffectMask, aurApp);
             }
         }
     }
@@ -10183,7 +10183,7 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
             if (uint32 procEffectMask = itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo, now))
             {
                 itr->second->GetBase()->PrepareProcToTrigger(itr->second, eventInfo, now);
-                aurasTriggeringProc.emplace_back(std::make_pair(procEffectMask, itr->second));
+                aurasTriggeringProc.emplace_back(procEffectMask, itr->second);
             }
         }
     }
