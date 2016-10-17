@@ -642,7 +642,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_riven_widow_cocoon(creature);
+        return new npc_riven_widow_cocoon();
     }
 };
 
