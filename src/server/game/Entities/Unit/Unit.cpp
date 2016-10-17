@@ -8987,54 +8987,47 @@ void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Sp
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 {
-    for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
+    DiminishingReturn& diminish = m_Diminishing[group];
+    if (!diminish.hitCount)
+        return DIMINISHING_LEVEL_1;
+
+    if (!diminish.hitTime)
+        return DIMINISHING_LEVEL_1;
+
+    // If last spell was cast more than 18 seconds ago - reset the count.
+    if (!diminish.stack && GetMSTimeDiffToNow(diminish.hitTime) > 18 * IN_MILLISECONDS)
     {
-        if (i->DRGroup != group)
-            continue;
-
-        if (!i->hitCount)
-            return DIMINISHING_LEVEL_1;
-
-        if (!i->hitTime)
-            return DIMINISHING_LEVEL_1;
-
-        // If last spell was cast more than 18 seconds ago - reset the count.
-        if (i->stack == 0 && getMSTimeDiff(i->hitTime, getMSTime()) > 18 * IN_MILLISECONDS)
-        {
-            i->hitCount = DIMINISHING_LEVEL_1;
-            return DIMINISHING_LEVEL_1;
-        }
-        // or else increase the count.
-        else
-            return DiminishingLevels(i->hitCount);
+        diminish.hitCount = DIMINISHING_LEVEL_1;
+        return DIMINISHING_LEVEL_1;
     }
-    return DIMINISHING_LEVEL_1;
+
+    return DiminishingLevels(diminish.hitCount);
 }
 
-void Unit::IncrDiminishing(DiminishingGroup group)
+void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo, bool triggered)
 {
+    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell(triggered);
+    DiminishingLevels const maxLevel = auraSpellInfo->GetDiminishingReturnsMaxLevel(triggered);
+
     // Checking for existing in the table
-    for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
-    {
-        if (i->DRGroup != group)
-            continue;
-        if (int32(i->hitCount) < GetDiminishingReturnsMaxLevel(group))
-            i->hitCount += 1;
-        return;
-    }
-    m_Diminishing.push_back(DiminishingReturn(group, getMSTime(), DIMINISHING_LEVEL_2));
+    DiminishingReturn& diminish = m_Diminishing[group];
+    if (static_cast<int32>(diminish.hitCount) < maxLevel)
+        ++diminish.hitCount;
 }
 
-float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, Unit* caster, DiminishingLevels Level, int32 limitduration)
+float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool triggered, int32& duration, Unit* caster, DiminishingLevels previousLevel)
 {
+    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell(triggered);
     if (duration == -1 || group == DIMINISHING_NONE)
         return 1.0f;
+
+    int32 const limitDuration = auraSpellInfo->GetDiminishingReturnsLimitDuration(triggered);
 
     // test pet/charm masters instead pets/charmeds
     Unit const* targetOwner = GetCharmerOrOwner();
     Unit const* casterOwner = caster->GetCharmerOrOwner();
 
-    if (limitduration > 0 && duration > limitduration)
+    if (limitDuration > 0 && duration > limitDuration)
     {
         Unit const* target = targetOwner ? targetOwner : this;
         Unit const* source = casterOwner ? casterOwner : caster;
@@ -9042,7 +9035,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         if ((target->GetTypeId() == TYPEID_PLAYER
             || (target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))
             && source->GetTypeId() == TYPEID_PLAYER)
-            duration = limitduration;
+            duration = limitDuration;
     }
 
     float mod = 1.0f;
@@ -9053,7 +9046,7 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         {
             if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
             {
-                DiminishingLevels diminish = Level;
+                DiminishingLevels diminish = previousLevel;
                 switch (diminish)
                 {
                     case DIMINISHING_LEVEL_1: break;
@@ -9068,11 +9061,11 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         }
         case DIMINISHING_AOE_KNOCKBACK:
         {
-            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+            if ((auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
                 || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
-                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+                || auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL)
             {
-                DiminishingLevels diminish = Level;
+                DiminishingLevels diminish = previousLevel;
                 switch (diminish)
                 {
                     case DIMINISHING_LEVEL_1: break;
@@ -9084,11 +9077,11 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
         }
         default:
         {
-            if ((GetDiminishingReturnsGroupType(group) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+            if ((auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
                 || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
-                || GetDiminishingReturnsGroupType(group) == DRTYPE_ALL)
+                || auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL)
             {
-                DiminishingLevels diminish = Level;
+                DiminishingLevels diminish = previousLevel;
                 switch (diminish)
                 {
                     case DIMINISHING_LEVEL_1: break;
@@ -9109,22 +9102,24 @@ float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, 
 void Unit::ApplyDiminishingAura(DiminishingGroup group, bool apply)
 {
     // Checking for existing in the table
-    for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
-    {
-        if (i->DRGroup != group)
-            continue;
+    DiminishingReturn& diminish = m_Diminishing[group];
 
-        if (apply)
-            i->stack += 1;
-        else if (i->stack)
-        {
-            i->stack -= 1;
-            // Remember time after last aura from group removed
-            if (i->stack == 0)
-                i->hitTime = getMSTime();
-        }
-        break;
+    if (apply)
+        ++diminish.stack;
+    else if (diminish.stack)
+    {
+        --diminish.stack;
+
+        // Remember time after last aura from group removed
+        if (!diminish.stack)
+            diminish.hitTime = getMSTime();
     }
+}
+
+void Unit::ClearDiminishings()
+{
+    for (uint32 i = 0; i < DIMINISHING_MAX; ++i)
+        m_Diminishing[i].Clear();
 }
 
 float Unit::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const

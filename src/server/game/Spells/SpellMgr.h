@@ -564,12 +564,6 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
-// spell diminishing returns
-TC_GAME_API DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
-TC_GAME_API DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
-TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-TC_GAME_API int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
-
 TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpellsStore;
 
 struct SpellInfoLoadHelper
@@ -716,6 +710,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();
+        void LoadSpellInfoDiminishing();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
