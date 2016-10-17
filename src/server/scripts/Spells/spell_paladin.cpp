@@ -1303,6 +1303,8 @@ class spell_pal_infusion_of_light : public SpellScriptLoader
                             Unit* target = GetTarget();
                             int32 duration = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_FLASH_OF_LIGHT_PROC)->GetMaxDuration() / 1000;
                             int32 pct = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                            ASSERT(duration > 0);
+
                             int32 bp0 = CalculatePct(healInfo->GetHeal() / duration, pct);
 
                             // Item - Paladin T9 Holy 4P Bonus
