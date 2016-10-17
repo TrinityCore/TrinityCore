@@ -654,5 +654,5 @@ void AddSC_howling_fjord()
     new npc_daegarn();
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
-	new npc_riven_widow_cocoon();
+    new npc_riven_widow_cocoon();
  }
