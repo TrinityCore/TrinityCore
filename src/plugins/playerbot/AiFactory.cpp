@@ -128,7 +128,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             break;
         case CLASS_PALADIN:
             if (tab == 1)
-                engine->addStrategies("tank", "tank aoe", "barmor", NULL);
+                engine->addStrategies("tank", "tank aoe", "bthreat", NULL);
             else
                 engine->addStrategies("dps", "bdps", "threat", NULL);
             break;
@@ -194,9 +194,19 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 
     switch (player->getClass()){
         case CLASS_PALADIN:
+            if (tab == 1)
+                nonCombatEngine->addStrategy("bthreat");
+            else
+                nonCombatEngine->addStrategy("bdps");
+            break;
         case CLASS_HUNTER:
+            nonCombatEngine->addStrategy("bdps");
+            break;
         case CLASS_SHAMAN:
-            nonCombatEngine->addStrategy("bmana");
+            if (tab == 0 || tab == 2)
+                nonCombatEngine->addStrategy("bmana");
+            else
+                nonCombatEngine->addStrategy("bdps");
             break;
         case CLASS_MAGE:
             if (tab == 1)
