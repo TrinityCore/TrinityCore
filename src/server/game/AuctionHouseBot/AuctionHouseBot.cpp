@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "Log.h"
 #include "Item.h"
 #include "World.h"
@@ -57,34 +58,29 @@ bool AuctionBotConfig::Initialize()
     _itemsPerCycleBoost = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_BOOST);
     _itemsPerCycleNormal = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_NORMAL);
 
-    if (GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
+    if (uint32 ahBotAccId = GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
     {
         // check character count
-        uint32 charcount = AccountMgr::GetCharactersCount(GetConfig(CONFIG_AHBOT_ACCOUNT_ID));
-        if (charcount)
+        if (AccountMgr::GetCharactersCount(GetConfig(CONFIG_AHBOT_ACCOUNT_ID)))
         {
             // find account guids associated with ahbot account
+            uint32 count = 0;
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
-            stmt->setUInt32(0, GetConfig(CONFIG_AHBOT_ACCOUNT_ID));
-            PreparedQueryResult result = CharacterDatabase.Query(stmt);
-            
-            for (uint32 charno = 0; charno < result->GetRowCount(); charno++)
+            stmt->setUInt32(0, ahBotAccId);
+            if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             {
-                _AHBotCharacters.push_back((*result)[0].GetUInt32());
-                result->NextRow();
+                do
+                {
+                    Field* fields = result->Fetch();
+                    _AHBotCharacters.push_back(fields[0].GetUInt32());
+                    ++count;
+                } while (result->NextRow());
             }
 
-            TC_LOG_DEBUG("ahbot", "AuctionHouseBot found %i characters", charcount);
+            TC_LOG_DEBUG("ahbot", "AuctionHouseBot found %u characters", count);
         }
         else
-        {
-            _AHBotCharacters.push_back(uint32(0));
-            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID has no associated characters.");
-        }
-    }
-    else
-    {
-        _AHBotCharacters.push_back(uint32(0));
+            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID %u has no associated characters.", ahBotAccId);
     }
 
     return true;
@@ -308,25 +304,30 @@ char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 // Picks a random character from the list of AHBot chars
 uint32 AuctionBotConfig::GetRandChar() const
 {
-    return _AHBotCharacters[urand(0, _AHBotCharacters.size() - 1)];
+    if (_AHBotCharacters.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
 }
 
 // Picks a random AHBot character, but excludes a specific one. This is used
 // to have another character than the auction owner place bids
 uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
 {
-    // avoid freezing if only one ahbot char (which defeats the purpose but oh well)
-    if (_AHBotCharacters.size() == 1)
-        return _AHBotCharacters[0];
+    if (_AHBotCharacters.empty())
+        return 0;
 
-    uint32 result;
-    do
-    {
-        result = GetRandChar();
-    }
-    while (result == exclude);
-    
-    return result;
+    std::vector<uint32> filteredCharacters;
+    filteredCharacters.reserve(_AHBotCharacters.size() - 1);
+
+    for (uint32 charId : _AHBotCharacters)
+        if (charId != exclude)
+            filteredCharacters.push_back(charId);
+
+    if (filteredCharacters.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
 }
 
 bool AuctionBotConfig::IsBotChar(uint32 characterID) const
