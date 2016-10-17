@@ -3669,8 +3669,12 @@ void Spell::update(uint32 difftime)
                 if (!UpdateChanneledTargetList())
                 {
                     TC_LOG_DEBUG("spells", "Channeled spell %d is removed due to lack of targets", m_spellInfo->Id);
-                    SendChannelUpdate(0);
-                    finish();
+                    m_timer = 0;
+
+                    // Also remove applied auras
+                    for (TargetInfo const& target : m_UniqueTargetInfo)
+                        if (Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID))
+                            unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
                 }
 
                 if (m_timer > 0)
