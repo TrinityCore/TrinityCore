@@ -37,7 +37,6 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
 
     list<uint32> bots = GetBots();
     int botCount = bots.size();
-    int allianceNewBots = 0, hordeNewBots = 0;
     int randomBotsPerInterval = (int)urand(sPlayerbotAIConfig.minRandomBotsPerInterval, sPlayerbotAIConfig.maxRandomBotsPerInterval);
     if (!processTicks)
     {
@@ -49,17 +48,8 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
     {
         bool alliance = botCount % 2;
         uint32 bot = AddRandomBot(alliance);
-        if (bot)
-        {
-            if (alliance)
-                allianceNewBots++;
-            else
-                hordeNewBots++;
-
-            bots.push_back(bot);
-        }
-        else
-            break;
+        if (bot) bots.push_back(bot);
+        else break;
     }
 
     int botProcessed = 0;
@@ -73,11 +63,10 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
             break;
     }
 
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d bots processed. %d alliance and %d horde bots added. %d bots online. Next check in %d seconds",
-            botProcessed, allianceNewBots, hordeNewBots, playerBots.size(), sPlayerbotAIConfig.randomBotUpdateInterval);
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d bots processed. Next check in %d seconds",
+            botProcessed, sPlayerbotAIConfig.randomBotUpdateInterval);
 
-    if (processTicks++ == 1)
-        PrintStats();
+    PrintStats();
 }
 
 uint32 RandomPlayerbotMgr::AddRandomBot(bool alliance)
@@ -122,7 +111,6 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 
     if (!GetPlayerBot(bot))
     {
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %d logged in", bot);
         AddPlayerBot(bot, 0);
         if (!GetEventValue(bot, "online"))
         {
@@ -586,7 +574,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
     if (cmd == "reset")
     {
         CharacterDatabase.PExecute("delete from ai_playerbot_random_bots");
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random bots were reset for all players");
+        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random bots were reset for all players. Please restart the Server.");
         return true;
     }
     else if (cmd == "stats")

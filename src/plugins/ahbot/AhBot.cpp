@@ -112,7 +112,7 @@ void AhBot::ForceUpdate()
     if (updating)
         return;
 
-    sLog->outMessage("ahbot", LOG_LEVEL_INFO, "AhBot is now checking auctions");
+    sLog->outMessage("ahbot", LOG_LEVEL_INFO, "AhBot is now checking auctions in background");
     updating = true;
 
     if (!allBidders.size())
@@ -120,7 +120,7 @@ void AhBot::ForceUpdate()
 
     if (!allBidders.size())
     {
-        sLog->outMessage("ahbot", LOG_LEVEL_ERROR, "Ahbot is disabled but there is no bidders available");
+        sLog->outMessage("ahbot", LOG_LEVEL_ERROR, "Ahbot is enabled but there are no bidders available");
         return;
     }
 
