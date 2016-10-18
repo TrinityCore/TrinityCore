@@ -174,14 +174,6 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
         pathing.push_back(G3D::Vector3(waypoint.x, waypoint.y, waypoint.z));
 
-        /* ToDo: figure this out
-           client breaks smooth pathing in linear mode with more than 12 points in path, sniffs has more than 12 points and moves smoothly
-           temp code
-        */
-        if (pathing.size() >= 12)
-            break;
-        //end of temp
-
         if (waypoint.delay)
             break;
     }
