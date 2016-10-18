@@ -144,15 +144,15 @@ bool SmartAI::LoadPath(uint32 entry)
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         return false;
 
-    WPPath const &path = sSmartWaypointMgr->GetPath(entry);
-    if (path.empty())
+    boost::optional<WPPath const &>path = sSmartWaypointMgr->GetPath(entry);
+    if (!path.is_initialized() || path->empty())
     {
         GetScript()->SetPathId(0);
         return false;
     }
 
-    _path.reserve(path.size());
-    for (WayPoint const &waypoint : path)
+    _path.reserve(path->size());
+    for (WayPoint const &waypoint : path.get())
     {
         float x = waypoint.x;
         float y = waypoint.y;
