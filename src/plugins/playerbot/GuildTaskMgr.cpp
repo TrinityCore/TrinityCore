@@ -179,15 +179,19 @@ bool GuildTaskMgr::CreateKillTask(uint32 owner, uint32 guildId)
     if (!player)
         return false;
 
+    uint32 rank = !urand(0, 2) ? CREATURE_ELITE_RAREELITE : CREATURE_ELITE_RARE;
     vector<uint32> ids;
     CreatureTemplateContainer const* creatureTemplateContainer = sObjectMgr->GetCreatureTemplates();
     for (CreatureTemplateContainer::const_iterator i = creatureTemplateContainer->begin(); i != creatureTemplateContainer->end(); ++i)
     {
         CreatureTemplate const& co = i->second;
-        if (co.rank != CREATURE_ELITE_RARE)
+        if (co.rank != rank)
             continue;
 
         if (co.maxlevel > player->getLevel() + 4 || co.minlevel < player->getLevel() - 3)
+            continue;
+
+        if (co.Name.find("UNUSED") != string::npos)
             continue;
 
         ids.push_back(i->first);
@@ -532,9 +536,24 @@ bool GuildTaskMgr::HandleConsoleCommand(ChatHandler* handler, char const* args)
                 if (!guild)
                     continue;
 
-                sLog->outMessage("gtask", LOG_LEVEL_INFO, "Player '%s' Guild '%s' %s=%u (%u secs)",
+                ostringstream name;
+                name << value;
+                if (type == "killTask")
+                {
+                    CreatureTemplate const* proto = sObjectMgr->GetCreatureTemplate(value);
+                    string rank = proto->rank == CREATURE_ELITE_RARE ? "rare" : "elite";
+                    if (proto) name << " (" << proto->Name << "," << rank << ")";
+                }
+                else if (type == "itemTask")
+                {
+                    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(value);
+                    string rank = proto->Quality == ITEM_QUALITY_UNCOMMON ? "uncommon" : "rare";
+                    if (proto) name << " (" << proto->Name1 << "," << rank << ")";
+                }
+
+                sLog->outMessage("gtask", LOG_LEVEL_INFO, "Player '%s' Guild '%s' %s=%s (%u secs)",
                         charName.c_str(), guild->GetName().c_str(),
-                        type.c_str(), value, validIn);
+                        type.c_str(), name.str().c_str(), validIn);
 
             } while (result->NextRow());
 
