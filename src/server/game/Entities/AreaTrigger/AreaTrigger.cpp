@@ -237,14 +237,14 @@ void AreaTrigger::SearchUnitInPolygon()
 
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    this->VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
     float height = GetTemplate()->PolygonDatas.Height;
 
     targetList.remove_if([this, height](Unit* unit) -> bool
     {
-        float minZ = this->GetPositionZ() - height;
-        float maxZ = this->GetPositionZ() + height;
+        float minZ = GetPositionZ() - height;
+        float maxZ = GetPositionZ() + height;
 
         return  !CheckIsInPolygon2D(unit) ||
                 unit->GetPositionZ() < minZ ||
@@ -263,14 +263,14 @@ void AreaTrigger::SearchUnitInCylinder()
 
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    this->VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
     targetList.remove_if([this, radius, height](Unit* unit) -> bool
     {
-        float minZ = this->GetPositionZ() - height;
-        float maxZ = this->GetPositionZ() + height;
+        float minZ = GetPositionZ() - height;
+        float maxZ = GetPositionZ() + height;
 
-        return this->GetDistance(unit) > radius || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+        return GetDistance(unit) > radius || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
     });
 
     HandleUnitEnterExit(targetList);
@@ -331,17 +331,17 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
 
 bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
 {
-    std::vector<AreaTriggerPolygonVertice> vertices = _polygonVertices;
     float testX = pos->GetPositionX();
     float testY = pos->GetPositionY();
 
     //this method uses the ray tracing algorithm to determine if the point is in the polygon
-    int nPoints = vertices.size();
-    int j = -999;
-    int i = -999;
+    int nPoints = _polygonVertices.size();
     bool locatedInPolygon = false;
-    for (i = 0; i < nPoints; i++)
+
+    for (int i = 0; i < nPoints; ++i)
     {
+        int j = -999;
+
         //repeat loop for all sets of points
         if (i == (nPoints - 1))
         {
@@ -354,10 +354,10 @@ bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
             j = i + 1;
         }
 
-        float vertY_i = GetPositionY() + (float)vertices[i].VerticeY;
-        float vertX_i = GetPositionX() + (float)vertices[i].VerticeX;
-        float vertY_j = GetPositionY() + (float)vertices[j].VerticeY;
-        float vertX_j = GetPositionX() + (float)vertices[j].VerticeX;
+        float vertY_i = GetPositionY() + (float)_polygonVertices[i].VerticeY;
+        float vertX_i = GetPositionX() + (float)_polygonVertices[i].VerticeX;
+        float vertY_j = GetPositionY() + (float)_polygonVertices[j].VerticeY;
+        float vertX_j = GetPositionX() + (float)_polygonVertices[j].VerticeX;
 
         // following statement checks if testPoint.Y is below Y-coord of i-th vertex
         bool belowLowY = vertY_i > testY;
