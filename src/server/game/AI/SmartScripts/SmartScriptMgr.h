@@ -1473,12 +1473,12 @@ class TC_GAME_API SmartWaypointMgr
 
         void LoadFromDB();
 
-        boost::optional<WPPath const &> GetPath(uint32 id)
+        WPPath const* GetPath(uint32 id)
         {
             auto itr = waypoint_map.find(id);
             if (itr != waypoint_map.end())
-                return itr->second;
-            return boost::optional<WPPath const &>();
+                return &itr->second;
+            return nullptr;
         }
 
     private:
