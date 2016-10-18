@@ -29,13 +29,13 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   PRIMARY KEY (`areatriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `areatrigger_template`(`id`,`flags`,`moveCurveId`,`scaleCurveId`,`morphCurveId`,`facingCurveId`,`data0`,`data1`,`data2`,`data3`,`data4`,`data5`,`scriptName`) VALUES
-(2472,65536,0,0,0,0,0,0,0,0,0,0,''),
-(4424,131072,0,0,0,0,3,3,4,4,1,1,'');
+INSERT INTO `areatrigger_template`(`Id`,`Flags`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`ScriptName`,`VerifiedBuild`) VALUES
+(2472,65536,0,0,0,0,0,0,0,0,0,0,'',22810),
+(4424,131072,0,0,0,0,3,3,4,4,1,1,'',22810);
 
-INSERT INTO `areatrigger_template_polygon_vertices`(`areatriggerId`,`Idx`,`verticeX`,`verticeY`,`verticeTargetX`,`verticeTargetY`) VALUES
-(2472,0,-1,0.75,0,0),
-(2472,1,-1,-0.75,0,0),
-(2472,2,4,-0.75,0,0),
-(2472,3,4,0.75,0,0);
+INSERT INTO `areatrigger_template_polygon_vertices`(`AreaTriggerId`,`Idx`,`VerticeX`,`VerticeY`,`VerticeTargetX`,`VerticeTargetY`,`VerifiedBuild`) VALUES
+(2472,0,-1,0.75,0,0,22810),
+(2472,1,-1,-0.75,0,0,22810),
+(2472,2,4,-0.75,0,0,22810),
+(2472,3,4,0.75,0,0,22810);
 
