@@ -67,7 +67,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
 
         AreaTriggerTemplate const* _areaTriggerTemplate;
-        std::set<ObjectGuid> _insideUnits;
+        GuidSet _insideUnits;
 };
 
 #endif
