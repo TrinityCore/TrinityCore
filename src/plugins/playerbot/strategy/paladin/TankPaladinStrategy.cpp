@@ -5,26 +5,8 @@
 
 using namespace ai;
 
-class TankPaladinStrategyActionNodeFactory : public NamedObjectFactory<ActionNode>
-{
-public:
-    TankPaladinStrategyActionNodeFactory()
-    {
-        creators["blessing of sanctuary"] = &blessing_of_sanctuary;
-    }
-private:
-    static ActionNode* blessing_of_sanctuary(PlayerbotAI* ai)
-    {
-        return new ActionNode ("blessing of sanctuary",
-            /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("blessing of kings"), NULL),
-            /*C*/ NULL);
-    }
-};
-
 TankPaladinStrategy::TankPaladinStrategy(PlayerbotAI* ai) : GenericPaladinStrategy(ai)
 {
-    actionNodeFactories.Add(new TankPaladinStrategyActionNodeFactory());
 }
 
 NextAction** TankPaladinStrategy::getDefaultActions()
