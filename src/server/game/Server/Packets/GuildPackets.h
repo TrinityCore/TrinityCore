@@ -788,7 +788,7 @@ namespace WorldPackets
             int32 OnUseEnchantmentID = 0;
             int32 Flags = 0;
             bool Locked = false;
-            std::vector<Item::ItemGemInstanceData> SocketEnchant;
+            std::vector<Item::ItemGemData> SocketEnchant;
         };
 
         struct GuildBankTabInfo

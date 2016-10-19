@@ -3893,9 +3893,9 @@ void ObjectMgr::LoadQuests()
         } while (result->NextRow());
     }
 
-    // Load `quest_objectives` order by descending storage index to reduce resizes
+    // Load `quest_objectives`
     //                                   0   1        2     3             4         5       6      7                  8
-    result = WorldDatabase.Query("SELECT ID, QuestID, Type, StorageIndex, ObjectID, Amount, Flags, ProgressBarWeight, Description FROM quest_objectives ORDER BY StorageIndex DESC");
+    result = WorldDatabase.Query("SELECT ID, QuestID, Type, StorageIndex, ObjectID, Amount, Flags, ProgressBarWeight, Description FROM quest_objectives ORDER BY StorageIndex ASC");
 
     if (!result)
     {
@@ -5994,12 +5994,6 @@ void ObjectMgr::LoadGraveyardZones()
         if (!areaEntry)
         {
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non-existing Zone (ID: %u), skipped.", zoneId);
-            continue;
-        }
-
-        if (areaEntry->ParentAreaID != 0)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for SubZone (ID: %u) instead of zone, skipped.", zoneId);
             continue;
         }
 

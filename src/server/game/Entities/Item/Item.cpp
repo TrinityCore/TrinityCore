@@ -794,7 +794,7 @@ void Item::LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<
                     switch (enchant->Effect[i])
                     {
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE:
-                            if (artifactPower->RelicType == enchant->EffectSpellID[i])
+                            if (uint32(artifactPower->RelicType) == enchant->EffectSpellID[i])
                                 power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                             break;
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
@@ -2352,7 +2352,7 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Pl
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE:
                     for (ItemDynamicFieldArtifactPowers const& artifactPower : GetArtifactPowers())
                     {
-                        if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->RelicType == enchant->EffectSpellID[i])
+                        if (uint32(sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->RelicType) == enchant->EffectSpellID[i])
                         {
                             ItemDynamicFieldArtifactPowers newPower = artifactPower;
                             if (apply)
@@ -2400,7 +2400,7 @@ void Item::CopyArtifactDataFromParent(Item* parent)
 
 void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId)
 {
-    Player const* owner = GetOwner();
+    Player* owner = GetOwner();
     if (!owner)
         return;
 
@@ -2430,6 +2430,8 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
     artifactXpGain.ArtifactGUID = GetGUID();
     artifactXpGain.Amount = amount;
     owner->SendDirectMessage(artifactXpGain.Write());
+
+    SetState(ITEM_CHANGED, owner);
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

@@ -1154,3 +1154,8 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
     specialMountAnim.UnitGUID = _player->GetGUID();
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }
+
+void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite)
+{
+    _collectionMgr->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
+}

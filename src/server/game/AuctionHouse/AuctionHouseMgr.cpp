@@ -850,7 +850,7 @@ void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::Auct
     {
         if (gemData.ItemId)
         {
-            WorldPackets::Item::ItemGemInstanceData gem;
+            WorldPackets::Item::ItemGemData gem;
             gem.Slot = i;
             gem.Item.Initialize(&gemData);
             auctionItem.Gems.push_back(gem);

@@ -204,8 +204,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CREATURE_TYPE, "SELECT ID, Name_lang FROM creature_type_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // Criteria.db2
-    PrepareStatement(HOTFIX_SEL_CRITERIA, "SELECT ID, StartAsset, FailAsset, StartTimer, ModifierTreeId, EligibilityWorldStateID, Type, StartEvent, "
-        "FailEvent, Flags, EligibilityWorldStateValue FROM criteria ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CRITERIA, "SELECT ID, Asset, StartAsset, FailAsset, StartTimer, ModifierTreeId, EligibilityWorldStateID, Type, "
+        "StartEvent, FailEvent, Flags, EligibilityWorldStateValue FROM criteria ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CriteriaTree.db2
     PrepareStatement(HOTFIX_SEL_CRITERIA_TREE, "SELECT ID, CriteriaID, Amount, Description, Parent, Flags, Operator, OrderIndex FROM criteria_tree"
@@ -746,8 +746,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "DispelType, Mechanic, PreventionType FROM spell_categories ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellCategory.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_CATEGORY, "SELECT ID, Name, ChargeRecoveryTime, Flags, UsesPerWeek, MaxCharges, Unk703 FROM spell_category"
-        " ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SPELL_CATEGORY, "SELECT ID, Name, ChargeRecoveryTime, Flags, UsesPerWeek, MaxCharges, ChargeCategoryType"
+        " FROM spell_category ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SPELL_CATEGORY, "SELECT ID, Name_lang FROM spell_category_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // SpellClassOptions.db2
@@ -865,7 +865,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Flags, ID FROM spell_x_spell_visual ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SummonProperties.db2
-    PrepareStatement(HOTFIX_SEL_SUMMON_PROPERTIES, "SELECT ID, Category, Faction, Type, Slot, Flags FROM summon_properties ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SUMMON_PROPERTIES, "SELECT ID, Flags, Category, Faction, Type, Slot FROM summon_properties ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // TactKey.db2
     PrepareStatement(HOTFIX_SEL_TACT_KEY, "SELECT ID, Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key10, Key11, Key12, Key13, Key14, Key15, "
