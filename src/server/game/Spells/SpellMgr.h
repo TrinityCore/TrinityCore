@@ -162,6 +162,9 @@ enum ProcFlags
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
     PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
 
+    PROC_FLAG_ENTER_COMBAT                    = 0x08000000,    // 27 Entered combat
+    PROC_FLAG_ENCOUNTER_START                 = 0x10000000,    // 28 Encounter started
+
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK,
