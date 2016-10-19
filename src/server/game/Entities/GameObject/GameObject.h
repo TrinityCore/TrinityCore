@@ -501,6 +501,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_BUTTON:      return button.linkedTrap;
             case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrapId;
             case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrapId;
             case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrapId;
