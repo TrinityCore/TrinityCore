@@ -29,34 +29,42 @@ namespace ai
             creators["blessing of wisdom"] = &blessing_of_wisdom;
             creators["blessing of kings on party"] = &blessing_of_kings_on_party;
             creators["blessing of wisdom on party"] = &blessing_of_wisdom_on_party;
+            creators["blessing of sanctuary"] = &blessing_of_sanctuary;
         }
     private:
+        static ActionNode* blessing_of_sanctuary(PlayerbotAI* ai)
+        {
+            return new ActionNode ("blessing of sanctuary",
+                /*P*/ NULL,
+                /*A*/ NULL,
+                /*C*/ NULL);
+        }
         static ActionNode* blessing_of_kings(PlayerbotAI* ai)
         {
             return new ActionNode ("blessing of kings",
                 /*P*/ NULL,
-                /*A*/ NextAction::array(0, new NextAction("blessing of wisdom"), NULL),
+                /*A*/ NULL,
                 /*C*/ NULL);
         }
         static ActionNode* blessing_of_wisdom(PlayerbotAI* ai)
         {
             return new ActionNode ("blessing of wisdom",
                 /*P*/ NULL,
-                /*A*/ NextAction::array(0, new NextAction("blessing of might"), NULL),
+                /*A*/ NULL,
                 /*C*/ NULL);
         }
         static ActionNode* blessing_of_kings_on_party(PlayerbotAI* ai)
         {
             return new ActionNode ("blessing of kings on party",
                 /*P*/ NULL,
-                /*A*/ NextAction::array(0, new NextAction("blessing of wisdom on party"), NULL),
+                /*A*/ NULL,
                 /*C*/ NULL);
         }
         static ActionNode* blessing_of_wisdom_on_party(PlayerbotAI* ai)
         {
             return new ActionNode ("blessing of wisdom on party",
                 /*P*/ NULL,
-                /*A*/ NextAction::array(0, new NextAction("blessing of might on party"), NULL),
+                /*A*/ NULL,
                 /*C*/ NULL);
         }
         static ActionNode* retribution_aura(PlayerbotAI* ai)
