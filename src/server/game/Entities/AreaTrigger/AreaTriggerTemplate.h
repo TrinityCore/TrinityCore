@@ -19,7 +19,6 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Object.h"
-#include "ObjectAccessor.h"
 
 class Unit;
 class SpellInfo;
