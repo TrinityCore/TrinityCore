@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Object.h"
 #include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "Unit.h"
@@ -93,7 +94,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, spell->GetDuration()); // Todo
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetTemplate()->TimeToTargetScale != 0 ? GetTemplate()->TimeToTargetScale : spell->GetDuration());
 
     switch (GetTemplate()->GetType())
     {
@@ -116,6 +117,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         float angleSin = std::sin(GetOrientation());
         float angleCos = std::cos(GetOrientation());
 
+        // This is needed to rotate the vertices, following caster orientation
         for (AreaTriggerPolygonVertice& vertice : _polygonVertices)
         {
             float tempX = vertice.VerticeX;
@@ -204,7 +206,7 @@ void AreaTrigger::SearchUnitInBox()
 
     std::list<Unit*> targetList;
 
-    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
+    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
@@ -235,7 +237,7 @@ void AreaTrigger::SearchUnitInPolygon()
 {
     std::list<Unit*> targetList;
 
-    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
+    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
@@ -256,21 +258,20 @@ void AreaTrigger::SearchUnitInPolygon()
 
 void AreaTrigger::SearchUnitInCylinder()
 {
-    float radius = GetTemplate()->CylinderDatas.Radius;
     float height = GetTemplate()->CylinderDatas.Height;
 
     std::list<Unit*> targetList;
 
-    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
+    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
-    targetList.remove_if([this, radius, height](Unit* unit) -> bool
+    targetList.remove_if([this, height](Unit* unit) -> bool
     {
         float minZ = GetPositionZ() - height;
         float maxZ = GetPositionZ() + height;
 
-        return GetDistance(unit) > radius || unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+        return unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
     });
 
     HandleUnitEnterExit(targetList);
@@ -278,54 +279,33 @@ void AreaTrigger::SearchUnitInCylinder()
 
 void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
 {
+    GuidUnorderedSet exitUnits = _insideUnits;
+    _insideUnits.clear();
+
     for (Unit* unit : newTargetList)
     {
-        if (!unit->IsAlive())
-            continue;
+        if (exitUnits.erase(unit->GetGUID()) == 0) // erase(key_type) returns number of elements erased
+        {
+            if (Player* player = unit->ToPlayer())
+                if (player->isDebugAreaTriggers)
+                    ChatHandler(player->GetSession()).PSendSysMessage("You entered areatrigger %u", GetTemplate()->Id);
 
-        /// Unit already in our set, nothing to do
-        if (_insideUnits.find(unit->GetGUID()) != _insideUnits.end())
-            continue;
-        
-        if (Player* player = unit->ToPlayer())
-            if (player->isDebugAreaTriggers)
-                ChatHandler(player->GetSession()).PSendSysMessage("You entered areatrigger %u", GetTemplate()->Id);
+            sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
+        }
 
         _insideUnits.insert(unit->GetGUID());
-        sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
     }
 
-    for (auto insideUnitsItr = _insideUnits.begin(); insideUnitsItr != _insideUnits.end(); )
+    for (ObjectGuid const& exitUnitGuid : exitUnits)
     {
-        bool found = false;
-        ObjectGuid unitGuid = *insideUnitsItr;
-
-        for (Unit* unit : newTargetList)
+        if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
         {
-            if (unit->GetGUID() == unitGuid)
-            {
-                if (unit->IsAlive())
-                    found = true;
+            if (Player* player = leavingUnit->ToPlayer())
+                if (player->isDebugAreaTriggers)
+                    ChatHandler(player->GetSession()).PSendSysMessage("You exited areatrigger %u", GetTemplate()->Id);
 
-                break;
-            }
+            sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
         }
-
-        if (!found)
-        {
-            if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, unitGuid))
-            {
-                if (Player* player = leavingUnit->ToPlayer())
-                    if (player->isDebugAreaTriggers)
-                        ChatHandler(player->GetSession()).PSendSysMessage("You exited areatrigger %u", GetTemplate()->Id);
-
-                sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
-            }
-
-            insideUnitsItr = _insideUnits.erase(insideUnitsItr);
-        }
-        else
-            ++insideUnitsItr;
     }
 }
 

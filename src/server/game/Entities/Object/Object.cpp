@@ -580,16 +580,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasScaleCurveID)
-            *data << areaTriggerTemplate->ScaleCurveId;
+            *data << int32(areaTriggerTemplate->ScaleCurveId);
 
         if (hasMorphCurveID)
-            *data << areaTriggerTemplate->MorphCurveId;
+            *data << int32(areaTriggerTemplate->MorphCurveId);
 
         if (hasFacingCurveID)
-            *data << areaTriggerTemplate->FacingCurveId;
+            *data << int32(areaTriggerTemplate->FacingCurveId);
 
         if (hasMoveCurveID)
-            *data << areaTriggerTemplate->MoveCurveId;
+            *data << int32(areaTriggerTemplate->MoveCurveId);
 
         if (hasUnk2)
             *data << int32(0);
@@ -599,18 +599,18 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerSphere)
         {
-            *data << areaTriggerTemplate->SphereDatas.Radius;
-            *data << areaTriggerTemplate->SphereDatas.RadiusTarget;
+            *data << float(areaTriggerTemplate->SphereDatas.Radius);
+            *data << float(areaTriggerTemplate->SphereDatas.RadiusTarget);
         }
 
         if (hasAreaTriggerBox)
         {
-            *data << areaTriggerTemplate->BoxDatas.Extents[0];
-            *data << areaTriggerTemplate->BoxDatas.Extents[1];
-            *data << areaTriggerTemplate->BoxDatas.Extents[2];
-            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[0];
-            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[1];
-            *data << areaTriggerTemplate->BoxDatas.ExtentsTarget[2];
+            *data << float(areaTriggerTemplate->BoxDatas.Extents[0]);
+            *data << float(areaTriggerTemplate->BoxDatas.Extents[1]);
+            *data << float(areaTriggerTemplate->BoxDatas.Extents[2]);
+            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[0]);
+            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[1]);
+            *data << float(areaTriggerTemplate->BoxDatas.ExtentsTarget[2]);
         }
 
         if (hasAreaTriggerPolygon)
@@ -619,8 +619,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
             *data << int32(verticeCount);
             *data << int32(verticeCount);
-            *data << areaTriggerTemplate->PolygonDatas.Height;
-            *data << areaTriggerTemplate->PolygonDatas.HeightTarget;
+            *data << float(areaTriggerTemplate->PolygonDatas.Height);
+            *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
 
             for (int32 i = 0; i < verticeCount; ++i)
             {
@@ -637,12 +637,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerCylinder)
         {
-            *data << areaTriggerTemplate->CylinderDatas.Radius;
-            *data << areaTriggerTemplate->CylinderDatas.RadiusTarget;
-            *data << areaTriggerTemplate->CylinderDatas.Height;
-            *data << areaTriggerTemplate->CylinderDatas.HeightTarget;
-            *data << areaTriggerTemplate->CylinderDatas.LocationZOffset;
-            *data << areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget;
+            *data << float(areaTriggerTemplate->CylinderDatas.Radius);
+            *data << float(areaTriggerTemplate->CylinderDatas.RadiusTarget);
+            *data << float(areaTriggerTemplate->CylinderDatas.Height);
+            *data << float(areaTriggerTemplate->CylinderDatas.HeightTarget);
+            *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffset);
+            *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
         }
 
         if (hasAreaTriggerUnkType)

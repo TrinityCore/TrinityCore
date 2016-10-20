@@ -51,7 +51,7 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
         }
         case AREATRIGGER_TYPE_BOX:
         {
-            MaxSearchRadius = std::max(std::max(BoxDatas.Extents[0], BoxDatas.Extents[1]), BoxDatas.Extents[2]);
+            MaxSearchRadius = std::sqrt(BoxDatas.Extents[0] * BoxDatas.Extents[0] / 4 + BoxDatas.Extents[1] * BoxDatas.Extents[1] / 4);
             break;
         }
         case AREATRIGGER_TYPE_POLYGON:
@@ -71,7 +71,7 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
         }
         case AREATRIGGER_TYPE_CYLINDER:
         {
-            MaxSearchRadius = std::sqrt((CylinderDatas.Radius * CylinderDatas.Radius) + (CylinderDatas.Height * CylinderDatas.Height));
+            MaxSearchRadius = SphereDatas.Radius;
             break;
         }
         default:

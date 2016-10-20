@@ -49,7 +49,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SearchUnitInCylinder();
         void HandleUnitEnterExit(std::list<Unit*> targetList);
 
-        std::set<ObjectGuid> const& GetInsideUnits() const { return _insideUnits; }
+        GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
         AreaTriggerTemplate const* GetTemplate() const { return _areaTriggerTemplate; }
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
@@ -67,7 +67,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
 
         AreaTriggerTemplate const* _areaTriggerTemplate;
-        GuidSet _insideUnits;
+        GuidUnorderedSet _insideUnits;
 };
 
 #endif

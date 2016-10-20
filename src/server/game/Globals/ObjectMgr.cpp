@@ -9619,9 +9619,33 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
     _areaTriggerTemplateStore.clear();
+    std::map< uint32, std::vector<AreaTriggerPolygonVertice> > verticeByAreatrigger;
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_TEMPLATES);
-    PreparedQueryResult templates = WorldDatabase.Query(stmt);
+    QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`");
+
+    if (vertices)
+    {
+        do
+        {
+            Field* verticeFields = vertices->Fetch();
+            uint32 areatriggerId = verticeFields[0].GetUInt32();
+
+            AreaTriggerPolygonVertice vertice;
+            vertice.VerticeX        = verticeFields[1].GetFloat();
+            vertice.VerticeY        = verticeFields[2].GetFloat();
+            vertice.VerticeTargetX  = verticeFields[3].GetFloat();
+            vertice.VerticeTargetY  = verticeFields[4].GetFloat();
+
+            verticeByAreatrigger[areatriggerId].push_back(vertice);
+        }
+        while (vertices->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
+    }
+
+    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, Data0, Data1, Data2, Data3, Data4, Data5, TimeToTargetScale, ScriptName FROM `areatrigger_template`");
 
     if (!templates)
     {
@@ -9655,33 +9679,14 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
             areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
 
-        areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[12].GetCString());
-
-        PreparedStatement* verticesStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_POLYGON_VERTICES);
-        verticesStmt->setUInt32(0, areaTriggerTemplate.Id);
-        PreparedQueryResult vertices = WorldDatabase.Query(verticesStmt);
-
-        if (vertices)
-        {
-            do
-            {
-                Field* verticeFields = vertices->Fetch();
-
-                AreaTriggerPolygonVertice vertice;
-                vertice.VerticeX        = verticeFields[0].GetFloat();
-                vertice.VerticeY        = verticeFields[1].GetFloat();
-                vertice.VerticeTargetX  = verticeFields[2].GetFloat();
-                vertice.VerticeTargetY  = verticeFields[3].GetFloat();
-
-                areaTriggerTemplate.PolygonVertices.push_back(vertice);
-
-            } while (vertices->NextRow());
-        }
+        areaTriggerTemplate.TimeToTargetScale = fields[12].GetInt32();
+        areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[13].GetString());
+        areaTriggerTemplate.PolygonVertices = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
 
         areaTriggerTemplate.InitMaxSearchRadius();
         _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
-
-    } while (templates->NextRow());
+    }
+    while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell areatrigger templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }

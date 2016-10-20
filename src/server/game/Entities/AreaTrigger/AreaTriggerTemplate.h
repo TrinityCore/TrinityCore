@@ -72,14 +72,15 @@ class AreaTriggerTemplate
 public:
     AreaTriggerTemplate()
     {
-        Id              = 0;
-        Flags           = 0;
-        MoveCurveId     = 0;
-        ScaleCurveId    = 0;
-        MorphCurveId    = 0;
-        FacingCurveId   = 0;
-        ScriptId        = 0;
-        MaxSearchRadius = 0.0f;
+        Id                  = 0;
+        Flags               = 0;
+        MoveCurveId         = 0;
+        ScaleCurveId        = 0;
+        MorphCurveId        = 0;
+        FacingCurveId       = 0;
+        TimeToTargetScale   = 0;
+        ScriptId            = 0;
+        MaxSearchRadius     = 0.0f;
 
         memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
     }
@@ -100,6 +101,7 @@ public:
     int32 ScaleCurveId;
     int32 MorphCurveId;
     int32 FacingCurveId;
+    uint32 TimeToTargetScale;
     uint32 ScriptId;
     float MaxSearchRadius;
     std::vector<AreaTriggerPolygonVertice> PolygonVertices;
