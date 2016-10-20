@@ -30,6 +30,14 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   PRIMARY KEY (`areatriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `areatrigger_template_auras`;
+CREATE TABLE `areatrigger_template_auras` (
+  `AreaTriggerId` int(10) unsigned NOT NULL,
+  `AuraId` int(10) unsigned NOT NULL,
+  `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `spell_areatrigger`;
 CREATE TABLE `spell_areatrigger` (
   `SpellMiscId` int(10) unsigned NOT NULL,
