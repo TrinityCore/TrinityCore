@@ -290,6 +290,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
                 if (player->isDebugAreaTriggers)
                     ChatHandler(player->GetSession()).PSendSysMessage("You entered areatrigger %u", GetTemplate()->Id);
 
+            AddAuras(unit);
             sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
         }
 
@@ -304,6 +305,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
                 if (player->isDebugAreaTriggers)
                     ChatHandler(player->GetSession()).PSendSysMessage("You exited areatrigger %u", GetTemplate()->Id);
 
+            RemoveAuras(leavingUnit);
             sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
         }
     }
@@ -377,4 +379,71 @@ bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
     }
 
     return locatedInPolygon;
+}
+
+void AreaTrigger::AddAuras(Unit* unit)
+{
+    for (AreaTriggerAuras aura : GetTemplate()->Auras)
+    {
+        if (UnitFitToAuraRequirement(unit, aura.TargetType))
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            {
+                caster->AddAura(aura.AuraId, unit);
+            }
+        }
+    }
+}
+
+void AreaTrigger::RemoveAuras(Unit* unit)
+{
+    for (AreaTriggerAuras aura : GetTemplate()->Auras)
+    {
+        unit->RemoveAurasDueToSpell(aura.AuraId, _casterGuid);
+    }
+}
+
+bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const
+{
+    switch (targetType)
+    {
+        case AREATRIGGER_AURA_USER_ANY:
+        {
+            break;
+        }
+        case AREATRIGGER_AURA_USER_FRIEND:
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+                return caster->IsFriendlyTo(unit);
+
+            return false;
+        }
+        case AREATRIGGER_AURA_USER_ENEMY:
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+                return !caster->IsFriendlyTo(unit);
+
+            return false;
+        }
+        case AREATRIGGER_AURA_USER_RAID:
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+                if (Player* casterPlayer = caster->ToPlayer())
+                    if (Player* targetPlayer = unit->ToPlayer())
+                        return casterPlayer->IsInSameRaidWith(targetPlayer);
+
+            return false;
+        }
+        case AREATRIGGER_AURA_USER_PARTY:
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+                if (Player* casterPlayer = caster->ToPlayer())
+                    if (Player* targetPlayer = unit->ToPlayer())
+                        return casterPlayer->IsInSameGroupWith(targetPlayer);
+
+            return false;
+        }
+    }
+
+    return true;
 }

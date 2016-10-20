@@ -9621,6 +9621,37 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     _areaTriggerTemplateStore.clear();
     _areaTriggerTemplateSpellMisc.clear();
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
+    std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
+
+    QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType FROM `areatrigger_template_auras`");
+
+    if (templateAuras)
+    {
+        do
+        {
+            Field* verticeFields = templateAuras->Fetch();
+            uint32 areatriggerId = verticeFields[0].GetUInt32();
+
+            AreaTriggerAuras aura;
+            aura.AuraId         = verticeFields[1].GetUInt32();
+            uint32 targetType   = verticeFields[2].GetUInt32();
+
+            if (targetType >= AREATRIGGER_AURA_USER_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_auras` has invalid TargetType (%u) for AreaTriggerId %u and AuraId %u", targetType, areatriggerId, aura.AuraId);
+                continue;
+            }
+
+            aura.TargetType = AreaTriggerAuraTypes(targetType);
+
+            aurasByAreatrigger[areatriggerId].push_back(aura);
+        }
+        while (templateAuras->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates auras. DB table `areatrigger_template_auras` is empty.");
+    }
 
     QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`");
 
@@ -9698,9 +9729,10 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
             areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
 
-        areaTriggerTemplate.TimeToTargetScale = fields[12].GetInt32();
-        areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[13].GetString());
-        areaTriggerTemplate.PolygonVertices = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
+        areaTriggerTemplate.TimeToTargetScale   = fields[12].GetInt32();
+        areaTriggerTemplate.ScriptId            = sObjectMgr->GetScriptId(fields[13].GetString());
+        areaTriggerTemplate.PolygonVertices     = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
+        areaTriggerTemplate.Auras               = std::move(aurasByAreatrigger[areaTriggerTemplate.Id]);
 
         areaTriggerTemplate.InitMaxSearchRadius();
         _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;

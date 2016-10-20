@@ -66,6 +66,12 @@ struct AreaTriggerPolygonVertice
     float VerticeTargetY;
 };
 
+struct AreaTriggerAuras
+{
+    uint32 AuraId;
+    AreaTriggerAuraTypes TargetType;
+};
+
 class AreaTriggerTemplate
 {
 public:
@@ -104,6 +110,7 @@ public:
     uint32 ScriptId;
     float MaxSearchRadius;
     std::vector<AreaTriggerPolygonVertice> PolygonVertices;
+    std::vector<AreaTriggerAuras> Auras;
 
     union
     {

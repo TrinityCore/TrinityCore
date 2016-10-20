@@ -58,6 +58,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool CheckIsInPolygon2D(Position* pos) const;
 
     protected:
+        bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
+
+        void AddAuras(Unit* unit);
+        void RemoveAuras(Unit* unit);
+
         ObjectGuid _casterGuid;
 
         int32 _duration;
