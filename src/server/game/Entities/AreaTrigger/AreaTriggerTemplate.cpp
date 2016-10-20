@@ -45,6 +45,7 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
     switch (GetType())
     {
         case AREATRIGGER_TYPE_SPHERE:
+        case AREATRIGGER_TYPE_CYLINDER:
         {
             MaxSearchRadius = SphereDatas.Radius;
             break;
@@ -67,11 +68,6 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
                     MaxSearchRadius = pointDist;
             }
 
-            break;
-        }
-        case AREATRIGGER_TYPE_CYLINDER:
-        {
-            MaxSearchRadius = SphereDatas.Radius;
             break;
         }
         default:

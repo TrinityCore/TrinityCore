@@ -9619,7 +9619,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
     _areaTriggerTemplateStore.clear();
-    std::map< uint32, std::vector<AreaTriggerPolygonVertice> > verticeByAreatrigger;
+    _areaTriggerTemplateSpellMisc.clear();
+    std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
 
     QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`");
 
@@ -9643,6 +9644,24 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     else
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
+    }
+
+    QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId FROM `spell_areatrigger`");
+
+    if (areatriggerSpellMiscs)
+    {
+        do
+        {
+            Field* areatriggerSpellMiscFields = areatriggerSpellMiscs->Fetch();
+            uint32 spellMiscId   = areatriggerSpellMiscFields[0].GetUInt32();
+            uint32 areatriggerId = areatriggerSpellMiscFields[1].GetUInt32();
+
+            _areaTriggerTemplateSpellMisc[spellMiscId] = areatriggerId;
+        } while (areatriggerSpellMiscs->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
     }
 
     QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, Data0, Data1, Data2, Data3, Data4, Data5, TimeToTargetScale, ScriptName FROM `areatrigger_template`");
@@ -9685,6 +9704,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
         areaTriggerTemplate.InitMaxSearchRadius();
         _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
+
+        ++count;
     }
     while (templates->NextRow());
 

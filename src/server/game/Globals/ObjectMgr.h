@@ -1432,6 +1432,15 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        uint32 GetAreaTriggerTemplateIdBySpellMiscId(uint32 spellMiscId) const
+        {
+            auto itr = _areaTriggerTemplateSpellMisc.find(spellMiscId);
+            if (itr != _areaTriggerTemplateSpellMisc.end())
+                return itr->second;
+
+            return spellMiscId;
+        }
+
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
             auto itr = _sceneTemplateStore.find(sceneId);
@@ -1595,6 +1604,7 @@ class TC_GAME_API ObjectMgr
 
         CharacterTemplateContainer _characterTemplateStore;
         AreaTriggerTemplateContainer _areaTriggerTemplateStore;
+        std::map<uint32, uint32> _areaTriggerTemplateSpellMisc;
         SceneTemplateContainer _sceneTemplateStore;
 
         enum CreatureLinkedRespawnType

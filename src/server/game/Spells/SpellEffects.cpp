@@ -5619,9 +5619,9 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
         pos = destTarget->GetPosition();
 
     // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
-    uint32 triggerEntry = effectInfo->MiscValue;
+    uint32 triggerEntry = sObjectMgr->GetAreaTriggerTemplateIdBySpellMiscId(effectInfo->MiscValue);
 
-    AreaTrigger * areaTrigger = new AreaTrigger;
+    AreaTrigger* areaTrigger = new AreaTrigger;
     if (!areaTrigger->CreateAreaTrigger(GetCaster()->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>(), triggerEntry, GetCaster(), GetSpellInfo(), pos, m_SpellVisual))
         delete areaTrigger;
 }
