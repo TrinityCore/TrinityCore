@@ -99,10 +99,10 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     switch (GetTemplate()->GetType())
     {
         case AREATRIGGER_TYPE_SPHERE:
-            SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->SphereDatas.Radius);
+            SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->SphereDatas.Radius);
             break;
         case AREATRIGGER_TYPE_CYLINDER:
-            SetUInt32Value(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
+            SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
             break;
         default:
             break;
@@ -389,7 +389,10 @@ void AreaTrigger::AddAuras(Unit* unit)
         {
             if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
             {
-                caster->AddAura(aura.AuraId, unit);
+                if (aura.CastType == AREATRIGGER_AURA_CAST)
+                    caster->CastSpell(unit, aura.AuraId, true);
+                else
+                    caster->AddAura(aura.AuraId, unit);
             }
         }
     }
@@ -408,6 +411,7 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
     switch (targetType)
     {
         case AREATRIGGER_AURA_USER_ANY:
+        default:
         {
             break;
         }

@@ -5110,6 +5110,13 @@ enum AreaTriggerAuraTypes
     AREATRIGGER_AURA_USER_MAX    = 5
 };
 
+enum AreaTriggerAuraCastTypes
+{
+    AREATRIGGER_AURA_CAST       = 0,
+    AREATRIGGER_AURA_ADDAURA    = 1,
+    AREATRIGGER_AURA_MAX        = 2
+};
+
 enum class GameError : uint32
 {
     ERR_SYSTEM                                              = 0,

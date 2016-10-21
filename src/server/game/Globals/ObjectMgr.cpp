@@ -9623,18 +9623,19 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
     std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
 
-    QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType FROM `areatrigger_template_auras`");
+    QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType, CastType FROM `areatrigger_template_auras`");
 
     if (templateAuras)
     {
         do
         {
-            Field* verticeFields = templateAuras->Fetch();
-            uint32 areatriggerId = verticeFields[0].GetUInt32();
+            Field* templateAurasFields = templateAuras->Fetch();
+            uint32 areatriggerId = templateAurasFields[0].GetUInt32();
 
             AreaTriggerAuras aura;
-            aura.AuraId         = verticeFields[1].GetUInt32();
-            uint32 targetType   = verticeFields[2].GetUInt32();
+            aura.AuraId         = templateAurasFields[1].GetUInt32();
+            uint32 targetType   = templateAurasFields[2].GetUInt32();
+            uint32 castType     = templateAurasFields[3].GetUInt32();
 
             if (targetType >= AREATRIGGER_AURA_USER_MAX)
             {
@@ -9642,7 +9643,14 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                 continue;
             }
 
+            if (castType >= AREATRIGGER_AURA_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_auras` has invalid CastType (%u) for AreaTriggerId %u and AuraId %u", castType, areatriggerId, aura.AuraId);
+                continue;
+            }
+
             aura.TargetType = AreaTriggerAuraTypes(targetType);
+            aura.CastType   = AreaTriggerAuraCastTypes(castType);
 
             aurasByAreatrigger[areatriggerId].push_back(aura);
         }

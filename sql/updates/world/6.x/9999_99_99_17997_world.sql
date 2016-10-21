@@ -35,6 +35,7 @@ CREATE TABLE `areatrigger_template_auras` (
   `AreaTriggerId` int(10) unsigned NOT NULL,
   `AuraId` int(10) unsigned NOT NULL,
   `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
+  `CastType` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

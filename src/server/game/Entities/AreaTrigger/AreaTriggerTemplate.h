@@ -70,6 +70,7 @@ struct AreaTriggerAuras
 {
     uint32 AuraId;
     AreaTriggerAuraTypes TargetType;
+    AreaTriggerAuraCastTypes CastType;
 };
 
 class AreaTriggerTemplate
