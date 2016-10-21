@@ -50,7 +50,7 @@ public:
                         caster->RemoveAurasDueToSpell(SPELL_HAS_WATER_BUCKET);
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_hallows_end_has_water_bucket_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
