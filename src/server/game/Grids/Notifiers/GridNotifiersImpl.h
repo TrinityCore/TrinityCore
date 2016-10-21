@@ -284,7 +284,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 template<class Check>
@@ -295,7 +295,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 template<class Check>
@@ -306,7 +306,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(CorpseMapType &m)
 
     for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 template<class Check>
@@ -317,7 +317,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(GameObjectMapType &m)
 
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 template<class Check>
@@ -328,7 +328,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(DynamicObjectMapType &m)
 
     for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 template<class Check>
@@ -339,7 +339,7 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
 
     for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
-            i_objects.push_back(itr->GetSource());
+            Insert(itr->GetSource());
 }
 
 // Gameobject searchers
@@ -383,7 +383,7 @@ void Trinity::GameObjectListSearcher<Check>::Visit(GameObjectMapType &m)
     for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (itr->GetSource()->IsInPhase(_searcher))
             if (i_check(itr->GetSource()))
-                i_objects.push_back(itr->GetSource());
+                Insert(itr->GetSource());
 }
 
 // Unit searchers
