@@ -447,7 +447,7 @@ public:
                         break;
                     }
                     case EVENT_CLEAVE:
-                        me->GetAI()->DoCast(15496);
+                        me->GetAI()->DoCast(SPELL_CLEAVE);
                         events.Repeat(Seconds(20));
                         break;
                 }
@@ -456,10 +456,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-            // cleave
-            if (!urand(0, 29))
-                me->CastSpell(me->GetVictim(), 15496, false);
 
             DoMeleeAttackIfReady();
         }
