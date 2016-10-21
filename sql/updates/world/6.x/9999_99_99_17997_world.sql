@@ -48,15 +48,17 @@ CREATE TABLE `spell_areatrigger` (
 
 INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreatriggerId`) VALUES
 (4424, 9170),
-(2472, 5207);
+(2472, 5207),
+(4488, 9228);
 
 INSERT INTO `areatrigger_template`(`Id`,`Flags`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`TimeToTargetScale`,`ScriptName`,`VerifiedBuild`) VALUES
-(5207,65536,0,0,0,0,0,0,0,0,0,0,0,'',22810),
-(9170,131072,0,0,0,0,3,3,4,4,1,1,0,'',22810);
+(5207, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 22810),
+(9170, 131072,0, 0, 0, 0, 3, 3, 4, 4, 1, 1, 0, '', 22810),
+(9228, 16384, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, '', 22810);
 
 INSERT INTO `areatrigger_template_polygon_vertices`(`AreaTriggerId`,`Idx`,`VerticeX`,`VerticeY`,`VerticeTargetX`,`VerticeTargetY`,`VerifiedBuild`) VALUES
-(5207,0,-1,0.75,0,0,22810),
-(5207,1,-1,-0.75,0,0,22810),
-(5207,2,4,-0.75,0,0,22810),
-(5207,3,4,0.75,0,0,22810);
+(5207, 0, -1, 0.75,  0, 0, 22810),
+(5207, 1, -1, -0.75, 0, 0, 22810),
+(5207, 2, 4,  -0.75, 0, 0, 22810),
+(5207, 3, 4,  0.75,  0, 0, 22810);
 

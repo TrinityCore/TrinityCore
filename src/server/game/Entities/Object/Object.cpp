@@ -522,24 +522,24 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << float(0); // RollPitchYaw Y
         *data << float(0); // RollPitchYaw Z
 
-        bool hasAbsoluteOrientation = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
-        bool hasDynamicShape        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
-        bool hasAttached            = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED);
-        bool hasFaceMovementDir     = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
-        bool hasFollowsTerrain      = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
-        bool hasUnk1                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK1);
-        bool hasTargetRollPitchYaw  = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
-        bool hasScaleCurveID        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SCALE_CURVE);
-        bool hasMorphCurveID        = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_MORPH_CURVE);
-        bool hasFacingCurveID       = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACING_CURVE);
-        bool hasMoveCurveID         = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_MOVE_CURVE);
-        bool hasUnk2                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK2);
-        bool hasUnk3                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3);
-        bool hasUnk4                = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK4);
-        bool hasAreaTriggerSphere   = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPHERE);
-        bool hasAreaTriggerBox      = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_BOX);
-        bool hasAreaTriggerPolygon  = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);
-        bool hasAreaTriggerCylinder = areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);
+        bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
+        bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
+        bool hasAttached            = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED);
+        bool hasFaceMovementDir     = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
+        bool hasFollowsTerrain      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
+        bool hasUnk1                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK1);
+        bool hasTargetRollPitchYaw  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
+        bool hasScaleCurveID        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SCALE_CURVE);
+        bool hasMorphCurveID        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_MORPH_CURVE);
+        bool hasFacingCurveID       = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FACING_CURVE);
+        bool hasMoveCurveID         = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_MOVE_CURVE);
+        bool hasUnk2                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK2);
+        bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
+        bool hasUnk4                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK4);
+        bool hasAreaTriggerSphere   = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SPHERE);
+        bool hasAreaTriggerBox      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_BOX);
+        bool hasAreaTriggerPolygon  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);
+        bool hasAreaTriggerCylinder = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);
         bool hasAreaTriggerSpline   = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);
         bool hasAreaTriggerUnkType  = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_UNK5);
 
@@ -564,7 +564,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(hasAreaTriggerSpline);
         data->WriteBit(hasAreaTriggerUnkType);
 
-        if (areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK3))
+        if (hasUnk3)
             data->WriteBit(0);
 
         if (hasAreaTriggerSpline)

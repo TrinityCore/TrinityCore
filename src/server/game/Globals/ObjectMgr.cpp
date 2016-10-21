@@ -9618,7 +9618,6 @@ void ObjectMgr::LoadCreatureQuestItems()
 void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    _areaTriggerTemplateStore.clear();
     _areaTriggerTemplateSpellMisc.clear();
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
     std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;

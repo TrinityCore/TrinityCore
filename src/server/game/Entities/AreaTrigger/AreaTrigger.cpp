@@ -86,8 +86,6 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetEntry(triggerEntry);
     SetDuration(spell->GetDuration());
 
-    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_CASTER, caster->GetGUID());
@@ -95,18 +93,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
     SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetTemplate()->TimeToTargetScale != 0 ? GetTemplate()->TimeToTargetScale : spell->GetDuration());
-
-    switch (GetTemplate()->GetType())
-    {
-        case AREATRIGGER_TYPE_SPHERE:
-            SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->SphereDatas.Radius);
-            break;
-        case AREATRIGGER_TYPE_CYLINDER:
-            SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->CylinderDatas.Radius);
-            break;
-        default:
-            break;
-    }
+    SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
     CopyPhaseFrom(caster);
 
@@ -410,11 +397,6 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
 {
     switch (targetType)
     {
-        case AREATRIGGER_AURA_USER_ANY:
-        default:
-        {
-            break;
-        }
         case AREATRIGGER_AURA_USER_FRIEND:
         {
             if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
@@ -447,6 +429,9 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
 
             return false;
         }
+        case AREATRIGGER_AURA_USER_ANY:
+        default:
+            break;
     }
 
     return true;
