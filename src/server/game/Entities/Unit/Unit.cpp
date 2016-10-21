@@ -7841,7 +7841,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     // apply spellmod to Done damage
     if (spellProto)
         if (Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod<SPELLMOD_DAMAGE>(spellProto->Id, tmpDamage);
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
 
     // bonus result can be negative
     return uint32(std::max(tmpDamage, 0.0f));
@@ -8044,7 +8044,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spe
     // Apply chance modifer aura
     if (spellProto)
         if (Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod<SPELLMOD_PROC_PER_MINUTE>(spellProto->Id, PPM);
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_PROC_PER_MINUTE, PPM);
 
     return std::floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
@@ -10533,15 +10533,15 @@ uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCond
     {
         // On block
         if (damageInfo->blocked)
-            hitMask |= PROC_HIT_BLOCK;
+            hitMask |=PROC_HIT_BLOCK;
         // On absorb
         if (damageInfo->absorb)
-            hitMask |= PROC_HIT_ABSORB;
+            hitMask |=PROC_HIT_ABSORB;
         // On crit
         if (damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT)
-            hitMask |= PROC_HIT_CRITICAL;
+            hitMask |=PROC_HIT_CRITICAL;
         else
-            hitMask |= PROC_HIT_NORMAL;
+            hitMask |=PROC_EX_NORMAL_HIT;
     }
 
     return hitMask;
@@ -10609,8 +10609,6 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
 
 void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTriggeringProc, AuraApplicationList* procAuras, ProcEventInfo& eventInfo)
 {
-    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-
     // use provided list of auras which can proc
     if (procAuras)
     {
