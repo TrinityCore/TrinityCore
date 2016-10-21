@@ -389,7 +389,7 @@ void AreaTrigger::AddAuras(Unit* unit)
         {
             if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
             {
-                if (aura.CastType == AREATRIGGER_AURA_CAST)
+                if (aura.CastType == AREATRIGGER_AURA_CASTTYPE_CAST)
                     caster->CastSpell(unit, aura.AuraId, true);
                 else
                     caster->AddAura(aura.AuraId, unit);

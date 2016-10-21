@@ -5112,9 +5112,9 @@ enum AreaTriggerAuraTypes
 
 enum AreaTriggerAuraCastTypes
 {
-    AREATRIGGER_AURA_CAST       = 0,
-    AREATRIGGER_AURA_ADDAURA    = 1,
-    AREATRIGGER_AURA_MAX        = 2
+    AREATRIGGER_AURA_CASTTYPE_CAST      = 0,
+    AREATRIGGER_AURA_CASTTYPE_ADDAURA   = 1,
+    AREATRIGGER_AURA_CASTTYPE_MAX       = 2
 };
 
 enum class GameError : uint32

@@ -9643,7 +9643,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            if (castType >= AREATRIGGER_AURA_MAX)
+            if (castType >= AREATRIGGER_AURA_CASTTYPE_MAX)
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_auras` has invalid CastType (%u) for AreaTriggerId %u and AuraId %u", castType, areatriggerId, aura.AuraId);
                 continue;
