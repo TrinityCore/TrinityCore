@@ -6926,6 +6926,8 @@ void Spell::HandleLaunchPhase()
 
     bool usesAmmo = m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DIRECT_DAMAGE);
 
+    PrepareTargetProcessing();
+
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         TargetInfo& target = *ihit;
@@ -6959,8 +6961,11 @@ void Spell::HandleLaunchPhase()
                     break;
             }
         }
+
         DoAllEffectOnLaunchTarget(target, multiplier);
     }
+
+    FinishTargetProcessing();
 }
 
 void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)

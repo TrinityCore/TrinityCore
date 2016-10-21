@@ -3151,7 +3151,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     if (!unitTarget || !unitTarget->IsAlive())
