@@ -5230,6 +5230,8 @@ FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
             TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, getFaction());
         else
             TC_LOG_ERROR("entities.unit", "Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), getFaction());
+
+        ABORT();
     }
     return entry;
 }
