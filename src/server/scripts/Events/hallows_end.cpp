@@ -83,7 +83,7 @@ public:
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_hallows_end_has_water_bucket_AuraScript();
     }
@@ -118,7 +118,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_hallows_end_bucket_lands_SpellScript();
     }
@@ -163,7 +163,7 @@ public:
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_hallows_end_base_fire_AuraScript();
     }
@@ -301,7 +301,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const override
     {
         return new npc_costumed_orphan_matronAI(pCreature);
     }
@@ -351,7 +351,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_soh_fire_triggerAI(creature);
     }
@@ -521,7 +521,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_hallows_end_sohAI(creature);
     }
@@ -570,7 +570,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_hallows_end_train_fireAI(creature);
     }
