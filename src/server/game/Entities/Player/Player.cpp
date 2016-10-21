@@ -4235,7 +4235,9 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SetWaterWalking(false, true);
+    // add the flag to make sure opcode is always sent
+    AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    SetWaterWalking(false);
     if (!HasUnitState(UNIT_STATE_STUNNED))
         SetRooted(false);
 
@@ -23096,9 +23098,31 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
 
+    WorldPackets::Movement::MoveSetCompoundState setCompoundState;
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
-        SetRooted(true, true);
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ROOT, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_FEATHER_FALL))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_FEATHER_FALL, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_WATER_WALK))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_WATER_WALK, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_HOVER))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_HOVERING, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_CAN_TURN_WHILE_FALLING))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, m_movementCounter++);
+
+    if (HasAura(SPELL_DH_DOUBLE_JUMP))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ENABLE_DOUBLE_JUMP, m_movementCounter++);
+
+    if (!setCompoundState.StateChanges.empty())
+    {
+        setCompoundState.MoverGUID = GetGUID();
+        SendDirectMessage(setCompoundState.Write());
+    }
 
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
@@ -23451,24 +23475,6 @@ void Player::SendAurasForTarget(Unit* target) const
 {
     if (!target || target->GetVisibleAuras().empty())                  // speedup things
         return;
-
-    /*! Blizz sends certain movement packets sometimes even before CreateObject
-        These movement packets are usually found in SMSG_COMPRESSED_MOVES
-    */
-    if (target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        target->SetFeatherFall(true, true);
-
-    if (target->HasAuraType(SPELL_AURA_WATER_WALK))
-        target->SetWaterWalking(true, true);
-
-    if (target->HasAuraType(SPELL_AURA_HOVER))
-        target->SetHover(true, true);
-
-    if (target->HasAuraType(SPELL_AURA_CAN_TURN_WHILE_FALLING))
-        target->SetCanTurnWhileFalling(true, true);
-
-    if (target->HasAura(SPELL_DH_DOUBLE_JUMP))
-        target->SetDoubleJump(true, true);
 
     Unit::VisibleAuraContainer const& visibleAuras = target->GetVisibleAuras();
 

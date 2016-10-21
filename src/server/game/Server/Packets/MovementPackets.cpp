@@ -532,22 +532,27 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
+{
+    data << movementForce.ID;
+    data << movementForce.Origin;
+    data << movementForce.Direction;
+    data << movementForce.TransportPosition;
+    data << movementForce.TransportID;
+    data << movementForce.Magnitude;
+    data.WriteBits(movementForce.Type, 2);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
     _worldPacket << *movementInfo;
 
     _worldPacket << int32(MovementForces.size());
     for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-    {
-        _worldPacket << force.ID;
-        _worldPacket << force.Origin;
-        _worldPacket << force.Direction;
-        _worldPacket << force.TransportPosition;
-        _worldPacket << force.TransportID;
-        _worldPacket << force.Magnitude;
-        _worldPacket.WriteBits(force.Type, 2);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << force;
 
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
@@ -679,14 +684,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *movementInfo;
-    _worldPacket << Force.ID;
-    _worldPacket << Force.Origin;
-    _worldPacket << Force.Direction;
-    _worldPacket << Force.TransportPosition;
-    _worldPacket << Force.TransportID;
-    _worldPacket << Force.Magnitude;
-    _worldPacket.WriteBits(Force.Type, 2);
-    _worldPacket.FlushBits();
+    _worldPacket << Force;
 
     return &_worldPacket;
 }
@@ -757,6 +755,58 @@ WorldPacket const* WorldPackets::Movement::ResumeToken::Write()
     _worldPacket << uint32(SequenceIndex);
     _worldPacket.WriteBits(Reason, 2);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompoundState::MoveStateChange const& stateChange)
+{
+    data << uint16(stateChange.MessageID);
+    data << uint32(stateChange.SequenceIndex);
+    data.WriteBit(stateChange.Speed.is_initialized());
+    data.WriteBit(stateChange.KnockBack.is_initialized());
+    data.WriteBit(stateChange.VehicleRecID.is_initialized());
+    data.WriteBit(stateChange.CollisionHeight.is_initialized());
+    data.WriteBit(stateChange.MovementForce_.is_initialized());
+    data.WriteBit(stateChange.Unknown.is_initialized());
+    data.FlushBits();
+
+    if (stateChange.CollisionHeight)
+    {
+        data << float(stateChange.CollisionHeight->Height);
+        data << float(stateChange.CollisionHeight->Scale);
+        data.WriteBits(stateChange.CollisionHeight->Reason, 2);
+        data.FlushBits();
+    }
+
+    if (stateChange.Speed)
+        data << float(*stateChange.Speed);
+
+    if (stateChange.KnockBack)
+    {
+        data << float(stateChange.KnockBack->HorzSpeed);
+        data << stateChange.KnockBack->Direction;
+        data << float(stateChange.KnockBack->InitVertSpeed);
+    }
+
+    if (stateChange.VehicleRecID)
+        data << int32(*stateChange.VehicleRecID);
+
+    if (stateChange.MovementForce_)
+        data << *stateChange.MovementForce_;
+
+    if (stateChange.Unknown)
+        data << *stateChange.Unknown;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(StateChanges.size());
+    for (MoveStateChange const& stateChange : StateChanges)
+        _worldPacket << stateChange;
 
     return &_worldPacket;
 }

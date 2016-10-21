@@ -1690,17 +1690,17 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable, bool packetOnly = false);
+        bool SetDisableGravity(bool disable);
         bool SetFall(bool enable);
         bool SetSwim(bool enable);
         bool SetCanFly(bool enable);
-        bool SetWaterWalking(bool enable, bool packetOnly = false);
-        bool SetFeatherFall(bool enable, bool packetOnly = false);
-        bool SetHover(bool enable, bool packetOnly = false);
+        bool SetWaterWalking(bool enable);
+        bool SetFeatherFall(bool enable);
+        bool SetHover(bool enable);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
-        bool SetCanTurnWhileFalling(bool enable, bool packetOnly = false);
-        bool SetDoubleJump(bool enable, bool packetOnly = false);
+        bool SetCanTurnWhileFalling(bool enable);
+        bool SetDoubleJump(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
