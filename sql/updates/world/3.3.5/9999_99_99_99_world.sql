@@ -6,7 +6,7 @@ UPDATE `creature_template` SET `ScriptName`="npc_soh_fire_trigger" WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`="npc_hallows_end_soh", `InhabitType`=7 WHERE `entry`=23543;
 UPDATE `creature_template_addon` SET `auras`="42096" WHERE `entry`=23537;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN(42074, 42339);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ("spell_hallows_end_base_fire", "spell_hallows_end_bucket_lands");
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (42074, "spell_hallows_end_base_fire"),
 (42339, "spell_hallows_end_bucket_lands");
@@ -19,6 +19,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-43148, -42074, 0, "Removal of spell Headless Horseman - Fire Size BIG also removes Headless Horseman - Fire"),
 (-43148, -42132, 0, "Removal of spell Headless Horseman - Fire Size BIG also removes Headless Horseman - Start Fire"),
 (-43148, -42079, 0, "Removal of spell Headless Horseman - Fire Size BIG also removes Headless Horseman - Spread Fire");
+
+DELETE FROM `disables` WHERE `entry`=42340;
+INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
+(0, 42340, 64, 0, 0, "Throw Bucket doesn't follow LOS");
 
 -- Goldshire
 DELETE FROM `waypoint_data` WHERE `id`=235431;

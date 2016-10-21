@@ -2876,7 +2876,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx4 = 0;
                 break;
             case 8145: // Tremor Totem (instant pulse)
-            case 42340: // Throw Bucket
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 /*no break*/
             case 6474: // Earthbind Totem (instant pulse)
