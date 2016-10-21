@@ -112,7 +112,7 @@ public:
                 GetCaster()->CastSpell(tgt, SPELL_WATER_SPLASH, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_hallows_end_bucket_lands_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
@@ -156,7 +156,7 @@ public:
                     owner->SetAuraStack(SPELL_SMALL_FIRE, owner, 20);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hallows_end_base_fire_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             OnEffectApply += AuraEffectApplyFn(spell_hallows_end_base_fire_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -176,14 +176,13 @@ public:
 
     struct npc_costumed_orphan_matronAI : public ScriptedAI
     {
-        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature), eventStarted(false) {}
 
         bool eventStarted;
         EventMap _events;
 
         void Reset()
         {
-            eventStarted = false;
             _events.ScheduleEvent(EVENT_BEGIN, /*Minutes(30)*/Seconds(5));
         }
 
@@ -212,17 +211,17 @@ public:
             }
         }
 
-        void SetData(uint32 /*type*/, uint32 /*data*/)
+        void SetData(uint32 /*type*/, uint32 /*data*/) override
         {
             eventStarted = false;
         }
 
-        bool GetData(int32 /*type*/)
+        bool GetData(int32 /*type*/) override
         {
             return eventStarted;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!eventStarted)
             {
@@ -249,7 +248,7 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         QuestRelationBounds pObjectQR = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
         QuestRelationBounds pObjectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(creature->GetEntry());
@@ -317,12 +316,12 @@ public:
     {
         npc_soh_fire_triggerAI(Creature* creature) : NullCreatureAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             me->SetDisableGravity(true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spellInfo)
+        void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_START_FIRE || spellInfo->Id == SPELL_SPREAD_FIRE)
             {
@@ -365,9 +364,8 @@ public:
 
     struct npc_hallows_end_sohAI : public ScriptedAI
     {
-        npc_hallows_end_sohAI(Creature* creature) : ScriptedAI(creature)
+        npc_hallows_end_sohAI(Creature* creature) : ScriptedAI(creature), pos(0), canShootFire(true)
         {
-            pos = 0;
             me->CastSpell(me, SPELL_HORSEMAN_MOUNT, true);
             me->SetSpeed(MOVE_WALK, 5.0f);
         }
@@ -376,7 +374,7 @@ public:
         int32 pos;
         bool canShootFire;
 
-        void DoAction(int32 param)
+        void DoAction(int32 param) override
         {
             pos = param;
         }
@@ -394,10 +392,8 @@ public:
             }
         }
 
-        void Reset()
+        void Reset() override
         {
-            canShootFire = true;
-
             events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
             events.ScheduleEvent(EVENT_APPLY_FIRE, Seconds(5));
             events.ScheduleEvent(EVENT_STOP_APPLYING_FIRE, Minutes(2));
@@ -406,7 +402,7 @@ public:
             FinishEvent(false);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -485,8 +481,8 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 point)
-       {
+        void MovementInform(uint32 type, uint32 point) override
+        {
             if (type == POINT_MOTION_TYPE && point == 1)
             {
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -498,7 +494,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
             Talk(5);
             float x, y, z;
@@ -548,7 +544,7 @@ public:
             timer = 0;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             timer += diff;
             if (timer >= 5000)
@@ -556,7 +552,7 @@ public:
                     me->CastSpell(me, SPELL_FIRE_AURA_BASE, true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spellInfo)
+        void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_WATER_SPLASH && caster->ToPlayer())
             {
