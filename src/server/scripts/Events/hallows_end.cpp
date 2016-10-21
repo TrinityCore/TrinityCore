@@ -190,24 +190,24 @@ public:
         {
             switch (me->GetAreaId())
             {
-            case 87: // Goldshire
-                x = -9494.4f; y = 48.53f; z = 70.5f; o = 0.5f; path = 235431;
-                break;
-            case 131: // Kharanos
-                x = -5558.34f; y = -499.46f; z = 414.12f; o = 2.08f; path = 235432;
-                break;
-            case 3576: // Azure Watch
-                x = -4163.58f; y = -12460.30f; z = 63.02f; o = 4.31f; path = 235433;
-                break;
-            case 362: // Razor Hill
-                x = 373.2f; y = -4723.4f; z = 31.2f; o = 3.2f; path = 235434;
-                break;
-            case 159: // Brill
-                x = 2195.2f; y = 264.0f; z = 55.62f; o = 0.15f; path = 235435;
-                break;
-            case 3665: // Falcon Wing Square
-                x = 9547.91f; y = -6809.9f; z = 27.96f; o = 3.4f; path = 235436;
-                break;
+                case 87: // Goldshire
+                    x = -9494.4f; y = 48.53f; z = 70.5f; o = 0.5f; path = 235431;
+                    break;
+                case 131: // Kharanos
+                    x = -5558.34f; y = -499.46f; z = 414.12f; o = 2.08f; path = 235432;
+                    break;
+                case 3576: // Azure Watch
+                    x = -4163.58f; y = -12460.30f; z = 63.02f; o = 4.31f; path = 235433;
+                    break;
+                case 362: // Razor Hill
+                    x = 373.2f; y = -4723.4f; z = 31.2f; o = 3.2f; path = 235434;
+                    break;
+                case 159: // Brill
+                    x = 2195.2f; y = 264.0f; z = 55.62f; o = 0.15f; path = 235435;
+                    break;
+                case 3665: // Falcon Wing Square
+                    x = 9547.91f; y = -6809.9f; z = 27.96f; o = 3.4f; path = 235436;
+                    break;
             }
         }
 
@@ -231,17 +231,17 @@ public:
                 {
                     switch (eventId)
                     {
-                    case EVENT_BEGIN:
-                        eventStarted = true;
-                        float x, y, z, o;
-                        uint32 path;
-                        GetInitXYZ(x, y, z, o, path);
-                        if (Creature* shadeOfHorseman = me->SummonCreature(NPC_SHADE_OF_HORSEMAN, x, y, z, o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
-                        {
-                            shadeOfHorseman->GetMotionMaster()->MovePath(path, true);
-                            shadeOfHorseman->AI()->DoAction(path);
-                        }
-                        break;
+                        case EVENT_BEGIN:
+                            eventStarted = true;
+                            float x, y, z, o;
+                            uint32 path;
+                            GetInitXYZ(x, y, z, o, path);
+                            if (Creature* shadeOfHorseman = me->SummonCreature(NPC_SHADE_OF_HORSEMAN, x, y, z, o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                            {
+                                shadeOfHorseman->GetMotionMaster()->MovePath(path, true);
+                                shadeOfHorseman->AI()->DoAction(path);
+                            }
+                            break;
                     }
                 }
             }
@@ -280,19 +280,19 @@ public:
             {
                 switch (questId)
                 {
-                case QUEST_LET_THE_FIRES_COME_A:
-                case QUEST_LET_THE_FIRES_COME_H:
-                    if (!creature->AI()->GetData())
+                    case QUEST_LET_THE_FIRES_COME_A:
+                    case QUEST_LET_THE_FIRES_COME_H:
+                        if (!creature->AI()->GetData())
+                            qm.AddMenuItem(questId, 2);
+                        break;
+                    case QUEST_STOP_THE_FIRES_A:
+                    case QUEST_STOP_THE_FIRES_H:
+                        if (creature->AI()->GetData())
+                            qm.AddMenuItem(questId, 2);
+                        break;
+                    default:
                         qm.AddMenuItem(questId, 2);
-                    break;
-                case QUEST_STOP_THE_FIRES_A:
-                case QUEST_STOP_THE_FIRES_H:
-                    if (creature->AI()->GetData())
-                        qm.AddMenuItem(questId, 2);
-                    break;
-                default:
-                    qm.AddMenuItem(questId, 2);
-                    break;
+                        break;
                 }
             }
         }
@@ -383,12 +383,12 @@ public:
         {
             switch (pos)
             {
-            case 235431: x = -9445.1f; y = 63.27f; z = 58.16f; break;
-            case 235432: x = -5616.30f; y = -481.89f; z = 398.99f; break;
-            case 235433: x = -4198.1f; y = -12509.13f; z = 46.6f; break;
-            case 235434: x = 360.9f; y = -4735.5f; z = 11.773f; break;
-            case 235435: x = 2229.4f; y = 263.1f; z = 36.13f; break;
-            case 235436: x = 9532.9f; y = -6833.8f; z = 18.5f; break;
+                case 235431: x = -9445.1f; y = 63.27f; z = 58.16f; break;
+                case 235432: x = -5616.30f; y = -481.89f; z = 398.99f; break;
+                case 235433: x = -4198.1f; y = -12509.13f; z = 46.6f; break;
+                case 235434: x = 360.9f; y = -4735.5f; z = 11.773f; break;
+                case 235435: x = 2229.4f; y = 263.1f; z = 36.13f; break;
+                case 235436: x = 9532.9f; y = -6833.8f; z = 18.5f; break;
             }
         }
 
@@ -527,55 +527,6 @@ public:
     }
 };
 
-class npc_hallows_end_train_fire : public CreatureScript
-{
-public:
-    npc_hallows_end_train_fire() : CreatureScript("npc_hallows_end_train_fire") { }
-
-    struct npc_hallows_end_train_fireAI : public NullCreatureAI
-    {
-        npc_hallows_end_train_fireAI(Creature* creature) : NullCreatureAI(creature)
-        {
-        }
-
-        uint32 timer;
-        void Reset()
-        {
-            timer = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            timer += diff;
-            if (timer >= 5000)
-                if (!me->GetAuraEffect(SPELL_FIRE_AURA_BASE, EFFECT_0))
-                    me->CastSpell(me, SPELL_FIRE_AURA_BASE, true);
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_WATER_SPLASH && caster->ToPlayer())
-            {
-                if (AuraEffect* aurEff = me->GetAuraEffect(SPELL_FIRE_AURA_BASE, EFFECT_0))
-                {
-                    int32 amt = aurEff->GetAmount();
-                    if (amt > 1)
-                        aurEff->SetAmount(amt - 1);
-                    else
-                        me->RemoveAllAuras();
-
-                    caster->ToPlayer()->KilledMonsterCredit(me->GetEntry());
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_hallows_end_train_fireAI(creature);
-    }
-};
-
 void AddSC_event_hallows_end()
 {
     new spell_hallows_end_has_water_bucket();
@@ -584,5 +535,4 @@ void AddSC_event_hallows_end()
     new npc_costumed_orphan_matron();
     new npc_soh_fire_trigger();
     new npc_hallows_end_soh();
-    new npc_hallows_end_train_fire();
 }
