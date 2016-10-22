@@ -36,6 +36,7 @@ bool CheckMountStateAction::Mount()
     ai->RemoveShapeshift();
 
     Unit::AuraEffectList const& auras = master->GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+    if (auras.empty()) return false;
     AuraEffect* front = auras.front();
     if (!front) return false;
 
