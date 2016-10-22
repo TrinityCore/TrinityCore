@@ -215,7 +215,7 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 caster->CastSpell((Unit*)nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true);
 
-                float addThreat = CalculatePct(eventInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
+                float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
                 eventInfo.GetProcTarget()->AddThreat(caster, addThreat);
             }
 

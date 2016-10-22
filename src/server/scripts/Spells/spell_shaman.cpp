@@ -1263,19 +1263,12 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
                 return true;
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !damageInfo->GetSpellInfo())
-                    return false;
-
-                return true;
-            }
-
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return;
 
                 int32 mana = spellInfo->CalcPowerCost(GetTarget(), eventInfo.GetSchoolMask());
                 int32 damage = CalculatePct(mana, 35);
@@ -1285,7 +1278,6 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_item_mana_surge_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_sha_item_mana_surge_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
