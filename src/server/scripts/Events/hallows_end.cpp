@@ -173,8 +173,6 @@ public:
     {
         npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) {}
 
-        EventMap _events;
-
         void Reset()
         {
             _events.ScheduleEvent(EVENT_BEGIN, /*Minutes(30)*/Seconds(5));
@@ -229,6 +227,9 @@ public:
                 }
             }
         }
+
+    private:
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* pCreature) const override
@@ -299,10 +300,6 @@ public:
             me->CastSpell(me, SPELL_HORSEMAN_MOUNT, true);
             me->SetSpeed(MOVE_WALK, 5.0f);
         }
-
-        EventMap events;
-        int32 pos;
-        bool canShootFire;
 
         void DoAction(int32 param) override
         {
@@ -445,6 +442,11 @@ public:
                 (*itr)->AreaExploredOrEventHappens(QUEST_LET_THE_FIRES_COME_A);
             }
         }
+
+    private:
+        EventMap events;
+        int32 pos;
+        bool canShootFire;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
