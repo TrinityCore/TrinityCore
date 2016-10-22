@@ -138,10 +138,10 @@ class boss_krik_thir : public CreatureScript
 
                 for (uint8 i = 1; i <= 3; ++i)
                 {
-                    std::list<TempSummon*> summons;
-                    me->SummonCreatureGroup(i, &summons);
-                    for (TempSummon* summon : summons)
-                        summon->AI()->SetData(DATA_PET_GROUP, i);
+                    std::list<TempSummon*> adds;
+                    me->SummonCreatureGroup(i, &adds);
+                    for (TempSummon* add : adds)
+                        add->AI()->SetData(DATA_PET_GROUP, i);
                 }
             }
 
@@ -416,10 +416,7 @@ class npc_watcher_gashra : public CreatureScript
 
         struct npc_watcher_gashraAI : public npc_gatewatcher_petAI
         {
-            npc_watcher_gashraAI(Creature* creature) : npc_gatewatcher_petAI(creature, true)
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
+            npc_watcher_gashraAI(Creature* creature) : npc_gatewatcher_petAI(creature, true) { }
 
             void Reset() override
             {
@@ -928,11 +925,15 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
             void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 // Remove any Watchers that are already in combat
-                for (std::list<WorldObject*>::iterator it = targetList.begin(); it != targetList.end(); ++it)
+                auto it = targetList.begin();
+                while (it != targetList.end())
                 {
                     if (Creature* creature = (*it)->ToCreature())
                         if (creature->IsAlive() && !creature->IsInCombat())
+                        {
+                            ++it;
                             continue;
+                        }
                     it = targetList.erase(it);
                 }
 

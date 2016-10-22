@@ -74,6 +74,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1            = 18213,
     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371
 };
 
@@ -449,6 +450,50 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         }
 };
 
+// -1120 - Drain Soul
+class spell_warl_drain_soul : public SpellScriptLoader
+{
+    public:
+        spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
+
+        class spell_warl_drain_soul_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_drain_soul_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActor();
+                // Improved Drain Soul
+                Aura const* impDrainSoul = caster->GetAuraOfRankedSpell(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1, caster->GetGUID());
+                if (!impDrainSoul)
+                    return;
+
+                int32 amount = CalculatePct(caster->GetMaxPower(POWER_MANA), impDrainSoul->GetSpellInfo()->Effects[EFFECT_2].CalcValue());
+                caster->CastCustomSpell(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_drain_soul_AuraScript();
+        }
+};
+
 // 47422 - Everlasting Affliction
 class spell_warl_everlasting_affliction : public SpellScriptLoader
 {
@@ -741,44 +786,6 @@ class spell_warl_health_funnel : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_warl_health_funnel_AuraScript();
-        }
-};
-
-// -18213 - Improved Drain Soul
-class spell_warl_improved_drain_soul : public SpellScriptLoader
-{
-    public:
-        spell_warl_improved_drain_soul() : SpellScriptLoader("spell_warl_improved_drain_soul") { }
-
-        class spell_warl_improved_drain_soul_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_improved_drain_soul_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                
-                Unit* target = GetTarget();
-                int32 bp0 = CalculatePct(target->GetMaxPower(POWER_MANA), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                target->CastCustomSpell(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_improved_drain_soul_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warl_improved_drain_soul_AuraScript();
         }
 };
 
@@ -1484,6 +1491,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_demonic_pact();
+    new spell_warl_drain_soul();
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_synergy();
     new spell_warl_glyph_of_life_tap();
@@ -1491,7 +1499,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_glyph_of_corruption_nightfall();
-    new spell_warl_improved_drain_soul();
     new spell_warl_life_tap();
     new spell_warl_nether_protection();
     new spell_warl_ritual_of_doom_effect();
