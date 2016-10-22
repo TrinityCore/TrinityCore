@@ -32,6 +32,8 @@
 
 enum ShamanSpells
 {
+    SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
+    SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
     SPELL_SHAMAN_EARTH_SHOCK                    = 8042,
     SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE           = 170374,
@@ -83,6 +85,85 @@ enum MiscSpells
     SPELL_HUNTER_INSANITY                       = 95809,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT            = 80354,
     SPELL_PET_NETHERWINDS_FATIGUED              = 160455
+};
+
+// 108281 - Ancestral Guidance
+class spell_sha_ancestral_guidance : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_guidance() : SpellScriptLoader("spell_sha_ancestral_guidance") { }
+
+        class spell_sha_ancestral_guidance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_ancestral_guidance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetHealInfo()->GetSpellInfo()->Id == SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL)
+                    return false;
+                return true;
+            }
+
+            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+                if (bp0)
+                    eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL, SPELLVALUE_BASE_POINT0, bp0, eventInfo.GetActor(), true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_ancestral_guidance_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_guidance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_ancestral_guidance_AuraScript();
+        }
+};
+
+// 114911 - Ancestral Guidance Heal
+class spell_sha_ancestral_guidance_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_guidance_heal() : SpellScriptLoader("spell_sha_ancestral_guidance_heal") { }
+
+        class spell_sha_ancestral_guidance_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_ancestral_guidance_heal_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ANCESTRAL_GUIDANCE))
+                    return false;
+                return true;
+            }
+
+            void ResizeTargets(std::list<WorldObject*>& targets)
+            {
+                Trinity::Containers::RandomResizeList(targets, 3);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal_SpellScript::ResizeTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_ancestral_guidance_heal_SpellScript();
+        }
 };
 
 // 2825 - Bloodlust
@@ -1291,6 +1372,8 @@ public:
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_ancestral_guidance();
+    new spell_sha_ancestral_guidance_heal();
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
     new spell_sha_earth_shield();
