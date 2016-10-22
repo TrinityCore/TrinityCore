@@ -127,6 +127,17 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 7, 42079, 0, 0, 33, 1, 0, 0, 0, 1, 0, 0, "", "Headless Horseman - Spread Fire does not target self AND"),
 (13, 7, 42079, 0, 0, 1, 0, 42074, 0, 0, 1, 0, 0, "", "Headless Horseman - Spread Fire requires aura Headless Horseman - Fire to NOT be active");
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (19, 20) AND `SourceEntry` IN (12135, 12139, 11131, 11219);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(19, 0, 12135, 0, 0, 29, 0, 23543, 200, 0, 1, 0, 0, "", "Quest \"Let The Fires Come!\" requires NPC Shade of the Horseman to not be nearby"),
+(20, 0, 12135, 0, 0, 29, 0, 23543, 200, 0, 1, 0, 0, "", "Quest mark for \"Let The Fires Come!\" requires NPC Shade of the Horseman to not be nearby"),
+(19, 0, 12139, 0, 0, 29, 0, 23543, 200, 0, 1, 0, 0, "", "Quest \"Let The Fires Come!\" requires NPC Shade of the Horseman to not be nearby"),
+(20, 0, 12139, 0, 0, 29, 0, 23543, 200, 0, 1, 0, 0, "", "Quest mark for \"Let The Fires Come!\" requires NPC Shade of the Horseman to not be nearby"),
+(19, 0, 11131, 0, 0, 29, 0, 23543, 200, 0, 0, 0, 0, "", "Quest Stop the Fires! requires NPC Shade of the Horseman to not be nearby"),
+(20, 0, 11131, 0, 0, 29, 0, 23543, 200, 0, 0, 0, 0, "", "Quest mark for Stop the Fires! requires NPC Shade of the Horseman to not be nearby"),
+(19, 0, 11219, 0, 0, 29, 0, 23543, 200, 0, 0, 0, 0, "", "Quest Stop the Fires! requires NPC Shade of the Horseman to not be nearby"),
+(20, 0, 11219, 0, 0, 29, 0, 23543, 200, 0, 0, 0, 0, "", "Quest mark for Stop the Fires! requires NPC Shade of the Horseman to not be nearby");
+
 SET @GUID := 145826; -- Need 166
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+165;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES

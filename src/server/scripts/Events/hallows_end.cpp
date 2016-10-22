@@ -26,11 +26,6 @@ enum HallowsEnd
     ITEM_WATER_BUCKET      = 32971,
     SPELL_HAS_WATER_BUCKET = 42336,
 
-    QUEST_LET_THE_FIRES_COME_A = 12135,
-    QUEST_LET_THE_FIRES_COME_H = 12139,
-    QUEST_STOP_THE_FIRES_A     = 11131,
-    QUEST_STOP_THE_FIRES_H     = 11219,
-
     SPELL_HORSEMAN_MOUNT = 48025,
     SPELL_FIRE_AURA_BASE = 42074,
     SPELL_START_FIRE     = 42132,
@@ -133,7 +128,7 @@ public:
     {
         PrepareAuraScript(spell_hallows_end_base_fire_AuraScript);
 
-        void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+        void HandleEffectPeriodicUpdate(AuraEffect* /*aurEff*/)
         {
             if (Unit* owner = GetUnitOwner())
             {
@@ -178,7 +173,6 @@ public:
     {
         npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature), eventStarted(false) {}
 
-        bool eventStarted;
         EventMap _events;
 
         void Reset()
@@ -205,20 +199,10 @@ public:
                 case 159: // Brill
                     x = 2195.2f; y = 264.0f; z = 55.62f; o = 0.15f; path = 235435;
                     break;
-                case 3665: // Falcon Wing Square
+                case 3665: // Falconwing Square
                     x = 9547.91f; y = -6809.9f; z = 27.96f; o = 3.4f; path = 235436;
                     break;
             }
-        }
-
-        void SetData(uint32 /*type*/, uint32 /*data*/) override
-        {
-            eventStarted = false;
-        }
-
-        bool GetData(int32 /*type*/) override
-        {
-            return eventStarted;
         }
 
         void UpdateAI(uint32 diff) override
@@ -232,6 +216,7 @@ public:
                     switch (eventId)
                     {
                         case EVENT_BEGIN:
+                        {
                             eventStarted = true;
                             float x, y, z, o;
                             uint32 path;
@@ -241,65 +226,14 @@ public:
                                 shadeOfHorseman->GetMotionMaster()->MovePath(path, true);
                                 shadeOfHorseman->AI()->DoAction(path);
                             }
+                            _events.Repeat(Minutes(40));
                             break;
+                        }
                     }
                 }
             }
         }
     };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        QuestRelationBounds pObjectQR = sObjectMgr->GetCreatureQuestRelationBounds(creature->GetEntry());
-        QuestRelationBounds pObjectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(creature->GetEntry());
-
-        QuestMenu &qm = player->PlayerTalkClass->GetQuestMenu();
-        qm.ClearMenu();
-
-        for (QuestRelations::const_iterator i = pObjectQIR.first; i != pObjectQIR.second; ++i)
-        {
-            uint32 quest_id = i->second;
-            QuestStatus status = player->GetQuestStatus(quest_id);
-            if (status == QUEST_STATUS_COMPLETE)
-                qm.AddMenuItem(quest_id, 4);
-            else if (status == QUEST_STATUS_INCOMPLETE)
-                qm.AddMenuItem(quest_id, 4);
-        }
-
-        for (QuestRelations::const_iterator i = pObjectQR.first; i != pObjectQR.second; ++i)
-        {
-            uint32 questId = i->second;
-            Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
-
-            if (!quest)
-                continue;
-
-            if (!player->CanTakeQuest(quest, false))
-                continue;
-            else if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
-            {
-                switch (questId)
-                {
-                    case QUEST_LET_THE_FIRES_COME_A:
-                    case QUEST_LET_THE_FIRES_COME_H:
-                        if (!creature->AI()->GetData())
-                            qm.AddMenuItem(questId, 2);
-                        break;
-                    case QUEST_STOP_THE_FIRES_A:
-                    case QUEST_STOP_THE_FIRES_H:
-                        if (creature->AI()->GetData())
-                            qm.AddMenuItem(questId, 2);
-                        break;
-                    default:
-                        qm.AddMenuItem(questId, 2);
-                        break;
-                }
-            }
-        }
-
-        player->SendPreparedQuest(creature->GetGUID());
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
