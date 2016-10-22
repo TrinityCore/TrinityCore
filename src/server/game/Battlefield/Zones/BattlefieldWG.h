@@ -150,6 +150,14 @@ enum WintergraspAreaIds
     AREA_THE_CHILLED_QUAGMIRE       = 4589
 };
 
+enum WintergraspQuests
+{
+    QUEST_VICTORY_WINTERGRASP_A   = 13181,
+    QUEST_VICTORY_WINTERGRASP_H   = 13183,
+    QUEST_CREDIT_TOWERS_DESTROYED = 35074,
+    QUEST_CREDIT_DEFEND_SIEGE     = 31284
+};
+
 /*#########################
  *####### Graveyards ######
  *#########################*/
@@ -194,26 +202,6 @@ enum WintergraspNpcs
     BATTLEFIELD_WG_NPC_GUARD_H                      = 30739,
     BATTLEFIELD_WG_NPC_GUARD_A                      = 30740,
     BATTLEFIELD_WG_NPC_STALKER                      = 15214,
-
-    BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER          = 31102,
-    BATTLEFIELD_WG_NPC_STONE_GUARD_MUKAR            = 32296, // <WINTERGRASP QUARTERMASTER>
-    BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN         = 31101, // <MASTER HEXXER>
-    BATTLEFIELD_WG_NPC_CHAMPION_ROS_SLAI            = 39173, // <WINTERGRASP QUARTERMASTER>
-    BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH            = 31091,
-    BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH     = 31151,
-    BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF        = 31106,
-    BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT            = 31053,
-    BATTLEFIELD_WG_NPC_LIEUTENANT_MURP              = 31107,
-
-    BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH              = 31052,
-    BATTLEFIELD_WG_NPC_KNIGHT_DAMERON               = 32294, // <WINTERGRASP QUARTERMASTER>
-    BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA            = 31051, // <ENCHANTRESS>
-    BATTLEFIELD_WG_NPC_MARSHAL_MAGRUDER             = 39172, // <WINTERGRASP QUARTERMASTER>
-    BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH            = 31036,
-    BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS    = 31153,
-    BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE     = 31108,
-    BATTLEFIELD_WG_NPC_ANCHORITE_TESSA              = 31054,
-    BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO  = 31109,
 
     NPC_TAUNKA_SPIRIT_GUIDE                         = 31841, // Horde spirit guide for Wintergrasp
     NPC_DWARVEN_SPIRIT_GUIDE                        = 31842, // Alliance spirit guide for Wintergrasp
@@ -336,7 +324,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
          * \brief Called when a wall/tower is broken
          * - Update quest
          */
-        void BrokenWallOrTower(TeamId team);
+        void BrokenWallOrTower(TeamId team, BfWGGameObjectBuilding* building);
 
         /**
          * \brief Called when a tower is damaged
@@ -381,6 +369,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
+        void HandlePromotion(Player* killer, Unit* killed);
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
@@ -403,8 +392,6 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         GuidUnorderedSet m_vehicles[BG_TEAMS_COUNT];
         GuidVector CanonList;
-        GuidVector KeepCreature[BG_TEAMS_COUNT];
-        GuidVector OutsideCreature[BG_TEAMS_COUNT];
 
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
@@ -449,10 +436,10 @@ enum WintergraspTowerIds
 
 enum WintergraspWorkshopIds
 {
-    BATTLEFIELD_WG_WORKSHOP_NE,
-    BATTLEFIELD_WG_WORKSHOP_NW,
     BATTLEFIELD_WG_WORKSHOP_SE,
     BATTLEFIELD_WG_WORKSHOP_SW,
+    BATTLEFIELD_WG_WORKSHOP_NE,
+    BATTLEFIELD_WG_WORKSHOP_NW,
     BATTLEFIELD_WG_WORKSHOP_KEEP_WEST,
     BATTLEFIELD_WG_WORKSHOP_KEEP_EAST
 };

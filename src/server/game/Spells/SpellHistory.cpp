@@ -307,10 +307,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (Player* modOwner = _owner->GetSpellModOwner())
         {
             if (cooldown > 0)
-                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, cooldown, spell);
+                modOwner->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, cooldown, spell);
 
             if (categoryCooldown > 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
-                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, spell);
+                modOwner->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, categoryCooldown, spell);
         }
 
         if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
