@@ -180,7 +180,7 @@ class TC_GAME_API ArenaTeam
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
-        void FinishWeek();
+        bool FinishWeek(); // returns true if arena team played this week
         void FinishGame(int32 mod);
 
     protected:

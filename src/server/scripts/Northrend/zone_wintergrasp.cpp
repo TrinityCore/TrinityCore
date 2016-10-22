@@ -247,39 +247,39 @@ class npc_wg_queue : public CreatureScript
     public:
         npc_wg_queue() : CreatureScript("npc_wg_queue") { }
 
-    struct npc_wg_queueAI : public ScriptedAI
-    {
-        npc_wg_queueAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_wg_queueAI : public ScriptedAI
         {
-            FrostArmor_Timer = 0;
-        }
-
-        uint32 FrostArmor_Timer;
-
-        void Reset() override
-        {
-            FrostArmor_Timer = 0;
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (FrostArmor_Timer <= diff)
+            npc_wg_queueAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCast(me, SPELL_FROST_ARMOR);
-                FrostArmor_Timer = 180000;
+                FrostArmor_Timer = 0;
             }
-            else FrostArmor_Timer -= diff;
 
-            DoMeleeAttackIfReady();
+            uint32 FrostArmor_Timer;
+
+            void Reset() override
+            {
+                FrostArmor_Timer = 0;
+            }
+
+            void EnterCombat(Unit* /*who*/) override { }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (FrostArmor_Timer <= diff)
+                {
+                    DoCast(me, SPELL_FROST_ARMOR);
+                    FrostArmor_Timer = 180000;
+                }
+                else FrostArmor_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_wg_queueAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_wg_queueAI(creature);
-    }
 
         bool OnGossipHello(Player* player, Creature* creature) override
         {
@@ -474,26 +474,26 @@ class spell_wintergrasp_grab_passenger : public SpellScriptLoader
 
 class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
-public:
-    achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
+    public:
+        achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
 
-    bool OnCheck(Player* source, Unit* target) override
-    {
-        if (!target)
-            return false;
-
-        if (Player* victim = target->ToPlayer())
+        bool OnCheck(Player* source, Unit* target) override
         {
-            if (!victim->IsMounted())
+            if (!target)
                 return false;
 
-            if (Vehicle* vehicle = source->GetVehicle())
-                if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
-                    return true;
-        }
+            if (Player* victim = target->ToPlayer())
+            {
+                if (!victim->IsMounted())
+                    return false;
 
-        return false;
-    }
+                if (Vehicle* vehicle = source->GetVehicle())
+                    if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                        return true;
+            }
+
+            return false;
+        }
 };
 
 enum WgTeleport
@@ -503,91 +503,91 @@ enum WgTeleport
 
 class spell_wintergrasp_defender_teleport : public SpellScriptLoader
 {
-public:
-    spell_wintergrasp_defender_teleport() : SpellScriptLoader("spell_wintergrasp_defender_teleport") { }
+    public:
+        spell_wintergrasp_defender_teleport() : SpellScriptLoader("spell_wintergrasp_defender_teleport") { }
 
-    class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript);
-
-        SpellCastResult CheckCast()
+        class spell_wintergrasp_defender_teleport_SpellScript : public SpellScript
         {
-            if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-                if (Player* target = GetExplTargetUnit()->ToPlayer())
-                    // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                    if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
-                        return SPELL_FAILED_BAD_TARGETS;
-            return SPELL_CAST_OK;
-        }
+            PrepareSpellScript(spell_wintergrasp_defender_teleport_SpellScript);
 
-        void Register() override
+            SpellCastResult CheckCast()
+            {
+                if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
+                    if (Player* target = GetExplTargetUnit()->ToPlayer())
+                        // check if we are in Wintergrasp at all, SotA uses same teleport spells
+                        if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                            return SPELL_FAILED_BAD_TARGETS;
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_wintergrasp_defender_teleport_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnCheckCast += SpellCheckCastFn(spell_wintergrasp_defender_teleport_SpellScript::CheckCast);
+            return new spell_wintergrasp_defender_teleport_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_wintergrasp_defender_teleport_SpellScript();
-    }
 };
 
 class spell_wintergrasp_defender_teleport_trigger : public SpellScriptLoader
 {
-public:
-    spell_wintergrasp_defender_teleport_trigger() : SpellScriptLoader("spell_wintergrasp_defender_teleport_trigger") { }
+    public:
+        spell_wintergrasp_defender_teleport_trigger() : SpellScriptLoader("spell_wintergrasp_defender_teleport_trigger") { }
 
-    class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effindex*/)
+        class spell_wintergrasp_defender_teleport_trigger_SpellScript : public SpellScript
         {
-            if (Unit* target = GetHitUnit())
+            PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effindex*/)
             {
-                WorldLocation loc = target->GetWorldLocation();
-                SetExplTargetDest(loc);
+                if (Unit* target = GetHitUnit())
+                {
+                    WorldLocation loc = target->GetWorldLocation();
+                    SetExplTargetDest(loc);
+                }
             }
-        }
 
-        void Register() override
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            return new spell_wintergrasp_defender_teleport_trigger_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_wintergrasp_defender_teleport_trigger_SpellScript();
-    }
 };
 
 class condition_is_wintergrasp_horde : public ConditionScript
 {
-public:
-    condition_is_wintergrasp_horde() : ConditionScript("condition_is_wintergrasp_horde") { }
+    public:
+        condition_is_wintergrasp_horde() : ConditionScript("condition_is_wintergrasp_horde") { }
 
-    bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
-    {
-        Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-        if (wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_HORDE)
-            return true;
-        return false;
-    }
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        {
+            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+            if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_HORDE)
+                return true;
+            return false;
+        }
 };
 
 class condition_is_wintergrasp_alliance : public ConditionScript
 {
-public:
-    condition_is_wintergrasp_alliance() : ConditionScript("condition_is_wintergrasp_alliance") { }
+    public:
+        condition_is_wintergrasp_alliance() : ConditionScript("condition_is_wintergrasp_alliance") { }
 
-    bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
-    {
-        Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-        if (wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)
-            return true;
-        return false;
-    }
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        {
+            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+            if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)
+                return true;
+            return false;
+        }
 };
 
 void AddSC_wintergrasp()
