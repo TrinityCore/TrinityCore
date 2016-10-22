@@ -83,7 +83,8 @@ enum ShamanSpells
     SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1     = 26364,
     SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC          = 30824,
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
-    SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832
+    SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
+    SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554
 };
 
 enum ShamanSpellIcons
@@ -534,6 +535,46 @@ class spell_sha_earthen_power : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_sha_earthen_power_SpellScript();
+        }
+};
+
+// -51940 - Earthliving Weapon (Passive)
+class spell_sha_earthliving_weapon : public SpellScriptLoader
+{
+    public:
+        spell_sha_earthliving_weapon() : SpellScriptLoader("spell_sha_earthliving_weapon") { }
+
+        class spell_sha_earthliving_weapon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earthliving_weapon_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                int32 chance = 20;
+                Unit* caster = eventInfo.GetActor();
+                if (AuraEffect const* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1, EFFECT_1, caster->GetGUID()))
+                    if (eventInfo.GetProcTarget()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                        chance += aurEff->GetAmount();
+
+                return roll_chance_i(chance);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_sha_earthliving_weapon_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_sha_earthliving_weapon_AuraScript();
         }
 };
 
@@ -1222,11 +1263,6 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
                 return true;
             }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetDamageInfo()->GetSpellInfo() != nullptr;
-            }
-
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
@@ -1237,12 +1273,11 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
                 int32 mana = spellInfo->CalcPowerCost(GetTarget(), eventInfo.GetSchoolMask());
                 int32 damage = CalculatePct(mana, 35);
 
-                GetTarget()->CastCustomSpell(SPELL_SHAMAN_ITEM_MANA_SURGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_SHAMAN_ITEM_MANA_SURGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_sha_item_mana_surge_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_sha_item_mana_surge_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
@@ -1597,7 +1632,7 @@ public:
         {
             PreventDefaultAction();
             DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-            if (!damageInfo)
+            if (!damageInfo || !damageInfo->GetDamage())
                 return;
 
             int32 healthpct = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(); // %s2 - the 30% threshold for health
@@ -1606,7 +1641,6 @@ public:
             {
                 if (target->HealthBelowPctDamaged(healthpct, damageInfo->GetDamage()))
                 {
-
                     uint32 bp = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
                     target->CastCustomSpell(SPELL_SHAMAN_NATURE_GUARDIAN, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
 
@@ -2275,6 +2309,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
+    new spell_sha_earthliving_weapon();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
     new spell_sha_flametongue_weapon();
