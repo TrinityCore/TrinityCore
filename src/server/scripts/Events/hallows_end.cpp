@@ -171,7 +171,7 @@ public:
 
     struct npc_costumed_orphan_matronAI : public ScriptedAI
     {
-        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature), eventStarted(false) {}
+        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap _events;
 
@@ -207,28 +207,24 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!eventStarted)
+            _events.Update(diff);
+ 
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                _events.Update(diff);
-                
-                while (uint32 eventId = _events.ExecuteEvent())
+                switch (eventId)
                 {
-                    switch (eventId)
+                    case EVENT_BEGIN:
                     {
-                        case EVENT_BEGIN:
+                        float x, y, z, o;
+                        uint32 path;
+                        GetInitXYZ(x, y, z, o, path);
+                        if (Creature* shadeOfHorseman = me->SummonCreature(NPC_SHADE_OF_HORSEMAN, x, y, z, o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                         {
-                            eventStarted = true;
-                            float x, y, z, o;
-                            uint32 path;
-                            GetInitXYZ(x, y, z, o, path);
-                            if (Creature* shadeOfHorseman = me->SummonCreature(NPC_SHADE_OF_HORSEMAN, x, y, z, o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
-                            {
-                                shadeOfHorseman->GetMotionMaster()->MovePath(path, true);
-                                shadeOfHorseman->AI()->DoAction(path);
-                            }
-                            _events.Repeat(Minutes(40));
-                            break;
+                            shadeOfHorseman->GetMotionMaster()->MovePath(path, true);
+                            shadeOfHorseman->AI()->DoAction(path);
                         }
+                        _events.Repeat(Minutes(40));
+                        break;
                     }
                 }
             }
