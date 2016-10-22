@@ -134,21 +134,23 @@ public:
             {
                 if (Aura* aura = owner->GetAura(SPELL_SMALL_FIRE))
                     if (aura->GetStackAmount() < 20)
-                        owner->GetAI()->DoCast(SPELL_SMALL_FIRE);
+                        owner->CastSpell(owner, SPELL_SMALL_FIRE, true);
 
                 if (Aura* aura = owner->GetAura(SPELL_BIG_FIRE))
                     if (aura->GetStackAmount() < 20)
-                        owner->GetAI()->DoCast(SPELL_BIG_FIRE);
+                        owner->CastSpell(owner, SPELL_BIG_FIRE, true);
             }
        }
 
         void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* owner = GetUnitOwner())
+            {
                 if (roll_chance_i(50))
                     owner->SetAuraStack(SPELL_BIG_FIRE, owner, 20);
                 else
                     owner->SetAuraStack(SPELL_SMALL_FIRE, owner, 20);
+            }
         }
 
         void Register() override
@@ -257,7 +259,7 @@ public:
             if (spellInfo->Id == SPELL_START_FIRE || spellInfo->Id == SPELL_SPREAD_FIRE)
             {
                 me->CastSpell(me, SPELL_FIRE_AURA_BASE, true);
-                me->AI()->DoCast(SPELL_SPREAD_FIRE);
+                me->CastSpell(me, SPELL_SPREAD_FIRE, true);
             }
             else if (spellInfo->Id == SPELL_WATER_SPLASH)
             {
@@ -374,7 +376,7 @@ public:
                         break;
                     }
                     case EVENT_CLEAVE:
-                        me->GetAI()->DoCast(SPELL_CLEAVE);
+                        me->CastSpell(me->GetVictim(), SPELL_CLEAVE);
                         events.Repeat(Seconds(20));
                         break;
                 }
