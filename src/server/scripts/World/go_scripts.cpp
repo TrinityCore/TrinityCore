@@ -1434,7 +1434,7 @@ public:
                         if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
                             break;
 
-                        std::deque<Player*> playersNearby;
+                        std::vector<Player*> playersNearby;
                         go->GetPlayerListInGrid(playersNearby, go->GetMap()->GetVisibilityRange());
                         for (Player* player : playersNearby)
                         {
