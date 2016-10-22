@@ -47,6 +47,7 @@ enum ShamanSpells
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED            = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
+    SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_FULMINATION                    = 88767,
     SPELL_SHAMAN_FULMINATION_UI_INDICATOR       = 95774,
@@ -70,6 +71,8 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
+    SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
+    SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_RIPTIDE                        = 61295,
     SPELL_SHAMAN_RUSHING_STREAMS                = 147074,
     SPELL_SHAMAN_SATED                          = 57724,
@@ -947,6 +950,45 @@ public:
     }
 };
 
+// 51505 - Lava burst
+class spell_sha_lava_burst : public SpellScriptLoader
+{
+    public:
+        spell_sha_lava_burst() : SpellScriptLoader("spell_sha_lava_burst") { }
+
+        class spell_sha_lava_burst_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_lava_burst_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetExplTargetUnit())
+                        if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
+                            caster->CastSpell(target, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_lava_burst_SpellScript();
+        }
+};
+
 // 60103 - Lava Lash
 class spell_sha_lava_lash : public SpellScriptLoader
 {
@@ -1185,6 +1227,53 @@ class spell_sha_nature_guardian : public SpellScriptLoader
         }
 };
 
+// 210621 - Path of Flames Spread
+class spell_sha_path_of_flames_spread : public SpellScriptLoader
+{
+    public:
+        spell_sha_path_of_flames_spread() : SpellScriptLoader("spell_sha_path_of_flames_spread") { }
+
+        class spell_sha_path_of_flames_spread_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_path_of_flames_spread_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove(GetExplTargetUnit());
+                Trinity::Containers::RandomResizeList(targets, 1);
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* mainTarget = GetExplTargetUnit())
+                    if (Aura* flameShock = mainTarget->GetAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetCaster()->GetGUID()))
+                        if (Aura* newAura = GetCaster()->AddAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetHitUnit()))
+                        {
+                            newAura->SetDuration(flameShock->GetDuration());
+                            newAura->SetMaxDuration(flameShock->GetDuration());
+                        }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_path_of_flames_spread_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_path_of_flames_spread_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_sha_path_of_flames_spread_SpellScript();
+        }
+};
+
 // 51490 - Thunderstorm
 class spell_sha_thunderstorm : public SpellScriptLoader
 {
@@ -1309,12 +1398,14 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_mana_surge();
     new spell_sha_item_t10_elemental_2p_bonus();
     new spell_sha_item_t18_elemental_4p_bonus();
+    new spell_sha_lava_burst();
     new spell_sha_lava_lash();
     new spell_sha_lava_lash_spread_flame_shock();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
     new spell_sha_lightning_shield();
     new spell_sha_nature_guardian();
+    new spell_sha_path_of_flames_spread();
     new spell_sha_thunderstorm();
     new spell_sha_tidal_waves();
     new spell_sha_windfury();
