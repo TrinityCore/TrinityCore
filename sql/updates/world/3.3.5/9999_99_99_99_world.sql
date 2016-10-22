@@ -114,12 +114,12 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 DELETE FROM `creature_text` WHERE `entry`=23543;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(23543, 0, 0, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!", 14, 0, 100, 0, 0, 11966, 22022, 0, "lol"),
-(23543, 1, 0, "The sky is dark.  The fire burns.  You strive in vain as Fate's wheel turns.", 14, 0, 100, 0, 0, 0, 22034, 0, "lol"),
-(23543, 2, 0, "The town still burns, a cleansing fire!  Time is short, I'll soon retire!", 14, 0, 100, 0, 0, 0, 22035, 0, "lol"),
-(23543, 3, 0, "Fire consumes! You've tried and failed.  Let there be no doubt, justice prevailed!", 14, 0, 100, 0, 0, 11967, 22026, 0, "lol"),
-(23543, 4, 0, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.", 14, 0, 100, 0, 0, 11968, 22027, 0, "lol"),
-(23543, 5, 0, "So eager you are, for my blood to spill. Yet to vanquish me, 'tis my head you must kill!", 14, 0, 100, 0, 0, 11969, 22034, 0, "lol");
+(23543, 0, 0, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!", 14, 0, 100, 0, 0, 11966, 22022, 0, "Shade of the Horseman"),
+(23543, 1, 0, "The sky is dark.  The fire burns.  You strive in vain as Fate's wheel turns.", 14, 0, 100, 0, 0, 0, 22034, 0, "Shade of the Horseman"),
+(23543, 2, 0, "The town still burns, a cleansing fire!  Time is short, I'll soon retire!", 14, 0, 100, 0, 0, 0, 22035, 0, "Shade of the Horseman"),
+(23543, 3, 0, "Fire consumes! You've tried and failed.  Let there be no doubt, justice prevailed!", 14, 0, 100, 0, 0, 11967, 22026, 0, "Shade of the Horseman"),
+(23543, 4, 0, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.", 14, 0, 100, 0, 0, 11968, 22027, 0, "Shade of the Horseman"),
+(23543, 5, 0, "So eager you are, for my blood to spill. Yet to vanquish me, 'tis my head you must kill!", 14, 0, 100, 0, 0, 11969, 22034, 0, "Shade of the Horseman");
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=42079;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
