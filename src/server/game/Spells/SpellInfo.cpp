@@ -3346,13 +3346,7 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
 {
     SpellEffectInfoVector effList;
 
-    // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite
-    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
-    if (itr != _effects.end())
-        effList = itr->second;
-
     // downscale difficulty if original was not found
-    // DIFFICULTY_NONE is already in our list
     DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     while (difficultyEntry)
     {
@@ -3361,7 +3355,6 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
         {
             for (SpellEffectInfo const* effect : effectItr->second)
             {
-                // overwrite any existing effect from DIFFICULTY_NONE
                 if (effect)
                 {
                     if (effect->EffectIndex >= effList.size())
@@ -3374,6 +3367,23 @@ SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) cons
         }
 
         difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite
+    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
+    if (itr != _effects.end())
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect)
+            {
+                if (effect->EffectIndex >= effList.size())
+                    effList.resize(effect->EffectIndex + 1);
+
+                if (!effList[effect->EffectIndex])
+                    effList[effect->EffectIndex] = effect;
+            }
+        }
     }
 
     return effList;
