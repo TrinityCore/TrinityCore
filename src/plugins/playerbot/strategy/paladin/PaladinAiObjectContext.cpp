@@ -8,6 +8,7 @@
 #include "DpsPaladinStrategy.h"
 #include "PaladinBuffStrategies.h"
 #include "../NamedObjectContext.h"
+#include "HealPaladinStrategy.h"
 
 using namespace ai;
 
@@ -74,11 +75,13 @@ namespace ai
             {
                 creators["tank"] = &paladin::CombatStrategyFactoryInternal::tank;
                 creators["dps"] = &paladin::CombatStrategyFactoryInternal::dps;
+                creators["heal"] = &paladin::CombatStrategyFactoryInternal::heal;
             }
 
         private:
             static Strategy* tank(PlayerbotAI* ai) { return new TankPaladinStrategy(ai); }
             static Strategy* dps(PlayerbotAI* ai) { return new DpsPaladinStrategy(ai); }
+            static Strategy* heal(PlayerbotAI* ai) { return new HealPaladinStrategy(ai); }
         };
     };
 };
