@@ -2731,7 +2731,6 @@ Arena.ArenaWinRatingModifier1 = 48
 
 Arena.ArenaWinRatingModifier2 = 24
 
-
 #
 #    Arena.ArenaLoseRatingModifier
 #        Description: Modifier of rating subtraction for loser team
