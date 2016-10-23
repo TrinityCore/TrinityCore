@@ -12,11 +12,8 @@ class NonCombatEngineTestCase : public EngineTestBase
       CPPUNIT_TEST( stay );
       CPPUNIT_TEST( eatDrink );
       CPPUNIT_TEST( dpsAssist );
-      CPPUNIT_TEST( tankAssist );
-      CPPUNIT_TEST( attackWeak );
       CPPUNIT_TEST( doNotGrindIfLowMpHp );
       CPPUNIT_TEST( grindIfNoMana );
-      CPPUNIT_TEST( attackRti );
       CPPUNIT_TEST( loot );
       CPPUNIT_TEST( loot_failed );
       CPPUNIT_TEST( gather );
@@ -58,50 +55,12 @@ protected:
         engine->addStrategy("stay");
         engine->addStrategy("dps assist");
 
-		tick();
 		tickWithNoTarget();
+        set<Unit*>("current target", MockedTargets::GetTargetForDps());
+		tick();
 
-		assertActions(">S:stay>Dps:dps assist");
+		assertActions(">Dps:dps assist>S:stay");
     }
-
-
-	void tankAssist()
-	{
-		engine->addStrategy("stay");
-		engine->addStrategy("tank assist");
-
-		tick();
-		tickWithNoTarget();
-
-		assertActions(">S:stay>Tank:tank assist");
-	}
-
-	void attackRti()
-	{
-		engine->addStrategy("stay");
-		engine->addStrategy("attack rti");
-
-		tick();
-		tickWithNoTarget();
-
-		assertActions(">S:stay>Rti:attack rti target");
-	}
-
-	void attackWeak()
-	{
-		engine->addStrategy("stay");
-		engine->addStrategy("attack weak");
-
-		set<Unit*>("current target", MockedTargets::GetLeastHpTarget());
-		tick();
-
-		tickWithNoTarget();
-
-		set<Unit*>("current target", MockedTargets::GetCurrentTarget()); // means any other
-		tick();
-
-		assertActions(">S:stay>LeastHp:attack least hp target>LeastHp:attack least hp target");
-	}
 
 	void pvp()
 	{

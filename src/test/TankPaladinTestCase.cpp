@@ -81,7 +81,7 @@ protected:
         tick();
         addAura("holy shield");
 
-        assertActions(">S:devotion aura>S:seal of light>S:seal of justice>S:blessing of sanctuary>S:blessing of kings>S:righteous fury>S:holy shield");
+        assertActions(">S:devotion aura>S:blessing of sanctuary>S:righteous fury>S:holy shield>T:judgement of light>T:melee>T:melee");
     }
 
     void healing()
