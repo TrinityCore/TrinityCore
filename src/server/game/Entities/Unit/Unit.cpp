@@ -508,6 +508,100 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
+/*
+    The client only send the current position of moving players at the beginning and at the end of their movements and every 0.5s in between.
+    This is not enough if we require high precision. However, we can extrapolate players position using their last known position + their speed and direction.
+    Keep in mind that what this function evaluates is a projected position: It does not take into account any limitation imposed by the map!!
+*/
+Position Unit::GetCurrentPosition() const
+{
+    if (!m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+        return GetPosition();
+
+    Position pos;
+    if (m_movementInfo.pitch != 0.0) // swimming or flying. 3D
+    {
+        // todo
+    }
+    else // 2D
+    {
+        float orientation = GetCurrentMovementOrientation();
+        float time = (getMSTime() > m_movementInfo.time) ? getMSTime() - m_movementInfo.time : 0.0f; // in ms
+        float distancetTraveled = GetCurrentSpeed() * time/1000.0f;
+        pos.m_positionX = GetPositionX() + distancetTraveled * std::cos(orientation);
+        pos.m_positionY = GetPositionY() + distancetTraveled * std::sin(orientation);
+        pos.m_positionZ = GetPositionZ();
+    }
+
+    return pos;
+}
+
+float Unit::GetCurrentMovementOrientation() const
+{
+    float orientation = m_movementInfo.pos.GetOrientation();
+    if (!m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+        return orientation;
+
+    if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FORWARD))
+    {
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT))
+            orientation += float(M_PI_4);
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+            orientation -= float(M_PI_4);
+    }
+    else if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+    {
+        orientation += float(M_PI);
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT))
+            orientation -= float(M_PI_4);
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+            orientation += float(M_PI_4);
+    }
+    else
+    {
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT))
+            orientation += float(M_PI_2);
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT))
+            orientation -= float(M_PI_2);
+    }
+
+    return orientation;
+}
+
+float Unit::GetCurrentSpeed() const
+{
+    if (!m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
+        return 0.0f;
+
+    if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING))
+    {
+        return GetSpeed(UnitMoveType::MOVE_WALK);
+    }
+    else if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_SWIMMING))
+    {
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+            return GetSpeed(UnitMoveType::MOVE_SWIM_BACK);
+        else
+            return GetSpeed(UnitMoveType::MOVE_SWIM);
+    }
+    else if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING))
+    {
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+            return GetSpeed(UnitMoveType::MOVE_FLIGHT_BACK);
+        else
+            return GetSpeed(UnitMoveType::MOVE_FLIGHT);
+    }
+    else
+    {
+        if (m_movementInfo.HasMovementFlag(MOVEMENTFLAG_BACKWARD))
+            return GetSpeed(UnitMoveType::MOVE_RUN_BACK);
+        else
+            return GetSpeed(UnitMoveType::MOVE_RUN);
+    }
+
+    // todo: some movement types (falling, falling far, ...) are not supported
+}
+
 AuraApplication * Unit::GetVisibleAura(uint8 slot) const
 {
     VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
