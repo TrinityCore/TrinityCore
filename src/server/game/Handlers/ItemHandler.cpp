@@ -625,7 +625,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 
                 // Only display items in vendor lists for the team the player is on
                 if ((itemTemplate->Flags2 & ITEM_FLAG2_FACTION_HORDE && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                    (itemTemplate->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE && _player->GetTeam() == HORDE))
                     continue;
 
                 // Items sold out are not displayed in list
