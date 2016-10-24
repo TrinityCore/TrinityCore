@@ -396,7 +396,7 @@ class boss_lady_deathwhisper : public CreatureScript
             void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
             {
                 // phase transition
-                if (_phase == PHASE_ONE && damage > me->GetPower(POWER_MANA))
+                if (_phase == PHASE_ONE && damage > uint32(me->GetPower(POWER_MANA)))
                 {
                     _phase = PHASE_TWO;
                     Talk(SAY_PHASE_2);
