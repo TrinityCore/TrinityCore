@@ -1306,7 +1306,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
 {
     normalSellPrice = true;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    if (proto->Flags2 & ITEM_FLAG2_OVERRIDE_GOLD_COST)
     {
         return proto->BuyPrice;
     }
@@ -1425,7 +1425,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
 {
     uint32 cost = 0;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
+    if (proto->Flags2 & ITEM_FLAG2_OVERRIDE_GOLD_COST)
         cost = proto->SellPrice;
     else
     {
