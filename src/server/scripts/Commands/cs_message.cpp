@@ -76,7 +76,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->pattern[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->pattern, channelStr))
             {
                 channelId = i;
                 break;
@@ -90,7 +90,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->area_name[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->area_name, channelStr))
             {
                 zoneEntry = entry;
                 break;
