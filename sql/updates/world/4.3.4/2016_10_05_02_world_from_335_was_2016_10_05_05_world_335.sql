@@ -1,4 +1,5 @@
 --
+/*
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=3693;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 3693, 0, 0, 29, 1, 3694, 100, 0, 1, 0, 0, "", "Terenthis - Execute SAI 0 only if not within 100 yards of Sentinel Selarin"),
@@ -28,3 +29,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (369400, 9, 4, 0, 61, 0, 100, 0, 2000, 2000, 0, 0, 82, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Sentinel Selarin - On Summon - Add Questgiver+Gossip npcflag"),
 (369400, 9, 5, 0, 0, 0, 100, 0, 90000, 90000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Sentinel Selarin - On Script - Talk 3"),
 (369400, 9, 6, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 83, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Sentinel Selarin - On Script - Remove Questgiver+Gossip npcflag");
+*/

@@ -1,4 +1,5 @@
 --
+/*
 UPDATE `creature_template` SET `gossip_menu_id`=3693 WHERE `entry`=3693;
 DELETE FROM `gossip_menu` WHERE `entry`=3693;
 INSERT INTO `gossip_menu` (`entry`, `text_id`, `VerifiedBuild`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`, `VerifiedBuild`) VALUES
 DELETE FROM `npc_text` WHERE `ID` = 2080;
 INSERT INTO `npc_text` (`ID`, `text0_0`) VALUES
 (2080, "The creation of Teldrassil was a great achievement, but now the world must shift to regain its balance.");
+*/

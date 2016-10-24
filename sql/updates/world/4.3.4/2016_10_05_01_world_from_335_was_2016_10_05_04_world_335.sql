@@ -1,4 +1,5 @@
 --
+/*
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=3695;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 3695, 0, 0, 29, 1, 3693, 100, 0, 0, 0, 0, "", "Grimclaw - Execute SAI 0 only if within 100 yards of Terenthis");
@@ -53,3 +54,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (3695, 1, 0, (SELECT `MaleText` FROM `broadcast_text` WHERE `ID`=1228), 16, 7, 100, 0, 0, 0, 1228, 0, "Grimclaw"),
 (3695, 2, 0, (SELECT `MaleText` FROM `broadcast_text` WHERE `ID`=1231), 16, 7, 100, 0, 0, 0, 1231, 0, "Grimclaw"),
 (3695, 3, 0, (SELECT `MaleText` FROM `broadcast_text` WHERE `ID`=1233), 16, 7, 100, 0, 0, 0, 1233, 0, "Grimclaw");
+*/

@@ -1,4 +1,5 @@
 --
+/*
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=3695 AND `SourceGroup`=5;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 5, 3695, 0, 0, 28, 0, 993, 0, 0, 0, 0, 0, "", "Grimclaw - Execute SAI 4 only if player has quest A Lost Master (Part 2) complete AND"),
@@ -33,3 +34,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (369500, 1, 4685.8560, 140.07, 55.7441, "Grimclaw"),
 (369500, 2, 4605.8462, 1.4452, 69.5886, "Grimclaw"),
 (369500, 3, 4607.4199, -3.3206, 69.8902, "Grimclaw");
+*/
