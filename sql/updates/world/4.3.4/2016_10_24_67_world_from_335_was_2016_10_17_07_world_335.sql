@@ -1,4 +1,5 @@
 -- Update position_z value of creatures in Orgrimmar
+/*
 UPDATE `creature` SET `position_z`=51.9636 WHERE `guid`=3420;
 UPDATE `creature` SET `position_z`=27.2991 WHERE `guid`=10352;
 UPDATE `creature` SET `position_z`=40.3172 WHERE `guid`=4662;
@@ -759,3 +760,4 @@ UPDATE `waypoint_data` SET `position_z`=34.121 WHERE `id`=104700 AND `point`=6;
 
 -- Delete bad grunt spawn
 DELETE FROM `creature` WHERE `guid` IN (10299);
+*/

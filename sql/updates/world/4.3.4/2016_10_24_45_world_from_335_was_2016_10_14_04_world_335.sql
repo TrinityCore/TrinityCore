@@ -1,5 +1,6 @@
 --
 -- True Believers and Still Believing
+/*
 DELETE FROM `mail_loot_template` WHERE `Item`=20469;
 INSERT INTO `mail_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
 (93, 20469, 0, 100, 0, 1, 0, 1, 1, ""),
@@ -88,3 +89,4 @@ INSERT INTO `mail_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `Quest
 (259, 21746, 0, 100, 0, 1, 0, 1, 1, ""),
 (260, 21746, 0, 100, 0, 1, 0, 1, 1, ""),
 (261, 21746, 0, 100, 0, 1, 0, 1, 1, "");
+*/

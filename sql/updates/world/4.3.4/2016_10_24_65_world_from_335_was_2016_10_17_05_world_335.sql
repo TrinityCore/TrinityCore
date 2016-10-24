@@ -1,3 +1,4 @@
+/*
 DELETE FROM `game_event` WHERE `eventEntry`=70;
 INSERT INTO `game_event` (`eventEntry`, `start_time`, `end_time`, `occurence`, `length`, `holiday`, `description`, `world_event`, `announce`) VALUES
 (70, '2016-09-20 01:01:00', '2020-12-31 06:00:00', 525600, 4320, 0, 'Brewfest Building (Iron Forge)', 0, 2);
@@ -23,3 +24,4 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 
 DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+11 AND `eventEntry`=@Event;
 INSERT INTO `game_event_gameobject` SELECT @Event, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+11;
+*/

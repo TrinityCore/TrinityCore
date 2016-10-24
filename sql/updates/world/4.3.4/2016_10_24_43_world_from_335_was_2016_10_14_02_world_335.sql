@@ -1,4 +1,5 @@
 --
+/*
 DELETE FROM `creature_text` WHERE `entry` IN (10296, 10299);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (10296, 0, 0, "At last - one among you is worthy of my knowledge. Worry not - I have probed your thoughts, no harm will come to you.", 12, 0, 100, 1, 0, 0, 5555, 0, "Vaelan"),
@@ -77,3 +78,4 @@ INSERT INTO `creature_template_addon` (entry, bytes1) VALUES
 
 UPDATE `creature` SET `position_x`=56.9316, `position_y`=-399.4169, `position_z`=64.3478 WHERE `guid`=42798;
 DELETE FROM `creature` WHERE `guid`=42797;
+*/
