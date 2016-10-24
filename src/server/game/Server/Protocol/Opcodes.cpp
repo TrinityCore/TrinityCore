@@ -31,6 +31,7 @@ public:
         PacketClass nicePacket(std::move(packet));
         nicePacket.Read();
         (session->*HandlerFunction)(nicePacket);
+        session->LogUnprocessedTail(nicePacket.GetRawPacket());
     }
 };
 
@@ -43,6 +44,7 @@ public:
     void Call(WorldSession* session, WorldPacket& packet) const override
     {
         (session->*HandlerFunction)(packet);
+        session->LogUnprocessedTail(&packet);
     }
 };
 
