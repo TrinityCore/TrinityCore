@@ -37,8 +37,18 @@ enum HallowsEnd
     SPELL_BIG_FIRE       = 43148,
     SPELL_CLEAVE         = 15496,
 
+    QUEST_LET_THE_FIRES_COME_A = 12135,
+    QUEST_LET_THE_FIRES_COME_H = 12139,
+    QUEST_STOP_THE_FIRES_A     = 11131,
+    QUEST_STOP_THE_FIRES_H     = 11219,
+
     NPC_SHADE_OF_HORSEMAN = 23543,
     NPC_FIRE_TRIGGER      = 23537,
+
+    TALK_0 = 0,
+    TALK_3 = 3,
+    TALK_4 = 4,
+    TALK_5 = 5,
 
     EVENT_BEGIN              = 1,
     EVENT_TALK_1             = 2,
@@ -142,7 +152,7 @@ public:
             }
        }
 
-        void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* owner = GetUnitOwner())
             {
@@ -175,7 +185,7 @@ public:
     {
         npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             _events.ScheduleEvent(EVENT_BEGIN, /*Minutes(30)*/Seconds(5));
         }
@@ -234,9 +244,9 @@ public:
         EventMap _events;
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_costumed_orphan_matronAI(pCreature);
+        return new npc_costumed_orphan_matronAI(creature);
     }
 };
 
@@ -258,8 +268,8 @@ public:
         {
             if (spellInfo->Id == SPELL_START_FIRE || spellInfo->Id == SPELL_SPREAD_FIRE)
             {
-                me->CastSpell(me, SPELL_FIRE_AURA_BASE, true);
-                me->CastSpell(me, SPELL_SPREAD_FIRE, true);
+                DoCast(me, SPELL_FIRE_AURA_BASE, true);
+                DoCast(me, SPELL_SPREAD_FIRE, true);
             }
             else if (spellInfo->Id == SPELL_WATER_SPLASH)
             {
@@ -299,7 +309,7 @@ public:
     {
         npc_hallows_end_sohAI(Creature* creature) : ScriptedAI(creature), pos(0), canShootFire(true)
         {
-            me->CastSpell(me, SPELL_HORSEMAN_MOUNT, true);
+            DoCast(SPELL_HORSEMAN_MOUNT);
             me->SetSpeed(MOVE_WALK, 5.0f);
         }
 
@@ -343,7 +353,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_TALK_1:
-                        Talk(0);
+                        Talk(TALK_0);
                         break;
                     case EVENT_APPLY_FIRE:
                     {
@@ -351,7 +361,7 @@ public:
                         {
                             if (Creature* trigger = me->FindNearestCreature(NPC_FIRE_TRIGGER, 50.0f))
                                 if (!trigger->GetAura(SPELL_START_FIRE) && !trigger->GetAura(SPELL_SPREAD_FIRE))
-                                    me->CastSpell(trigger, SPELL_START_FIRE);
+                                    DoCast(trigger, SPELL_START_FIRE);
                             events.Repeat(Seconds(5));
                         }
                         break;
@@ -371,12 +381,11 @@ public:
 
                             trigger->AI()->EnterEvadeMode();
                         }
-                        me->StopMoving();
                         FinishEvent(failed);
                         break;
                     }
                     case EVENT_CLEAVE:
-                        me->CastSpell(me->GetVictim(), SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         events.Repeat(Seconds(20));
                         break;
                 }
@@ -394,12 +403,12 @@ public:
             events.Reset();
             if (failed)
             {
-                Talk(3);
+                Talk(TALK_3);
                 me->DespawnOrUnsummon();
             }
             else
             {
-                Talk(4);
+                Talk(TALK_4);
                 float x, y, z;
                 GetPosToLand(x, y, z);
                 me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -410,7 +419,7 @@ public:
         {
             if (type == POINT_MOTION_TYPE && point == 1)
             {
-                me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+                me->SetFlag(UNIT_FIELD_FLAGS, 0);
                 me->SetDisableGravity(false);
                 me->RemoveAura(SPELL_HORSEMAN_MOUNT);
                 //me->Dismount();
@@ -421,7 +430,7 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            Talk(5);
+            Talk(TALK_5);
             float x, y, z;
             GetPosToLand(x, y, z);
             me->CastSpell(x, y, z, SPELL_SUMMON_LANTERN, true);
@@ -436,12 +445,12 @@ public:
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
             me->VisitNearbyWorldObject(radius, searcher);
 
-            for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Player* player : players)
             {
-                (*itr)->AreaExploredOrEventHappens(QUEST_STOP_THE_FIRES_H);
-                (*itr)->AreaExploredOrEventHappens(QUEST_STOP_THE_FIRES_A);
-                (*itr)->AreaExploredOrEventHappens(QUEST_LET_THE_FIRES_COME_H);
-                (*itr)->AreaExploredOrEventHappens(QUEST_LET_THE_FIRES_COME_A);
+                player->AreaExploredOrEventHappens(QUEST_STOP_THE_FIRES_H);
+                player->AreaExploredOrEventHappens(QUEST_STOP_THE_FIRES_A);
+                player->AreaExploredOrEventHappens(QUEST_LET_THE_FIRES_COME_H);
+                player->AreaExploredOrEventHappens(QUEST_LET_THE_FIRES_COME_A);
             }
         }
 
