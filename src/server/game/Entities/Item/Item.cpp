@@ -1216,7 +1216,7 @@ bool Item::CanBeTransmogrified() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+    if (proto->Flags2 & ITEM_FLAG2_NO_ALTER_ITEM_VISUAL)
         return false;
 
     if (!HasStats())
@@ -1232,7 +1232,7 @@ bool Item::CanTransmogrify() const
     if (!proto)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+    if (proto->Flags2 & ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL)
         return false;
 
     if (proto->Quality == ITEM_QUALITY_LEGENDARY)
@@ -1245,7 +1245,7 @@ bool Item::CanTransmogrify() const
     if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         return false;
 
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+    if (proto->Flags2 & ITEM_FLAG2_IGNORE_QUALITY_FOR_ITEM_VISUAL_SOURCE)
         return true;
 
     if (!HasStats())
