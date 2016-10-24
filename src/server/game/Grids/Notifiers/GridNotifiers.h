@@ -248,7 +248,7 @@ namespace Trinity
         template<typename Container>
         WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
             : ContainerInserter<WorldObject*>(container),
-              i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+              i_mapTypeMask(mapTypeMask), _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -368,7 +368,7 @@ namespace Trinity
         template<typename Container>
         GameObjectListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<GameObject*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+              _searcher(searcher), i_check(check) { }
 
         void Visit(GameObjectMapType &m);
 
@@ -441,7 +441,7 @@ namespace Trinity
         template<typename Container>
         UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
             : ContainerInserter<Unit*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+              _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -491,7 +491,7 @@ namespace Trinity
         template<typename Container>
         CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<Creature*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+              _searcher(searcher), i_check(check) { }
 
         void Visit(CreatureMapType &m);
 
@@ -543,7 +543,7 @@ namespace Trinity
         template<typename Container>
         PlayerListSearcher(WorldObject const* searcher, Container& container, Check & check)
             : ContainerInserter<Player*>(container),
-              i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
+              _searcher(searcher), i_check(check) { }
 
         void Visit(PlayerMapType &m);
 
