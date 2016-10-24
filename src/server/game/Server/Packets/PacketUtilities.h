@@ -21,6 +21,7 @@
 #include "ByteBuffer.h"
 #include <G3D/Vector2.h>
 #include <G3D/Vector3.h>
+#include <boost/container/static_vector.hpp>
 #include <sstream>
 #include <array>
 
@@ -64,10 +65,12 @@ namespace WorldPackets
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
-    template<typename T, std::size_t N = 1000 /*select a sane default limit*/>
+    template<typename T, std::size_t N>
     class Array
     {
-        typedef std::vector<T> storage_type;
+        typedef boost::container::static_vector<T, N> storage_type;
+
+        typedef std::integral_constant<std::size_t, N> max_capacity;
 
         typedef typename storage_type::value_type value_type;
         typedef typename storage_type::size_type size_type;
@@ -77,8 +80,7 @@ namespace WorldPackets
         typedef typename storage_type::const_iterator const_iterator;
 
     public:
-        Array() : _limit(N) { }
-        Array(size_type limit) : _limit(limit) { }
+        Array() { }
 
         iterator begin() { return _storage.begin(); }
         const_iterator begin() const { return _storage.begin(); }
@@ -94,39 +96,30 @@ namespace WorldPackets
 
         void resize(size_type newSize)
         {
-            if (newSize > _limit)
-                throw PacketArrayMaxCapacityException(newSize, _limit);
+            if (newSize > max_capacity::value)
+                throw PacketArrayMaxCapacityException(newSize, max_capacity::value);
 
             _storage.resize(newSize);
         }
 
-        void reserve(size_type newSize)
-        {
-            if (newSize > _limit)
-                throw PacketArrayMaxCapacityException(newSize, _limit);
-
-            _storage.reserve(newSize);
-        }
-
         void push_back(value_type const& value)
         {
-            if (_storage.size() >= _limit)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
+            if (_storage.size() >= max_capacity::value)
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(value);
         }
 
         void push_back(value_type&& value)
         {
-            if (_storage.size() >= _limit)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
+            if (_storage.size() >= max_capacity::value)
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(std::forward<value_type>(value));
         }
 
     private:
         storage_type _storage;
-        size_type _limit;
     };
 
     template <typename T>
