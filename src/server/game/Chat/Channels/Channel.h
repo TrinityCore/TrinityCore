@@ -150,11 +150,9 @@ class TC_GAME_API Channel
     };
 
     public:
-        Channel(uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
-        Channel(std::string const& name, uint32 team = 0);                                      // custom player channel ctor
+        Channel(uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);
 
-        Channel(uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
-        Channel(std::string const& name, uint32 team = 0);                                      // custom player channel ctor
+        Channel(std::string const& name, uint32 team = 0);
 
         uint32 GetChannelId() const { return _channelId; }
         bool IsConstant() const { return _channelId != 0; }
