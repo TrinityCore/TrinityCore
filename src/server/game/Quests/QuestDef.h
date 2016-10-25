@@ -268,6 +268,7 @@ struct QuestObjective
     int32  ObjectID     = 0;
     int32  Amount       = 0;
     uint32 Flags        = 0;
+    uint32 Flags2       = 0;
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
