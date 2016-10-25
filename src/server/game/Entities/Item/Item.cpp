@@ -1957,7 +1957,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
         {
             if (proto->GetBuyCount() <= 1)
             {
-                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->GetClass());
+                ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass());
                 if (classEntry)
                     cost *= classEntry->PriceMod;
                 else

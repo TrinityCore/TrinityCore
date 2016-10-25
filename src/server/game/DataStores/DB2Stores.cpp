@@ -690,6 +690,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _itemChildEquipment[itemChildEquipment->ItemID] = itemChildEquipment;
     }
 
+    for (ItemClassEntry const* itemClass : sItemClassStore)
+    {
+        ASSERT(itemClass->OldEnumValue < _itemClassByOldEnum.size());
+        ASSERT(!_itemClassByOldEnum[itemClass->OldEnumValue]);
+        _itemClassByOldEnum[itemClass->OldEnumValue] = itemClass;
+    }
+
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
         _itemsWithCurrencyCost.insert(itemCurrencyCost->ItemId);
 
@@ -1367,6 +1374,11 @@ ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) 
         return itr->second;
 
     return nullptr;
+}
+
+ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
+{
+    return _itemClassByOldEnum[itemClass];
 }
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
