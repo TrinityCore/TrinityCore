@@ -252,7 +252,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
                 clientMetaString += loadInfo->Meta->Types[i];
 
         for (std::size_t i = loadInfo->Meta->HasIndexFieldInData() ? 0 : 1; i < loadInfo->FieldCount; ++i)
-            ourMetaString += char(loadInfo->Fields[i].Type);
+            ourMetaString += char(std::tolower(loadInfo->Fields[i].Type));
 
         ASSERT(clientMetaString == ourMetaString, "C++ structure fields %s do not match generated types from the client %s", ourMetaString.c_str(), clientMetaString.c_str());
 

@@ -35,8 +35,6 @@ struct TC_COMMON_API DB2Meta
     uint32 GetDbIndexField() const;
     uint32 GetDbFieldCount() const;
 
-    uint32 GetStringFieldCount(bool localizedOnly) const;
-
     int32 IndexField;
     uint32 FieldCount;
     uint32 LayoutHash;
