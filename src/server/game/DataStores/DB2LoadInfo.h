@@ -617,6 +617,7 @@ struct ChrClassesLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "Filename" },
             { false, FT_INT, "CreateScreenFileDataID" },
             { false, FT_INT, "SelectScreenFileDataID" },
+            { false, FT_INT, "IconFileDataID" },
             { false, FT_INT, "LowResScreenFileDataID" },
             { false, FT_SHORT, "Flags" },
             { false, FT_SHORT, "CinematicSequenceID" },
@@ -626,7 +627,6 @@ struct ChrClassesLoadInfo
             { false, FT_BYTE, "AttackPowerPerStrength" },
             { false, FT_BYTE, "AttackPowerPerAgility" },
             { false, FT_BYTE, "RangedAttackPowerPerAgility" },
-            { false, FT_BYTE, "IconFileDataID" },
             { false, FT_BYTE, "Unk1" },
             { false, FT_INT, "ID" },
         };
@@ -870,8 +870,6 @@ struct CreatureModelDataLoadInfo
             { false, FT_INT, "FoleyMaterialID" },
             { false, FT_INT, "FootstepEffectID" },
             { false, FT_INT, "DeathThudEffectID" },
-            { false, FT_INT, "FootstepShakeSize" },
-            { false, FT_INT, "DeathThudShakeSize" },
             { false, FT_INT, "SoundID" },
             { false, FT_INT, "CreatureGeosetDataID" },
         };
@@ -1960,6 +1958,7 @@ struct ItemClassLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_FLOAT, "PriceMod" },
             { false, FT_STRING, "Name" },
+            { false, FT_BYTE, "OldEnumValue" },
             { false, FT_BYTE, "Flags" },
         };
         return { &fields[0], std::extent<decltype(fields)>::value, ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS };
@@ -2553,6 +2552,7 @@ struct LfgDungeonsLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "TextureFilename" },
             { false, FT_STRING, "Description" },
             { false, FT_INT, "PlayerConditionID" },
+            { false, FT_FLOAT, "MinItemLevel" },
             { false, FT_SHORT, "MaxLevel" },
             { false, FT_SHORT, "TargetLevelMax" },
             { true, FT_SHORT, "MapID" },
@@ -4179,12 +4179,14 @@ struct SpellXSpellVisualLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "SpellID" },
-            { false, FT_FLOAT, "Unk620" },
+            { false, FT_FLOAT, "Chance" },
             { false, FT_SHORT, "SpellVisualID1" },
             { false, FT_SHORT, "SpellVisualID2" },
             { false, FT_SHORT, "PlayerConditionID" },
-            { false, FT_BYTE, "DifficultyID" },
+            { false, FT_SHORT, "UnitConditionID" },
             { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "DifficultyID" },
+            { false, FT_BYTE, "Priority" },
             { false, FT_INT, "ID" },
         };
         return { &fields[0], std::extent<decltype(fields)>::value, SpellXSpellVisualMeta::Instance(), HOTFIX_SEL_SPELL_X_SPELL_VISUAL };

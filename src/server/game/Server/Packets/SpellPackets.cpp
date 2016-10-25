@@ -645,6 +645,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCooldownStru
 {
     data << uint32(cooldown.SrecID);
     data << uint32(cooldown.ForcedCooldown);
+    data << float(cooldown.ModRate);
     return data;
 }
 
@@ -666,6 +667,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
     data << uint32(historyEntry.Category);
     data << int32(historyEntry.RecoveryTime);
     data << int32(historyEntry.CategoryRecoveryTime);
+    data << float(historyEntry.ModRate);
     data.WriteBit(historyEntry.unused622_1.is_initialized());
     data.WriteBit(historyEntry.unused622_2.is_initialized());
     data.WriteBit(historyEntry.OnHold);
@@ -709,6 +711,7 @@ WorldPacket const* WorldPackets::Spells::SetSpellCharges::Write()
     _worldPacket << int32(Category);
     _worldPacket << uint32(NextRecoveryTime);
     _worldPacket << uint8(ConsumedCharges);
+    _worldPacket << float(ChargeModRate);
     _worldPacket.WriteBit(IsPet);
     _worldPacket.FlushBits();
 
@@ -719,6 +722,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChargeEntry 
 {
     data << uint32(chargeEntry.Category);
     data << uint32(chargeEntry.NextRecoveryTime);
+    data << float(chargeEntry.ChargeModRate);
     data << uint8(chargeEntry.ConsumedCharges);
     return data;
 }
@@ -821,7 +825,7 @@ WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
     _worldPacket << uint32(ResurrectOffererVirtualRealmAddress);
     _worldPacket << uint32(PetNumber);
     _worldPacket << int32(SpellID);
-    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.WriteBits(Name.length(), 11);
     _worldPacket.WriteBit(UseTimer);
     _worldPacket.WriteBit(Sickness);
     _worldPacket.FlushBits();
