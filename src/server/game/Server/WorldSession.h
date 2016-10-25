@@ -1113,7 +1113,7 @@ class TC_GAME_API WorldSession
 
         void Handle_NULL(WorldPackets::Null& null);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
-        void LogUnprocessedTail(WorldPacket* packet);
+        void LogUnprocessedTail(WorldPacket const* packet);
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);

@@ -130,6 +130,7 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+                int32 Time = 0;
 
                 BillingInfo Billing;
 

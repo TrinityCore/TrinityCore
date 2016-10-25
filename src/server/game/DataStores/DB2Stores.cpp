@@ -252,7 +252,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
                 clientMetaString += loadInfo->Meta->Types[i];
 
         for (std::size_t i = loadInfo->Meta->HasIndexFieldInData() ? 0 : 1; i < loadInfo->FieldCount; ++i)
-            ourMetaString += char(loadInfo->Fields[i].Type);
+            ourMetaString += char(std::tolower(loadInfo->Fields[i].Type));
 
         ASSERT(clientMetaString == ourMetaString, "C++ structure fields %s do not match generated types from the client %s", ourMetaString.c_str(), clientMetaString.c_str());
 
@@ -688,6 +688,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(_itemChildEquipment.find(itemChildEquipment->ItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
         _itemChildEquipment[itemChildEquipment->ItemID] = itemChildEquipment;
+    }
+
+    for (ItemClassEntry const* itemClass : sItemClassStore)
+    {
+        ASSERT(itemClass->OldEnumValue < _itemClassByOldEnum.size());
+        ASSERT(!_itemClassByOldEnum[itemClass->OldEnumValue]);
+        _itemClassByOldEnum[itemClass->OldEnumValue] = itemClass;
     }
 
     for (ItemCurrencyCostEntry const* itemCurrencyCost : sItemCurrencyCostStore)
@@ -1367,6 +1374,11 @@ ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) 
         return itr->second;
 
     return nullptr;
+}
+
+ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
+{
+    return _itemClassByOldEnum[itemClass];
 }
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const

@@ -145,6 +145,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData c
     data << int32(bracket.SeasonPlayed);
     data << int32(bracket.SeasonWon);
     data << int32(bracket.WeeklyBestRating);
+    data << int32(bracket.Unk710);
     data << uint8(bracket.Bracket);
 
     return data;

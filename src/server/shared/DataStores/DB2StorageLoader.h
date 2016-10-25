@@ -49,10 +49,13 @@ struct TC_SHARED_API DB2LoadInfo
     DB2LoadInfo();
     DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement);
 
+    uint32 GetStringFieldCount(bool localizedOnly) const;
+
     DB2FieldMeta const* Fields;
     std::size_t FieldCount;
     DB2Meta const* Meta;
     HotfixDatabaseStatements Statement;
+    std::string TypesString;
 };
 
 class TC_SHARED_API DB2FileLoader

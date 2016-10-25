@@ -93,14 +93,11 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
 
-    uint32 spellVisual = 0;
-    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(spellXSpellVisualId))
-        spellVisual = visual->SpellVisualID[0];
-
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
     SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_BYTES, spellVisual | (type << 28));
+    SetUInt32Value(DYNAMICOBJECT_TYPE, type);
+    SetUInt32Value(DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
