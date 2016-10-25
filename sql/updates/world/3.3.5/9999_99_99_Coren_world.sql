@@ -2,7 +2,7 @@
 SET @CGUID := 600000;
 DELETE FROM `creature` WHERE `id`=23872 OR `guid`=@CGUID;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
-(@CGUID, 23872, 230, 0, 0, 1, 1, 0, 1, 891.8394, -129.1829, -49.65985, 5.253441, 300, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(@CGUID, 23872, 230, 0, 0, 1, 1, 0, 1, 891.8394, -129.1829, -49.65985, 5.253441, 300, 0, 0, 0, 0, 2, 0, 0, 0, 0);
 
 DELETE FROM `creature_addon` WHERE `guid`=@CGUID;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
