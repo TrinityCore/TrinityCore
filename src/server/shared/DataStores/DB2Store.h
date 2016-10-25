@@ -187,7 +187,7 @@ public:
             return false;
 
         // load strings from another locale db2 data
-        if (_loadInfo.Meta->GetStringFieldCount(true))
+        if (_loadInfo.GetStringFieldCount(true))
             if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
                 _stringPool.push_back(stringBlock);
         return true;
@@ -203,7 +203,7 @@ public:
 
     void LoadStringsFromDB(uint32 locale) override
     {
-        if (!_loadInfo.Meta->GetStringFieldCount(true))
+        if (!_loadInfo.GetStringFieldCount(true))
             return;
 
         DB2DatabaseLoader(_fileName, _loadInfo).LoadStrings(locale, _indexTableSize, _indexTable.AsChar, _stringPool);
