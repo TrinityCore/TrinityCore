@@ -1113,6 +1113,7 @@ class TC_GAME_API WorldSession
 
         void Handle_NULL(WorldPackets::Null& null);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
+        void LogUnprocessedTail(WorldPacket* packet);
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
@@ -1807,7 +1808,6 @@ class TC_GAME_API WorldSession
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
-        void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
         bool IsLegitCharacterForAccount(ObjectGuid lowGUID)
