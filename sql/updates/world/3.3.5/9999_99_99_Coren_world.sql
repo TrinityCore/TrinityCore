@@ -8,6 +8,10 @@ DELETE FROM `creature_addon` WHERE `guid`=@CGUID;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (@CGUID,@CGUID*10,0,0,1,0,NULL);
 
+DELETE FROM `game_event_creature` WHERE `eventEntry`=24 AND `guid`=@CGUID;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(24,@CGUID);
+
 DELETE FROM `waypoint_data` WHERE `id` IN (@CGUID*10);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`action`,`action_chance`,`wpguid`) VALUES
 (@CGUID*10,0,888.4606, -130.909, -49.7434,0,0,0,100,0),
