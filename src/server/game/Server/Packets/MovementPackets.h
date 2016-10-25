@@ -413,6 +413,7 @@ namespace WorldPackets
             uint32 MountDisplayID = 0;
             UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
             uint32 SequenceIndex = 0;
+            int32 ScaleDuration = 0;
             float Height = 1.0f;
         };
 

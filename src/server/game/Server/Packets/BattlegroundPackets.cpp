@@ -219,9 +219,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
         _worldPacket.append(Battlefields.data(), Battlefields.size());
 
     _worldPacket.WriteBit(PvpAnywhere);
-    _worldPacket.WriteBit(HasHolidayWinToday);
     _worldPacket.WriteBit(HasRandomWinToday);
-    _worldPacket.WriteBit(IsRandomBG);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }

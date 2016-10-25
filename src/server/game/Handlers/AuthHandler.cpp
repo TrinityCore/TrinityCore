@@ -39,6 +39,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
         response.SuccessInfo->AccountExpansionLevel = GetExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo->Time = int32(time(nullptr));
 
         // Send current home realm. Also there is no need to send it later in realm queries.
         response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false,

@@ -578,8 +578,6 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     battlefieldList.MaxLevel = bgTemplate->MaxLevel;
     battlefieldList.PvpAnywhere = guid.IsEmpty();
     battlefieldList.HasRandomWinToday = player->GetRandomWinner();
-    battlefieldList.HasHolidayWinToday = false;
-    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
     player->SendDirectMessage(battlefieldList.Write());
 }
 

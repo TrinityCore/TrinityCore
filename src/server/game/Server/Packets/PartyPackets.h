@@ -49,7 +49,6 @@ namespace WorldPackets
 
             int8 PartyIndex = 0;
             int32 ProposedRoles = 0;
-            int32 TargetCfgRealmID = 0;
             std::string TargetName;
             std::string TargetRealm;
             ObjectGuid TargetGUID;
@@ -492,6 +491,7 @@ namespace WorldPackets
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
+            bool FromSocialQueue = false;
         };
 
         struct PartyLFGInfo

@@ -639,6 +639,7 @@ namespace WorldPackets
 
             uint32 SrecID = 0;
             uint32 ForcedCooldown = 0;
+            float ModRate = 1.0f;
         };
 
         class SpellCooldown : public ServerPacket
@@ -660,6 +661,7 @@ namespace WorldPackets
             uint32 Category = 0;
             int32 RecoveryTime = 0;
             int32 CategoryRecoveryTime = 0;
+            float ModRate = 1.0f;
             bool OnHold = false;
             Optional<uint32> unused622_1;   ///< This field is not used for anything in the client in 6.2.2.20444
             Optional<uint32> unused622_2;   ///< This field is not used for anything in the client in 6.2.2.20444
@@ -707,12 +709,14 @@ namespace WorldPackets
             uint32 Category = 0;
             uint32 NextRecoveryTime = 0;
             uint8 ConsumedCharges = 0;
+            float ChargeModRate = 1.0f;
         };
 
         struct SpellChargeEntry
         {
             uint32 Category = 0;
             uint32 NextRecoveryTime = 0;
+            float ChargeModRate = 1.0f;
             uint8 ConsumedCharges = 0;
         };
 
