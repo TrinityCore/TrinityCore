@@ -512,6 +512,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (HasAreaTrigger)
     {
         AreaTrigger const* areaTrigger = this->ToAreaTrigger();
+        AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = areaTrigger->GetMiscTemplate();
         AreaTriggerTemplate const* areaTriggerTemplate = areaTrigger->GetTemplate();
 
         uint32 elapsedMs = areaTrigger->GetTimeSinceCreated();
@@ -580,16 +581,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasScaleCurveID)
-            *data << int32(areaTriggerTemplate->ScaleCurveId);
+            *data << int32(areaTriggerMiscTemplate->ScaleCurveId);
 
         if (hasMorphCurveID)
-            *data << int32(areaTriggerTemplate->MorphCurveId);
+            *data << int32(areaTriggerMiscTemplate->MorphCurveId);
 
         if (hasFacingCurveID)
-            *data << int32(areaTriggerTemplate->FacingCurveId);
+            *data << int32(areaTriggerMiscTemplate->FacingCurveId);
 
         if (hasMoveCurveID)
-            *data << int32(areaTriggerTemplate->MoveCurveId);
+            *data << int32(areaTriggerMiscTemplate->MoveCurveId);
 
         if (hasUnk2)
             *data << int32(0);
