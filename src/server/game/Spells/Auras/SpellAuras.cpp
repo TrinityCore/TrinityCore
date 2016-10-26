@@ -1892,6 +1892,14 @@ uint8 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& event
     if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
         return 0;
 
+    // check don't break stealth attr present
+    if (m_spellInfo->HasAura(SPELL_AURA_MOD_STEALTH))
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            if (spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
+                return 0;
+    }
+
     // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
     if (!(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
         if (Spell const* spell = eventInfo.GetProcSpell())
