@@ -1196,15 +1196,12 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
                 return false;
 
             // Spell own damage at apply won't break CC
-            if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            if (spellInfo && spellInfo == GetSpellInfo())
             {
-                if (spellInfo == GetSpellInfo())
-                {
-                    Aura* aura = GetBase();
-                    // called from spellcast, should not have ticked yet
-                    if (aura->GetDuration() == aura->GetMaxDuration())
-                        return false;
-                }
+                Aura* aura = GetBase();
+                // called from spellcast, should not have ticked yet
+                if (aura->GetDuration() == aura->GetMaxDuration())
+                    return false;
             }
             break;
         }
