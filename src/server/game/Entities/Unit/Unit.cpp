@@ -1343,13 +1343,14 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         CalcAbsorbResist(dmgInfo);
         damageInfo->absorb = dmgInfo.GetAbsorb();
         damageInfo->resist = dmgInfo.GetResist();
-        damageInfo->damage = dmgInfo.GetDamage();
 
         if (damageInfo->absorb)
             damageInfo->HitInfo |= (damageInfo->damage - damageInfo->absorb == 0 ? HITINFO_FULL_ABSORB : HITINFO_PARTIAL_ABSORB);
 
         if (damageInfo->resist)
             damageInfo->HitInfo |= (damageInfo->damage - damageInfo->resist == 0 ? HITINFO_FULL_RESIST : HITINFO_PARTIAL_RESIST);
+
+        damageInfo->damage = dmgInfo.GetDamage();
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
@@ -1659,7 +1660,7 @@ uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, Spell
     return resistance * 10;
 }
 
-void Unit::CalcAbsorbResist(DamageInfo& damageInfo) 
+void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
 {
     if (!damageInfo.GetVictim() || !damageInfo.GetVictim()->IsAlive() || !damageInfo.GetDamage())
         return;
