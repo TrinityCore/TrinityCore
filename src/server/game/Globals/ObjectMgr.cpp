@@ -9618,7 +9618,6 @@ void ObjectMgr::LoadCreatureQuestItems()
 void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    _areaTriggerTemplateSpellMisc.clear();
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
     std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
 
@@ -9684,25 +9683,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
     }
 
-    QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId FROM `spell_areatrigger`");
-
-    if (areatriggerSpellMiscs)
-    {
-        do
-        {
-            Field* areatriggerSpellMiscFields = areatriggerSpellMiscs->Fetch();
-            uint32 spellMiscId   = areatriggerSpellMiscFields[0].GetUInt32();
-            uint32 areatriggerId = areatriggerSpellMiscFields[1].GetUInt32();
-
-            _areaTriggerTemplateSpellMisc[spellMiscId] = areatriggerId;
-        } while (areatriggerSpellMiscs->NextRow());
-    }
-    else
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
-    }
-
-    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, Data0, Data1, Data2, Data3, Data4, Data5, TimeToTargetScale, ScriptName FROM `areatrigger_template`");
+    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, Data0, Data1, Data2, Data3, Data4, Data5, TimeToTargetScale, ScriptName FROM `areatrigger_template`");
 
     if (!templates)
     {
@@ -9712,15 +9693,6 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
     uint32 count = 1;
 
-    // We create a default template in case of the spell reference an unknown template
-    AreaTriggerTemplate defaultAreaTriggerTemplate;
-    defaultAreaTriggerTemplate.Id                          = 0;
-    defaultAreaTriggerTemplate.Flags                       = AREATRIGGER_FLAG_HAS_SPHERE;
-    defaultAreaTriggerTemplate.SphereDatas.Radius          = 1;
-    defaultAreaTriggerTemplate.SphereDatas.RadiusTarget    = 1;
-    defaultAreaTriggerTemplate.InitMaxSearchRadius();
-    _areaTriggerTemplateStore[0] = defaultAreaTriggerTemplate;
-
     do
     {
         Field* fields = templates->Fetch();
@@ -9728,10 +9700,6 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         AreaTriggerTemplate areaTriggerTemplate;
         areaTriggerTemplate.Id              = fields[0].GetUInt32();
         areaTriggerTemplate.Flags           = fields[1].GetUInt32();
-        areaTriggerTemplate.MoveCurveId     = fields[2].GetInt32();
-        areaTriggerTemplate.ScaleCurveId    = fields[3].GetInt32();
-        areaTriggerTemplate.MorphCurveId    = fields[4].GetInt32();
-        areaTriggerTemplate.FacingCurveId   = fields[5].GetInt32();
 
         for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
             areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
@@ -9747,6 +9715,40 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         ++count;
     }
     while (templates->NextRow());
+
+    QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId FROM `spell_areatrigger`");
+
+    if (areatriggerSpellMiscs)
+    {
+        do
+        {
+            AreaTriggerMiscTemplate miscTemplate;
+
+            Field* areatriggerSpellMiscFields = areatriggerSpellMiscs->Fetch();
+
+            uint32 miscId           = areatriggerSpellMiscFields[0].GetUInt32();
+            uint32 areatriggerId    = areatriggerSpellMiscFields[1].GetUInt32();
+
+            if (_areaTriggerTemplateStore.find(areatriggerId) != _areaTriggerTemplateStore.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` reference invalid AreaTriggerId %u for miscId %u", areatriggerId, miscId);
+                continue;
+            }
+
+            miscTemplate.MiscId         = miscId;
+            miscTemplate.Template       = GetAreaTriggerTemplate(areatriggerId);
+            miscTemplate.MoveCurveId    = areatriggerSpellMiscFields[2].GetInt32();
+            miscTemplate.ScaleCurveId   = areatriggerSpellMiscFields[3].GetInt32();
+            miscTemplate.MorphCurveId   = areatriggerSpellMiscFields[4].GetInt32();
+            miscTemplate.FacingCurveId  = areatriggerSpellMiscFields[5].GetInt32();
+
+            _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
+        } while (areatriggerSpellMiscs->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Spell AreaTrigger templates. DB table `spell_areatrigger` is empty.");
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell areatrigger templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }

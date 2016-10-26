@@ -65,7 +65,7 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId)
+bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMiscId, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId)
 {
     _casterGuid = caster->GetGUID();
 
@@ -78,12 +78,18 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         return false;
     }
 
-    _areaTriggerTemplate = sObjectMgr->GetAreaTriggerTemplate(triggerEntry);
+    _areaTriggerMiscTemplate = sObjectMgr->GetAreaTriggerMiscTemplate(spellMiscId);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), triggerEntry, guidlow));
+    if (_areaTriggerMiscTemplate == nullptr)
+    {
+        TC_LOG_ERROR("misc", "AreaTrigger (spell %u) not created. Invalid areatrigger miscid (%u)", spellMiscId);
+        return false;
+    }
+
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
 
-    SetEntry(triggerEntry);
+    SetEntry(GetTemplate()->Id);
     SetDuration(spell->GetDuration());
 
     SetObjectScale(1);

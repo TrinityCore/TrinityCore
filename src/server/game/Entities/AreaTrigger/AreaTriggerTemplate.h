@@ -80,10 +80,6 @@ public:
     {
         Id                  = 0;
         Flags               = 0;
-        MoveCurveId         = 0;
-        ScaleCurveId        = 0;
-        MorphCurveId        = 0;
-        FacingCurveId       = 0;
         TimeToTargetScale   = 0;
         ScriptId            = 0;
         MaxSearchRadius     = 0.0f;
@@ -103,10 +99,6 @@ public:
 
     uint32 Id;
     uint32 Flags;
-    int32 MoveCurveId;
-    int32 ScaleCurveId;
-    int32 MorphCurveId;
-    int32 FacingCurveId;
     uint32 TimeToTargetScale;
     uint32 ScriptId;
     float MaxSearchRadius;
@@ -152,6 +144,33 @@ public:
             float LocationZOffsetTarget;
         } CylinderDatas;
     };
+};
+
+class AreaTriggerMiscTemplate
+{
+public:
+    AreaTriggerMiscTemplate()
+    {
+        MiscId              = 0;
+        AreaTriggerEntry    = 0;
+
+        MoveCurveId         = 0;
+        ScaleCurveId        = 0;
+        MorphCurveId        = 0;
+        FacingCurveId       = 0;
+
+        Template            = nullptr;
+    }
+
+    uint32 MiscId;
+    uint32 AreaTriggerEntry;
+
+    int32 MoveCurveId;
+    int32 ScaleCurveId;
+    int32 MorphCurveId;
+    int32 FacingCurveId;
+
+    AreaTriggerTemplate const* Template;
 };
 
 #endif

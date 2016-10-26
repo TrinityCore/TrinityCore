@@ -2,10 +2,6 @@ DROP TABLE IF EXISTS `areatrigger_template`;
 CREATE TABLE `areatrigger_template` (
   `Id` int(10) unsigned NOT NULL,
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
-  `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `Data0` float NOT NULL DEFAULT '0',
   `Data1` float NOT NULL DEFAULT '0',
   `Data2` float NOT NULL DEFAULT '0',
@@ -43,6 +39,10 @@ DROP TABLE IF EXISTS `spell_areatrigger`;
 CREATE TABLE `spell_areatrigger` (
   `SpellMiscId` int(10) unsigned NOT NULL,
   `AreatriggerId` int(10) unsigned NOT NULL,
+  `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`SpellMiscId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

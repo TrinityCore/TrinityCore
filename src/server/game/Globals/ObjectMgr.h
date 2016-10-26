@@ -625,6 +625,7 @@ struct CharacterTemplate
 
 typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
 typedef std::unordered_map<uint32, AreaTriggerTemplate> AreaTriggerTemplateContainer;
+typedef std::unordered_map<uint32, AreaTriggerMiscTemplate> AreaTriggerMiscTemplateContainer;
 
 struct SceneTemplate
 {
@@ -1424,21 +1425,16 @@ class TC_GAME_API ObjectMgr
             if (itr != _areaTriggerTemplateStore.end())
                 return &itr->second;
 
-            // If not found, we search for default template
-            itr = _areaTriggerTemplateStore.find(0);
-            if (itr != _areaTriggerTemplateStore.end())
-                return &itr->second;
-
             return nullptr;
         }
 
-        uint32 GetAreaTriggerTemplateIdBySpellMiscId(uint32 spellMiscId) const
+        AreaTriggerMiscTemplate const* GetAreaTriggerMiscTemplate(uint32 id) const
         {
-            auto itr = _areaTriggerTemplateSpellMisc.find(spellMiscId);
+            auto itr = _areaTriggerTemplateSpellMisc.find(id);
             if (itr != _areaTriggerTemplateSpellMisc.end())
-                return itr->second;
+                return &itr->second;
 
-            return spellMiscId;
+            return nullptr;
         }
 
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
@@ -1604,7 +1600,7 @@ class TC_GAME_API ObjectMgr
 
         CharacterTemplateContainer _characterTemplateStore;
         AreaTriggerTemplateContainer _areaTriggerTemplateStore;
-        std::map<uint32, uint32> _areaTriggerTemplateSpellMisc;
+        AreaTriggerMiscTemplateContainer _areaTriggerTemplateSpellMisc;
         SceneTemplateContainer _sceneTemplateStore;
 
         enum CreatureLinkedRespawnType
