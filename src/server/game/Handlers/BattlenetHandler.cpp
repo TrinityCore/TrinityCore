@@ -31,6 +31,7 @@ void WorldSession::HandleBattlenetRequestRealmListTicket(WorldPackets::Battlenet
 
     WorldPackets::Battlenet::RealmListTicket realmListTicket;
     realmListTicket.Token = requestRealmListTicket.Token;
+    realmListTicket.Allow = true;
     realmListTicket.Ticket << "WorldserverRealmListTicket";
 
     SendPacket(realmListTicket.Write());

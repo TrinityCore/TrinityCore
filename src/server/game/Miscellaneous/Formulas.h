@@ -23,9 +23,28 @@
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
 #include "Player.h"
+#include "GameTables.h"
 
 namespace Trinity
 {
+    inline uint32 GetExpansionForLevel(uint32 level)
+    {
+        if (level < 60)
+            return EXPANSION_CLASSIC;
+        else if (level < 70)
+            return EXPANSION_THE_BURNING_CRUSADE;
+        else if (level < 80)
+            return EXPANSION_WRATH_OF_THE_LICH_KING;
+        else if (level < 85)
+            return EXPANSION_CATACLYSM;
+        else if (level < 90)
+            return EXPANSION_MISTS_OF_PANDARIA;
+        else if (level < 100)
+            return EXPANSION_WARLORDS_OF_DRAENOR;
+        else
+            return CURRENT_EXPANSION;
+    }
+
     namespace Honor
     {
         inline float hk_honor_at_level_f(uint8 level, float multiplier = 1.0f)
@@ -120,11 +139,8 @@ namespace Trinity
         {
             uint32 baseGain;
 
-            GtOCTLevelExperienceEntry const* BaseExpPlayer = sGtOCTLevelExperienceStore.EvaluateTable(pl_level - 1, 1);
-            GtOCTLevelExperienceEntry const* BaseExpMob = sGtOCTLevelExperienceStore.EvaluateTable(mob_level - 1, 1);
-
-            GtOCTLevelExperienceEntry const* CoefPlayer = sGtOCTLevelExperienceStore.EvaluateTable(pl_level - 1, 4);
-            GtOCTLevelExperienceEntry const* CoefMob = sGtOCTLevelExperienceStore.EvaluateTable(mob_level - 1, 4);
+            GtXpEntry const* xpPlayer = sXpGameTable.GetRow(pl_level);
+            GtXpEntry const* xpMob = sXpGameTable.GetRow(mob_level);
 
             if (mob_level >= pl_level)
             {
@@ -132,7 +148,7 @@ namespace Trinity
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
 
-                baseGain = uint32(round(BaseExpPlayer->Data * (1 + 0.05f * nLevelDiff)));
+                baseGain = uint32(round(xpPlayer->PerKill * (1 + 0.05f * nLevelDiff)));
             }
             else
             {
@@ -140,7 +156,7 @@ namespace Trinity
                 if (mob_level > gray_level)
                 {
                     uint8 ZD = GetZeroDifference(pl_level);
-                    baseGain = uint32(round(BaseExpMob->Data * ((1 - ((pl_level - mob_level) / float(ZD))) * (CoefMob->Data / CoefPlayer->Data))));
+                    baseGain = uint32(round(xpMob->PerKill * ((1 - ((pl_level - mob_level) / float(ZD))) * (xpMob->Divisor / xpPlayer->Divisor))));
                 }
                 else
                     baseGain = 0;
@@ -165,7 +181,7 @@ namespace Trinity
                 if (gain && creature)
                 {
                     // Players get only 10% xp for killing creatures of lower expansion levels than himself
-                    if ((uint32(creature->GetCreatureTemplate()->expansion) < GetExpansionForLevel(player->getLevel())))
+                    if ((uint32(creature->GetCreatureTemplate()->HealthScalingExpansion) < GetExpansionForLevel(player->getLevel())))
                         gain = uint32(round(gain / 10.0f));
 
                     if (creature->isElite())

@@ -84,12 +84,12 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
         case HighGuid::Transport:
         case HighGuid::GameObject:    return GetGameObject(p, guid);
         case HighGuid::Vehicle:
-        case HighGuid::Creature:          return GetCreature(p, guid);
+        case HighGuid::Creature:      return GetCreature(p, guid);
         case HighGuid::Pet:           return GetPet(p, guid);
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::AreaTrigger:   return GetAreaTrigger(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
-        default:                     return NULL;
+        default:                      return nullptr;
     }
 }
 
@@ -132,7 +132,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
             break;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Corpse* ObjectAccessor::GetCorpse(WorldObject const& u, ObjectGuid const& guid)
@@ -145,9 +145,14 @@ GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, ObjectGuid const
     return u.GetMap()->GetGameObject(guid);
 }
 
-Transport* ObjectAccessor::GetTransport(WorldObject const& u, ObjectGuid const& guid)
+Transport* ObjectAccessor::GetTransportOnMap(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetTransport(guid);
+}
+
+Transport* ObjectAccessor::GetTransport(ObjectGuid const& guid)
+{
+    return HashMapHolder<Transport>::Find(guid);
 }
 
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid const& guid)

@@ -29,13 +29,6 @@ namespace WorldPackets
 {
     namespace Mail
     {
-        struct MailAttachedItemEnchant
-        {
-            int32 Enchant = 0;
-            int32 Duration = 0;
-            int32 Charges = 0;
-        };
-
         struct MailAttachedItem
         {
             MailAttachedItem(::Item const* item, uint8 pos);
@@ -45,10 +38,11 @@ namespace WorldPackets
             Item::ItemInstance Item;
             int32 Count = 0;
             int32 Charges = 0;
-            int32 MaxDurability = 0;
+            uint32 MaxDurability = 0;
             int32 Durability = 0;
             bool Unlocked = false;
-            MailAttachedItemEnchant Enchants[8];
+            std::vector<Item::ItemEnchantData> Enchants;
+            std::vector<Item::ItemGemData> Gems;
         };
 
         struct MailListEntry
@@ -59,9 +53,9 @@ namespace WorldPackets
             uint8 SenderType = 0;
             Optional<ObjectGuid> SenderCharacter;
             Optional<uint32> AltSenderID;
-            int64 Cod = 0;
+            uint64 Cod = 0;
             int32 StationeryID = 0;
-            int64 SentMoney = 0;
+            uint64 SentMoney = 0;
             int32 Flags = 0;
             float DaysLeft = 0.0f;
             int32 MailTemplateID = 0;

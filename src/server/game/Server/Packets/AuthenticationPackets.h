@@ -31,6 +31,36 @@ namespace WorldPackets
 {
     namespace Auth
     {
+        class EarlyProcessClientPacket : public ClientPacket
+        {
+        public:
+            EarlyProcessClientPacket(OpcodeClient opcode, WorldPacket&& packet) : ClientPacket(opcode, std::move(packet)) { }
+
+            bool ReadNoThrow();
+        };
+
+        class Ping final : public EarlyProcessClientPacket
+        {
+        public:
+            Ping(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_PING, std::move(packet)) { }
+
+            uint32 Serial = 0;
+            uint32 Latency = 0;
+
+        private:
+            void Read();
+        };
+
+        class Pong final : public ServerPacket
+        {
+        public:
+            Pong(uint32 serial) : ServerPacket(SMSG_PONG, 4), Serial(serial) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Serial = 0;
+        };
+
         class AuthChallenge final : public ServerPacket
         {
         public:
@@ -43,18 +73,16 @@ namespace WorldPackets
             uint8 DosZeroBits = 0;
         };
 
-        class AuthSession final : public ClientPacket
+        class AuthSession final : public EarlyProcessClientPacket
         {
         public:
             static uint32 const DigestLength = 24;
 
-            AuthSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_SESSION, std::move(packet))
+            AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet))
             {
                 LocalChallenge.fill(0);
                 Digest.fill(0);
             }
-
-            void Read() override;
 
             uint16 Build = 0;
             int8 BuildType = 0;
@@ -64,9 +92,11 @@ namespace WorldPackets
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
-            ByteBuffer AddonInfo;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
+
+        private:
+            void Read() override;
         };
 
         class AuthResponse final : public ServerPacket
@@ -100,6 +130,7 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+                int32 Time = 0;
 
                 BillingInfo Billing;
 
@@ -173,23 +204,24 @@ namespace WorldPackets
             BigNumber iqmp;
         };
 
-        class AuthContinuedSession final : public ClientPacket
+        class AuthContinuedSession final : public EarlyProcessClientPacket
         {
         public:
             static uint32 const DigestLength = 24;
 
-            AuthContinuedSession(WorldPacket&& packet) : ClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
+            AuthContinuedSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
             {
                 LocalChallenge.fill(0);
                 Digest.fill(0);
             }
 
-            void Read() override;
-
             uint64 DosResponse = 0;
             uint64 Key = 0;
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
+
+        private:
+            void Read() override;
         };
 
         class ResumeComms final : public ServerPacket
@@ -200,15 +232,24 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class ConnectToFailed final : public ClientPacket
+        class ConnectToFailed final : public EarlyProcessClientPacket
         {
         public:
-            ConnectToFailed(WorldPacket&& packet) : ClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
-
-            void Read() override;
+            ConnectToFailed(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
 
             ConnectToSerial Serial = ConnectToSerial::None;
             uint8 Con = 0;
+
+        private:
+            void Read() override;
+        };
+
+        class EnableEncryption final : public ServerPacket
+        {
+        public:
+            EnableEncryption() : ServerPacket(SMSG_ENABLE_ENCRYPTION, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

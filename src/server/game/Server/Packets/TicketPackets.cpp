@@ -100,15 +100,14 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubm
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLog& chatlog)
 {
     uint32 linesCount = data.read<uint32>();
+    bool hasReportLineIndex = data.ReadBit();
+    data.ResetBitPos();
 
     for (uint32 i = 0; i < linesCount; i++)
         chatlog.Lines.emplace_back(data);
 
-    bool hasReportLineIndex = data.ReadBit();
     if (hasReportLineIndex)
         chatlog.ReportLineIndex = data.read<uint32>();
-
-    data.ResetBitPos();
 
     return data;
 }
@@ -206,10 +205,10 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 
     _worldPacket.ResetBitPos();
 
-    Note = _worldPacket.ReadString(noteLength);
-
     if (hasMailInfo)
         _worldPacket >> MailInfo;
+
+    Note = _worldPacket.ReadString(noteLength);
 
     if (hasCalendarInfo)
         _worldPacket >> CalenderInfo;

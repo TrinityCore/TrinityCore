@@ -24,12 +24,14 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 {
     //         0                1                2                3                 4                  5                6                7
     // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.skin, characters.face, characters.hairStyle, "
-    //  8                     9                       10                11               12              13                     14                     15
-    // "characters.hairColor, characters.facialStyle, characters.level, characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
-    //  16                    17                      18                   19                   20                     21                   22
+    //  8                     9                       10                         11                         12                         13
+    // "characters.hairColor, characters.facialStyle, characters.customDisplay1, characters.customDisplay2, characters.customDisplay3, characters.level, "
+    //  14               15              16                     17                     18
+    // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
+    //  19                    20                      21                   22                   23                     24                   25
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  23                     24               25                      26
-    // "character_banned.guid, characters.slot, characters.logout_time, character_declinedname.genitive"
+    //  26                     27               28                      29                            30
+    // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
@@ -41,18 +43,21 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     HairStyle         = fields[7].GetUInt8();
     HairColor         = fields[8].GetUInt8();
     FacialHair        = fields[9].GetUInt8();
-    Level             = fields[10].GetUInt8();
-    ZoneId            = int32(fields[11].GetUInt16());
-    MapId             = int32(fields[12].GetUInt16());
-    PreLoadPosition.x = fields[13].GetFloat();
-    PreLoadPosition.y = fields[14].GetFloat();
-    PreLoadPosition.z = fields[15].GetFloat();
+    CustomDisplay[0]  = fields[10].GetUInt8();
+    CustomDisplay[1]  = fields[11].GetUInt8();
+    CustomDisplay[2]  = fields[12].GetUInt8();
+    Level             = fields[13].GetUInt8();
+    ZoneId            = int32(fields[14].GetUInt16());
+    MapId             = int32(fields[15].GetUInt16());
+    PreLoadPosition.x = fields[16].GetFloat();
+    PreLoadPosition.y = fields[17].GetFloat();
+    PreLoadPosition.z = fields[18].GetFloat();
 
-    if (ObjectGuid::LowType guildId = fields[16].GetUInt64())
+    if (ObjectGuid::LowType guildId = fields[19].GetUInt64())
         GuildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
-    uint32 playerFlags  = fields[17].GetUInt32();
-    uint32 atLoginFlags = fields[18].GetUInt16();
+    uint32 playerFlags  = fields[20].GetUInt32();
+    uint32 atLoginFlags = fields[21].GetUInt16();
 
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
@@ -69,10 +74,10 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (atLoginFlags & AT_LOGIN_RENAME)
         Flags |= CHARACTER_FLAG_RENAME;
 
-    if (fields[23].GetUInt64())
+    if (fields[26].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[26].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[30].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -83,15 +88,16 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
         CustomizationFlag = CHAR_CUSTOMIZE_FLAG_RACE;
 
     Flags3 = 0;
+    Flags4 = 0;
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
     // show pet at selection character in character list only for non-ghost character
     if (!(playerFlags & PLAYER_FLAGS_GHOST) && (Class == CLASS_WARLOCK || Class == CLASS_HUNTER || Class == CLASS_DEATH_KNIGHT))
     {
-        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[19].GetUInt32()))
+        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[22].GetUInt32()))
         {
-            Pet.CreatureDisplayId = fields[20].GetUInt32();
-            Pet.Level = fields[21].GetUInt16();
+            Pet.CreatureDisplayId = fields[23].GetUInt32();
+            Pet.Level = fields[24].GetUInt16();
             Pet.CreatureFamily = creatureInfo->family;
         }
     }
@@ -100,9 +106,11 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     ProfessionIds[0] = 0;
     ProfessionIds[1] = 0;
 
-    Tokenizer equipment(fields[22].GetString(), ' ');
-    ListPosition = fields[24].GetUInt8();
-    LastPlayedTime = fields[25].GetUInt32();
+    Tokenizer equipment(fields[25].GetString(), ' ');
+    ListPosition = fields[27].GetUInt8();
+    LastPlayedTime = fields[28].GetUInt32();
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(Class, fields[29].GetUInt8()))
+        SpecID = spec->ID;
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -119,8 +127,22 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBit(IsDeletedCharacters);
+    _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
+    _worldPacket.WriteBit(HasDemonHunterOnRealm);
+    _worldPacket.WriteBit(HasLevel70OnRealm);
+    _worldPacket.WriteBit(Unknown7x);
+    _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
     _worldPacket << uint32(Characters.size());
     _worldPacket << uint32(FactionChangeRestrictions.size());
+
+    if (DisabledClassesMask)
+        _worldPacket << uint32(*DisabledClassesMask);
+
+    for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
+    {
+        _worldPacket << int32(rule.Mask);
+        _worldPacket << uint8(rule.Race);
+    }
 
     for (CharacterInfo const& charInfo : Characters)
     {
@@ -134,6 +156,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket << uint8(charInfo.HairStyle);
         _worldPacket << uint8(charInfo.HairColor);
         _worldPacket << uint8(charInfo.FacialHair);
+        _worldPacket.append(charInfo.CustomDisplay.data(), charInfo.CustomDisplay.size());
         _worldPacket << uint8(charInfo.Level);
         _worldPacket << int32(charInfo.ZoneId);
         _worldPacket << int32(charInfo.MapId);
@@ -157,6 +180,9 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         }
 
         _worldPacket << uint32(charInfo.LastPlayedTime);
+        _worldPacket << uint16(charInfo.SpecID);
+        _worldPacket << uint32(charInfo.Unknown703);
+        _worldPacket << uint32(charInfo.Flags4);
         _worldPacket.WriteBits(charInfo.Name.length(), 6);
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
@@ -164,12 +190,6 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket.FlushBits();
 
         _worldPacket.WriteString(charInfo.Name);
-    }
-
-    for (RestrictedFactionChangeRuleInfo const& rule : FactionChangeRestrictions)
-    {
-        _worldPacket << int32(rule.Mask);
-        _worldPacket << uint8(rule.Race);
     }
 
     return &_worldPacket;
@@ -190,6 +210,7 @@ void WorldPackets::Character::CreateCharacter::Read()
     _worldPacket >> CreateInfo->HairColor;
     _worldPacket >> CreateInfo->FacialHairStyle;
     _worldPacket >> CreateInfo->OutfitId;
+    _worldPacket.read(CreateInfo->CustomDisplay.data(), CreateInfo->CustomDisplay.size());
     CreateInfo->Name = _worldPacket.ReadString(nameLength);
     if (hasTemplateSet)
         CreateInfo->TemplateSet = _worldPacket.read<int32>();
@@ -244,6 +265,7 @@ void WorldPackets::Character::CharCustomize::Read()
     _worldPacket >> CustomizeInfo->HairStyleID;
     _worldPacket >> CustomizeInfo->FacialHairStyleID;
     _worldPacket >> CustomizeInfo->FaceID;
+    _worldPacket.read(CustomizeInfo->CustomDisplay.data(), CustomizeInfo->CustomDisplay.size());
     CustomizeInfo->CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
 }
 
@@ -255,32 +277,16 @@ void WorldPackets::Character::CharRaceOrFactionChange::Read()
 
     uint32 nameLength = _worldPacket.ReadBits(6);
 
-    bool const hasSkinID = _worldPacket.ReadBit();
-    bool const hasHairColorID = _worldPacket.ReadBit();
-    bool const hasHairStyleID = _worldPacket.ReadBit();
-    bool const hasFacialHairStyleID = _worldPacket.ReadBit();
-    bool const hasFaceID = _worldPacket.ReadBit();
-
     _worldPacket >> RaceOrFactionChangeInfo->Guid;
     _worldPacket >> RaceOrFactionChangeInfo->SexID;
     _worldPacket >> RaceOrFactionChangeInfo->RaceID;
-
+    _worldPacket >> RaceOrFactionChangeInfo->SkinID;
+    _worldPacket >> RaceOrFactionChangeInfo->HairColorID;
+    _worldPacket >> RaceOrFactionChangeInfo->HairStyleID;
+    _worldPacket >> RaceOrFactionChangeInfo->FacialHairStyleID;
+    _worldPacket >> RaceOrFactionChangeInfo->FaceID;
+    _worldPacket.read(RaceOrFactionChangeInfo->CustomDisplay.data(), RaceOrFactionChangeInfo->CustomDisplay.size());
     RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
-
-    if (hasSkinID)
-        RaceOrFactionChangeInfo->SkinID = _worldPacket.read<uint8>();
-
-    if (hasHairColorID)
-        RaceOrFactionChangeInfo->HairColorID = _worldPacket.read<uint8>();
-
-    if (hasHairStyleID)
-        RaceOrFactionChangeInfo->HairStyleID = _worldPacket.read<uint8>();
-
-    if (hasFacialHairStyleID)
-        RaceOrFactionChangeInfo->FacialHairStyleID = _worldPacket.read<uint8>();
-
-    if (hasFaceID)
-        RaceOrFactionChangeInfo->FaceID = _worldPacket.read<uint8>();
 }
 
 WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
@@ -300,6 +306,7 @@ WorldPacket const* WorldPackets::Character::CharFactionChangeResult::Write()
         _worldPacket << uint8(Display->FacialHairStyleID);
         _worldPacket << uint8(Display->FaceID);
         _worldPacket << uint8(Display->RaceID);
+        _worldPacket.append(Display->CustomDisplay.data(), Display->CustomDisplay.size());
         _worldPacket.WriteString(Display->Name);
     }
 
@@ -323,10 +330,8 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     return &_worldPacket;
 }
 
-WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
-    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet))
 {
-
 }
 
 void WorldPackets::Character::ReorderCharacters::Read()
@@ -383,17 +388,16 @@ WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Character::LogoutRequest::Read()
+{
+    IdleLogout = _worldPacket.ReadBit();
+}
+
 WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
 {
     _worldPacket << int32(LogoutResult);
     _worldPacket.WriteBit(Instant);
     _worldPacket.FlushBits();
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Character::LogoutComplete::Write()
-{
-    _worldPacket << SwitchToCharacter;
     return &_worldPacket;
 }
 
@@ -407,8 +411,6 @@ WorldPacket const* WorldPackets::Character::InitialSetup::Write()
 {
     _worldPacket << uint8(ServerExpansionLevel);
     _worldPacket << uint8(ServerExpansionTier);
-    _worldPacket << int32(ServerRegionID);
-    _worldPacket << uint32(RaidOrigin);
 
     return &_worldPacket;
 }
@@ -433,16 +435,6 @@ WorldPacket const* WorldPackets::Character::PlayedTime::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Character::ShowingCloak::Read()
-{
-    ShowCloak = _worldPacket.ReadBit();
-}
-
-void WorldPackets::Character::ShowingHelm::Read()
-{
-    ShowHelm = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Character::SetTitle::Read()
 {
     _worldPacket >> TitleID;
@@ -455,6 +447,8 @@ void WorldPackets::Character::AlterApperance::Read()
     _worldPacket >> NewFacialHair;
     _worldPacket >> NewSkinColor;
     _worldPacket >> NewFace;
+    for (std::size_t i = 0; i < NewCustomDisplay.size(); ++i)
+        _worldPacket >> NewCustomDisplay[i];
 }
 
 WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()
@@ -522,6 +516,7 @@ WorldPackets::Character::CharCustomizeResponse::CharCustomizeResponse(WorldPacke
     FacialHairStyleID = info->FacialHairStyleID;
     FaceID = info->FaceID;
     CharName = info->CharName;
+    CustomDisplay = info->CustomDisplay;
 }
 
 WorldPacket const* WorldPackets::Character::CharCustomizeResponse::Write()
@@ -533,6 +528,7 @@ WorldPacket const* WorldPackets::Character::CharCustomizeResponse::Write()
     _worldPacket << uint8(HairStyleID);
     _worldPacket << uint8(FacialHairStyleID);
     _worldPacket << uint8(FaceID);
+    _worldPacket.append(CustomDisplay.data(), CustomDisplay.size());
     _worldPacket.WriteBits(CharName.length(), 6);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(CharName);

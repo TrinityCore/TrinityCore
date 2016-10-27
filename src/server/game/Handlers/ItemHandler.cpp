@@ -201,8 +201,21 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     Item* dstItem = _player->GetItemByPos(dest);
     if (!dstItem)                                      // empty slot, simple case
     {
+        if (!srcItem->GetChildItem().IsEmpty())
+        {
+            InventoryResult childEquipResult = _player->CanEquipChildItem(srcItem);
+            if (childEquipResult != EQUIP_ERR_OK)
+            {
+                _player->SendEquipError(msg, srcItem);
+                return;
+            }
+        }
+
         _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, true);
         _player->EquipItem(dest, srcItem, true);
+        if (!srcItem->GetChildItem().IsEmpty())
+            _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
+
         _player->AutoUnequipOffhandIfNeed();
     }
     else                                                    // have currently equipped item, not simple case
@@ -217,52 +230,75 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
             return;
         }
 
-        // check dest->src move possibility
-        ItemPosCountVec sSrc;
-        uint16 eSrc = 0;
-        if (_player->IsInventoryPos(src))
+        if (!dstItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD))
         {
-            msg = _player->CanStoreItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+            // check dest->src move possibility
+            ItemPosCountVec sSrc;
+            uint16 eSrc = 0;
+            if (_player->IsInventoryPos(src))
+            {
+                msg = _player->CanStoreItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanStoreItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            }
+            else if (_player->IsBankPos(src))
+            {
+                msg = _player->CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanBankItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
+                if (msg != EQUIP_ERR_OK)
+                    msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            }
+            else if (_player->IsEquipmentPos(src))
+            {
+                msg = _player->CanEquipItem(autoEquipItem.Slot, eSrc, dstItem, true);
+                if (msg == EQUIP_ERR_OK)
+                    msg = _player->CanUnequipItem(eSrc, true);
+            }
+
+            if (msg == EQUIP_ERR_OK && Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
+                msg = _player->CanEquipChildItem(srcItem);
+
             if (msg != EQUIP_ERR_OK)
-                msg = _player->CanStoreItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            {
+                _player->SendEquipError(msg, dstItem, srcItem);
+                return;
+            }
+
+            // now do moves, remove...
+            _player->RemoveItem(dstbag, dstslot, false);
+            _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, false);
+
+            // add to dest
+            _player->EquipItem(dest, srcItem, true);
+
+            // add to src
+            if (_player->IsInventoryPos(src))
+                _player->StoreItem(sSrc, dstItem, true);
+            else if (_player->IsBankPos(src))
+                _player->BankItem(sSrc, dstItem, true);
+            else if (_player->IsEquipmentPos(src))
+                _player->EquipItem(eSrc, dstItem, true);
+
+            if (Player::IsEquipmentPos(dest) && !srcItem->GetChildItem().IsEmpty())
+                _player->EquipChildItem(autoEquipItem.PackSlot, autoEquipItem.Slot, srcItem);
         }
-        else if (_player->IsBankPos(src))
+        else
         {
-            msg = _player->CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanBankItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, dstItem, true);
-            if (msg != EQUIP_ERR_OK)
-                msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, sSrc, dstItem, true);
+            if (Item* parentItem = _player->GetItemByGuid(dstItem->GetGuidValue(ITEM_FIELD_CREATOR)))
+            {
+                if (Player::IsEquipmentPos(dest))
+                {
+                    _player->AutoUnequipChildItem(parentItem);
+                    // dest is now empty
+                    _player->SwapItem(src, dest);
+                    // src is now empty
+                    _player->SwapItem(parentItem->GetPos(), src);
+                }
+            }
         }
-        else if (_player->IsEquipmentPos(src))
-        {
-            msg = _player->CanEquipItem(autoEquipItem.Slot, eSrc, dstItem, true);
-            if (msg == EQUIP_ERR_OK)
-                msg = _player->CanUnequipItem(eSrc, true);
-        }
-
-        if (msg != EQUIP_ERR_OK)
-        {
-            _player->SendEquipError(msg, dstItem, srcItem);
-            return;
-        }
-
-        // now do moves, remove...
-        _player->RemoveItem(dstbag, dstslot, false);
-        _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, false);
-
-        // add to dest
-        _player->EquipItem(dest, srcItem, true);
-
-        // add to src
-        if (_player->IsInventoryPos(src))
-            _player->StoreItem(sSrc, dstItem, true);
-        else if (_player->IsBankPos(src))
-            _player->BankItem(sSrc, dstItem, true);
-        else if (_player->IsEquipmentPos(src))
-            _player->EquipItem(eSrc, dstItem, true);
 
         _player->AutoUnequipOffhandIfNeed();
     }
@@ -293,7 +329,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
         return;
     }
 
-    if (item->GetTemplate()->GetFlags() & ITEM_FLAG_INDESTRUCTIBLE)
+    if (item->GetTemplate()->GetFlags() & ITEM_FLAG_NO_USER_DESTROY)
     {
         _player->SendEquipError(EQUIP_ERR_DROP_BOUND_ITEM, NULL, NULL);
         return;
@@ -539,8 +575,6 @@ void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LIST_INVENTORY");
-
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
@@ -585,12 +619,12 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             if (!_player->IsGameMaster()) // ignore conditions if GM on
             {
                 // Respect allowed class
-                if (!(itemTemplate->GetAllowableClass() & _player->getClassMask()) && itemTemplate->GetBonding() == BIND_WHEN_PICKED_UP)
+                if (!(itemTemplate->GetAllowableClass() & _player->getClassMask()) && itemTemplate->GetBonding() == BIND_ON_ACQUIRE)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((itemTemplate->GetFlags2() & ITEM_FLAG2_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->GetFlags2() & ITEM_FLAG2_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                if ((itemTemplate->GetFlags2() & ITEM_FLAG2_FACTION_HORDE && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE && _player->GetTeam() == HORDE))
                     continue;
 
                 // Items sold out are not displayed in list
@@ -746,7 +780,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
         return;
     }
 
-    if (!(gift->GetTemplate()->GetFlags() & ITEM_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
+    if (!(gift->GetTemplate()->GetFlags() & ITEM_FLAG_IS_WRAPPER)) // cheating: non-wrapper wrapper
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -872,22 +906,38 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     //this slot is excepted when applying / removing meta gem bonus
     uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : uint8(NULL_SLOT);
 
-    Item* Gems[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = !socketGems.GemItem[i].IsEmpty() ? _player->GetItemByGuid(socketGems.GemItem[i]) : NULL;
+    Item* gems[MAX_GEM_SOCKETS];
+    memset(gems, 0, sizeof(gems));
+    ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
+    memset(gemData, 0, sizeof(gemData));
+    GemPropertiesEntry const* gemProperties[MAX_GEM_SOCKETS];
+    memset(gemProperties, 0, sizeof(gemProperties));
+    ItemDynamicFieldGems const* oldGemData[MAX_GEM_SOCKETS];
+    memset(oldGemData, 0, sizeof(oldGemData));
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+    {
+        if (Item* gem = _player->GetItemByGuid(socketGems.GemItem[i]))
+        {
+            gems[i] = gem;
+            gemData[i].ItemId = gem->GetEntry();
+            gemData[i].Context = gem->GetUInt32Value(ITEM_FIELD_CONTEXT);
+            for (std::size_t b = 0; b < gem->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() && b < 16; ++b)
+                gemData[i].BonusListIDs[b] = gem->GetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, b);
 
-    GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GetGemProperties()) : NULL;
+            gemProperties[i] = sGemPropertiesStore.LookupEntry(gem->GetTemplate()->GetGemProperties());
+        }
+
+        oldGemData[i] = itemTarget->GetGem(i);
+    }
 
     // Find first prismatic socket
-    int32 firstPrismatic = 0;
+    uint32 firstPrismatic = 0;
     while (firstPrismatic < MAX_GEM_SOCKETS && itemTarget->GetSocketColor(firstPrismatic))
         ++firstPrismatic;
 
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)                //check for hack maybe
     {
-        if (!GemProps[i])
+        if (!gemProperties[i])
             continue;
 
         // tried to put gem in socket where no socket exists (take care about prismatic sockets)
@@ -901,65 +951,46 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                 return;
         }
 
-        // tried to put normal gem in meta socket
-        if (itemTarget->GetSocketColor(i) == SOCKET_COLOR_META && GemProps[i]->Type != SOCKET_COLOR_META)
-            return;
-
-        // tried to put meta gem in normal socket
-        if (itemTarget->GetSocketColor(i) != SOCKET_COLOR_META && GemProps[i]->Type == SOCKET_COLOR_META)
-            return;
-
-        // tried to put normal gem in cogwheel socket
-        if (itemTarget->GetSocketColor(i) == SOCKET_COLOR_COGWHEEL && GemProps[i]->Type != SOCKET_COLOR_COGWHEEL)
-            return;
-
-        // tried to put cogwheel gem in normal socket
-        if (itemTarget->GetSocketColor(i) != SOCKET_COLOR_COGWHEEL && GemProps[i]->Type == SOCKET_COLOR_COGWHEEL)
-            return;
-    }
-
-    uint32 GemEnchants[MAX_GEM_SOCKETS];
-    uint32 OldEnchants[MAX_GEM_SOCKETS];
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get new and old enchantments
-    {
-        GemEnchants[i] = (GemProps[i]) ? GemProps[i]->EnchantID : 0;
-        OldEnchants[i] = itemTarget->GetEnchantmentId(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i));
+        // Gem must match socket color
+        if (SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] != gemProperties[i]->Type)
+        {
+            // unless its red, blue, yellow or prismatic
+            if (!(SocketColorToGemTypeMask[itemTarget->GetSocketColor(i)] & SOCKET_COLOR_PRISMATIC) || !(gemProperties[i]->Type & SOCKET_COLOR_PRISMATIC))
+                return;
+        }
     }
 
     // check unique-equipped conditions
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (!Gems[i])
+        if (!gems[i])
             continue;
 
         // continue check for case when attempt add 2 similar unique equipped gems in one item.
-        ItemTemplate const* iGemProto = Gems[i]->GetTemplate();
+        ItemTemplate const* iGemProto = gems[i]->GetTemplate();
 
         // unique item (for new and already placed bit removed enchantments
-        if (iGemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPED)
+        if (iGemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPABLE)
         {
-            for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
+            for (uint32 j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
                 if (i == j)                                    // skip self
                     continue;
 
-                if (Gems[j])
+                if (gems[j])
                 {
-                    if (iGemProto->GetId() == Gems[j]->GetEntry())
+                    if (iGemProto->GetId() == gems[j]->GetEntry())
                     {
                         _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                         return;
                     }
                 }
-                else if (OldEnchants[j])
+                else if (oldGemData[j])
                 {
-                    if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                    if (iGemProto->GetId() == oldGemData[j]->ItemId)
                     {
-                        if (iGemProto->GetId() == enchantEntry->SRCItemID)
-                        {
-                            _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
-                            return;
-                        }
+                        _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
+                        return;
                     }
                 }
             }
@@ -974,19 +1005,18 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                 // NOTE: limitEntry->mode is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
                 {
-                    if (Gems[j])
+                    if (gems[j])
                     {
                         // new gem
-                        if (iGemProto->GetItemLimitCategory() == Gems[j]->GetTemplate()->GetItemLimitCategory())
+                        if (iGemProto->GetItemLimitCategory() == gems[j]->GetTemplate()->GetItemLimitCategory())
                             ++limit_newcount;
                     }
-                    else if (OldEnchants[j])
+                    else if (oldGemData[j])
                     {
                         // existing gem
-                        if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
-                            if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->SRCItemID))
-                                if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
-                                    ++limit_newcount;
+                        if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(oldGemData[j]->ItemId))
+                            if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
+                                ++limit_newcount;
                     }
                 }
 
@@ -1001,7 +1031,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
         // for equipped item check all equipment for duplicate equipped gems
         if (itemTarget->IsEquipped())
         {
-            if (InventoryResult res = _player->CanEquipUniqueItem(Gems[i], slot, std::max(limit_newcount, 0)))
+            if (InventoryResult res = _player->CanEquipUniqueItem(gems[i], slot, std::max(limit_newcount, 0)))
             {
                 _player->SendEquipError(res, itemTarget, NULL);
                 return;
@@ -1014,25 +1044,35 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
     //if a meta gem is being equipped, all information has to be written to the item before testing if the conditions for the gem are met
 
-    //remove ALL enchants
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), false);
+    //remove ALL mods - gem can change item level
+    if (itemTarget->IsEquipped())
+        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), false);
 
-    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+    for (uint16 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        if (GemEnchants[i])
+        if (gems[i])
         {
-            itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT+i), GemEnchants[i], 0, 0, _player->GetGUID());
-            if (Item* guidItem = _player->GetItemByGuid(socketGems.GemItem[i]))
-            {
-                uint32 gemCount = 1;
-                _player->DestroyItemCount(guidItem, gemCount, true);
-            }
+            itemTarget->SetGem(i, &gemData[i]);
+
+            if (gemProperties[i] && gemProperties[i]->EnchantID)
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
+
+            uint32 gemCount = 1;
+            _player->DestroyItemCount(gems[i], gemCount, true);
         }
     }
 
-    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
-        _player->ApplyEnchantment(itemTarget, EnchantmentSlot(enchant_slot), true);
+    if (itemTarget->IsEquipped())
+        _player->_ApplyItemMods(itemTarget, itemTarget->GetSlot(), true);
+
+    if (Item* childItem = _player->GetChildItemByGuid(itemTarget->GetChildItem()))
+    {
+        if (childItem->IsEquipped())
+            _player->_ApplyItemMods(childItem, childItem->GetSlot(), false);
+        childItem->CopyArtifactDataFromParent(itemTarget);
+        if (childItem->IsEquipped())
+            _player->_ApplyItemMods(childItem, childItem->GetSlot(), true);
+    }
 
     bool SocketBonusToBeActivated = itemTarget->GemsFitSockets();//current socketbonus state
     if (SocketBonusActivated ^ SocketBonusToBeActivated)     //if there was a change...
@@ -1099,164 +1139,6 @@ void WorldSession::HandleItemRefund(WorldPackets::Item::ItemPurchaseRefund& pack
     GetPlayer()->RefundItem(item);
 }
 
-void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems& transmogrifyItems)
-{
-    Player* player = GetPlayer();
-    // Validate
-    if (!player->GetNPCIfCanInteractWith(transmogrifyItems.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER))
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s not found or player can't interact with it.", transmogrifyItems.Npc.ToString().c_str());
-        return;
-    }
-
-    int64 cost = 0;
-    std::unordered_map<Item*, Item*> transmogItems;
-    std::unordered_map<Item*, std::pair<VoidStorageItem*, BonusData>> transmogVoidItems;
-    std::vector<Item*> resetAppearanceItems;
-
-    for (WorldPackets::Item::TransmogrifyItem const& transmogItem : transmogrifyItems.Items)
-    {
-        // slot of the transmogrified item
-        if (transmogItem.Slot >= EQUIPMENT_SLOT_END)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify wrong slot (%u) when transmogrifying items.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
-            return;
-        }
-
-        // transmogrified item
-        Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, transmogItem.Slot);
-        if (!itemTransmogrified)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
-            return;
-        }
-        if (player->CanUseItem(itemTransmogrified->GetTemplate()) != EQUIP_ERR_OK)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify an unequippable item in a valid slot (slot: %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.Slot);
-            return;
-        }
-
-        WorldPackets::Item::ItemInstance itemInstance;
-        BonusData const* bonus = nullptr;
-        if (transmogItem.SrcItemGUID)
-        {
-            // guid of the transmogrifier item
-            Item* itemTransmogrifier = player->GetItemByGuid(*transmogItem.SrcItemGUID);
-            if (!itemTransmogrifier)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
-                return;
-            }
-            if (player->CanUseItem(itemTransmogrifier->GetTemplate()) != EQUIP_ERR_OK)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an unequippable item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
-                return;
-            }
-
-            itemInstance.Initialize(itemTransmogrifier);
-            bonus = itemTransmogrifier->GetBonus();
-            transmogItems[itemTransmogrified] = itemTransmogrifier;
-        }
-        else if (transmogItem.SrcVoidItemGUID)
-        {
-            // guid of the transmogrifier item
-            uint8 slot;
-            VoidStorageItem* itemTransmogrifier = player->GetVoidStorageItem(transmogItem.SrcVoidItemGUID->GetCounter(), slot);
-            if (!itemTransmogrifier)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid void storage item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcVoidItemGUID->ToString().c_str());
-                return;
-            }
-            ItemTemplate const * transmogrifierTemplate = sObjectMgr->GetItemTemplate(itemTransmogrifier->ItemEntry);
-            if (player->CanUseItem(transmogrifierTemplate) != EQUIP_ERR_OK)
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an unequippable void storage item (%s).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcVoidItemGUID->ToString().c_str());
-                return;
-            }
-
-            itemInstance.Initialize(itemTransmogrifier);
-            std::pair<VoidStorageItem*, BonusData>& transmogData = transmogVoidItems[itemTransmogrified];
-            transmogData.first = itemTransmogrifier;
-            transmogData.second.Initialize(itemInstance);
-            bonus = &transmogData.second;
-        }
-        else
-        {
-            resetAppearanceItems.push_back(itemTransmogrified);
-            continue;
-        }
-
-        // entry of transmogrifier and from packet
-        if (itemInstance != transmogItem.Item)
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) tried to transmogrify with an invalid item instance data for %s.", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SrcItemGUID->ToString().c_str());
-            return;
-        }
-
-        // validity of the transmogrification items
-        if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, transmogItem.Item, bonus))
-        {
-            TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - Player (%s, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), itemTransmogrified->GetEntry(), transmogItem.Item.ItemID);
-            return;
-        }
-
-        // add cost
-        cost += itemTransmogrified->GetSpecialPrice();
-    }
-
-    if (cost) // 0 cost if reverting look
-    {
-        if (!player->HasEnoughMoney(cost))
-            return;
-        player->ModifyMoney(-cost);
-    }
-
-    // Everything is fine, proceed
-    for (auto& transmogPair : transmogItems)
-    {
-        Item* transmogrified = transmogPair.first;
-        Item* transmogrifier = transmogPair.second;
-
-        transmogrified->SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, transmogrifier->GetEntry());
-        transmogrified->SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, transmogrifier->GetAppearanceModId());
-        player->SetVisibleItemSlot(transmogrified->GetSlot(), transmogrified);
-
-        transmogrified->SetNotRefundable(player);
-        transmogrified->ClearSoulboundTradeable(player);
-
-        transmogrifier->SetNotRefundable(player);
-        transmogrifier->ClearSoulboundTradeable(player);
-
-        if (transmogrifier->GetTemplate()->GetBonding() == BIND_WHEN_EQUIPED || transmogrifier->GetTemplate()->GetBonding() == BIND_WHEN_USE)
-            transmogrifier->SetBinding(true);
-
-        transmogrified->SetState(ITEM_CHANGED, player);
-    }
-
-    for (auto& transmogVoirPair : transmogVoidItems)
-    {
-        Item* transmogrified = transmogVoirPair.first;
-        VoidStorageItem* transmogrifier = transmogVoirPair.second.first;
-        BonusData& bonus = transmogVoirPair.second.second;
-
-        transmogrified->SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, transmogrifier->ItemEntry);
-        transmogrified->SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, bonus.AppearanceModID);
-        player->SetVisibleItemSlot(transmogrified->GetSlot(), transmogrified);
-
-        transmogrified->SetNotRefundable(player);
-        transmogrified->ClearSoulboundTradeable(player);
-        transmogrified->SetState(ITEM_CHANGED, player);
-    }
-
-    for (Item* item : resetAppearanceItems)
-    {
-        item->SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, 0);
-        item->SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD, 0);
-        item->SetState(ITEM_CHANGED, player);
-        player->SetVisibleItemSlot(item->GetSlot(), item);
-    }
-}
-
 bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
 {
     // bankerGUID parameter is optional, set to 0 by default.
@@ -1281,14 +1163,81 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     if (!item)
         return;
 
-    ItemToBattlePetSpeciesEntry const* itemToBattlePetSpecies = sItemToBattlePetSpeciesStore.LookupEntry(item->GetEntry());
-    if (!itemToBattlePetSpecies)
+    if (item->GetTemplate()->Effects.size() < 2)
         return;
 
-    BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(itemToBattlePetSpecies->BattlePetSpeciesID);
-    if (!battlePetSpecies)
-        return;
+    uint32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
+    for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
+    {
+        if (entry->SummonSpellID == spellToLearn)
+        {
+            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
+            break;
+        }
+    }
 
-    GetBattlePetMgr()->AddPet(battlePetSpecies->ID, battlePetSpecies->CreatureID, BattlePetMgr::RollPetBreed(battlePetSpecies->ID), BattlePetMgr::GetDefaultPetQuality(battlePetSpecies->ID));
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+}
+
+void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeItem)
+{
+    WorldPackets::Item::ItemUpgradeResult itemUpgradeResult;
+    if (!_player->GetNPCIfCanInteractWith(upgradeItem.ItemMaster, UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - %s not found or player can't interact with it.", upgradeItem.ItemMaster.ToString().c_str());
+        itemUpgradeResult.Success = false;
+        SendPacket(itemUpgradeResult.Write());
+        return;
+    }
+
+    Item* item = _player->GetItemByGuid(upgradeItem.ItemGUID);
+    if (!item)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems: Item %s not found!", upgradeItem.ItemGUID.ToString().c_str());
+        itemUpgradeResult.Success = false;
+        SendPacket(itemUpgradeResult.Write());
+        return;
+    }
+
+    ItemUpgradeEntry const* itemUpgradeEntry = sItemUpgradeStore.LookupEntry(upgradeItem.UpgradeID);
+    if (!itemUpgradeEntry)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) not found.", upgradeItem.UpgradeID);
+        itemUpgradeResult.Success = false;
+        SendPacket(itemUpgradeResult.Write());
+        return;
+    }
+
+    // Check if player has enough currency
+    if (!_player->HasCurrency(itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost))
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost);
+        itemUpgradeResult.Success = false;
+        SendPacket(itemUpgradeResult.Write());
+        return;
+    }
+
+    uint32 currentUpgradeId = item->GetModifier(ITEM_MODIFIER_UPGRADE_ID);
+    if (currentUpgradeId != itemUpgradeEntry->PrevItemUpgradeID)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpgradeEntry->ID, currentUpgradeId);
+        itemUpgradeResult.Success = false;
+        SendPacket(itemUpgradeResult.Write());
+        return;
+    }
+
+    itemUpgradeResult.Success = true;
+    SendPacket(itemUpgradeResult.Write());
+
+    if (item->IsEquipped())
+        _player->_ApplyItemBonuses(item, item->GetSlot(), false);
+
+    item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemUpgradeEntry->ID);
+
+    if (item->IsEquipped())
+        _player->_ApplyItemBonuses(item, item->GetSlot(), true);
+
+    item->SetState(ITEM_CHANGED, _player);
+    _player->ModifyCurrency(itemUpgradeEntry->CurrencyID, -int32(itemUpgradeEntry->CurrencyCost));
 }

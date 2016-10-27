@@ -17,6 +17,7 @@
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "BattlefieldTB.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -53,8 +54,6 @@ void BattlefieldMgr::InitBattlefield()
         TC_LOG_INFO("bg.battlefield", "Battlefield: Wintergrasp successfully initiated.");
     }
 
-    /*
-    For Cataclysm: Tol Barad
     Battlefield* tb = new BattlefieldTB;
     // respawn, init variables
     if (!tb->SetupBattlefield())
@@ -67,7 +66,6 @@ void BattlefieldMgr::InitBattlefield()
         _battlefieldSet.push_back(tb);
         TC_LOG_DEBUG("bg.battlefield", "Battlefield: Tol Barad successfully initiated.");
     }
-    */
 }
 
 void BattlefieldMgr::AddZone(uint32 zoneId, Battlefield* bf)

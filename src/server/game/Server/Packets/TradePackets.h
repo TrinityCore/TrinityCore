@@ -160,13 +160,13 @@ namespace WorldPackets
                 bool Lock = false;
                 uint32 MaxDurability = 0;
                 uint32 Durability = 0;
-                int32 SocketEnchant[MAX_GEM_SOCKETS] = { };
+                std::vector<Item::ItemGemData> Gems;
             };
 
             struct TradeItem
             {
                 uint8 Slot = 0;
-                int32 EntryID = 0;
+                Item::ItemInstance Item;
                 int32 StackCount = 0;
                 ObjectGuid GiftCreator;
                 Optional<UnwrappedTradeItem> Unwrapped;

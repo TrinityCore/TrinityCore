@@ -246,9 +246,20 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        // Sets the entrance location (WorldSafeLoc) id
+        void SetEntranceLocation(uint32 worldSafeLocationId);
+
+        // Sets a temporary entrance that does not get saved to db
+        void SetTemporaryEntranceLocation(uint32 worldSafeLocationId) { _temporaryEntranceId = worldSafeLocationId; }
+
+        // Get's the current entrance id
+        uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
+
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
         void SendEncounterEnd();
+
+        void SendBossKillCredit(uint32 encounterId);
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
@@ -307,6 +318,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 _entranceId;
+        uint32 _temporaryEntranceId;
         uint32 _combatResurrectionTimer;
         uint8 _combatResurrectionCharges; // the counter for available battle resurrections
         bool _combatResurrectionTimerStarted;

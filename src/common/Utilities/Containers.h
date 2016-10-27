@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "Random.h"
-#include "Util.h"
 #include <algorithm>
 #include <functional>
 #include <list>
@@ -45,7 +44,7 @@ namespace Trinity
         }
 
         template<class T, class Predicate>
-        void RandomResizeList(std::list<T> &list, Predicate& predicate, uint32 size)
+        void RandomResizeList(std::list<T> &list, Predicate predicate, uint32 size)
         {
             //! First use predicate filter
             std::list<T> listCopy;
@@ -84,8 +83,7 @@ namespace Trinity
         template <class C>
         typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights)
         {
-            Trinity::discrete_distribution_param<uint32> ddParam(weights.begin(), weights.end());
-            std::discrete_distribution<uint32> dd(ddParam);
+            std::discrete_distribution<uint32> dd(weights.begin(), weights.end());
             typename C::const_iterator it = container.begin();
             std::advance(it, dd(SFMTEngine::Instance()));
             return it;

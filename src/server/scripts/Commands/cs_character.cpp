@@ -270,7 +270,7 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = target->getGender() == GENDER_MALE ? titleInfo->NameMale_lang : titleInfo->NameFemale_lang;
+                std::string name = (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()];
                 if (name.empty())
                     continue;
 
@@ -433,7 +433,7 @@ public:
         if (isalpha(levelStr[0]))
         {
             nameStr = levelStr;
-            levelStr = NULL;                                    // current level will used
+            levelStr = nullptr;                                    // current level will used
         }
 
         Player* target;
@@ -559,7 +559,7 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->Name_lang : "#Not found#";
+            char const* factionName = factionEntry ? factionEntry->Name->Str[loc] : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;

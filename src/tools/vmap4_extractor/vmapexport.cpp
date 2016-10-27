@@ -44,12 +44,12 @@
 //From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"
-#include "dbcfile.h"
+#include "DB2.h"
 #include "wmo.h"
 #include "mpqfile.h"
 
 #include "vmapexport.h"
-
+#include "Banner.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -68,12 +68,34 @@ typedef struct
     unsigned int id;
 }map_id;
 
-map_id * map_ids;
-uint16 *LiqType = 0;
+std::vector<map_id> map_ids;
+std::vector<uint16> LiqType;
 uint32 map_count;
 char output_path[128] = ".";
 char input_path[1024] = ".";
 bool preciseVectorData = false;
+
+struct LiquidTypeMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "sifffffSifihhbbbbbi";
+        static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
+        static DB2Meta instance(-1, 19, 0x28B44DCB, types, arraySizes);
+        return &instance;
+    }
+};
+
+struct MapMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "siffssshhhhhhhbbbbb";
+        static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 19, 0xB32E648C, types, arraySizes);
+        return &instance;
+    }
+};
 
 // Constants
 
@@ -224,27 +246,42 @@ void strToLower(char* str)
     }
 }
 
-// copied from contrib/extractor/System.cpp
+// copied from src\tools\map_extractor\System.cpp
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
-
-    DBCFile dbc(CascStorage, "DBFilesClient\\LiquidType.dbc");
-    if(!dbc.open())
+    HANDLE dbcFile;
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, 0, &dbcFile))
     {
-        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
+        printf("Fatal error: Cannot find LiquidType.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
-    size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
-    LiqType = new uint16[LiqType_maxid + 1];
-    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, LiquidTypeMeta::Instance()))
+    {
+        printf("Fatal error: Invalid LiquidType.db2 file format!\n");
+        exit(1);
+    }
 
-    for(uint32 x = 0; x < LiqType_count; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
+    LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
 
-    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
+    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+    {
+        uint32 liquidTypeId;
+        if (LiquidTypeMeta::Instance()->HasIndexFieldInData())
+            liquidTypeId = db2.getRecord(x).getUInt(LiquidTypeMeta::Instance()->GetIndexField(), 0);
+        else
+            liquidTypeId = db2.getId(x);
+
+        LiqType[liquidTypeId] = db2.getRecord(x).getUInt8(13, 0);
+    }
+
+    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+        LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
+
+    CascCloseFile(dbcFile);
+    printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
 }
 
 bool ExtractWmo()
@@ -325,15 +362,12 @@ bool ExtractSingleWmo(std::string& fname)
     froot.ConvertToVMAPRootWmo(output);
     int Wmo_nVertices = 0;
     //printf("root has %d groups\n", froot->nGroups);
-    if (froot.nGroups !=0)
+    if (!froot.groupFileDataIDs.empty())
     {
-        for (uint32 i = 0; i < froot.nGroups; ++i)
+        for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
         {
-            char temp[1024];
-            strncpy(temp, fname.c_str(), 1024);
-            temp[fname.length()-4] = 0;
             char groupFileName[1024];
-            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
+            sprintf(groupFileName, "FILE%08X", froot.groupFileDataIDs[i]);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
             std::string s = groupFileName;
@@ -364,7 +398,7 @@ void ParsMapFiles()
     char fn[512];
     //char id_filename[64];
     char id[10];
-    for (unsigned int i=0; i<map_count; ++i)
+    for (unsigned int i = 0; i < map_ids.size(); ++i)
     {
         sprintf(id, "%04u", map_ids[i].id);
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
@@ -457,6 +491,8 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
+    Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
+
     bool success = true;
     const char *versionString = "V4.03 2015_05";
 
@@ -536,38 +572,61 @@ int main(int argc, char ** argv)
     //map.dbc
     if (success)
     {
-        DBCFile * dbc = new DBCFile(CascStorage, "DBFilesClient\\Map.dbc");
-        if (!dbc->open())
+        printf("Read Map.dbc file... ");
+
+        HANDLE dbcFile;
+        if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, 0, &dbcFile))
         {
-            delete dbc;
-            printf("FATAL ERROR: Map.dbc not found in data file.\n");
-            return 1;
+            printf("Fatal error: Cannot find Map.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
+            exit(1);
         }
 
-        map_count = dbc->getRecordCount();
-        map_ids = new map_id[map_count];
-        for (unsigned int x = 0; x < map_count; ++x)
+        DB2FileLoader db2;
+        if (!db2.Load(dbcFile, MapMeta::Instance()))
         {
-            map_ids[x].id = dbc->getRecord(x).getUInt(0);
+            printf("Fatal error: Invalid Map.db2 file format! %s\n", HumanReadableCASCError(GetLastError()));
+            exit(1);
+        }
 
-            const char* map_name = dbc->getRecord(x).getString(1);
+        map_ids.resize(db2.GetNumRows());
+        std::unordered_map<uint32, uint32> idToIndex;
+        for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+        {
+            if (MapMeta::Instance()->HasIndexFieldInData())
+                map_ids[x].id = db2.getRecord(x).getUInt(MapMeta::Instance()->GetIndexField(), 0);
+            else
+                map_ids[x].id = db2.getId(x);
+
+            const char* map_name = db2.getRecord(x).getString(0, 0);
             size_t max_map_name_length = sizeof(map_ids[x].name);
             if (strlen(map_name) >= max_map_name_length)
             {
-                delete dbc;
-                delete[] map_ids;
-                printf("FATAL ERROR: Map name too long.\n");
-                return 1;
+                printf("Fatal error: Map name too long!\n");
+                exit(1);
             }
 
             strncpy(map_ids[x].name, map_name, max_map_name_length);
             map_ids[x].name[max_map_name_length - 1] = '\0';
-            printf("Map - %s\n", map_ids[x].name);
+            idToIndex[map_ids[x].id] = x;
         }
 
-        delete dbc;
+        for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+        {
+            uint32 from = db2.GetRowCopy(x).first;
+            uint32 to = db2.GetRowCopy(x).second;
+            auto itr = idToIndex.find(from);
+            if (itr != idToIndex.end())
+            {
+                map_id id;
+                id.id = to;
+                strcpy(id.name, map_ids[itr->second].name);
+                map_ids.push_back(id);
+            }
+        }
+
+        CascCloseFile(dbcFile);
+        printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
         ParsMapFiles();
-        delete [] map_ids;
     }
 
     CascCloseStorage(CascStorage);
@@ -580,6 +639,5 @@ int main(int argc, char ** argv)
     }
 
     printf("Extract %s. Work complete. No errors.\n", versionString);
-    delete [] LiqType;
     return 0;
 }

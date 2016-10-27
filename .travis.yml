@@ -1,3 +1,6 @@
+sudo: required
+dist: trusty
+
 language: cpp
 compiler:
   - clang
@@ -6,16 +9,10 @@ git:
   depth: 1
 
 before_install:
-  - echo "yes" | sudo add-apt-repository ppa:george-edison55/precise-backports
-  - echo "yes" | sudo add-apt-repository ppa:boost-latest/ppa
-  - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-  - echo "yes" | sudo add-apt-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main'
-  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake cmake-data openssl clang-3.5
+  - sudo apt-get -qq install build-essential libtool make cmake cmake-data openssl
   - sudo apt-get -qq install libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-filesystem1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev libboost-iostreams1.55-dev libboost-regex1.55-dev
-  - export CC=clang-3.5 CXX=clang++-3.5
+  - sudo apt-get -qq install mysql-server
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init
 
@@ -31,13 +28,13 @@ script:
   - $CXX --version
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
-  - ./contrib/check_updates.sh auth 6.x auth
+  - ./contrib/check_updates.sh auth master auth
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
-  - ./contrib/check_updates.sh characters 6.x characters
+  - ./contrib/check_updates.sh characters master characters
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - mysql -utrinity -ptrinity hotfixes < sql/base/dev/hotfixes_database.sql
-  - cat sql/updates/world/*.sql | mysql -utrinity -ptrinity world
-  - cat sql/updates/hotfixes/*.sql | mysql -utrinity -ptrinity hotfixes
+  - cat sql/updates/world/master/*.sql | mysql -utrinity -ptrinity world
+  - cat sql/updates/hotfixes/master/*.sql | mysql -utrinity -ptrinity hotfixes
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 8 -k && make install

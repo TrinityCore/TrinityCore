@@ -21,7 +21,6 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "Vehicle.h"
 #include "Player.h"
@@ -57,7 +56,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-
     if (!goinfo)
     {
         TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: " UI64FMTD " map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
@@ -65,6 +63,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     }
 
     m_goInfo = goinfo;
+    m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(entry);
 
     TransportTemplate const* tInfo = sTransportMgr->GetTransportTemplate(entry);
     if (!tInfo)
@@ -81,10 +80,14 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
+    if (m_goTemplateAddon)
+    {
+        SetFaction(m_goTemplateAddon->faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+    }
+
     m_goValue.Transport.PathProgress = 0;
     SetObjectScale(goinfo->size);
-    SetFaction(goinfo->faction);
-    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
@@ -300,6 +303,7 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    creature->m_movementInfo.transport.seat = -1;
     CalculatePassengerPosition(x, y, z, &o);
     creature->Relocate(x, y, z, o);
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
@@ -356,6 +360,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    go->m_movementInfo.transport.seat = -1;
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
     go->RelocateStationaryPosition(x, y, z, o);
@@ -526,7 +531,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
 
 void Transport::LoadStaticPassengers()
 {
-    if (uint32 mapId = GetGOInfo()->moTransport.mapID)
+    if (uint32 mapId = GetGOInfo()->moTransport.SpawnMap)
     {
         CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetSpawnMode());
         CellGuidSet::const_iterator guidEnd;

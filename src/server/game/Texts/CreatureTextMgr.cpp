@@ -121,7 +121,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
         if (temp.sound)
         {
-            if (!sSoundEntriesStore.LookupEntry(temp.sound))
+            if (!sSoundKitStore.LookupEntry(temp.sound))
             {
                 TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_text` has Sound %u but sound does not exist.", temp.entry, temp.group, temp.sound);
                 temp.sound = 0;

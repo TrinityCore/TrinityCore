@@ -1366,17 +1366,6 @@ class spell_algalon_supermassive_fail : public SpellScriptLoader
         }
 };
 
-class achievement_he_feeds_on_your_tears : public AchievementCriteriaScript
-{
-    public:
-        achievement_he_feeds_on_your_tears() : AchievementCriteriaScript("achievement_he_feeds_on_your_tears") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            return !target->GetAI()->GetData(DATA_HAS_FED_ON_TEARS);
-        }
-};
-
 void AddSC_boss_algalon_the_observer()
 {
     new boss_algalon_the_observer();
@@ -1393,5 +1382,4 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_cosmic_smash();
     new spell_algalon_cosmic_smash_damage();
     new spell_algalon_supermassive_fail();
-    new achievement_he_feeds_on_your_tears();
 }

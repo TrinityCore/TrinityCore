@@ -35,15 +35,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCal
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCalendarRaidResetInfo const& resetInfo)
-{
-    data << int32(resetInfo.MapID);
-    data << uint32(resetInfo.Duration);
-    data << int32(resetInfo.Offset);
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo const& lockoutInfo)
 {
     data << uint64(lockoutInfo.InstanceID);
@@ -238,25 +229,19 @@ WorldPacket const* WorldPackets::Calendar::SCalendarEventInvite::Write()
 
 WorldPacket const* WorldPackets::Calendar::CalendarSendCalendar::Write()
 {
-    _worldPacket << uint32(ServerNow);
     _worldPacket.AppendPackedTime(ServerTime);
-    _worldPacket << uint32(RaidOrigin);
     _worldPacket << uint32(Invites.size());
     _worldPacket << uint32(Events.size());
     _worldPacket << uint32(RaidLockouts.size());
-    _worldPacket << uint32(RaidResets.size());
 
     for (auto const& invite : Invites)
         _worldPacket << invite;
 
-    for (auto const& event : Events)
-        _worldPacket << event;
-
     for (auto const& lockout : RaidLockouts)
         _worldPacket << lockout;
 
-    for (auto const& reset : RaidResets)
-        _worldPacket << reset;
+    for (auto const& event : Events)
+        _worldPacket << event;
 
     return &_worldPacket;
 }
@@ -272,14 +257,13 @@ WorldPacket const* WorldPackets::Calendar::CalendarSendEvent::Write()
     _worldPacket.AppendPackedTime(Date);
     _worldPacket << uint32(LockDate);
     _worldPacket << EventGuildID;
-
     _worldPacket << uint32(Invites.size());
-    for (auto const& invite : Invites)
-        _worldPacket << invite;
-
     _worldPacket.WriteBits(EventName.size(), 8);
     _worldPacket.WriteBits(Description.size(), 11);
     _worldPacket.FlushBits();
+
+    for (auto const& invite : Invites)
+        _worldPacket << invite;
 
     _worldPacket.WriteString(EventName);
     _worldPacket.WriteString(Description);

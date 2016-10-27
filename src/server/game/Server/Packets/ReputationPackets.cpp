@@ -42,7 +42,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::ForcedReactio
 
 WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
 {
-    _worldPacket.WriteBits(Reactions.size(), 6);
+    _worldPacket << uint32(Reactions.size());
     for (ForcedReaction const& reaction : Reactions)
         _worldPacket << reaction;
 

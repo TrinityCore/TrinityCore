@@ -51,6 +51,7 @@
 #include "BattlePetMgr.h"
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
+#include "Metric.h"
 
 #include <zlib.h>
 
@@ -117,6 +118,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _battlenetAccountId(battlenetAccountId),
     m_expansion(expansion),
     _os(os),
+    _battlenetRequestToken(0),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -313,7 +315,7 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, 
 }
 
 /// Logging helper for unexpected opcodes
-void WorldSession::LogUnprocessedTail(WorldPacket* packet)
+void WorldSession::LogUnprocessedTail(WorldPacket const* packet)
 {
     if (!sLog->ShouldLog("network.opcode", LOG_LEVEL_TRACE) || packet->rpos() >= packet->wpos())
         return;
@@ -333,10 +335,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle())
         m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
-
-    if (updater.ProcessUnsafe())
-        while (_player && _player->IsBeingTeleportedSeamlessly())
-            HandleMoveWorldportAckOpcode();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
@@ -372,7 +370,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
                     }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                     break;
@@ -385,7 +382,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
                     }
                     break;
                 case STATUS_TRANSFER:
@@ -397,7 +393,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
                     }
                     break;
                 case STATUS_AUTHED:
@@ -417,7 +412,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
                     }
                     break;
                 case STATUS_NEVER:
@@ -455,6 +449,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
             break;
     }
+
+    TC_METRIC_VALUE("processed_packets", processedPackets);
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
@@ -507,7 +503,7 @@ void WorldSession::LogoutPlayer(bool save)
 {
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
-        HandleMoveWorldportAckOpcode();
+        HandleMoveWorldportAck();
 
     m_playerLogout = true;
     m_playerSave = save;
@@ -562,7 +558,7 @@ void WorldSession::LogoutPlayer(bool save)
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
         while (_player->IsBeingTeleportedFar())
-            HandleMoveWorldportAckOpcode();
+            HandleMoveWorldportAck();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
@@ -613,6 +609,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
+
+        TC_METRIC_EVENT("player_events", "Logout", _player->GetName());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -825,89 +823,6 @@ void WorldSession::SaveTutorialsData(SQLTransaction& trans)
     trans->Append(stmt);
 
     _tutorialsChanged = false;
-}
-
-void WorldSession::ReadAddonsInfo(ByteBuffer& data)
-{
-    if (data.rpos() + 4 > data.size())
-        return;
-
-    uint32 size;
-    data >> size;
-
-    if (!size)
-        return;
-
-    if (size > 0xFFFFF)
-    {
-        TC_LOG_DEBUG("addon", "WorldSession::ReadAddonsInfo: AddOnInfo too big, size %u", size);
-        return;
-    }
-
-    uLongf uSize = size;
-
-    uint32 pos = data.rpos();
-
-    ByteBuffer addonInfo;
-    addonInfo.resize(size);
-
-    m_addonsList.clear();
-
-    if (uncompress(addonInfo.contents(), &uSize, data.contents() + pos, data.size() - pos) == Z_OK)
-    {
-        uint32 addonsCount;
-        addonInfo >> addonsCount;                         // addons count
-
-        for (uint32 i = 0; i < addonsCount; ++i)
-        {
-            std::string addonName;
-            uint8 enabled;
-            uint32 crc, unk1;
-
-            // check next addon data format correctness
-            if (addonInfo.rpos() + 1 > addonInfo.size())
-                return;
-
-            addonInfo >> addonName;
-
-            addonInfo >> enabled >> crc >> unk1;
-
-            TC_LOG_DEBUG("addon", "AddOn: %s (CRC: 0x%x) - enabled: 0x%x - Unknown2: 0x%x", addonName.c_str(), crc, enabled, unk1);
-
-            AddonInfo addon(addonName, enabled, crc, 2, true);
-
-            SavedAddon const* savedAddon = AddonMgr::GetAddonInfo(addonName);
-            if (savedAddon)
-            {
-                if (addon.CRC != savedAddon->CRC)
-                    TC_LOG_WARN("addon", " Addon: %s: modified (CRC: 0x%x) - accountID %d)", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
-                else
-                    TC_LOG_DEBUG("addon", "Addon: %s: validated (CRC: 0x%x) - accountID %d", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
-            }
-            else
-            {
-                AddonMgr::SaveAddon(addon);
-                TC_LOG_WARN("addon", "Addon: %s: unknown (CRC: 0x%x) - accountId %d (storing addon name and checksum to database)", addon.Name.c_str(), addon.CRC, GetAccountId());
-            }
-
-            /// @todo Find out when to not use CRC/pubkey, and other possible states.
-            m_addonsList.push_back(addon);
-        }
-
-        uint32 currentTime;
-        addonInfo >> currentTime;
-        TC_LOG_DEBUG("addon", "AddOn: CurrentTime: %u", currentTime);
-    }
-    else
-        TC_LOG_DEBUG("addon", "AddOn: Addon packet uncompress error!");
-}
-
-void WorldSession::SendAddonsInfo()
-{
-    WorldPackets::ClientConfig::AddonInfo addonInfo;
-    addonInfo.Addons = &m_addonsList;
-    addonInfo.BannedAddons = AddonMgr::GetBannedAddons();
-    SendPacket(addonInfo.Write());
 }
 
 bool WorldSession::IsAddonRegistered(const std::string& prefix) const
@@ -1160,6 +1075,9 @@ public:
         BATTLE_PET_SLOTS,
         GLOBAL_ACCOUNT_HEIRLOOMS,
         GLOBAL_REALM_CHARACTER_COUNTS,
+        MOUNTS,
+        ITEM_APPEARANCES,
+        ITEM_FAVORITE_APPEARANCES,
 
         MAX_QUERIES
     };
@@ -1186,9 +1104,21 @@ public:
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(GLOBAL_ACCOUNT_HEIRLOOMS, stmt) && ok;
 
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MOUNTS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(MOUNTS, stmt) && ok;
+
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID);
         stmt->setUInt32(0, accountId);
         ok = SetPreparedQuery(GLOBAL_REALM_CHARACTER_COUNTS, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ITEM_APPEARANCES);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(ITEM_APPEARANCES, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ITEM_FAVORITE_APPEARANCES);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(ITEM_FAVORITE_APPEARANCES, stmt) && ok;
 
         return ok;
     }
@@ -1223,6 +1153,8 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
     _collectionMgr->LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
     _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
+    _collectionMgr->LoadAccountMounts(holder->GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
+    _collectionMgr->LoadAccountItemAppearances(holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
@@ -1234,7 +1166,6 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
 
     SendSetTimeZoneInformation();
     SendFeatureSystemStatusGlueScreen();
-    SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendTutorialsData();
 

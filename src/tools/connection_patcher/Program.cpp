@@ -25,7 +25,8 @@
 #include "Patterns/Mac.hpp"
 #include "Patterns/Windows.hpp"
 
-#include <CompilerDefs.h>
+#include "Banner.h"
+#include "CompilerDefs.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/program_options.hpp>
@@ -131,6 +132,8 @@ int main(int argc, char** argv)
 
     try
     {
+        Trinity::Banner::Show("connection_patcher", [](char const* text) { std::cout << text << std::endl; }, nullptr);
+
         auto vm = GetConsoleArguments(argc, argv);
 
         // exit if help is enabled

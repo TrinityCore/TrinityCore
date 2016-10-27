@@ -165,7 +165,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
     if (!source)
         return;
 
-    if (!sSoundEntriesStore.LookupEntry(soundId))
+    if (!sSoundKitStore.LookupEntry(soundId))
     {
         TC_LOG_ERROR("scripts", "Invalid soundId %u used in DoPlaySoundToSet (Source: %s)", soundId, source->GetGUID().ToString().c_str());
         return;

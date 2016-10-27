@@ -17,7 +17,6 @@
  */
 
 #include "Common.h"
-#include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
@@ -28,7 +27,7 @@
 #include "Transport.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
-    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
+    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _spellXSpellVisualId(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
@@ -80,8 +79,9 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, uint32 spellXSpellVisualId)
 {
+    _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
@@ -96,7 +96,8 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
     SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_BYTES, spell->GetSpellVisual(GetMap()->GetDifficultyID()) | (type << 28));
+    SetUInt32Value(DYNAMICOBJECT_TYPE, type);
+    SetUInt32Value(DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());

@@ -22,9 +22,11 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Language.h"
-#include "DBCStructure.h"
 #include "QueryResult.h"
 #include <map>
+
+struct FactionEntry;
+struct FactionTemplateEntry;
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 {
@@ -84,10 +86,7 @@ class TC_GAME_API ReputationMgr
 
         FactionStateList const& GetStateList() const { return _factions; }
 
-        FactionState const* GetState(FactionEntry const* factionEntry) const
-        {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : NULL;
-        }
+        FactionState const* GetState(FactionEntry const* factionEntry) const;
 
         FactionState const* GetState(RepListID id) const
         {
@@ -109,10 +108,7 @@ class TC_GAME_API ReputationMgr
             return ReputationRankStrIndex[GetRank(factionEntry)];
         };
 
-        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
-        {
-            return GetForcedRankIfAny(factionTemplateEntry->Faction);
-        }
+        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
 
         ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
         {

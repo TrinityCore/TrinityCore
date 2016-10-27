@@ -26,13 +26,17 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << Owner;
-    _worldPacket << FailureReason;
-    _worldPacket << AcquireReason;
-    _worldPacket << LootMethod;
-    _worldPacket << Threshold;
-    _worldPacket << Coins;
+    _worldPacket << uint8(FailureReason);
+    _worldPacket << uint8(AcquireReason);
+    _worldPacket << uint8(_LootMethod);
+    _worldPacket << uint8(Threshold);
+    _worldPacket << uint32(Coins);
     _worldPacket << uint32(Items.size());
     _worldPacket << uint32(Currencies.size());
+    _worldPacket.WriteBit(Acquired);
+    _worldPacket.WriteBit(AELooting);
+    _worldPacket.WriteBit(PersonalLooting);
+    _worldPacket.FlushBits();
 
     for (LootItemData const& item : Items)
     {
@@ -40,26 +44,20 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
         _worldPacket.WriteBits(item.UIType, 3);
         _worldPacket.WriteBit(item.CanTradeToTapList);
         _worldPacket.FlushBits();
-
-        _worldPacket << item.Quantity;
-        _worldPacket << item.LootItemType;
-        _worldPacket << item.LootListID;
         _worldPacket << item.Loot; // WorldPackets::Item::ItemInstance
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint8(item.LootItemType);
+        _worldPacket << uint8(item.LootListID);
     }
 
     for (LootCurrency const& currency : Currencies)
     {
-        _worldPacket << currency.CurrencyID;
-        _worldPacket << currency.Quantity;
-        _worldPacket << currency.LootListID;
+        _worldPacket << uint32(currency.CurrencyID);
+        _worldPacket << uint32(currency.Quantity);
+        _worldPacket << uint8(currency.LootListID);
         _worldPacket.WriteBits(currency.UIType, 3);
         _worldPacket.FlushBits();
     }
-
-    _worldPacket.WriteBit(Acquired);
-    _worldPacket.WriteBit(AELooting);
-    _worldPacket.WriteBit(PersonalLooting);
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

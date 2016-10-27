@@ -348,8 +348,16 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    if (packet.LootMethod > PERSONAL_LOOT)
-        return;
+    switch (packet.LootMethod)
+    {
+        case FREE_FOR_ALL:
+        case MASTER_LOOT:
+        case GROUP_LOOT:
+        case PERSONAL_LOOT:
+            break;
+        default:
+            return;
+    }
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
         return;
@@ -561,12 +569,12 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberStats partyMemberStats;
+    WorldPackets::Party::PartyMemberState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     if (!player)
     {
-        partyMemberStats.MemberStats.GUID = packet.TargetGUID;
+        partyMemberStats.MemberGuid = packet.TargetGUID;
         partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
     }
     else

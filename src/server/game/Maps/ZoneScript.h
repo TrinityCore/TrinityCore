@@ -30,7 +30,7 @@ class ZoneScript
         virtual ~ZoneScript() { }
 
         virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) { return data->id; }
-        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) { return entry; }
+        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) { return entry; }
 
         virtual void OnCreatureCreate(Creature* ) { }
         virtual void OnCreatureRemove(Creature* ) { }

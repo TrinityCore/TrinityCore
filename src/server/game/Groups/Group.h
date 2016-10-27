@@ -68,7 +68,9 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_PVP_FFA   = 0x0010,                       // Lua_UnitIsPVPFreeForAll
     MEMBER_STATUS_UNK3      = 0x0020,                       // used in calls from Lua_GetPlayerMapPosition/Lua_GetBattlefieldFlagPosition
     MEMBER_STATUS_AFK       = 0x0040,                       // Lua_UnitIsAFK
-    MEMBER_STATUS_DND       = 0x0080                        // Lua_UnitIsDND
+    MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
+    MEMBER_STATUS_RAF       = 0x0100,
+    MEMBER_STATUS_VEHICLE   = 0x0200,                       // Lua_UnitInVehicle
 };
 
 enum GroupMemberFlags
@@ -358,7 +360,6 @@ class TC_GAME_API Group
         void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
-        void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid Guid);
         void CountTheRoll(Rolls::iterator roll);

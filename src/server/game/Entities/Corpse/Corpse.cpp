@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "Player.h"
-#include "UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 

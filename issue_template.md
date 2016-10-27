@@ -1,24 +1,28 @@
-**Description**:
+[//]: # (***************************************************************)
+[//]: # (** DON'T DELETE THIS TEMPLATE ELSE YOUR ISSUE WILL BE CLOSED **)
+[//]: # (***************************************************************)
 
-**Current behaviour**: Tell us what happens
+**Description:**
 
-**Expected behaviour**: Tell us what should happen instead
+**Current behaviour:** (Tell us what happens.)
 
-**Steps to reproduce the problem**:
+**Expected behaviour:** (Tell us what should happen instead.)
+
+**Steps to reproduce the problem:**
 
 1. 
 2. 
 3. 
 
-**Branch(es)**: 3.3.5 / 6.x (Select the branch(es) affected by this issue) 
+**Branch(es):** 3.3.5 / master (Tell us which branch(es) this issue affects.)
 
-**TC hash/commit**:  
+**TC rev. hash/commit:**  
 
-**TDB version**:  
+**TDB version:**  
 
-**Operating system**:  
+**Operating system:**  
 
 
-[//]: # (This template is for problem reports, for other type of reports edit it accordingly)
+[//]: # (This template is for problem reports. For other types of report, edit it accordingly.)
 [//]: # (If this is a crash report, include the crashlog with https://gist.github.com/)
-[//]: # (For fixes containing c++ create a Pull Request)
+[//]: # (For fixes containing C++, create a Pull Request.)

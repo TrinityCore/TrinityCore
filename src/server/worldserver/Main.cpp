@@ -39,12 +39,14 @@
 #include "BattlegroundMgr.h"
 #include "TCSoap.h"
 #include "CliRunnable.h"
+#include "Banner.h"
 #include "GitRevision.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "RealmList.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
+#include "Metric.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
@@ -131,20 +133,18 @@ extern int main(int argc, char** argv)
     // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
     sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? &_ioService : nullptr);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
-    TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.worldserver", " ______                       __");
-    TC_LOG_INFO("server.worldserver", "/\\__  _\\       __          __/\\ \\__");
-    TC_LOG_INFO("server.worldserver", "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    TC_LOG_INFO("server.worldserver", "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    TC_LOG_INFO("server.worldserver", "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    TC_LOG_INFO("server.worldserver", "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    TC_LOG_INFO("server.worldserver", "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    TC_LOG_INFO("server.worldserver", "                                 C O R E  /\\___/");
-    TC_LOG_INFO("server.worldserver", "http://TrinityCore.org                    \\/__/\n");
-    TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-    TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    Trinity::Banner::Show("worldserver-daemon",
+        [](char const* text)
+        {
+            TC_LOG_INFO("server.worldserver", "%s", text);
+        },
+        []()
+        {
+            TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
+            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+        }
+    );
 
     OpenSSLCrypto::threadsSetup();
 
@@ -199,6 +199,13 @@ extern int main(int argc, char** argv)
     sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     LoadRealmInfo();
+
+    sMetric->Initialize(realm.Name, _ioService, []()
+    {
+        TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
+    });
+
+    TC_METRIC_EVENT("events", "Worldserver started", "");
 
     // Initialize the World
     sScriptMgr->SetScriptLoader(AddScripts);
@@ -299,6 +306,9 @@ extern int main(int argc, char** argv)
     ClearOnlineAccounts();
 
     StopDB();
+
+    TC_METRIC_EVENT("events", "Worldserver shutdown", "");
+    sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 

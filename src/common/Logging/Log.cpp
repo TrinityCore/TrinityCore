@@ -24,7 +24,6 @@
 #include "AppenderFile.h"
 #include "LogOperation.h"
 
-#include <cstdarg>
 #include <cstdio>
 #include <sstream>
 

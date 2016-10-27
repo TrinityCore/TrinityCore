@@ -121,10 +121,13 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            int32 RewardDisplaySpell        = 0; // reward spell, this spell will be displayed (icon)
+            int32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT] = {}; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
+            int32 RewardArtifactXPDifficulty = 0;
+            float RewardArtifactXPMultiplier = 0.0f;
+            int32 RewardArtifactCategoryID  = 0;
             int32 StartItem                 = 0;
             uint32 Flags                    = 0;
             uint32 FlagsEx                  = 0;
@@ -138,7 +141,6 @@ namespace WorldPackets
             std::string QuestDescription;
             std::string AreaDescription;
             int32 RewardTitle               = 0; // new 2.4.0, player gets this title (id from CharTitles)
-            int32 RewardTalents             = 0;
             int32 RewardArenaPoints         = 0;
             int32 RewardSkillLineID         = 0; // reward skill id
             int32 RewardNumSkillUps         = 0; // reward skill points
@@ -154,6 +156,7 @@ namespace WorldPackets
             int32 CompleteSoundKitID        = 0;
             int32 AreaGroupID               = 0;
             int32 TimeAllowed               = 0;
+            int32 QuestRewardID             = 0;
             std::vector<QuestObjective> Objectives;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = {};
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = {};
@@ -163,6 +166,7 @@ namespace WorldPackets
             int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+            int32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
         };
@@ -217,21 +221,26 @@ namespace WorldPackets
             int32 ItemCount                 = 0;
             int32 Money                     = 0;
             int32 XP                        = 0;
+            int32 ArtifactXP                = 0;
+            int32 ArtifactCategoryID        = 0;
+            int32 Honor                     = 0;
             int32 Title                     = 0;
-            int32 Talents                   = 0;
             int32 FactionFlags              = 0;
-            int32 SpellCompletionDisplayID  = 0;
+            int32 SpellCompletionDisplayID[QUEST_REWARD_DISPLAY_SPELL_COUNT] = {};
             int32 SpellCompletionID         = 0;
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
+            int32 RewardID                  = 0;
             QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
             int32 ItemID[QUEST_REWARD_ITEM_COUNT] = {};
             int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = {};
             int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+            int32 FactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = {};
             int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+            bool IsBoostSpell = false;
         };
 
         struct QuestDescEmote
@@ -291,14 +300,15 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool UseQuestReward     = false;
-            int32 SkillLineIDReward = 0;
-            int32 MoneyReward       = 0;
-            int32 NumSkillUpsReward = 0;
-            int32 XPReward          = 0;
             int32 QuestID           = 0;
-            int32 TalentReward      = 0;
-            bool LaunchGossip       = 0;
+            int32 XPReward          = 0;
+            int64 MoneyReward       = 0;
+            int32 SkillLineIDReward = 0;
+            int32 NumSkillUpsReward = 0;
+            bool UseQuestReward     = false;
+            bool LaunchGossip       = false;
+            bool LaunchQuest        = false;
+            bool HideChatMessage    = false;
             WorldPackets::Item::ItemInstance ItemReward;
         };
 
@@ -341,6 +351,7 @@ namespace WorldPackets
             std::vector<int32> LearnSpells;
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
+            int32 QuestStartItemID = 0;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
             std::string PortraitTurnInText;
@@ -351,13 +362,16 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
+            bool CanIgnoreQuest = false;
+            bool IsQuestIgnored = false;
         };
 
         struct QuestObjectiveCollect
         {
-            QuestObjectiveCollect(int32 objectID = 0, int32 amount = 0) : ObjectID(objectID), Amount(amount) { }
+            QuestObjectiveCollect(int32 objectID = 0, int32 amount = 0, uint32 flags = 0) : ObjectID(objectID), Amount(amount), Flags(flags) { }
             int32 ObjectID;
             int32 Amount;
+            uint32 Flags;
         };
 
         struct QuestCurrency
@@ -388,6 +402,8 @@ namespace WorldPackets
             uint32 QuestFlags[2]        = {};
             std::string QuestTitle;
             std::string CompletionText;
+            bool CanIgnoreQuest         = false;
+            bool IsQuestIgnored         = false;
         };
 
         class QuestGiverRequestReward final : public ClientPacket
@@ -437,14 +453,15 @@ namespace WorldPackets
 
         struct GossipTextData
         {
-            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
-                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
+            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, bool ignored, std::string questTitle) :
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), IsQuestIgnored(ignored), QuestTitle(questTitle) { }
             uint32 QuestID;
             uint32 QuestType;
             uint32 QuestLevel;
             uint32 QuestFlags;
             uint32 QuestFlagsEx;
             bool Repeatable;
+            bool IsQuestIgnored;
             std::string QuestTitle;
         };
 
@@ -576,6 +593,36 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 Count = 0;
+        };
+
+        class RequestWorldQuestUpdate final : public ClientPacket
+        {
+        public:
+            RequestWorldQuestUpdate(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_WORLD_QUEST_UPDATE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct WorldQuestUpdateInfo
+        {
+            WorldQuestUpdateInfo(int32 lastUpdate, uint32 questID, uint32 timer, int32 variableID, int32 value) :
+                LastUpdate(lastUpdate), QuestID(questID), Timer(timer), VariableID(variableID), Value(value) { }
+            int32 LastUpdate;
+            uint32 QuestID;
+            uint32 Timer;
+            // WorldState
+            int32 VariableID;
+            int32 Value;
+        };
+
+        class WorldQuestUpdate final : public ServerPacket
+        {
+        public:
+            WorldQuestUpdate() : ServerPacket(SMSG_WORLD_QUEST_UPDATE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
         };
     }
 }

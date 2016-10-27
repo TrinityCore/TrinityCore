@@ -18,7 +18,6 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
-#include "DBCStructure.h"
 #include "Field.h"
 #include "LFG.h"
 #include "LFGQueue.h"
@@ -28,6 +27,8 @@
 class Group;
 class Player;
 class Quest;
+struct LfgDungeonsEntry;
+enum Difficulty : uint8;
 
 namespace lfg
 {
@@ -267,16 +268,8 @@ struct LfgPlayerBoot
 
 struct LFGDungeonData
 {
-    LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
-        maxlevel(0), difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-        requiredItemLevel(0)
-        { }
-    LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->Name_lang), map(dbc->MapID),
-        type(uint8(dbc->Type)), expansion(uint8(dbc->Expansion)), group(uint8(dbc->GroupID)),
-        minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->DifficultyID)),
-        seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-        requiredItemLevel(0)
-        { }
+    LFGDungeonData();
+    LFGDungeonData(LfgDungeonsEntry const* dbc);
 
     uint32 id;
     std::string name;

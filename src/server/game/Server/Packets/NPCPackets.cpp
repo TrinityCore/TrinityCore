@@ -25,20 +25,18 @@ void WorldPackets::NPC::Hello::Read()
 WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
 {
     _worldPacket << GossipGUID;
-    _worldPacket << GossipID;
-    _worldPacket << FriendshipFactionID;
-    _worldPacket << TextID;
-
-    _worldPacket << int32(GossipOptions.size());
-    _worldPacket << int32(GossipText.size());
+    _worldPacket << int32(GossipID);
+    _worldPacket << int32(FriendshipFactionID);
+    _worldPacket << int32(TextID);
+    _worldPacket << uint32(GossipOptions.size());
+    _worldPacket << uint32(GossipText.size());
 
     for (ClientGossipOptions const& options : GossipOptions)
     {
-        _worldPacket << options.ClientOption;
-        _worldPacket << options.OptionNPC;
-        _worldPacket << options.OptionFlags;
-        _worldPacket << options.OptionCost;
-
+        _worldPacket << int32(options.ClientOption);
+        _worldPacket << uint8(options.OptionNPC);
+        _worldPacket << int8(options.OptionFlags);
+        _worldPacket << int32(options.OptionCost);
         _worldPacket.WriteBits(options.Text.size(), 12);
         _worldPacket.WriteBits(options.Confirm.size(), 12);
         _worldPacket.FlushBits();
@@ -49,13 +47,14 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
 
     for (ClientGossipText const& text : GossipText)
     {
-        _worldPacket << text.QuestID;
-        _worldPacket << text.QuestType;
-        _worldPacket << text.QuestLevel;
-        _worldPacket << text.QuestFlags[0];
-        _worldPacket << text.QuestFlags[1];
+        _worldPacket << int32(text.QuestID);
+        _worldPacket << int32(text.QuestType);
+        _worldPacket << int32(text.QuestLevel);
+        _worldPacket << int32(text.QuestFlags[0]);
+        _worldPacket << int32(text.QuestFlags[1]);
 
         _worldPacket.WriteBit(text.Repeatable);
+        _worldPacket.WriteBit(text.Ignored);
         _worldPacket.WriteBits(text.QuestTitle.size(), 9);
         _worldPacket.FlushBits();
 
@@ -65,27 +64,31 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
     return &_worldPacket;
 }
 
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::VendorItem const &item)
+{
+    data << uint32(item.MuID);
+    data << int32(item.Type);
+    data << int32(item.Quantity);
+    data << uint64(item.Price);
+    data << int32(item.Durability);
+    data << int32(item.StackCount);
+    data << int32(item.ExtendedCostID);
+    data << int32(item.PlayerConditionFailed);
+    data << item.Item;
+    data.WriteBit(item.DoNotFilterOnVendor);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
 {
     _worldPacket << Vendor;
-    _worldPacket << Reason;
-
-    _worldPacket << int32(Items.size());
+    _worldPacket << uint8(Reason);
+    _worldPacket << uint32(Items.size());
     for (VendorItem const& item : Items)
-    {
-        _worldPacket << item.MuID;
-        _worldPacket << item.Type;
-        _worldPacket << item.Item;
-        _worldPacket << item.Quantity;
-        _worldPacket << item.Price;
-        _worldPacket << item.Durability;
-        _worldPacket << item.StackCount;
-        _worldPacket << item.ExtendedCostID;
-        _worldPacket << item.PlayerConditionFailed;
-
-        _worldPacket.WriteBit(item.DoNotFilterOnVendor);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << item;
 
     return &_worldPacket;
 }
@@ -142,23 +145,14 @@ WorldPacket const* WorldPackets::NPC::PlayerTabardVendorActivate::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::NPC::SuppressNPCGreetings::Write()
-{
-    _worldPacket << UnitGUID;
-    _worldPacket.WriteBit(SuppressNPCGreeting);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
 {
     _worldPacket.WriteBits(Flags, 14);
     _worldPacket.WriteBits(Name.length(), 6);
-    _worldPacket << Pos.x;
-    _worldPacket << Pos.y;
-    _worldPacket << Icon;
-    _worldPacket << Importance;
+    _worldPacket << float(Pos.x);
+    _worldPacket << float(Pos.y);
+    _worldPacket << int32(Icon);
+    _worldPacket << int32(Importance);
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;

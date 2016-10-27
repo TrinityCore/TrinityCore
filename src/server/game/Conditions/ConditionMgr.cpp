@@ -381,7 +381,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_HP_VAL:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint32>(ConditionValue1));
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint64>(ConditionValue1));
             break;
         }
         case CONDITION_HP_PCT:
@@ -446,7 +446,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             if (Unit* unit = object->ToUnit())
             {
                 if (ConditionValue1 == 0)
-                    condMeets = (unit->GetStandState() == ConditionValue2);
+                    condMeets = (unit->GetStandState() == UnitStandStateType(ConditionValue2));
                 else if (ConditionValue2 == 0)
                     condMeets = unit->IsStandState();
                 else if (ConditionValue2 == 1)
@@ -2368,7 +2368,7 @@ inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
     return result;
 }
 
-bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry const* condition)
+bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
     if (condition->MinLevel && player->getLevel() < condition->MinLevel)
         return false;
@@ -2397,7 +2397,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
     if (condition->ChrSpecializationIndex >= 0 || condition->ChrSpecializationRole >= 0)
     {
-        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetSpecId(player->GetActiveTalentGroup())))
+        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)))
         {
             if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != uint32(condition->ChrSpecializationIndex))
                 return false;
@@ -2489,7 +2489,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
     if (condition->PartyStatus)
     {
-        Group* group = player->GetGroup();
+        Group const* group = player->GetGroup();
         switch (condition->PartyStatus)
         {
             case 1:
@@ -2621,8 +2621,15 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         std::array<bool, AuraCount::value> results;
         results.fill(true);
         for (std::size_t i = 0; i < AuraCount::value; ++i)
+        {
             if (condition->AuraSpellID[i])
-                results[i] = player->HasAura(condition->AuraSpellID[i]);
+            {
+                if (condition->AuraCount[i])
+                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraCount[i];
+                else
+                    results[i] = player->HasAura(condition->AuraSpellID[i]);
+            }
+        }
 
         if (!PlayerConditionLogic(condition->AuraSpellLogic, results))
             return false;
@@ -2726,6 +2733,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         return false;
 
     if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) > condition->MaxAvgEquippedItemLevel)
+        return false;
+
+    if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
         return false;
 
     return true;

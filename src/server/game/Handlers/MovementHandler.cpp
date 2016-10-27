@@ -31,16 +31,17 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "InstancePackets.h"
 #include "MovementPackets.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
-    HandleMoveWorldportAckOpcode();
+    HandleMoveWorldportAck();
 }
 
-void WorldSession::HandleMoveWorldportAckOpcode()
+void WorldSession::HandleMoveWorldportAck()
 {
     // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
@@ -94,6 +95,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
+
+    WorldPackets::Movement::ResumeToken resumeToken;
+    resumeToken.SequenceIndex = _player->m_movementCounter;
+    resumeToken.Reason = seamlessTeleport ? 2 : 1;
+    SendPacket(resumeToken.Write());
 
     if (!seamlessTeleport)
         GetPlayer()->SendInitialPacketsBeforeAddToMap();
@@ -170,9 +176,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
-        if (MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
+        if (MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mEntry->ID, diff))
         {
-            if (mapDiff->RaidDuration)
+            if (mapDiff->GetRaidDuration())
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
@@ -212,6 +218,30 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+}
+
+void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& /*suspendTokenResponse*/)
+{
+    if (!_player->IsBeingTeleportedFar())
+        return;
+
+    WorldLocation const& loc = GetPlayer()->GetTeleportDest();
+
+    if (sMapStore.AssertEntry(loc.GetMapId())->IsDungeon())
+    {
+        WorldPackets::Instance::UpdateLastInstance updateLastInstance;
+        updateLastInstance.MapID = loc.GetMapId();
+        SendPacket(updateLastInstance.Write());
+    }
+
+    WorldPackets::Movement::NewWorld packet;
+    packet.MapID = loc.GetMapId();
+    packet.Pos.Relocate(loc);
+    packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
+    SendPacket(packet.Write());
+
+    if (_player->IsBeingTeleportedSeamlessly())
+        HandleMoveWorldportAck();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
@@ -330,7 +360,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.transport.guid.Clear();
+                movementInfo.transport.Reset();
         }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
@@ -362,7 +392,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
         {
-            if (seat->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
+            if (seat->Flags[0] & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
             {
                 if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                 {

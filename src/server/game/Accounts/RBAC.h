@@ -61,7 +61,7 @@ enum RBACPermissions
     //  9 - reuse
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10,
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
-    //  12 - reuse
+    RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER     = 12,
     RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES            = 13,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK         = 14,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_CLASSMASK        = 15,
@@ -287,7 +287,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_GRID                                = 380,
     RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
     RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
-    // 383 reuse
+    RBAC_PERM_COMMAND_GO_TICKET                              = 383, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
     RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
     RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
@@ -566,9 +566,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT            = 659,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT              = 660,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION      = 661,
-    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 662,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM                    = 662, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME           = 663,
-    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 664,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT                = 664, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT               = 665,
     RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST      = 666,
     RBAC_PERM_COMMAND_RELOAD_QUEST_LOCALE                    = 667,
@@ -596,7 +596,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS                   = 689,
     RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED                  = 690,
     RBAC_PERM_COMMAND_RELOAD_SPELL_AREA                      = 691,
-    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 692,
+    RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA                = 692, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP                     = 693,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL               = 694,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
@@ -647,11 +647,24 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TELE_NAME                              = 740,
     RBAC_PERM_COMMAND_TELE_GROUP                             = 741,
     RBAC_PERM_COMMAND_TICKET                                 = 742,
-    // 743 - 752 reuse
+    RBAC_PERM_COMMAND_TICKET_ASSIGN                          = 743, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_CLOSE                           = 744, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_CLOSEDLIST                      = 745, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_COMMENT                         = 746, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_COMPLETE                        = 747, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_DELETE                          = 748, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_ESCALATE                        = 749, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_ESCALATEDLIST                   = 750, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_LIST                            = 751, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_ONLINELIST                      = 752, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_TICKET_RESET                           = 753,
-    // 754 - 756 reuse
+    RBAC_PERM_COMMAND_TICKET_RESPONSE                        = 754, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_RESPONSE_APPEND                 = 755, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_RESPONSE_APPENDLN               = 756, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM                    = 757,
-    // 758 - 760 reuse
+    RBAC_PERM_COMMAND_TICKET_UNASSIGN                        = 758, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_VIEWID                          = 759, // deprecated since Draenor DON'T reuse
+    RBAC_PERM_COMMAND_TICKET_VIEWNAME                        = 760, // deprecated since Draenor DON'T reuse
     RBAC_PERM_COMMAND_TITLES                                 = 761,
     RBAC_PERM_COMMAND_TITLES_ADD                             = 762,
     RBAC_PERM_COMMAND_TITLES_CURRENT                         = 763,
@@ -666,8 +679,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_UNLOAD                              = 772,
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
-    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // only 4.3.4
+    RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775,
+    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776,
     RBAC_PERM_COMMAND_MAILBOX                                = 777,
     RBAC_PERM_COMMAND_AHBOT                                  = 778,
     RBAC_PERM_COMMAND_AHBOT_ITEMS                            = 779,
@@ -728,6 +741,20 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_QUEST                               = 834,
     RBAC_PERM_COMMAND_DEBUG_LOADCELLS                        = 835,
     RBAC_PERM_COMMAND_DEBUG_BOUNDARY                         = 836,
+    RBAC_PERM_COMMAND_NPC_EVADE                              = 837,
+    RBAC_PERM_COMMAND_PET_LEVEL                              = 838,
+    RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
+    RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
+    RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
+    RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
+    RBAC_PERM_COMMAND_SCENE                                  = 844,
+    RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845,
+    RBAC_PERM_COMMAND_SCENE_PLAY                             = 846,
+    RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE                     = 847,
+    RBAC_PERM_COMMAND_SCENE_CANCEL                           = 848,
+    RBAC_PERM_COMMAND_LIST_SCENES                            = 849,
+    RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

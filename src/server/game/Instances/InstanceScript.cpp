@@ -40,7 +40,7 @@ BossBoundaryData::~BossBoundaryData()
 }
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
-_combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
+_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
@@ -61,7 +61,8 @@ void InstanceScript::SaveToDB()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_DATA);
     stmt->setUInt32(0, GetCompletedEncounterMask());
     stmt->setString(1, data);
-    stmt->setUInt32(2, instance->GetInstanceId());
+    stmt->setUInt32(2, _entranceId);
+    stmt->setUInt32(3, instance->GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -606,6 +607,13 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
+void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
+{
+    _entranceId = worldSafeLocationId;
+    if (_temporaryEntranceId)
+        _temporaryEntranceId = 0;
+}
+
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 priority)
 {
     switch (type)
@@ -664,6 +672,14 @@ void InstanceScript::SendEncounterEnd()
     instance->SendToPlayers(encounterEndMessage.Write());
 }
 
+void InstanceScript::SendBossKillCredit(uint32 encounterId)
+{
+    WorldPackets::Instance::BossKillCredit bossKillCreditMessage;
+    bossKillCreditMessage.DungeonEncounterID = encounterId;
+
+    instance->SendToPlayers(bossKillCreditMessage.Write());
+}
+
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
@@ -677,11 +693,12 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->OrderIndex;
+            completedEncounters |= 1 << encounter->dbcEntry->Bit;
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name_lang, dungeonId);
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u",
+                    instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name->Str[sWorld->GetDefaultDbcLocale()], dungeonId);
                 break;
             }
         }
