@@ -3004,6 +3004,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 68766: // Desecration (Rank 2)
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Melee Range
                 break;
+            case 46946: // Safeguard (Rank 1)
+            case 46947: // Safeguard (Rank 2)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
