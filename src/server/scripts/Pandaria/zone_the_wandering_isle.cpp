@@ -1294,6 +1294,81 @@ public:
     }
 };
 
+enum ShenZinShuBunny
+{
+    SPELL_TRIGGER_WITH_ANIM_0   = 114898,
+    SPELL_TRIGGER               = 106759,
+    SPELL_TRIGGER_WITH_ANIM_1   = 118571,
+    SPELL_TRIGGER_WITH_TURN     = 118572,
+    TEXT_1                      = 55550,
+    TEXT_2                      = 55568,
+    TEXT_3                      = 55569,
+    TEXT_4                      = 55570,
+    TEXT_5                      = 55572,
+    TEXT_6                      = 63407
+};
+
+class shen_zin_shu_bunny : public CreatureScript
+{
+public:
+    shen_zin_shu_bunny() : CreatureScript("shen_zin_shu_bunny") { }
+
+    struct shen_zin_shu_bunnyAI : public ScriptedAI
+    {
+        shen_zin_shu_bunnyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->setActive(true);
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            switch (spell->Id)
+            {
+                case SPELL_TRIGGER_WITH_ANIM_0:
+                    me->Talk(TEXT_1, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                    me->PlayDirectSound(27822);
+                    break;
+                case SPELL_TRIGGER:
+                    me->Talk(TEXT_2, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                    me->PlayDirectSound(27823);
+                    break;
+                case SPELL_TRIGGER_WITH_ANIM_1:
+                    if (hitCount == 0)
+                    {
+                        me->Talk(TEXT_3, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                        me->PlayDirectSound(27824);
+                        hitCount++;
+                    }
+                    else if (hitCount == 1)
+                    {
+                        me->Talk(TEXT_4, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                        me->PlayDirectSound(27825);
+                        hitCount++;
+                    }
+                    else if (hitCount == 2)
+                    {
+                        me->Talk(TEXT_6, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                        me->PlayDirectSound(27827);
+                        hitCount = 0;
+                    }
+                    break;
+                case SPELL_TRIGGER_WITH_TURN:
+                    me->Talk(TEXT_5, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
+                    me->PlayDirectSound(27826);
+                    break;
+            }
+        }
+
+    private:
+        uint8 hitCount;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new shen_zin_shu_bunnyAI(creature);
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -1319,4 +1394,5 @@ void AddSC_the_wandering_isle()
     new spell_monkey_wisdom_text();
     new npc_zhaoren();
     new spell_master_shang_final_escort_say();
+    new shen_zin_shu_bunny();
 }
