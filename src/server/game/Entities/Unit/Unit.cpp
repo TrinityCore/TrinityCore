@@ -122,8 +122,7 @@ m_damageType(DIRECT_DAMAGE), m_attackType(dmgInfo.attackType)
 
 void DamageInfo::ModifyDamage(int32 amount)
 {
-    if (amount < 0)
-        amount = std::max(amount, static_cast<int32>(-GetDamage()));
+    amount = std::max(amount, -static_cast<int32>(m_damage));
     m_damage += amount;
 }
 
