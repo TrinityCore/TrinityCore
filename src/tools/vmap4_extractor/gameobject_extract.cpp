@@ -61,7 +61,7 @@ struct GameObjectDisplayInfoMeta
     {
         static char const* types = "ifffh";
         static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
-        static DB2Meta instance(-1, 5, 0xDD4432B9, types, arraySizes);
+        static DB2Meta instance(-1, 5, 0xE2D6FAB7, types, arraySizes);
         return &instance;
     }
 };
