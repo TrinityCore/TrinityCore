@@ -161,6 +161,7 @@ namespace Movement
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit->GetGUID();
         packet.Pos = loc;
+        packet.SplineData.StopDistanceTolerance = 2;
         packet.SplineData.ID = move_spline.GetId();
 
         if (transport)
@@ -185,8 +186,9 @@ namespace Movement
 
     void MoveSplineInit::SetFacing(const Unit* target)
     {
-        args.flags.EnableFacingTarget();
+        args.facing.angle = unit->GetAngle(target);
         args.facing.target = target->GetGUID();
+        args.facing.type = MONSTER_MOVE_FACING_TARGET;
     }
 
     void MoveSplineInit::SetFacing(float angle)
@@ -200,7 +202,7 @@ namespace Movement
         }
 
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
-        args.flags.EnableFacingAngle();
+        args.facing.type = MONSTER_MOVE_FACING_ANGLE;
     }
 
     void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)

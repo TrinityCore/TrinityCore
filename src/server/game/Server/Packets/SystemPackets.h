@@ -52,6 +52,33 @@ namespace WorldPackets
                 int32 DisplayTime = 0;
             };
 
+            struct SocialQueueConfig
+            {
+                bool ToastsDisabled = false;
+                float ToastDuration = 0.0f;
+                float DelayDuration = 0.0f;
+                float QueueMultiplier = 0.0f;
+                float PlayerMultiplier = 0.0f;
+                float PlayerFriendValue = 0.0f;
+                float PlayerGuildValue = 0.0f;
+                float ThrottleInitialThreshold = 0.0f;
+                float ThrottleDecayTime = 0.0f;
+                float ThrottlePrioritySpike = 0.0f;
+                float ThrottleMinThreshold = 0.0f;
+                float ThrottlePvPPriorityNormal = 0.0f;
+                float ThrottlePvPPriorityLow = 0.0f;
+                float ThrottlePvPHonorThreshold = 0.0f;
+                float ThrottleLfgListPriorityDefault = 0.0f;
+                float ThrottleLfgListPriorityAbove = 0.0f;
+                float ThrottleLfgListPriorityBelow = 0.0f;
+                float ThrottleLfgListIlvlScalingAbove = 0.0f;
+                float ThrottleLfgListIlvlScalingBelow = 0.0f;
+                float ThrottleRfPriorityAbove = 0.0f;
+                float ThrottleRfIlvlScalingAbove = 0.0f;
+                float ThrottleDfMaxItemLevel = 0.0f;
+                float ThrottleDfBestPriority = 0.0f;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
 
             WorldPacket const* Write() override;
@@ -84,7 +111,11 @@ namespace WorldPackets
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
-            bool UnkBit61                            = false;
+            bool KioskModeEnabled                    = false;
+            bool CompetitiveModeEnabled              = false;
+
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
+            SocialQueueConfig QuickJoinConfig;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -101,7 +132,10 @@ namespace WorldPackets
             bool CommerceSystemEnabled               = false; // NYI
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI
-            bool IsExpansionPreorderInStore          = false;
+            bool IsExpansionPreorderInStore          = false; // NYI
+            bool KioskModeEnabled                    = false; // NYI
+            bool CompetitiveModeEnabled              = false; // NYI
+            bool TrialBoostEnabled                   = false; // NYI
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
         };

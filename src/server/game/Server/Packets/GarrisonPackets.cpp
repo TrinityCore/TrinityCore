@@ -16,6 +16,7 @@
  */
 
 #include "GarrisonPackets.h"
+#include "DB2Structure.h"
 
 WorldPacket const* WorldPackets::Garrison::GarrisonCreateResult::Write()
 {
@@ -64,9 +65,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonFollowe
     data << uint32(follower.ItemLevelWeapon);
     data << uint32(follower.ItemLevelArmor);
     data << uint32(follower.Xp);
+    data << uint32(follower.Durability);
     data << uint32(follower.CurrentBuildingID);
     data << uint32(follower.CurrentMissionID);
     data << uint32(follower.AbilityID.size());
+    data << uint32(follower.ZoneSupportSpellID);
     data << uint32(follower.FollowerStatus);
     for (GarrAbilityEntry const* ability : follower.AbilityID)
         data << uint32(ability->ID);
@@ -88,6 +91,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMission
     data << uint32(mission.TravelDuration);
     data << uint32(mission.MissionDuration);
     data << uint32(mission.MissionState);
+    data << uint32(mission.Unknown1);
+    data << uint32(mission.Unknown2);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem)
+{
+    data << int32(missionRewardItem.ItemID);
+    data << uint32(missionRewardItem.Quantity);
+    data << int32(missionRewardItem.CurrencyID);
+    data << uint32(missionRewardItem.CurrencyQuantity);
+    data << uint32(missionRewardItem.FollowerXP);
+    data << uint32(missionRewardItem.BonusAbilityID);
+    data << int32(missionRewardItem.Unknown);
 
     return data;
 }
@@ -100,51 +118,86 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonMission
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonTalent const& talent)
+{
+    data << int32(talent.GarrTalentID);
+    data << int32(talent.ResearchStartTime);
+    data << int32(talent.Flags);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo const& garrison)
+{
+    ASSERT(garrison.Missions.size() == garrison.MissionRewards.size());
+    ASSERT(garrison.Missions.size() == garrison.MissionOvermaxRewards.size());
+    ASSERT(garrison.Missions.size() == garrison.CanStartMission.size());
+
+    data << int32(garrison.GarrTypeID);
+    data << int32(garrison.GarrSiteID);
+    data << int32(garrison.GarrSiteLevelID);
+    data << uint32(garrison.Buildings.size());
+    data << uint32(garrison.Plots.size());
+    data << uint32(garrison.Followers.size());
+    data << uint32(garrison.Missions.size());
+    data << uint32(garrison.MissionRewards.size());
+    data << uint32(garrison.MissionOvermaxRewards.size());
+    data << uint32(garrison.MissionAreaBonuses.size());
+    data << uint32(garrison.Talents.size());
+    data << uint32(garrison.CanStartMission.size());
+    data << uint32(garrison.ArchivedMissions.size());
+    data << int32(garrison.NumFollowerActivationsRemaining);
+    data << uint32(garrison.NumMissionsStartedToday);
+
+    for (WorldPackets::Garrison::GarrisonBuildingInfo const* building : garrison.Buildings)
+        data << *building;
+
+    for (WorldPackets::Garrison::GarrisonPlotInfo* plot : garrison.Plots)
+        data << *plot;
+
+    for (WorldPackets::Garrison::GarrisonFollower const* follower : garrison.Followers)
+        data << *follower;
+
+    for (WorldPackets::Garrison::GarrisonMission const* mission : garrison.Missions)
+        data << *mission;
+
+    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
+    {
+        data << uint32(missionReward.size());
+        for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
+    }
+
+    for (std::vector<WorldPackets::Garrison::GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
+    {
+        data << uint32(missionReward.size());
+        for (WorldPackets::Garrison::GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
+    }
+
+    for (WorldPackets::Garrison::GarrisonMissionAreaBonus const* areaBonus : garrison.MissionAreaBonuses)
+        data << *areaBonus;
+
+    for (WorldPackets::Garrison::GarrisonTalent const& talent : garrison.Talents)
+        data << talent;
+
+    if (!garrison.ArchivedMissions.empty())
+        data.append(garrison.ArchivedMissions.data(), garrison.ArchivedMissions.size());
+
+    for (bool canStartMission : garrison.CanStartMission)
+        data.WriteBit(canStartMission);
+
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
 {
-    _worldPacket.reserve(4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 +
-        Buildings.size() * sizeof(GarrisonBuildingInfo) +
-        Plots.size() * sizeof(GarrisonPlotInfo) +
-        Followers.size() * (sizeof(GarrisonFollower) + 5 * 4) +
-        Missions.size() * sizeof(GarrisonMission) +
-        MissionAreaBonuses.size() * sizeof(GarrisonMissionAreaBonus) +
-        ArchivedMissions.size() * 4 +
-        CanStartMission.size());
-
-    _worldPacket << int32(GarrSiteID);
-    _worldPacket << int32(GarrSiteLevelID);
     _worldPacket << int32(FactionIndex);
-    _worldPacket << uint32(Buildings.size());
-    _worldPacket << uint32(Plots.size());
-    _worldPacket << uint32(Followers.size());
-    _worldPacket << uint32(Missions.size());
-    _worldPacket << uint32(CanStartMission.size());
-    _worldPacket << uint32(MissionAreaBonuses.size());
-    _worldPacket << uint32(ArchivedMissions.size());
-    _worldPacket << int32(NumFollowerActivationsRemaining);
-
-    for (GarrisonBuildingInfo const* building : Buildings)
-        _worldPacket << *building;
-
-    for (GarrisonPlotInfo* plot : Plots)
-        _worldPacket << *plot;
-
-    for (GarrisonFollower const* follower : Followers)
-        _worldPacket << *follower;
-
-    for (GarrisonMission const* mission : Missions)
-        _worldPacket << *mission;
-
-    for (GarrisonMissionAreaBonus const* areaBonus : MissionAreaBonuses)
-        _worldPacket << *areaBonus;
-
-    if (!ArchivedMissions.empty())
-        _worldPacket.append(ArchivedMissions.data(), ArchivedMissions.size());
-
-    for (bool canStartMission : CanStartMission)
-        _worldPacket.WriteBit(canStartMission);
-
-    _worldPacket.FlushBits();
+    _worldPacket << uint32(Garrisons.size());
+    for (GarrisonInfo const& garrison : Garrisons)
+        _worldPacket << garrison;
 
     return &_worldPacket;
 }
@@ -185,6 +238,7 @@ void WorldPackets::Garrison::GarrisonPurchaseBuilding::Read()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonPlaceBuildingResult::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << BuildingInfo;
     _worldPacket.WriteBit(PlayActivationCinematic);
@@ -201,6 +255,7 @@ void WorldPackets::Garrison::GarrisonCancelConstruction::Read()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonBuildingRemoved::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(GarrPlotInstanceID);
     _worldPacket << uint32(GarrBuildingID);
@@ -210,6 +265,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonBuildingRemoved::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonLearnBlueprintResult::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(BuildingID);
 
@@ -218,6 +274,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonLearnBlueprintResult::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonUnlearnBlueprintResult::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(BuildingID);
 
@@ -226,6 +283,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonUnlearnBlueprintResult::Write
 
 WorldPacket const* WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationDataResult::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(BlueprintsKnown ? BlueprintsKnown->size() : 0);
     _worldPacket << uint32(SpecializationsKnown ? SpecializationsKnown->size() : 0);
     if (BlueprintsKnown)
@@ -258,6 +316,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonBuildingLandmarks::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonPlotPlaced::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << *PlotInfo;
 
     return &_worldPacket;
@@ -272,6 +331,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonPlotRemoved::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonAddFollowerResult::Write()
 {
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << Follower;
 
@@ -281,6 +341,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonAddFollowerResult::Write()
 WorldPacket const* WorldPackets::Garrison::GarrisonRemoveFollowerResult::Write()
 {
     _worldPacket << uint64(FollowerDBID);
+    _worldPacket << int32(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << uint32(Destroyed);
 

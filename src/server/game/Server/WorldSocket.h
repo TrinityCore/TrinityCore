@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "WorldPacketCrypt.h"
-#include "ServerPktHeader.h"
 #include "Socket.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -42,34 +41,25 @@ namespace WorldPackets
         class AuthSession;
         class AuthContinuedSession;
         class ConnectToFailed;
+        class Ping;
     }
 }
 
 #pragma pack(push, 1)
 
-union ClientPktHeader
+struct PacketHeader
 {
-    struct
-    {
-        uint16 Size;
-        uint16 Command;
-    } Setup;
+    uint32 Size;
+    uint16 Command;
 
-    struct
-    {
-        uint32 Size;
-        uint16 Command;
-    } Normal;
-
-    static bool IsValidSize(uint32 size) { return size < 10240; }
-    static bool IsValidOpcode(uint32 opcode) { return opcode < NUM_OPCODE_HANDLERS; }
+    bool IsValidSize() { return Size < 10240; }
+    bool IsValidOpcode() { return Command < NUM_OPCODE_HANDLERS; }
 };
 
 #pragma pack(pop)
 
 class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 {
-    static uint32 const ConnectionInitializeMagic;
     static std::string const ServerConnectionInitialize;
     static std::string const ClientConnectionInitialize;
     static uint32 const MinSizeForCompression;
@@ -129,17 +119,17 @@ private:
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
-
-    bool HandlePing(WorldPacket& recvPacket);
-
-    void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
+    bool HandlePing(WorldPackets::Auth::Ping& ping);
+    void HandleEnableEncryptionAck();
 
     ConnectionType _type;
+    uint64 _key;
 
     BigNumber _serverChallenge;
     WorldPacketCrypt _authCrypt;
     BigNumber _encryptSeed;
     BigNumber _decryptSeed;
+    BigNumber _sessionKey;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;

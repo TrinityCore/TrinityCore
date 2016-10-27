@@ -83,16 +83,10 @@
 #  define ATTR_NORETURN __attribute__((__noreturn__))
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
 #  define ATTR_DEPRECATED __attribute__((__deprecated__))
-#  define TRINITY_CONSTEXPR constexpr
 #else //COMPILER != COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
-#if _MSC_VER >= 1900
-#  define TRINITY_CONSTEXPR constexpr
-#else
-#  define TRINITY_CONSTEXPR
-#endif
 #endif //COMPILER == COMPILER_GNU
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -159,18 +153,12 @@ typedef uint8_t uint8;
 
 enum DBCFormer
 {
-    FT_NA = 'x',                                            //not used or unknown, 4 byte size
-    FT_NA_BYTE = 'X',                                       //not used or unknown, byte
-    FT_STRING = 's',                                        //char*
-    FT_STRING_NOT_LOCALIZED = 'S',                          //char* but without locale in DB2
-    FT_FLOAT = 'f',                                         //float
-    FT_INT = 'i',                                           //uint32
-    FT_BYTE = 'b',                                          //uint8
-    FT_LONG = 'l',                                          //uint64
-    FT_SORT = 'd',                                          //sorted by this field, field is not included
-    FT_IND = 'n',                                           //the same, but parsed to data
-    FT_SQL_PRESENT = 'p',                                   //Used in sql format to mark column present in sql dbc
-    FT_SQL_ABSENT = 'a'                                     //Used in sql format to mark column absent in sql dbc
+    FT_STRING = 's',                                        // LocalizedString*
+    FT_STRING_NOT_LOCALIZED = 'S',                          // char*
+    FT_FLOAT = 'f',                                         // float
+    FT_INT = 'i',                                           // uint32
+    FT_BYTE = 'b',                                          // uint8
+    FT_SHORT = 'h'                                          // uint16
 };
 
 #endif //TRINITY_DEFINE_H

@@ -232,7 +232,7 @@ void Vehicle::RemoveAllPassengers()
         while (!_pendingJoinEvents.empty())
         {
             VehicleJoinEvent* e = _pendingJoinEvents.front();
-            e->to_Abort = true;
+            e->ScheduleAbort();
             e->Target = eventVehicle;
             _pendingJoinEvents.pop_front();
         }
@@ -421,7 +421,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
 
         if (seat == Seats.end()) // no available seat
         {
-            e->to_Abort = true;
+            e->ScheduleAbort();
             return false;
         }
 
@@ -433,7 +433,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         seat = Seats.find(seatId);
         if (seat == Seats.end())
         {
-            e->to_Abort = true;
+            e->ScheduleAbort();
             return false;
         }
 
@@ -478,12 +478,12 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
         _me->SetFlag64(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
-    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
+    if (seat->second.SeatInfo->Flags[0] & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
         unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     seat->second.Passenger.Reset();
 
-    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->Flags[0] & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
 
     if (_me->IsInWorld())
@@ -691,7 +691,7 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
     {
         if ((*itr)->Seat->first == seatId)
         {
-            (*itr)->to_Abort = true;
+            (*itr)->ScheduleAbort();
             _pendingJoinEvents.erase(itr++);
         }
         else
@@ -716,18 +716,12 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
     {
         if ((*itr)->Passenger == passenger)
         {
-            (*itr)->to_Abort = true;
+            (*itr)->ScheduleAbort();
             _pendingJoinEvents.erase(itr++);
         }
         else
             ++itr;
     }
-}
-
-VehicleJoinEvent::~VehicleJoinEvent()
-{
-    if (Target)
-        Target->RemovePendingEvent(this);
 }
 
 /**
@@ -785,11 +779,11 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         player->StopCastingCharm();
         player->StopCastingBindSight();
         player->SendOnCancelExpectedVehicleRideAura();
-        if (!(veSeat->FlagsB & VEHICLE_SEAT_FLAG_B_KEEP_PET))
+        if (!(veSeat->Flags[1] & VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
     }
 
-    if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+    if (Seat->second.SeatInfo->Flags[0] & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     Passenger->m_movementInfo.transport.pos.Relocate(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z);
@@ -799,7 +793,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->m_movementInfo.transport.vehicleId = Target->GetVehicleInfo()->ID;
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
-        Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+        Seat->second.SeatInfo->Flags[0] & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE));  // SMSG_CLIENT_CONTROL
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
@@ -846,6 +840,9 @@ void VehicleJoinEvent::Abort(uint64)
     {
         TC_LOG_DEBUG("entities.vehicle", "Passenger %s, Entry: %u, board on vehicle %s, Entry: %u SeatId: %d cancelled",
             Passenger->GetGUID().ToString().c_str(), Passenger->GetEntry(), Target->GetBase()->GetGUID().ToString().c_str(), Target->GetBase()->GetEntry(), (int32)Seat->first);
+
+        /// Remove the pending event when Abort was called on the event directly
+        Target->RemovePendingEvent(this);
 
         /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
         /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove

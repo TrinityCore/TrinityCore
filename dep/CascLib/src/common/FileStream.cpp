@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /* FileStream.cpp                         Copyright (c) Ladislav Zezula 2010 */
 /*---------------------------------------------------------------------------*/
-/* File stream support for CascLib                                           */
+/* File stream support                                                       */
 /*                                                                           */
 /* Windows support: Written by Ladislav Zezula                               */
 /* Mac support:     Written by Sam Wilkins                                   */
@@ -162,7 +162,7 @@ static bool BaseFile_Read(
 
 #ifdef PLATFORM_WINDOWS
     {
-        // Note: CascLib no longer supports Windows 9x.
+        // Note: We no longer support Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
@@ -233,7 +233,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
 
 #ifdef PLATFORM_WINDOWS
     {
-        // Note: CascLib no longer supports Windows 9x.
+        // Note: We no longer support Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
@@ -2097,7 +2097,7 @@ static TFileStream * EncrStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 
     // Cleanup the stream and return
     FileStream_Close(pStream);
-    SetLastError(ERROR_UNKNOWN_FILE_KEY);
+    SetLastError(ERROR_FILE_ENCRYPTED);
     return NULL;
 }
 

@@ -18,7 +18,6 @@
 #include "TaxiPathGraph.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Config.h"
 #include "Util.h"
@@ -108,8 +107,8 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             uint32 map1, map2;
             DBCPosition2D pos1, pos2;
 
-            DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
-            DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->MapID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
+            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->MapID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
 
             if (map1 != map2)
                 continue;
@@ -148,9 +147,17 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
     {
         shortestPath.clear();
         std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
+        std::vector<uint32> d(boost::num_vertices(m_graph));
 
         boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
             boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+            .distance_map(boost::make_iterator_property_map(d.begin(), boost::get(boost::vertex_index, m_graph)))
+            .vertex_index_map(boost::get(boost::vertex_index, m_graph))
+            .distance_compare(std::less<uint32>())
+            .distance_combine(boost::closed_plus<uint32>())
+            .distance_inf(std::numeric_limits<uint32>::max())
+            .distance_zero(0)
+            .visitor(boost::dijkstra_visitor<boost::null_visitor>())
             .weight_map(boost::make_transform_value_property_map(
                 [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
                 boost::get(boost::edge_weight, m_graph))));
@@ -185,8 +192,9 @@ uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const
     if (!(To->Flags & requireFlag))
         return std::numeric_limits<uint16>::max();
 
-    //if (To->ConditionID && !player->MeetsCondition(To->ConditionID))
-    //    return std::numeric_limits<uint16>::max();
+    if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(To->ConditionID))
+        if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
+            return std::numeric_limits<uint16>::max();
 
     return Distance;
 }

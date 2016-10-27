@@ -34,7 +34,8 @@
 #endif
 #include "DBFilesClientList.h"
 #include "CascLib.h"
-#include "dbcfile.h"
+#include "DB2.h"
+#include "Banner.h"
 #include "StringFormat.h"
 
 #include "adt.h"
@@ -74,11 +75,33 @@ typedef struct
     uint32 id;
 } map_id;
 
-map_id *map_ids;
-uint16 *LiqType;
+std::vector<map_id> map_ids;
+std::vector<uint16> LiqType;
 #define MAX_PATH_LENGTH 128
 char output_path[MAX_PATH_LENGTH];
 char input_path[MAX_PATH_LENGTH];
+
+struct LiquidTypeMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "sifffffSifihhbbbbbi";
+        static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
+        static DB2Meta instance(-1, 19, 0x28B44DCB, types, arraySizes);
+        return &instance;
+    }
+};
+
+struct MapMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "siffssshhhhhhhbbbbb";
+        static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 19, 0xB32E648C, types, arraySizes);
+        return &instance;
+    }
+};
 
 // **************************************************
 // Extractor options
@@ -86,11 +109,12 @@ char input_path[MAX_PATH_LENGTH];
 enum Extract
 {
     EXTRACT_MAP = 1,
-    EXTRACT_DBC = 2
+    EXTRACT_DBC = 2,
+    EXTRACT_GT  = 8
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_GT;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -153,7 +177,7 @@ void Usage(char const* prg)
         "%s -[var] [value]\n"\
         "-i set input path (max %d characters)\n"\
         "-o set output path (max %d characters)\n"\
-        "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
+        "-e extract only MAP(1)/DBC(2)/gt(8) - standard: all(11)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
@@ -203,7 +227,7 @@ void HandleArgs(int argc, char* arg[])
                 if (c + 1 < argc)                            // all ok
                 {
                     CONF_extract = atoi(arg[c++ + 1]);
-                    if (!(CONF_extract > 0 && CONF_extract < 4))
+                    if (!(CONF_extract > 0 && CONF_extract < 12))
                         Usage(arg[0]);
                 }
                 else
@@ -275,31 +299,34 @@ uint32 ReadBuild(int locale)
     return build;
 }
 
-uint32 ReadMapDBC()
+void ReadMapDBC()
 {
     printf("Read Map.dbc file... ");
 
     HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, 0, &dbcFile))
     {
         printf("Fatal error: Cannot find Map.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
-    DBCFile dbc(dbcFile);
-    if (!dbc.open())
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, MapMeta::Instance()))
     {
-        printf("Fatal error: Invalid Map.dbc file format!\n");
+        printf("Fatal error: Invalid Map.db2 file format! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
-    size_t map_count = dbc.getRecordCount();
-    map_ids = new map_id[map_count];
-    for(uint32 x = 0; x < map_count; ++x)
+    map_ids.resize(db2.GetNumRows());
+    std::unordered_map<uint32, uint32> idToIndex;
+    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
     {
-        map_ids[x].id = dbc.getRecord(x).getUInt(0);
+        if (MapMeta::Instance()->HasIndexFieldInData())
+            map_ids[x].id = db2.getRecord(x).getUInt(MapMeta::Instance()->GetIndexField(), 0);
+        else
+            map_ids[x].id = db2.getId(x);
 
-        const char* map_name = dbc.getRecord(x).getString(1);
+        const char* map_name = db2.getRecord(x).getString(0, 0);
         size_t max_map_name_length = sizeof(map_ids[x].name);
         if (strlen(map_name) >= max_map_name_length)
         {
@@ -309,40 +336,62 @@ uint32 ReadMapDBC()
 
         strncpy(map_ids[x].name, map_name, max_map_name_length);
         map_ids[x].name[max_map_name_length - 1] = '\0';
+        idToIndex[map_ids[x].id] = x;
+    }
+
+    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+    {
+        uint32 from = db2.GetRowCopy(x).first;
+        uint32 to = db2.GetRowCopy(x).second;
+        auto itr = idToIndex.find(from);
+        if (itr != idToIndex.end())
+        {
+            map_id id;
+            id.id = to;
+            strcpy(id.name, map_ids[itr->second].name);
+            map_ids.push_back(id);
+        }
     }
 
     CascCloseFile(dbcFile);
-    printf("Done! (" SZFMTD " maps loaded)\n", map_count);
-    return map_count;
+    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
 
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
     HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.dbc", CASC_LOCALE_NONE, 0, &dbcFile))
+    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, 0, &dbcFile))
     {
         printf("Fatal error: Cannot find LiquidType.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
-    DBCFile dbc(dbcFile);
-    if(!dbc.open())
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, LiquidTypeMeta::Instance()))
     {
-        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
+        printf("Fatal error: Invalid LiquidType.db2 file format!\n");
         exit(1);
     }
 
-    size_t liqTypeCount = dbc.getRecordCount();
-    size_t liqTypeMaxId = dbc.getMaxId();
-    LiqType = new uint16[liqTypeMaxId + 1];
-    memset(LiqType, 0xff, (liqTypeMaxId + 1) * sizeof(uint16));
+    LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
 
-    for(uint32 x = 0; x < liqTypeCount; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
+    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+    {
+        uint32 liquidTypeId;
+        if (LiquidTypeMeta::Instance()->HasIndexFieldInData())
+            liquidTypeId = db2.getRecord(x).getUInt(LiquidTypeMeta::Instance()->GetIndexField(), 0);
+        else
+            liquidTypeId = db2.getId(x);
+
+        LiqType[liquidTypeId] = db2.getRecord(x).getUInt8(13, 0);
+    }
+
+    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+        LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
 
     CascCloseFile(dbcFile);
-    printf("Done! (" SZFMTD " LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
 }
 
 //
@@ -1033,7 +1082,7 @@ void ExtractMaps(uint32 build)
 
     printf("Extracting maps...\n");
 
-    uint32 map_count = ReadMapDBC();
+    ReadMapDBC();
 
     ReadLiquidTypeTableDBC();
 
@@ -1044,9 +1093,9 @@ void ExtractMaps(uint32 build)
     std::set<std::string> wmoList;
 
     printf("Convert map files\n");
-    for (uint32 z = 0; z < map_count; ++z)
+    for (std::size_t z = 0; z < map_ids.size(); ++z)
     {
-        printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
+        printf("Extract %s (" SZFMTD "/" SZFMTD ")                  \n", map_ids[z].name, z+1, map_ids.size());
         // Loadup map grid data
         storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         ChunkedFile wdt;
@@ -1090,7 +1139,6 @@ void ExtractMaps(uint32 build)
     }
 
     printf("\n");
-    delete[] map_ids;
 }
 
 bool ExtractFile(HANDLE fileInArchive, std::string filename)
@@ -1137,8 +1185,7 @@ void ExtractDBFilesClient(int l)
     while (fileName)
     {
         std::string filename = fileName;
-        if (CascOpenFile(CascStorage, (filename = (filename + ".db2")).c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile) ||
-            CascOpenFile(CascStorage, (filename = (filename.substr(0, filename.length() - 4) + ".dbc")).c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile))
+        if (CascOpenFile(CascStorage, filename.c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile))
         {
             filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
@@ -1152,6 +1199,79 @@ void ExtractDBFilesClient(int l)
             printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], HumanReadableCASCError(GetLastError()));
 
         fileName = DBFilesClientList[++index];
+    }
+
+    printf("Extracted %u files\n\n", count);
+}
+
+void ExtractGameTables()
+{
+    printf("Extracting game tables...\n");
+
+    std::string outputPath = output_path;
+    outputPath += "/gt/";
+
+    CreateDir(outputPath);
+
+    printf("output path %s\n", outputPath.c_str());
+
+    char const* GameTables[] =
+    {
+        "GameTables\\ArmorMitigationByLvl.txt",
+        "GameTables\\artifactLevelXP.txt",
+        "GameTables\\BarberShopCostBase.txt",
+        "GameTables\\BaseMp.txt",
+        "GameTables\\BattlePetTypeDamageMod.txt",
+        "GameTables\\battlePetXP.txt",
+        "GameTables\\ChallengeModeDamage.txt",
+        "GameTables\\ChallengeModeHealth.txt",
+        "GameTables\\CombatRatings.txt",
+        "GameTables\\CombatRatingsMultByILvl.txt",
+        "GameTables\\HonorLevel.txt",
+        "GameTables\\HpPerSta.txt",
+        "GameTables\\ItemSocketCostPerLevel.txt",
+        "GameTables\\NpcDamageByClass.txt",
+        "GameTables\\NpcDamageByClassExp1.txt",
+        "GameTables\\NpcDamageByClassExp2.txt",
+        "GameTables\\NpcDamageByClassExp3.txt",
+        "GameTables\\NpcDamageByClassExp4.txt",
+        "GameTables\\NpcDamageByClassExp5.txt",
+        "GameTables\\NpcDamageByClassExp6.txt",
+        "GameTables\\NpcManaCostScaler.txt",
+        "GameTables\\NpcTotalHp.txt",
+        "GameTables\\NpcTotalHpExp1.txt",
+        "GameTables\\NpcTotalHpExp2.txt",
+        "GameTables\\NpcTotalHpExp3.txt",
+        "GameTables\\NpcTotalHpExp4.txt",
+        "GameTables\\NpcTotalHpExp5.txt",
+        "GameTables\\NpcTotalHpExp6.txt",
+        "GameTables\\SandboxScaling.txt",
+        "GameTables\\SpellScaling.txt",
+        "GameTables\\xp.txt",
+        nullptr
+    };
+
+    uint32 index = 0;
+    uint32 count = 0;
+    char const* fileName = GameTables[index];
+    HANDLE dbcFile;
+    while (fileName)
+    {
+        std::string filename = fileName;
+        if (CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_NONE, 0, &dbcFile))
+        {
+            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+
+            if (!boost::filesystem::exists(filename))
+                if (ExtractFile(dbcFile, filename))
+                    ++count;
+
+            CascCloseFile(dbcFile);
+        }
+        else
+            printf("Unable to open file %s in the archive: %s\n", fileName, HumanReadableCASCError(GetLastError()));
+
+        fileName = GameTables[++index];
     }
 
     printf("Extracted %u files\n\n", count);
@@ -1179,8 +1299,7 @@ bool OpenCascStorage(int locale)
 
 int main(int argc, char * arg[])
 {
-    printf("Map & DBC Extractor\n");
-    printf("===================\n");
+    Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     boost::filesystem::path current(boost::filesystem::current_path());
     strcpy(input_path, current.string().c_str());
@@ -1239,6 +1358,13 @@ int main(int argc, char * arg[])
     {
         printf("No locales detected\n");
         return 0;
+    }
+
+    if (CONF_extract & EXTRACT_GT)
+    {
+        OpenCascStorage(FirstLocale);
+        ExtractGameTables();
+        CascCloseStorage(CascStorage);
     }
 
     if (CONF_extract & EXTRACT_MAP)

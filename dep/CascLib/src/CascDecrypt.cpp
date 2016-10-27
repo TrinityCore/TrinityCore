@@ -255,7 +255,7 @@ int CascDecrypt(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWOR
     // Check if we know the key
     pbKey = FindCascKey(KeyName);
     if(pbKey == NULL)
-        return ERROR_UNKNOWN_FILE_KEY;
+        return ERROR_FILE_ENCRYPTED;
 
     // Shuffle the Vector with the block index
     // Note that there's no point to go beyond 32 bits, unless the file has

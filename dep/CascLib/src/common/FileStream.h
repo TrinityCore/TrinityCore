@@ -12,6 +12,28 @@
 #define __FILESTREAM_H__
 
 //-----------------------------------------------------------------------------
+// Flags for file stream
+
+#define BASE_PROVIDER_FILE          0x00000000  // Base data source is a file
+#define BASE_PROVIDER_MAP           0x00000001  // Base data source is memory-mapped file
+#define BASE_PROVIDER_HTTP          0x00000002  // Base data source is a file on web server
+#define BASE_PROVIDER_MASK          0x0000000F  // Mask for base provider value
+
+#define STREAM_PROVIDER_FLAT        0x00000000  // Stream is linear with no offset mapping
+#define STREAM_PROVIDER_PARTIAL     0x00000010  // Stream is partial file (.part)
+#define STREAM_PROVIDER_ENCRYPTED   0x00000020  // Stream is an encrypted archive
+#define STREAM_PROVIDER_BLOCK4      0x00000030  // 0x4000 per block, text MD5 after each block, max 0x2000 blocks per file
+#define STREAM_PROVIDER_MASK        0x000000F0  // Mask for stream provider value
+
+#define STREAM_FLAG_READ_ONLY       0x00000100  // Stream is read only
+#define STREAM_FLAG_WRITE_SHARE     0x00000200  // Allow write sharing when open for write
+#define STREAM_FLAG_USE_BITMAP      0x00000400  // If the file has a file bitmap, load it and use it
+#define STREAM_OPTIONS_MASK         0x0000FF00  // Mask for stream options
+
+#define STREAM_PROVIDERS_MASK       0x000000FF  // Mask to get stream providers
+#define STREAM_FLAGS_MASK           0x0000FFFF  // Mask for all stream flags (providers+options)
+
+//-----------------------------------------------------------------------------
 // Function prototypes
 
 typedef void (*STREAM_INIT)(

@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "MailPackets.h"
 #include "Language.h"
-#include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
@@ -196,7 +195,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
         if (Item* item = player->GetItemByGuid(att.ItemGUID))
         {
             ItemTemplate const* itemProto = item->GetTemplate();
-            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_BIND_TO_ACCOUNT))
+            if (!itemProto || !(itemProto->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT))
             {
                 accountBound = false;
                 break;
@@ -636,7 +635,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     if (m->messageType == MAIL_NORMAL)
         bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
 
-    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_MAIL_TEXT_MASK);
+    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_READABLE);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

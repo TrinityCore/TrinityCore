@@ -42,20 +42,18 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
         _worldPacket << uint32(Info->BorderStyle);
         _worldPacket << uint32(Info->BorderColor);
         _worldPacket << uint32(Info->BackgroundColor);
+        _worldPacket.WriteBits(Info->GuildName.size(), 7);
+        _worldPacket.FlushBits();
 
         for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
         {
             _worldPacket << uint32(rank.RankID);
             _worldPacket << uint32(rank.RankOrder);
-
             _worldPacket.WriteBits(rank.RankName.size(), 7);
             _worldPacket.FlushBits();
 
             _worldPacket.WriteString(rank.RankName);
         }
-
-        _worldPacket.WriteBits(Info->GuildName.size(), 7);
-        _worldPacket.FlushBits();
 
         _worldPacket.WriteString(Info->GuildName);
     }
@@ -69,13 +67,12 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
     _worldPacket.AppendPackedTime(CreateDate);
     _worldPacket << GuildFlags;
     _worldPacket << uint32(MemberData.size());
+    _worldPacket.WriteBits(WelcomeText.length(), 10);
+    _worldPacket.WriteBits(InfoText.length(), 11);
+    _worldPacket.FlushBits();
 
     for (GuildRosterMemberData const& member : MemberData)
         _worldPacket << member;
-
-    _worldPacket.WriteBits(WelcomeText.length(), 10);
-    _worldPacket.WriteBits(InfoText.length(), 10);
-    _worldPacket.FlushBits();
 
     _worldPacket.WriteString(WelcomeText);
     _worldPacket.WriteString(InfoText);
@@ -600,6 +597,8 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     _worldPacket << WithdrawalsRemaining;
     _worldPacket << uint32(TabInfo.size());
     _worldPacket << uint32(ItemInfo.size());
+    _worldPacket.WriteBit(FullUpdate);
+    _worldPacket.FlushBits();
 
     for (GuildBankTabInfo const& tab : TabInfo)
     {
@@ -620,21 +619,14 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket << item.EnchantmentID;
         _worldPacket << item.Charges;
         _worldPacket << item.OnUseEnchantmentID;
-        _worldPacket << uint32(item.SocketEnchant.size());
         _worldPacket << item.Flags;
-
-        for (GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
-        {
-            _worldPacket << socketEnchant.SocketIndex;
-            _worldPacket << socketEnchant.SocketEnchantID;
-        }
-
+        _worldPacket.WriteBits(item.SocketEnchant.size(), 2);
         _worldPacket.WriteBit(item.Locked);
         _worldPacket.FlushBits();
-    }
 
-    _worldPacket.WriteBit(FullUpdate);
-    _worldPacket.FlushBits();
+        for (Item::ItemGemData const& socketEnchant : item.SocketEnchant)
+            _worldPacket << socketEnchant;
+    }
 
     return &_worldPacket;
 }
@@ -668,6 +660,8 @@ WorldPacket const* WorldPackets::Guild::GuildBankLogQueryResults::Write()
 {
     _worldPacket << Tab;
     _worldPacket << uint32(Entry.size());
+    _worldPacket.WriteBit(WeeklyBonusMoney.is_initialized());
+    _worldPacket.FlushBits();
 
     for (GuildBankLogEntry const& logEntry : Entry)
     {
@@ -693,9 +687,6 @@ WorldPacket const* WorldPackets::Guild::GuildBankLogQueryResults::Write()
         if (logEntry.OtherTab.is_initialized())
             _worldPacket << *logEntry.OtherTab;
     }
-
-    _worldPacket.WriteBit(WeeklyBonusMoney.is_initialized());
-    _worldPacket.FlushBits();
 
     if (WeeklyBonusMoney)
         _worldPacket << *WeeklyBonusMoney;
@@ -723,11 +714,7 @@ WorldPacket const* WorldPackets::Guild::GuildBankTextQueryResult::Write()
 void WorldPackets::Guild::GuildBankSetTabText::Read()
 {
     _worldPacket >> Tab;
-
-    _worldPacket.ResetBitPos();
-    uint32 tabTextLen = _worldPacket.ReadBits(14);
-
-    TabText = _worldPacket.ReadString(tabTextLen);
+    TabText = _worldPacket.ReadString(_worldPacket.ReadBits(14));
 }
 
 void WorldPackets::Guild::GuildQueryNews::Read()
@@ -783,16 +770,16 @@ void WorldPackets::Guild::GuildSetGuildMaster::Read()
 
 WorldPacket const* WorldPackets::Guild::GuildChallengeUpdate::Write()
 {
-    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+    for (int32 i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
         _worldPacket << int32(CurrentCount[i]);
 
-    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+    for (int32 i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
         _worldPacket << int32(MaxCount[i]);
 
-    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+    for (int32 i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
         _worldPacket << int32(MaxLevelGold[i]);
 
-    for (int i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
+    for (int32 i = 0; i < GUILD_CHALLENGES_TYPES; ++i)
         _worldPacket << int32(Gold[i]);
 
     return &_worldPacket;

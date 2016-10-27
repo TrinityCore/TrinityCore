@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "PlayerDump.h"
 #include "DatabaseEnv.h"
-#include "UpdateFields.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "AccountMgr.h"

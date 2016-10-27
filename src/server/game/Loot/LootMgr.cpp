@@ -359,13 +359,14 @@ LootItem::LootItem(LootStoreItem const& li)
     conditions   = li.conditions;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-    freeforall = proto && (proto->GetFlags() & ITEM_FLAG_PARTY_LOOT);
+    freeforall = proto && (proto->GetFlags() & ITEM_FLAG_MULTI_DROP);
     follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
 
     needs_quest = li.needs_quest;
 
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
+    upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
     count = 0;
     is_looted = 0;
     is_blocked = 0;
@@ -386,14 +387,14 @@ bool LootItem::AllowedForPlayer(Player const* player) const
         return false;
 
     // not show loot for players without profession or those who already know the recipe
-    if ((pProto->GetFlags() & ITEM_FLAG_SMART_LOOT) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1]->SpellID)))
+    if ((pProto->GetFlags() & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1]->SpellID)))
         return false;
 
     // not show loot for not own team
-    if ((pProto->GetFlags2() & ITEM_FLAG2_HORDE_ONLY) && player->GetTeam() != HORDE)
+    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
         return false;
 
-    if ((pProto->GetFlags2() & ITEM_FLAG2_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
+    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
         return false;
 
     // check quest requirements
@@ -441,7 +442,7 @@ void Loot::AddItem(LootStoreItem const& item)
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
-        if (!item.needs_quest && item.conditions.empty() && !(proto->GetFlags() & ITEM_FLAG_PARTY_LOOT))
+        if (!item.needs_quest && item.conditions.empty() && !(proto->GetFlags() & ITEM_FLAG_MULTI_DROP))
             ++unlootedCount;
     }
 }
@@ -575,7 +576,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
             // increase once if one looter only, looter-times if free for all
             if (item.freeforall || !item.is_blocked)
                 ++unlootedCount;
-            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT && player->GetGroup()->GetLootMethod() != ROUND_ROBIN))
+            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT))
                 item.is_blocked = true;
 
             if (items.size() + ql->size() == MAX_NR_LOOT_ITEMS)
@@ -921,26 +922,6 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             }
             break;
         }
-        case ROUND_ROBIN_PERMISSION:
-        {
-            for (uint8 i = 0; i < items.size(); ++i)
-            {
-                if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
-                {
-                    if (!roundRobinPlayer.IsEmpty() && viewer->GetGUID() != roundRobinPlayer)
-                        // item shall not be displayed.
-                        continue;
-
-                    WorldPackets::Loot::LootItemData lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
-                    lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-                    lootItem.Quantity = items[i].count;
-                    lootItem.Loot.Initialize(items[i]);
-                    packet.Items.push_back(lootItem);
-                }
-            }
-            break;
-        }
         case ALL_PERMISSION:
         case OWNER_PERMISSION:
         {
@@ -989,7 +970,6 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                             lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                             break;
                         case GROUP_PERMISSION:
-                        case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
                                 lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                             else
@@ -1054,7 +1034,6 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                         break;
                     case GROUP_PERMISSION:
-                    case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
                             lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                         else
@@ -1557,7 +1536,7 @@ void LoadLootTemplates_Disenchant()
         if (!disenchant)
             continue;
 
-        uint32 lootid = disenchant->ID;
+        uint32 lootid = i;
         if (lootIdSet.find(lootid) == lootIdSet.end())
             LootTemplates_Disenchant.ReportNonExistingId(lootid);
         else
@@ -1586,10 +1565,9 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sAreaTableStore.GetNumRows(); ++i)
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(i))
-            if (lootIdSet.find(areaEntry->ID) != lootIdSet.end())
-                lootIdSet.erase(areaEntry->ID);
+    for (AreaTableEntry const* areaTable : sAreaTableStore)
+        if (lootIdSet.find(areaTable->ID) != lootIdSet.end())
+            lootIdSet.erase(areaTable->ID);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);
@@ -1646,7 +1624,7 @@ void LoadLootTemplates_Item()
     // remove real entries and check existence loot
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
-        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end() && itr->second.GetFlags() & ITEM_FLAG_OPENABLE)
+        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end() && itr->second.GetFlags() & ITEM_FLAG_HAS_LOOT)
             lootIdSet.erase(itr->second.GetId());
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1671,7 +1649,7 @@ void LoadLootTemplates_Milling()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.GetFlags() & ITEM_FLAG_MILLABLE))
+        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_MILLABLE))
             continue;
 
         if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())
@@ -1734,7 +1712,7 @@ void LoadLootTemplates_Prospecting()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.GetFlags() & ITEM_FLAG_PROSPECTABLE))
+        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
             continue;
 
         if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())

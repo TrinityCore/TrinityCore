@@ -85,7 +85,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
         return false;
     }
 
-    return true;
+    return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 }
 
 bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTree const* tree)
@@ -520,6 +520,11 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
         draft.SendMailTo(trans, _owner, MailSender(MAIL_CREATURE, uint64(reward->SenderCreatureId)));
         CharacterDatabase.CommitTransaction(trans);
     }
+}
+
+bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
+{
+    return AdditionalRequirementsSatisfied(sCriteriaMgr->GetModifierTree(modifierTreeId), 0, 0, nullptr, _owner);
 }
 
 void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const

@@ -23,7 +23,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
@@ -443,11 +442,11 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
          totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
 
     uint32 depositremain = totaldeposit;
-    for (auto itr = thisAH->begin(); itr != thisAH->end(); ++itr)
+    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
     {
-        AuctionEntry* AH = (*itr);
+        AuctionEntry* AH = (*itrAH);
 
-        if (next(itr) == thisAH->end())
+        if (next(itrAH) == thisAH->end())
             AH->deposit = depositremain;
         else
         {
@@ -513,7 +512,7 @@ void AuctionHouseMgr::Update()
     mNeutralAuctions.Update();
 }
 
-AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
+AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId, uint32* houseId)
 {
     uint32 houseid = 7; // goblin auction house
 
@@ -549,6 +548,9 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
             }
         }
     }
+
+    if (houseId)
+        *houseId = houseid;
 
     return sAuctionHouseStore.LookupEntry(houseid);
 }
@@ -658,8 +660,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPackets::AuctionHouse::Auction
 }
 
 void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
-    std::wstring const& wsearchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
-    uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32& totalcount)
+    std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, bool usable, Optional<AuctionSearchFilters> const& filters, uint32 quality)
 {
     time_t curTime = sWorld->GetGameTime();
 
@@ -675,15 +676,24 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
             continue;
 
         ItemTemplate const* proto = item->GetTemplate();
+        if (filters)
+        {
+            // if we dont want any class filters, Optional is not initialized
+            // if we dont want this class included, SubclassMask is set to FILTER_SKIP_CLASS
+            // if we want this class and did not specify and subclasses, its set to FILTER_SKIP_SUBCLASS
+            // otherwise full restrictions apply
+            if (filters->Classes[proto->GetClass()].SubclassMask == AuctionSearchFilters::FILTER_SKIP_CLASS)
+                continue;
 
-        if (itemClass != 0xffffffff && proto->GetClass() != itemClass)
-            continue;
+            if (filters->Classes[proto->GetClass()].SubclassMask != AuctionSearchFilters::FILTER_SKIP_SUBCLASS)
+            {
+                if (!(filters->Classes[proto->GetClass()].SubclassMask & (1 << proto->GetSubClass())))
+                    continue;
 
-        if (itemSubClass != 0xffffffff && proto->GetSubClass() != itemSubClass)
-            continue;
-
-        if (inventoryType != 0xffffffff && proto->GetInventoryType() != InventoryType(inventoryType))
-            continue;
+                if (!(filters->Classes[proto->GetClass()].InvTypes[proto->GetSubClass()] & (1 << proto->GetInventoryType())))
+                    continue;
+            }
+        }
 
         if (quality != 0xffffffff && proto->GetQuality() != quality)
             continue;
@@ -691,12 +701,12 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
         if (levelmin != 0 && (proto->GetBaseRequiredLevel() < levelmin || (levelmax != 0 && proto->GetBaseRequiredLevel() > levelmax)))
             continue;
 
-        if (usable != 0 && player->CanUseItem(item) != EQUIP_ERR_OK)
+        if (usable && player->CanUseItem(item) != EQUIP_ERR_OK)
             continue;
 
         // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
         // No need to do any of this if no search term was entered
-        if (!wsearchedname.empty())
+        if (!searchedname.empty())
         {
             std::string name = proto->GetName(player->GetSession()->GetSessionDbcLocale());
             if (name.empty())
@@ -739,15 +749,15 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::Aucti
             }
 
             // Perform the search (with or without suffix)
-            if (!Utf8FitTo(name, wsearchedname))
+            if (!Utf8FitTo(name, searchedname))
                 continue;
         }
 
         // Add the item if no search term or if entered search term was found
-        if (packet.Items.size() < 50 && totalcount >= listfrom)
+        if (packet.Items.size() < 50 && packet.TotalCount >= listfrom)
             Aentry->BuildAuctionInfo(packet.Items, true, item);
 
-        ++totalcount;
+        ++packet.TotalCount;
     }
 }
 
@@ -835,6 +845,19 @@ void AuctionEntry::BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::Auct
         auctionItem.Enchantments.emplace_back(item->GetEnchantmentId((EnchantmentSlot) i), item->GetEnchantmentDuration((EnchantmentSlot) i), item->GetEnchantmentCharges((EnchantmentSlot) i), i);
     }
 
+    uint8 i = 0;
+    for (ItemDynamicFieldGems const& gemData : item->GetGems())
+    {
+        if (gemData.ItemId)
+        {
+            WorldPackets::Item::ItemGemData gem;
+            gem.Slot = i;
+            gem.Item.Initialize(&gemData);
+            auctionItem.Gems.push_back(gem);
+        }
+        ++i;
+    }
+
     items.emplace_back(auctionItem);
 }
 
@@ -904,7 +927,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     }
 
     factionTemplateId = auctioneerInfo->faction;
-    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId);
+    auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(factionTemplateId, &houseId);
     if (!auctionHouseEntry)
     {
         TC_LOG_ERROR("misc", "Auction %u has auctioneer (GUID : " UI64FMTD " Entry: %u) with wrong faction %u", Id, auctioneer, auctioneerData->id, factionTemplateId);

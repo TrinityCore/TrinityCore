@@ -227,7 +227,7 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
 void Group::ConvertToLFG()
 {
     m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED);
-    m_lootMethod = NEED_BEFORE_GREED;
+    m_lootMethod = GROUP_LOOT;
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
@@ -978,159 +978,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     BroadcastPacket(lootList.Write(), false);
 }
 
-void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
-{
-    std::vector<LootItem>::iterator i;
-    ItemTemplate const* item;
-    uint8 itemSlot = 0;
-
-    for (i = loot->items.begin(); i != loot->items.end(); ++i, ++itemSlot)
-    {
-        if (i->freeforall)
-            continue;
-
-        item = sObjectMgr->GetItemTemplate(i->itemid);
-        if (!item)
-        {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
-            continue;
-        }
-
-        //roll for over-threshold item if it's one-player loot
-        if (item->GetQuality() >= uint32(m_lootThreshold))
-        {
-            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
-            Roll* r = new Roll(newitemGUID, *i);
-
-            //a vector is filled with only near party members
-            for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* member = itr->GetSource();
-                if (!member || !member->GetSession())
-                    continue;
-                if (i->AllowedForPlayer(member))
-                {
-                    if (member->IsAtGroupRewardDistance(pLootedObject))
-                    {
-                        r->totalPlayersRolling++;
-
-                        if (member->GetPassOnGroupLoot())
-                        {
-                            r->playerVote[member->GetGUID()] = PASS;
-                            r->totalPass++;
-                            // can't broadcast the pass now. need to wait until all rolling players are known.
-                        }
-                        else
-                            r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
-                    }
-                }
-            }
-
-            if (r->totalPlayersRolling > 0)
-            {
-                r->setLoot(loot);
-                r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
-                    r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
-
-                loot->items[itemSlot].is_blocked = true;
-
-                // If there is any "auto pass", broadcast the pass now.
-                if (r->totalPass)
-                {
-                    for (Roll::PlayerVote::const_iterator itr=r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
-                    {
-                        Player* p = ObjectAccessor::FindConnectedPlayer(itr->first);
-                        if (!p || !p->GetSession())
-                            continue;
-
-                        if (itr->second == PASS)
-                            SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
-                    }
-                }
-
-                SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
-
-                RollId.push_back(r);
-
-                if (Creature* creature = pLootedObject->ToCreature())
-                {
-                    creature->m_groupLootTimer = 60000;
-                    creature->lootingGroupLowGUID = GetGUID();
-                }
-                else if (GameObject* go = pLootedObject->ToGameObject())
-                {
-                    go->m_groupLootTimer = 60000;
-                    go->lootingGroupLowGUID = GetGUID();
-                }
-            }
-            else
-                delete r;
-        }
-        else
-            i->is_underthreshold = true;
-    }
-
-    for (i = loot->quest_items.begin(); i != loot->quest_items.end(); ++i, ++itemSlot)
-    {
-        if (!i->follow_loot_rules)
-            continue;
-
-        item = sObjectMgr->GetItemTemplate(i->itemid);
-        if (!item)
-        {
-            //TC_LOG_DEBUG("misc", "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
-            continue;
-        }
-
-        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
-        Roll* r = new Roll(newitemGUID, *i);
-
-        //a vector is filled with only near party members
-        for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-        {
-            Player* member = itr->GetSource();
-            if (!member || !member->GetSession())
-                continue;
-
-            if (i->AllowedForPlayer(member))
-            {
-                if (member->IsAtGroupRewardDistance(pLootedObject))
-                {
-                    r->totalPlayersRolling++;
-                    r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
-                }
-            }
-        }
-
-        if (r->totalPlayersRolling > 0)
-        {
-            r->setLoot(loot);
-            r->itemSlot = itemSlot;
-
-            loot->quest_items[itemSlot - loot->items.size()].is_blocked = true;
-
-            SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
-
-            RollId.push_back(r);
-
-            if (Creature* creature = pLootedObject->ToCreature())
-            {
-                creature->m_groupLootTimer = 60000;
-                creature->lootingGroupLowGUID = GetGUID();
-            }
-            else if (GameObject* go = pLootedObject->ToGameObject())
-            {
-                go->m_groupLootTimer = 60000;
-                go->lootingGroupLowGUID = GetGUID();
-            }
-        }
-        else
-            delete r;
-    }
-}
-
-void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
+void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
 {
     ItemTemplate const* item;
     uint8 itemSlot = 0;
@@ -1175,7 +1023,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
-                if (item->GetFlags2() & ITEM_FLAG2_NEED_ROLL_DISABLED)
+                if (item->GetFlags2() & ITEM_FLAG2_CAN_ONLY_ROLL_GREED)
                     r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
                 loot->items[itemSlot].is_blocked = true;
@@ -1608,7 +1456,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
 
-        WorldPackets::Party::GroupPlayerInfos playerInfos;
+        WorldPackets::Party::PartyPlayerInfo playerInfos;
 
         playerInfos.GUID = citr->guid;
         playerInfos.Name = citr->name;
@@ -1668,7 +1516,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPackets::Party::PartyMemberStats packet;
+    WorldPackets::Party::PartyMemberState packet;
     packet.Initialize(player);
 
     Player* member;
@@ -1935,7 +1783,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->getLevel());
+    PvpDifficultyEntry const* bracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->getLevel());
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
@@ -1959,7 +1807,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         }
         // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
+        PvpDifficultyEntry const* memberBracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
@@ -2082,7 +1930,7 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficultyEntry const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->ID);
+    MapDifficultyEntry const* defaultDifficulty = sDB2Manager.GetDefaultMapDifficulty(mapEntry->ID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 
@@ -2212,7 +2060,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
 {
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(mapId, difficulty);
+    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
     if (itr != m_boundInstances[difficulty].end())

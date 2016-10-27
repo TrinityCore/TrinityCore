@@ -58,7 +58,7 @@
 #define BLTE_HEADER_DELTA       0x1E            // Distance of BLTE header from begin of the header area
 #define MAX_HEADER_AREA_SIZE    0x2A            // Length of the file header area
 
-// File header area in the data.xxx:
+// File header area in the data.nnn:
 //  BYTE  HeaderHash[MD5_HASH_SIZE];            // MD5 of the frame array
 //  DWORD dwFileSize;                           // Size of the file (see comment before CascGetFileSize for details)
 //  BYTE  SomeSize[4];                          // Some size (big endian)
@@ -205,6 +205,7 @@ typedef struct _TCascStorage
     QUERY_KEY ArchivesGroup;                        // Key array of the "archive-group"
     QUERY_KEY ArchivesKey;                          // Key array of the "archives"
     QUERY_KEY PatchArchivesKey;                     // Key array of the "patch-archives"
+    QUERY_KEY PatchArchivesGroup;                   // Key array of the "patch-archive-group"
     QUERY_KEY RootKey;
     QUERY_KEY PatchKey;
     QUERY_KEY DownloadKey;

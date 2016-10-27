@@ -28,7 +28,6 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "UpdateData.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"
@@ -108,15 +107,14 @@ Object::~Object()
 void Object::_InitValues()
 {
     m_uint32Values = new uint32[m_valuesCount];
-    memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
+    memset(m_uint32Values, 0, m_valuesCount * sizeof(uint32));
 
-    _changesMask.SetCount(m_valuesCount);
-
-    _dynamicChangesMask.SetCount(_dynamicValuesCount);
+    _changesMask.resize(m_valuesCount);
+    _dynamicChangesMask.resize(_dynamicValuesCount);
     if (_dynamicValuesCount)
     {
         _dynamicValues = new std::vector<uint32>[_dynamicValuesCount];
-        _dynamicChangesArrayMask = new UpdateMask[_dynamicValuesCount];
+        _dynamicChangesArrayMask = new std::vector<uint8>[_dynamicValuesCount];
     }
 
     m_objectUpdated = false;
@@ -340,7 +338,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool NoBirthAnim = false;
     bool EnablePortals = false;
     bool PlayHoverAnim = false;
-    bool IsSuppressingGreetings = false;
     bool HasMovementUpdate = (flags & UPDATEFLAG_LIVING) != 0;
     bool HasMovementTransport = (flags & UPDATEFLAG_TRANSPORT_POSITION) != 0;
     bool Stationary = (flags & UPDATEFLAG_STATIONARY_POSITION) != 0;
@@ -352,9 +349,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool HasAreaTrigger = false;
     bool HasGameObject = false;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
-    bool ReplaceActive = false;
+    bool SmoothPhasing = false;
     bool SceneObjCreate = false;
-    bool ScenePendingInstances = false;
+    bool PlayerCreateData = false;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
         if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
@@ -363,7 +360,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
     data->WriteBit(PlayHoverAnim);
-    data->WriteBit(IsSuppressingGreetings);
     data->WriteBit(HasMovementUpdate);
     data->WriteBit(HasMovementTransport);
     data->WriteBit(Stationary);
@@ -374,11 +370,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(Rotation);
     data->WriteBit(HasAreaTrigger);
     data->WriteBit(HasGameObject);
+    data->WriteBit(SmoothPhasing);
     data->WriteBit(ThisIsYou);
-    data->WriteBit(ReplaceActive);
     data->WriteBit(SceneObjCreate);
-    data->WriteBit(ScenePendingInstances);
-    *data << uint32(PauseTimesCount);
+    data->WriteBit(PlayerCreateData);
+    data->FlushBits();
 
     if (HasMovementUpdate)
     {
@@ -389,7 +385,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         *data << GetPackGUID();                                         // MoverGUID
 
-        *data << uint32(unit->m_movementInfo.time);                     // MoveIndex
+        *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());
         *data << float(unit->GetPositionY());
         *data << float(unit->GetPositionZ());
@@ -398,15 +394,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << float(unit->m_movementInfo.pitch);                     // Pitch
         *data << float(unit->m_movementInfo.splineElevation);           // StepUpStartElevation
 
-        uint32 removeMovementForcesCount = 0;
-        *data << uint32(removeMovementForcesCount);                     // Count of RemoveForcesIDs
-        *data << uint32(0);                                             // Unknown
+        *data << uint32(0);                                             // RemoveForcesIDs.size()
+        *data << uint32(0);                                             // MoveIndex
 
-        //for (uint32 i = 0; i < removeMovementForcesCount; ++i)
+        //for (std::size_t i = 0; i < RemoveForcesIDs.size(); ++i)
         //    *data << ObjectGuid(RemoveForcesIDs);
 
         data->WriteBits(unit->GetUnitMovementFlags(), 30);
-        data->WriteBits(unit->GetExtraUnitMovementFlags(), 16);
+        data->WriteBits(unit->GetExtraUnitMovementFlags(), 18);
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
@@ -439,29 +434,26 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << float(unit->GetSpeed(MOVE_TURN_RATE));
         *data << float(unit->GetSpeed(MOVE_PITCH_RATE));
 
-        uint32 MovementForceCount = 0;
-        *data << uint32(MovementForceCount);
+        *data << uint32(0);                                                   // unit->m_movementInfo.forces.size()
 
-        //for (uint32 i = 0; i < MovementForceCount; ++i)
+        data->WriteBit(HasSpline);
+        data->FlushBits();
+
+        //for (std::size_t i = 0; i < unit->m_movementInfo.forces.size(); ++i)
         //{
         //    *data << ObjectGuid(ID);
+        //    *data << Vector3(Origin);
         //    *data << Vector3(Direction);
-        //    *data << Vector3(force.TransportPosition);
         //    *data << int32(TransportID);
         //    *data << float(Magnitude);
-        //    *data << uint8(Type);
+        //    data->WriteBits(Type, 2);
         //}
 
-        // HasMovementSpline - marks that spline data is present in packet
-        if (data->WriteBit(HasSpline))
+        if (HasSpline)
             WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
     }
 
-    if (HasMovementTransport)
-    {
-        WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << self->m_movementInfo.transport;
-    }
+    *data << uint32(PauseTimesCount);
 
     if (Stationary)
     {
@@ -507,243 +499,263 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (Rotation)
         *data << uint64(ToGameObject()->GetRotation());                 // Rotation
 
+    if (GameObject const* go = ToGameObject())
+        for (uint32 i = 0; i < PauseTimesCount; ++i)
+            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+
+    if (HasMovementTransport)
+    {
+        WorldObject const* self = static_cast<WorldObject const*>(this);
+        *data << self->m_movementInfo.transport;
+    }
+
     //if (AreaTrigger)
     //{
-    //    packet.ReadInt32("ElapsedMs", index);
+    //    *data << uint32(ElapsedMs);
+    //    *data << Vector3(RollPitchYaw);
+    //    data->WriteBit(HasAbsoluteOrientation);
+    //    data->WriteBit(HasDynamicShape);
+    //    data->WriteBit(HasAttached);
+    //    data->WriteBit(HasFaceMovementDir);
+    //    data->WriteBit(HasFollowsTerrain);
+    //    data->WriteBit(Unknown_1);
+    //    data->WriteBit(HasTargetRollPitchYaw);
+    //    data->WriteBit(HasScaleCurveID);
+    //    data->WriteBit(HasMorphCurveID);
+    //    data->WriteBit(HasFacingCurveID);
+    //    data->WriteBit(HasMoveCurveID);
+    //    data->WriteBit(HasAreaTriggerSphere);
+    //    data->WriteBit(HasAreaTriggerBox);
+    //    data->WriteBit(HasAreaTriggerPolygon);
+    //    data->WriteBit(HasAreaTriggerCylinder);
+    //    data->WriteBit(HasAreaTriggerSpline);
+    //    data->WriteBit(HasAreaTriggerUnkType);
 
-    //    packet.ReadVector3("RollPitchYaw1", index);
+    //    if (HasAreaTriggerUnkType)
+    //    {
+    //        data->WriteBit(Unk_1);
+    //        data->WriteBit(HasCenter);
+    //        data->WriteBit(Unk_3);
+    //        data->WriteBit(Unk_4);
 
-    //    packet.ResetBitReader();
+    //        *data << uint32();
+    //        *data << int32();
+    //        *data << uint32();
+    //        *data << float(Radius);
+    //        *data << float(BlendFromRadius);
+    //        *data << float(InitialAngel);
+    //        *data << float(ZOffset);
 
-    //    var HasAbsoluteOrientation = packet.ReadBit("HasAbsoluteOrientation", index);
-    //    var HasDynamicShape = packet.ReadBit("HasDynamicShape", index);
-    //    var HasAttached = packet.ReadBit("HasAttached", index);
-    //    var HasFaceMovementDir = packet.ReadBit("HasFaceMovementDir", index);
-    //    var HasFollowsTerrain = packet.ReadBit("HasFollowsTerrain", index);
-    //    var HasTargetRollPitchYaw = packet.ReadBit("HasTargetRollPitchYaw", index);
-    //    var HasScaleCurveID = packet.ReadBit("HasScaleCurveID", index);
-    //    var HasMorphCurveID = packet.ReadBit("HasMorphCurveID", index);
-    //    var HasFacingCurveID = packet.ReadBit("HasFacingCurveID", index);
-    //    var HasMoveCurveID = packet.ReadBit("HasMoveCurveID", index);
-    //    var HasAreaTriggerSphere = packet.ReadBit("HasAreaTriggerSphere", index);
-    //    var HasAreaTriggerBox = packet.ReadBit("HasAreaTriggerBox", index);
-    //    var HasAreaTriggerPolygon = packet.ReadBit("HasAreaTriggerPolygon", index);
-    //    var HasAreaTriggerCylinder = packet.ReadBit("HasAreaTriggerCylinder", index);
-    //    var HasAreaTriggerSpline = packet.ReadBit("HasAreaTriggerSpline", index);
+    //        if (Unk_1)
+    //            *data << ObjectGuid();
+
+    //        if (HasCenter)
+    //            *data << Vector3(Center);
+    //    }
 
     //    if (HasTargetRollPitchYaw)
-    //        packet.ReadVector3("TargetRollPitchYaw", index);
+    //        *data << Vector3(TargetRollPitchYaw);
 
     //    if (HasScaleCurveID)
-    //        packet.ReadInt32("ScaleCurveID, index");
+    //        *data << uint32(ScaleCurveID);
 
     //    if (HasMorphCurveID)
-    //        packet.ReadInt32("MorphCurveID", index);
+    //        *data << uint32(MorphCurveID);
 
     //    if (HasFacingCurveID)
-    //        packet.ReadInt32("FacingCurveID", index);
+    //        *data << uint32(FacingCurveID);
 
     //    if (HasMoveCurveID)
-    //        packet.ReadInt32("MoveCurveID", index);
+    //        *data << uint32(MoveCurveID);
 
     //    if (HasAreaTriggerSphere)
     //    {
-    //        packet.ReadSingle("Radius", index);
-    //        packet.ReadSingle("RadiusTarget", index);
+    //        *data << float(Radius);
+    //        *data << float(RadiusTarget);
     //    }
 
     //    if (HasAreaTriggerBox)
     //    {
-    //        packet.ReadVector3("Extents", index);
-    //        packet.ReadVector3("ExtentsTarget", index);
+    //        *data << Vector3(Extents);
+    //        *data << Vector3(ExtentsTarget);
     //    }
 
     //    if (HasAreaTriggerPolygon)
     //    {
-    //        var VerticesCount = packet.ReadInt32("VerticesCount", index);
-    //        var VerticesTargetCount = packet.ReadInt32("VerticesTargetCount", index);
-    //        packet.ReadSingle("Height", index);
-    //        packet.ReadSingle("HeightTarget", index);
+    //        *data << uint32(Vertices.size());
+    //        *data << uint32(VerticesTarget.size());
+    //        *data << float(Height);
+    //        *data << float(HeightTarget);
 
-    //        for (var i = 0; i < VerticesCount; ++i)
-    //            packet.ReadVector2("Vertices", index, i);
+    //        for (std::size_t i = 0; i < Vertices.size(); ++i)
+    //            *data << Vector2(Vertices[i]);
 
-    //        for (var i = 0; i < VerticesTargetCount; ++i)
-    //            packet.ReadVector2("VerticesTarget", index, i);
+    //        for (std::size_t i = 0; i < VerticesTarget.size(); ++i)
+    //            *data << Vector2(VerticesTarget[i]);
     //    }
 
     //    if (HasAreaTriggerCylinder)
     //    {
-    //        packet.ReadSingle("Radius", index);
-    //        packet.ReadSingle("RadiusTarget", index);
-    //        packet.ReadSingle("Height", index);
-    //        packet.ReadSingle("HeightTarget", index);
-    //        packet.ReadSingle("Float4", index);
-    //        packet.ReadSingle("Float5", index);
+    //        *data << float(Radius);
+    //        *data << float(RadiusTarget);
+    //        *data << float(Height);
+    //        *data << float(HeightTarget);
+    //        *data << float(LocationZOffset);
+    //        *data << float(LocationZOffsetTarget);
     //    }
 
     //    if (HasAreaTriggerSpline)
     //    {
-    //        packet.ReadInt32("TimeToTarget", index);
-    //        packet.ReadInt32("ElapsedTimeForMovement", index);
-    //        var int8 = packet.ReadInt32("VerticesCount", index);
+    //        *data << uint32(TimeToTarget);
+    //        *data << uint32(ElapsedTimeForMovement);
+    //        *data << uint32(Points.size());
 
-    //        for (var i = 0; i < int8; ++i)
-    //            packet.ReadVector3("Points", index, i);
+    //        for (std::size_t i = 0; i < Points.size(); ++i)
+    //            *data << Vector3(Points[i]);
     //    }
     //}
 
     //if (GameObject)
     //{
-    //    packet.ReadInt32("WorldEffectID", index);
+    //    *data << uint32(WorldEffectID);
 
-    //    packet.ResetBitReader();
-
-    //    var bit8 = packet.ReadBit("bit8", index);
+    //    data->WriteBit(bit8);
     //    if (bit8)
-    //        packet.ReadInt32("Int1", index);
+    //        *data << uint32(Int1);
+    //}
+
+    //if (SmoothPhasing)
+    //{
+    //    data->WriteBit(ReplaceActive);
+    //    data->WriteBit(HasReplaceObjectt);
+    //    if (HasReplaceObject)
+    //        *data << ObjectGuid(ReplaceObject);
     //}
 
     //if (SceneObjCreate)
     //{
-    //    packet.ResetBitReader();
+    //    data->WriteBit(HasLocalScriptData);
+    //    data->WriteBit(HasPetBattleFullUpdate);
 
-    //    var CliSceneLocalScriptData = packet.ReadBit("CliSceneLocalScriptData", index);
-    //    var PetBattleFullUpdate = packet.ReadBit("PetBattleFullUpdate", index);
-
-    //    if (CliSceneLocalScriptData)
+    //    if (HasLocalScriptData)
     //    {
-    //        packet.ResetBitReader();
-    //        var DataLength = packet.ReadBits(7);
-    //        packet.ReadWoWString("Data", DataLength, index);
+    //        data->WriteBits(Data.length(), 7);
+    //        data->WriteString(Data);
     //    }
 
-    //    if (PetBattleFullUpdate)
+    //    if (HasPetBattleFullUpdate)
     //    {
-    //        for (var i = 0; i < 2; ++i)
+    //        for (std::size_t i = 0; i < 2; ++i)
     //        {
-    //            packet.ReadPackedGuid128("CharacterID", index, i);
+    //            *data << ObjectGuid(Players[i].CharacterID);
+    //            *data << int32(Players[i].TrapAbilityID);
+    //            *data << int32(Players[i].TrapStatus);
+    //            *data << uint16(Players[i].RoundTimeSecs);
+    //            *data << int8(Players[i].FrontPet);
+    //            *data << uint8(Players[i].InputFlags);
 
-    //            packet.ReadInt32("TrapAbilityID", index, i);
-    //            packet.ReadInt32("TrapStatus", index, i);
-
-    //            packet.ReadInt16("RoundTimeSecs", index, i);
-
-    //            packet.ReadByte("FrontPet", index, i);
-    //            packet.ReadByte("InputFlags", index, i);
-
-    //            packet.ResetBitReader();
-
-    //            var PetBattlePetUpdateCount = packet.ReadBits("PetBattlePetUpdateCount", 2, index, i);
-
-    //            for (var j = 0; j < PetBattlePetUpdateCount; ++j)
+    //            data->WriteBits(Players[i].Pets.size(), 2);
+    //            for (std::size_t j = 0; j < Players[i].Pets.size(); ++j)
     //            {
-    //                packet.ReadPackedGuid128("BattlePetGUID", index, i, j);
+    //                *data << ObjectGuid(Players[i].Pets[j].BattlePetGUID);
+    //                *data << int32(Players[i].Pets[j].SpeciesID);
+    //                *data << int32(Players[i].Pets[j].DisplayID);
+    //                *data << int32(Players[i].Pets[j].CollarID);
+    //                *data << int16(Players[i].Pets[j].Level);
+    //                *data << int16(Players[i].Pets[j].Xp);
+    //                *data << int32(Players[i].Pets[j].CurHealth);
+    //                *data << int32(Players[i].Pets[j].MaxHealth);
+    //                *data << int32(Players[i].Pets[j].Power);
+    //                *data << int32(Players[i].Pets[j].Speed);
+    //                *data << int32(Players[i].Pets[j].NpcTeamMemberID);
+    //                *data << uint16(Players[i].Pets[j].BreedQuality);
+    //                *data << uint16(Players[i].Pets[j].StatusFlags);
+    //                *data << int8(Players[i].Pets[j].Slot);
 
-    //                packet.ReadInt32("SpeciesID", index, i, j);
-    //                packet.ReadInt32("DisplayID", index, i, j);
-    //                packet.ReadInt32("CollarID", index, i, j);
-
-    //                packet.ReadInt16("Level", index, i, j);
-    //                packet.ReadInt16("Xp", index, i, j);
-
-
-    //                packet.ReadInt32("CurHealth", index, i, j);
-    //                packet.ReadInt32("MaxHealth", index, i, j);
-    //                packet.ReadInt32("Power", index, i, j);
-    //                packet.ReadInt32("Speed", index, i, j);
-    //                packet.ReadInt32("NpcTeamMemberID", index, i, j);
-
-    //                packet.ReadInt16("BreedQuality", index, i, j);
-    //                packet.ReadInt16("StatusFlags", index, i, j);
-
-    //                packet.ReadByte("Slot", index, i, j);
-
-    //                var PetBattleActiveAbility = packet.ReadInt32("PetBattleActiveAbility", index, i, j);
-    //                var PetBattleActiveAura = packet.ReadInt32("PetBattleActiveAura", index, i, j);
-    //                var PetBattleActiveState = packet.ReadInt32("PetBattleActiveState", index, i, j);
-
-    //                for (var k = 0; k < PetBattleActiveAbility; ++k)
+    //                *data << uint32(Players[i].Pets[j].Abilities.size());
+    //                *data << uint32(Players[i].Pets[j].Auras.size());
+    //                *data << uint32(Players[i].Pets[j].States.size());
+    //                for (std::size_t k = 0; k < Players[i].Pets[j].Abilities.size(); ++k)
     //                {
-    //                    packet.ReadInt32("AbilityID", index, i, j, k);
-    //                    packet.ReadInt16("CooldownRemaining", index, i, j, k);
-    //                    packet.ReadInt16("LockdownRemaining", index, i, j, k);
-    //                    packet.ReadByte("AbilityIndex", index, i, j, k);
-    //                    packet.ReadByte("Pboid", index, i, j, k);
+    //                    *data << int32(Players[i].Pets[j].Abilities[k].AbilityID);
+    //                    *data << int16(Players[i].Pets[j].Abilities[k].CooldownRemaining);
+    //                    *data << int16(Players[i].Pets[j].Abilities[k].LockdownRemaining);
+    //                    *data << int8(Players[i].Pets[j].Abilities[k].AbilityIndex);
+    //                    *data << uint8(Players[i].Pets[j].Abilities[k].Pboid);
     //                }
 
-    //                for (var k = 0; k < PetBattleActiveAura; ++k)
+    //                for (std::size_t k = 0; k < Players[i].Pets[j].Auras.size(); ++k)
     //                {
-    //                    packet.ReadInt32("AbilityID", index, i, j, k);
-    //                    packet.ReadInt32("InstanceID", index, i, j, k);
-    //                    packet.ReadInt32("RoundsRemaining", index, i, j, k);
-    //                    packet.ReadInt32("CurrentRound", index, i, j, k);
-    //                    packet.ReadByte("CasterPBOID", index, i, j, k);
+    //                    *data << int32(Players[i].Pets[j].Auras[k].AbilityID);
+    //                    *data << uint32(Players[i].Pets[j].Auras[k].InstanceID);
+    //                    *data << int32(Players[i].Pets[j].Auras[k].RoundsRemaining);
+    //                    *data << int32(Players[i].Pets[j].Auras[k].CurrentRound);
+    //                    *data << uint8(Players[i].Pets[j].Auras[k].CasterPBOID);
     //                }
 
-    //                for (var k = 0; k < PetBattleActiveState; ++k)
+    //                for (std::size_t k = 0; k < Players[i].Pets[j].States.size(); ++k)
     //                {
-    //                    packet.ReadInt32("StateID", index, i, j, k);
-    //                    packet.ReadInt32("StateValue", index, i, j, k);
+    //                    *data << uint32(Players[i].Pets[j].States[k].StateID);
+    //                    *data << int32(Players[i].Pets[j].States[k].StateValue);
     //                }
 
-    //                packet.ResetBitReader();
-    //                var bits57 = packet.ReadBits(7);
-    //                packet.ReadWoWString("CustomName", bits57, index, i, j);
+    //                data->WriteBits(Players[i].Pets[j].CustomName.length(), 7);
+    //                data->WriteString(Players[i].Pets[j].CustomName);
     //            }
     //        }
 
-    //        for (var i = 0; i < 3; ++i)
+    //        for (std::size_t i = 0; i < 3; ++i)
     //        {
-    //            var PetBattleActiveAura = packet.ReadInt32("PetBattleActiveAura", index, i);
-    //            var PetBattleActiveState = packet.ReadInt32("PetBattleActiveState", index, i);
-
-    //            for (var j = 0; j < PetBattleActiveAura; ++j)
+    //            *data << uint32(Enviros[j].Auras.size());
+    //            *data << uint32(Enviros[j].States.size());
+    //            for (std::size_t j = 0; j < Enviros[j].Auras.size(); ++j)
     //            {
-    //                packet.ReadInt32("AbilityID", index, i, j);
-    //                packet.ReadInt32("InstanceID", index, i, j);
-    //                packet.ReadInt32("RoundsRemaining", index, i, j);
-    //                packet.ReadInt32("CurrentRound", index, i, j);
-    //                packet.ReadByte("CasterPBOID", index, i, j);
+    //                *data << int32(Enviros[j].Auras[j].AbilityID);
+    //                *data << uint32(Enviros[j].Auras[j].InstanceID);
+    //                *data << int32(Enviros[j].Auras[j].RoundsRemaining);
+    //                *data << int32(Enviros[j].Auras[j].CurrentRound);
+    //                *data << uint8(Enviros[j].Auras[j].CasterPBOID);
     //            }
 
-    //            for (var j = 0; j < PetBattleActiveState; ++j)
+    //            for (std::size_t j = 0; j < Enviros[j].States.size(); ++j)
     //            {
-    //                packet.ReadInt32("StateID", index, i, j);
-    //                packet.ReadInt32("StateValue", index, i, j);
+    //                *data << uint32(Enviros[i].States[j].StateID);
+    //                *data << int32(Enviros[i].States[j].StateValue);
     //            }
     //        }
 
-    //        packet.ReadInt16("WaitingForFrontPetsMaxSecs", index);
-    //        packet.ReadInt16("PvpMaxRoundTime", index);
-
-    //        packet.ReadInt32("CurRound", index);
-    //        packet.ReadInt32("NpcCreatureID", index);
-    //        packet.ReadInt32("NpcDisplayID", index);
-
-    //        packet.ReadByte("CurPetBattleState");
-    //        packet.ReadByte("ForfeitPenalty");
-
-    //        packet.ReadPackedGuid128("InitialWildPetGUID");
-
-    //        packet.ReadBit("IsPVP");
-    //        packet.ReadBit("CanAwardXP");
+    //        *data << uint16(WaitingForFrontPetsMaxSecs);
+    //        *data << uint16(PvpMaxRoundTime);
+    //        *data << int32(CurRound);
+    //        *data << uint32(NpcCreatureID);
+    //        *data << uint32(NpcDisplayID);
+    //        *data << int8(CurPetBattleState);
+    //        *data << uint8(ForfeitPenalty);
+    //        *data << ObjectGuid(InitialWildPetGUID);
+    //        data->WriteBit(IsPVP);
+    //        data->WriteBit(CanAwardXP);
     //    }
     //}
 
-    //if (ScenePendingInstances)
+    //if (PlayerCreateData)
     //{
-    //    var SceneInstanceIDs = packet.ReadInt32("SceneInstanceIDsCount");
-
-    //    for (var i = 0; i < SceneInstanceIDs; ++i)
-    //        packet.ReadInt32("SceneInstanceIDs", index, i);
+    //    data->WriteBit(HasSceneInstanceIDs);
+    //    data->WriteBit(HasRuneState);
+    //    if (HasSceneInstanceIDs)
+    //    {
+    //        *data << uint32(SceneInstanceIDs.size());
+    //        for (std::size_t i = 0; i < SceneInstanceIDs.size(); ++i)
+    //            *data << uint32(SceneInstanceIDs[i]);
+    //    }
+    //    if (HasRuneState)
+    //    {
+    //        *data << uint8(RechargingRuneMask);
+    //        *data << uint8(UsableRuneMask);
+    //        *data << uint32(ToUnit()->GetMaxPower(POWER_RUNES));
+    //        for (uint32 i = 0; i < ToUnit()->GetMaxPower(POWER_RUNES); ++i)
+    //            *data << uint8(255 - (ToUnit()->ToPlayer()->GetRuneCooldown(i) * 51));
+    //    }
     //}
-
-    if (GameObject const* go = ToGameObject())
-        for (uint32 i = 0; i < PauseTimesCount; ++i)
-            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
-
-    data->FlushBits();
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -751,27 +763,25 @@ void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
     if (!target)
         return;
 
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(m_valuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(m_valuesCount);
 
     uint32* flags = NULL;
     uint32 visibleFlag = GetUpdateFieldData(target, flags);
     ASSERT(flags);
 
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
     for (uint16 index = 0; index < m_valuesCount; ++index)
     {
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+            ((updateType == UPDATETYPE_VALUES ? _changesMask[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
-            updateMask.SetBit(index);
-            fieldBuffer << m_uint32Values[index];
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
+            *data << m_uint32Values[index];
         }
     }
-
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
-    data->append(fieldBuffer);
 }
 
 void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -779,42 +789,40 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     if (!target)
         return;
 
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(_dynamicValuesCount);
+    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
 
+    *data << uint8(blockCount);
+    std::size_t maskPos = data->wpos();
+    data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
+
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
-        ByteBuffer buffer;
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
-            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)))
+            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask[index] != UpdateMask::UNCHANGED : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            updateMask.SetBit(index);
+            UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
-            UpdateMask arrayMask;
-            arrayMask.SetCount(values.size());
+            std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
+            *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            if (_dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED && updateType == UPDATETYPE_VALUES)
+                *data << uint32(values.size());
+
+            std::size_t arrayMaskPos = data->wpos();
+            data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             for (std::size_t v = 0; v < values.size(); ++v)
             {
-                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
+                if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
                 {
-                    arrayMask.SetBit(v);
-                    buffer << uint32(values[v]);
+                    UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
+                    *data << uint32(values[v]);
                 }
             }
-
-            fieldBuffer << uint8(arrayMask.GetBlockCount());
-            arrayMask.AppendToPacket(&fieldBuffer);
-            fieldBuffer.append(buffer);
         }
     }
-
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
-    data->append(fieldBuffer);
 }
 
 void Object::AddToObjectUpdateIfNeeded()
@@ -828,10 +836,10 @@ void Object::AddToObjectUpdateIfNeeded()
 
 void Object::ClearUpdateMask(bool remove)
 {
-    _changesMask.Clear();
-    _dynamicChangesMask.Clear();
+    memset(_changesMask.data(), 0, _changesMask.size());
+    _dynamicChangesMask.assign(_dynamicChangesMask.size(), UpdateMask::UNCHANGED);
     for (uint32 i = 0; i < _dynamicValuesCount; ++i)
-        _dynamicChangesArrayMask[i].Clear();
+        memset(_dynamicChangesArrayMask[i].data(), 0, _dynamicChangesArrayMask[i].size());
 
     if (m_objectUpdated)
     {
@@ -976,7 +984,7 @@ void Object::_LoadIntoDataField(std::string const& data, uint32 startOffset, uin
     for (uint32 index = 0; index < count; ++index)
     {
         m_uint32Values[startOffset + index] = atoul(tokens[index]);
-        _changesMask.SetBit(startOffset + index);
+        _changesMask[startOffset + index] = 1;
     }
 }
 
@@ -987,7 +995,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
     if (m_int32Values[index] != value)
     {
         m_int32Values[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1000,7 +1008,7 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     if (m_uint32Values[index] != value)
     {
         m_uint32Values[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1011,7 +1019,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
     m_uint32Values[index] = value;
-    _changesMask.SetBit(index);
+    _changesMask[index] = 1;
 }
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
@@ -1021,8 +1029,8 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1034,10 +1042,10 @@ bool Object::AddGuidValue(uint16 index, ObjectGuid const& value)
     if (!value.IsEmpty() && ((ObjectGuid*)&(m_uint32Values[index]))->IsEmpty())
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
         return true;
@@ -1052,10 +1060,10 @@ bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
     if (!value.IsEmpty() && *((ObjectGuid*)&(m_uint32Values[index])) == value)
     {
         ((ObjectGuid*)&(m_uint32Values[index]))->Clear();
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
         return true;
@@ -1071,7 +1079,7 @@ void Object::SetFloatValue(uint16 index, float value)
     if (m_floatValues[index] != value)
     {
         m_floatValues[index] = value;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1091,7 +1099,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFF) << (offset * 8));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1111,7 +1119,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 16));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1123,10 +1131,10 @@ void Object::SetGuidValue(uint16 index, ObjectGuid const& value)
     if (*((ObjectGuid*)&(m_uint32Values[index])) != value)
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
-        _changesMask.SetBit(index + 2);
-        _changesMask.SetBit(index + 3);
+        _changesMask[index] = 1;
+        _changesMask[index + 1] = 1;
+        _changesMask[index + 2] = 1;
+        _changesMask[index + 3] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1205,7 +1213,7 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1222,7 +1230,7 @@ void Object::RemoveFlag(uint16 index, uint32 oldFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1262,7 +1270,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
     if (!(uint8(m_uint32Values[index] >> (offset * 8)) & newFlag))
     {
         m_uint32Values[index] |= uint32(uint32(newFlag) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1281,7 +1289,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     if (uint8(m_uint32Values[index] >> (offset * 8)) & oldFlag)
     {
         m_uint32Values[index] &= ~uint32(uint32(oldFlag) << (offset * 8));
-        _changesMask.SetBit(index);
+        _changesMask[index] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -1341,30 +1349,37 @@ std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
     return _dynamicValues[index];
 }
 
+uint32 Object::GetDynamicValue(uint16 index, uint16 offset) const
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    if (offset >= _dynamicValues[index].size())
+        return 0;
+    return _dynamicValues[index][offset];
+}
+
 void Object::AddDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-
-    std::vector<uint32>& values = _dynamicValues[index];
-    UpdateMask& mask = _dynamicChangesArrayMask[index];
-
-    _dynamicChangesMask.SetBit(index);
-    if (values.size() >= values.capacity())
-        values.reserve(values.capacity() + 32);
-
-    values.push_back(value);
-    if (mask.GetCount() < values.size())
-        mask.AddBlock();
-
-    mask.SetBit(values.size() - 1);
-
-    AddToObjectUpdateIfNeeded();
+    SetDynamicValue(index, _dynamicValues[index].size(), value);
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 /*value*/)
+void Object::RemoveDynamicValue(uint16 index, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-    /// TODO: Research if this is actually needed
+
+    // TODO: Research if this is blizzlike to just set value to 0
+    std::vector<uint32>& values = _dynamicValues[index];
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+        if (values[i] == value)
+        {
+            values[i] = 0;
+            _dynamicChangesMask[index] = UpdateMask::VALUE_CHANGED;
+            _dynamicChangesArrayMask[index][i] = 1;
+
+            AddToObjectUpdateIfNeeded();
+        }
+    }
 }
 
 void Object::ClearDynamicValue(uint16 index)
@@ -1374,26 +1389,33 @@ void Object::ClearDynamicValue(uint16 index)
     if (!_dynamicValues[index].empty())
     {
         _dynamicValues[index].clear();
-        _dynamicChangesMask.SetBit(index);
-        _dynamicChangesArrayMask[index].SetCount(0);
+        _dynamicChangesMask[index] = UpdateMask::VALUE_AND_SIZE_CHANGED;
+        _dynamicChangesArrayMask[index].clear();
 
         AddToObjectUpdateIfNeeded();
     }
 }
 
-void Object::SetDynamicValue(uint16 index, uint8 offset, uint32 value)
+void Object::SetDynamicValue(uint16 index, uint16 offset, uint32 value)
 {
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
 
+    UpdateMask::DynamicFieldChangeType changeType = UpdateMask::VALUE_CHANGED;
     std::vector<uint32>& values = _dynamicValues[index];
+    if (values.size() <= offset)
+    {
+        values.resize(offset + 1);
+        changeType = UpdateMask::VALUE_AND_SIZE_CHANGED;
+    }
 
-    ASSERT(offset < values.size());
+    if (_dynamicChangesArrayMask[index].size() <= offset)
+        _dynamicChangesArrayMask[index].resize((offset / 32 + 1) * 32);
 
     if (values[offset] != value)
     {
         values[offset] = value;
-        _dynamicChangesMask.SetBit(index);
-        _dynamicChangesArrayMask[index].SetBit(offset);
+        _dynamicChangesMask[index] = changeType;
+        _dynamicChangesArrayMask[index][offset] = 1;
 
         AddToObjectUpdateIfNeeded();
     }
@@ -2137,7 +2159,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
-    _changesMask.SetBit(i);
+    _changesMask[i] = 1;
     AddToObjectUpdateIfNeeded();
 }
 
@@ -2385,7 +2407,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
 
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;

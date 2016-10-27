@@ -17,9 +17,9 @@
  */
 
 #include "WorldSession.h"
+#include "CollectionMgr.h"
 #include "Common.h"
 #include "Config.h"
-#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
 #include "GuildMgr.h"
@@ -77,7 +77,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
     }
 
     // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_USEABLE_IN_ARENA) && user->InArena())
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && user->InArena())
     {
         user->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, NULL);
         return;
@@ -105,20 +105,21 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         }
     }
 
-    // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (item->GetTemplate()->GetBonding() == BIND_WHEN_USE || item->GetTemplate()->GetBonding() == BIND_WHEN_PICKED_UP || item->GetTemplate()->GetBonding() == BIND_QUEST_ITEM)
+    // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
+    if (item->GetTemplate()->GetBonding() == BIND_ON_USE || item->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || item->GetTemplate()->GetBonding() == BIND_QUEST)
     {
         if (!item->IsSoulBound())
         {
             item->SetState(ITEM_CHANGED, user);
             item->SetBinding(true);
+            GetCollectionMgr()->AddItemAppearance(item);
         }
     }
 
     SpellCastTargets targets(user, packet.Cast);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if (!sScriptMgr->OnItemUse(user, item, targets))
+    if (!sScriptMgr->OnItemUse(user, item, targets, packet.Cast.CastID))
     {
         // no script or script not process request by self
         user->CastItemUseSpell(item, targets, packet.Cast.CastID, packet.Cast.Misc);
@@ -149,7 +150,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->GetFlags() & ITEM_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+    if (!(proto->GetFlags() & ITEM_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
     {
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         TC_LOG_ERROR("network", "Possible hacking attempt: Player %s [%s] tried to open item [%s, entry: %u] which is not openable!",
@@ -301,7 +302,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
-    spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
+
+    WorldPackets::Spells::SpellPrepare spellPrepare;
+    spellPrepare.ClientCastID = cast.Cast.CastID;
+    spellPrepare.ServerCastID = spell->m_castId;
+    SendPacket(spellPrepare.Write());
+
     spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
     spell->prepare(&targets);
@@ -510,6 +516,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
         mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
         mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+            mirrorImageComponentedData.CustomDisplay[i] = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i);
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);
@@ -531,14 +539,14 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         };
 
         // Display items in visible slots
-        for (auto const& slot : itemSlots)
+        for (EquipmentSlots slot : itemSlots)
         {
             uint32 itemDisplayId;
             if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
                 (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
                 itemDisplayId = 0;
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                itemDisplayId = item->GetDisplayId();
+                itemDisplayId = item->GetDisplayId(player);
             else
                 itemDisplayId = 0;
 

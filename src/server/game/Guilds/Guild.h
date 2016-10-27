@@ -25,7 +25,6 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DBCStore.h"
 
 class Item;
 

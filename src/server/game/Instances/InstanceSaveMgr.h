@@ -49,7 +49,7 @@ class TC_GAME_API InstanceSave
            - any new instance is being generated
            - the first time a player bound to InstanceId logs in
            - when a group bound to the instance is loaded */
-        InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset);
+        InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, uint32 entranceId, time_t resetTime, bool canReset);
 
         /* Unloaded when m_playerList and m_groupList become empty
            or when the instance is reset */
@@ -74,6 +74,9 @@ class TC_GAME_API InstanceSave
         time_t GetResetTime() const { return m_resetTime; }
         void SetResetTime(time_t resetTime) { m_resetTime = resetTime; }
         time_t GetResetTimeForDB();
+
+        uint32 GetEntranceLocation() const { return m_entranceId; }
+        void SetEntranceLocation(uint32 entranceId) { m_entranceId = entranceId; }
 
         InstanceTemplate const* GetTemplate();
         MapEntry const* GetMapEntry();
@@ -139,6 +142,7 @@ class TC_GAME_API InstanceSave
         uint32 m_instanceid;
         uint32 m_mapid;
         Difficulty m_difficulty;
+        uint32 m_entranceId;
         bool m_canReset;
         bool m_toDelete;
 
@@ -211,7 +215,7 @@ class TC_GAME_API InstanceSaveManager
 
         void Update();
 
-        InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime,
+        InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime, uint32 entranceId,
             bool canReset, bool load = false);
         void RemoveInstanceSave(uint32 InstanceId);
         void UnloadInstanceSave(uint32 InstanceId);

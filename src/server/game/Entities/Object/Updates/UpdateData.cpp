@@ -50,7 +50,7 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
 
     if (packet->WriteBit(!m_outOfRangeGUIDs.empty()))
     {
-        *packet << uint16(0);
+        *packet << uint16(0);   // object limit to instantly destroy - objects before this index on m_outOfRangeGUIDs list get "smoothly phased out"
         *packet << uint32(m_outOfRangeGUIDs.size());
 
         for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)

@@ -231,7 +231,7 @@ static const DIABLO3_ASSET_INFO Assets[] =
     {"Accolade",            "aco"},        // 0x42
 };
 
-static const DIABLO3_ASSET_INFO UnknownAsset = {"Unknown", "xxx"};
+static const DIABLO3_ASSET_INFO UnknownAsset = {"Unknown", "unk"};
 
 #define DIABLO3_ASSET_COUNT (sizeof(Assets) / sizeof(Assets[0]))
 
@@ -327,7 +327,7 @@ static size_t CreateShortName(
         }
     }
 
-    // If we havent't found the package, we either use the default asset extension or "xxx"
+    // If we havent't found the package, we either use the default asset extension or "unk"
     if(szPackageName == NULL)
     {
         if(dwSubIndex == DIABLO3_INVALID_INDEX)
@@ -337,7 +337,7 @@ static size_t CreateShortName(
         }
         else
         {
-            strcpy(szBuffer + nLength, "xxx");
+			strcpy(szBuffer + nLength, "unk");
             nLength += 3;
         }
     }
@@ -887,7 +887,7 @@ static int ParseCoreTOC(
         // Find out the entry with the maximum index
         for(DWORD n = 0; n < pTocHeader->EntryCounts[i]; n++)
         {
-            if(pTocEntry->FileIndex > dwFileIndexes)
+            if(pTocEntry->FileIndex >= dwFileIndexes)
                 dwFileIndexes = pTocEntry->FileIndex + 1;
             pTocEntry++;
         }

@@ -32,10 +32,16 @@
 struct soap;
 struct soap_plugin;
 
+enum class BanMode
+{
+    BAN_IP = 0,
+    BAN_ACCOUNT = 1
+};
+
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _stopped(false), _port(0) { }
+    LoginRESTService() : _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
 
     static LoginRESTService& Instance();
 

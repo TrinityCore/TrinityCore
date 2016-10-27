@@ -1361,7 +1361,7 @@ public:
                         DoCastVictim(SPELL_SR_SHOOT, false);
                         uiTimer[2] = urand(4000, 6000);
                     }
-                    if (me->IsWithinMeleeRange(me->GetVictim(), 6))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         if (uiTimer[0] <= diff)
                         {

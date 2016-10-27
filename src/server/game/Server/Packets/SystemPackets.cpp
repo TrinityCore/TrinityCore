@@ -48,9 +48,51 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
-    _worldPacket.WriteBit(UnkBit61);
+    _worldPacket.WriteBit(KioskModeEnabled);
+    _worldPacket.WriteBit(CompetitiveModeEnabled);
+    _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
 
     _worldPacket.FlushBits();
+
+    {
+        _worldPacket.WriteBit(QuickJoinConfig.ToastsDisabled);
+        _worldPacket << float(QuickJoinConfig.ToastDuration);
+        _worldPacket << float(QuickJoinConfig.DelayDuration);
+        _worldPacket << float(QuickJoinConfig.QueueMultiplier);
+        _worldPacket << float(QuickJoinConfig.PlayerMultiplier);
+        _worldPacket << float(QuickJoinConfig.PlayerFriendValue);
+        _worldPacket << float(QuickJoinConfig.PlayerGuildValue);
+        _worldPacket << float(QuickJoinConfig.ThrottleInitialThreshold);
+        _worldPacket << float(QuickJoinConfig.ThrottleDecayTime);
+        _worldPacket << float(QuickJoinConfig.ThrottlePrioritySpike);
+        _worldPacket << float(QuickJoinConfig.ThrottleMinThreshold);
+        _worldPacket << float(QuickJoinConfig.ThrottlePvPPriorityNormal);
+        _worldPacket << float(QuickJoinConfig.ThrottlePvPPriorityLow);
+        _worldPacket << float(QuickJoinConfig.ThrottlePvPHonorThreshold);
+        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityDefault);
+        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityAbove);
+        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityBelow);
+        _worldPacket << float(QuickJoinConfig.ThrottleLfgListIlvlScalingAbove);
+        _worldPacket << float(QuickJoinConfig.ThrottleLfgListIlvlScalingBelow);
+        _worldPacket << float(QuickJoinConfig.ThrottleRfPriorityAbove);
+        _worldPacket << float(QuickJoinConfig.ThrottleRfIlvlScalingAbove);
+        _worldPacket << float(QuickJoinConfig.ThrottleDfMaxItemLevel);
+        _worldPacket << float(QuickJoinConfig.ThrottleDfBestPriority);
+    }
+
+    if (SessionAlert)
+    {
+        _worldPacket << int32(SessionAlert->Delay);
+        _worldPacket << int32(SessionAlert->Period);
+        _worldPacket << int32(SessionAlert->DisplayTime);
+    }
+
+    if (RaceClassExpansionLevels)
+    {
+        _worldPacket << uint32(RaceClassExpansionLevels->size());
+        if (!RaceClassExpansionLevels->empty())
+            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
+    }
 
     if (EuropaTicketSystemStatus)
     {
@@ -65,22 +107,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow);
     }
 
-    if (SessionAlert)
-    {
-        _worldPacket << int32(SessionAlert->Delay);
-        _worldPacket << int32(SessionAlert->Period);
-        _worldPacket << int32(SessionAlert->DisplayTime);
-    }
-
-    /*if (bit61)
-    {
-        var int88 = packet.ReadInt32("int88");
-        for (int i = 0; i < int88; i++)
-            packet.ReadByte("byte23", i);
-    }*/
-
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
 
@@ -94,6 +120,10 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(IsExpansionPreorderInStore);
+    _worldPacket.WriteBit(KioskModeEnabled);
+    _worldPacket.WriteBit(CompetitiveModeEnabled);
+    _worldPacket.WriteBit(false); // not accessed in handler
+    _worldPacket.WriteBit(TrialBoostEnabled);
     _worldPacket.FlushBits();
 
     _worldPacket << int32(TokenPollTimeSeconds);

@@ -28,8 +28,6 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <stdarg.h>
-#include <cstring>
 #include <ctime>
 
 // Searcher for map of structs
@@ -54,7 +52,7 @@ public:
     typedef StorageType::const_reference const_reference;
 
 public:
-    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0);
+    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
     ~Tokenizer() { delete[] m_str; }
 
     const_iterator begin() const { return m_storage.begin(); }

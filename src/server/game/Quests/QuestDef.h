@@ -49,6 +49,7 @@ namespace WorldPackets
 #define QUEST_REWARD_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_REWARD_CURRENCY_COUNT 4
+#define QUEST_REWARD_DISPLAY_SPELL_COUNT 3
 
 enum QuestFailedReason
 {
@@ -232,6 +233,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
     QUEST_OBJECTIVE_WINPVPPETBATTLES        = 13,
     QUEST_OBJECTIVE_CRITERIA_TREE           = 14,
+    QUEST_OBJECTIVE_PROGRESS_BAR            = 15,
     QUEST_OBJECTIVE_HAVE_CURRENCY           = 16,   // requires the player to have X currency when turning in but does not consume it
     QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17    // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
 };
@@ -266,7 +268,8 @@ struct QuestObjective
     int32  ObjectID     = 0;
     int32  Amount       = 0;
     uint32 Flags        = 0;
-    float  UnkFloat     = 0.0f;
+    uint32 Flags2       = 0;
+    float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
 };
@@ -323,7 +326,6 @@ class TC_GAME_API Quest
         int32  GetNextQuestId() const { return NextQuestID; }
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestInChain; }
-        uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
         float  GetXPMultiplier() const { return RewardXPMultiplier; }
@@ -346,9 +348,11 @@ class TC_GAME_API Quest
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
         uint32 GetRewKillHonor() const { return RewardKillHonor; }
+        uint32 GetArtifactXPDifficulty() const { return RewardArtifactXPDifficulty; }
+        float  GetArtifactXPMultiplier() const { return RewardArtifactXPMultiplier; }
+        uint32 GetArtifactCategoryId() const { return RewardArtifactCategoryID; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
         uint32 GetRewSpell() const { return RewardSpell; }
-        int32  GetRewDisplaySpell() const { return RewardDisplaySpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
         uint32 GetRewTitle() const { return RewardTitleId; }
@@ -370,6 +374,7 @@ class TC_GAME_API Quest
         uint32 GetRewardSkillId() const { return RewardSkillId; }
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
+        uint32 GetRewardId() const { return QuestRewardID; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
@@ -415,10 +420,13 @@ class TC_GAME_API Quest
         uint32 RewardMoneyDifficulty;
         float  RewardMoneyMultiplier;
         uint32 RewardBonusMoney;
-        uint32 RewardDisplaySpell;
+        uint32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT];
         uint32 RewardSpell;
         uint32 RewardHonor;
         uint32 RewardKillHonor;
+        uint32 RewardArtifactXPDifficulty;
+        float  RewardArtifactXPMultiplier;
+        uint32 RewardArtifactCategoryID;
         uint32 SourceItemId;
         uint32 Flags;
         uint32 FlagsEx;
@@ -434,7 +442,6 @@ class TC_GAME_API Quest
         float  POIy;
         uint32 POIPriority;
         uint32 RewardTitleId;
-        uint32 RewardTalents;
         int32  RewardArenaPoints;
         uint32 RewardSkillId;
         uint32 RewardSkillPoints;
@@ -443,6 +450,7 @@ class TC_GAME_API Quest
         uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT];
         int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT];
         int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];
+        uint32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT];
         uint32 RewardReputationMask;
         uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
         uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
@@ -451,6 +459,7 @@ class TC_GAME_API Quest
         uint32 AreaGroupID;
         uint32 LimitTime;
         int32  AllowableRaces;
+        uint32 QuestRewardID;
         QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;

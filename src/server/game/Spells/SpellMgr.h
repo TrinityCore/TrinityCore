@@ -22,7 +22,6 @@
 // For static or at-server-startup loaded spell data
 
 #include "Define.h"
-#include "DBCStructure.h"
 #include "SharedDefines.h"
 #include "Util.h"
 
@@ -36,6 +35,22 @@ class Player;
 class Unit;
 class ProcEventInfo;
 struct SkillLineAbilityEntry;
+struct SpellEntry;
+struct SpellAuraOptionsEntry;
+struct SpellAuraRestrictionsEntry;
+struct SpellCastingRequirementsEntry;
+struct SpellCategoriesEntry;
+struct SpellClassOptionsEntry;
+struct SpellCooldownsEntry;
+struct SpellEquippedItemsEntry;
+struct SpellInterruptsEntry;
+struct SpellLevelsEntry;
+struct SpellMiscEntry;
+struct SpellReagentsEntry;
+struct SpellScalingEntry;
+struct SpellShapeshiftEntry;
+struct SpellTargetRestrictionsEntry;
+struct SpellTotemsEntry;
 
 // only used in code
 enum SpellCategories
@@ -146,6 +161,9 @@ enum ProcFlags
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
     PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
+
+    PROC_FLAG_ENTER_COMBAT                    = 0x08000000,    // 27 Entered combat
+    PROC_FLAG_ENCOUNTER_START                 = 0x10000000,    // 28 Encounter started
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
@@ -596,6 +614,27 @@ TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup gro
 TC_GAME_API int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
 TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpellsStore;
+
+struct SpellInfoLoadHelper
+{
+    SpellEntry const* Entry = nullptr;
+
+    SpellAuraOptionsEntry const* AuraOptions = nullptr;
+    SpellAuraRestrictionsEntry const* AuraRestrictions = nullptr;
+    SpellCastingRequirementsEntry const* CastingRequirements = nullptr;
+    SpellCategoriesEntry const* Categories = nullptr;
+    SpellClassOptionsEntry const* ClassOptions = nullptr;
+    SpellCooldownsEntry const* Cooldowns = nullptr;
+    SpellEquippedItemsEntry const* EquippedItems = nullptr;
+    SpellInterruptsEntry const* Interrupts = nullptr;
+    SpellLevelsEntry const* Levels = nullptr;
+    SpellMiscEntry const* Misc = nullptr;
+    SpellReagentsEntry const* Reagents = nullptr;
+    SpellScalingEntry const* Scaling = nullptr;
+    SpellShapeshiftEntry const* Shapeshift = nullptr;
+    SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;
+    SpellTotemsEntry const* Totems = nullptr;
+};
 
 class TC_GAME_API SpellMgr
 {

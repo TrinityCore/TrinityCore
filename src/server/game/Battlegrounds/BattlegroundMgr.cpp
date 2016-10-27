@@ -281,7 +281,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId);
 
@@ -446,7 +446,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
     }
 
     bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->Name_lang);
+    bg->SetName(bgTemplate->BattlemasterEntry->Name->Str[sWorld->GetDefaultDbcLocale()]);
     bg->SetInstanceID(0);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
@@ -578,8 +578,6 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     battlefieldList.MaxLevel = bgTemplate->MaxLevel;
     battlefieldList.PvpAnywhere = guid.IsEmpty();
     battlefieldList.HasRandomWinToday = player->GetRandomWinner();
-    battlefieldList.HasHolidayWinToday = false;
-    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
     player->SendDirectMessage(battlefieldList.Write());
 }
 

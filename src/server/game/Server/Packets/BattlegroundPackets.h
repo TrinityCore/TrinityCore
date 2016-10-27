@@ -122,8 +122,9 @@ namespace WorldPackets
                 Optional<int32> MmrChange;
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
-                uint32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
-                uint32 Race;
+                int32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+                int32 Race;
+                uint32 Prestige = 0;
             };
 
             Optional<uint8> Winner;
@@ -231,6 +232,7 @@ namespace WorldPackets
             void Read() override;
 
             uint8 TeamSizeIndex = 0;
+            uint8 Roles = 0;
         };
 
         class BattlefieldLeave final : public ClientPacket
@@ -269,15 +271,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 MaxLevel = 0;
-            bool PvpAnywhere = false;
             ObjectGuid BattlemasterGuid;
-            bool IsRandomBG = false;
-            uint8 MinLevel = 0;
-            bool HasHolidayWinToday = false;
             int32 BattlemasterListID = 0;
-            bool HasRandomWinToday = false;
+            uint8 MinLevel = 0;
+            uint8 MaxLevel = 0;
             std::vector<int32> Battlefields;    // Players cannot join a specific battleground instance anymore - this is always empty
+            bool PvpAnywhere = false;
+            bool HasRandomWinToday = false;
         };
 
         class GetPVPOptionsEnabled final : public ClientPacket

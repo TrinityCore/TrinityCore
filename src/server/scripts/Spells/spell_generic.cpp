@@ -4229,6 +4229,238 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
         }
 };
 
+// 169869 - Transformation Sickness
+class spell_gen_decimatus_transformation_sickness : public SpellScriptLoader
+{
+public:
+    spell_gen_decimatus_transformation_sickness() : SpellScriptLoader("spell_gen_decimatus_transformation_sickness") { }
+
+    class spell_gen_decimatus_transformation_sickness_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_decimatus_transformation_sickness_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+             if (Unit* target = GetHitUnit())
+                 target->SetHealth(target->CountPctFromMaxHealth(10));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_decimatus_transformation_sickness_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_decimatus_transformation_sickness_SpellScript();
+    }
+};
+
+// 189491 - Summon Towering Infernal.
+class spell_gen_anetheron_summon_towering_infernal : public SpellScriptLoader
+{
+    public:
+        spell_gen_anetheron_summon_towering_infernal() : SpellScriptLoader("spell_gen_anetheron_summon_towering_infernal") { }
+
+        class spell_gen_anetheron_summon_towering_infernal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_anetheron_summon_towering_infernal_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+               GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_anetheron_summon_towering_infernal_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_anetheron_summon_towering_infernal_SpellScript();
+        }
+};
+
+enum KazrogalHellfireMark
+{
+    SPELL_MARK_OF_KAZROGAL_HELLFIRE = 189512,
+    SPELL_MARK_OF_KAZROGAL_DAMAGE_HELLFIRE = 189515
+};
+
+class MarkTargetHellfireFilter
+{
+    public:
+        bool operator()(WorldObject* target) const
+        {
+            if (Unit* unit = target->ToUnit())
+                return unit->getPowerType() != POWER_MANA;
+            return false;
+        }
+};
+
+class spell_gen_mark_of_kazrogal_hellfire : public SpellScriptLoader
+{
+    public:
+        spell_gen_mark_of_kazrogal_hellfire() : SpellScriptLoader("spell_gen_mark_of_kazrogal_hellfire") { }
+
+        class spell_gen_mark_of_kazrogal_hellfire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_mark_of_kazrogal_hellfire_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(MarkTargetHellfireFilter());
+            }
+
+            void Register() override
+            {
+                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_mark_of_kazrogal_hellfire_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        class spell_gen_mark_of_kazrogal_hellfire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_mark_of_kazrogal_hellfire_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_KAZROGAL_DAMAGE_HELLFIRE))
+                    return false;
+                return true;
+            }
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+
+                if (target->GetPower(POWER_MANA) == 0)
+                {
+                    target->CastSpell(target, SPELL_MARK_OF_KAZROGAL_DAMAGE_HELLFIRE, true, NULL, aurEff);
+                    // Remove aura
+                    SetDuration(0);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mark_of_kazrogal_hellfire_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_POWER_BURN);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_mark_of_kazrogal_hellfire_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_mark_of_kazrogal_hellfire_AuraScript();
+        }
+};
+
+class spell_gen_azgalor_rain_of_fire_hellfire_citadel : public SpellScriptLoader
+{
+    public:
+        spell_gen_azgalor_rain_of_fire_hellfire_citadel() : SpellScriptLoader("spell_gen_azgalor_rain_of_fire_hellfire_citadel") { }
+
+        class spell_gen_azgalor_rain_of_fire_hellfire_citadel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_azgalor_rain_of_fire_hellfire_citadel_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+               GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_azgalor_rain_of_fire_hellfire_citadel_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_azgalor_rain_of_fire_hellfire_citadel_SpellScript();
+        }
+};
+
+enum AuraProcRemoveSpells
+{
+    SPELL_FACE_RAGE         = 99947,
+    SPELL_IMPATIENT_MIND    = 187213
+};
+
+// 99947 - Face Rage
+class spell_gen_face_rage : public SpellScriptLoader
+{
+    public:
+        spell_gen_face_rage() : SpellScriptLoader("spell_gen_face_rage") { }
+
+        class spell_gen_face_rage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_face_rage_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FACE_RAGE))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(EFFECT_2)->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_face_rage_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_face_rage_AuraScript();
+        }
+};
+
+// 187213 - Impatient Mind
+class spell_gen_impatient_mind : public SpellScriptLoader
+{
+    public:
+        spell_gen_impatient_mind() : SpellScriptLoader("spell_gen_impatient_mind") { }
+
+        class spell_gen_impatient_mind_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_impatient_mind_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_IMPATIENT_MIND))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_impatient_mind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_impatient_mind_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4319,4 +4551,10 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
     new spell_gen_clear_debuffs();
+    new spell_gen_decimatus_transformation_sickness();
+    new spell_gen_anetheron_summon_towering_infernal();
+    new spell_gen_mark_of_kazrogal_hellfire();
+    new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
+    new spell_gen_face_rage();
+    new spell_gen_impatient_mind();
 }
