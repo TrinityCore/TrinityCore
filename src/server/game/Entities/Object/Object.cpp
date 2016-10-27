@@ -541,8 +541,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerBox      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_BOX);
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);
         bool hasAreaTriggerCylinder = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);
-        bool hasAreaTriggerSpline   = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);
-        bool hasAreaTriggerUnkType  = false;// areaTrigger->HasFlag(AREATRIGGER_FLAG_UNK5);
+        bool hasAreaTriggerSpline   = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);
+        bool hasAreaTriggerUnkType  = false;// areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -572,8 +572,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         {
             std::vector<Position> splines = areaTrigger->GetSplines();
 
-            *data << float(areaTrigger->GetTotalDuration());    // TimeToTarget
-            *data << float(areaTrigger->GetTimeSinceCreated()); // ElapsedTimeForMovement
+            *data << float(areaTriggerMiscTemplate->TimeToTarget);
+            *data << float(0); // ElapsedTimeForMovement, always 0 because sent at creation
 
             data->FlushBits();
             data->WriteBits(splines.size(), 16);

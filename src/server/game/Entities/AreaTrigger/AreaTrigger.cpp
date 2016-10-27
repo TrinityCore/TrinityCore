@@ -30,7 +30,7 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _areaTriggerMiscTemplate(nullptr), _reachedDestination(false)
+AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -98,6 +98,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET, GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : spell->GetDuration());
     SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : spell->GetDuration());
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
