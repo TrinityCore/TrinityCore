@@ -30,7 +30,7 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _areaTriggerTemplate(nullptr)
+AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _areaTriggerMiscTemplate(nullptr), _reachedDestination(false)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -74,7 +74,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. Invalid coordinates (X: %f Y: %f)", spellMiscId, GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -82,7 +82,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
 
     if (_areaTriggerMiscTemplate == nullptr)
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spell %u) not created. Invalid areatrigger miscid (%u)", spellMiscId);
+        TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
         return false;
     }
 
@@ -98,7 +98,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetTemplate()->TimeToTargetScale != 0 ? GetTemplate()->TimeToTargetScale : spell->GetDuration());
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : spell->GetDuration());
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
     CopyPhaseFrom(caster);
@@ -121,6 +121,33 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
         }
     }
 
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE))
+    {
+        _splines = GetMiscTemplate()->Splines;
+
+        if (_splines.size() < 2)
+        {
+            TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, _splines.size());
+            return false;
+        }
+
+        float angleSin = std::sin(GetOrientation());
+        float angleCos = std::cos(GetOrientation());
+
+        // This is needed to rotate the spline, following caster orientation
+        for (Position& spline : _splines)
+        {
+            float tempX = spline.m_positionX;
+            float tempY = spline.m_positionY;
+
+            spline.m_positionX = (tempX * angleCos - tempY * angleSin) + GetPositionX();
+            spline.m_positionY = (tempX * angleSin + tempY * angleCos) + GetPositionY();
+            spline.m_positionZ += GetPositionZ();
+        }
+
+        ComputeSplineDistances();
+    }
+
     if (!GetMap()->AddToMap(this))
         return false;
 
@@ -140,6 +167,16 @@ void AreaTrigger::Update(uint32 p_time)
 
     WorldObject::Update(p_time);
     _timeSinceCreated += p_time;
+
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+    {
+        if (Unit* caster = GetCaster())
+        {
+            Relocate(caster);
+        }
+    }
+    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE))
+        UpdateSplinePosition();
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
 
@@ -441,4 +478,61 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
     }
 
     return true;
+}
+
+void AreaTrigger::ComputeSplineDistances()
+{
+    if (_splines.size() == 0)
+        return;
+
+    _totalDistance = 0;
+    _distanceToPoints.clear();
+
+    _distanceToPoints.resize(_splines.size());
+    _distanceToPoints[0] = 0.0f;
+
+    for (uint32 i = 1; i < _splines.size(); ++i)
+    {
+        Position previousSpline = _splines[i - 1];
+        Position nextSpine = _splines[i];
+
+        float toNextPointDistance = previousSpline.GetExactDist(&nextSpine);
+        _totalDistance += toNextPointDistance;
+        _distanceToPoints[i] = _totalDistance;
+    }
+}
+
+void AreaTrigger::UpdateSplinePosition()
+{
+    if (_reachedDestination)
+        return;
+
+    if (_distanceToPoints.size() < 2)
+        return;
+
+    if (_timeSinceCreated >= GetMiscTemplate()->TimeToTarget)
+    {
+        _reachedDestination = true;
+        Relocate(_splines.back());
+        sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
+        return;
+    }
+
+    float currentDistance = _totalDistance * (_timeSinceCreated / GetMiscTemplate()->TimeToTarget);
+
+    uint32 lastPositionIndex = 0;
+    for (uint32 i = 1; i < _distanceToPoints.size(); ++i)
+        if (_distanceToPoints[i] <= currentDistance)
+            lastPositionIndex = i;
+
+    float currentDistanceFromLastPoint = currentDistance - _distanceToPoints[lastPositionIndex];
+    float percentFromLastPoint = currentDistanceFromLastPoint / (_distanceToPoints[lastPositionIndex + 1] - _distanceToPoints[lastPositionIndex]);
+
+    Position lastPosition = _splines[lastPositionIndex];
+    Position nextPosition = _splines[lastPositionIndex + 1];
+    float moveAngle = lastPosition.GetAngle(&_splines[lastPositionIndex + 1]);
+
+    m_positionX = lastPosition.GetPositionX() + (currentDistanceFromLastPoint * cos(moveAngle));
+    m_positionY = lastPosition.GetPositionY() + (currentDistanceFromLastPoint * sin(moveAngle));
+    m_positionZ = lastPosition.GetPositionZ() + (percentFromLastPoint * (nextPosition.GetPositionZ() - lastPosition.GetPositionZ()));
 }

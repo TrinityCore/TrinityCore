@@ -8,7 +8,6 @@ CREATE TABLE `areatrigger_template` (
   `Data3` float NOT NULL DEFAULT '0',
   `Data4` float NOT NULL DEFAULT '0',
   `Data5` float NOT NULL DEFAULT '0',
-  `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) NOT NULL DEFAULT '',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -24,6 +23,17 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   `VerticeTargetY` float NOT NULL DEFAULT '0',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`areatriggerId`,`Idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `areatrigger_template_splines`;
+CREATE TABLE `areatrigger_template_splines` (
+  `MoveCurveId` int(10) unsigned NOT NULL,
+  `Idx` int(10) unsigned NOT NULL,
+  `SplineX` float NOT NULL DEFAULT '0',
+  `SplineY` float NOT NULL DEFAULT '0',
+  `SplineZ` float NOT NULL DEFAULT '0'
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`MoveCurveId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `areatrigger_template_auras`;
@@ -43,6 +53,8 @@ CREATE TABLE `spell_areatrigger` (
   `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
+  `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`SpellMiscId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

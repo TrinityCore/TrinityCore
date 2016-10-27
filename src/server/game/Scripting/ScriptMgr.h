@@ -850,6 +850,9 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         // Called on each AreaTrigger update
         virtual void OnUpdate(AreaTrigger* /*areaTrigger*/, uint32 /*diff*/) { }
 
+        // Called when the AreaTrigger reach its destination
+        virtual void OnDestinationReached(AreaTrigger* /*areaTrigger*/) { }
+
         // Called when an unit enter the AreaTrigger
         virtual void OnUnitEnter(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
 
@@ -1161,6 +1164,7 @@ class TC_GAME_API ScriptMgr
 
         void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
         void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
+        void OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger);
         void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
         void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
         void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);

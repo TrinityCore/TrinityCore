@@ -9619,6 +9619,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
+    std::map<uint32, std::vector<Position>> splineByMoveCurve;
     std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
 
     QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType, CastType FROM `areatrigger_template_auras`");
@@ -9683,7 +9684,29 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
     }
 
-    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, Data0, Data1, Data2, Data3, Data4, Data5, TimeToTargetScale, ScriptName FROM `areatrigger_template`");
+    QueryResult splines = WorldDatabase.Query("SELECT MoveCurveId, SplineX, SplineY, SplineZ FROM `areatrigger_template_splines` ORDER BY `MoveCurveId`, `Idx`");
+
+    if (splines)
+    {
+        do
+        {
+            Field* splineFields = splines->Fetch();
+            uint32 moveCurveId = splineFields[0].GetUInt32();
+
+            Position spline;
+            spline.m_positionX = splineFields[1].GetFloat();
+            spline.m_positionY = splineFields[2].GetFloat();
+            spline.m_positionZ = splineFields[3].GetFloat();
+
+            splineByMoveCurve[moveCurveId].push_back(spline);
+        } while (vertices->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `areatrigger_template_splines` is empty.");
+    }
+
+    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`");
 
     if (!templates)
     {
@@ -9702,10 +9725,9 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         areaTriggerTemplate.Flags           = fields[1].GetUInt32();
 
         for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-            areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
+            areaTriggerTemplate.DefaultDatas.Data[i] = fields[2 + i].GetFloat();
 
-        areaTriggerTemplate.TimeToTargetScale   = fields[12].GetInt32();
-        areaTriggerTemplate.ScriptId            = sObjectMgr->GetScriptId(fields[13].GetString());
+        areaTriggerTemplate.ScriptId            = sObjectMgr->GetScriptId(fields[8].GetString());
         areaTriggerTemplate.PolygonVertices     = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
         areaTriggerTemplate.Auras               = std::move(aurasByAreatrigger[areaTriggerTemplate.Id]);
 
@@ -9716,7 +9738,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     }
     while (templates->NextRow());
 
-    QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId FROM `spell_areatrigger`");
+    QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`");
 
     if (areatriggerSpellMiscs)
     {
@@ -9735,12 +9757,17 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            miscTemplate.MiscId         = miscId;
-            miscTemplate.Template       = GetAreaTriggerTemplate(areatriggerId);
-            miscTemplate.MoveCurveId    = areatriggerSpellMiscFields[2].GetInt32();
-            miscTemplate.ScaleCurveId   = areatriggerSpellMiscFields[3].GetInt32();
-            miscTemplate.MorphCurveId   = areatriggerSpellMiscFields[4].GetInt32();
-            miscTemplate.FacingCurveId  = areatriggerSpellMiscFields[5].GetInt32();
+            miscTemplate.MiscId             = miscId;
+            miscTemplate.Template           = GetAreaTriggerTemplate(areatriggerId);
+            miscTemplate.MoveCurveId        = areatriggerSpellMiscFields[2].GetInt32();
+            miscTemplate.ScaleCurveId       = areatriggerSpellMiscFields[3].GetInt32();
+            miscTemplate.MorphCurveId       = areatriggerSpellMiscFields[4].GetInt32();
+            miscTemplate.FacingCurveId      = areatriggerSpellMiscFields[5].GetInt32();
+            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[6].GetInt32();
+            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetInt32();
+
+            if (miscTemplate.MoveCurveId)
+                miscTemplate.Splines = splineByMoveCurve[miscTemplate.MoveCurveId];
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
         } while (areatriggerSpellMiscs->NextRow());

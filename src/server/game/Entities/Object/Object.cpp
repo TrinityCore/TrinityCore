@@ -511,7 +511,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     if (HasAreaTrigger)
     {
-        AreaTrigger const* areaTrigger = this->ToAreaTrigger();
+        AreaTrigger const* areaTrigger = ToAreaTrigger();
         AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = areaTrigger->GetMiscTemplate();
         AreaTriggerTemplate const* areaTriggerTemplate = areaTrigger->GetTemplate();
 
@@ -570,7 +570,20 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerSpline)
         {
-            //AreaTriggerHandler.ReadAreaTriggerSpline(packet, index);
+            std::vector<Position> splines = areaTrigger->GetSplines();
+
+            *data << float(areaTrigger->GetTotalDuration());    // TimeToTarget
+            *data << float(areaTrigger->GetTimeSinceCreated()); // ElapsedTimeForMovement
+
+            data->FlushBits();
+            data->WriteBits(splines.size(), 16);
+
+            for (Position spline : splines)
+            {
+                *data << spline.GetPositionX();
+                *data << spline.GetPositionY();
+                *data << spline.GetPositionZ();
+            }
         }
 
         if (hasTargetRollPitchYaw)

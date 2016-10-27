@@ -20,6 +20,7 @@
 
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "Position.h"
 #include "AreaTriggerTemplate.h"
 
 class Unit;
@@ -40,7 +41,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         int32 GetDuration() const { return _duration; }
-        void SetDuration(int32 newDuration) { _duration = newDuration; }
+        int32 GetTotalDuration() const { return _totalDuration; }
+        void SetDuration(int32 newDuration) { _duration = newDuration; _totalDuration = newDuration; ComputeSplineDistances(); }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
 
         void SearchUnitInSphere();
@@ -56,21 +58,31 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
         Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, _casterGuid); }
 
+        std::vector<Position> const GetSplines() const { return _splines; }
+
         bool CheckIsInPolygon2D(Position* pos) const;
 
     protected:
-        bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
-
         void AddAuras(Unit* unit);
         void RemoveAuras(Unit* unit);
+        bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
+
+        void ComputeSplineDistances();
+        void UpdateSplinePosition();
 
         ObjectGuid _casterGuid;
 
         int32 _duration;
+        int32 _totalDuration;
         uint32 _spellXSpellVisualId;
         uint32 _timeSinceCreated;
 
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
+        std::vector<Position> _splines;
+
+        float _totalDistance;
+        std::vector<float> _distanceToPoints;
+        bool _reachedDestination;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;

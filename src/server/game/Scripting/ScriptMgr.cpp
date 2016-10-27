@@ -2388,6 +2388,14 @@ void ScriptMgr::OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff)
     tmpscript->OnUpdate(areaTrigger, diff);
 }
 
+void ScriptMgr::OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnDestinationReached(areaTrigger);
+}
+
 void ScriptMgr::OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit)
 {
     ASSERT(areaTrigger);

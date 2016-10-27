@@ -80,7 +80,6 @@ public:
     {
         Id                  = 0;
         Flags               = 0;
-        TimeToTargetScale   = 0;
         ScriptId            = 0;
         MaxSearchRadius     = 0.0f;
 
@@ -99,7 +98,6 @@ public:
 
     uint32 Id;
     uint32 Flags;
-    uint32 TimeToTargetScale;
     uint32 ScriptId;
     float MaxSearchRadius;
     std::vector<AreaTriggerPolygonVertice> PolygonVertices;
@@ -159,6 +157,9 @@ public:
         MorphCurveId        = 0;
         FacingCurveId       = 0;
 
+        TimeToTarget        = 0;
+        TimeToTargetScale   = 0;
+
         Template            = nullptr;
     }
 
@@ -170,7 +171,11 @@ public:
     int32 MorphCurveId;
     int32 FacingCurveId;
 
+    uint32 TimeToTarget;
+    uint32 TimeToTargetScale;
+
     AreaTriggerTemplate const* Template;
+    std::vector<Position> Splines;
 };
 
 #endif
