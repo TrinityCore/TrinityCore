@@ -573,7 +573,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             std::vector<Position> splines = areaTrigger->GetSplines();
 
             *data << float(areaTriggerMiscTemplate->TimeToTarget);
-            *data << float(0); // ElapsedTimeForMovement, always 0 because sent at creation
+            *data << float(areaTrigger->GetTimeSinceCreated()); // ElapsedTimeForMovement
 
             data->FlushBits();
             data->WriteBits(splines.size(), 16);
