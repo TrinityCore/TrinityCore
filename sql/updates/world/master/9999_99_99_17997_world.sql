@@ -31,7 +31,7 @@ CREATE TABLE `areatrigger_template_splines` (
   `Idx` int(10) unsigned NOT NULL,
   `SplineX` float NOT NULL DEFAULT '0',
   `SplineY` float NOT NULL DEFAULT '0',
-  `SplineZ` float NOT NULL DEFAULT '0'
+  `SplineZ` float NOT NULL DEFAULT '0',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`MoveCurveId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
