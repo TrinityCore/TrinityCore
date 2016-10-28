@@ -388,7 +388,7 @@ class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
+                eventInfo.GetProcTarget()->CastSpell((Unit*)nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
             }
 
             void Register() override
