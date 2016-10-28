@@ -10947,6 +10947,21 @@ void Unit::TriggerAurasProcOnEvent(Unit* actionTarget, uint32 typeMaskActor, uin
     {
         AuraApplicationProcContainer myAurasTriggeringProc;
         GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, nullptr, myProcEventInfo);
+
+        // needed for example for Cobra Strikes, pet does the attack, but aura is on owner
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            if (modOwner != this && spell)
+            {
+                AuraApplicationList modAuras;
+                for (auto itr = modOwner->GetAppliedAuras().begin(); itr != modOwner->GetAppliedAuras().end(); ++itr)
+                {
+                    if (spell->m_appliedMods.count(itr->second->GetBase()) != 0)
+                        modAuras.push_back(itr->second);
+                }
+                modOwner->GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, &modAuras, myProcEventInfo);
+            }
+        }
         TriggerAurasProcOnEvent(myProcEventInfo, myAurasTriggeringProc);
     }
 
