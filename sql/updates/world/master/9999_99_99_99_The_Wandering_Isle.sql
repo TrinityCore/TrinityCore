@@ -884,7 +884,7 @@ INSERT INTO `gameobject_addon` (`guid`, `invisibilityType`, `invisibilityValue`)
 (@OGUID+515, 7, 100),
 (@OGUID+534, 8, 100);
 
-DELETE FROM `creature` WHERE `map`=860;
+DELETE FROM `creature` WHERE `map`=860 OR `guid` BETWEEN @CGUID AND @CGUID+2849;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0, 65094, 860, 0, 0, 1, 1329, 0, 0, 0, 959.7421, 3588.922, 224.6128, 4.129789, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 65094 (Area: 5834) (possible waypoints or random movement)
 (@CGUID+1, 65094, 860, 0, 0, 1, 1329, 0, 0, 0, 969.6996, 3552.865, 192.738, 3.765826, 120, 0, 0, 0, 0, 2, 0, 0, 0, 20886), -- 65094 (Area: 5834) (possible waypoints or random movement)
@@ -3465,7 +3465,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+824, (@CGUID+824)*10, 0, 0, 1, 0, 0, 0, 0, ''),
 (@CGUID+825, (@CGUID+825)*10, 0, 0, 1, 0, 0, 0, 0, ''),
 (@CGUID+826, 0, 0, 8, 1, 0, 0, 0, 0, ''), -- 65094
-(@CGUID+827, 0, 0, 0, 1, 0, 0, 0, 0, '132376'), -- 56479 - 132376 - 132376
+(@CGUID+827, 0, 0, 0, 1, 0, 2188, 0, 0, '132376'), -- 56479 - 132376 - 132376
 (@CGUID+938, 0, 0, 65536, 1, 0, 0, 0, 0, '78718'), -- 56393 - 78718 - 78718
 (@CGUID+939, 0, 0, 65536, 1, 0, 0, 0, 0, '78718'), -- 56393 - 78718 - 78718
 (@CGUID+940, 0, 0, 65536, 1, 0, 0, 0, 0, '78718'), -- 56394 - 78718 - 78718
@@ -3481,6 +3481,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+1250, 0, 0, 65536, 1, 0, 0, 0, 0, '60921'), -- 54975 - 60921 - 60921
 (@CGUID+1251, 0, 0, 65536, 1, 0, 0, 0, 0, '85096'), -- 55020 - 85096 - 85096
 (@CGUID+1252, 0, 0, 65536, 1, 0, 0, 0, 0, '89304'), -- 65493 - 89304 - 89304
+(@CGUID+1255, 0, 0, 0, 1, 0, 2139, 0, 0, ''),
 (@CGUID+1277, (@CGUID+1277)*10, 0, 0, 1, 0, 0, 0, 0, ''),
 (@CGUID+1281, (@CGUID+1281)*10, 0, 0, 1, 0, 0, 0, 0, ''),
 (@CGUID+1291, 0, 0, 0, 1, 425, 0, 0, 0, ''), -- 56241
@@ -3488,6 +3489,8 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+1295, 0, 0, 0, 1, 425, 0, 0, 0, ''),
 (@CGUID+1296, 0, 0, 0, 1, 425, 0, 0, 0, ''), -- 56241
 (@CGUID+1300, 0, 0, 0, 1, 425, 0, 0, 0, ''),
+(@CGUID+1321, 0, 0, 0, 1, 0, 1904, 0, 0, ''),
+(@CGUID+1327, 0, 0, 0, 1, 0, 1904, 0, 0, ''),
 (@CGUID+1323, 0, 0, 0, 1, 425, 0, 0, 0, ''),
 (@CGUID+1329, 0, 0, 65536, 1, 0, 0, 0, 0, '82343'), -- 65467 - 82343 - 82343
 (@CGUID+1330, 0, 0, 0, 1, 425, 0, 0, 0, ''),
@@ -3564,7 +3567,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+1569, 0, 0, 1, 1, 0, 0, 0, 0, ''), -- 65473
 (@CGUID+1570, 0, 0, 1, 1, 0, 0, 0, 0, ''), -- 56241
 (@CGUID+1576, 0, 0, 65536, 1, 0, 0, 0, 0, '108900 49415 126160'), -- 54786 - 108900 - 108900, 49415 - 49415, 126160 - 126160
-(@CGUID+1579, 0, 0, 0, 1, 0, 0, 0, 0, '132377'), -- 56479 - 132377 - 132377
+(@CGUID+1579, 0, 0, 0, 1, 0, 1546, 0, 0, '132377'), -- 56479 - 132377 - 132377
 (@CGUID+1580, 0, 0, 3, 1, 0, 0, 0, 0, ''), -- 60919
 (@CGUID+1595, (@CGUID+1595)*10, 0, 0, 1, 0, 0, 0, 0, ''), -- 55601
 (@CGUID+1598, (@CGUID+1598)*10, 0, 0, 1, 0, 0, 0, 0, ''), -- 55601
@@ -3577,7 +3580,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+1625, 0, 0, 1, 1, 0, 0, 0, 0, ''), -- 57419
 (@CGUID+1626, 0, 0, 65536, 1, 0, 0, 0, 0, '80852'), -- 56394 - 80852 - 80852
 (@CGUID+1627, 0, 0, 65536, 1, 0, 0, 0, 0, '80852'), -- 56394 - 80852 - 80852
-(@CGUID+1628, 0, 0, 65536, 1, 0, 0, 0, 0, '80852'), -- 56393 - 80852 - 80852
+(@CGUID+1628, 0, 0, 65536, 1, 0, 1904, 0, 0, '80852'), -- 56393 - 80852 - 80852
 (@CGUID+1629, 0, 0, 65536, 1, 0, 0, 0, 0, '80852'), -- 65467 - 80852 - 80852
 (@CGUID+1631, 0, 0, 1, 1, 0, 0, 0, 0, ''), -- 57419
 (@CGUID+1633, 0, 0, 65537, 1, 0, 0, 0, 0, '80852'), -- 56394 - 80852 - 80852
@@ -3627,7 +3630,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+1786, 0, 0, 0, 1, 0, 0, 0, 0, '108900 126160'), -- 55586 - 108900 - 108900, 126160 - 126160
 (@CGUID+1787, 0, 0, 8, 1, 0, 0, 0, 0, ''), -- 55595
 (@CGUID+1788, 0, 0, 0, 1, 0, 0, 0, 0, '29266'), -- 55874 - 29266 - 29266
-(@CGUID+1790, 0, 0, 0, 1, 0, 0, 0, 0, '132378'), -- 56479 - 132378 - 132378
+(@CGUID+1790, 0, 0, 0, 1, 0, 2190, 0, 0, '132378'), -- 56479 - 132378 - 132378
 (@CGUID+1795, (@CGUID+1795)*10, 0, 0, 1, 0, 0, 0, 0, ''), -- 55640
 (@CGUID+1797, 0, 0, 0, 1, 0, 0, 0, 0, '123906'), -- 55640 - 123906 - 123906
 (@CGUID+1799, (@CGUID+1799)*10, 0, 0, 1, 0, 0, 0, 0, ''), -- 55640
@@ -3884,7 +3887,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+2846, 0, 0, 65536, 1, 0, 0, 0, 0, '80797'), -- 57720 - 80797 - 80797
 (@CGUID+2847, 0, 0, 65536, 1, 0, 0, 0, 0, '80797'); -- 64593 - 80797 - 80797
 
-DELETE FROM `creature_template_addon` WHERE `entry` IN (57750, 56503, 54856, 54958, 60488, 55213, 57208, 55558, 60916, 59496, 56377, 55685, 65558, 64322, 64530, 55744, 56159, 56663, 65107, 65102, 56686, 55649, 59986, 59988, 59989);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (57750, 56503, 54856, 54958, 60488, 55213, 57208, 55558, 60916, 59496, 56377, 55685, 65558, 64322, 64530, 55744, 56159, 56663, 65107, 65102, 56686, 55649, 59986, 59988, 59989, 65043, 57638, 57669, 57670, 57692);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `auras`) VALUES
 (57769, 0, 0, 0, 1, 429, 0, 0, 0, '114825'), -- 57769 - 114825 - 114825
 (57754, (@CGUID+64)*10, 0, 0, 1, 0, 0, 0, 0, ''),
@@ -3988,6 +3991,11 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 (59986, 0, 0, 0, 1, 0, 0, 0, 0, '115352'), -- 59986
 (59988, 0, 0, 0, 1, 0, 0, 0, 0, '115353'), -- 59988
 (59989, 0, 0, 0, 1, 0, 0, 0, 0, '115354 115672'), -- 59989
+(65043, 0, 0, 0, 1, 0, 1904, 0, 0, ''),
+(57638, 0, 0, 0, 1, 0, 2935, 0, 0, ''),
+(57669, 0, 0, 0, 1, 0, 2935, 0, 0, ''),
+(57670, 0, 0, 0, 1, 0, 2935, 0, 0, ''),
+(57692, 0, 0, 0, 1, 0, 2935, 0, 0, ''),
 -- (57465, 0, 0, 0, 1, 0, 0, 0, 0, '46598'), -- 57465 - 46598 - 46598
 (60898, 0, 0, 3, 1, 0, 0, 0, 0, ''), -- 60898
 (56172, 0, 0, 50331648, 1, 0, 0, 0, 0, ''), -- 56172
@@ -6697,8 +6705,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (60249, 2, 0, 'Bye!', 12, 0, 100, 3, 0, 0, 59884, 0, 'Deng to Cai'),
 (57638, 0, 0, 'The reeds of the Singing Pools are the hardest in all of the land, but they are as air before my mighty brow.', 12, 0, 100, 1, 0, 0, 56333, 0, 'Jojo Ironbrow to Player'),
 (57638, 1, 0, 'Many have tested my claim, and I yet stand proven.', 12, 0, 100, 2, 0, 0, 56334, 0, 'Jojo Ironbrow to Player'),
-(54975, 0, 0, 'I have to admit, that looked pretty fun!', 12, 0, 100, 0, 0, 27394, 66056, 0, 'Aysa Cloudsinger to Player'),
-(54975, 1, 0, 'And it looks to me like you made a new friend.', 12, 0, 100, 0, 0, 27395, 66057, 0, 'Aysa Cloudsinger to Player'),
+(54975, 0, 0, 'I have to admit, that looked pretty fun!', 12, 0, 100, 0, 0, 27394, 66056, 1, 'Aysa Cloudsinger to Player'),
+(54975, 1, 0, 'And it looks to me like you made a new friend.', 12, 0, 100, 0, 0, 27395, 66057, 1, 'Aysa Cloudsinger to Player'),
 (57712, 0, 0, 'Hello friend!  You''re welcome to use my cart if you like.  It will take you to the Dai-Lo Farmstead.', 12, 0, 100, 3, 0, 0, 56406, 0, 'Delivery Cart Tender to Player'),
 (57712, 1, 0, 'Hello friend!  You''re welcome to use my cart if you like.  It will take you to the Temple of Five Dawns.', 12, 0, 100, 3, 0, 0, 56415, 0, 'Delivery Cart Tender to Player'),
 (55477, 0, 0, 'Wake... up... DANGIT!', 12, 0, 100, 15, 0, 27345, 60447, 0, 'Ji Firepaw'),
@@ -6894,7 +6902,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=13102, `VerifiedBuild`=20886 WHE
 UPDATE `creature_template` SET `gossip_menu_id`=13140, `VerifiedBuild`=20886 WHERE `entry`=55556;
 UPDATE `creature_template` SET `gossip_menu_id`=14617, `VerifiedBuild`=20886 WHERE `entry`=64939;
 UPDATE `creature_template` SET `gossip_menu_id`=13736, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=55477;
-UPDATE `creature_template` SET `gossip_menu_id`=12180, `npcflag`=1, `trainer_type`=2, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=65043;
+UPDATE `creature_template` SET `gossip_menu_id`=12180, `npcflag`=1, `trainer_type`=2, `AIName`='', `VerifiedBuild`=20886 WHERE `entry`=65043;
 UPDATE `creature_template` SET `gossip_menu_id`=9868, `VerifiedBuild`=20886 WHERE `entry`=65046;
 UPDATE `creature_template` SET `gossip_menu_id`=15040, `VerifiedBuild`=20886 WHERE `entry`=66690;
 UPDATE `creature_template` SET `gossip_menu_id`=13204, `VerifiedBuild`=20886 WHERE `entry`=55583;
@@ -6905,7 +6913,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=14671, `VerifiedBuild`=20886 WHE
 UPDATE `creature_template` SET `gossip_menu_id`=14670, `VerifiedBuild`=20886 WHERE `entry`=57720;
 UPDATE `creature_template` SET `gossip_menu_id`=13726, `VerifiedBuild`=20886 WHERE `entry`=56013;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 40789, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642);
-UPDATE `creature_template` SET `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry` IN (55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 56479, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 55019, 65468, 56393, 56394, 60411, 54976);
+UPDATE `creature_template` SET `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry` IN (55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 55019, 65468, 56393, 56394, 60411, 54976);
 UPDATE `creature_template` SET `flags_extra`=64 WHERE `entry` IN (53714, 57873);
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `VehicleId`=1953, `AIName`='SmartAI', `HoverHeight`=2, `VerifiedBuild`=20886 WHERE `entry`=57750;
 UPDATE `creature_template` SET `InhabitType`=4, `VerifiedBuild`=20886 WHERE `entry` IN (56739, 60920, 55650, 65559, 65560, 57464);
@@ -8234,11 +8242,6 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5
 -- Area Triggers
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710) AND `source_type`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
--- Legacy of Liu Lang
-(-@CGUID-827, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 2188, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Legacy of Liu Lang - On Respawn - Set AI AnimKit'),
-(-@CGUID-1255, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 2139, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Legacy of Liu Lang - On Respawn - Set AI AnimKit'),
-(-@CGUID-1579, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 1546, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Legacy of Liu Lang - On Respawn - Set AI AnimKit'),
-(-@CGUID-1790, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 2190, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Legacy of Liu Lang - On Respawn - Set AI AnimKit'),
 -- Training Target
 (53714, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Training Target - On Respawn - Set React State'),
 (53714, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5371400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Training Target - On Respawn - Run Script'),
@@ -8942,8 +8945,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Stack of Reeds
 (57636, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 4.921828, 'Stack of Reeds - Just Spawned - Set Orientation'),
 -- Jojo Ironbrow
-(57638, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 117, 2935, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Set AI AnimKit'),
-(57638, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5763800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
+(57638, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5763800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5763800, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5763800, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5763800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1039.19, 3284.26, 129.3971, 0, 'Jojo Ironbrow - Move to Pos'),
@@ -8951,7 +8953,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5763800, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5763800, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
 (5763800, 9, 6, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 53, 0, 57638, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Start WP'),
-(57638, 0, 2, 0, 58, 0, 100, 0, 40, 57638, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - WP Ended - Despawn'),
+(57638, 0, 1, 0, 58, 0, 100, 0, 40, 57638, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - WP Ended - Despawn'),
 -- Excited Onlooker
 (-@CGUID-938, 0, 0, 0, 38, 0, 100, 0, 1, 1, 7000, 7000, 80, 5639300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
 (5639300, 9, 0, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 5, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - Play Emote'),
@@ -9052,8 +9054,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (-@CGUID-1309, 0, 0, 0, 1, 0, 100, 0, 2000, 5000, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
 (-@CGUID-1315, 0, 0, 0, 1, 0, 100, 0, 2000, 5000, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
 (-@CGUID-1316, 0, 0, 0, 1, 0, 100, 0, 0, 0, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
-(-@CGUID-1321, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 1904, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - On Respawn - Set AI AnimKit'),
-(-@CGUID-1327, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 1904, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - On Respawn - Set AI AnimKit'),
 (-@CGUID-1331, 0, 0, 0, 1, 0, 100, 0, 0, 0, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
 (-@CGUID-1332, 0, 0, 0, 1, 0, 100, 0, 2000, 5000, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
 (-@CGUID-1337, 0, 0, 0, 1, 0, 100, 0, 0, 0, 1000, 12000, 10, 1, 6, 273, 274, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dai-Lo Farmer - Update OOC - Play Random Emote'),
@@ -9103,8 +9103,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Stack of Planks
 (57667, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 3.316126, 'Stack of Planks - Just Spawned - Set Orientation'),
 -- Jojo Ironbrow
-(57669, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 117, 2935, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Set AI AnimKit'),
-(57669, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5766900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
+(57669, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5766900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5766900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5766900, 9, 1, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5766900, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 599.215, 3132.27, 89.06574, 0, 'Jojo Ironbrow - Move to Pos'),
@@ -9112,7 +9111,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5766900, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5766900, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
 (5766900, 9, 6, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 53, 0, 57669, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Start WP'),
-(57669, 0, 2, 0, 58, 0, 100, 0, 51, 57669, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On WP Ended - Despawn'),
+(57669, 0, 1, 0, 58, 0, 100, 0, 51, 57669, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - On WP Ended - Despawn'),
 -- Excited Onlooker
 (-@CGUID-1343, 0, 0, 1, 38, 0, 100, 0, 1, 1, 8000, 8000, 5, 21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Play Emote'),
 (-@CGUID-1343, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6546700, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
@@ -9245,8 +9244,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6669201, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Samus - Set Bytes1'),
 (6669201, 9, 5, 0, 0, 0, 100, 0, 38000, 38000, 0, 0, 91, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Samus - Remove Bytes1'),
 (6669201, 9, 6, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 97, 10, 5, 0, 0, 0, 0, 1, 0, 0, 0, 678.356, 3512.9, 119.632, 0, 'Samus - Jump to Pos'),
--- Elder Oakpaw
-(65043, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 1904, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Elder Oakpaw - On Respawn - Set AI AnimKit'),
 -- Jin
 (65085, 0, 0, 0, 1, 0, 100, 0, 0, 0, 3000, 10000, 10, 5, 273, 396, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jin - Update OOC - Play Random Emote'),
 -- Da Na
@@ -9468,8 +9465,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Stack of Blocks
 (57668, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0.7853982, 'Stack of Blocks - Just Spawned - Set Orientation'),
 -- Jojo Ironbrow
-(57670, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 117, 2935, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Set AI AnimKit'),
-(57670, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5767000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
+(57670, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5767000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5767000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5767000, 9, 1, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5767000, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.31, 4179.94, 205.7737, 0, 'Jojo Ironbrow - Move to Pos'),
@@ -9477,11 +9473,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5767000, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5767000, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
 -- Excited Onlooker
-(-@CGUID-1628, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 117, 1904, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Respawn - Set AI AnimKit'),
-(-@CGUID-1628, 0, 1, 2, 38, 0, 100, 0, 1, 1, 8000, 8000, 5, 273, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Play Emote'),
-(-@CGUID-1628, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5639305, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
+(-@CGUID-1628, 0, 0, 1, 38, 0, 100, 0, 1, 1, 8000, 8000, 5, 273, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Play Emote'),
+(-@CGUID-1628, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5639305, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
 (5639305, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 5, 21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - Play Emote'),
-(-@CGUID-1628, 0, 3, 0, 38, 0, 100, 0, 2, 2, 6000, 6000, 80, 5639307, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
+(-@CGUID-1628, 0, 2, 0, 38, 0, 100, 0, 2, 2, 6000, 6000, 80, 5639307, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
 (5639307, 9, 0, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 5, 18, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - Play Emote'),
 (-@CGUID-1629, 0, 0, 1, 38, 0, 100, 0, 1, 1, 8000, 8000, 5, 21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Play Emote'),
 (-@CGUID-1629, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6546702, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Excited Onlooker - On Data Set - Run Script'),
@@ -9603,8 +9598,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Tiger Pillar Stand
 (57690, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 5.550147, 'Tiger Pillar Stand - Just Spawned - Set Orientation'),
 -- Jojo Ironbrow
-(57692, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 117, 2935, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Set AI AnimKit'),
-(57692, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5769200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
+(57692, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5769200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5769200, 9, 0, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5769200, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.47, 4180.03, 205.7929, 0, 'Jojo Ironbrow - Move to Pos'),
@@ -9616,8 +9610,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5769200, 9, 8, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 9, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 59, 1, 2, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Run'),
 (5769200, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1078.09, 4177.64, 205.7422, 0, 'Jojo Ironbrow - Move to Pos'),
-(57692, 0, 2, 3, 34, 0, 100, 0, 8, 2, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
-(57692, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 90, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set Bytes1'),
+(57692, 0, 1, 2, 34, 0, 100, 0, 8, 2, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
+(57692, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 90, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set Bytes1'),
 -- Frightened Winds
 (-@CGUID-1759, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - On Respawn - Set React State'),
 (-@CGUID-1759, 0, 1, 2, 60, 0, 100, 0, 11000, 11000, 22000, 22000, 28, 104333, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Remove Aura'),
