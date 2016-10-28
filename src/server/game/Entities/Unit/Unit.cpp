@@ -2890,8 +2890,8 @@ float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) con
 float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victim) const
 {
     int32 const attackerWeaponSkill = GetWeaponSkillValue(attackType, victim);
-    int32 const victimMaxSkillValueForLevel = victim->GetMaxSkillValueForLevel(this);
-    int32 const skillDiff = victimMaxSkillValueForLevel - attackerWeaponSkill;
+    int32 const victimDefenseSkill = victim->GetDefenseSkillValue(this);
+    int32 const skillDiff = victimDefenseSkill - attackerWeaponSkill;
 
     float chance = 0.0f;
     float skillBonus = 0.0f;
