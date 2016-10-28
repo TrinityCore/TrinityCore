@@ -1591,6 +1591,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 31666, true);
                     else
                     {
+                        // Remove counter aura
+                        target->RemoveAurasDueToSpell(31666);
+
                         int32 basepoints0 = aurEff->GetAmount();
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
                     }
@@ -1601,7 +1604,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (!apply)
                         target->CastSpell(target, 58428, true);
                     else
+                    {
+                        // Remove counter aura
+                        target->RemoveAurasDueToSpell(58428);
+
                         target->CastSpell(target, 58427, true);
+                    }
                 }
                 break;
             }
