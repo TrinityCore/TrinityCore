@@ -25892,6 +25892,20 @@ void Player::ActivateSpec(uint8 spec)
     UnsummonAllTotems();
     ExitVehicle();
     RemoveAllControlled();
+
+    // remove single target auras at other targets
+    AuraList& scAuras = GetSingleCastAuras();
+    for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
+    {
+        Aura* aura = *iter;
+        if (aura->GetUnitOwner() != this)
+        {
+            aura->Remove();
+            iter = scAuras.begin();
+        }
+        else
+            ++iter;
+    }
     /*RemoveAllAurasOnDeath();
     if (GetPet())
         GetPet()->RemoveAllAurasOnDeath();*/
