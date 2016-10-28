@@ -26,7 +26,7 @@
 class Unit;
 class SpellInfo;
 
-class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
+class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:
         AreaTrigger();

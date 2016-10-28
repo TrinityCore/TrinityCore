@@ -30,7 +30,9 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0), _reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
+_duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
+_reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -128,7 +130,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
 
         if (_splines.size() < 2)
         {
-            TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, _splines.size());
+            TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, uint32(_splines.size()));
             return false;
         }
 
@@ -173,7 +175,7 @@ void AreaTrigger::Update(uint32 p_time)
     {
         if (Unit* caster = GetCaster())
         {
-            Relocate(caster);
+            GetMap()->AreaTriggerRelocation(this, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation());
         }
     }
     else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE))
