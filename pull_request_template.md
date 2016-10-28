@@ -1,6 +1,6 @@
-[//]: # (*********************************)
-[//]: # (** DO NOT DELETE THIS TEMPLATE **)
-[//]: # (*********************************)
+[//]: # (***************************)
+[//]: # (** FILL IN THIS TEMPLATE **)
+[//]: # (***************************)
 
 **Changes proposed:**
 
@@ -19,7 +19,7 @@
 **Tests performed:** (Does it build, tested in-game, etc.)
 
 
-**Known issues and ToDo list:** (add/remove lines as needed)
+**Known issues and TODO list:** (add/remove lines as needed)
 
 - [ ] 
 - [ ] 
@@ -27,5 +27,4 @@
 [//]: # (**DEPRECATION NOTICE** Instead of creating new PRs to the (old) 6.x branch, make sure the target branch is **master** instead of 6.x.)
 [//]: # (**NOTE** Enable the setting "[√] Allow edits from maintainers." when creating your pull request (if not enabled already).)
 [//]: # (**NOTE** If this PR __only__ contains SQL files, open a new issue instead and post or link the SQL there.)
-[//]: # (**NOTE** Squashing commits is not required. Rebase can become necessary when the TC main branch changes before PR is merged.)
 [//]: # (**SUGGESTION** When adding new SQL files, name them 9999_99_99_99_db_name.sql to reduce the chance of possible merge conflicts.)
