@@ -1778,7 +1778,12 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (aurApp->GetRemoveMode())
             return;
 
+        ShapeshiftForm prevForm = target->GetShapeshiftForm();
         target->SetShapeshiftForm(form);
+        // add the shapeshift aura's boosts
+        if (prevForm != form)
+            HandleShapeshiftBoosts(target, true);
+
         if (modelid > 0)
         {
             SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(target->getTransForm());
@@ -1819,11 +1824,10 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             default:
                 break;
         }
-    }
 
-    // adding/removing linked auras
-    // add/remove the shapeshift aura's boosts
-    HandleShapeshiftBoosts(target, apply);
+        // remove the shapeshift aura's boosts
+        HandleShapeshiftBoosts(target, false);
+    }
 
     if (target->GetTypeId() == TYPEID_PLAYER)
         target->ToPlayer()->InitDataForForm();
