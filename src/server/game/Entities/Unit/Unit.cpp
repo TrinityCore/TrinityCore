@@ -161,7 +161,7 @@ DamageInfo::DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEff
 
 void DamageInfo::ModifyDamage(int32 amount)
 {
-    amount = std::max(amount, -static_cast<int32>(m_damage));
+    amount = std::max(amount, -static_cast<int32>(GetDamage()));
     m_damage += amount;
 }
 
