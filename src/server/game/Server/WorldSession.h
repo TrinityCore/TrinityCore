@@ -944,6 +944,9 @@ class TC_GAME_API WorldSession
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
 
+        uint32 GetCurrentVendor() const { return m_currentVendorEntry; }
+        void SetCurrentVendor(uint32 vendorEntry) { m_currentVendorEntry = vendorEntry; }
+
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
@@ -987,7 +990,7 @@ class TC_GAME_API WorldSession
 
         void SendTrainerList(ObjectGuid guid);
         void SendTrainerList(ObjectGuid guid, std::string const& strTitle);
-        void SendListInventory(ObjectGuid guid);
+        void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);
@@ -1861,6 +1864,7 @@ class TC_GAME_API WorldSession
         rbac::RBACData* _RBACData;
         uint32 expireTime;
         bool forceExit;
+        uint32 m_currentVendorEntry;
         ObjectGuid m_currentBankerGUID;
 
         std::unique_ptr<BattlePetMgr> _battlePetMgr;

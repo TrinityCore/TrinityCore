@@ -573,7 +573,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
     SendListInventory(packet.Unit);
 }
 
-void WorldSession::SendListInventory(ObjectGuid vendorGuid)
+void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
 {
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
@@ -591,7 +591,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
-    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    SetCurrentVendor(vendorEntry);
+
+    VendorItemData const* vendorItems = vendorEntry ? sObjectMgr->GetNpcVendorItemList(vendorEntry) : vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
     WorldPackets::NPC::VendorInventory packet;
