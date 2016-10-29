@@ -6581,7 +6581,7 @@ void Unit::SendHealSpellLog(HealInfo& healInfo, bool critical /*= false*/)
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
     data << healInfo.GetTarget()->GetPackGUID();
-    data << GetPackGUID();
+    data << healInfo.GetHealer()->GetPackGUID();
     data << uint32(healInfo.GetSpellInfo()->Id);
     data << uint32(healInfo.GetHeal());
     data << uint32(healInfo.GetHeal() - healInfo.GetEffectiveHeal());
