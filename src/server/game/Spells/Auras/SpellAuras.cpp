@@ -1591,6 +1591,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->CastSpell(target, 31666, true);
                     else
                     {
+                        // Remove counter aura
+                        target->RemoveAurasDueToSpell(31666);
+
                         int32 basepoints0 = aurEff->GetAmount();
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
                     }
@@ -1601,7 +1604,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (!apply)
                         target->CastSpell(target, 58428, true);
                     else
+                    {
+                        // Remove counter aura
+                        target->RemoveAurasDueToSpell(58428);
+
                         target->CastSpell(target, 58427, true);
+                    }
                 }
                 break;
             }
@@ -1891,6 +1899,14 @@ uint8 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& event
     // do checks against db data
     if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
         return 0;
+
+    // check don't break stealth attr present
+    if (m_spellInfo->HasAura(SPELL_AURA_MOD_STEALTH))
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            if (spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH))
+                return 0;
+    }
 
     // check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
     if (!(procEntry->AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))

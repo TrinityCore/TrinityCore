@@ -3587,10 +3587,6 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         }
         mEvents.push_back((*i));//NOTE: 'world(0)' events still get processed in ANY instance mode
     }
-    if (mEvents.empty() && obj)
-        TC_LOG_ERROR("sql.sql", "SmartScript: Entry %u has events but no events added to list because of instance flags.", obj->GetEntry());
-    if (mEvents.empty() && at)
-        TC_LOG_ERROR("sql.sql", "SmartScript: AreaTrigger %u has events but no events added to list because of instance flags. NOTE: triggers can not handle any instance flags.", at->id);
 }
 
 void SmartScript::GetScript()
