@@ -757,6 +757,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850,
 
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_GOBJECT_SET_SCALE                      = 1398,
+    RBAC_PERM_COMMAND_NPC_SET_SCALE                          = 1589,
     RBAC_PERM_MAX
 };
 

@@ -1764,8 +1764,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2    3        4             5           6           7           8            9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //   11               12         13       14            15         16          17          18                19                   20                     21                22
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, creature.phasegroup "
+    //   11               12         13       14            15         16          17          18                19                   20                     21                22                   23
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, creature.phasegroup, creature.size "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1822,6 +1822,7 @@ void ObjectMgr::LoadCreatures()
         data.dynamicflags   = fields[20].GetUInt32();
         data.phaseid        = fields[21].GetUInt32();
         data.phaseGroup     = fields[22].GetUInt32();
+        data.size           = fields[23].GetFloat();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2093,8 +2094,8 @@ void ObjectMgr::LoadGameobjects()
 
     //                                                0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
-    //   7          8          9          10         11             12            13     14         15          16          17       18
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, eventEntry, pool_entry, phaseid, phasegroup "
+    //   7          8          9          10         11             12            13     14         15          16          17       18          19
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, eventEntry, pool_entry, phaseid, phasegroup, size "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2210,6 +2211,7 @@ void ObjectMgr::LoadGameobjects()
         uint32 PoolId       = fields[16].GetUInt32();
         data.phaseid        = fields[17].GetUInt32();
         data.phaseGroup     = fields[18].GetUInt32();
+        data.size           = fields[19].GetFloat();
 
         if (data.phaseGroup && data.phaseid)
         {

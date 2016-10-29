@@ -207,6 +207,7 @@ public:
             { "movetype",   rbac::RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  false, &HandleNpcSetMoveTypeCommand,      "" },
             { "phase",      rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseCommand,         "" },
             { "phasegroup", rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseGroup,           "" },
+            { "scale",      rbac::RBAC_PERM_COMMAND_NPC_SET_SCALE,     false, &HandleNpcSetScaleCommand,         "" },
             { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "" },
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
@@ -1117,6 +1118,37 @@ public:
 
         creature->SaveToDB();
 
+        return true;
+    }
+
+    static bool HandleNpcSetScaleCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        Creature* creature = handler->getSelectedCreature();
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        float scale = (float)atof((char*)args);
+
+        if (scale <= 0.0f)
+        {
+            scale = creature->GetCreatureTemplate()->scale;
+            const_cast<CreatureData*>(creature->GetCreatureData())->size = -1.0f;
+        }
+        else
+        {
+            const_cast<CreatureData*>(creature->GetCreatureData())->size = scale;
+        }
+
+        creature->SetObjectScale(scale);
+        if (!creature->IsPet())
+            creature->SaveToDB();
         return true;
     }
 
