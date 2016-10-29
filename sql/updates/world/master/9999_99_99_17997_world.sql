@@ -58,15 +58,15 @@ CREATE TABLE `spell_areatrigger` (
   PRIMARY KEY (`SpellMiscId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreatriggerId`) VALUES
-(4424, 9170),
-(2472, 5207),
-(4488, 9228);
+INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreatriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`TimeToTarget`,`TimeToTargetScale`) VALUES
+(4424, 9170, 0, 0, 0, 0, 0, 0),
+(2472, 5207, 0, 0, 0, 0, 0, 0),
+(4488, 9228, 0, 0, 0, 0, 0, 0);
 
-INSERT INTO `areatrigger_template`(`Id`,`Flags`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`TimeToTargetScale`,`ScriptName`,`VerifiedBuild`) VALUES
-(5207, 65536, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 22810),
-(9170, 131072,0, 0, 0, 0, 3, 3, 4, 4, 1, 1, 0, '', 22810),
-(9228, 16384, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, '', 22810);
+INSERT INTO `areatrigger_template`(`Id`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`ScriptName`,`VerifiedBuild`) VALUES
+(5207, 65536, 0, 0, 0, 0, 0, 0, '', 22810),
+(9170, 131072,3, 3, 4, 4, 1, 1, '', 22810),
+(9228, 16384, 8, 8, 0, 0, 0, 0, '', 22810);
 
 INSERT INTO `areatrigger_template_polygon_vertices`(`AreaTriggerId`,`Idx`,`VerticeX`,`VerticeY`,`VerticeTargetX`,`VerticeTargetY`,`VerifiedBuild`) VALUES
 (5207, 0, -1, 0.75,  0, 0, 22810),
