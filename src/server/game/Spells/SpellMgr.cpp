@@ -2603,6 +2603,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
             case 29200: // Purify Helboar Meat
+            case 10872: // Abolish Disease Effect
+            case 3137:  // Abolish Poison Effect
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
