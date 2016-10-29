@@ -42,8 +42,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (23662,0, 2,0, 54,0,100, 512,     0,     0,     0,     0, 49,     0, 0,0,0,0,0, 23,     0, 0,0,0,0,0,0,'Winterskorn Woodsman  - On Just Summoned - Attack Summoner'),
 (23662,0, 3,0, 61,0,100,   0,     0,     0,     0,     0, 11, 43037, 0,0,0,0,0,  7,     0, 0,0,0,0,0,0,"Winterskorn Woodsman - On Spellhit 'Dismembering Corpse' - Cast 'Gruesome, But Necessary: Kill Credit'"),
 (23662,0, 4,0,  0,0,100,   0,  1000, 15000,  7200, 35000,  1,     0, 0,0,0,0,0,  1,     0, 0,0,0,0,0,0,'Winterskorn Woodsman - In Combat - Say Line 0'),
-(24026,0, 0,0, 54,0,100, 512,     0,     0,     0,     0, 49,     0, 0,0,0,0,0, 23,     0, 0,0,0,0,0,0,'Fanggore Worg  - On Just Summoned - Attack Summoner');
-(24211,0, 1,2, 61,0,100, 512,     0,     0,     0,     0, 29,      0,0,0,0,0,0, 23,     0, 0,0,0,0,0,0,'Freed Winterhoof Longrunner - On Just Summoned - Follow Summoner');
-(24211,0, 2,0, 61,0,100, 512,     0,     0,     0,     0, 41, 6000, 0,0,0,0,0,   1,     0, 0,0,0,0,0,0,'Freed Winterhoof Longrunner - On Just Summoned - Despawn In 6000 ms');
+(24026,0, 0,0, 54,0,100, 512,     0,     0,     0,     0, 49,     0, 0,0,0,0,0, 23,     0, 0,0,0,0,0,0,'Fanggore Worg  - On Just Summoned - Attack Summoner'),
+(24211,0, 1,2, 61,0,100, 512,     0,     0,     0,     0, 29,      0,0,0,0,0,0, 23,     0, 0,0,0,0,0,0,'Freed Winterhoof Longrunner - On Just Summoned - Follow Summoner'),
+(24211,0, 2,0, 61,0,100, 512,     0,     0,     0,     0, 41, 6000, 0,0,0,0,0,   1,     0, 0,0,0,0,0,0,'Freed Winterhoof Longrunner - On Just Summoned - Despawn In 6000 ms'),
 (24211,0, 0,1, 54,0,100, 512,     0,     0,     0,     0, 1,      0,0,0,0,0,0,   1,     0, 0,0,0,0,0,0,'Freed Winterhoof Longrunner - On Just Summoned - Say Line 0');
 
