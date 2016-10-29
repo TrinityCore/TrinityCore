@@ -275,6 +275,70 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         }
 };
 
+// -53256 - Cobra Strikes
+class spell_hun_cobra_strikes : public SpellScriptLoader
+{
+    public:
+        spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
+
+        class spell_hun_cobra_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cobra_strikes_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+                GetTarget()->CastCustomSpell(triggeredSpellInfo->Id, SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_cobra_strikes_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_cobra_strikes_AuraScript();
+        }
+};
+
+// 53257 - Cobra Strikes (triggered spell)
+class spell_hun_cobra_strikes_triggered : public SpellScriptLoader
+{
+    public:
+        spell_hun_cobra_strikes_triggered() : SpellScriptLoader("spell_hun_cobra_strikes_triggered") { }
+
+        class spell_hun_cobra_strikes_triggered_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cobra_strikes_triggered_AuraScript);
+
+            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                ModStackAmount(-1);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_cobra_strikes_triggered_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_cobra_strikes_triggered_AuraScript();
+        }
+};
+
 // 781 - Disengage
 class spell_hun_disengage : public SpellScriptLoader
 {
@@ -388,7 +452,7 @@ class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
+                eventInfo.GetProcTarget()->CastSpell((Unit*)nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
             }
 
             void Register() override
@@ -1476,6 +1540,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_aspect_of_the_beast();
     new spell_hun_ascpect_of_the_viper();
     new spell_hun_chimera_shot();
+    new spell_hun_cobra_strikes();
+    new spell_hun_cobra_strikes_triggered();
     new spell_hun_disengage();
     new spell_hun_glyph_of_arcane_shot();
     new spell_hun_glyph_of_mend_pet();
