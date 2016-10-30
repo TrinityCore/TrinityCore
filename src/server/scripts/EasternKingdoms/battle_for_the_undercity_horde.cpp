@@ -1491,7 +1491,7 @@ public:
                 Thrall->GetAI()->SetData(0, 2);
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 /*type*/, uint32 data) override
         {
             switch (data)
             {
