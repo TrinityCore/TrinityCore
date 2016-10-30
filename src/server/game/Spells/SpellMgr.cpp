@@ -2846,6 +2846,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 27915: // Anchor to Skulls
             case 27931: // Anchor to Skulls
             case 27937: // Anchor to Skulls
+            case 16177: // Ancestral Fortitude (Rank 1)
+            case 16236: // Ancestral Fortitude (Rank 2)
+            case 16237: // Ancestral Fortitude (Rank 3)
+            case 47930: // Grace
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
