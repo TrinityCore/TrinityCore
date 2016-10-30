@@ -134,6 +134,7 @@ void Transport::Update(uint32 diff)
         m_goValue.Transport.PathProgress += diff;
 
     uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
+    bool justStopped = false;
 
     // Set current waypoint
     // Desired outcome: _currentFrame->DepartureTime < timer < _nextFrame->ArriveTime
@@ -152,6 +153,7 @@ void Transport::Update(uint32 diff)
             if (timer < _currentFrame->DepartureTime)
             {
                 SetMoving(false);
+                justStopped = true;
                 if (_pendingStop && GetGoState() != GO_STATE_READY)
                 {
                     SetGoState(GO_STATE_READY);
@@ -206,12 +208,14 @@ void Transport::Update(uint32 diff)
         _positionChangeTimer.Reset(positionUpdateDelay);
         if (IsMoving())
         {
-            float t = CalculateSegmentPos(float(timer) * 0.001f);
+            float t = !justStopped ? CalculateSegmentPos(float(timer) * 0.001f) : 1.0f;
             G3D::Vector3 pos, dir;
             _currentFrame->Spline->evaluate_percent(_currentFrame->Index, t, pos);
             _currentFrame->Spline->evaluate_derivative(_currentFrame->Index, t, dir);
             UpdatePosition(pos.x, pos.y, pos.z, std::atan2(dir.y, dir.x) + float(M_PI));
         }
+        else if (justStopped)
+            UpdatePosition(_currentFrame->Node->LocX, _currentFrame->Node->LocY, _currentFrame->Node->LocZ, _currentFrame->InitialOrientation);
         else
         {
             /* There are four possible scenarios that trigger loading/unloading passengers:
