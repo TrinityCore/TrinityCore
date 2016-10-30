@@ -843,10 +843,10 @@ namespace Trinity
             float i_range;
     };
 
-    class AnyUnfriendlyNoTotemUnitInObjectRangeCheck
+    class NearestUnfriendlyNoTotemUnitInObjectRangeCheck
     {
         public:
-            AnyUnfriendlyNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) { }
+            NearestUnfriendlyNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) { }
             bool operator()(Unit* u)
             {
                 if (!u->IsAlive())
@@ -861,7 +861,11 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                return i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u);
+                if (!i_obj->IsWithinDistInMap(u, i_range) || i_funit->IsFriendlyTo(u))
+                    return false;
+
+                i_range = i_obj->GetDistance(*u);
+                return true;
             }
         private:
             WorldObject const* i_obj;
