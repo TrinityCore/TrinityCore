@@ -1043,6 +1043,10 @@ bool Aura::CanBeSaved() const
     if (IsUsingCharges() && !GetCharges())
         return false;
 
+    // don't save permanent auras triggered by items, they'll be recasted on login if necessary
+    if (!GetCastItemGUID().IsEmpty() && IsPermanent())
+        return false;
+
     return true;
 }
 
@@ -1104,7 +1108,6 @@ AuraKey Aura::GenerateKey(uint32& recalculateMask) const
 {
     AuraKey key;
     key.Caster = GetCasterGUID();
-    key.Item = GetCastItemGUID();
     key.SpellId = GetId();
     key.EffectMask = 0;
     recalculateMask = 0;

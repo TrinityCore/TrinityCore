@@ -96,7 +96,6 @@ class TC_GAME_API AuraApplication
 struct AuraKey
 {
     ObjectGuid Caster;
-    ObjectGuid Item;
     uint32 SpellId;
     uint32 EffectMask;
 

@@ -1166,7 +1166,7 @@ void Pet::_LoadAuras(uint32 timediff)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA_EFFECT);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
 
-    ObjectGuid casterGuid, itemGuid;
+    ObjectGuid casterGuid;
     std::map<AuraKey, AuraLoadEffectInfo> effectInfo;
     if (PreparedQueryResult effectResult = CharacterDatabase.Query(stmt))
     {
@@ -1180,7 +1180,7 @@ void Pet::_LoadAuras(uint32 timediff)
                 if (casterGuid.IsEmpty())
                     casterGuid = GetGUID();
 
-                AuraKey key{ casterGuid, itemGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
+                AuraKey key{ casterGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
                 AuraLoadEffectInfo& info = effectInfo[key];
                 info.Amounts[effectIndex] = fields[4].GetInt32();
                 info.BaseAmounts[effectIndex] = fields[5].GetInt32();
@@ -1205,7 +1205,7 @@ void Pet::_LoadAuras(uint32 timediff)
             if (casterGuid.IsEmpty())
                 casterGuid = GetGUID();
 
-            AuraKey key{ casterGuid, itemGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
+            AuraKey key{ casterGuid, fields[1].GetUInt32(), fields[2].GetUInt32() };
             uint32 recalculateMask = fields[3].GetUInt32();
             uint8 stackCount = fields[4].GetUInt8();
             int32 maxDuration = fields[5].GetInt32();
