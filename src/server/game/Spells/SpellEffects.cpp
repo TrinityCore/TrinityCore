@@ -3540,6 +3540,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         GameObject* linkedGO = new GameObject();
         if (linkedGO->Create(map->GenerateLowGuid<HighGuid::GameObject>(), linkedEntry, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
         {
+            pGameObj->SetLinkedTrap(linkedGO);
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
 
@@ -5146,6 +5147,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         GameObject* linkedGO = new GameObject;
         if (linkedGO->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), linkedEntry, cMap, m_caster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
         {
+            pGameObj->SetLinkedTrap(linkedGO);
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
