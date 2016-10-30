@@ -1462,6 +1462,8 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_MOD_ROOT_2] = true;
 
     isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_CONFUSE] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
@@ -2658,6 +2660,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 44544 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
+    });
+
+    // Death and Decay
+    ApplySpellFix({ 52212 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
     });
 
     // Oscillation Field
