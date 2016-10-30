@@ -1643,6 +1643,8 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
 
     isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_CONFUSE] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
@@ -2839,6 +2841,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49610: // Magic Suppression - DK
             case 49611: // Magic Suppression - DK
                 spellInfo->ProcCharges = 0;
+                break;
+            case 52212: // Death and Decay
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 37408: // Oscillation Field
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
