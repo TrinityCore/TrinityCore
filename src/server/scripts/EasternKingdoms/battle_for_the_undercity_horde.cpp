@@ -1478,7 +1478,7 @@ public:
             ThrallGUID = summoner->GetGUID();
         }
 
-        void EnterCombat(Unit* target) override
+        void EnterCombat(Unit* /*target*/) override
         {
             DoCast(SPELL_MIGHT_OF_VARIMATHRAS);
         }
