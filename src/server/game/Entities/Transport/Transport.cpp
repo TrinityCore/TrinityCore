@@ -201,6 +201,8 @@ void Transport::Update(uint32 diff)
     if (_positionChangeTimer.Passed())
     {
         _positionChangeTimer.Reset(positionUpdateDelay);
+        UpdatePassengerPositions(_passengers);
+
         if (IsMoving())
         {
             float t = CalculateSegmentPos(float(timer) * 0.001f);
