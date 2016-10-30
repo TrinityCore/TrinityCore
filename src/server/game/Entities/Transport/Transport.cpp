@@ -127,6 +127,7 @@ void Transport::Update(uint32 diff)
         m_goValue.Transport.PathProgress += diff;
 
     uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
+    bool justStopped = false;
 
     // Set current waypoint
     // Desired outcome: _currentFrame->DepartureTime < timer < _nextFrame->ArriveTime
@@ -145,6 +146,7 @@ void Transport::Update(uint32 diff)
             if (timer < _currentFrame->DepartureTime)
             {
                 SetMoving(false);
+                justStopped = true;
                 if (_pendingStop && GetGoState() != GO_STATE_READY)
                 {
                     SetGoState(GO_STATE_READY);
@@ -197,7 +199,7 @@ void Transport::Update(uint32 diff)
     if (_positionChangeTimer.Passed())
     {
         _positionChangeTimer.Reset(positionUpdateDelay);
-        if (IsMoving())
+        if (IsMoving() || justStopped)
         {
             float t = CalculateSegmentPos(float(timer) * 0.001f);
             G3D::Vector3 pos, dir;
