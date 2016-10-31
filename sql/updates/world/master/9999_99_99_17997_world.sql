@@ -48,7 +48,7 @@ CREATE TABLE `areatrigger_template_auras` (
 DROP TABLE IF EXISTS `spell_areatrigger`;
 CREATE TABLE `spell_areatrigger` (
   `SpellMiscId` int(10) unsigned NOT NULL,
-  `AreatriggerId` int(10) unsigned NOT NULL,
+  `AreaTriggerId` int(10) unsigned NOT NULL,
   `MoveCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -58,7 +58,7 @@ CREATE TABLE `spell_areatrigger` (
   PRIMARY KEY (`SpellMiscId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreatriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`TimeToTarget`,`TimeToTargetScale`) VALUES
+INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreaTriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`TimeToTarget`,`TimeToTargetScale`) VALUES
 (4424, 9170, 0, 0, 0, 0, 0, 0),
 (2472, 5207, 0, 0, 0, 0, 0, 0),
 (4488, 9228, 0, 0, 0, 0, 0, 0);
