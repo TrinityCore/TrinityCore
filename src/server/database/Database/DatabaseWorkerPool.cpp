@@ -308,7 +308,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     //! Block forever until a connection is free
     for (;;)
     {
-        connection = _connections[IDX_SYNCH][++i % num_cons].get();
+        connection = _connections[IDX_SYNCH][i++ % num_cons].get();
         //! Must be matched with t->Unlock() or you will get deadlocks
         if (connection->LockIfReady())
             break;
