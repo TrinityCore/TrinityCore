@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `areatrigger_template`;
 CREATE TABLE `areatrigger_template` (
   `Id` int(10) unsigned NOT NULL,
+  `Type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `Data0` float NOT NULL DEFAULT '0',
   `Data1` float NOT NULL DEFAULT '0',
@@ -63,10 +64,10 @@ INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreaTriggerId`,`MoveCurveId`,`Sc
 (2472, 5207, 0, 0, 0, 0, 0, 0),
 (4488, 9228, 0, 0, 0, 0, 0, 0);
 
-INSERT INTO `areatrigger_template`(`Id`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`ScriptName`,`VerifiedBuild`) VALUES
-(5207, 65536, 0, 0, 0, 0, 0, 0, '', 22810),
-(9170, 131072,3, 3, 4, 4, 1, 1, '', 22810),
-(9228, 16384, 8, 8, 0, 0, 0, 0, '', 22810);
+INSERT INTO `areatrigger_template`(`Id`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`ScriptName`,`VerifiedBuild`) VALUES
+(5207, 2, 0, 0, 0, 0, 0, 0, 0, '', 22810),
+(9170, 3, 0, 3, 3, 4, 4, 1, 1, '', 22810),
+(9228, 0, 0, 8, 8, 0, 0, 0, 0, '', 22810);
 
 INSERT INTO `areatrigger_template_polygon_vertices`(`AreaTriggerId`,`Idx`,`VerticeX`,`VerticeY`,`VerticeTargetX`,`VerticeTargetY`,`VerifiedBuild`) VALUES
 (5207, 0, -1, 0.75,  0, 0, 22810),

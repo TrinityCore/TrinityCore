@@ -34,28 +34,19 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN        = 0x00010,
     AREATRIGGER_FLAG_UNK1                       = 0x00020,
     AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW  = 0x00040,
-    AREATRIGGER_FLAG_HAS_SCALE_CURVE            = 0x00080,
-    AREATRIGGER_FLAG_HAS_MORPH_CURVE            = 0x00100,
-    AREATRIGGER_FLAG_HAS_FACING_CURVE           = 0x00200,
-    AREATRIGGER_FLAG_HAS_MOVE_CURVE             = 0x00400,
-    AREATRIGGER_FLAG_UNK2                       = 0x00800,
-    AREATRIGGER_FLAG_UNK3                       = 0x01000,
-    AREATRIGGER_FLAG_UNK4                       = 0x02000,
-    AREATRIGGER_FLAG_HAS_SPHERE                 = 0x04000,
-    AREATRIGGER_FLAG_HAS_BOX                    = 0x08000,
-    AREATRIGGER_FLAG_HAS_POLYGON                = 0x10000,
-    AREATRIGGER_FLAG_HAS_CYLINDER               = 0x20000,
-    AREATRIGGER_FLAG_HAS_SPLINE                 = 0x40000,
-    AREATRIGGER_FLAG_UNK5                       = 0x80000
+    AREATRIGGER_FLAG_UNK2                       = 0x00080,
+    AREATRIGGER_FLAG_UNK3                       = 0x00100,
+    AREATRIGGER_FLAG_UNK4                       = 0x00200,
+    AREATRIGGER_FLAG_UNK5                       = 0x00400
 };
 
 enum AreaTriggerTypes
 {
-    AREATRIGGER_TYPE_NONE       = 0,
-    AREATRIGGER_TYPE_SPHERE     = 1,
-    AREATRIGGER_TYPE_BOX        = 2,
-    AREATRIGGER_TYPE_POLYGON    = 3,
-    AREATRIGGER_TYPE_CYLINDER   = 4
+    AREATRIGGER_TYPE_SPHERE     = 0,
+    AREATRIGGER_TYPE_BOX        = 1,
+    AREATRIGGER_TYPE_POLYGON    = 2,
+    AREATRIGGER_TYPE_CYLINDER   = 3,
+    AREATRIGGER_TYPE_MAX        = 4
 };
 
 struct AreaTriggerPolygonVertice
@@ -88,15 +79,15 @@ public:
 
     bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
 
-    bool IsSphere()     const { return HasFlag(AREATRIGGER_FLAG_HAS_SPHERE);    }
-    bool IsBox()        const { return HasFlag(AREATRIGGER_FLAG_HAS_BOX);       }
-    bool IsPolygon()    const { return HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);   }
-    bool IsCylinder()   const { return HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);  }
+    bool IsSphere()     const { return Type == AREATRIGGER_TYPE_SPHERE;     }
+    bool IsBox()        const { return Type == AREATRIGGER_TYPE_BOX;        }
+    bool IsPolygon()    const { return Type == AREATRIGGER_TYPE_POLYGON;    }
+    bool IsCylinder()   const { return Type == AREATRIGGER_TYPE_CYLINDER;   }
 
-    AreaTriggerTypes GetType() const;
     void InitMaxSearchRadius();
 
     uint32 Id;
+    AreaTriggerTypes Type;
     uint32 Flags;
     uint32 ScriptId;
     float MaxSearchRadius;
@@ -110,28 +101,28 @@ public:
             float Data[MAX_AREATRIGGER_ENTITY_DATA];
         } DefaultDatas;
 
-        // AREATRIGGER_FLAG_HAS_SPHERE
+        // AREATRIGGER_TYPE_SPHERE
         struct
         {
             float Radius;
             float RadiusTarget;
         } SphereDatas;
 
-        // AREATRIGGER_FLAG_HAS_BOX
+        // AREATRIGGER_TYPE_BOX
         struct
         {
             float Extents[3];
             float ExtentsTarget[3];
         } BoxDatas;
 
-        // AREATRIGGER_FLAG_HAS_POLYGON
+        // AREATRIGGER_TYPE_POLYGON
         struct
         {
             float  Height;
             float  HeightTarget;
         } PolygonDatas;
 
-        // AREATRIGGER_FLAG_HAS_CYLINDER
+        // AREATRIGGER_TYPE_CYLINDER
         struct
         {
             float Radius;
@@ -162,6 +153,8 @@ public:
 
         Template            = nullptr;
     }
+
+    bool HasSplines()   const { return Splines.size() >= 2; }
 
     uint32 MiscId;
     uint32 AreaTriggerEntry;

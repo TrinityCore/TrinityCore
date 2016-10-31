@@ -530,18 +530,18 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasFollowsTerrain      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
         bool hasUnk1                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK1);
         bool hasTargetRollPitchYaw  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
-        bool hasScaleCurveID        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SCALE_CURVE);
-        bool hasMorphCurveID        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_MORPH_CURVE);
-        bool hasFacingCurveID       = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_FACING_CURVE);
-        bool hasMoveCurveID         = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_MOVE_CURVE);
+        bool hasScaleCurveID        = areaTriggerMiscTemplate->ScaleCurveId != 0;
+        bool hasMorphCurveID        = areaTriggerMiscTemplate->MorphCurveId != 0;
+        bool hasFacingCurveID       = areaTriggerMiscTemplate->FacingCurveId != 0;
+        bool hasMoveCurveID         = areaTriggerMiscTemplate->MoveCurveId != 0;
         bool hasUnk2                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK2);
         bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
         bool hasUnk4                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK4);
-        bool hasAreaTriggerSphere   = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SPHERE);
-        bool hasAreaTriggerBox      = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_BOX);
-        bool hasAreaTriggerPolygon  = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_POLYGON);
-        bool hasAreaTriggerCylinder = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_CYLINDER);
-        bool hasAreaTriggerSpline   = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE);
+        bool hasAreaTriggerSphere   = areaTriggerTemplate->IsSphere();
+        bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
+        bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
+        bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
+        bool hasAreaTriggerSpline   = areaTriggerMiscTemplate->HasSplines();
         bool hasAreaTriggerUnkType  = false;// areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
 
         data->WriteBit(hasAbsoluteOrientation);

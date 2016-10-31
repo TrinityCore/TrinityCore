@@ -17,32 +17,10 @@
 
 #include "AreaTriggerTemplate.h"
 
-AreaTriggerTypes AreaTriggerTemplate::GetType() const
-{
-    if (IsSphere())
-    {
-        return AREATRIGGER_TYPE_SPHERE;
-    }
-    else if (IsBox())
-    {
-        return AREATRIGGER_TYPE_BOX;
-    }
-    else if (IsPolygon())
-    {
-        return AREATRIGGER_TYPE_POLYGON;
-    }
-    else if (IsCylinder())
-    {
-        return AREATRIGGER_TYPE_CYLINDER;
-    }
-
-    return AREATRIGGER_TYPE_NONE;
-}
-
 // Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
 void AreaTriggerTemplate::InitMaxSearchRadius()
 {
-    switch (GetType())
+    switch (Type)
     {
         case AREATRIGGER_TYPE_SPHERE:
         case AREATRIGGER_TYPE_CYLINDER:

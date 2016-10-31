@@ -84,7 +84,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
 
     if (_areaTriggerMiscTemplate == nullptr)
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
         return false;
     }
 
@@ -124,15 +124,9 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
         }
     }
 
-    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE))
+    if (GetMiscTemplate()->HasSplines())
     {
         _splines = GetMiscTemplate()->Splines;
-
-        if (_splines.size() < 2)
-        {
-            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, uint32(_splines.size()));
-            return false;
-        }
 
         float angleSin = std::sin(GetOrientation());
         float angleCos = std::cos(GetOrientation());
@@ -178,12 +172,12 @@ void AreaTrigger::Update(uint32 p_time)
             GetMap()->AreaTriggerRelocation(this, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation());
         }
     }
-    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_SPLINE))
+    else if (!_splines.empty())
         UpdateSplinePosition();
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
 
-    switch (GetTemplate()->GetType())
+    switch (GetTemplate()->Type)
     {
         case AREATRIGGER_TYPE_SPHERE:
             SearchUnitInSphere();
@@ -492,6 +486,8 @@ void AreaTrigger::ComputeSplineDistances()
     _distanceToPoints.clear();
 
     _distanceToPoints.resize(_splines.size());
+
+    // First point must always be departure
     _distanceToPoints[0] = 0.0f;
 
     for (uint32 i = 1; i < _splines.size(); ++i)
@@ -516,7 +512,7 @@ void AreaTrigger::UpdateSplinePosition()
     if (_timeSinceCreated >= GetMiscTemplate()->TimeToTarget)
     {
         _reachedDestination = true;
-        Position lastSplinePosition = *_splines.back();
+        Position lastSplinePosition = _splines.back();
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.GetPositionX(), lastSplinePosition.GetPositionY(), lastSplinePosition.GetPositionZ(), lastSplinePosition.GetOrientation());
         sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
         return;

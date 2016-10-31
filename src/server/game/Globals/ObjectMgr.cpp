@@ -9706,7 +9706,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `areatrigger_template_splines` is empty.");
     }
 
-    QueryResult templates = WorldDatabase.Query("SELECT Id, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`");
+    QueryResult templates = WorldDatabase.Query("SELECT Id, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`");
 
     if (!templates)
     {
@@ -9721,13 +9721,22 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         Field* fields = templates->Fetch();
 
         AreaTriggerTemplate areaTriggerTemplate;
-        areaTriggerTemplate.Id              = fields[0].GetUInt32();
-        areaTriggerTemplate.Flags           = fields[1].GetUInt32();
+        areaTriggerTemplate.Id   = fields[0].GetUInt32();
+        uint8 type               = fields[1].GetUInt8();
+
+        if (type >= AREATRIGGER_TYPE_MAX)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` have areatrigger (Id: %u) with invalid type %u.", areaTriggerTemplate.Id, type);
+            continue;
+        }
+
+        areaTriggerTemplate.Type  = static_cast<AreaTriggerTypes>(type);
+        areaTriggerTemplate.Flags = fields[2].GetUInt32();
 
         for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-            areaTriggerTemplate.DefaultDatas.Data[i] = fields[2 + i].GetFloat();
+            areaTriggerTemplate.DefaultDatas.Data[i] = fields[3 + i].GetFloat();
 
-        areaTriggerTemplate.ScriptId            = sObjectMgr->GetScriptId(fields[8].GetString());
+        areaTriggerTemplate.ScriptId            = sObjectMgr->GetScriptId(fields[9].GetString());
         areaTriggerTemplate.PolygonVertices     = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
         areaTriggerTemplate.Auras               = std::move(aurasByAreatrigger[areaTriggerTemplate.Id]);
 
