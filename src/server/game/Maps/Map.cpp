@@ -310,6 +310,15 @@ void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 }
 
 template<>
+void Map::AddToGrid(AreaTrigger* obj, Cell const& cell)
+{
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+
+    obj->SetCurrentCell(cell);
+}
+
+template<>
 void Map::AddToGrid(Corpse* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());

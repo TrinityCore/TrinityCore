@@ -31,8 +31,8 @@
 #include "ScriptMgr.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
-_duration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
-_reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
+_duration(0), _totalDuration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
+_totalDistance(0.0f), _reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -76,7 +76,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. Invalid coordinates (X: %f Y: %f)", spellMiscId, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid coordinates (X: %f Y: %f)", spellMiscId, GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -130,7 +130,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
 
         if (_splines.size() < 2)
         {
-            TC_LOG_ERROR("misc", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, uint32(_splines.size()));
+            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. AreaTrigger has flag 'AREATRIGGER_FLAG_HAS_SPLINE' but not enough splines (%u)", spellMiscId, uint32(_splines.size()));
             return false;
         }
 
@@ -516,7 +516,8 @@ void AreaTrigger::UpdateSplinePosition()
     if (_timeSinceCreated >= GetMiscTemplate()->TimeToTarget)
     {
         _reachedDestination = true;
-        Relocate(_splines.back());
+        Position lastSplinePosition = *_splines.back();
+        GetMap()->AreaTriggerRelocation(this, lastSplinePosition.GetPositionX(), lastSplinePosition.GetPositionY(), lastSplinePosition.GetPositionZ(), lastSplinePosition.GetOrientation());
         sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
         return;
     }

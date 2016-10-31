@@ -9699,7 +9699,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
             spline.m_positionZ = splineFields[3].GetFloat();
 
             splineByMoveCurve[moveCurveId].push_back(spline);
-        } while (vertices->NextRow());
+        } while (splines->NextRow());
     }
     else
     {
