@@ -324,11 +324,6 @@ class boss_archmage_arugal : public CreatureScript
         }
 };
 
-    {
-        return GetInstanceAI<boss_archmage_arugalAI>(creature);
-    }
-};
-
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
     public:
