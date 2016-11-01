@@ -8,7 +8,7 @@ INSERT INTO `playercreateinfo` (`race`,`class`,`map`,`zone`,`position_x`,`positi
 (7, 3, 0, 5495, -4983.42, 877.7, 274.31, 3.06393);
 
 DELETE FROM `playercreateinfo_action` WHERE `race` = 7 AND `class` = 3;
-INSERT INTO `playercreateinfo_action` (race`,`class`,`button`,`action`,`type`) VALUES
+INSERT INTO `playercreateinfo_action` (`race`,`class`,`button`,`action`,`type`) VALUES
 (7, 3, 0, 193455, 0),
 (7, 3, 9, 20589, 0),
 (7, 3, 10, 982, 0),
