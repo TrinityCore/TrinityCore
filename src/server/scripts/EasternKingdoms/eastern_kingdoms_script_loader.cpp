@@ -181,7 +181,7 @@ void AddSC_instance_zulgurub();
 void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
 void AddSC_duskwood();
-void AddSC_eastern_plaguelands();
+//void AddSC_eastern_plaguelands();
 void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
@@ -365,7 +365,7 @@ void AddEasternKingdomsScripts()
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
     AddSC_duskwood();
-    AddSC_eastern_plaguelands();
+    //AddSC_eastern_plaguelands();
     AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
