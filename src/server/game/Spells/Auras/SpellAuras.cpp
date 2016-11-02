@@ -1013,6 +1013,10 @@ bool Aura::CanBeSaved() const
     if (IsUsingCharges() && !GetCharges())
         return false;
 
+    // don't save auras triggered by items, they'll be recasted on login if necessary
+    if (GetCastItemGUID())
+        return false;
+
     return true;
 }
 

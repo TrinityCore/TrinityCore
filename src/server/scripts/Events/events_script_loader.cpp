@@ -24,5 +24,4 @@ void AddSC_event_hallows_end();
 void AddEventsScripts()
 {
     AddSC_event_childrens_week();
-    AddSC_event_hallows_end();
 }
