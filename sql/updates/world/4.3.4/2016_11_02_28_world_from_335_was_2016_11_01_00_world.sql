@@ -1,5 +1,5 @@
 UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='' WHERE  `entry`IN(8530,8531,8532,11064);
-UPDATE `spell_dbc` SET `Effect`=28,`EffectMiscValueB`=64 WHERE  ``EffectSpellId` IN(17310);
+UPDATE `spelleffect_dbc` SET `Effect`=28,`EffectMiscValueB`=64 WHERE `EffectSpellId` IN(17310);
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN(8530,8531,8532,11064);
 
