@@ -310,9 +310,6 @@ class boss_archmage_arugal : public CreatureScript
                             events.Repeat(Seconds(5));
                             break;
                     }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
                 }
                 DoMeleeAttackIfReady();
             }
