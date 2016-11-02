@@ -744,6 +744,7 @@ class TC_GAME_API ObjectMgr
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id);
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid) const;
         GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid) const;
+        GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry)const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
