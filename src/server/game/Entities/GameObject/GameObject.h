@@ -576,6 +576,7 @@ struct GameObjectTemplateAddon
 };
 
 // Benchmarked: Faster than std::map (insert/find)
+typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
 
 class OPvPCapturePoint;
