@@ -90,7 +90,7 @@ class WorldObject;
 class WorldPacket;
 class ZoneScript;
 
-typedef TC_GAME_API std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 class TC_GAME_API Object
 {
