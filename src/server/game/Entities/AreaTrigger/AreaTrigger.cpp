@@ -32,7 +32,7 @@
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
 _duration(0), _totalDuration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
-_totalDistance(0.0f), _reachedDestination(false), _areaTriggerMiscTemplate(nullptr)
+_reachedDestination(false), lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -105,6 +105,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
     CopyPhaseFrom(caster);
+    SetTransport(caster->GetTransport());
 
     if (GetTemplate()->IsPolygon())
     {
@@ -126,23 +127,24 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
 
     if (GetMiscTemplate()->HasSplines())
     {
-        _splines = GetMiscTemplate()->Splines;
+        Movement::PointsArray splinePoints = GetMiscTemplate()->SplinePoints;
 
         float angleSin = std::sin(GetOrientation());
         float angleCos = std::cos(GetOrientation());
 
         // This is needed to rotate the spline, following caster orientation
-        for (Position& spline : _splines)
+        for (G3D::Vector3& spline : splinePoints)
         {
-            float tempX = spline.m_positionX;
-            float tempY = spline.m_positionY;
+            float tempX = spline.x;
+            float tempY = spline.y;
 
-            spline.m_positionX = (tempX * angleCos - tempY * angleSin) + GetPositionX();
-            spline.m_positionY = (tempX * angleSin + tempY * angleCos) + GetPositionY();
-            spline.m_positionZ += GetPositionZ();
+            spline.x = (tempX * angleCos - tempY * angleSin) + GetPositionX();
+            spline.y = (tempX * angleSin + tempY * angleCos) + GetPositionY();
+            spline.z += GetPositionZ();
         }
 
-        ComputeSplineDistances();
+        _spline.init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
+        _spline.initLengths();
     }
 
     if (!GetMap()->AddToMap(this))
@@ -172,7 +174,7 @@ void AreaTrigger::Update(uint32 p_time)
             GetMap()->AreaTriggerRelocation(this, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation());
         }
     }
-    else if (!_splines.empty())
+    else if (!_spline.empty())
         UpdateSplinePosition();
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
@@ -477,62 +479,44 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
     return true;
 }
 
-void AreaTrigger::ComputeSplineDistances()
-{
-    if (_splines.size() == 0)
-        return;
-
-    _totalDistance = 0;
-    _distanceToPoints.clear();
-
-    _distanceToPoints.resize(_splines.size());
-
-    // First point must always be departure
-    _distanceToPoints[0] = 0.0f;
-
-    for (uint32 i = 1; i < _splines.size(); ++i)
-    {
-        Position previousSpline = _splines[i - 1];
-        Position nextSpine = _splines[i];
-
-        float toNextPointDistance = previousSpline.GetExactDist(&nextSpine);
-        _totalDistance += toNextPointDistance;
-        _distanceToPoints[i] = _totalDistance;
-    }
-}
-
 void AreaTrigger::UpdateSplinePosition()
 {
     if (_reachedDestination)
         return;
 
-    if (_distanceToPoints.size() < 2)
+    if (_spline.getPointCount() < 2)
         return;
 
     if (_timeSinceCreated >= GetMiscTemplate()->TimeToTarget)
     {
         _reachedDestination = true;
-        Position lastSplinePosition = _splines.back();
-        GetMap()->AreaTriggerRelocation(this, lastSplinePosition.GetPositionX(), lastSplinePosition.GetPositionY(), lastSplinePosition.GetPositionZ(), lastSplinePosition.GetOrientation());
+        lastSplineIndex = _spline.last();
+
+        G3D::Vector3 lastSplinePosition = _spline.getPoint(lastSplineIndex);
+        GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
+
+        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, lastSplineIndex);
         sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
         return;
     }
 
-    float currentDistance = _totalDistance * (_timeSinceCreated / GetMiscTemplate()->TimeToTarget);
+    float currentTimePercent = float(_timeSinceCreated) / float(GetMiscTemplate()->TimeToTarget);
 
-    uint32 lastPositionIndex = 0;
-    for (uint32 i = 1; i < _distanceToPoints.size(); ++i)
-        if (_distanceToPoints[i] <= currentDistance)
-            lastPositionIndex = i;
+    if (currentTimePercent <= 0)
+        return;
 
-    float currentDistanceFromLastPoint = currentDistance - _distanceToPoints[lastPositionIndex];
-    float percentFromLastPoint = currentDistanceFromLastPoint / (_distanceToPoints[lastPositionIndex + 1] - _distanceToPoints[lastPositionIndex]);
+    int lastPositionIndex = 0;
+    float percentFromLastPoint = 0;
+    _spline.computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
 
-    Position lastPosition = _splines[lastPositionIndex];
-    Position nextPosition = _splines[lastPositionIndex + 1];
-    float moveAngle = lastPosition.GetAngle(&_splines[lastPositionIndex + 1]);
+    G3D::Vector3 currentPosition;
+    _spline.evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
 
-    m_positionX = lastPosition.GetPositionX() + (currentDistanceFromLastPoint * cos(moveAngle));
-    m_positionY = lastPosition.GetPositionY() + (currentDistanceFromLastPoint * sin(moveAngle));
-    m_positionZ = lastPosition.GetPositionZ() + (percentFromLastPoint * (nextPosition.GetPositionZ() - lastPosition.GetPositionZ()));
+    GetMap()->AreaTriggerRelocation(this, currentPosition.x, currentPosition.y, currentPosition.z, GetOrientation());
+
+    if (lastSplineIndex != lastPositionIndex)
+    {
+        lastSplineIndex = lastPositionIndex;
+        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, lastSplineIndex);
+    }
 }

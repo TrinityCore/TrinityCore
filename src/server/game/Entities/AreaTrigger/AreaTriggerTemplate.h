@@ -19,6 +19,9 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Object.h"
+#include "Spline.h"
+#include <G3D/Vector3.h>
+#include "MoveSplineInitArgs.h"
 
 class Unit;
 class SpellInfo;
@@ -44,9 +47,10 @@ enum AreaTriggerTypes
 {
     AREATRIGGER_TYPE_SPHERE     = 0,
     AREATRIGGER_TYPE_BOX        = 1,
-    AREATRIGGER_TYPE_POLYGON    = 2,
-    AREATRIGGER_TYPE_CYLINDER   = 3,
-    AREATRIGGER_TYPE_MAX        = 4
+    AREATRIGGER_TYPE_UNK        = 2,
+    AREATRIGGER_TYPE_POLYGON    = 3,
+    AREATRIGGER_TYPE_CYLINDER   = 4,
+    AREATRIGGER_TYPE_MAX        = 5
 };
 
 struct AreaTriggerPolygonVertice
@@ -154,7 +158,7 @@ public:
         Template            = nullptr;
     }
 
-    bool HasSplines()   const { return Splines.size() >= 2; }
+    bool HasSplines()   const { return SplinePoints.size() >= 2; }
 
     uint32 MiscId;
     uint32 AreaTriggerEntry;
@@ -168,7 +172,7 @@ public:
     uint32 TimeToTargetScale;
 
     AreaTriggerTemplate const* Template;
-    std::vector<Position> Splines;
+    Movement::PointsArray SplinePoints;
 };
 
 #endif

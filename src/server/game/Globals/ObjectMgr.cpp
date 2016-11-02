@@ -9619,7 +9619,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
     std::map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
-    std::map<uint32, std::vector<Position>> splineByMoveCurve;
+    std::map<uint32, Movement::PointsArray> splineByMoveCurve;
     std::map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
 
     QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType, CastType FROM `areatrigger_template_auras`");
@@ -9693,10 +9693,10 @@ void ObjectMgr::LoadAreaTriggerTemplates()
             Field* splineFields = splines->Fetch();
             uint32 moveCurveId = splineFields[0].GetUInt32();
 
-            Position spline;
-            spline.m_positionX = splineFields[1].GetFloat();
-            spline.m_positionY = splineFields[2].GetFloat();
-            spline.m_positionZ = splineFields[3].GetFloat();
+            G3D::Vector3 spline;
+            spline.x = splineFields[1].GetFloat();
+            spline.y = splineFields[2].GetFloat();
+            spline.z = splineFields[3].GetFloat();
 
             splineByMoveCurve[moveCurveId].push_back(spline);
         } while (splines->NextRow());
@@ -9756,18 +9756,17 @@ void ObjectMgr::LoadAreaTriggerTemplates()
             AreaTriggerMiscTemplate miscTemplate;
 
             Field* areatriggerSpellMiscFields = areatriggerSpellMiscs->Fetch();
+            miscTemplate.MiscId             = areatriggerSpellMiscFields[0].GetUInt32();
 
-            uint32 miscId           = areatriggerSpellMiscFields[0].GetUInt32();
-            uint32 areatriggerId    = areatriggerSpellMiscFields[1].GetUInt32();
+            uint32 areatriggerId            = areatriggerSpellMiscFields[1].GetUInt32();
+            miscTemplate.Template           = GetAreaTriggerTemplate(areatriggerId);
 
-            if (_areaTriggerTemplateStore.find(areatriggerId) == _areaTriggerTemplateStore.end())
+            if (miscTemplate.Template == nullptr)
             {
-                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` reference invalid AreaTriggerId %u for miscId %u", areatriggerId, miscId);
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` reference invalid AreaTriggerId %u for miscId %u", areatriggerId, miscTemplate.MiscId);
                 continue;
             }
 
-            miscTemplate.MiscId             = miscId;
-            miscTemplate.Template           = GetAreaTriggerTemplate(areatriggerId);
             miscTemplate.MoveCurveId        = areatriggerSpellMiscFields[2].GetInt32();
             miscTemplate.ScaleCurveId       = areatriggerSpellMiscFields[3].GetInt32();
             miscTemplate.MorphCurveId       = areatriggerSpellMiscFields[4].GetInt32();
@@ -9776,7 +9775,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
             miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetInt32();
 
             if (miscTemplate.MoveCurveId)
-                miscTemplate.Splines = splineByMoveCurve[miscTemplate.MoveCurveId];
+                miscTemplate.SplinePoints = splineByMoveCurve[miscTemplate.MoveCurveId];
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
         } while (areatriggerSpellMiscs->NextRow());

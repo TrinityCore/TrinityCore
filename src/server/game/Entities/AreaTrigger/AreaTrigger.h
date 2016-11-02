@@ -42,7 +42,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
-        void SetDuration(int32 newDuration) { _duration = newDuration; _totalDuration = newDuration; ComputeSplineDistances(); }
+        void SetDuration(int32 newDuration) { _duration = newDuration; _totalDuration = newDuration; }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
 
         void SearchUnitInSphere();
@@ -58,7 +58,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
         Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, _casterGuid); }
 
-        std::vector<Position> const GetSplines() const { return _splines; }
+        ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
 
         bool CheckIsInPolygon2D(Position* pos) const;
 
@@ -67,7 +67,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void RemoveAuras(Unit* unit);
         bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
 
-        void ComputeSplineDistances();
         void UpdateSplinePosition();
 
         ObjectGuid _casterGuid;
@@ -78,11 +77,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 _timeSinceCreated;
 
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
-        std::vector<Position> _splines;
+        ::Movement::Spline<int32> _spline;
 
-        float _totalDistance;
-        std::vector<float> _distanceToPoints;
         bool _reachedDestination;
+        int lastSplineIndex;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;

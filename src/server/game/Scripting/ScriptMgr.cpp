@@ -2388,6 +2388,20 @@ void ScriptMgr::OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff)
     tmpscript->OnUpdate(areaTrigger, diff);
 }
 
+void ScriptMgr::OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex)
+{
+    ASSERT(areaTrigger);
+
+    // Debug purpose only, allow caster to see his AreaTrigger's position in real time using WORLD_TRIGGER spawn
+    if (Unit* caster = areaTrigger->GetCaster())
+        if (Player* player = caster->ToPlayer())
+            if (player->isDebugAreaTriggers)
+                player->SummonCreature(WORLD_TRIGGER, areaTrigger->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, areaTrigger->GetMiscTemplate()->TimeToTarget);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnSplineIndexReached(areaTrigger, splineIndex);
+}
+
 void ScriptMgr::OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger)
 {
     ASSERT(areaTrigger);

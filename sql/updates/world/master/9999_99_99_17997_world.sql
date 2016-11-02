@@ -42,8 +42,7 @@ CREATE TABLE `areatrigger_template_auras` (
   `AreaTriggerId` int(10) unsigned NOT NULL,
   `AuraId` int(10) unsigned NOT NULL,
   `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
-  `CastType` int(10) unsigned NOT NULL DEFAULT '0',
-  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0'
+  `CastType` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `spell_areatrigger`;
@@ -56,17 +55,18 @@ CREATE TABLE `spell_areatrigger` (
   `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`SpellMiscId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreaTriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`TimeToTarget`,`TimeToTargetScale`) VALUES
-(4424, 9170, 0, 0, 0, 0, 0, 0),
-(2472, 5207, 0, 0, 0, 0, 0, 0),
-(4488, 9228, 0, 0, 0, 0, 0, 0);
+INSERT INTO `spell_areatrigger` (`SpellMiscId`,`AreaTriggerId`,`MoveCurveId`,`ScaleCurveId`,`MorphCurveId`,`FacingCurveId`,`TimeToTarget`,`TimeToTargetScale`,`VerifiedBuild`) VALUES
+(4424, 9170, 0, 0, 0, 0, 0, 0, 22810),
+(2472, 5207, 0, 0, 0, 0, 0, 0, 22810),
+(4488, 9228, 0, 0, 0, 0, 0, 0, 22810);
 
 INSERT INTO `areatrigger_template`(`Id`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`ScriptName`,`VerifiedBuild`) VALUES
-(5207, 2, 0, 0, 0, 0, 0, 0, 0, '', 22810),
-(9170, 3, 0, 3, 3, 4, 4, 1, 1, '', 22810),
+(5207, 3, 0, 0, 0, 0, 0, 0, 0, '', 22810),
+(9170, 4, 0, 3, 3, 4, 4, 1, 1, '', 22810),
 (9228, 0, 0, 8, 8, 0, 0, 0, 0, '', 22810);
 
 INSERT INTO `areatrigger_template_polygon_vertices`(`AreaTriggerId`,`Idx`,`VerticeX`,`VerticeY`,`VerticeTargetX`,`VerticeTargetY`,`VerifiedBuild`) VALUES

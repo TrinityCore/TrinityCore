@@ -570,19 +570,19 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerSpline)
         {
-            std::vector<Position> splines = areaTrigger->GetSplines();
+            std::vector<G3D::Vector3> splinePoints = areaTrigger->GetSpline().getPoints();
 
             *data << float(areaTriggerMiscTemplate->TimeToTarget);
             *data << float(areaTrigger->GetTimeSinceCreated()); // ElapsedTimeForMovement
 
             data->FlushBits();
-            data->WriteBits(splines.size(), 16);
+            data->WriteBits(splinePoints.size(), 16);
 
-            for (Position spline : splines)
+            for (G3D::Vector3 spline : splinePoints)
             {
-                *data << spline.GetPositionX();
-                *data << spline.GetPositionY();
-                *data << spline.GetPositionZ();
+                *data << spline.x;
+                *data << spline.y;
+                *data << spline.z;
             }
         }
 
