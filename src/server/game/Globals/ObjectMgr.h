@@ -949,7 +949,7 @@ class TC_GAME_API ObjectMgr
             return _goQuestInvolvedRelationsReverse.equal_range(questId);
         }
 
-        QuestRelations* GetCreatureQuestRelationMap() const
+        QuestRelations* GetCreatureQuestRelationMap()
         {
             return &_creatureQuestRelations;
         }
