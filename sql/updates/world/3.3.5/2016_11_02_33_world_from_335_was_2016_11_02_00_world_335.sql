@@ -1,4 +1,5 @@
 -- 
+/*
 DELETE FROM `creature` WHERE `id` IN (698, 756);
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE  `entry` IN (669,784,699);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (669,784,699) AND `source_type`=0;
@@ -12,3 +13,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (699,0, 1,0,  0, 0,100,0, 500, 1000,2000,2000, 11, 6660, 64, 0,0,0,0,2,0,0,0,0,0,0,0,'Bloodscalp Beastmaster - IC - Cast \'Shoot\''),
 (699,0, 2,3,  2, 0,100,1, 1, 20,   0,   0, 11, 8599,  0, 0,0,0,0,1,0,0,0,0,0,0,0,'Bloodscalp Beastmaster - On 20% Health - Cast Enrage (No Repeat)'),
 (699,0, 3,0, 61, 0,100,0, 0,  0,   0,   0,  1,    0,  0, 0,0,0,0,1,0,0,0,0,0,0,0,'Bloodscalp Beastmaster - On 20% Health - Say Line 0 (No Repeat)');
+*/

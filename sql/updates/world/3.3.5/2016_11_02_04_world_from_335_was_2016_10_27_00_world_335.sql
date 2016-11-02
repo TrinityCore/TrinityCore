@@ -1,4 +1,5 @@
 --
+/*
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=20 AND `SourceEntry` IN (247, 6146, 8353, 8354, 8355, 8356, 8357, 8358, 8359, 8360, 8870, 8871, 8872, 8873, 8874, 8875, 11360, 11361, 11439, 11440, 11449, 11450, 11585, 11586, 12896, 12897, 13146, 13147, 13160, 13164, 13408, 13409, 24819, 24820, 24821, 24822, 24823, 24825, 24826, 24827, 24828, 24829, 24830, 24831, 24832, 24833, 24834, 24835, 24836, 24837, 24838, 24839, 24840, 24841, 24842, 24843, 24844, 24845, 24846, 24847, 25239, 25240, 25242, 25246, 25247, 25248, 25249);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (20, 0, 247, 0, 1, 8, 0, 2, 0, 0, 0, 0, 0, "", "Show quest only if Sharptalon's Claw (2) quest is rewarded AND"),
@@ -94,3 +95,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (19, 0, 13225, 0, 0, 8, 0, 13157, 0, 0, 0, 0, 0, "", ""),
 (19, 0, 13604, 0, 0, 19, 0, 1, 0, 0, 0, 0, 0, "", "Archivum Data Disc quest mark only shown in 10 man"),
 (19, 0, 13817, 0, 0, 19, 0, 2, 0, 0, 0, 0, 0, "", "Heroic: Archivum Data Disc quest mark only shown in 25 man");
+*/
