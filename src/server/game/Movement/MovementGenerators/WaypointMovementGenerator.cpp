@@ -135,6 +135,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         if ((i_currentNode == i_path->size() - 1) && !repeating) // If that's our last waypoint
         {
             WaypointData const &waypoint = i_path->at(i_currentNode);
+
             float x = waypoint.x;
             float y = waypoint.y;
             float z = waypoint.z;
@@ -161,18 +162,21 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         i_currentNode = (i_currentNode + 1) % i_path->size();
     }
 
-    IsArrivalDone = false;
-
-    creature->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    float finalOrient = 0.0f;
+    uint8 finalMove = WAYPOINT_MOVE_TYPE_WALK;
 
     Movement::PointsArray pathing;
     pathing.reserve((i_path->size() - i_currentNode) + 1);
+
     pathing.push_back(G3D::Vector3(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ()));
     for (uint32 i = i_currentNode; i < i_path->size(); ++i)
     {
         WaypointData const &waypoint = i_path->at(i);
 
         pathing.push_back(G3D::Vector3(waypoint.x, waypoint.y, waypoint.z));
+
+        finalOrient = waypoint.orientation;
+        finalMove = waypoint.move_type;
 
         if (waypoint.delay)
             break;
@@ -182,11 +186,14 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (pathing.size() < 2)
         return false;
 
-    WaypointData const &waypoint = i_path->at(i_currentNode);
+    IsArrivalDone = false;
+    i_recalculateSpeed = false;
+
+    creature->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(creature);
 
-    Movement::Location formationDest(waypoint.x, waypoint.y, waypoint.z, 0.0f);
+    Movement::Location formationDest(i_path->at(i_currentNode).x, i_path->at(i_currentNode).y, i_path->at(i_currentNode).z, 0.0f);
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
@@ -198,7 +205,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     init.MovebyPath(pathing, i_currentNode);
 
-    switch (waypoint.move_type)
+    switch (finalMove)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
             init.SetAnimation(Movement::ToGround);
@@ -214,8 +221,8 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             break;
     }
 
-    if (waypoint.orientation != 0.0f)
-        init.SetFacing(waypoint.orientation);
+    if (finalOrient != 0.0f)
+        init.SetFacing(finalOrient);
 
     init.Launch();
 
