@@ -1468,7 +1468,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             {
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
+                    if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
                     {
                         UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                         *data << uint32(values[v]);
