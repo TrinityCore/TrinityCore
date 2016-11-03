@@ -2634,6 +2634,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // because of bug in dbc
                 spellInfo->ProcChance = 0;
                 break;
+            case 51528: // Maelstrom Weapon (Rank 1)
+            case 51529: // Maelstrom Weapon (Rank 2)
+            case 51530: // Maelstrom Weapon (Rank 3)
+            case 51531: // Maelstrom Weapon (Rank 4)
+            case 51532: // Maelstrom Weapon (Rank 5)
+                // due to discrepancies between ranks
+                spellInfo->EquippedItemSubClassMask = 0x0000FC33;
+                // no break intended (only Rank 5 has SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED)
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
