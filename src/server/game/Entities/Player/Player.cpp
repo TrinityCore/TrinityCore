@@ -20881,29 +20881,30 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     TC_LOG_DEBUG("spells", "Player::AddSpellMod: Player '%s' (%s), SpellID: %d", GetName().c_str(), GetGUID().ToString().c_str(), mod->spellId);
     uint16 Opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-    int i = 0;
-    flag96 _mask = 0;
-    for (int32 eff = 0; eff < 96; ++eff)
+    flag96 modMask;
+    for (uint8 i = 0; i < 3; ++i)
     {
-        if (eff != 0 && eff % 32 == 0)
-            _mask[i++] = 0;
-
-        _mask[i] = uint32(1) << (eff - (32 * i));
-        if ((mod->mask & _mask))
+        for (uint32 eff = 0; eff < 32; ++eff)
         {
-            int32 val = 0;
-            for (SpellModifier* spellMod : m_spellMods[mod->op])
+            modMask[i] = uint32(1) << eff;
+            if ((mod->mask & modMask))
             {
-                if (spellMod->type == mod->type && (spellMod->mask & _mask))
-                    val += spellMod->value;
+                int32 val = 0;
+                for (SpellModifier* spellMod : m_spellMods[mod->op])
+                {
+                    if (spellMod->type == mod->type && (spellMod->mask & modMask))
+                        val += spellMod->value;
+                }
+                val += apply ? mod->value : -(mod->value);
+                WorldPacket data(Opcode, (1 + 1 + 4));
+                data << uint8(eff + 32 * i);
+                data << uint8(mod->op);
+                data << int32(val);
+                SendDirectMessage(&data);
             }
-            val += apply ? mod->value : -(mod->value);
-            WorldPacket data(Opcode, (1 + 1 + 4));
-            data << uint8(eff);
-            data << uint8(mod->op);
-            data << int32(val);
-            SendDirectMessage(&data);
         }
+
+        modMask[i] = 0;
     }
 
     if (apply)
