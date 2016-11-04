@@ -180,24 +180,24 @@ struct TC_GAME_API LootItem
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
 
-struct QuestItem
+struct NotNormalLootItem
 {
-    uint8   index;                                          // position in quest_items;
+    uint8   index;                                          // position in quest_items or items;
     bool    is_looted;
 
-    QuestItem()
+    NotNormalLootItem()
         : index(0), is_looted(false) { }
 
-    QuestItem(uint8 _index, bool _islooted = false)
+    NotNormalLootItem(uint8 _index, bool _islooted = false)
         : index(_index), is_looted(_islooted) { }
 };
 
 struct Loot;
 class LootTemplate;
 
-typedef std::vector<QuestItem> QuestItemList;
+typedef std::vector<NotNormalLootItem> NotNormalLootItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::map<uint32, QuestItemList*> QuestItemMap;
+typedef std::map<uint32, NotNormalLootItemList*> NotNormalLootItemMap;
 typedef std::list<LootStoreItem*> LootStoreItemList;
 typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 
@@ -309,9 +309,9 @@ struct TC_GAME_API Loot
 {
     friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
-    QuestItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
-    QuestItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
-    QuestItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
+    NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
+    NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
+    NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
 
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
@@ -341,15 +341,15 @@ struct TC_GAME_API Loot
     // void clear();
     void clear()
     {
-        for (QuestItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
+        for (NotNormalLootItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
             delete itr->second;
         PlayerQuestItems.clear();
 
-        for (QuestItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
+        for (NotNormalLootItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
             delete itr->second;
         PlayerFFAItems.clear();
 
-        for (QuestItemMap::const_iterator itr = PlayerNonQuestNonFFAConditionalItems.begin(); itr != PlayerNonQuestNonFFAConditionalItems.end(); ++itr)
+        for (NotNormalLootItemMap::const_iterator itr = PlayerNonQuestNonFFAConditionalItems.begin(); itr != PlayerNonQuestNonFFAConditionalItems.end(); ++itr)
             delete itr->second;
         PlayerNonQuestNonFFAConditionalItems.clear();
 
@@ -378,7 +378,7 @@ struct TC_GAME_API Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
 
-    LootItem* LootItemInSlot(uint32 lootslot, Player* player, QuestItem** qitem = NULL, QuestItem** ffaitem = NULL, QuestItem** conditem = NULL);
+    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = NULL, NotNormalLootItem** ffaitem = NULL, NotNormalLootItem** conditem = NULL);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemForAll() const;
     bool hasItemFor(Player* player) const;
@@ -386,14 +386,14 @@ struct TC_GAME_API Loot
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        QuestItemList* FillFFALoot(Player* player);
-        QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+        NotNormalLootItemList* FillFFALoot(Player* player);
+        NotNormalLootItemList* FillQuestLoot(Player* player);
+        NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
         GuidSet PlayersLooting;
-        QuestItemMap PlayerQuestItems;
-        QuestItemMap PlayerFFAItems;
-        QuestItemMap PlayerNonQuestNonFFAConditionalItems;
+        NotNormalLootItemMap PlayerQuestItems;
+        NotNormalLootItemMap PlayerFFAItems;
+        NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
 
         // All rolls are registered here. They need to know, when the loot is not valid anymore
         LootValidatorRefManager i_LootValidatorRefManager;
