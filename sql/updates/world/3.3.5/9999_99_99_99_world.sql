@@ -1,4 +1,6 @@
 --
+SET @Event       := 12;
+
 UPDATE `quest_template` SET `RewardItem1`=34077, `RewardAmount1`=1 WHERE `Id` IN (12133, 12155);
 
 UPDATE `creature_template` SET `ScriptName`="npc_costumed_orphan_matron" WHERE `entry` IN (23973, 22504);
