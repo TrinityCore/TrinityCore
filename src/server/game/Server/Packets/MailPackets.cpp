@@ -128,7 +128,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();
 
-    for (auto const& att : entry.Attachments)
+    for (WorldPackets::Mail::MailAttachedItem const& att : entry.Attachments)
         data << att;
 
     if (entry.SenderCharacter)
@@ -157,7 +157,7 @@ WorldPacket const* WorldPackets::Mail::MailListResult::Write()
     _worldPacket << uint32(Mails.size());
     _worldPacket << int32(TotalNumRecords);
 
-    for (auto const& mail : Mails)
+    for (MailListEntry const& mail : Mails)
         _worldPacket << mail;
 
     return &_worldPacket;

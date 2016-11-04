@@ -89,17 +89,6 @@ uint32 DB2Meta::GetDbFieldCount() const
     return fields;
 }
 
-uint32 DB2Meta::GetStringFieldCount(bool localizedOnly) const
-{
-    uint32 stringFields = 0;
-    for (uint32 i = 0; i < FieldCount; ++i)
-        if (Types[i] == FT_STRING || (Types[i] == FT_STRING_NOT_LOCALIZED && !localizedOnly))
-            for (uint8 j = 0; j < ArraySizes[i]; ++j)
-                ++stringFields;
-
-    return stringFields;
-}
-
 DB2FieldMeta::DB2FieldMeta(bool isSigned, DBCFormer type, char const* name)
     : IsSigned(isSigned), Type(type), Name(name)
 {

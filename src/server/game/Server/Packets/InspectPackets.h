@@ -126,6 +126,7 @@ namespace WorldPackets
             int32 SeasonPlayed     = 0;
             int32 SeasonWon        = 0;
             int32 WeeklyBestRating = 0;
+            int32 Unk710           = 0;
             uint8 Bracket          = 0;
         };
 

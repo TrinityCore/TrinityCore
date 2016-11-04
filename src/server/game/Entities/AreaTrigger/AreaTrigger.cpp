@@ -71,17 +71,13 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), triggerEntry, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
 
-    uint32 spellVisual = 0;
-    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(spellXSpellVisualId))
-        spellVisual = visual->SpellVisualID[0];
-
     SetEntry(triggerEntry);
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spellVisual);
+    SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
 
     CopyPhaseFrom(caster);
