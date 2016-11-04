@@ -264,7 +264,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id == SPELL_START_FIRE || spellInfo->Id == SPELL_SPREAD_FIRE)
             {
