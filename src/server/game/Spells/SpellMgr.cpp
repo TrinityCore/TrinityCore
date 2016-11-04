@@ -544,11 +544,8 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
 
         if (procEntry.SpellFamilyMask && eventSpellInfo && !(procEntry.SpellFamilyMask & eventSpellInfo->SpellFamilyFlags))
             return false;
-    }
 
-    // check spell type mask (if set)
-    if (eventInfo.GetTypeMask() & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK))
-    {
+        // check spell type mask (if set)
         if (procEntry.SpellTypeMask && !(eventInfo.GetSpellTypeMask() & procEntry.SpellTypeMask))
             return false;
     }
@@ -2641,7 +2638,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 51532: // Maelstrom Weapon (Rank 5)
                 // due to discrepancies between ranks
                 spellInfo->EquippedItemSubClassMask = 0x0000FC33;
-                // no break intended (only Rank 5 has SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
