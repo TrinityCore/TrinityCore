@@ -64,7 +64,7 @@ public:
     DB2FileLoader();
     ~DB2FileLoader();
 
-    bool Load(char const* filename, DB2LoadInfo const& loadInfo);
+    bool Load(char const* filename, DB2LoadInfo const* loadInfo);
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
     char* AutoProduceStrings(char* dataTable, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
@@ -81,7 +81,7 @@ private:
 class TC_SHARED_API DB2DatabaseLoader
 {
 public:
-    DB2DatabaseLoader(std::string const& storageName, DB2LoadInfo const& loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
+    DB2DatabaseLoader(std::string const& storageName, DB2LoadInfo const* loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
 
     char* Load(uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
     void LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
@@ -89,7 +89,7 @@ public:
 
 private:
     std::string _storageName;
-    DB2LoadInfo _loadInfo;
+    DB2LoadInfo const* _loadInfo;
 };
 
 #endif
