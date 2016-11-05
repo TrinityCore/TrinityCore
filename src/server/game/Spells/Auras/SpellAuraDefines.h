@@ -488,7 +488,7 @@ enum AuraType
     SPELL_AURA_428                                          = 428,
     SPELL_AURA_429                                          = 429,
     SPELL_AURA_PLAY_SCENE                                   = 430,
-    SPELL_AURA_431                                          = 431,
+    SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,  // NYI
     SPELL_AURA_432                                          = 432,
     SPELL_AURA_433                                          = 433,
     SPELL_AURA_434                                          = 434,
