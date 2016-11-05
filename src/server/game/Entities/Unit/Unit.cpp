@@ -112,7 +112,7 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
             break;
     }
 
-    if (m_absorb)
+    if (dmgInfo.HitInfo & (HITINFO_PARTIAL_ABSORB | HITINFO_FULL_ABSORB))
         m_hitMask |= PROC_HIT_ABSORB;
 
     if (dmgInfo.HitInfo & HITINFO_FULL_RESIST)
@@ -121,6 +121,8 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
     if (m_block)
         m_hitMask |= PROC_HIT_BLOCK;
 
+    bool const damageNullified = (dmgInfo.HitInfo & (HITINFO_FULL_ABSORB | HITINFO_FULL_RESIST)) != 0 ||
+        (m_hitMask & (PROC_HIT_IMMUNE | PROC_HIT_FULL_BLOCK)) != 0;
     switch (dmgInfo.hitOutCome)
     {
         case MELEE_HIT_MISS:
@@ -138,10 +140,12 @@ DamageInfo::DamageInfo(CalcDamageInfo const& dmgInfo)
         case MELEE_HIT_CRUSHING:
         case MELEE_HIT_GLANCING:
         case MELEE_HIT_NORMAL:
-            m_hitMask |= PROC_HIT_NORMAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_NORMAL;
             break;
         case MELEE_HIT_CRIT:
-            m_hitMask |= PROC_HIT_CRITICAL;
+            if (!damageNullified)
+                m_hitMask |= PROC_HIT_CRITICAL;
             break;
         default:
             break;
@@ -179,7 +183,10 @@ void DamageInfo::ResistDamage(uint32 amount)
     m_resist += amount;
     m_damage -= amount;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_RESIST;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 void DamageInfo::BlockDamage(uint32 amount)
@@ -189,7 +196,10 @@ void DamageInfo::BlockDamage(uint32 amount)
     m_damage -= amount;
     m_hitMask |= PROC_HIT_BLOCK;
     if (!m_damage)
+    {
         m_hitMask |= PROC_HIT_FULL_BLOCK;
+        m_hitMask &= ~(PROC_HIT_NORMAL | PROC_HIT_CRITICAL);
+    }
 }
 
 uint32 DamageInfo::GetHitMask() const
@@ -6581,7 +6591,7 @@ void Unit::SendHealSpellLog(HealInfo& healInfo, bool critical /*= false*/)
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, 8 + 8 + 4 + 4 + 4 + 4 + 1 + 1);
     data << healInfo.GetTarget()->GetPackGUID();
-    data << GetPackGUID();
+    data << healInfo.GetHealer()->GetPackGUID();
     data << uint32(healInfo.GetSpellInfo()->Id);
     data << uint32(healInfo.GetHeal());
     data << uint32(healInfo.GetHeal() - healInfo.GetEffectiveHeal());
@@ -8679,7 +8689,8 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         return false;
 
     // can't attack invisible (ignore stealth for aoe spells) also if the area being looked at is from a spell use the dynamic object created instead of the casting unit. Ignore stealth if target is player and unit in combat with same player
-    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && (obj ? !obj->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()) : !CanSeeOrDetect(target, (bySpell && bySpell->IsAffectingArea()) || (target->GetTypeId() == TYPEID_PLAYER && target->HasStealthAura() && target->IsInCombat() && IsInCombatWith(target)))))
+    // skip visibility check for GO casts, needs removal when go cast is implemented
+    if (GetEntry() != WORLD_TRIGGER && (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && (obj ? !obj->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()) : !CanSeeOrDetect(target, (bySpell && bySpell->IsAffectingArea()) || (target->GetTypeId() == TYPEID_PLAYER && target->HasStealthAura() && target->IsInCombat() && IsInCombatWith(target)))))
         return false;
 
     // can't attack dead

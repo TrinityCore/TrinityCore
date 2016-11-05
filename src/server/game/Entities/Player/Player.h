@@ -1406,7 +1406,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
-        bool HasQuestForItem(uint32 itemId) const;
+        bool HasQuestForItem(uint32 itemId, uint32 excludeQuestId = 0, bool turnIn = false) const;
         bool HasQuestForGO(int32 goId) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
