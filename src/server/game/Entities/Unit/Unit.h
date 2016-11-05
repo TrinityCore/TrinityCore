@@ -125,7 +125,7 @@ enum SpellModOp
     SPELLMOD_STACK_AMOUNT2          = 37  // same as SPELLMOD_STACK_AMOUNT but affects tooltips
 };
 
-#define MAX_SPELLMOD 38
+#define MAX_SPELLMOD 39
 
 enum SpellValueMod
 {
