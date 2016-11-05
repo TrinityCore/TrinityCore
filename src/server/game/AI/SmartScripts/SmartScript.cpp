@@ -1671,6 +1671,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ResetBaseObject();
             break;
         case SMART_ACTION_CALL_SCRIPT_RESET:
+            SetPhase(0);
             OnReset();
             break;
         case SMART_ACTION_SET_RANGED_MOVEMENT:
