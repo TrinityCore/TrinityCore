@@ -364,6 +364,7 @@ struct ChrClassesEntry
     char const* Filename;
     uint32 CreateScreenFileDataID;
     uint32 SelectScreenFileDataID;
+    uint32 IconFileDataID;
     uint32 LowResScreenFileDataID;
     uint16 Flags;
     uint16 CinematicSequenceID;
@@ -373,7 +374,6 @@ struct ChrClassesEntry
     uint8 AttackPowerPerStrength;
     uint8 AttackPowerPerAgility;
     uint8 RangedAttackPowerPerAgility;
-    uint8 IconFileDataID;
     uint8 Unk1;
     uint32 ID;
 };
@@ -539,8 +539,6 @@ struct CreatureModelDataEntry
     uint32 FoleyMaterialID;
     uint32 FootstepEffectID;
     uint32 DeathThudEffectID;
-    uint32 FootstepShakeSize;
-    uint32 DeathThudShakeSize;
     uint32 SoundID;
     uint32 CreatureGeosetDataID;
 };
@@ -1308,6 +1306,7 @@ struct ItemClassEntry
     uint32 ID;
     float PriceMod;
     LocalizedString* Name;
+    uint8 OldEnumValue;
     uint8 Flags;
 };
 
@@ -1599,6 +1598,7 @@ struct LfgDungeonsEntry
     char const* TextureFilename;
     LocalizedString* Description;
     uint32 PlayerConditionID;
+    float MinItemLevel;
     uint16 MaxLevel;
     uint16 TargetLevelMax;
     int16 MapID;
@@ -2536,11 +2536,13 @@ struct SpellTotemsEntry
 struct SpellXSpellVisualEntry
 {
     uint32 SpellID;
-    float Unk620;
+    float Chance;
     uint16 SpellVisualID[2];
     uint16 PlayerConditionID;
-    uint8 DifficultyID;
+    uint16 UnitConditionID;
     uint8 Flags;
+    uint8 DifficultyID;
+    uint8 Priority;
     uint32 ID;
 };
 

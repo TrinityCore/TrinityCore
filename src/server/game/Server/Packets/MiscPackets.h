@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "CollectionMgr.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -653,7 +654,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<std::unique_ptr<CUFProfile>> CUFProfiles;
+            Array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> CUFProfiles;
         };
 
         class LoadCUFProfiles final : public ServerPacket

@@ -477,7 +477,9 @@ namespace WorldPackets
         public:
             LogoutRequest(WorldPacket&& packet) : ClientPacket(CMSG_LOGOUT_REQUEST, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            bool IdleLogout = false;
         };
 
         class LogoutResponse final : public ServerPacket
@@ -494,11 +496,9 @@ namespace WorldPackets
         class LogoutComplete final : public ServerPacket
         {
         public:
-            LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 2) { }
+            LogoutComplete() : ServerPacket(SMSG_LOGOUT_COMPLETE, 0) { }
 
-            WorldPacket const* Write() override;
-
-            ObjectGuid SwitchToCharacter;
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
 
         class LogoutCancel final : public ClientPacket

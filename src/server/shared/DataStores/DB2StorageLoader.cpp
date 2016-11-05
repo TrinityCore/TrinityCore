@@ -27,13 +27,26 @@ DB2LoadInfo::DB2LoadInfo() : Fields(nullptr), FieldCount(0), Meta(nullptr), Stat
 DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement)
     : Fields(fields), FieldCount(fieldCount), Meta(meta), Statement(statement)
 {
+    TypesString.reserve(FieldCount);
+    for (std::size_t i = 0; i < FieldCount; ++i)
+        TypesString += char(Fields[i].Type);
+}
+
+uint32 DB2LoadInfo::GetStringFieldCount(bool localizedOnly) const
+{
+    uint32 stringFields = 0;
+    for (std::size_t i = 0; i < TypesString.length(); ++i)
+        if (TypesString[i] == FT_STRING || (TypesString[i] == FT_STRING_NOT_LOCALIZED && !localizedOnly))
+            ++stringFields;
+
+    return stringFields;
 }
 
 class DB2FileLoaderImpl
 {
 public:
     virtual ~DB2FileLoaderImpl() { }
-    virtual bool Load(char const* filename, FILE* file, DB2LoadInfo const& loadInfo, DB2Header const* header) = 0;
+    virtual bool Load(char const* filename, FILE* file, DB2LoadInfo const* loadInfo, DB2Header const* header) = 0;
     virtual char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) = 0;
     virtual char* AutoProduceStrings(char* dataTable, uint32 locale) = 0;
     virtual void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) = 0;
@@ -45,7 +58,7 @@ public:
     DB2FileLoaderRegularImpl();
     ~DB2FileLoaderRegularImpl();
 
-    bool Load(char const* filename, FILE* file, DB2LoadInfo const& loadInfo, DB2Header const* header) override;
+    bool Load(char const* filename, FILE* file, DB2LoadInfo const* loadInfo, DB2Header const* header) override;
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
@@ -84,7 +97,7 @@ private:
 #pragma pack(pop)
 
     char const* fileName;
-    DB2LoadInfo _loadInfo;
+    DB2LoadInfo const* _loadInfo;
     DB2Header const* _header;
 
     unsigned char* data;
@@ -101,7 +114,7 @@ public:
     DB2FileLoaderSparseImpl();
     ~DB2FileLoaderSparseImpl();
 
-    bool Load(char const* filename, FILE* file, DB2LoadInfo const& loadInfo, DB2Header const* header) override;
+    bool Load(char const* filename, FILE* file, DB2LoadInfo const* loadInfo, DB2Header const* header) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
@@ -121,7 +134,7 @@ private:
 #pragma pack(pop)
 
     char const* fileName;
-    DB2LoadInfo _loadInfo;
+    DB2LoadInfo const* _loadInfo;
     DB2Header const* _header;
     FieldEntry* fields;
 
@@ -199,7 +212,7 @@ DB2FileLoaderRegularImpl::Record::Record(DB2FileLoaderRegularImpl &file_, unsign
 DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl()
 {
     fileName = nullptr;
-    memset(&_loadInfo, 0, sizeof(_loadInfo));
+    _loadInfo = nullptr;
     _header = nullptr;
     data = nullptr;
     stringTable = nullptr;
@@ -209,18 +222,18 @@ DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl()
     fields = nullptr;
 }
 
-bool DB2FileLoaderRegularImpl::Load(char const* filename, FILE* file, DB2LoadInfo const& loadInfo, DB2Header const* header)
+bool DB2FileLoaderRegularImpl::Load(char const* filename, FILE* file, DB2LoadInfo const* loadInfo, DB2Header const* header)
 {
     _loadInfo = loadInfo;
     _header = header;
-    ASSERT(loadInfo.Meta->IndexField == -1 || loadInfo.Meta->IndexField == int32(header->IndexField));
+    ASSERT(_loadInfo->Meta->IndexField == -1 || _loadInfo->Meta->IndexField == int32(header->IndexField));
 
     fileName = filename;
     fields = new FieldEntry[header->FieldCount];
     if (fread(fields, header->FieldCount * sizeof(FieldEntry), 1, file) != 1)
         return false;
 
-    if (!loadInfo.Meta->HasIndexFieldInData())
+    if (!_loadInfo->Meta->HasIndexFieldInData())
         idTableSize = header->RecordCount * sizeof(uint32);
 
     data = new unsigned char[header->RecordSize * header->RecordCount + header->StringTableSize];
@@ -264,12 +277,12 @@ static char const* const nullStr = "";
 
 char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool)
 {
-    if (_loadInfo.Meta->FieldCount != _header->FieldCount)
-        return NULL;
+    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
+        return nullptr;
 
     //get struct size and index pos
-    uint32 indexField = _loadInfo.Meta->GetIndexField();
-    uint32 recordsize = _loadInfo.Meta->GetRecordSize();
+    uint32 indexField = _loadInfo->Meta->GetIndexField();
+    uint32 recordsize = _loadInfo->Meta->GetRecordSize();
 
     uint32 maxi = 0;
     //find max index
@@ -309,8 +322,8 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
     char* dataTable = new char[(_header->RecordCount + (_header->CopyTableSize / 8)) * recordsize];
 
     // we store flat holders pool as single memory block
-    std::size_t stringFields = _loadInfo.Meta->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo.Meta->GetStringFieldCount(true);
+    std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
+    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
 
     // each string field at load have array of string for each locale
     std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
@@ -332,12 +345,12 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
     for (uint32 y = 0; y < _header->RecordCount; y++)
     {
         Record rec = getRecord(y);
-        uint32 indexVal = _loadInfo.Meta->HasIndexFieldInData() ? rec.getUInt(indexField, 0, false) : ((uint32*)idTable)[y];
+        uint32 indexVal = _loadInfo->Meta->HasIndexFieldInData() ? rec.getUInt(indexField, 0, false) : ((uint32*)idTable)[y];
 
         indexTable[indexVal] = &dataTable[offset];
 
         uint32 fieldIndex = 0;
-        if (!_loadInfo.Meta->HasIndexFieldInData())
+        if (!_loadInfo->Meta->HasIndexFieldInData())
         {
             *((uint32*)(&dataTable[offset])) = indexVal;
             offset += 4;
@@ -348,16 +361,16 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
 
         for (uint32 x = 0; x < _header->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo.Meta->Types[x])
+                switch (_loadInfo->TypesString[fieldIndex])
                 {
                     case FT_FLOAT:
                         *((float*)(&dataTable[offset])) = rec.getFloat(x, z);
                         offset += 4;
                         break;
                     case FT_INT:
-                        *((uint32*)(&dataTable[offset])) = rec.getUInt(x, z, _loadInfo.Fields[fieldIndex].IsSigned);
+                        *((uint32*)(&dataTable[offset])) = rec.getUInt(x, z, _loadInfo->Fields[fieldIndex].IsSigned);
                         offset += 4;
                         break;
                     case FT_BYTE:
@@ -374,7 +387,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         // init db2 string field slots by pointers to string holders
                         char const*** slot = (char const***)(&dataTable[offset]);
                         *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
-                        if (_loadInfo.Meta->Types[x] == FT_STRING)
+                        if (_loadInfo->Meta->Types[x] == FT_STRING)
                             stringFieldOffset += sizeof(LocalizedString);
                         else
                             stringFieldOffset += sizeof(char*);
@@ -383,7 +396,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -396,7 +409,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
 
 char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 locale)
 {
-    if (_loadInfo.Meta->FieldCount != _header->FieldCount)
+    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
         return nullptr;
 
     if (!(_header->Locale & (1 << locale)))
@@ -423,14 +436,18 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
 
     for (uint32 y = 0; y < _header->RecordCount; y++)
     {
-        if (!_loadInfo.Meta->HasIndexFieldInData())
+        uint32 fieldIndex = 0;
+        if (!_loadInfo->Meta->HasIndexFieldInData())
+        {
             offset += 4;
+            ++fieldIndex;
+        }
 
         for (uint32 x = 0; x < _header->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo.Meta->Types[x])
+                switch (_loadInfo->TypesString[fieldIndex])
                 {
                     case FT_FLOAT:
                     case FT_INT:
@@ -464,9 +481,10 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
                         break;
                 }
+                ++fieldIndex;
             }
         }
     }
@@ -476,7 +494,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
 
 void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable)
 {
-    uint32 recordsize = _loadInfo.Meta->GetRecordSize();
+    uint32 recordsize = _loadInfo->Meta->GetRecordSize();
     uint32 offset = _header->RecordCount * recordsize;
     uint32* copyIds = (uint32*)copyTable;
     for (uint32 c = 0; c < _header->CopyTableSize / 4; c += 2)
@@ -489,8 +507,8 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
             indexTable[to] = &dataTable[offset];
             memcpy(indexTable[to], indexTable[from], recordsize);
 
-            if (_loadInfo.Meta->HasIndexFieldInData())
-                *((uint32*)(&dataTable[offset + fields[_loadInfo.Meta->GetIndexField()].Offset])) = to;
+            if (_loadInfo->Meta->HasIndexFieldInData())
+                *((uint32*)(&dataTable[offset + fields[_loadInfo->Meta->GetIndexField()].Offset])) = to;
             else
                 *((uint32*)(&dataTable[offset])) = to;
 
@@ -502,7 +520,7 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
 DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl()
 {
     fileName = nullptr;
-    memset(&_loadInfo, 0, sizeof(_loadInfo));
+    _loadInfo = nullptr;
     _header = nullptr;
     fields = nullptr;
     dataStart = 0;
@@ -510,7 +528,7 @@ DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl()
     offsets = nullptr;
 }
 
-bool DB2FileLoaderSparseImpl::Load(char const* filename, FILE* file, DB2LoadInfo const& loadInfo, DB2Header const* header)
+bool DB2FileLoaderSparseImpl::Load(char const* filename, FILE* file, DB2LoadInfo const* loadInfo, DB2Header const* header)
 {
     _loadInfo = loadInfo;
     _header = header;
@@ -543,11 +561,11 @@ DB2FileLoaderSparseImpl::~DB2FileLoaderSparseImpl()
 
 char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable, std::vector<char*>& stringPool)
 {
-    if (_loadInfo.Meta->FieldCount != _header->FieldCount)
+    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
         return NULL;
 
     //get struct size and index pos
-    uint32 recordsize = _loadInfo.Meta->GetRecordSize();
+    uint32 recordsize = _loadInfo->Meta->GetRecordSize();
 
     uint32 offsetCount = _header->MaxId - _header->MinId + 1;
     uint32 records = 0;
@@ -570,8 +588,8 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
     char* dataTable = new char[records * recordsize];
 
     // we store flat holders pool as single memory block
-    std::size_t stringFields = _loadInfo.Meta->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo.Meta->GetStringFieldCount(true);
+    std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
+    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
 
     // each string field at load have array of string for each locale
     std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
@@ -584,8 +602,8 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
     for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
         ((char const**)stringHoldersPool)[i] = nullStr;
 
-    char* stringTable = new char[expandedDataSize - records * ((recordsize - (!_loadInfo.Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
-    memset(stringTable, 0, expandedDataSize - records * ((recordsize - (!_loadInfo.Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
+    char* stringTable = new char[expandedDataSize - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, expandedDataSize - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     stringPool.push_back(stringTable);
     char* stringPtr = stringTable;
 
@@ -601,7 +619,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
         std::size_t fieldOffset = 0;
         uint32 stringFieldOffset = 0;
 
-        if (!_loadInfo.Meta->HasIndexFieldInData())
+        if (!_loadInfo->Meta->HasIndexFieldInData())
         {
             *((uint32*)(&dataTable[offset])) = y + _header->MinId;
             offset += 4;
@@ -610,9 +628,9 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
         for (uint32 x = 0; x < _header->FieldCount; ++x)
         {
             uint16 fieldBytes = 4 - fields[x].UnusedBits / 8;
-            for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo.Meta->Types[x])
+                switch (_loadInfo->Meta->Types[x])
                 {
                     case FT_FLOAT:
                     {
@@ -706,7 +724,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
                         break;
                 }
             }
@@ -720,7 +738,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
 
 char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale)
 {
-    if (_loadInfo.Meta->FieldCount != _header->FieldCount)
+    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
         return nullptr;
 
     if (!(_header->Locale & (1 << locale)))
@@ -746,10 +764,10 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
         if (offsets[i].FileOffset && offsets[i].RecordSize)
             ++records;
 
-    uint32 recordsize = _loadInfo.Meta->GetRecordSize();
-    std::size_t stringFields = _loadInfo.Meta->GetStringFieldCount(true);
-    char* stringTable = new char[_header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo.Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
-    memset(stringTable, 0, _header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo.Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
+    uint32 recordsize = _loadInfo->Meta->GetRecordSize();
+    std::size_t stringFields = _loadInfo->GetStringFieldCount(true);
+    char* stringTable = new char[_header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*))];
+    memset(stringTable, 0, _header->StringTableSize - dataStart - records * ((recordsize - (!_loadInfo->Meta->HasIndexFieldInData() ? 4 : 0)) - stringFields * sizeof(char*)));
     char* stringPtr = stringTable;
 
     uint32 offset = 0;
@@ -759,15 +777,15 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
         if (!offsets[y].FileOffset || !offsets[y].RecordSize)
             continue;
 
-        if (!_loadInfo.Meta->HasIndexFieldInData())
+        if (!_loadInfo->Meta->HasIndexFieldInData())
             offset += 4;
 
         std::size_t fieldOffset = 0;
         for (uint32 x = 0; x < _header->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo.Meta->Types[x])
+                switch (_loadInfo->Meta->Types[x])
                 {
                     case FT_FLOAT:
                         offset += 4;
@@ -802,7 +820,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
                         break;
                 }
             }
@@ -815,20 +833,20 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
 char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
-    PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(_loadInfo.Statement));
+    PreparedQueryResult result = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(_loadInfo->Statement));
     if (!result)
         return nullptr;
 
-    if (_loadInfo.Meta->GetDbFieldCount() != result->GetFieldCount())
+    if (_loadInfo->Meta->GetDbFieldCount() != result->GetFieldCount())
         return nullptr;
 
     // get struct size and index pos
-    uint32 indexField = _loadInfo.Meta->GetDbIndexField();
-    uint32 recordSize = _loadInfo.Meta->GetRecordSize();
+    uint32 indexField = _loadInfo->Meta->GetDbIndexField();
+    uint32 recordSize = _loadInfo->Meta->GetRecordSize();
 
     // we store flat holders pool as single memory block
-    std::size_t stringFields = _loadInfo.Meta->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo.Meta->GetStringFieldCount(true);
+    std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
+    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
 
     // each string field at load have array of string for each locale
     std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
@@ -882,18 +900,18 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
         }
 
         uint32 f = 0;
-        if (!_loadInfo.Meta->HasIndexFieldInData())
+        if (!_loadInfo->Meta->HasIndexFieldInData())
         {
             *((uint32*)(&dataValue[offset])) = indexValue;
             offset += 4;
             ++f;
         }
 
-        for (uint32 x = 0; x < _loadInfo.Meta->FieldCount; ++x)
+        for (uint32 x = 0; x < _loadInfo->Meta->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo.Meta->Types[x])
+                switch (_loadInfo->TypesString[f])
                 {
                     case FT_FLOAT:
                         *((float*)(&dataValue[offset])) = fields[f].GetFloat();
@@ -940,7 +958,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], _storageName.c_str());
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], _storageName.c_str());
                         break;
                 }
                 ++f;
@@ -976,18 +994,18 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
 void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool)
 {
-    PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo.Statement + 1));
+    PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 1));
     stmt->setString(0, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
         return;
 
-    std::size_t stringFields = _loadInfo.Meta->GetStringFieldCount(true);
+    std::size_t stringFields = _loadInfo->GetStringFieldCount(true);
     if (result->GetFieldCount() != stringFields + 1 /*ID*/)
         return;
 
-    uint32 fieldCount = _loadInfo.Meta->FieldCount;
-    uint32 recordSize = _loadInfo.Meta->GetRecordSize();
+    uint32 fieldCount = _loadInfo->Meta->FieldCount;
+    uint32 recordSize = _loadInfo->Meta->GetRecordSize();
 
     do
     {
@@ -1002,14 +1020,18 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
         // Attempt to overwrite existing data
         if (char* dataValue = indexTable[indexValue])
         {
-            if (!_loadInfo.Meta->HasIndexFieldInData())
+            uint32 fieldIndex = 0;
+            if (!_loadInfo->Meta->HasIndexFieldInData())
+            {
                 offset += 4;
+                ++fieldIndex;
+            }
 
             for (uint32 x = 0; x < fieldCount; ++x)
             {
-                for (uint32 z = 0; z < _loadInfo.Meta->ArraySizes[x]; ++z)
+                for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
                 {
-                    switch (_loadInfo.Meta->Types[x])
+                    switch (_loadInfo->TypesString[fieldIndex])
                     {
                         case FT_FLOAT:
                         case FT_INT:
@@ -1037,9 +1059,10 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo.Meta->Types[x], _storageName.c_str());
+                            ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], _storageName.c_str());
                             break;
                     }
+                    ++fieldIndex;
                 }
             }
 
@@ -1086,7 +1109,7 @@ DB2FileLoader::~DB2FileLoader()
     delete _impl;
 }
 
-bool DB2FileLoader::Load(char const* filename, DB2LoadInfo const& loadInfo)
+bool DB2FileLoader::Load(char const* filename, DB2LoadInfo const* loadInfo)
 {
     FILE* f = fopen(filename, "rb");
     if (!f)
@@ -1154,7 +1177,7 @@ bool DB2FileLoader::Load(char const* filename, DB2LoadInfo const& loadInfo)
 
     EndianConvert(_header.LayoutHash);
 
-    if (_header.LayoutHash != loadInfo.Meta->LayoutHash)
+    if (_header.LayoutHash != loadInfo->Meta->LayoutHash)
     {
         fclose(f);
         return false;

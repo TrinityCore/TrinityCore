@@ -47,6 +47,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Duration = 0;
             int8 Slot = 0;
+            float TimeMod = 1.0f;
+            bool CannotDismiss = false;
         };
 
         class TotemMoved final : public ServerPacket

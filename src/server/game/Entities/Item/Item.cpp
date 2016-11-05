@@ -1447,6 +1447,8 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
     std::size_t maskPos = data->wpos();
     data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
+    using DynamicFieldChangeTypeUT = std::underlying_type<UpdateMask::DynamicFieldChangeType>::type;
+
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
         std::vector<uint32> const& values = _dynamicValues[index];
@@ -1456,7 +1458,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
-            *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            *data << DynamicFieldChangeTypeUT(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
             if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED)
                 *data << uint32(values.size());
 
@@ -1466,7 +1468,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             {
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
+                    if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
                     {
                         UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                         *data << uint32(values[v]);
@@ -1480,6 +1482,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                 // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
                 if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] != UpdateMask::VALUE_AND_SIZE_CHANGED && _changesMask[ITEM_FIELD_MODIFIERS_MASK])
                 {
+                    data->put(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT), data->read<uint16>(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT)) | UpdateMask::VALUE_AND_SIZE_CHANGED);
                     *data << m;
                     arrayMaskPos += sizeof(m);
                 }
@@ -1957,7 +1960,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
         {
             if (proto->GetBuyCount() <= 1)
             {
-                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->GetClass());
+                ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass());
                 if (classEntry)
                     cost *= classEntry->PriceMod;
                 else
