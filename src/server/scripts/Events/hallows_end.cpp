@@ -23,9 +23,6 @@
 
 enum HallowsEnd
 {
-    ITEM_WATER_BUCKET      = 32971,
-    SPELL_HAS_WATER_BUCKET = 42336,
-
     SPELL_HORSEMAN_MOUNT = 48025,
     SPELL_FIRE_AURA_BASE = 42074,
     SPELL_START_FIRE     = 42132,
@@ -56,42 +53,6 @@ enum HallowsEnd
     EVENT_STOP_APPLYING_FIRE = 4,
     EVENT_FINISH             = 5,
     EVENT_CLEAVE             = 6
-};
-
-class spell_hallows_end_has_water_bucket : public SpellScriptLoader
-{
-public:
-    spell_hallows_end_has_water_bucket() : SpellScriptLoader("spell_hallows_end_has_water_bucket") {}
-
-    class spell_hallows_end_has_water_bucket_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_hallows_end_has_water_bucket_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_HAS_WATER_BUCKET))
-                return false;
-            return true;
-        }
-
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                    if (!caster->ToPlayer()->HasItemCount(ITEM_WATER_BUCKET, 1, false))
-                        caster->RemoveAurasDueToSpell(SPELL_HAS_WATER_BUCKET);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_hallows_end_has_water_bucket_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_hallows_end_has_water_bucket_AuraScript();
-    }
 };
 
 class spell_hallows_end_bucket_lands : public SpellScriptLoader
@@ -468,7 +429,6 @@ public:
 
 void AddSC_event_hallows_end()
 {
-    new spell_hallows_end_has_water_bucket();
     new spell_hallows_end_bucket_lands();
     new spell_hallows_end_base_fire();
     new npc_costumed_orphan_matron();
