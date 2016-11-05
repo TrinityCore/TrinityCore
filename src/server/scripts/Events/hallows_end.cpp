@@ -389,7 +389,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(TALK_5);
             float x, y, z;
