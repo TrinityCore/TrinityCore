@@ -1377,6 +1377,20 @@ bool SpellInfo::HasInitialAggro() const
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 }
 
+bool SpellInfo::IsAffected(uint32 familyName, flag96 const& familyFlags) const
+{
+    if (!familyName)
+        return true;
+
+    if (familyName != SpellFamilyName)
+        return false;
+
+    if (familyFlags && !(familyFlags & SpellFamilyFlags))
+        return false;
+
+    return true;
+}
+
 bool SpellInfo::IsAffectedBySpellMods() const
 {
     return !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS);
@@ -1388,15 +1402,10 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
         return false;
 
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
-    // False if affect_spell == NULL or spellFamily not equal
-    if (!affectSpell || affectSpell->SpellFamilyName != SpellFamilyName)
+    if (!affectSpell)
         return false;
 
-    // true
-    if (mod->mask & SpellFamilyFlags)
-        return true;
-
-    return false;
+    return IsAffected(affectSpell->SpellFamilyName, mod->mask);
 }
 
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const

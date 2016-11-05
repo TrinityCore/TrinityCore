@@ -978,13 +978,9 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // check spell family name/flags (if set) for spells
     if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
     {
-        SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo();
-
-        if (procEntry.SpellFamilyName && eventSpellInfo && (procEntry.SpellFamilyName != eventSpellInfo->SpellFamilyName))
-            return false;
-
-        if (procEntry.SpellFamilyMask && eventSpellInfo && !(procEntry.SpellFamilyMask & eventSpellInfo->SpellFamilyFlags))
-            return false;
+        if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
+            if (!eventSpellInfo->IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
+                return false;
     }
 
     // check spell type mask (if set)
