@@ -137,9 +137,10 @@ struct GameTele
 
 typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 
-#define MAX_CREATURE_OUTFIT_DISPLAYS 11
 struct CreatureOutfit
 {
+    static constexpr uint32 max_outfit_displays = 11;
+    static constexpr uint32 max_custom_displays = 3;
     uint8 race;
     uint8 Class;
     uint8 gender;
@@ -148,8 +149,9 @@ struct CreatureOutfit
     uint8 hair;
     uint8 facialhair;
     uint8 haircolor;
+    uint8 customdisplay[3];
     uint32 displayId;
-    uint32 outfit[MAX_CREATURE_OUTFIT_DISPLAYS];
+    uint32 outfit[max_outfit_displays];
 };
 
 typedef std::unordered_map<uint32, CreatureOutfit> CreatureOutfitContainer;

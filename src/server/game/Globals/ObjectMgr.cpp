@@ -8060,7 +8060,7 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();   // for reload case (test only)
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, "
+    QueryResult result = WorldDatabase.Query("SELECT entry, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
         "head, shoulders, body, chest, waist, legs, feet, wrists, hands, tabard, back FROM creature_template_outfits");
 
     if (!result)
@@ -8111,12 +8111,16 @@ void ObjectMgr::LoadCreatureOutfits()
         co.hair         = fields[i++].GetUInt8();
         co.haircolor    = fields[i++].GetUInt8();
         co.facialhair   = fields[i++].GetUInt8();
-        for (uint32 j = 0; j < MAX_CREATURE_OUTFIT_DISPLAYS; ++j)
+        for (uint32 j = 0; j < CreatureOutfit::max_custom_displays; ++j)
+            co.customdisplay[j] = fields[i++].GetUInt8();
+        for (uint32 j = 0; j < CreatureOutfit::max_outfit_displays; ++j)
         {
-            int32 displayInfo = fields[i + j].GetInt32();
+            int64 displayInfo = fields[i + j].GetInt64();
             if (displayInfo > 0) // entry
             {
-                if (uint32 display = sDB2Manager.GetItemDisplayId(static_cast<uint32>(displayInfo), 0))
+                uint32 entry = static_cast<uint32>(displayInfo & 0xFFFFFFFF);
+                uint32 appearancemodid = static_cast<uint32>(displayInfo >> 32);
+                if (uint32 display = sDB2Manager.GetItemDisplayId(entry, appearancemodid))
                     co.outfit[j] = display;
                 else
                 {
@@ -8125,7 +8129,7 @@ void ObjectMgr::LoadCreatureOutfits()
                 }
             }
             else // display
-                co.outfit[j] = uint32(-displayInfo);
+                co.outfit[j] = static_cast<uint32>(-displayInfo);
         }
 
         _creatureOutfitStore[entry] = co;
