@@ -1195,8 +1195,6 @@ CREATE TABLE `gameobject_template` (
   `IconName` varchar(100) NOT NULL DEFAULT '',
   `castBarCaption` varchar(100) NOT NULL DEFAULT '',
   `unk1` varchar(100) NOT NULL DEFAULT '',
-  `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `size` float NOT NULL DEFAULT '1',
   `data0` int(10) unsigned NOT NULL DEFAULT '0',
   `data1` int(11) NOT NULL DEFAULT '-1',
@@ -1237,6 +1235,23 @@ CREATE TABLE `gameobject_template` (
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gameobject_template_addon`
+--
+
+DROP TABLE IF EXISTS `gameobject_template_addon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_template_addon` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `faction` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `mingold` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `maxgold` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
