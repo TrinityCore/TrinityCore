@@ -523,23 +523,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
                     mirrorImageComponentedData.GuildGUID = ObjectGuid::Empty;
 
                     mirrorImageComponentedData.ItemDisplayID.reserve(11);
-
-                    static EquipmentSlots const itemSlots[] =
-                    {
-                        EQUIPMENT_SLOT_HEAD,
-                        EQUIPMENT_SLOT_SHOULDERS,
-                        EQUIPMENT_SLOT_BODY,
-                        EQUIPMENT_SLOT_CHEST,
-                        EQUIPMENT_SLOT_WAIST,
-                        EQUIPMENT_SLOT_LEGS,
-                        EQUIPMENT_SLOT_FEET,
-                        EQUIPMENT_SLOT_WRISTS,
-                        EQUIPMENT_SLOT_HANDS,
-                        EQUIPMENT_SLOT_TABARD,
-                        EQUIPMENT_SLOT_BACK,
-                        EQUIPMENT_SLOT_END
-                    };
-
                     for (auto const& display : it->second.outfit)
                         mirrorImageComponentedData.ItemDisplayID.push_back(display);
 

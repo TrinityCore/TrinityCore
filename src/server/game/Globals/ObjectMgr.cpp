@@ -8118,13 +8118,13 @@ void ObjectMgr::LoadCreatureOutfits()
             int64 displayInfo = fields[i + j].GetInt64();
             if (displayInfo > 0) // entry
             {
-                uint32 entry = static_cast<uint32>(displayInfo & 0xFFFFFFFF);
+                uint32 item_entry = static_cast<uint32>(displayInfo & 0xFFFFFFFF);
                 uint32 appearancemodid = static_cast<uint32>(displayInfo >> 32);
-                if (uint32 display = sDB2Manager.GetItemDisplayId(entry, appearancemodid))
+                if (uint32 display = sDB2Manager.GetItemDisplayId(item_entry, appearancemodid))
                     co.outfit[j] = display;
                 else
                 {
-                    TC_LOG_ERROR("server.loading", ">> Creature entry %u in `creature_template_outfits` has invalid item entry %i", entry, displayInfo);
+                    TC_LOG_ERROR("server.loading", ">> Creature entry %u in `creature_template_outfits` has invalid (item entry, appearance) combination: %u, %u. Value in DB: %s", entry, item_entry, appearancemodid, std::to_string(displayInfo));
                     co.outfit[j] = 0;
                 }
             }
