@@ -28,7 +28,7 @@ ScenarioMgr* ScenarioMgr::Instance()
     return &instance;
 }
 
-InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map* map, TeamId team)
+InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map const* map, TeamId team) const
 {
     auto dbDataItr = _scenarioDBData.find(std::make_pair(map->GetId(), map->GetDifficultyID()));
     // No scenario registered for this map and difficulty in the database
@@ -212,3 +212,11 @@ void ScenarioMgr::LoadScenarioPOI()
     TC_LOG_INFO("server.loading", ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+ScenarioPOIVector const* ScenarioMgr::GetScenarioPOIs(int32 criteriaTreeID) const
+{
+    auto itr = _scenarioPOIStore.find(criteriaTreeID);
+    if (itr != _scenarioPOIStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
