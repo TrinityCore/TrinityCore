@@ -686,6 +686,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, ItemLevelCurveID, MinLevel, MaxLevel FROM scaling_stat_distribution"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // Scenario.db2
+    PrepareStatement(HOTFIX_SEL_SCENARIO, "SELECT ID, Name, Data, Flags, Type FROM scenario ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO, "SELECT ID, Name_lang FROM scenario_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ScenarioStep.db2
+    PrepareStatement(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description, Name, CriteriaTreeID, ScenarioID, PreviousStepID, QuestRewardID, Step, Flags, "
+        "BonusRequiredStepID FROM scenario_step ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description_lang, Name_lang FROM scenario_step_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // SceneScript.db2
     PrepareStatement(HOTFIX_SEL_SCENE_SCRIPT, "SELECT ID, Name, Script, PrevScriptId, NextScriptId FROM scene_script ORDER BY ID DESC", CONNECTION_SYNCH);
 
