@@ -82,6 +82,7 @@ class DynamicObject;
 class GameObject;
 class InstanceScript;
 class Player;
+class Scenario;
 class TempSummon;
 class Transport;
 class Unit;
@@ -642,6 +643,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
+
+        Scenario* GetScenario() const;
 
         TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;

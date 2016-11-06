@@ -60,6 +60,7 @@
 #include "QuestPackets.h"
 #include "ReferAFriendPackets.h"
 #include "ReputationPackets.h"
+#include "ScenarioPackets.h"
 #include "ScenePackets.h"
 #include "SocialPackets.h"
 #include "SpellPackets.h"
