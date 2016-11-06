@@ -105,25 +105,21 @@ private:
 public:
     static ScenarioMgr* Instance();
 
+    InstanceScenario* CreateInstanceScenario(Map const* map, TeamId team) const;
+
     void LoadDBData();
     void LoadDB2Data();
     void LoadScenarioPOI();
 
-    ScenarioPOIVector const* GetScenarioPOIs(int32 CriteriaTreeID)
-    {
-        auto itr = _scenarioPOIStore.find(CriteriaTreeID);
-        if (itr != _scenarioPOIStore.end())
-            return &itr->second;
-
-        return nullptr;
-    }
-
-    InstanceScenario* CreateInstanceScenario(Map* map, TeamId team);
+    ScenarioPOIVector const* GetScenarioPOIs(int32 criteriaTreeID) const;
 
 private:
     ScenarioDataContainer _scenarioData;
     ScenarioPOIContainer _scenarioPOIStore;
     ScenarioDBDataContainer _scenarioDBData;
+
+    ScenarioMgr(ScenarioMgr const&) = delete;
+    ScenarioMgr& operator=(ScenarioMgr const&) = delete;
 };
 
 #define sScenarioMgr ScenarioMgr::Instance()
