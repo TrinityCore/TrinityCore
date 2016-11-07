@@ -212,9 +212,11 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
 }
 
-bool ItemTemplate::IsUsableBySpecialization(Player const* player) const
+bool ItemTemplate::IsUsableByLootSpecialization(Player const* player) const
 {
-    uint32 spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+    uint32 spec = player->GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID);
+    if (!spec)
+        spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
     if (!spec)
         spec = player->GetDefaultSpecId();
 
@@ -222,7 +224,13 @@ bool ItemTemplate::IsUsableBySpecialization(Player const* player) const
     if (!chrSpecialization)
         return false;
 
-    return Specializations[player->getLevel() > 40].test(CalculateItemSpecBit(chrSpecialization));
+    std::size_t levelIndex = 0;
+    if (player->getLevel() >= 110)
+        levelIndex = 2;
+    else if (player->getLevel() > 40)
+        levelIndex = 1;
+
+    return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));
 }
 
 std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spec)
