@@ -706,6 +706,12 @@ enum QuestPackageFilter
     QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
 };
 
+enum ScenarioStepFlags
+{
+    SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
+    SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
