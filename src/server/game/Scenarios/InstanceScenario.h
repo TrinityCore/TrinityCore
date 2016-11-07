@@ -27,7 +27,7 @@ typedef std::unordered_map<uint8, CriteriaProgressMap> StepCriteriaProgressMap;
 class TC_GAME_API InstanceScenario : public Scenario
 {
     public:
-        InstanceScenario(Map* map, ScenarioData const* scenarioData);
+        InstanceScenario(Map const* map, ScenarioData const* scenarioData);
 
         void SaveToDB();
         void LoadInstanceData(uint32 instanceId);
@@ -36,7 +36,7 @@ class TC_GAME_API InstanceScenario : public Scenario
         std::string GetOwnerInfo() const override;
         void SendPacket(WorldPacket const* data) const override;
 
-        Map* _map;
+        Map const* _map;
         ScenarioData const* _data;
         StepCriteriaProgressMap _stepCriteriaProgress;
 };
