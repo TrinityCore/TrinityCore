@@ -20,7 +20,7 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 
-InstanceScenario::InstanceScenario(Map* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
+InstanceScenario::InstanceScenario(Map const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
 {
     ASSERT(_map);
     LoadInstanceData(_map->GetInstanceId());
@@ -65,28 +65,17 @@ void InstanceScenario::SaveToDB()
 
         if (iter->second.Counter)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SCENARIO_INSTANCE_CRITERIA);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
             stmt->setUInt32(0, id);
             stmt->setUInt32(1, iter->first);
-            PreparedQueryResult result = CharacterDatabase.Query(stmt);
-            if (result)
-            {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SCENARIO_INSTANCE_CRITERIA);
-                stmt->setUInt64(0, iter->second.Counter);
-                stmt->setUInt32(1, uint32(iter->second.Date));
-                stmt->setUInt32(2, id);
-                stmt->setUInt32(3, iter->first);
-                trans->Append(stmt);
-            }
-            else
-            {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
-                stmt->setUInt32(0, id);
-                stmt->setUInt32(1, iter->first);
-                stmt->setUInt64(2, iter->second.Counter);
-                stmt->setUInt32(3, uint32(iter->second.Date));
-                trans->Append(stmt);
-            }
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
+            stmt->setUInt32(0, id);
+            stmt->setUInt32(1, iter->first);
+            stmt->setUInt64(2, iter->second.Counter);
+            stmt->setUInt32(3, uint32(iter->second.Date));
+            trans->Append(stmt);
         }
 
         iter->second.Changed = false;
@@ -120,7 +109,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
                 // Removing non-existing criteria data for all instances
                 TC_LOG_ERROR("criteria.instancescenarios", "Removing scenario criteria %u data from the table `instance_scenario_progress`.", id);
 
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SCENARIO_INSTANCE_CRITERIA);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
                 stmt->setUInt32(0, instanceId);
                 stmt->setUInt32(1, uint32(id));
                 trans->Append(stmt);
