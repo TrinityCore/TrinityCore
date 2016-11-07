@@ -794,7 +794,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
-        _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
+    {
+        if (questPackageItem->FilterType != QUEST_PACKAGE_FILTER_UNMATCHED)
+            _questPackages[questPackageItem->QuestPackageID].first.push_back(questPackageItem);
+        else
+            _questPackages[questPackageItem->QuestPackageID].second.push_back(questPackageItem);
+    }
 
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
@@ -1625,7 +1630,16 @@ std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItem
 {
     auto itr = _questPackages.find(questPackageID);
     if (itr != _questPackages.end())
-        return &itr->second;
+        return &itr->second.first;
+
+    return nullptr;
+}
+
+std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItemsFallback(uint32 questPackageID) const
+{
+    auto itr = _questPackages.find(questPackageID);
+    if (itr != _questPackages.end())
+        return &itr->second.second;
 
     return nullptr;
 }
