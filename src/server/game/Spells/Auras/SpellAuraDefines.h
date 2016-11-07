@@ -128,7 +128,7 @@ enum AuraType
     SPELL_AURA_MOD_STALKED                                  = 68,
     SPELL_AURA_SCHOOL_ABSORB                                = 69,
     SPELL_AURA_EXTRA_ATTACKS                                = 70,
-    SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL                 = 71,
+    SPELL_AURA_71                                           = 71,
     SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT                    = 72,
     SPELL_AURA_MOD_POWER_COST_SCHOOL                        = 73,
     SPELL_AURA_REFLECT_SPELLS_SCHOOL                        = 74,
@@ -488,7 +488,7 @@ enum AuraType
     SPELL_AURA_428                                          = 428,
     SPELL_AURA_429                                          = 429,
     SPELL_AURA_PLAY_SCENE                                   = 430,
-    SPELL_AURA_431                                          = 431,
+    SPELL_AURA_MOD_OVERRIDE_ZONE_PVP_TYPE                   = 431,  // NYI
     SPELL_AURA_432                                          = 432,
     SPELL_AURA_433                                          = 433,
     SPELL_AURA_434                                          = 434,
