@@ -3988,7 +3988,7 @@ enum QuestType
     QUEST_TYPE_AUTOCOMPLETE         = 0,
     QUEST_TYPE_DISABLED             = 1,
     QUEST_TYPE_NORMAL               = 2,
-    QUEST_TYPE_UNK                  = 3,
+    QUEST_TYPE_BONUS_OBJECTIVE      = 3,
     MAX_QUEST_TYPES                 = 4
 };
 
