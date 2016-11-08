@@ -45,6 +45,7 @@
 #include "BattlefieldMgr.h"
 #include "GameObjectPackets.h"
 #include "MiscPackets.h"
+#include "InstanceScenario.h"
 
 Object::Object()
 {
@@ -2365,6 +2366,15 @@ void WorldObject::SetZoneScript()
                 m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }
     }
+}
+
+Scenario* WorldObject::GetScenario() const
+{
+    if (IsInWorld())
+        if (InstanceMap* instanceMap = GetMap()->ToInstanceMap())
+            return instanceMap->GetInstanceScenario();
+
+    return nullptr;
 }
 
 TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 /*vehId*/) const
