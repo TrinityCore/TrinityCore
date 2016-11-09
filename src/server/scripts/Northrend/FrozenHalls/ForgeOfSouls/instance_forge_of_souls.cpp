@@ -24,7 +24,7 @@
 BossBoundaryData const boundaries =
 {
     { DATA_BRONJAHM,  new CircleBoundary(Position(5297.3f, 2506.45f), 24.0) },
-    { DATA_DEVOURER_OF_SOULS, new CircleBoundary(Position(5661.75f, 2507.38f), 52.0) }
+    { DATA_DEVOURER_OF_SOULS, new ParallelogramBoundary(Position(5663.56f, 2570.53f), Position(5724.39f, 2520.45f), Position(5570.36f, 2461.42f)) }
 };
 
 class instance_forge_of_souls : public InstanceMapScript
