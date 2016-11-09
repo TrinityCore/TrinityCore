@@ -2846,6 +2846,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellFamilyFlags[2] = 0x80000000;
     });
 
+    // Unleashed Souls
+    ApplySpellFix({ 68979 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
