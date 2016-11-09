@@ -20,6 +20,13 @@
 #include "forge_of_souls.h"
 #include "Player.h"
 
+
+BossBoundaryData const boundaries =
+{
+    { DATA_BRONJAHM,  new CircleBoundary(Position(5297.3f, 2506.45f), 24.0) },
+    { DATA_DEVOURER_OF_SOULS, new CircleBoundary(Position(5661.75f, 2507.38f), 52.0) }
+};
+
 class instance_forge_of_souls : public InstanceMapScript
 {
     public:
@@ -31,6 +38,7 @@ class instance_forge_of_souls : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadBossBoundaries(boundaries);
 
                 teamInInstance = 0;
             }
