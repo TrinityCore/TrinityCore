@@ -6905,6 +6905,11 @@ bool Spell::IsIgnoringCooldowns() const
     return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0;
 }
 
+bool Spell::IsProcDisabled() const
+{
+    return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) != 0;
+}
+
 bool Spell::IsChannelActive() const
 {
     return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0;
