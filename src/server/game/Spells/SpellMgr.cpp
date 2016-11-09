@@ -2877,6 +2877,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49064: // Explosive Trap Effect (Rank 5)
             case 49065: // Explosive Trap Effect (Rank 6)
             case 43446: // Explosive Trap Effect (Hexlord Malacrass)
+            case 68979: // Unleashed Souls
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
