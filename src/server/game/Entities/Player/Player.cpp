@@ -16597,7 +16597,7 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     return status.ObjectiveData[storageIndex];
 }
 
-bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective objective) const
+bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const
 {
     switch (objective.Type)
     {
