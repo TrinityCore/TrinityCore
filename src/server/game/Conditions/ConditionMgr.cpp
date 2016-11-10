@@ -104,7 +104,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Realm Achievement",    true, false, false },
     { "In Water",            false, false, false },
     { "Terrain Swap",         true, false, false },
-    { "Sit/stand state",      true,  true, false }
+    { "Sit/stand state",      true,  true, false },
+    { "Objective Complete",   true,  true, false }
 };
 
 // Checks if object meets the condition
@@ -454,6 +455,24 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(ConditionValue1);
+                if (!qInfo)
+                    break;
+                
+                for (QuestObjective const& obj : qInfo->GetObjectives())
+                {
+                    if (obj.StorageIndex == ConditionValue2)
+                    {
+                        condMeets = (player->IsQuestObjectiveComplete(qInfo, obj) && !player->GetQuestRewardStatus(ConditionValue1));
+                    }
+                }
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -634,6 +653,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_STAND_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2243,6 +2265,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             if (!valid)
             {
                 TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%u,%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(cond->ConditionValue1);
+            if (!qInfo)
+            {
+                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
