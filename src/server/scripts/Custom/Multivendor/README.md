@@ -1,4 +1,4 @@
-#Multivendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=multivendor_6.x)](https://travis-ci.org/Rochet2/TrinityCore)
+#Multivendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=multivendor_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
 
 ####About
 Allows you to show gossip options that show different vendors from npc_vendor.<br />
@@ -7,14 +7,14 @@ Source: http://rochet2.github.io/Multivendor.html
 ####Installation
 
 Available as:
-- Direct merge: https://github.com/Rochet2/TrinityCore/tree/multivendor_6.x
-- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:6.x...multivendor_6.x.diff
-- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:6.x...multivendor_6.x
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/multivendor_7.x
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...multivendor_7.x.diff
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...multivendor_7.x
 
 Using direct merge:
 - open git bash to source location
 - do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
-- do `git pull rochet2 multivendor_6.x`
+- do `git pull rochet2 multivendor_7.x`
 - use cmake and compile
 
 Using diff:
