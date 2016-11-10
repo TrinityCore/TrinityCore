@@ -1,4 +1,4 @@
-#Player and Item Gossip [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip_6.x)](https://travis-ci.org/Rochet2/TrinityCore)
+#Player and Item Gossip [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
 
 ####About
 Enables Item and Player gossip for TrinityCore.<br />
@@ -7,14 +7,14 @@ Source: http://rochet2.github.io/Player-and-Item-Gossip.html
 ####Installation
 
 Available as:
-- Direct merge: https://github.com/Rochet2/TrinityCore/tree/playeritemgossip_6.x
-- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:6.x...playeritemgossip_6.x.diff
-- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:6.x...playeritemgossip_6.x
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/playeritemgossip_7.x
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...playeritemgossip_7.x.diff
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...playeritemgossip_7.x
 
 Using direct merge:
 - open git bash to source location
 - do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
-- do `git pull rochet2 playeritemgossip_6.x`
+- do `git pull rochet2 playeritemgossip_7.x`
 - use cmake and compile
 
 Using diff:
