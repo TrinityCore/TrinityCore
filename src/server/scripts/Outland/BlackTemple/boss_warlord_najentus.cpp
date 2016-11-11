@@ -72,7 +72,6 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            Reset();
             _DespawnAtEvade();
         }
 
