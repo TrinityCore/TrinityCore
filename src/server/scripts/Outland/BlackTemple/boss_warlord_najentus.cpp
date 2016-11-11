@@ -188,40 +188,41 @@ public:
 
 class spell_najentus_needle_spine : public SpellScriptLoader
 {
-public:
-    spell_najentus_needle_spine() : SpellScriptLoader("spell_najentus_needle_spine") { }
-    class spell_najentus_needle_spine_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_najentus_needle_spine_SpellScript);
+    public:
+        spell_najentus_needle_spine() : SpellScriptLoader("spell_najentus_needle_spine") { }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_najentus_needle_spine_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_NEEDLE_SPINE))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_najentus_needle_spine_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NEEDLE_SPINE))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_IMPALING_SPINE));
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_NEEDLE_SPINE, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_najentus_needle_spine_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_najentus_needle_spine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_IMPALING_SPINE));
+            return new spell_najentus_needle_spine_SpellScript();
         }
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_NEEDLE_SPINE, true);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_najentus_needle_spine_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnEffectHitTarget += SpellEffectFn(spell_najentus_needle_spine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_najentus_needle_spine_SpellScript();
-    }
 };
 
 void AddSC_boss_najentus()
