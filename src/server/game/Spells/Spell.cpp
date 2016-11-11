@@ -5857,12 +5857,13 @@ SpellCastResult Spell::CheckRange(bool strict)
     maxRange *= maxRange;
 
     Unit* target = m_targets.GetUnitTarget();
+    Position projectedPosition = m_caster->GetCurrentPosition();
     if (target && target != m_caster)
     {
-        if (m_caster->GetExactDistSq(target) > maxRange)
+        if (projectedPosition.GetExactDistSq(target) > maxRange)
             return SPELL_FAILED_OUT_OF_RANGE;
 
-        if (minRange > 0.0f && m_caster->GetExactDistSq(target) < minRange)
+        if (minRange > 0.0f && projectedPosition.GetExactDistSq(target) < minRange)
             return SPELL_FAILED_OUT_OF_RANGE;
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
@@ -5872,9 +5873,9 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_targets.HasDst() && !m_targets.HasTraj())
     {
-        if (m_caster->GetExactDistSq(m_targets.GetDstPos()) > maxRange)
+        if (projectedPosition.GetExactDistSq(m_targets.GetDstPos()) > maxRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
-        if (minRange > 0.0f && m_caster->GetExactDistSq(m_targets.GetDstPos()) < minRange)
+        if (minRange > 0.0f && projectedPosition.GetExactDistSq(m_targets.GetDstPos()) < minRange)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_DONT_REPORT;
     }
 

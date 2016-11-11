@@ -1307,6 +1307,9 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWithinMeleeRange(Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
+        float GetCurrentSpeed() const;
+        Position GetCurrentPosition() const;
+        float GetCurrentMovementOrientation() const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
 
