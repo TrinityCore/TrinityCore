@@ -130,7 +130,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModStalked,                            // 68 SPELL_AURA_MOD_STALKED
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS clientside
-    &AuraEffect::HandleModSpellCritChanceShool,                   // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
+    &AuraEffect::HandleNULL,                                      // 71 SPELL_AURA_71
     &AuraEffect::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
@@ -4328,24 +4328,9 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->UpdateAllSpellCritChances();
+        target->ToPlayer()->UpdateSpellCritChance();
     else
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
-}
-
-void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    for (int school = SPELL_SCHOOL_NORMAL; school < MAX_SPELL_SCHOOL; ++school)
-        if (GetMiscValue() & (1<<school))
-            target->ToPlayer()->UpdateSpellCritChance(school);
 }
 
 void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4366,7 +4351,7 @@ void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode,
     target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (GetAmount()), apply);
 
     // included in Player::UpdateSpellCritChance calculation
-    target->ToPlayer()->UpdateAllSpellCritChances();
+    target->ToPlayer()->UpdateSpellCritChance();
 }
 
 /********************************/
