@@ -776,7 +776,7 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
-    std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[2];  // one set for 1-40 level range and another for 41-100
+    std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
 
     // helpers
@@ -807,7 +807,7 @@ struct TC_GAME_API ItemTemplate
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
-    bool IsUsableBySpecialization(Player const* player) const;
+    bool IsUsableByLootSpecialization(Player const* player) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
 
