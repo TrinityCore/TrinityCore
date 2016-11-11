@@ -91,7 +91,7 @@ enum ConditionTypes
     CONDITION_IN_WATER                 = 40,                   // 0                0              0                  true if unit in water
     CONDITION_TERRAIN_SWAP             = 41,                   // terrainSwap      0              0                  true if object is in terrainswap
     CONDITION_STAND_STATE              = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_QUEST_OBJECTIVE_COMPLETE = 43,                   // quest_id         storage_index  0                  true if player has quest_id has storage_index objective complete, but quest not yet rewarded
+    CONDITION_QUEST_OBJECTIVE_COMPLETE = 43,                   // quest_id         ID             0                  true if player has quest_id and has ID objective complete, but quest not yet rewarded
     CONDITION_MAX                      = 44                    // MAX
 };
 

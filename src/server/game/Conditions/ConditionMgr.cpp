@@ -465,7 +465,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 
                 for (QuestObjective const& obj : qInfo->GetObjectives())
                 {
-                    if (obj.StorageIndex == ConditionValue2)
+                    if (obj.ID == ConditionValue2)
                         condMeets = (player->IsQuestObjectiveComplete(qInfo, obj) && !player->GetQuestRewardStatus(ConditionValue1));
                 }
             }
