@@ -282,14 +282,25 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
                         continue;
 
-                    rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID);
-                    if (rewardProto)
+                    if (_player->CanSelectQuestPackageItem(questPackageItem))
                     {
-                        if (rewardProto->IsUsableBySpecialization(_player))
-                        {
-                            itemValid = true;
-                            break;
-                        }
+                        itemValid = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!itemValid)
+            {
+                if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItemsFallback(quest->GetQuestPackageID()))
+                {
+                    for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+                    {
+                        if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
+                            continue;
+
+                        itemValid = true;
+                        break;
                     }
                 }
             }

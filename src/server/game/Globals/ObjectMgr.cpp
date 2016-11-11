@@ -2783,7 +2783,12 @@ void ObjectMgr::LoadItemTemplates()
                         if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
                         {
                             itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
-                            itemTemplate.Specializations[itemSpec->MaxLevel > 40].set(ItemTemplate::CalculateItemSpecBit(specialization));
+                            std::size_t specBit = ItemTemplate::CalculateItemSpecBit(specialization);
+                            itemTemplate.Specializations[0].set(specBit);
+                            if (itemSpec->MaxLevel > 40)
+                                itemTemplate.Specializations[1].set(specBit);
+                            if (itemSpec->MaxLevel >= 110)
+                                itemTemplate.Specializations[2].set(specBit);
                         }
                     }
                 }
