@@ -1610,7 +1610,12 @@ void SpellMgr::LoadSpellProcs()
         if (!spellInfo)
             continue;
 
+        // Data already present in DB, overwrites default proc
         if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+            continue;
+
+        // Nothing to do if no flags set
+        if (!spellInfo->ProcFlags)
             continue;
 
         bool addTriggerFlag = false;
@@ -1630,13 +1635,25 @@ void SpellMgr::LoadSpellProcs()
             procSpellTypeMask |= spellTypeMask[auraName];
             if (isAlwaysTriggeredAura[auraName])
                 addTriggerFlag = true;
+
+            // many proc auras with taken procFlag mask don't have attribute "can proc with triggered"
+            // they should proc nevertheless (example mage armor spells with judgement)
+            if (!addTriggerFlag && (spellInfo->ProcFlags & TAKEN_HIT_PROC_FLAG_MASK) != 0)
+            {
+                switch (auraName)
+                {
+                    case SPELL_AURA_PROC_TRIGGER_SPELL:
+                    case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                        addTriggerFlag = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
             break;
         }
 
         if (!procSpellTypeMask)
-            continue;
-
-        if (!spellInfo->ProcFlags)
             continue;
 
         SpellProcEntry procEntry;
@@ -2852,6 +2869,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 16236: // Ancestral Fortitude (Rank 2)
             case 16237: // Ancestral Fortitude (Rank 3)
             case 47930: // Grace
+            case 45145: // Snake Trap Effect (Rank 1)
+            case 13812: // Explosive Trap Effect (Rank 1)
+            case 14314: // Explosive Trap Effect (Rank 2)
+            case 14315: // Explosive Trap Effect (Rank 3)
+            case 27026: // Explosive Trap Effect (Rank 4)
+            case 49064: // Explosive Trap Effect (Rank 5)
+            case 49065: // Explosive Trap Effect (Rank 6)
+            case 43446: // Explosive Trap Effect (Hexlord Malacrass)
+            case 68979: // Unleashed Souls
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
