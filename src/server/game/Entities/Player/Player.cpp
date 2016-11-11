@@ -16601,47 +16601,47 @@ bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& 
 {
     switch (objective.Type)
     {
-    case QUEST_OBJECTIVE_MONSTER:
-    case QUEST_OBJECTIVE_ITEM:
-    case QUEST_OBJECTIVE_GAMEOBJECT:
-    case QUEST_OBJECTIVE_PLAYERKILLS:
-    case QUEST_OBJECTIVE_TALKTO:
-    case QUEST_OBJECTIVE_WINPVPPETBATTLES:
-    case QUEST_OBJECTIVE_HAVE_CURRENCY:
-    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
-        if (GetQuestObjectiveData(quest, objective.StorageIndex) < objective.Amount)
+        case QUEST_OBJECTIVE_MONSTER:
+        case QUEST_OBJECTIVE_ITEM:
+        case QUEST_OBJECTIVE_GAMEOBJECT:
+        case QUEST_OBJECTIVE_PLAYERKILLS:
+        case QUEST_OBJECTIVE_TALKTO:
+        case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+        case QUEST_OBJECTIVE_HAVE_CURRENCY:
+        case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+            if (GetQuestObjectiveData(quest, objective.StorageIndex) < objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MIN_REPUTATION:
+            if (GetReputationMgr().GetReputation(objective.ObjectID) < objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MAX_REPUTATION:
+            if (GetReputationMgr().GetReputation(objective.ObjectID) > objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MONEY:
+            if (!HasEnoughMoney(uint64(objective.Amount)))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_AREATRIGGER:
+            if (!GetQuestObjectiveData(quest, objective.StorageIndex))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_LEARNSPELL:
+            if (!HasSpell(objective.ObjectID))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_CURRENCY:
+            if (!HasCurrency(objective.ObjectID, objective.Amount))
+                return false;
+            break;
+        default:
+            TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
+                GetName().c_str(), GetGUID().ToString().c_str(), quest->ID, objective.Type);
             return false;
-        break;
-    case QUEST_OBJECTIVE_MIN_REPUTATION:
-        if (GetReputationMgr().GetReputation(objective.ObjectID) < objective.Amount)
-            return false;
-        break;
-    case QUEST_OBJECTIVE_MAX_REPUTATION:
-        if (GetReputationMgr().GetReputation(objective.ObjectID) > objective.Amount)
-            return false;
-        break;
-    case QUEST_OBJECTIVE_MONEY:
-        if (!HasEnoughMoney(uint64(objective.Amount)))
-            return false;
-        break;
-    case QUEST_OBJECTIVE_AREATRIGGER:
-        if (!GetQuestObjectiveData(quest, objective.StorageIndex))
-            return false;
-        break;
-    case QUEST_OBJECTIVE_LEARNSPELL:
-        if (!HasSpell(objective.ObjectID))
-            return false;
-        break;
-    case QUEST_OBJECTIVE_CURRENCY:
-        if (!HasCurrency(objective.ObjectID, objective.Amount))
-            return false;
-        break;
-    default:
-        TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
-            GetName().c_str(), GetGUID().ToString().c_str(), quest->ID, objective.Type);
-        return false;
     }
-
+    
     return true;
 }
 
