@@ -2985,9 +2985,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71839: // Drain Life - Bryntroll Heroic
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
-            case 34471: // The Beast Within
-                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
-                break;
             case 56606: // Ride Jokkum
             case 61791: // Ride Vehicle (Yogg-Saron)
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
@@ -3526,4 +3523,19 @@ void SpellMgr::LoadSpellInfoDiminishing()
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo diminishing infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoImmunities()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        spellInfo->_LoadImmunityInfo();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo immunity infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
