@@ -647,7 +647,8 @@ Spell::~Spell()
 
     delete m_spellValue;
 
-    CheckEffectExecuteData();
+    // missing cleanup somewhere, mem leaks so let's crash
+    AssertEffectExecuteData();
 }
 
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
@@ -2992,7 +2993,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_casttime = m_spellInfo->CalcCastTime(this);
 
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
-        if (!(IsNextMeleeSwingSpell() || IsAutoRepeat() || _triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
+        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
                 m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
@@ -3005,8 +3006,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     if ((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && !(m_caster->IsCharmed() && m_caster->GetCharmerGUID().IsCreature()) && m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT))
     {
-        // 1. Is a channel spell, 2. Has no casttime, 3. And has flag to allow movement during channel
-        if (!(m_spellInfo->IsChanneled() && !m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)))
+        // 1. Has casttime, 2. Or doesn't have flag to allow movement during channel
+        if (m_casttime || !m_spellInfo->IsMoveAllowedChannel())
         {
             SendCastResult(SPELL_FAILED_MOVING);
             finish(false);
@@ -3561,7 +3562,7 @@ void Spell::update(uint32 difftime)
         (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR))))
     {
         // don't cancel for melee, autorepeat, triggered and instant spells
-        if (!IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered() && !(IsChannelActive() && m_spellInfo->HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING)))
+        if (!m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered() && !(IsChannelActive() && m_spellInfo->IsMoveAllowedChannel()))
         {
             // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
             // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
@@ -3583,7 +3584,7 @@ void Spell::update(uint32 difftime)
                     m_timer -= difftime;
             }
 
-            if (m_timer == 0 && !IsNextMeleeSwingSpell() && !IsAutoRepeat())
+            if (m_timer == 0 && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat())
                 // don't CheckCast for instant spells - done in spell::prepare, skip duplicate checks, needed for range checks for example
                 cast(!m_casttime);
             break;
@@ -6618,14 +6619,14 @@ bool Spell::UpdatePointers()
 
 CurrentSpellTypes Spell::GetCurrentContainer() const
 {
-    if (IsNextMeleeSwingSpell())
-        return(CURRENT_MELEE_SPELL);
+    if (m_spellInfo->IsNextMeleeSwingSpell())
+        return CURRENT_MELEE_SPELL;
     else if (IsAutoRepeat())
-        return(CURRENT_AUTOREPEAT_SPELL);
+        return CURRENT_AUTOREPEAT_SPELL;
     else if (m_spellInfo->IsChanneled())
-        return(CURRENT_CHANNELED_SPELL);
-    else
-        return(CURRENT_GENERIC_SPELL);
+        return CURRENT_CHANNELED_SPELL;
+
+    return CURRENT_GENERIC_SPELL;
 }
 
 bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const
@@ -6702,11 +6703,6 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
     }
 
     return true;
-}
-
-bool Spell::IsNextMeleeSwingSpell() const
-{
-    return m_spellInfo->HasAttribute(SPELL_ATTR0_ON_NEXT_SWING);
 }
 
 bool Spell::IsAutoActionResetSpell() const
@@ -7086,7 +7082,7 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
 
 void Spell::PrepareTargetProcessing()
 {
-    CheckEffectExecuteData();
+    AssertEffectExecuteData();
 }
 
 void Spell::FinishTargetProcessing()
@@ -7111,7 +7107,7 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
     }
 }
 
-void Spell::CheckEffectExecuteData()
+void Spell::AssertEffectExecuteData() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         ASSERT(!m_effectExecuteData[i]);

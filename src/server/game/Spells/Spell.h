@@ -473,7 +473,6 @@ class TC_GAME_API Spell
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
-        bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const { return (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0; }
         bool IsIgnoringCooldowns() const { return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0; }
         bool IsProcDisabled() const { return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) != 0; }
@@ -637,7 +636,7 @@ class TC_GAME_API Spell
 
         // spell execution log
         void InitEffectExecuteData(uint8 effIndex);
-        void CheckEffectExecuteData();
+        void AssertEffectExecuteData() const;
 
         // Scripting system
         void LoadScripts();
