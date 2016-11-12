@@ -7875,13 +7875,13 @@ int32 Unit::SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask) const
 bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
 {
     // If m_immuneToSchool type contain this school type, IMMUNE damage.
-    auto const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
     for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
         if ((itr->first & schoolMask) != 0)
             return true;
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
-    auto const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
     for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
         if ((itr->first & schoolMask) != 0)
             return true;
@@ -7893,13 +7893,13 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
 {
     uint32 schoolMask = spellInfo->GetSchoolMask();
     // If m_immuneToSchool type contain this school type, IMMUNE damage.
-    auto const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
     for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
         if ((itr->first & schoolMask) && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->second)))
             return true;
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
-    auto const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
+    SpellImmuneContainer const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
     for (auto itr = damageList.begin(); itr != damageList.end(); ++itr)
         if ((itr->first & schoolMask) != 0)
             return true;
@@ -7913,7 +7913,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
         return false;
 
     // Single spell immunity.
-    auto const& idList = m_spellImmune[IMMUNITY_ID];
+    SpellImmuneContainer const& idList = m_spellImmune[IMMUNITY_ID];
     if (idList.count(spellInfo->Id) > 0)
         return true;
 
@@ -7922,7 +7922,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
 
     if (uint32 dispel = spellInfo->Dispel)
     {
-        auto const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
+        SpellImmuneContainer const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
         if (dispelList.count(dispel) > 0)
             return true;
     }
@@ -7930,7 +7930,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     // Spells that don't have effectMechanics.
     if (uint32 mechanic = spellInfo->Mechanic)
     {
-        auto const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
         if (mechanicList.count(mechanic) > 0)
             return true;
     }
@@ -7950,7 +7950,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
     if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
-    auto const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
     for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
     {
         SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second);
@@ -7966,7 +7966,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo) const
 uint32 Unit::GetSchoolImmunityMask() const
 {
     uint32 mask = 0;
-    auto const& mechanicList = m_spellImmune[IMMUNITY_SCHOOL];
+    SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_SCHOOL];
     for (auto itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
         mask |= itr->first;
 
@@ -7976,7 +7976,7 @@ uint32 Unit::GetSchoolImmunityMask() const
 uint32 Unit::GetMechanicImmunityMask() const
 {
     uint32 mask = 0;
-    auto const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+    SpellImmuneContainer const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
     for (auto itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
         mask |= (1 << itr->first);
 
@@ -8008,7 +8008,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
     {
         if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         {
-            auto const& list = m_spellImmune[IMMUNITY_STATE];
+            SpellImmuneContainer const& list = m_spellImmune[IMMUNITY_STATE];
             if (list.count(aura) > 0)
                 return true;
         }
