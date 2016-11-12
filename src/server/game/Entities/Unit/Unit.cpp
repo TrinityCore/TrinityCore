@@ -5920,17 +5920,14 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
         {
             RemoveFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
 
-            if (flag != AURA_STATE_ENRAGE)                  // enrage aura state triggering continues auras
+            Unit::AuraApplicationMap& tAuras = GetAppliedAuras();
+            for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
             {
-                Unit::AuraApplicationMap& tAuras = GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
-                {
-                    SpellInfo const* spellProto = (*itr).second->GetBase()->GetSpellInfo();
-                    if (spellProto->CasterAuraState == uint32(flag))
-                        RemoveAura(itr);
-                    else
-                        ++itr;
-                }
+                SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
+                if (itr->second->GetBase()->GetCasterGUID() == GetGUID() && spellProto->CasterAuraState == uint32(flag) && (spellProto->IsPassive() || flag != AURA_STATE_ENRAGE))
+                    RemoveAura(itr);
+                else
+                    ++itr;
             }
         }
     }
