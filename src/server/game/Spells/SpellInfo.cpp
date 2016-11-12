@@ -2704,7 +2704,7 @@ bool SpellInfo::CanSpellCastOverrideAuraEffect(SpellInfo const* auraSpellInfo, u
         if (Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
             continue;
 
-        int32 const miscValue = Effects[i].MiscValue;
+        uint32 const miscValue = static_cast<uint32>(Effects[i].MiscValue);
         switch (Effects[i].ApplyAuraName)
         {
             case SPELL_AURA_STATE_IMMUNITY:
