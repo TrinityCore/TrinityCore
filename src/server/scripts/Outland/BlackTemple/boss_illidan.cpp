@@ -541,6 +541,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->setActive(true);
             DoZoneInCombat();
+            _EnterCombat();
         }
 
         void AttackStart(Unit* who) override
@@ -1467,7 +1468,6 @@ public:
 
         void BeginTalk()
         {
-            instance->SetBossState(DATA_ILLIDAN_STORMRAGE, IN_PROGRESS);
             if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
             {
                 illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
