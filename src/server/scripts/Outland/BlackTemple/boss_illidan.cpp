@@ -561,9 +561,6 @@ public:
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            for (uint8 i = DATA_GO_ILLIDAN_DOOR_R; i < DATA_GO_ILLIDAN_DOOR_L + 1; ++i)
-                instance->HandleGameObject(instance->GetGuidData(i), true);
-
             _JustDied();
         }
 
@@ -1412,23 +1409,13 @@ public:
 
             IllidanGUID = instance->GetGuidData(DATA_ILLIDAN_STORMRAGE);
             GateGUID = instance->GetGuidData(DATA_GO_ILLIDAN_GATE);
-            DoorGUID[0] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_R);
-            DoorGUID[1] = instance->GetGuidData(DATA_GO_ILLIDAN_DOOR_L);
 
             if (JustCreated) // close all doors at create
-            {
                 instance->HandleGameObject(GateGUID, false);
-
-                for (uint8 i = 0; i < 2; ++i)
-                    instance->HandleGameObject(DoorGUID[i], false);
-            }
             else // open all doors, raid wiped
             {
                 instance->HandleGameObject(GateGUID, true);
                 WalkCount = 1; // skip first wp
-
-                for (uint8 i = 0; i < 2; ++i)
-                    instance->HandleGameObject(DoorGUID[i], true);
             }
 
             KillAllElites();
@@ -1481,8 +1468,6 @@ public:
         void BeginTalk()
         {
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, IN_PROGRESS);
-            for (uint8 i = 0; i < 2; ++i)
-                instance->HandleGameObject(DoorGUID[i], false);
             if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
             {
                 illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
@@ -1674,10 +1659,6 @@ public:
         {
             switch (WalkCount)
             {
-            case 6:
-                for (uint8 i = 0; i < 2; ++i)
-                    instance->HandleGameObject(DoorGUID[i], true);
-                break;
             case 8:
                 if (Phase == PHASE_WALK)
                     EnterPhase(PHASE_TALK);
@@ -1795,7 +1776,6 @@ public:
         ObjectGuid ChannelGUID;
         ObjectGuid SpiritGUID[2];
         ObjectGuid GateGUID;
-        ObjectGuid DoorGUID[2];
         uint32 ChannelCount;
         uint32 WalkCount;
         uint32 TalkCount;
