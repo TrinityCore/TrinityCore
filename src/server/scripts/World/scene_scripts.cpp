@@ -23,16 +23,6 @@ enum SceneSpells
     SPELL_DEATHWING_SIMULATOR = 201184
 };
 
-enum SceneQuests
-{
-    START_DEMON_HUNTER_TRACKING_EVENT = 40076
-};
-
-enum SceneCreatures
-{
-    SEE_FELSABER_QUEST_KILL_CREDIT = 101534
-};
-
 class scene_deathwing_simulator : public SceneScript
 {
     public:
@@ -46,47 +36,7 @@ class scene_deathwing_simulator : public SceneScript
     }
 };
 
-class scene_demon_hunter_start : public SceneScript
-{
-public:
-    scene_demon_hunter_start() : SceneScript("scene_demon_hunter_start") { }
-
-    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        Quest const* quest = sObjectMgr->GetQuestTemplate(START_DEMON_HUNTER_TRACKING_EVENT);
-        if (!quest)
-            return;
-        
-        if (!player->GetQuestRewardStatus(START_DEMON_HUNTER_TRACKING_EVENT))
-            player->AddQuestAndCheckCompletion(quest, NULL);
-        else
-            return;
-    }
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
-    {
-        if (triggerName == "CUEILLIDANTH")
-            // Illidan Conversation
-            return;
-    }
-};
-
-class scene_enter_the_illidari_ashtongue : public SceneScript
-{
-public:
-    scene_enter_the_illidari_ashtongue() : SceneScript("scene_enter_the_illidari_ashtongue") { }
-
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
-    {
-        if (triggerName == "SEEFELSABERCREDIT")
-            player->KilledMonsterCredit(SEE_FELSABER_QUEST_KILL_CREDIT);
-        if (triggerName == "UPDATEPHASE")
-            player->UpdateAreaAndZonePhase();
-    }
-};
-
 void AddSC_scene_scripts()
 {
     new scene_deathwing_simulator();
-    new scene_demon_hunter_start();
-    new scene_enter_the_illidari_ashtongue();
 }
