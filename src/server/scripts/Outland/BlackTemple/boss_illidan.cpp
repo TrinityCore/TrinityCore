@@ -539,8 +539,6 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->setActive(true);
-            DoZoneInCombat();
             _EnterCombat();
         }
 
