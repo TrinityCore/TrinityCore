@@ -2008,9 +2008,27 @@ void SpellInfo::_LoadSpellSpecific()
                         case 8115: // Agility
                         case 8091: // Armor
                             return SPELL_SPECIFIC_SCROLL;
+                        default:
+                            break;
+                    }
+
+                    switch (Id)
+                    {
                         case 12880: // Enrage (Enrage)
+                        case 14201:
+                        case 14202:
+                        case 14203:
+                        case 14204:
                         case 57518: // Enrage (Wrecking Crew)
+                        case 57519:
+                        case 57520:
+                        case 57521:
+                        case 57522:
+                        case 57514: // Enrage (Imp. Defensive Stance)
+                        case 57516:
                             return SPELL_SPECIFIC_WARRIOR_ENRAGE;
+                        default:
+                            break;
                     }
                 }
                 break;
