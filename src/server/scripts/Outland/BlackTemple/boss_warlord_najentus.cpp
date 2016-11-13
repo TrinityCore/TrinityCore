@@ -175,8 +175,8 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
-            if (Creature* Najentus = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_HIGH_WARLORD_NAJENTUS)))
-                if (ENSURE_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
+            if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))
+                if (ENSURE_AI(boss_najentus::boss_najentusAI, najentus->AI())->RemoveImpalingSpine())
                 {
                     go->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
                     go->Delete();
