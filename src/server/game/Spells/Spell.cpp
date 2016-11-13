@@ -1118,8 +1118,14 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
     ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
-    float coneAngle = float(M_PI) / 2;
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+    float coneAngle = float(M_PI) / 2.f;
+
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
+    if (G3D::fuzzyEq(radius, 0.f))
+        radius = m_spellInfo->GetMaxRange(m_spellInfo->IsPositiveEffect(effIndex), m_caster, this);
+
+    radius *= m_spellValue->RadiusMod;
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
     {
@@ -1205,7 +1211,13 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
              return;
     }
     std::list<WorldObject*> targets;
-    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
+    if (G3D::fuzzyEq(radius, 0.f))
+        radius = m_spellInfo->GetMaxRange(m_spellInfo->IsPositiveEffect(effIndex), m_caster, this);
+
+    radius *= m_spellValue->RadiusMod;
+
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
