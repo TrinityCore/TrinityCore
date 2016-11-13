@@ -11811,8 +11811,9 @@ bool Unit::IsInPartyWith(Unit const* unit) const
     else if ((u2->GetTypeId() == TYPEID_PLAYER && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
         (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
-    else
-        return false;
+
+    // else u1->GetTypeId() == u2->GetTypeId() == TYPEID_UNIT
+    return u1->getFaction() == u2->getFaction();
 }
 
 bool Unit::IsInRaidWith(Unit const* unit) const
@@ -11830,8 +11831,9 @@ bool Unit::IsInRaidWith(Unit const* unit) const
     else if ((u2->GetTypeId() == TYPEID_PLAYER && u1->GetTypeId() == TYPEID_UNIT && u1->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) ||
             (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_UNIT && u2->ToCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return true;
-    else
-        return false;
+
+    // else u1->GetTypeId() == u2->GetTypeId() == TYPEID_UNIT
+    return u1->getFaction() == u2->getFaction();
 }
 
 void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
