@@ -2487,14 +2487,14 @@ int32 SpellInfo::GetDiminishingReturnsLimitDuration(bool triggered) const
 
 void SpellInfo::_LoadImmunityInfo()
 {
-    uint32 schoolImmunityMask = 0;
-    uint32 applyHarmfulAuraImmunityMask = 0;
-    uint32 mechanicImmunityMask = 0;
-    uint32 dispelImmunity = 0;
-    uint32 damageImmunityMask = 0;
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
+        uint32 schoolImmunityMask = 0;
+        uint32 applyHarmfulAuraImmunityMask = 0;
+        uint32 mechanicImmunityMask = 0;
+        uint32 dispelImmunity = 0;
+        uint32 damageImmunityMask = 0;
+
         int32 miscVal = Effects[i].MiscValue;
         int32 amount = Effects[i].CalcValue();
 
@@ -2776,7 +2776,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         }
     }
 
-    if (uint32 damageImmunity = immuneInfo->SchoolImmuneMask)
+    if (uint32 damageImmunity = immuneInfo->DamageSchoolMask)
         target->ApplySpellImmune(Id, IMMUNITY_DAMAGE, damageImmunity, apply);
 
     for (AuraType auraType : immuneInfo->AuraTypeImmune)
