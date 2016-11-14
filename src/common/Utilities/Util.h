@@ -328,10 +328,10 @@ TC_COMMON_API bool StringToBool(std::string const& str);
 template <typename T>
 class HookList final
 {
-    typedef std::vector<T> ContainerType;
-
     private:
-        typename ContainerType _container;
+        typedef std::vector<T> ContainerType;
+
+        ContainerType _container;
 
     public:
         typedef typename ContainerType::iterator iterator;
