@@ -181,6 +181,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Corpse:
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
+        case HighGuid::Conversation:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
@@ -815,7 +816,7 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
             data->resize(data->size() + arrayBlockCount * sizeof(UpdateMask::BlockType));
             for (std::size_t v = 0; v < values.size(); ++v)
             {
-                if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
+                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
                 {
                     UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                     *data << uint32(values[v]);
@@ -962,6 +963,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
             break;
         case TYPEID_CONVERSATION:
             flags = ConversationDynamicUpdateFieldFlags;
+
+            if (Conversation const* conversation = ToConversation())
+                if (conversation->GetCasterGuid() == target->GetGUID())
+                    visibleFlag |= UF_FLAG_0x100;
             break;
         default:
             flags = nullptr;

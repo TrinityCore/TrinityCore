@@ -9618,7 +9618,7 @@ void ObjectMgr::LoadSceneTemplates()
         Field* fields = templates->Fetch();
 
         uint32 sceneId = fields[0].GetUInt32();
-        SceneTemplate& sceneTemplate = _sceneTemplateStore[sceneId];
+        SceneTemplate& sceneTemplate    = _sceneTemplateStore[sceneId];
         sceneTemplate.SceneId           = sceneId;
         sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
@@ -9627,4 +9627,116 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadConversationTemplates()
+{
+    _conversationActorTemplateStore.clear();
+    _conversationLineTemplateStore.clear();
+    _conversationTemplateStore.clear();
+
+    PreparedStatement* actorTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTOR_TEMPLATE);
+    PreparedQueryResult actorTemplates = WorldDatabase.Query(actorTemplateStmt);
+
+    if (actorTemplates)
+    {
+        uint32 oldMSTime = getMSTime();
+        uint32 count = 0;
+        do
+        {
+            Field* fields = actorTemplates->Fetch();
+
+            ConversationActorTemplate conversationActor;
+            conversationActor.Id = fields[0].GetUInt32();
+            conversationActor.CreatureId = fields[1].GetUInt32();
+            conversationActor.Unk1 = fields[2].GetUInt32();
+            conversationActor.Unk2 = fields[3].GetUInt32();
+            conversationActor.Unk3 = fields[4].GetUInt32();
+            conversationActor.Unk4 = fields[5].GetUInt32();
+            _conversationActorTemplateStore[conversationActor.Id] = conversationActor;
+
+            ++count;
+        } while (actorTemplates->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u conversation template actors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    PreparedStatement* lineTemplateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_LINE_TEMPLATE);
+    PreparedQueryResult lineTemplates = WorldDatabase.Query(lineTemplateStmt);
+
+    if (lineTemplates)
+    {
+        uint32 oldMSTime = getMSTime();
+        uint32 count = 0;
+        do
+        {
+            Field* fields = lineTemplates->Fetch();
+
+            ConversationLineTemplate conversationLine;
+            conversationLine.Id = fields[0].GetUInt32();
+            conversationLine.Unk1 = fields[1].GetUInt32();
+            conversationLine.Unk2 = fields[2].GetUInt32();
+            conversationLine.Unk3 = fields[3].GetUInt32();
+            _conversationLineTemplateStore[conversationLine.Id] = conversationLine;
+
+            ++count;
+        } while (lineTemplates->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u conversation template lines in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    PreparedStatement* templateStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_TEMPLATE);
+    PreparedQueryResult templates = WorldDatabase.Query(templateStmt);
+
+    if (templates)
+    {
+        uint32 oldMSTime = getMSTime();
+        uint32 count = 0;
+        do
+        {
+            Field* fields = templates->Fetch();
+
+            ConversationTemplate conversationTemplate;
+            conversationTemplate.Id = fields[0].GetUInt32();
+            conversationTemplate.LastLineDuration = fields[1].GetUInt32();
+
+            PreparedStatement* actorsStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_ACTORS);
+            actorsStmt->setUInt32(0, conversationTemplate.Id);
+            PreparedQueryResult actors = WorldDatabase.Query(actorsStmt);
+
+            if (actors)
+            {
+                do
+                {
+                    Field* fields = actors->Fetch();
+                    uint32 actorId = fields[0].GetUInt32();
+                    ConversationActorTemplate conversationActorTemplate = _conversationActorTemplateStore[actorId];
+
+                    conversationTemplate.Actors.push_back(conversationActorTemplate);
+                } while (actors->NextRow());
+            }
+
+            PreparedStatement* linesStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CONVERSATION_LINES);
+            linesStmt->setUInt32(0, conversationTemplate.Id);
+            PreparedQueryResult lines = WorldDatabase.Query(linesStmt);
+
+            if (lines)
+            {
+                do
+                {
+                    Field* fields = lines->Fetch();
+                    uint32 lineId = fields[0].GetUInt32();
+                    ConversationLineTemplate conversationActorTemplate = _conversationLineTemplateStore[lineId];
+
+                    conversationTemplate.Lines.push_back(conversationActorTemplate);
+                } while (lines->NextRow());
+            }
+
+            _conversationTemplateStore[conversationTemplate.Id] = conversationTemplate;
+
+            ++count;
+        } while (templates->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u conversation templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    }
 }

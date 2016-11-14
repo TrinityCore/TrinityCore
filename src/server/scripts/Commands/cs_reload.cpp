@@ -78,6 +78,7 @@ public:
             { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                          true,  &HandleReloadCommandCommand,                    "" },
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                       true,  &HandleReloadConditions,                        "" },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                           true,  &HandleReloadConfigCommand,                     "" },
+            { "conversation_template",         rbac::RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE,            true,  &HandleReloadConverationTemplateCommand,        "" },
             { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT,                    true,  &HandleReloadCreatureText,                      "" },
             { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER,              true,  &HandleReloadCreatureQuestEnderCommand,         "" },
             { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,          true,  &HandleReloadLinkedRespawnCommand,              "" },
@@ -1127,12 +1128,19 @@ public:
         return true;
     }
 
-
     static bool HandleReloadSceneTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading scene_template table...");
         sObjectMgr->LoadSceneTemplates();
         handler->SendGlobalGMSysMessage("Scenes templates reloaded. New scriptname need a reboot.");
+        return true;
+    }
+
+    static bool HandleReloadConverationTemplateCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading conversation_* tables...");
+        sObjectMgr->LoadConversationTemplates();
+        handler->SendGlobalGMSysMessage("Conversation templates reloaded.");
         return true;
     }
 
