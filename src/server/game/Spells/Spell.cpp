@@ -5768,7 +5768,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
 
     // Get unit state
     uint32 const unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);
-    if (m_caster->GetCharmerGUID() && !CheckCasterNotImmunedCharmAuras(param1))
+    if (m_caster->GetCharmerGUID() && CheckCasterNotImmunedCharmAuras(param1))
         result = SPELL_FAILED_CHARMED;
     else if (unitflag & UNIT_FLAG_STUNNED && !usableWhileStunned && CheckCasterNotImmunedStunAuras(param1))
         result = SPELL_FAILED_STUNNED;
