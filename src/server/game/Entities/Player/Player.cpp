@@ -6180,6 +6180,10 @@ void Player::RewardReputation(Quest const* quest)
         if (!quest->RewardFactionId[i])
             continue;
 
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]);
+        if (!factionEntry)
+            continue;
+
         int32 rep = 0;
         bool noQuestBonus = false;
 
@@ -6201,6 +6205,9 @@ void Player::RewardReputation(Quest const* quest)
         if (!rep)
             continue;
 
+        if (quest->RewardFactionCapIn[i] && rep > 0 && GetReputationMgr().GetRank(factionEntry) >= quest->RewardFactionCapIn[i])
+            continue;
+
         if (quest->IsDaily())
             rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
         else if (quest->IsWeekly())
@@ -6212,8 +6219,8 @@ void Player::RewardReputation(Quest const* quest)
         else
             rep = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
 
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-            GetReputationMgr().ModifyReputation(factionEntry, rep);
+        bool noSpillover = quest->GetRewardReputationMask() & (1 << i);
+        GetReputationMgr().ModifyReputation(factionEntry, rep, noSpillover);
     }
 }
 

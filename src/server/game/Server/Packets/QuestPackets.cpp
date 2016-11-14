@@ -119,8 +119,8 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
         {
             _worldPacket << int32(Info.RewardFactionID[i]);
-            _worldPacket << int32(Info.RewardFactionOverride[i]);
             _worldPacket << int32(Info.RewardFactionValue[i]);
+            _worldPacket << int32(Info.RewardFactionOverride[i]);
             _worldPacket << int32(Info.RewardFactionCapIn[i]);
         }
 
@@ -237,8 +237,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         data << int32(questRewards.FactionID[i]);
-        data << int32(questRewards.FactionOverride[i]);
         data << int32(questRewards.FactionValue[i]);
+        data << int32(questRewards.FactionOverride[i]);
         data << int32(questRewards.FactionCapIn[i]);
     }
 
