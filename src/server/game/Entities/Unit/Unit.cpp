@@ -1504,43 +1504,44 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
         AuraEffectList vDamageShieldsCopy(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
-        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShieldsCopy.begin(); dmgShieldItr != vDamageShieldsCopy.end(); ++dmgShieldItr)
+        for (AuraEffect const* aurEff : vDamageShieldsCopy)
         {
-            SpellInfo const* i_spellProto = (*dmgShieldItr)->GetSpellInfo();
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+
             // Damage shield can be resisted...
-            if (SpellMissInfo missInfo = victim->SpellHitResult(this, i_spellProto, false))
+            SpellMissInfo missInfo = victim->SpellHitResult(this, spellInfo, false);
+            if (missInfo != SPELL_MISS_NONE)
             {
-                victim->SendSpellMiss(this, i_spellProto->Id, missInfo);
+                victim->SendSpellMiss(this, spellInfo->Id, missInfo);
                 continue;
             }
 
             // ...or immuned
-            if (IsImmunedToDamage(i_spellProto))
+            if (IsImmunedToDamage(spellInfo))
             {
-                victim->SendSpellDamageImmune(this, i_spellProto->Id);
+                victim->SendSpellDamageImmune(this, spellInfo->Id);
                 continue;
             }
 
-            uint32 damage = (*dmgShieldItr)->GetAmount();
-
-            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+            uint32 damage = aurEff->GetAmount();
+            if (Unit* caster = aurEff->GetCaster())
             {
-                damage = caster->SpellDamageBonusDone(this, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
-                damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
+                damage = caster->SpellDamageBonusDone(this, spellInfo, damage, SPELL_DIRECT_DAMAGE);
+                damage = SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE);
             }
 
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
-            victim->DealDamageMods(this, damage, NULL);
+            victim->DealDamageMods(this, damage, nullptr);
 
             /// @todo Move this to a packet handler
             WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
             data << uint64(victim->GetGUID());
             data << uint64(GetGUID());
-            data << uint32(i_spellProto->Id);
+            data << uint32(spellInfo->Id);
             data << uint32(damage);                  // Damage
-            int32 overkill = int32(damage) - int32(GetHealth());
-            data << uint32(overkill > 0 ? overkill : 0); // Overkill
-            data << uint32(i_spellProto->SchoolMask);
+            int32 const overkill = int32(damage) - int32(GetHealth());
+            data << uint32(std::max(overkill, 0)); // Overkill
+            data << uint32(spellInfo->SchoolMask);
             victim->SendMessageToSet(&data, true);
 
             victim->DealDamage(this, damage, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
