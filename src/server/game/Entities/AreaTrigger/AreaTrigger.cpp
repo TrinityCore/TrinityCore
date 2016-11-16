@@ -30,8 +30,8 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _previousCheckOrientation(0.0f),
-_duration(0), _totalDuration(0), _timeSinceCreated(0),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
+_duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(0.0f),
 _reachedDestination(false), lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;

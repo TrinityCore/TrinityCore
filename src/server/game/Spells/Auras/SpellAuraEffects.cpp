@@ -6580,8 +6580,6 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (!target)
-        return;
 
     if (apply)
     {
