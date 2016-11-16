@@ -2162,7 +2162,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (!_bonusData.HasItemLevelBonus && !_bonusData.ItemLevelOverride)
+    if (_bonusData.HasItemLevelBonus || !_bonusData.ItemLevelOverride)
     {
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
         {
