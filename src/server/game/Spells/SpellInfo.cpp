@@ -1239,6 +1239,35 @@ bool SpellInfo::HasAreaAuraEffect() const
     return false;
 }
 
+bool SpellInfo::HasOnlyDamageEffects() const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (!effect)
+                continue;
+
+            switch (effect->Effect)
+            {
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_ENVIRONMENTAL_DAMAGE:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT:
+                    continue;
+                default:
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool SpellInfo::HasAnyAuraInterruptFlag() const
 {
     return std::find_if(AuraInterruptFlags.begin(), AuraInterruptFlags.end(), [](uint32 flag) { return flag != 0; }) != AuraInterruptFlags.end();
