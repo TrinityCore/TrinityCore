@@ -225,7 +225,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 // first, calculate damage of basic tick (C&P from AuraEffect::HandlePeriodicDamageAurasTick)
                                 basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                                 if (Player* modOwner = caster->GetSpellModOwner())
-                                    modOwner->ApplySpellMod<SPELLMOD_DOT>(aurEff->GetSpellInfo()->Id, basePoint);
+                                    modOwner->ApplySpellMod<SPELLMOD_DOT>(aurEff->GetId(), basePoint);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
 
                                 // then, multiply to get damage potential
