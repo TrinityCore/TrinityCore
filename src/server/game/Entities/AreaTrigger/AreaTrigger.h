@@ -35,7 +35,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId);
+        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId, uint32 spellXSpellVisualId = 0);
         void Update(uint32 p_time) override;
         void Remove();
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
@@ -57,6 +57,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         AreaTriggerTemplate const* GetTemplate() const { return _areaTriggerMiscTemplate->Template; }
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
         Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, _casterGuid); }
+        Unit* GetTarget() const { return ObjectAccessor::GetUnit(*this, _targetGuid); }
 
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
 
@@ -67,20 +68,23 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void RemoveAuras(Unit* unit);
         bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
 
+        void UpdatePolygonOrientation();
         void UpdateSplinePosition();
 
         ObjectGuid _casterGuid;
+        ObjectGuid _targetGuid;
 
         int32 _duration;
         int32 _totalDuration;
         uint32 _spellXSpellVisualId;
         uint32 _timeSinceCreated;
+        float _previousCheckOrientation;
 
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
         ::Movement::Spline<int32> _spline;
 
         bool _reachedDestination;
-        int lastSplineIndex;
+        int32 lastSplineIndex;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;

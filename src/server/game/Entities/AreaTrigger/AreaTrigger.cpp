@@ -30,7 +30,7 @@
 #include "UpdateData.h"
 #include "ScriptMgr.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _previousCheckOrientation(0.0f),
 _duration(0), _totalDuration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
 _reachedDestination(false), lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
@@ -67,9 +67,10 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMiscId, Unit* caster, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId)
+bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId, uint32 spellXSpellVisualId/* = 0*/)
 {
     _casterGuid = caster->GetGUID();
+    _targetGuid = target != nullptr ? target->GetGUID() : ObjectGuid::Empty;
 
     _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
@@ -88,7 +89,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, guidlow));
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
     SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(GetTemplate()->Id);
@@ -97,6 +98,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_CASTER, caster->GetGUID());
+    SetGuidValue(AREATRIGGER_CREATING_EFFECT_GUID, castId);
+
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
@@ -108,22 +111,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 spellMis
     SetTransport(caster->GetTransport());
 
     if (GetTemplate()->IsPolygon())
-    {
-        _polygonVertices = GetTemplate()->PolygonVertices;
-
-        float angleSin = std::sin(GetOrientation());
-        float angleCos = std::cos(GetOrientation());
-
-        // This is needed to rotate the vertices, following caster orientation
-        for (AreaTriggerPolygonVertice& vertice : _polygonVertices)
-        {
-            float tempX = vertice.VerticeX;
-            float tempY = vertice.VerticeY;
-
-            vertice.VerticeX = tempX * angleCos - tempY * angleSin;
-            vertice.VerticeY = tempX * angleSin + tempY * angleCos;
-        }
-    }
+        UpdatePolygonOrientation();
 
     if (GetMiscTemplate()->HasSplines())
     {
@@ -169,9 +157,9 @@ void AreaTrigger::Update(uint32 p_time)
 
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {
-        if (Unit* caster = GetCaster())
+        if (Unit* target = GetTarget())
         {
-            GetMap()->AreaTriggerRelocation(this, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation());
+            GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
         }
     }
     else if (!_spline.empty())
@@ -239,9 +227,9 @@ void AreaTrigger::SearchUnitInBox()
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
-    float halfExtentsX = extentsX / 2.0;
-    float halfExtentsY = extentsY / 2.0;
-    float halfExtentsZ = extentsZ / 2.0;
+    float halfExtentsX = extentsX / 2.0f;
+    float halfExtentsY = extentsY / 2.0f;
+    float halfExtentsZ = extentsZ / 2.0f;
 
     float minX = GetPositionX() - halfExtentsX;
     float maxX = GetPositionX() + halfExtentsX;
@@ -271,6 +259,8 @@ void AreaTrigger::SearchUnitInPolygon()
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
     float height = GetTemplate()->PolygonDatas.Height;
+
+    UpdatePolygonOrientation();
 
     targetList.remove_if([this, height](Unit* unit) -> bool
     {
@@ -340,6 +330,32 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
     }
 }
 
+void AreaTrigger::UpdatePolygonOrientation()
+{
+    float newOrientation = GetOrientation();
+
+    // No need to recalculate, orientation didn't changed
+    if (_previousCheckOrientation == newOrientation)
+        return;
+
+    _polygonVertices = GetTemplate()->PolygonVertices;
+
+    float angleSin = std::sin(newOrientation);
+    float angleCos = std::cos(newOrientation);
+
+    // This is needed to rotate the vertices, following caster orientation
+    for (AreaTriggerPolygonVertice& vertice : _polygonVertices)
+    {
+        float tempX = vertice.VerticeX;
+        float tempY = vertice.VerticeY;
+
+        vertice.VerticeX = tempX * angleCos - tempY * angleSin;
+        vertice.VerticeY = tempX * angleSin + tempY * angleCos;
+    }
+
+    _previousCheckOrientation = newOrientation;
+}
+
 bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
 {
     float testX = pos->GetPositionX();
@@ -365,10 +381,10 @@ bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
             j = i + 1;
         }
 
-        float vertY_i = GetPositionY() + (float)_polygonVertices[i].VerticeY;
-        float vertX_i = GetPositionX() + (float)_polygonVertices[i].VerticeX;
-        float vertY_j = GetPositionY() + (float)_polygonVertices[j].VerticeY;
-        float vertX_j = GetPositionX() + (float)_polygonVertices[j].VerticeX;
+        float vertY_i = GetPositionY() + _polygonVertices[i].VerticeY;
+        float vertX_i = GetPositionX() + _polygonVertices[i].VerticeX;
+        float vertY_j = GetPositionY() + _polygonVertices[j].VerticeY;
+        float vertX_j = GetPositionX() + _polygonVertices[j].VerticeX;
 
         // following statement checks if testPoint.Y is below Y-coord of i-th vertex
         bool belowLowY = vertY_i > testY;
@@ -490,7 +506,7 @@ void AreaTrigger::UpdateSplinePosition()
     if (_timeSinceCreated >= GetMiscTemplate()->TimeToTarget)
     {
         _reachedDestination = true;
-        lastSplineIndex = _spline.last();
+        lastSplineIndex = int32(_spline.last());
 
         G3D::Vector3 lastSplinePosition = _spline.getPoint(lastSplineIndex);
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());

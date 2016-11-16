@@ -5612,14 +5612,16 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    Unit* target = unitTarget != nullptr ? unitTarget : GetCaster();
+
     Position pos;
     if (!m_targets.HasDst())
-        pos = GetCaster()->GetPosition();
+        pos = target->GetPosition();
     else
         pos = destTarget->GetPosition();
 
     AreaTrigger* areaTrigger = new AreaTrigger;
-    if (!areaTrigger->CreateAreaTrigger(GetCaster()->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>(), effectInfo->MiscValue, GetCaster(), GetSpellInfo(), pos, m_SpellVisual))
+    if (!areaTrigger->CreateAreaTrigger(effectInfo->MiscValue, GetCaster(), target, GetSpellInfo(), pos, m_castId, m_SpellVisual))
         delete areaTrigger;
 }
 
