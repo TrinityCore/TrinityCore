@@ -76,7 +76,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         int32 _duration;
         int32 _totalDuration;
-        uint32 _spellXSpellVisualId;
         uint32 _timeSinceCreated;
         float _previousCheckOrientation;
 

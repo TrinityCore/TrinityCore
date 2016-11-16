@@ -31,7 +31,7 @@
 #include "ScriptMgr.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _previousCheckOrientation(0.0f),
-_duration(0), _totalDuration(0), _spellXSpellVisualId(0), _timeSinceCreated(0),
+_duration(0), _totalDuration(0), _timeSinceCreated(0),
 _reachedDestination(false), lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
@@ -72,7 +72,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     _casterGuid = caster->GetGUID();
     _targetGuid = target != nullptr ? target->GetGUID() : ObjectGuid::Empty;
 
-    _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
@@ -334,7 +333,7 @@ void AreaTrigger::UpdatePolygonOrientation()
 {
     float newOrientation = GetOrientation();
 
-    // No need to recalculate, orientation didn't changed
+    // No need to recalculate, orientation didn't change
     if (_previousCheckOrientation == newOrientation)
         return;
 
