@@ -437,69 +437,69 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
 class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 {
-public:
-    spell_teron_gorefiend_spiritual_vengeance() : SpellScriptLoader("spell_teron_gorefiend_spiritual_vengeance") { }
+    public:
+        spell_teron_gorefiend_spiritual_vengeance() : SpellScriptLoader("spell_teron_gorefiend_spiritual_vengeance") { }
 
-    class spell_teron_gorefiend_spiritual_vengeance_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_teron_gorefiend_spiritual_vengeance_AuraScript);
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_teron_gorefiend_spiritual_vengeance_AuraScript : public AuraScript
         {
-            GetTarget()->KillSelf();
-        }
+            PrepareAuraScript(spell_teron_gorefiend_spiritual_vengeance_AuraScript);
 
-        void Register() override
-        {
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->KillSelf();
+            }
+
+            void Register() override
+            {
             AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY_SILENCE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
+            }
+        };
 
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_teron_gorefiend_spiritual_vengeance_AuraScript();
-    }
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_teron_gorefiend_spiritual_vengeance_AuraScript();
+        }
 };
 
 class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 {
-public:
-    spell_teron_gorefiend_shadow_of_death_remove() : SpellScriptLoader("spell_teron_gorefiend_shadow_of_death_remove") { }
+    public:
+        spell_teron_gorefiend_shadow_of_death_remove() : SpellScriptLoader("spell_teron_gorefiend_shadow_of_death_remove") { }
 
-    class spell_teron_gorefiend_shadow_of_death_remove_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_teron_gorefiend_shadow_of_death_remove_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_teron_gorefiend_shadow_of_death_remove_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_OF_DEATH)
-                || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
-                || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_teron_gorefiend_shadow_of_death_remove_SpellScript);
 
-        void RemoveAuras()
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_OF_DEATH)
+                    || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE))
+                    return false;
+                return true;
+            }
+
+            void RemoveAuras()
+            {
+                Unit* target = GetHitUnit();
+
+                target->RemoveAurasDueToSpell(SPELL_POSSESS_SPIRIT_IMMUNE);
+                target->RemoveAurasDueToSpell(SPELL_SPIRITUAL_VENGEANCE);
+                target->RemoveAurasDueToSpell(SPELL_SHADOW_OF_DEATH);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_teron_gorefiend_shadow_of_death_remove_SpellScript::RemoveAuras);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            Unit* target = GetHitUnit();
-
-            target->RemoveAurasDueToSpell(SPELL_POSSESS_SPIRIT_IMMUNE);
-            target->RemoveAurasDueToSpell(SPELL_SPIRITUAL_VENGEANCE);
-            target->RemoveAurasDueToSpell(SPELL_SHADOW_OF_DEATH);
+            return new spell_teron_gorefiend_shadow_of_death_remove_SpellScript();
         }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_teron_gorefiend_shadow_of_death_remove_SpellScript::RemoveAuras);
-        }
-
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_teron_gorefiend_shadow_of_death_remove_SpellScript();
-    }
 };
 
 void AddSC_boss_teron_gorefiend()
