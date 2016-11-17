@@ -145,9 +145,10 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*who*/) override
+        void KilledUnit(Unit* victim) override
         {
-            Talk(SAY_SLAY);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/) override
