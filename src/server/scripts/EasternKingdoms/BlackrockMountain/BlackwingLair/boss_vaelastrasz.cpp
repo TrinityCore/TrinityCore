@@ -17,6 +17,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ScriptedCreature.h"
 #include "blackwing_lair.h"
 #include "ScriptedGossip.h"
@@ -42,7 +44,8 @@ enum Spells
    SPELL_FLAMEBREATH                 = 23461,
    SPELL_FIRENOVA                    = 23462,
    SPELL_TAILSWIPE                   = 15847,
-   SPELL_BURNINGADRENALINE           = 23620,
+   SPELL_BURNINGADRENALINE           = 18173,  //Cast this one. It's what 3.3.5 DBM expects.
+   SPELL_BURNINGADRENALINE_EXPLOSION = 23478,
    SPELL_CLEAVE                      = 19983   //Chain cleave is most likely named something different and contains a dummy effect
 };
 
@@ -188,11 +191,12 @@ public:
                         break;
                     case EVENT_BURNINGADRENALINE_CASTER:
                         {
-                        //selects a random target that isn't the current victim and is a mana user (selects mana users) but not pets
-                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return !u->IsPet() && u && u->getPowerType() == POWER_MANA; }))
-                            me->CastSpell(target, SPELL_BURNINGADRENALINE, true);
+                            //selects a random target that isn't the current victim and is a mana user (selects mana users) but not pets
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return !u->IsPet() && u && u->getPowerType() == POWER_MANA; }))
+                            {
+                                me->CastSpell(target, SPELL_BURNINGADRENALINE, true);
+                            }
                         }
-
                         //reschedule the event
                         events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
                         break;
@@ -237,7 +241,39 @@ public:
     }
 };
 
+//Need to define an aurascript for EVENT_BURNINGADRENALINE's death effect.
+// 18173 - Burning Adrenaline
+class spell_vael_burning_adrenaline : public SpellScriptLoader
+{
+public:
+    spell_vael_burning_adrenaline() : SpellScriptLoader("spell_vael_burning_adrenaline") { }
+
+    class spell_vael_burning_adrenaline_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_vael_burning_adrenaline_AuraScript);
+
+        void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            //The tooltip says the on death the AoE occurs. According to information: http://qaliaresponse.stage.lithium.com/t5/WoW-Mayhem/Surviving-Burning-Adrenaline-For-tanks/td-p/48609
+            //Burning Adrenaline can be survived therefore Blizzard's implementation was an AoE bomb that went off if you were still alive and dealt
+            //damage to the target. You don't have to die for it to go off. It can go off whether you live or die.
+            GetTarget()->CastSpell(GetTarget(), SPELL_BURNINGADRENALINE_EXPLOSION, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_vael_burning_adrenaline_AuraScript::OnAuraRemoveHandler, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_vael_burning_adrenaline_AuraScript();
+    }
+};
+
 void AddSC_boss_vaelastrasz()
 {
     new boss_vaelastrasz();
+    new spell_vael_burning_adrenaline();
 }
