@@ -3148,8 +3148,16 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
     // Special case: effects which determine positivity of whole spell
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (Effects[i].IsAura() && Effects[i].ApplyAuraName == SPELL_AURA_MOD_STEALTH)
-            return true;
+        if (Effects[i].IsAura())
+        {
+            switch (Effects[i].ApplyAuraName)
+            {
+                case SPELL_AURA_MOD_STEALTH:
+                    return true;
+                case SPELL_AURA_CHANNEL_DEATH_ITEM:
+                    return false;
+            }
+        }
     }
 
     switch (Effects[effIndex].Effect)
