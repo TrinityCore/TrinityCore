@@ -1882,7 +1882,7 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     AddProcCooldown(now + procEntry->Cooldown);
 }
 
-uint8 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
+uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
 {
     SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
     // only auras with spell proc entry can trigger proc
@@ -1934,11 +1934,11 @@ uint8 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& event
         return 0;
 
     // At least one effect has to pass checks to proc aura
-    uint8 procEffectMask = 0;
+    uint8 procEffectMask = aurApp->GetEffectMask();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (aurApp->HasEffect(i))
-            if (GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
-                procEffectMask |= (1 << i);
+        if (procEffectMask & (1 << i))
+            if ((procEntry->AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) || !GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
+                procEffectMask &= ~(1 << i);
 
     if (!procEffectMask)
         return 0;
