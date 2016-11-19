@@ -3872,7 +3872,6 @@ void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo con
                         break;
                     }
                 }
-            }
 
                 data << uint32(missingItem);  // first missing item
             }
@@ -4942,7 +4941,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         Unit::AuraEffectList const& ignore = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT);
         for (AuraEffect const* aurEff : ignore)
         {
-            if (!aurEff->IsAffectedOnSpell(m_spellInfo))
+            if (!aurEff->IsAffectingSpell(m_spellInfo))
                 continue;
 
             checkForm = false;
