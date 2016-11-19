@@ -20,7 +20,6 @@
 #include "SpellScript.h"
 #include "black_temple.h"
 #include "GridNotifiersImpl.h"
-#include "SpellAuraEffects.h"
 #include "PassiveAI.h"
 
 enum Says
