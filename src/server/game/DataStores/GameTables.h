@@ -88,6 +88,11 @@ struct GtCombatRatingsEntry
     float Unused12 = 0.0f;
 };
 
+struct GtCombatRatingsMultByILvl
+{
+    float RatingMultiplier = 0.0f;
+};
+
 struct GtHpPerStaEntry
 {
     float Health = 0.0f;
@@ -191,6 +196,7 @@ TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>            sArtifactLevelXP
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>         sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                     sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>              sCombatRatingsGameTable;
+TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>         sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                   sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>     sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>           sNpcDamageByClassGameTable[MAX_EXPANSIONS];

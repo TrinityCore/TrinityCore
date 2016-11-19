@@ -288,7 +288,7 @@ class TC_GAME_API Aura
 
         AuraScript* GetScriptByName(std::string const& scriptName) const;
 
-        std::list<AuraScript*> m_loadedScripts;
+        std::vector<AuraScript*> m_loadedScripts;
 
         AuraEffectVector GetAuraEffects() const { return _effects; }
 
@@ -307,6 +307,7 @@ class TC_GAME_API Aura
 
     private:
         void _DeleteRemovedApplications();
+
     protected:
         SpellInfo const* const m_spellInfo;
         ObjectGuid const m_castGuid;
