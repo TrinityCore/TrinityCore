@@ -6180,6 +6180,10 @@ void Player::RewardReputation(Quest const* quest)
         if (!quest->RewardFactionId[i])
             continue;
 
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]);
+        if (!factionEntry)
+            continue;
+
         int32 rep = 0;
         bool noQuestBonus = false;
 
@@ -6201,6 +6205,9 @@ void Player::RewardReputation(Quest const* quest)
         if (!rep)
             continue;
 
+        if (quest->RewardFactionCapIn[i] && rep > 0 && uint32(GetReputationMgr().GetRank(factionEntry)) >= quest->RewardFactionCapIn[i])
+            continue;
+
         if (quest->IsDaily())
             rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
         else if (quest->IsWeekly())
@@ -6212,8 +6219,8 @@ void Player::RewardReputation(Quest const* quest)
         else
             rep = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
 
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
-            GetReputationMgr().ModifyReputation(factionEntry, rep);
+        bool noSpillover = (quest->GetRewardReputationMask() & (1 << i)) != 0;
+        GetReputationMgr().ModifyReputation(factionEntry, rep, noSpillover);
     }
 }
 
@@ -7154,6 +7161,11 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
+    uint32 itemLevel = item->GetItemLevel(this);
+    float combatRatingMultiplier = 1.0f;
+    if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
+        combatRatingMultiplier = ratingMult->RatingMultiplier;
+
     // req. check at equip, but allow use for extended range if range limit max level, set proper level
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
@@ -7194,34 +7206,34 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplyStatBuffMod(STAT_STAMINA, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             case ITEM_MOD_DEFENSE_SKILL_RATING:
-                ApplyRatingMod(CR_DEFENSE_SKILL, int32(val), apply);
+                ApplyRatingMod(CR_DEFENSE_SKILL, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_DODGE_RATING:
-                ApplyRatingMod(CR_DODGE, int32(val), apply);
+                ApplyRatingMod(CR_DODGE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_PARRY_RATING:
-                ApplyRatingMod(CR_PARRY, int32(val), apply);
+                ApplyRatingMod(CR_PARRY, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_BLOCK_RATING:
-                ApplyRatingMod(CR_BLOCK, int32(val), apply);
+                ApplyRatingMod(CR_BLOCK, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_HIT_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
+                ApplyRatingMod(CR_HIT_MELEE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_HIT_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
+                ApplyRatingMod(CR_HIT_RANGED, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_HIT_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_HIT_SPELL, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_CRIT_MELEE_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_MELEE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_CRIT_RANGED_RATING:
-                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_CRIT_SPELL_RATING:
-                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(val * combatRatingMultiplier), apply);
                 break;
             // case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
             //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
@@ -7251,14 +7263,14 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
                 break;
             case ITEM_MOD_HIT_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_HIT_MELEE, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_HIT_RANGED, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_HIT_SPELL, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_CRIT_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_CRIT_MELEE, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_CRIT_RANGED, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_CRIT_SPELL, int32(val * combatRatingMultiplier), apply);
                 break;
             // case ITEM_MOD_HIT_TAKEN_RATING: // Unused since 3.3.5
             //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
@@ -7271,15 +7283,15 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             //     ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             //     break;
             case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val), apply);
+                ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_HASTE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
+                ApplyRatingMod(CR_HASTE_MELEE, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_HASTE_RANGED, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_HASTE_SPELL, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_EXPERTISE_RATING:
-                ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
+                ApplyRatingMod(CR_EXPERTISE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
@@ -7287,6 +7299,11 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_RANGED_ATTACK_POWER:
                 HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                break;
+            case ITEM_MOD_VERSATILITY:
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val * combatRatingMultiplier), apply);
+                ApplyRatingMod(CR_VERSATILITY_HEALING_DONE, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
@@ -7304,7 +7321,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplySpellPenetrationBonus(val, apply);
                 break;
             case ITEM_MOD_MASTERY_RATING:
-                ApplyRatingMod(CR_MASTERY, int32(val), apply);
+                ApplyRatingMod(CR_MASTERY, int32(val * combatRatingMultiplier), apply);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
@@ -7323,6 +7340,39 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
+                break;
+            case ITEM_MOD_PVP_POWER:
+                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_AMPLIFY:
+                ApplyRatingMod(CR_AMPLIFY, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_MULTISTRIKE:
+                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_READINESS:
+                ApplyRatingMod(CR_READINESS, int32(val * combatRatingMultiplier), apply);
+                break;
+            case ITEM_MOD_CR_SPEED:
+                ApplyRatingMod(CR_SPEED, int32(val * combatRatingMultiplier), apply);
+                break;
+            case ITEM_MOD_CR_LIFESTEAL:
+                ApplyRatingMod(CR_LIFESTEAL, int32(val * combatRatingMultiplier), apply);
+                break;
+            case ITEM_MOD_CR_AVOIDANCE:
+                ApplyRatingMod(CR_AVOIDANCE, int32(val * combatRatingMultiplier), apply);
+                break;
+            case ITEM_MOD_CR_STURDINESS:
+                ApplyRatingMod(CR_STURDINESS, int32(val * combatRatingMultiplier), apply);
+                break;
+            case ITEM_MOD_CR_UNUSED_7:
+                ApplyRatingMod(CR_UNUSED_7, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_CLEAVE:
+                ApplyRatingMod(CR_CLEAVE, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_UNUSED_12:
+                ApplyRatingMod(CR_UNUSED_12, int32(val), apply);
                 break;
             case ITEM_MOD_AGI_STR_INT:
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
@@ -21434,7 +21484,7 @@ void Player::SetRestBonus(float rest_bonus_new)
     SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_RESTED_XP, uint32(m_rest_bonus));
 }
 
-bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/)
+bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/)
 {
     if (nodes.size() < 2)
     {
@@ -21576,7 +21626,11 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // only one mount ID for both sides. Probably not good to use 315 in case DBC nodes
     // change but I couldn't find a suitable alternative. OK to use class because only DK
     // can use this taxi.
-    uint32 mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
+    uint32 mount_display_id;
+    if (node->Flags & TAXI_NODE_FLAG_USE_FAVORITE_MOUNT && preferredMountDisplay)
+        mount_display_id = preferredMountDisplay;
+    else
+        mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
