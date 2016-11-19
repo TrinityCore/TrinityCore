@@ -130,7 +130,7 @@ class TC_GAME_API ChatHandler
         char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);
-        ObjectGuid extractGuidFromLink(char* text);
+        ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
@@ -142,6 +142,7 @@ class TC_GAME_API ChatHandler
 
         GameObject* GetNearbyGameObject();
         GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
+        Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
 
