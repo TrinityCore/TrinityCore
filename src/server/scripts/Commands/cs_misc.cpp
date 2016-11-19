@@ -2166,8 +2166,8 @@ public:
                 return false;
             }
 
-            int32 guid = atoi(guidStr);
-            if (!guid)
+            ObjectGuid::LowType guidLow = atoul(guidStr);
+            if (!guidLow)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
@@ -2192,10 +2192,10 @@ public:
 
             if (Player* player = handler->GetSession()->GetPlayer())
             {
-                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guid);
+                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2208,7 +2208,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;

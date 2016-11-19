@@ -104,17 +104,17 @@ public:
         }
         else
         {
-            int32 guid = atoi(param1);
+            ObjectGuid::LowType guidLow = atoul(param1);
 
             // Number is invalid - maybe the user specified the mob's name
-            if (!guid)
+            if (!guidLow)
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
                 whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
             }
             else
-                whereClause <<  "WHERE guid = '" << guid << '\'';
+                whereClause <<  "WHERE guid = '" << guidLow << '\'';
         }
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
@@ -264,15 +264,15 @@ public:
         if (!id)
             return false;
 
-        int32 guid = atoi(id);
-        if (!guid)
+        ObjectGuid::LowType guidLow = atoul(id);
+        if (!guidLow)
             return false;
 
         float x, y, z, o;
         uint32 mapId;
 
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
         {
             x = goData->posX;
             y = goData->posY;

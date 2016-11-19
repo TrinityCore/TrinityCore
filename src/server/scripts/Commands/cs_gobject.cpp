@@ -77,7 +77,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
@@ -147,7 +147,7 @@ public:
 
         if (spawntimeSecs)
         {
-            uint32 value = atoi((char*)spawntimeSecs);
+            int32 value = atoi((char*)spawntimeSecs);
             object->SetRespawnTime(value);
         }
 
@@ -190,10 +190,10 @@ public:
         uint32 spawntm = 300;
 
         if (spawntime)
-            spawntm = atoi((char*)spawntime);
+            spawntm = atoul((char*)spawntime);
 
         G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        uint32 objectId = atoi(id);
+        uint32 objectId = atoul(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
@@ -333,7 +333,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
@@ -351,7 +351,7 @@ public:
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())
             {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUID().GetCounter());
+                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), guidLow);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -363,7 +363,7 @@ public:
         object->Delete();
         object->DeleteFromDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUID().GetCounter());
+        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());
 
         return true;
     }
@@ -376,7 +376,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
@@ -440,7 +440,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
@@ -509,7 +509,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
@@ -522,7 +522,7 @@ public:
         }
 
         char* phase = strtok (NULL, " ");
-        uint32 phaseMask = phase ? atoi(phase) : 0;
+        uint32 phaseMask = phase ? atoul(phase) : 0;
         if (phaseMask == 0)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -594,9 +594,9 @@ public:
             if (WorldObject* object = handler->getSelectedObject())
                 entry = object->GetEntry();
             else
-                entry = atoi((char*)args);
+                entry = atoul((char*)args);
         } else
-                entry = atoi((char*)args);
+                entry = atoul((char*)args);
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
@@ -627,7 +627,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
