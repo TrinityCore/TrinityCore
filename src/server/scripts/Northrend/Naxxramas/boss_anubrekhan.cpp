@@ -270,11 +270,11 @@ public:
         void OnEffectHitHandler(SpellEffIndex effIndex)
         {
             //disables the default spawning of scarabs in a 100y radius.
-            this->PreventHitDefaultEffect(effIndex);
+            PreventHitDefaultEffect(effIndex);
 
             if (Unit* targetUnit = GetCaster()) //target should be the same as the caster
             {
-                if (Unit* originalCaster = this->GetOriginalCaster()) //original caster is used to determine who should control the summoning.
+                if (Unit* originalCaster = GetOriginalCaster()) //original caster is used to determine who should control the summoning.
                 {
                     //determine if this is the player 29105 version; We share this script with both the 10 cryptguard scarab spawn and the player death spawn.
                     bool isPlayerVersion = targetUnit->ToPlayer() != nullptr;
@@ -289,7 +289,7 @@ public:
         void Register() override
         {
             //register to override default behavior
-            this->OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
