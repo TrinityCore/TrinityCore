@@ -114,14 +114,14 @@ class spell_mage_arcane_potency : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggerSpell[2] = { SPELL_MAGE_ARCANE_POTENCY_RANK_1, SPELL_MAGE_ARCANE_POTENCY_RANK_2 };
 
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
-                caster->CastSpell(caster, spellId, true);
+                caster->CastSpell(caster, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -383,11 +383,11 @@ class spell_mage_imp_blizzard : public SpellScriptLoader
                 return true;
             }
 
-            void HandleChill(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleChill(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 uint32 triggerSpellId = sSpellMgr->GetSpellWithRank(SPELL_MAGE_CHILLED, GetSpellInfo()->GetRank());
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), triggerSpellId, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), triggerSpellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -420,10 +420,10 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -836,7 +836,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
                         return;
 
                     Unit* caster = eventInfo.GetActor();
-                    caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK_PROC, true);
+                    caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK_PROC, true, nullptr, aurEff);
                 }
 
                 // reset counter
@@ -1032,7 +1032,7 @@ class spell_mage_magic_absorption : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 int32 bp = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_MAGE_MAGIC_ABSORPTION_MANA, SPELLVALUE_BASE_POINT0, bp, caster, true);
+                caster->CastCustomSpell(SPELL_MAGE_MAGIC_ABSORPTION_MANA, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1080,10 +1080,10 @@ class spell_mage_mana_shield : public SpellScriptLoader
                 }
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 Unit* caster = eventInfo.GetActionTarget();
-                caster->CastSpell(caster, SPELL_MAGE_ARCANE_SURGE, true);
+                caster->CastSpell(caster, SPELL_MAGE_ARCANE_SURGE, true, nullptr, aurEff);
             }
 
             void Register() override

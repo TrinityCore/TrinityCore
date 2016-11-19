@@ -397,7 +397,7 @@ class TC_GAME_API Spell
         void TakeReagents();
         void TakeCastItem();
 
-        SpellCastResult CheckCast(bool strict);
+        SpellCastResult CheckCast(bool strict, uint32* param1 = nullptr, uint32* param2 = nullptr);
         SpellCastResult CheckPetCast(Unit* target);
 
         // handlers
@@ -407,11 +407,19 @@ class TC_GAME_API Spell
         void _handle_immediate_phase();
         void _handle_finish_phase();
 
-        SpellCastResult CheckItems();
-        SpellCastResult CheckRange(bool strict);
-        SpellCastResult CheckPower();
-        SpellCastResult CheckRuneCost(uint32 runeCostID);
-        SpellCastResult CheckCasterAuras() const;
+        SpellCastResult CheckItems(uint32* param1, uint32* param2) const;
+        SpellCastResult CheckRange(bool strict) const;
+        SpellCastResult CheckPower() const;
+        SpellCastResult CheckRuneCost(uint32 runeCostID) const;
+        SpellCastResult CheckCasterAuras(uint32* param1) const;
+
+        bool CheckCasterHasNotImmunedAuraType(AuraType auraType, uint32* param1) const;
+        bool CheckCasterNotImmunedCharmAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedStunAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedSilenceAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedPacifyAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedFearAuras(uint32* param1) const;
+        bool CheckCasterNotImmunedDisorientAuras(uint32* param1) const;
 
         int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
 
@@ -430,9 +438,9 @@ class TC_GAME_API Spell
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
 
-        static void WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError);
-        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE);
-        void SendCastResult(SpellCastResult result);
+        static void WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError, uint32* param1 = nullptr, uint32* param2 = nullptr);
+        static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* param1 = nullptr, uint32* param2 = nullptr);
+        void SendCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
         void SendPetCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
@@ -473,12 +481,13 @@ class TC_GAME_API Spell
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
-        bool IsNextMeleeSwingSpell() const;
         bool IsTriggered() const { return (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0; }
         bool IsIgnoringCooldowns() const { return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0; }
         bool IsProcDisabled() const { return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) != 0; }
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
+
+        bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -508,7 +517,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
 
         void SendLoot(ObjectGuid guid, LootType loottype);
-        std::pair<float, float> GetMinMaxRange(bool strict);
+        std::pair<float, float> GetMinMaxRange(bool strict) const;
 
         Unit* const m_caster;
 
@@ -637,7 +646,7 @@ class TC_GAME_API Spell
 
         // spell execution log
         void InitEffectExecuteData(uint8 effIndex);
-        void CheckEffectExecuteData();
+        void AssertEffectExecuteData() const;
 
         // Scripting system
         void LoadScripts();
@@ -655,10 +664,13 @@ class TC_GAME_API Spell
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
-        std::list<SpellScript*> m_loadedScripts;
+        std::vector<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
         {
+            HitTriggerSpell(SpellInfo const* spellInfo, SpellInfo const* auraSpellInfo, int32 procChance) :
+                triggeredSpell(spellInfo), triggeredByAura(auraSpellInfo), chance(procChance) { }
+
             SpellInfo const* triggeredSpell;
             SpellInfo const* triggeredByAura;
             // uint8 triggeredByEffIdx          This might be needed at a later stage - No need known for now
@@ -667,7 +679,7 @@ class TC_GAME_API Spell
 
         bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura = NULL) const;
         void PrepareTriggersExecutedOnHit();
-        typedef std::list<HitTriggerSpell> HitTriggerSpellList;
+        typedef std::vector<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
