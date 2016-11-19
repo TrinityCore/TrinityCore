@@ -590,13 +590,28 @@ public:
         uint32 lootId = 0;
 
         if (!*args)
+            return false;
+
+        char* param1 = handler->extractKeyFromLink((char*)args, "Hgameobject_entry");
+        if (!param1)
+            return false;
+
+        if (strcmp(param1, "guid") == 0)
         {
-            if (WorldObject* object = handler->getSelectedObject())
-                entry = object->GetEntry();
-            else
-                entry = atoul((char*)args);
-        } else
-                entry = atoul((char*)args);
+            char* tail = strtok(nullptr, "");
+            char* cValue = handler->extractKeyFromLink(tail, "Hgameobject");
+            if (!cValue)
+                return false;
+            ObjectGuid::LowType guidLow = atoul(cValue);
+            const GameObjectData* data = sObjectMgr->GetGOData(guidLow);
+            if (!data)
+                return false;
+            entry = data->id;
+        }
+        else
+        {
+            entry = atoul(param1);
+        }
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 

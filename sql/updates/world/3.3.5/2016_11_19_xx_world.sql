@@ -1,0 +1,1 @@
+UPDATE `command` SET `help`='Syntax: .gobject info [$entry|$link | guid [$guid|$link]\r \r Query Gameobject information for given gameobject entry, guid or link.\rFor example .gobject info 36\ror .gobject info guid 100' WHERE  `name`='gobject info';
