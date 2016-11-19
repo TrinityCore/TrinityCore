@@ -267,7 +267,7 @@ public:
     {
         PrepareSpellScript(spell_summon_corpse_scarabs_SpellScript);
 
-        void OnDefaultEffectHandler(SpellEffIndex effIndex)
+        void OnEffectHitHandler(SpellEffIndex effIndex)
         {
             //disables the default spawning of scarabs in a 100y radius.
             this->PreventHitDefaultEffect(effIndex);
@@ -286,16 +286,10 @@ public:
             }	
         }
 
-        void OnHitHandler(SpellEffIndex effIndex)
-        {
-
-        }
-
         void Register() override
         {
-            //register only to override the default behavior
-            this->OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnDefaultEffectHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
-            this->OnEffectHitTarget += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
+            //register to override default behavior
+            this->OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
