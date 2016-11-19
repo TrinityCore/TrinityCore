@@ -279,7 +279,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -287,7 +287,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
                     return;
 
                 int32 bp = damageInfo->GetDamage() * 3;
-                eventInfo.GetActor()->CastCustomSpell(SPELL_VAMPIRIC_AURA_HEAL, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetActor(), true);
+                eventInfo.GetActor()->CastCustomSpell(SPELL_VAMPIRIC_AURA_HEAL, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetActor(), true, nullptr, aurEff);
             }
 
             void Register() override

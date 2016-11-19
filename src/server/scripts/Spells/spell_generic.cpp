@@ -3570,7 +3570,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -3579,7 +3579,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 int32 bp = damageInfo->GetDamage() / 2;
-                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
             void Register() override
