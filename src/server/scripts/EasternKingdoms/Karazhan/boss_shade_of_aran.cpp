@@ -88,8 +88,7 @@ enum Items
     ITEM_ATIESH_DRUID           = 22632,
 };
 
-uint32 const AtieshStavesCnt = 4;
-uint32 const AtieshStaves[AtieshStavesCnt] =
+uint32 const AtieshStaves[4] =
 {
     ITEM_ATIESH_MAGE,
     ITEM_ATIESH_WARLOCK,
@@ -541,9 +540,9 @@ public:
             if (!player)
                 return;
 
-            for (auto id : AtieshStaves)
+            for (uint8 id : AtieshStaves)
             {
-                if (!player->HasItemOrGemWithIdEquipped(id, 1))
+                if (!PlayerHasWeaponEquipped(player, id))
                     continue;
 
                 SeenAtiesh = true;
@@ -554,6 +553,19 @@ public:
                 break;
             }
         }
+
+        private:
+            bool PlayerHasWeaponEquipped(Player* player, uint32 itemEntry)
+            {
+                for (uint8 slot : {EQUIPMENT_SLOT_MAINHAND, EQUIPMENT_SLOT_OFFHAND, EQUIPMENT_SLOT_RANGED})
+                {
+                    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+                    if (item && item->GetEntry() == itemEntry)
+                        return true;
+                }
+
+                return false;
+            }
     };
 };
 
