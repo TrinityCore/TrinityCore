@@ -1350,12 +1350,22 @@ bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 
 bool SpellInfo::IsChanneled() const
 {
-    return HasAttribute(SPELL_ATTR1_CHANNELED_1) || HasAttribute(SPELL_ATTR1_CHANNELED_2);
+    return HasAttribute(SpellAttr1(SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2));
+}
+
+bool SpellInfo::IsMoveAllowedChannel() const
+{
+    return IsChanneled() && HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING);
 }
 
 bool SpellInfo::NeedsComboPoints() const
 {
-    return HasAttribute(SPELL_ATTR1_REQ_COMBO_POINTS1) || HasAttribute(SPELL_ATTR1_REQ_COMBO_POINTS2);
+    return HasAttribute(SpellAttr1(SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
+}
+
+bool SpellInfo::IsNextMeleeSwingSpell() const
+{
+    return HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING | SPELL_ATTR0_ON_NEXT_SWING_2));
 }
 
 bool SpellInfo::IsBreakingStealth() const
@@ -1592,9 +1602,11 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-        if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
+        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(area_id);
+        if (!areaEntry)
+            areaEntry = sAreaTableStore.LookupEntry(zone_id);
+
+        if (!areaEntry || !areaEntry->IsFlyable() || !player->CanFlyInZone(map_id, zone_id))
             return SPELL_FAILED_INCORRECT_AREA;
     }
 

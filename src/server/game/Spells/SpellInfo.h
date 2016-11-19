@@ -485,7 +485,9 @@ public:
     bool IsPositive() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
+    bool IsMoveAllowedChannel() const;
     bool NeedsComboPoints() const;
+    bool IsNextMeleeSwingSpell() const;
     bool IsBreakingStealth() const;
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
