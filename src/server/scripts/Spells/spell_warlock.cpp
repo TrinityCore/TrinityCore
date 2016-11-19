@@ -596,11 +596,11 @@ class spell_warl_glyph_of_corruption_nightfall : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_WARLOCK_SHADOW_TRANCE, true);
+                caster->CastSpell(caster, SPELL_WARLOCK_SHADOW_TRANCE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -632,11 +632,11 @@ public:
             return true;
         }
 
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             Unit* caster = eventInfo.GetActor();
-            caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED, true);
+            caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED, true, nullptr, aurEff);
         }
 
         void Register() override
@@ -1135,7 +1135,7 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
                     return;
 
                 uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1, GetSpellInfo()->GetRank());
-                caster->CastSpell(eventInfo.GetActionTarget(), spellId, true);
+                caster->CastSpell(eventInfo.GetActionTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1193,7 +1193,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC, true);
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1344,11 +1344,11 @@ class spell_warl_soul_leech : public SpellScriptLoader
                 uint32 selfSpellId = casterMana[impSoulLeechRank - 1];
                 uint32 petSpellId = petMana[impSoulLeechRank - 1];
 
-                caster->CastSpell((Unit*)nullptr, selfSpellId, true);
-                caster->CastSpell((Unit*)nullptr, petSpellId, true);
+                caster->CastSpell((Unit*)nullptr, selfSpellId, true, nullptr, aurEff);
+                caster->CastSpell((Unit*)nullptr, petSpellId, true, nullptr, aurEff);
 
                 if (roll_chance_i(impSoulLeech->GetAmount()))
-                    caster->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
+                    caster->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1422,11 +1422,11 @@ class spell_warl_t4_2p_bonus : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, Trigger, true);
+                caster->CastSpell(caster, Trigger, true, nullptr, aurEff);
             }
 
             void Register() override

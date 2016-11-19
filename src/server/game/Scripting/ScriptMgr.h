@@ -29,6 +29,7 @@
 
 class AccountMgr;
 class AuctionHouseObject;
+class Aura;
 class AuraScript;
 class Battleground;
 class BattlegroundMap;
@@ -908,8 +909,8 @@ class TC_GAME_API ScriptMgr
 
     public: /* SpellScriptLoader */
 
-        void CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector);
-        void CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector);
+        void CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const;
+        void CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const;
         SpellScriptLoader* GetSpellScriptLoader(uint32 scriptId);
 
     public: /* ServerScript */
