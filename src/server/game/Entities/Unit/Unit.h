@@ -377,13 +377,7 @@ class SpellCastTargets;
 typedef std::list<Unit*> UnitList;
 typedef std::list<std::pair<Aura*, uint8>> DispelChargesList;
 
-struct SpellImmune
-{
-    uint32 type;
-    uint32 spellId;
-};
-
-typedef std::list<SpellImmune> SpellImmuneList;
+typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmuneContainer;
 
 enum UnitModifierType
 {
@@ -989,7 +983,7 @@ struct TC_GAME_API SpellNonMeleeDamage
 {
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0)
+        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0), fullBlock(false)
     { }
 
     Unit   *target;
@@ -1006,6 +1000,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
+    bool   fullBlock;
 };
 
 struct SpellPeriodicAuraLogInfo
@@ -1566,7 +1561,6 @@ class TC_GAME_API Unit : public WorldObject
         int32 HealBySpell(HealInfo& healInfo, bool critical = false);
         void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powerType);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
-        uint32 SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
         void CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
@@ -1943,7 +1937,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite WorldObject::SetPhaseMask
         void UpdateObjectVisibility(bool forced = true) override;
 
-        SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];
+        SpellImmuneContainer m_spellImmune[MAX_SPELL_IMMUNITY];
         uint32 m_lastSanctuaryTime;
 
         // Threat related methods
@@ -2028,7 +2022,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraType auraType, uint8 effectIndex = 0) const;
 
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
-        void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo) const; // redefined in Creature
         uint32 GetSchoolImmunityMask() const;
         uint32 GetMechanicImmunityMask() const;

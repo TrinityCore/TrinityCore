@@ -63,9 +63,9 @@ class TC_GAME_API _SpellScript
     public:
         _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(NULL), m_scriptSpellId(0) {}
         virtual ~_SpellScript() { }
-        virtual void _Register();
-        virtual void _Unload();
-        virtual void _Init(std::string const* scriptname, uint32 spellId);
+        void _Register();
+        void _Unload();
+        void _Init(std::string const* scriptname, uint32 spellId);
         std::string const* _GetScriptName() const;
 
     protected:
@@ -441,7 +441,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         SpellInfo const* GetTriggeringSpell();
 
         // finishes spellcast prematurely with selected error message
-        void FinishCast(SpellCastResult result);
+        void FinishCast(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr);
 
         void SetCustomCastResultMessage(SpellCustomErrors result);
 };

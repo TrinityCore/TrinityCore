@@ -119,7 +119,7 @@ class spell_sha_ancestral_awakening : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
-                eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_AWAKENING_DUMMY, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                eventInfo.GetActor()->CastCustomSpell(SPELL_SHAMAN_ANCESTRAL_AWAKENING_DUMMY, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -423,7 +423,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                GetTarget()->CastCustomSpell(SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
+                GetTarget()->CastCustomSpell(SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
@@ -732,25 +732,25 @@ class spell_sha_flametongue_weapon : public SpellScriptLoader
 
                 Item* item = ASSERT_NOTNULL(player->GetWeaponForAttack(attType));
 
-                float basePoints(GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue());
+                float const basePoints = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue();
 
                 // Flametongue max damage is normalized based on a 4.0 speed weapon
                 // Tooltip says max damage = BasePoints / 25, so BasePoints / 25 / 4 to get base damage per 1.0s AS
                 float fireDamage = basePoints / 100.0f;
-                float attackSpeed = player->GetAttackTime(attType) / 1000.f;
+                float const attackSpeed = player->GetAttackTime(attType) / 1000.f;
                 fireDamage *= attackSpeed;
 
                 // clip value between (BasePoints / 77) and (BasePoints / 25) as the tooltip indicates
                 RoundToInterval(fireDamage, basePoints / 77.0f, basePoints / 25.0f);
 
                 // Calculate Spell Power scaling
-                float spellPowerBonus(player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) + target->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
+                float spellPowerBonus = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) + target->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE);
                 float const spCoeff = 0.03811f;
                 spellPowerBonus *= spCoeff * attackSpeed;
 
                 // All done, now proc damage
                 int32 amount = static_cast<int32>(fireDamage + spellPowerBonus);
-                player->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, amount, target, true, item);
+                player->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, amount, target, true, item, aurEff);
             }
 
             void Register() override
@@ -798,7 +798,7 @@ class spell_sha_frozen_power : public SpellScriptLoader
                 if (caster->GetDistance(target) < minDistance)
                     return;
 
-                caster->CastSpell(target, SPELL_SHAMAN_FREEZE, true);
+                caster->CastSpell(target, SPELL_SHAMAN_FREEZE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -881,7 +881,7 @@ class spell_sha_glyph_of_healing_wave : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                caster->CastCustomSpell(SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -941,7 +941,7 @@ class spell_sha_glyph_of_totem_of_wrath : public SpellScriptLoader
 
                 int32 bp0 = CalculatePct(totemSpell->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
                 int32 bp1 = CalculatePct(totemSpell->Effects[EFFECT_1].CalcValue(caster), aurEff->GetAmount());
-                caster->CastCustomSpell((Unit*)nullptr, SPELL_SHAMAN_TOTEM_OF_WRATH_SPELL_POWER, &bp0, &bp1, nullptr, true);
+                caster->CastCustomSpell((Unit*)nullptr, SPELL_SHAMAN_TOTEM_OF_WRATH_SPELL_POWER, &bp0, &bp1, nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -997,7 +997,8 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
 
                             damage = int32(target->SpellHealingBonusTaken(owner, triggeringSpell, damage, HEAL));
                         }
-                        caster->CastCustomSpell(target, SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, &damage, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
+
+                        caster->CastCustomSpell(SPELL_SHAMAN_TOTEM_HEALING_STREAM_HEAL, SPELLVALUE_BASE_POINT0, damage, target, true, nullptr, nullptr, GetOriginalCaster()->GetGUID());
                     }
                 }
             }
@@ -1044,9 +1045,8 @@ class spell_sha_heroism : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
             }
         };
@@ -1091,17 +1091,17 @@ class spell_sha_imp_water_shield : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 // Get Water Shield
-                AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x00000000, 0x00000020, 0x00000000, caster->GetGUID());
-                if (!aurEff)
+                AuraEffect const* waterShield = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x00000000, 0x00000020, 0x00000000, caster->GetGUID());
+                if (!waterShield)
                     return;
 
-                uint32 spellId = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                caster->CastSpell((Unit*)nullptr, spellId, true);
+                uint32 spellId = waterShield->GetSpellInfo()->Effects[waterShield->GetEffIndex()].TriggerSpell;
+                caster->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1135,7 +1135,7 @@ class spell_sha_lightning_overload : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1161,7 +1161,7 @@ class spell_sha_lightning_overload : public SpellScriptLoader
                     spellId = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_R1, spellInfo->GetRank());
                 }
 
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1196,7 +1196,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1231,7 +1231,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1306,7 +1306,7 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -1338,7 +1338,7 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
                     return;
 
                 if (roll_chance_i(chance))
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1507,7 +1507,7 @@ class spell_sha_maelstrom_weapon : public SpellScriptLoader
                 if (!aurEff || !roll_chance_i(aurEff->GetAmount()))
                     return;
 
-                caster->CastSpell((Unit*)nullptr, SPELL_SHAMAN_MAELSTROM_POWER, true);
+                caster->CastSpell((Unit*)nullptr, SPELL_SHAMAN_MAELSTROM_POWER, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1593,7 +1593,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
                                     effValue += dummy->GetAmount();
                             // Regenerate 6% of Total Mana Every 3 secs
                             int32 effBasePoints0 = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), effValue));
-                            caster->CastCustomSpell(unitTarget, SPELL_SHAMAN_MANA_TIDE_TOTEM, &effBasePoints0, NULL, NULL, true, NULL, NULL, GetOriginalCaster()->GetGUID());
+                            caster->CastCustomSpell(SPELL_SHAMAN_MANA_TIDE_TOTEM, SPELLVALUE_BASE_POINT0, effBasePoints0, unitTarget, true, nullptr, nullptr, GetOriginalCaster()->GetGUID());
                         }
                     }
                 }
@@ -1777,8 +1777,8 @@ class spell_sha_spirit_hunt : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_SHAMAN_SPIRIT_HUNT_HEAL, SPELLVALUE_BASE_POINT0, amount, caster, true);
-                caster->CastCustomSpell(SPELL_SHAMAN_SPIRIT_HUNT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_SHAMAN_SPIRIT_HUNT_HEAL, SPELLVALUE_BASE_POINT0, amount, caster, true, nullptr, aurEff);
+                caster->CastCustomSpell(SPELL_SHAMAN_SPIRIT_HUNT_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1810,20 +1810,20 @@ class spell_sha_static_shock : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
 
                 // Get Lightning Shield
-                AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x00000400, 0x00000000, 0x00000000, caster->GetGUID());
-                if (!aurEff)
+                AuraEffect const* lightningShield = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0x00000400, 0x00000000, 0x00000000, caster->GetGUID());
+                if (!lightningShield)
                     return;
 
-                uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1, aurEff->GetSpellInfo()->GetRank());
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true);
-                aurEff->GetBase()->DropCharge();
+                uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1, lightningShield->GetSpellInfo()->GetRank());
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
+                lightningShield->GetBase()->DropCharge();
             }
 
             void Register() override
@@ -1919,14 +1919,14 @@ public:
             return true;
         }
 
-        void HandleDummy(AuraEffect const* /*aurEff*/)
+        void HandleDummy(AuraEffect const* aurEff)
         {
             Unit* target = GetTarget();
             for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
                 if (!target->m_SummonSlot[i])
                     return;
 
-            target->CastSpell(target, SPELL_SHAMAN_TOTEMIC_MASTERY, true);
+            target->CastSpell(target, SPELL_SHAMAN_TOTEMIC_MASTERY, true, nullptr, aurEff);
             PreventDefaultAction();
         }
 
@@ -1962,7 +1962,7 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1993,7 +1993,7 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell(target, spellId, true);
+                caster->CastSpell(target, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2037,12 +2037,12 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to healing done
+                // Add remaining ticks to damage done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_ELECTRIFIED, SPELL_AURA_PERIODIC_DAMAGE);
 
-                caster->CastCustomSpell(SPELL_SHAMAN_ELECTRIFIED, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_SHAMAN_ELECTRIFIED, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2086,12 +2086,12 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to healing done
+                // Add remaining ticks to damage done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                caster->CastCustomSpell(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2185,7 +2185,7 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_SHAMAN_CHAINED_HEAL, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_SHAMAN_CHAINED_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_SHAMAN_CHAINED_HEAL, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2221,7 +2221,6 @@ class spell_sha_windfury_weapon : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-
                 Player* player = eventInfo.GetActor()->ToPlayer();
                 if (!player)
                     return false;
@@ -2241,7 +2240,7 @@ class spell_sha_windfury_weapon : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -2281,7 +2280,7 @@ class spell_sha_windfury_weapon : public SpellScriptLoader
 
                 // Attack twice
                 for (uint8 i = 0; i < 2; ++i)
-                    player->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, item);
+                    player->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, item, aurEff);
             }
 
             void Register() override

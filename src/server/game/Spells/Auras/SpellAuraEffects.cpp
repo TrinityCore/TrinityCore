@@ -204,7 +204,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                         implemented in WorldSession::HandleMovementOpcodes
     &AuraEffect::HandleAuraModPetTalentsPoints,                   //145 SPELL_AURA_MOD_PET_TALENT_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
-    &AuraEffect::HandleModStateImmunityMask,                      //147 SPELL_AURA_MECHANIC_IMMUNITY_MASK
+    &AuraEffect::HandleModMechanicImmunityMask,                   //147 SPELL_AURA_MECHANIC_IMMUNITY_MASK
     &AuraEffect::HandleAuraRetainComboPoints,                     //148 SPELL_AURA_RETAIN_COMBO_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //149 SPELL_AURA_REDUCE_PUSHBACK
     &AuraEffect::HandleShieldBlockValue,                          //150 SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT
@@ -3068,249 +3068,13 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
 /***                     IMMUNITY                      ***/
 /*********************************************************/
 
-void AuraEffect::HandleModStateImmunityMask(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModMechanicImmunityMask(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
     Unit* target = aurApp->GetTarget();
-    std::list <AuraType> aura_immunity_list;
-    uint32 mechanic_immunity_list = 0;
-    int32 miscVal = GetMiscValue();
-
-    switch (miscVal)
-    {
-        case 27:
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SILENCE, apply);
-            aura_immunity_list.push_back(SPELL_AURA_MOD_SILENCE);
-            break;
-        case 96:
-        case 1615:
-        {
-            if (GetAmount())
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            }
-            break;
-        }
-        case 679:
-        {
-            if (GetId() == 57742)
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            }
-            break;
-        }
-        case 1557:
-        {
-            if (GetId() == 64187)
-            {
-                mechanic_immunity_list = (1 << MECHANIC_STUN);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-            }
-            else
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            }
-            break;
-        }
-        case 1614:
-        case 1694:
-        {
-            target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);
-            aura_immunity_list.push_back(SPELL_AURA_MOD_TAUNT);
-            break;
-        }
-        case 1630:
-        {
-            if (!GetAmount())
-            {
-                target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_TAUNT);
-            }
-            else
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            }
-            break;
-        }
-        case 477:
-        case 1733:
-        {
-            if (!GetAmount())
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
-                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
-                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
-                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
-                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            }
-            break;
-        }
-        case 878:
-        {
-            if (GetAmount() == 1)
-            {
-                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_STUN)
-                    | (1 << MECHANIC_DISORIENTED) | (1 << MECHANIC_FREEZE);
-
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-                target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    if (aura_immunity_list.empty())
-    {
-            if (miscVal & (1<<10))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_STUN);
-            if (miscVal & (1<<1))
-                aura_immunity_list.push_back(SPELL_AURA_TRANSFORM);
-
-            // These flag can be recognized wrong:
-            if (miscVal & (1<<6))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DECREASE_SPEED);
-            if (miscVal & (1<<0))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_ROOT);
-            if (miscVal & (1<<2))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_CONFUSE);
-            if (miscVal & (1<<9))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_FEAR);
-            if (miscVal & (1<<7))
-                aura_immunity_list.push_back(SPELL_AURA_MOD_DISARM);
-    }
-
-    // apply immunities
-    for (std::list <AuraType>::iterator iter = aura_immunity_list.begin(); iter != aura_immunity_list.end(); ++iter)
-        target->ApplySpellImmune(GetId(), IMMUNITY_STATE, *iter, apply);
-
-    if (apply && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-    {
-        target->RemoveAurasWithMechanic(mechanic_immunity_list, AURA_REMOVE_BY_DEFAULT, GetId());
-        for (std::list <AuraType>::iterator iter = aura_immunity_list.begin(); iter != aura_immunity_list.end(); ++iter)
-            target->RemoveAurasByType(*iter);
-    }
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 }
 
 void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3319,52 +3083,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
         return;
 
     Unit* target = aurApp->GetTarget();
-    uint32 mechanic;
-
-    switch (GetId())
-    {
-        case 34471: // The Beast Within
-        case 19574: // Bestial Wrath
-            mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_BANISH, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SHACKLE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DAZE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, apply);
-            break;
-        case 42292: // PvP trinket
-        case 59752: // Every Man for Himself
-        case 53490: // Bullheaded
-            mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-            // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
-            break;
-        case 54508: // Demonic Empowerment
-            mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, apply);
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, apply);
-            break;
-        default:
-            if (GetMiscValue() < 1)
-                return;
-            mechanic = 1 << GetMiscValue();
-            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, GetMiscValue(), apply);
-            break;
-    }
-
-    if (apply && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-        target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 }
 
 void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3373,8 +3092,7 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, GetMiscValue(), apply);
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 
     // when removing flag aura, handle flag drop
     Player* player = target->ToPlayer();
@@ -3396,11 +3114,7 @@ void AuraEffect::HandleAuraModStateImmunity(AuraApplication const* aurApp, uint8
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    target->ApplySpellImmune(GetId(), IMMUNITY_STATE, GetMiscValue(), apply);
-
-    if (apply && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-        target->RemoveAurasByType(AuraType(GetMiscValue()), ObjectGuid::Empty, GetBase());
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 }
 
 void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3409,8 +3123,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    target->ApplySpellImmune(GetId(), IMMUNITY_SCHOOL, GetMiscValue(), (apply));
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 
     if (GetSpellInfo()->Mechanic == MECHANIC_BANISH)
     {
@@ -3420,12 +3133,15 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         {
             bool banishFound = false;
             Unit::AuraEffectList const& banishAuras = target->GetAuraEffectsByType(GetAuraType());
-            for (Unit::AuraEffectList::const_iterator i = banishAuras.begin(); i != banishAuras.end(); ++i)
-                if ((*i)->GetSpellInfo()->Mechanic == MECHANIC_BANISH)
+            for (AuraEffect const* aurEff : banishAuras)
+            {
+                if (aurEff->GetSpellInfo()->Mechanic == MECHANIC_BANISH)
                 {
                     banishFound = true;
                     break;
                 }
+            }
+
             if (!banishFound)
                 target->ClearUnitState(UNIT_STATE_ISOLATED);
         }
@@ -3438,23 +3154,6 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
         && GetSpellInfo()->HasAttribute(SPELL_ATTR2_DAMAGE_REDUCED_SHIELD))
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-
-    /// @todo optimalize this cycle - use RemoveAurasWithInterruptFlags call or something else
-    if (apply
-        && GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        && GetSpellInfo()->IsPositive())                    // Only positive immunity removes auras
-    {
-        uint32 schoolMask = GetMiscValue();
-        target->RemoveAppliedAuras([this, schoolMask](AuraApplication const* aurApp)
-        {
-            SpellInfo const* spell = aurApp->GetBase()->GetSpellInfo();
-            return (spell->GetSchoolMask() & schoolMask)    // Check for school mask
-                && GetSpellInfo()->CanDispelAura(spell)
-                && !aurApp->IsPositive()                    // Don't remove positive spells
-                && !spell->IsPassive()                      // Don't remove passive auras
-                && spell->Id != GetId();                    // Don't remove self
-        });
-    }
 }
 
 void AuraEffect::HandleAuraModDmgImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3463,8 +3162,7 @@ void AuraEffect::HandleAuraModDmgImmunity(AuraApplication const* aurApp, uint8 m
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    target->ApplySpellImmune(GetId(), IMMUNITY_DAMAGE, GetMiscValue(), apply);
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 }
 
 void AuraEffect::HandleAuraModDispelImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3473,8 +3171,7 @@ void AuraEffect::HandleAuraModDispelImmunity(AuraApplication const* aurApp, uint
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    target->ApplySpellDispelImmunity(m_spellInfo, DispelType(GetMiscValue()), (apply));
+    m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 }
 
 /*********************************************************/
@@ -4420,27 +4117,24 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
     // with spell->EquippedItemClass and  EquippedItemSubClassMask and EquippedItemInventoryTypeMask
     // GetMiscValue() comparison with item generated damage types
 
-    if ((GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) != 0)
+    // apply generic physical damage bonuses including wand case
+    if ((GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (GetSpellInfo()->EquippedItemClass == -1 || target->GetTypeId() != TYPEID_PLAYER))
     {
-        // apply generic physical damage bonuses including wand case
-        if (GetSpellInfo()->EquippedItemClass == -1 || target->GetTypeId() != TYPEID_PLAYER)
-        {
-            target->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_VALUE, float(GetAmount()), apply);
-            target->HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE, float(GetAmount()), apply);
-            target->HandleStatModifier(UNIT_MOD_DAMAGE_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_VALUE, float(GetAmount()), apply);
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE, float(GetAmount()), apply);
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
 
-            if (target->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (GetAmount() > 0)
-                    target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, GetAmount(), apply);
-                else
-                    target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, GetAmount(), apply);
-            }
-        }
-        else
+        if (target->GetTypeId() == TYPEID_PLAYER)
         {
-            // done in Player::_ApplyWeaponDependentAuraMods
+            if (GetAmount() > 0)
+                target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, GetAmount(), apply);
+            else
+                target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, GetAmount(), apply);
         }
+    }
+    else
+    {
+        // done in Player::_ApplyWeaponDependentAuraMods
     }
 
     // Skip non magic case for speedup
@@ -6006,6 +5700,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     else
         damage = std::max(int32(damage * GetDonePct()), 0);
 
+    if (Player* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod<SPELLMOD_DOT>(GetSpellInfo()->Id, damage);
+
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
     // Calculate armor mitigation
@@ -6017,12 +5714,14 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     }
 
     if (!m_spellInfo->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
+    {
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
         {
             damage = uint32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
             if (caster->GetTypeId() != TYPEID_PLAYER)
                 damage = uint32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
+    }
 
     bool crit = false;
 
@@ -6479,6 +6178,12 @@ void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEv
 
     Unit* target = aurApp->GetTarget();
     Unit* triggerTarget = eventInfo.GetProcTarget();
+    if (triggerTarget->HasUnitState(UNIT_STATE_ISOLATED) || triggerTarget->IsImmunedToDamage(GetSpellInfo()))
+    {
+        SendTickImmune(triggerTarget, target);
+        return;
+    }
+
     SpellNonMeleeDamage damageInfo(target, triggerTarget, GetId(), GetSpellInfo()->SchoolMask);
     uint32 damage = target->SpellDamageBonusDone(triggerTarget, GetSpellInfo(), GetAmount(), SPELL_DIRECT_DAMAGE);
     damage = triggerTarget->SpellDamageBonusTaken(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
