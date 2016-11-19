@@ -288,7 +288,6 @@ public:
 
         void Register() override
         {
-            //register to override default behavior
             OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
