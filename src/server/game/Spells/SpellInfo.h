@@ -24,6 +24,8 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
+#include <boost/container/flat_set.hpp>
+
 class Unit;
 class Player;
 class Item;
@@ -299,6 +301,18 @@ private:
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
+struct TC_GAME_API ImmunityInfo
+{
+    uint32 SchoolImmuneMask = 0;
+    uint32 ApplyHarmfulAuraImmuneMask = 0;
+    uint32 MechanicImmuneMask = 0;
+    uint32 DispelImmune = 0;
+    uint32 DamageSchoolMask = 0;
+
+    boost::container::flat_set<AuraType> AuraTypeImmune;
+    boost::container::flat_set<SpellEffects> SpellEffectImmune;
+};
+
 class TC_GAME_API SpellInfo
 {
 public:
@@ -482,8 +496,8 @@ public:
     bool IsAffectedBySpellMods() const;
     bool IsAffectedBySpellMod(SpellModifier const* mod) const;
 
-    bool CanPierceImmuneAura(SpellInfo const* aura) const;
-    bool CanDispelAura(SpellInfo const* aura) const;
+    bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
+    bool CanDispelAura(SpellInfo const* auraSpellInfo) const;
 
     bool IsSingleTarget() const;
     bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
@@ -533,6 +547,11 @@ public:
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
+    // spell immunities
+    void ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const;
+    bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
+    bool CanSpellCastOverrideAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
+
     // loading helpers
     void _InitializeExplicitTargetMask();
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
@@ -541,6 +560,8 @@ public:
 
     // unloading helpers
     void _UnloadImplicitTargetConditionLists();
+
+    ImmunityInfo _immunityInfo[MAX_SPELL_EFFECTS];
 };
 
 #endif // _SPELLINFO_H

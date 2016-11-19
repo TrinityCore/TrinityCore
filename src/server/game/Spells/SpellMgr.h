@@ -737,6 +737,7 @@ class TC_GAME_API SpellMgr
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
+        void LoadSpellInfoImmunities();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
