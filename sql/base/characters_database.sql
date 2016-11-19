@@ -2535,6 +2535,31 @@ INSERT INTO `instance_reset` VALUES (33,2,1426996800),(36,2,1426996800),(249,3,1
 UNLOCK TABLES;
 
 --
+-- Table structure for table `instance_scenario_progress`
+--
+
+DROP TABLE IF EXISTS `instance_scenario_progress`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `instance_scenario_progress` (
+  `id` int(10) unsigned NOT NULL,
+  `criteria` int(10) unsigned NOT NULL,
+  `counter` bigint(20) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`criteria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `instance_scenario_progress`
+--
+
+LOCK TABLES `instance_scenario_progress` WRITE;
+/*!40000 ALTER TABLE `instance_scenario_progress` DISABLE KEYS */;
+/*!40000 ALTER TABLE `instance_scenario_progress` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `item_instance`
 --
 
