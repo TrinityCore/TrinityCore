@@ -983,7 +983,7 @@ struct TC_GAME_API SpellNonMeleeDamage
 {
     SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0)
+        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0), fullBlock(false)
     { }
 
     Unit   *target;
@@ -1000,6 +1000,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
+    bool   fullBlock;
 };
 
 struct SpellPeriodicAuraLogInfo
