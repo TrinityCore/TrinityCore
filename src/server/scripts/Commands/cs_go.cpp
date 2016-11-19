@@ -96,7 +96,7 @@ public:
             if (!id)
                 return false;
 
-            int32 entry = atoi(id);
+            uint32 entry = atoul(id);
             if (!entry)
                 return false;
 
@@ -172,7 +172,7 @@ public:
         if (!gyId)
             return false;
 
-        int32 graveyardId = atoi(gyId);
+        uint32 graveyardId = atoul(gyId);
 
         if (!graveyardId)
             return false;
@@ -221,7 +221,7 @@ public:
         if (!gridX || !gridY)
             return false;
 
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? (uint32)atoul(id) : player->GetMapId();
 
         // center of grid
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -319,7 +319,7 @@ public:
         if (!id)
             return false;
 
-        int32 nodeId = atoi(id);
+        uint32 nodeId = atoul(id);
         if (!nodeId)
             return false;
 
@@ -364,7 +364,7 @@ public:
         if (!id)
             return false;
 
-        int32 areaTriggerId = atoi(id);
+        uint32 areaTriggerId = atoul(id);
 
         if (!areaTriggerId)
             return false;
@@ -422,7 +422,7 @@ public:
         if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
             return false;
 
-        uint32 areaId = id ? (uint32)atoi(id) : player->GetZoneId();
+        uint32 areaId = id ? (uint32)atoul(id) : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -492,7 +492,7 @@ public:
         float y = (float)atof(goY);
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? (uint32)atoul(id) : player->GetMapId();
 
         if (goZ)
         {
@@ -539,7 +539,7 @@ public:
         if (!id)
             return false;
 
-        uint32 ticketId = atoi(id);
+        uint32 ticketId = atoul(id);
         if (!ticketId)
             return false;
 

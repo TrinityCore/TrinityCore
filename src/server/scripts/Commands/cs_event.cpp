@@ -88,7 +88,7 @@ public:
         if (!id)
             return false;
 
-        uint32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -137,7 +137,7 @@ public:
         if (!id)
             return false;
 
-        int32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -178,7 +178,7 @@ public:
         if (!id)
             return false;
 
-        int32 eventId = atoi(id);
+        uint32 eventId = atoul(id);
 
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
