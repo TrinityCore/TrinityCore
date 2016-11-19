@@ -2289,10 +2289,22 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellid = handler->extractSpellIdFromLink((char*)args);
-        if (!spellid || !sSpellMgr->GetSpellInfo(spellid))
+        if (!spellid)
             return false;
 
-        handler->GetSession()->GetPlayer()->SpellNonMeleeDamageLog(target, spellid, damage);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+        if (!spellInfo)
+            return false;
+
+        Player* attacker = handler->GetSession()->GetPlayer();
+        SpellNonMeleeDamage dmgInfo(attacker, target, spellid, spellInfo->GetSchoolMask());
+        damage = attacker->SpellDamageBonusDone(target, spellInfo, damage, SPELL_DIRECT_DAMAGE);
+        damage = target->SpellDamageBonusTaken(attacker, spellInfo, damage, SPELL_DIRECT_DAMAGE);
+
+        attacker->CalculateSpellDamageTaken(&dmgInfo, damage, spellInfo);
+        attacker->DealDamageMods(dmgInfo.target, dmgInfo.damage, &dmgInfo.absorb);
+        attacker->SendSpellNonMeleeDamageLog(&dmgInfo);
+        attacker->DealSpellDamage(&dmgInfo, true);
         return true;
     }
 
