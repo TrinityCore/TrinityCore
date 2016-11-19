@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
 #include "naxxramas.h"
@@ -51,7 +52,7 @@ enum Spells
     SPELL_IMPALE                    = 28783,    // 25-man: 56090
     SPELL_LOCUST_SWARM              = 28785,    // 25-man: 54021
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
-    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
+    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,    // This spawns 10 corpse scarabs on top of dead guards
     SPELL_BERSERK                   = 27680
 };
 
@@ -197,9 +198,9 @@ public:
                             if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
                                 if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
                                 {
-                                    creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID());
+                                    creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID()); //provide original caster for spell as Anub
                                     creatureTarget->AI()->Talk(EMOTE_SCARAB);
-                                    creatureTarget->DespawnOrUnsummon();
+                                    creatureTarget->DespawnOrUnsummon(2000);
                                 }
                         }
                         events.Repeat(randtime(Seconds(40), Seconds(60)));
@@ -256,9 +257,57 @@ class at_anubrekhan_entrance : public AreaTriggerScript
         }
 };
 
+//29105 28864 Summon Corpse Scarabs spell_script shares between the 5 player and 10 guard version
+class spell_summon_corpse_scarabs : public SpellScriptLoader
+{
+public:
+    spell_summon_corpse_scarabs() : SpellScriptLoader("spell_summon_corpse_scarabs") { }
+
+    class spell_summon_corpse_scarabs_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_summon_corpse_scarabs_SpellScript);
+
+        void OnDefaultEffectHandler(SpellEffIndex effIndex)
+        {
+            //disables the default spawning of scarabs in a 100y radius.
+            this->PreventHitDefaultEffect(effIndex);
+
+            if (Unit* targetUnit = GetCaster()) //target should be the same as the caster
+            {
+                if (Unit* originalCaster = this->GetOriginalCaster()) //original caster is used to determine who should control the summoning.
+                {
+                    //determine if this is the player 29105 version; We share this script with both the 10 cryptguard scarab spawn and the player death spawn.
+                    bool isPlayerVersion = targetUnit->ToPlayer() != nullptr;
+
+                    Position creaturePos = targetUnit->GetPosition();
+                    for (int i = 0; i < (isPlayerVersion ? 5 : 10); i++)
+                        originalCaster->SummonCreature(NPC_CORPSE_SCARAB, Position(creaturePos.GetPositionX() + frand(-10, 10), creaturePos.GetPositionY() + frand(-10, 10), creaturePos.GetPositionZ()), TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+                }
+            }	
+        }
+
+        void OnHitHandler(SpellEffIndex effIndex)
+        {
+
+        }
+
+        void Register() override
+        {
+            //register only to override the default behavior
+            this->OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnDefaultEffectHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
+            this->OnEffectHitTarget += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_summon_corpse_scarabs_SpellScript();
+    }
+};
+
 void AddSC_boss_anubrekhan()
 {
     new boss_anubrekhan();
-
+    new spell_summon_corpse_scarabs();
     new at_anubrekhan_entrance();
 }
