@@ -40,7 +40,7 @@ public:
             { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "" },
             { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "" },
             { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "" },
-            { "",           rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
+            { "info",       rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
