@@ -258,14 +258,14 @@ class at_anubrekhan_entrance : public AreaTriggerScript
 };
 
 //29105 28864 Summon Corpse Scarabs spell_script shares between the 5 player and 10 guard version
-class spell_summon_corpse_scarabs : public SpellScriptLoader
+class spell_anubrekhan_summon_corpse_scarabs : public SpellScriptLoader
 {
 public:
-    spell_summon_corpse_scarabs() : SpellScriptLoader("spell_summon_corpse_scarabs") { }
+    spell_anubrekhan_summon_corpse_scarabs() : SpellScriptLoader("spell_anubrekhan_summon_corpse_scarabs") { }
 
-    class spell_summon_corpse_scarabs_SpellScript : public SpellScript
+    class spell_anubrekhan_summon_corpse_scarabs_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_summon_corpse_scarabs_SpellScript);
+        PrepareSpellScript(spell_anubrekhan_summon_corpse_scarabs_SpellScript);
 
         void OnEffectHitHandler(SpellEffIndex effIndex)
         {
@@ -288,19 +288,19 @@ public:
 
         void Register() override
         {
-            OnEffectHit += SpellEffectFn(spell_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHit += SpellEffectFn(spell_anubrekhan_summon_corpse_scarabs_SpellScript::OnEffectHitHandler, EFFECT_0, SPELL_EFFECT_SUMMON);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_summon_corpse_scarabs_SpellScript();
+        return new spell_anubrekhan_summon_corpse_scarabs_SpellScript();
     }
 };
 
 void AddSC_boss_anubrekhan()
 {
     new boss_anubrekhan();
-    new spell_summon_corpse_scarabs();
+    new spell_anubrekhan_summon_corpse_scarabs();
     new at_anubrekhan_entrance();
 }
