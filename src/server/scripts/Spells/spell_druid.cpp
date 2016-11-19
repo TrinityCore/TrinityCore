@@ -915,11 +915,10 @@ class spell_dru_leader_of_the_pack : public SpellScriptLoader
                 if (aurEff->GetCasterGUID() != caster->GetGUID())
                     return;
 
-                AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_1, aurEff->GetCasterGUID());
-                if (!impLotpMana)
-                    return;
+                AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_0, aurEff->GetCasterGUID());
+                ASSERT(impLotpMana);
 
-                int32 manaAmount = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), impLotpMana->GetAmount());
+                int32 manaAmount = CalculatePct(static_cast<int32>(caster->GetMaxPower(POWER_MANA)), impLotpMana->GetSpellInfo()->Effects[EFFECT_1].CalcValue());
                 caster->CastCustomSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_MANA, SPELLVALUE_BASE_POINT0, manaAmount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
