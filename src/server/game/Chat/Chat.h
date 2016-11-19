@@ -141,7 +141,7 @@ class TC_GAME_API ChatHandler
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
+        GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
 

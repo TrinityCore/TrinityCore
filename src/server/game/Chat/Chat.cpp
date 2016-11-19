@@ -881,25 +881,14 @@ GameObject* ChatHandler::GetNearbyGameObject()
     return obj;
 }
 
-GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry)
+GameObject* ChatHandler::GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid)
 {
     if (!m_session)
         return nullptr;
-
-    Player* pl = m_session->GetPlayer();
-
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, entry, lowguid));
-
-    if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
-    {
-        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
-        if (bounds.first == bounds.second)
-            return nullptr;
-
+    auto bounds = m_session->GetPlayer()->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+    if (bounds.first != bounds.second)
         return bounds.first->second;
-    }
-
-    return obj;
+    return nullptr;
 }
 
 enum SpellLinkType
