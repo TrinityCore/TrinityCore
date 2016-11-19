@@ -654,7 +654,7 @@ public:
         if (objectType < 0)
         {
             if (objectType == -1)
-                object->SendObjectDeSpawnAnim(object->GetGUID());
+                object->SendGameObjectDespawn();
             else if (objectType == -2)
                 return false;
             return true;

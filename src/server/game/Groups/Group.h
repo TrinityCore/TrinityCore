@@ -88,15 +88,23 @@ enum GroupMemberAssignment
 
 enum GroupType
 {
-    GROUPTYPE_NORMAL                = 0x00,
-    GROUPTYPE_BG                    = 0x01,
-    GROUPTYPE_RAID                  = 0x02,
-    GROUPTYPE_BGRAID                = GROUPTYPE_BG | GROUPTYPE_RAID, // mask
-    GROUPTYPE_LFG_RESTRICTED        = 0x04, // Script_HasLFGRestrictions()
-    GROUPTYPE_LFG                   = 0x08,
-    GROUPTYPE_EVERYONE_ASSISTANT    = 0x40, // Script_IsEveryoneAssistant() (4.x)
-    // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
-    // GROUPTYPE_ONE_PERSON_PARTY   = 0x20, 4.x Script_IsOnePersonParty()
+    GROUP_TYPE_NONE         = 0,
+    GROUP_TYPE_NORMAL       = 1,
+    GROUP_TYPE_WORLD_PVP    = 4
+};
+
+enum GroupFlags
+{
+    GROUP_FLAG_NONE                 = 0x000,
+    GROUP_FLAG_FAKE_RAID            = 0x001,
+    GROUP_FLAG_RAID                 = 0x002,
+    GROUP_FLAG_LFG_RESTRICTED       = 0x004, // Script_HasLFGRestrictions()
+    GROUP_FLAG_LFG                  = 0x008,
+    GROUP_FLAG_ONE_PERSON_PARTY     = 0x020, // Script_IsOnePersonParty()
+    GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
+    GROUP_FLAG_GUILD_GROUP          = 0x100,
+
+    GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
 
 enum GroupUpdateFlags
@@ -297,7 +305,7 @@ class TC_GAME_API Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return uint32(m_memberSlots.size()); }
-        GroupType GetGroupType() const { return m_groupType; }
+        GroupFlags GetGroupFlags() const { return m_groupFlags; }
 
         uint8 GetMemberGroup(ObjectGuid guid) const;
 
@@ -399,7 +407,7 @@ class TC_GAME_API Group
         InvitesList         m_invitees;
         ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
-        GroupType           m_groupType;
+        GroupFlags          m_groupFlags;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Difficulty          m_legacyRaidDifficulty;
