@@ -486,11 +486,11 @@ class spell_warr_glyph_of_blocking : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true);
+                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -562,7 +562,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true);
+                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -832,14 +832,14 @@ class spell_warr_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggeredSpells[2] = { SPELL_WARRIOR_SECOND_WIND_TRIGGER_1, SPELL_WARRIOR_SECOND_WIND_TRIGGER_2 };
 
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
-                caster->CastSpell(caster, spellId, true);
+                caster->CastSpell(caster, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
