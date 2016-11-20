@@ -18,11 +18,12 @@ http://rochet2.github.io/
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Position.h"
-#include "RBAC.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
 #include "WorldPacket.h"
 #include "GOMove.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 
 GameObjectStore GOMove::Store;
