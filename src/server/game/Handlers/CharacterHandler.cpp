@@ -2000,7 +2000,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
 
                 if (PreparedQueryResult memberResult = CharacterDatabase.Query(stmt))
                     if (Guild* guild = sGuildMgr->GetGuildById(memberResult->Fetch()[0].GetUInt64()))
-                        guild->DeleteMember(factionChangeInfo->Guid, false, false, true);
+                        guild->DeleteMember(trans, factionChangeInfo->Guid, false, false, true);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
