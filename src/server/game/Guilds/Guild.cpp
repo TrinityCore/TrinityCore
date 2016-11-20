@@ -40,21 +40,17 @@
 #include "World.h"
 #include "WorldSession.h"
 
-#define MAX_GUILD_BANK_TAB_TEXT_LEN 500
-#define EMBLEM_PRICE 10 * GOLD
+size_t const MAX_GUILD_BANK_TAB_TEXT_LEN = 500;
 
-inline uint32 _GetGuildBankTabPrice(uint8 tabId)
+uint32 const EMBLEM_PRICE = 10 * GOLD;
+
+inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
-    switch (tabId)
-    {
-        case 0: return 100;
-        case 1: return 250;
-        case 2: return 500;
-        case 3: return 1000;
-        case 4: return 2500;
-        case 5: return 5000;
-        default: return 0;
-    }
+    // these prices are in gold units, not copper
+    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
+    ASSERT(tabId < GUILD_BANK_MAX_TABS);
+
+    return tabPrices[tabId];
 }
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string const& param)
@@ -82,7 +78,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
 Guild::LogHolder::~LogHolder()
 {
     // Cleanup
-    for (GuildLog::iterator itr = m_log.begin(); itr != m_log.end(); ++itr)
+    for (auto itr = m_log.begin(); itr != m_log.end(); ++itr)
         delete (*itr);
 }
 
@@ -1603,18 +1599,18 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (tabId != _GetPurchasedTabsSize())
         return;
 
+    if (tabId >= GUILD_BANK_MAX_TABS)
+        return;
+
     // Do not get money for bank tabs that the GM bought, we had to buy them already.
     // This is just a speedup check, GetGuildBankTabPrice will return 0.
     if (tabId < GUILD_BANK_MAX_TABS - 2) // 7th tab is actually the 6th
     {
-        uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
-        if (!tabCost)
+        int64 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
+        if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
             return;
 
-        if (!player->HasEnoughMoney(uint64(tabCost)))                   // Should not happen, this is checked by client
-            return;
-
-        player->ModifyMoney(-int64(tabCost));
+        player->ModifyMoney(-tabCost);
     }
 
     _CreateNewBankTab();
