@@ -6685,11 +6685,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             // Impurity (dummy effect)
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                PlayerSpellMap playerSpells = ToPlayer()->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
+                PlayerSpellMap const& playerSpells = ToPlayer()->GetSpellMap();
+                for (auto itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
                 {
                     if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                         continue;
+
                     switch (itr->first)
                     {
                         case 49220:
@@ -6698,7 +6699,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                         case 49636:
                         case 49638:
                             if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
-                                AddPct(ApCoeffMod, proto->Effects[0].CalcValue());
+                                AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
                         break;
                     }
                 }
@@ -6711,14 +6712,14 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Pets just add their bonus damage to their spell damage
     // note that their spell damage is just gain of their own auras
     if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-        DoneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
+        DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
-    float coeff = 0.f;
+    float coeff = 0.0f;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus)
     {
-        WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+        WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
         float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
         APbonus += GetTotalAttackPowerValue(attType);
 
@@ -6735,6 +6736,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
         }
     }
+
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
@@ -6788,24 +6790,17 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
-    AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffect const* aurEff : mModDamagePercentDone)
+    float maxModDamagePercentSchool = 0.0f;
+    if (GetTypeId() == TYPEID_PLAYER)
     {
-        SpellInfo const* aurSpellInfo = aurEff->GetSpellInfo();
-
-        if (spellProto->EquippedItemClass == -1 && aurSpellInfo->EquippedItemClass != -1)    // prevent apply mods from weapon specific case to non weapon specific spells (Example: thunder clap and two-handed weapon specialization)
-            continue;
-
-        if ((aurEff->GetMiscValue() & spellProto->GetSchoolMask()) != 0)
-        {
-            if (aurSpellInfo->EquippedItemClass == -1)
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-            else if (!aurSpellInfo->HasAttribute(SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && (aurSpellInfo->EquippedItemSubClassMask == 0))
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-            else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements(aurSpellInfo))
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-        }
+        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+            if (spellProto->GetSchoolMask() & (1 << i))
+                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
     }
+    else
+        maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
+
+    DoneTotalMod *= maxModDamagePercentSchool;
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
@@ -7187,14 +7182,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
     AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffect const* aurEff : mDamageDone)
-    {
-        if (!(aurEff->GetMiscValue() & schoolMask))
-            continue;
-
-        // only apply generic bonus here, weapon requiring mods are not applicable to non-melee spells
-        if (aurEff->GetSpellInfo()->EquippedItemClass == -1 && aurEff->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)
+        if (aurEff->GetMiscValue() & schoolMask)
             DoneAdvertisedBenefit += aurEff->GetAmount();
-    }
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -7215,7 +7204,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
         // ... and attack power
         DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
-
     }
 
     return DoneAdvertisedBenefit;
@@ -8084,35 +8072,22 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     float DoneTotalMod = 1.0f;
 
     // Some spells don't benefit from pct done mods
-    if (spellProto && !spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+    if (spellProto)
     {
-        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        for (AuraEffect const* aurEff : mModDamagePercentDone)
+        // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
+        if (!spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
         {
-            // Apply mod if schoolmask matches...
-            if ((aurEff->GetMiscValue() & spellProto->GetSchoolMask()) != 0)
+            float maxModDamagePercentSchool = 0.0f;
+            if (GetTypeId() == TYPEID_PLAYER)
             {
-                SpellInfo const* aurSpellInfo = aurEff->GetSpellInfo();
-
-                // ... but not for SCHOOL_MASK_NORMAL, or generic weapon bonus, or creatures (creatures don't have equiped items check)
-                // for these types the damage was already calculated in AuraEffect handler, and stored into TOTAL_PCT
-                // if we include them, we'll be multiplying twice (one in Unit::CalculateDamage, the other here)
-                if ((aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (aurSpellInfo->EquippedItemClass == -1 || GetTypeId() != TYPEID_PLAYER))
-                    continue;
-
-                // generic weapon bonus (magic)
-                if (aurSpellInfo->EquippedItemClass == -1)
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-                // skips subclassmask check/has generic subclassmask set
-                else if (!aurSpellInfo->HasAttribute(SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && (aurSpellInfo->EquippedItemSubClassMask == 0))
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-
-                // This one is already applied in Player::_ApplyWeaponDependentAuraDamageMod
-                /*
-                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements(aurSpellInfo))
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-                */
+                for (uint32 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+                    if (spellProto->GetSchoolMask() & (1 << i))
+                        maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
             }
+            else
+                maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
+
+            DoneTotalMod *= maxModDamagePercentSchool;
         }
     }
 
@@ -8191,7 +8166,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom scripted damage
     if (spellProto)
-    {
         switch (spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_DEATHKNIGHT:
@@ -8200,9 +8174,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                     if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                         if (victim->GetDiseasesByCaster(owner->GetGUID()) > 0)
                             AddPct(DoneTotalMod, aurEff->GetAmount());
-                break;
+            break;
         }
-    }
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
 
@@ -11467,26 +11440,41 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
 
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 {
-    if (!normalized || GetTypeId() != TYPEID_PLAYER)
-        return float(GetAttackTime(attType)) / 1000.0f;
+    if (GetTypeId() != TYPEID_PLAYER)
+        return GetAttackTime(attType) / 1000.0f;
 
-    Item* Weapon = ToPlayer()->GetWeaponForAttack(attType, true);
-    if (!Weapon)
-        return 2.4f;                                         // fist attack
+    Item* weapon = ToPlayer()->GetWeaponForAttack(attType, true);
+    if (!weapon)
+        return BASE_ATTACK_TIME / 1000.0f;
 
-    switch (Weapon->GetTemplate()->InventoryType)
+    if (!normalized)
+        return weapon->GetTemplate()->Delay / 1000.0f;
+
+    switch (weapon->GetTemplate()->SubClass)
     {
-        case INVTYPE_2HWEAPON:
+        case ITEM_SUBCLASS_WEAPON_AXE2:
+        case ITEM_SUBCLASS_WEAPON_MACE2:
+        case ITEM_SUBCLASS_WEAPON_POLEARM:
+        case ITEM_SUBCLASS_WEAPON_SWORD2:
+        case ITEM_SUBCLASS_WEAPON_STAFF:
+        case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
             return 3.3f;
-        case INVTYPE_RANGED:
-        case INVTYPE_RANGEDRIGHT:
-        case INVTYPE_THROWN:
+        case ITEM_SUBCLASS_WEAPON_BOW:
+        case ITEM_SUBCLASS_WEAPON_GUN:
+        case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+        case ITEM_SUBCLASS_WEAPON_THROWN:
             return 2.8f;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
+        case ITEM_SUBCLASS_WEAPON_AXE:
+        case ITEM_SUBCLASS_WEAPON_MACE:
+        case ITEM_SUBCLASS_WEAPON_SWORD:
+        case ITEM_SUBCLASS_WEAPON_EXOTIC:
+        case ITEM_SUBCLASS_WEAPON_EXOTIC2:
+        case ITEM_SUBCLASS_WEAPON_FIST:
+            return 2.4f;
+        case ITEM_SUBCLASS_WEAPON_DAGGER:
+            return 1.7f;
         default:
-            return Weapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
+            return weapon->GetTemplate()->Delay / 1000.0f;
     }
 }
 
