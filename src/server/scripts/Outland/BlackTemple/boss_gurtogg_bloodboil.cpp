@@ -27,8 +27,7 @@ enum Says
     SAY_AGGRO     = 0,
     SAY_SLAY      = 1,
     SAY_SPECIAL   = 2,
-    SAY_ENRAGE    = 3,
-    SAY_DEATH     = 4
+    SAY_ENRAGE    = 3
 };
 
 enum Spells
@@ -161,12 +160,6 @@ public:
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            _JustDied();
         }
 
         void UpdateAI(uint32 diff) override
