@@ -8,4 +8,4 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (86, 'Model dimensions from center: Max X %f Y %f Z %f Min X %f Y %f Z %f', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 DELETE FROM `command` WHERE `name` = "go";
 DELETE FROM `command` WHERE `name` = "go offset";
-INSERT INTO `command` (`name`, `permission`, `help`) VALUES ('go offset', 698, 'Syntax: .go offset [x[ y[ z[ o]]]]\nTeleports the player by given offset from his current coordinates.');
+INSERT INTO `command` (`name`, `permission`, `help`) VALUES ('go offset', 845, 'Syntax: .go offset [x[ y[ z[ o]]]]\nTeleports the player by given offset from his current coordinates.');

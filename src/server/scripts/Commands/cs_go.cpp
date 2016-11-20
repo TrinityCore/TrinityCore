@@ -49,7 +49,7 @@ public:
             { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "" },
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
             { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand,                      "" },
-            { "",                   rbac::RBAC_PERM_COMMAND_GO,                     false, &HandleGoXYZCommand,                         "" },
+            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -560,6 +560,50 @@ public:
             player->SaveRecallPosition();
 
         ticket->TeleportTo(player);
+        return true;
+    }
+
+    static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goX = strtok((char*)args, " ");
+        char* goY = strtok(NULL, " ");
+        char* goZ = strtok(NULL, " ");
+        char* port = strtok(NULL, " ");
+
+        float x, y, z, o;
+        player->GetPosition(x, y, z, o);
+        if (goX)
+            x += atof(goX);
+        if (goY)
+            y += atof(goY);
+        if (goZ)
+            z += atof(goZ);
+        if (port)
+            o += atof(port);
+
+        if (!Trinity::IsValidMapCoord(x, y, z, o))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, player->GetMapId());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(player->GetMapId(), x, y, z, o);
         return true;
     }
 };
