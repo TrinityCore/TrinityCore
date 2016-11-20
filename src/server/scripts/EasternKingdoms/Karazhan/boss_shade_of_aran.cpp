@@ -28,6 +28,7 @@ EndScriptData */
 #include "karazhan.h"
 #include "GameObject.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 enum ShadeOfAran
 {
@@ -40,7 +41,7 @@ enum ShadeOfAran
     SAY_KILL                    = 6,
     SAY_TIMEOVER                = 7,
     SAY_DEATH                   = 8,
-//  SAY_ATIESH                  = 9, Unused
+    SAY_ATIESH                  = 9,
 
     //Spells
     SPELL_FROSTBOLT             = 29954,
@@ -79,6 +80,22 @@ enum SuperSpell
     SUPER_AE,
 };
 
+enum Items
+{
+    ITEM_ATIESH_MAGE            = 22589,
+    ITEM_ATIESH_WARLOCK         = 22630,
+    ITEM_ATIESH_PRIEST          = 22631,
+    ITEM_ATIESH_DRUID           = 22632,
+};
+
+uint32 const AtieshStaves[4] =
+{
+    ITEM_ATIESH_MAGE,
+    ITEM_ATIESH_WARLOCK,
+    ITEM_ATIESH_PRIEST,
+    ITEM_ATIESH_DRUID,
+};
+
 class boss_shade_of_aran : public CreatureScript
 {
 public:
@@ -91,7 +108,7 @@ public:
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature* creature) : ScriptedAI(creature)
+        boss_aranAI(Creature* creature) : ScriptedAI(creature), SeenAtiesh(false)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -148,6 +165,7 @@ public:
         bool ElementalsSpawned;
         bool Drinking;
         bool DrinkInturrupted;
+        bool SeenAtiesh;
 
         void Reset() override
         {
@@ -503,6 +521,41 @@ public:
                     return;
                 }
         }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+
+            if (SeenAtiesh || me->IsInCombat() || me->GetDistance2d(who) > me->GetAttackDistance(who) + 10.0f)
+                return;
+
+            Player* player = who->ToPlayer();
+            if (!player)
+                return;
+
+            for (uint32 id : AtieshStaves)
+            {
+                if (!PlayerHasWeaponEquipped(player, id))
+                    continue;
+
+                SeenAtiesh = true;
+                Talk(SAY_ATIESH);
+                me->SetFacingTo(me->GetAngle(player));
+                me->ClearUnitState(UNIT_STATE_MOVING);
+                me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS);
+                break;
+            }
+        }
+
+        private:
+            bool PlayerHasWeaponEquipped(Player* player, uint32 itemEntry)
+            {
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                if (item && item->GetEntry() == itemEntry)
+                    return true;
+
+                return false;
+            }
     };
 };
 
