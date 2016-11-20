@@ -23,32 +23,21 @@ http://rochet2.github.io/
 #include "SpellScript.h"
 #include "WorldPacket.h"
 #include "GOMove.h"
+#include "GridNotifiersImpl.h"
 
 GameObjectStore GOMove::Store;
-
-void GOMove::GOMoveRemoveGO(ObjectGuid const & guid)
-{
-    bool isHex = GOMove::IsTemporary(guid);
-    if (isHex)
-        GOMove::Store.RemoveTemp(guid.GetEntry());
-
-    for (auto session : sWorld->GetAllSessions())
-        if (Player* player = session.second->GetPlayer())
-            GOMove::SendRemove(player, isHex ? guid.GetEntry() : guid.GetCounter(), isHex);
-}
-
-bool GOMove::IsTemporary(ObjectGuid const & guid)
-{
-    return (guid.GetHigh() == HighGuid::GOMoveObject);
-}
 
 void GOMove::SendAddonMessage(Player * player, const char * msg)
 {
     if (!player || !msg)
         return;
 
+    char buf[256];
+    snprintf(buf, 256, "GOMOVE\t%s", msg);
+
+    // copy paste addon message packet
     WorldPacket data; // Needs a custom built packet since TC doesnt send guid
-    uint32 messageLength = (uint32)strlen(msg) + 1;
+    uint32 messageLength = static_cast<uint32>(std::strlen(buf) + 1);
     data.Initialize(SMSG_MESSAGECHAT, 100);
     data << uint8(CHAT_MSG_SYSTEM);
     data << int32(LANG_ADDON);
@@ -56,84 +45,37 @@ void GOMove::SendAddonMessage(Player * player, const char * msg)
     data << uint32(0);
     data << uint64(player->GetGUID());
     data << uint32(messageLength);
-    data << msg;
+    data << buf;
     data << uint8(0);
     player->GetSession()->SendPacket(&data);
 }
 
-GameObject * GOMove::GetGameObject(Player * player, uint32 GObjectID, bool isHex)
+GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
 {
-    if (isHex)
-        return Store.GetTemp(player, GObjectID);
-    else if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(GObjectID))
-        return ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(GObjectID, gameObjectData->id);
+    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
+        return ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
     return nullptr;
 }
 
-void GOMove::SendAdd(Player * player, uint32 GObjectID, bool isHex)
+void GOMove::SendAdd(Player * player, ObjectGuid::LowType lowguid)
 {
-    GameObject* object = GOMove::GetGameObject(player, GObjectID, isHex);
-    if (!object)
+    GameObjectData const* data = sObjectMgr->GetGOData(lowguid);
+    if (!data)
         return;
-
+    GameObjectTemplate const* temp = sObjectMgr->GetGameObjectTemplate(data->id);
+    if (!temp)
+        return;
     char msg[256];
-    if (!isHex)
-        snprintf(msg, 256, "GOMOVE|ADD|%u|%s|%u", GObjectID, object->GetName().c_str(), object->GetEntry());
-    else
-        snprintf(msg, 256, "GOMOVE|ADD|%#x|%s|%u", GObjectID, object->GetName().c_str(), object->GetEntry());
-
+    snprintf(msg, 256, "ADD|%u|%s|%u", lowguid, temp->name.c_str(), data->id);
     SendAddonMessage(player, msg);
 }
 
-void GOMove::SendRemove(Player * player, uint32 GObjectID, bool isHex)
+void GOMove::SendRemove(Player * player, ObjectGuid::LowType lowguid)
 {
     char msg[256];
-    if (!isHex)
-        snprintf(msg, 256, "GOMOVE|REMOVE|%u||0", GObjectID);
-    else
-        snprintf(msg, 256, "GOMOVE|REMOVE|%#x||0", GObjectID);
+    snprintf(msg, 256, "REMOVE|%u||0", lowguid);
 
     SendAddonMessage(player, msg);
-}
-
-void GOMove::SendSwap(Player * player, uint32 GObjectID1, bool isHex1, uint32 GObjectID2, bool isHex2)
-{
-    char msg[256];
-    if (!isHex1 && !isHex2)
-        snprintf(msg, 256, "GOMOVE|SWAP|%u||%u", GObjectID1, GObjectID2);
-    else if (isHex1 && isHex2)
-        snprintf(msg, 256, "GOMOVE|SWAP|%#x||%#x", GObjectID1, GObjectID2);
-    else if (!isHex1 && isHex2)
-        snprintf(msg, 256, "GOMOVE|SWAP|%u||%#x", GObjectID1, GObjectID2);
-    else if (isHex1 && !isHex2)
-        snprintf(msg, 256, "GOMOVE|SWAP|%#x||%u", GObjectID1, GObjectID2);
-    SendAddonMessage(player, msg);
-}
-
-GameObject * GOMove::CreateTemp(Player * obj, uint32 entry, float x, float y, float z, float o, uint32 p, uint32 respawnTime)
-{
-    if (!obj->IsInWorld())
-        return nullptr;
-
-    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-    if (!goinfo)
-        return nullptr;
-
-    Map* map = obj->GetMap();
-    GameObject* go = new GameObject();
-    G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
-    if (!go->Create(0, entry, map, p, Position(x, y, z, o), rotation, 100, GO_STATE_READY))
-    {
-        delete go;
-        return nullptr;
-    }
-
-    go->SetRespawnTime(respawnTime);
-    obj->AddGameObject(go);
-    map->AddToMap(go);
-
-    Store.AddTemp(go->GetGUID().GetEntry(), go);
-    return go;
 }
 
 void GOMove::DeleteGameObject(GameObject * object)
@@ -141,6 +83,7 @@ void GOMove::DeleteGameObject(GameObject * object)
     if (!object)
         return;
 
+    // copy paste .gob del command
     ObjectGuid ownerGuid = object->GetOwnerGUID();
     if (ownerGuid != ObjectGuid::Empty)
     {
@@ -158,71 +101,97 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     if (!player || !entry)
         return nullptr;
 
-    GameObject* spawned = CreateTemp(player, entry, x, y, z, o, p, 0);
-    if (spawned)
-        SendAdd(player, spawned->GetGUID().GetEntry(), true);
-    return spawned;
+    if (!MapManager::IsValidMapCoord(player->GetMapId(), x, y, z))
+        return nullptr;
+
+    Position pos(x, y, z, o);
+
+    // copy paste .gob add command
+    GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(entry);
+    if (!objectInfo)
+        return nullptr;
+
+    if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
+        return nullptr;
+
+    Map* map = player->GetMap();
+
+    GameObject* object = new GameObject();
+    ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
+
+    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+    if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), pos, rot, 255, GO_STATE_READY))
+    {
+        delete object;
+        return nullptr;
+    }
+
+    // fill the gameobject data and save to the db
+    object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), p);
+    guidLow = object->GetSpawnId();
+
+    // delete the old object and do a clean load from DB with a fresh new GameObject instance.
+    // this is required to avoid weird behavior and memory leaks
+    delete object;
+
+    object = new GameObject();
+    // this will generate a new guid if the object is in an instance
+    if (!object->LoadGameObjectFromDB(guidLow, map))
+    {
+        delete object;
+        return nullptr;
+    }
+
+    /// @todo is it really necessary to add both the real and DB table guid here ?
+    sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
+
+    if (object)
+        SendAdd(player, guidLow);
+    return object;
 }
 
-GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, uint32 p, uint32 GObjectID, bool isHex)
+GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, uint32 p, ObjectGuid::LowType lowguid)
 {
     if (!player)
         return nullptr;
-
-    GameObject* object = GetGameObject(player, GObjectID, isHex);
+    GameObject* object = nullptr;
+    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
+        object = ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
     if (!object)
     {
-        SendRemove(player, GObjectID, isHex);
+        SendRemove(player, lowguid);
         return nullptr;
     }
 
-    GameObject* spawned = CreateTemp(player, object->GetEntry(), x, y, z, o, p, 0);
-
-    if (!spawned)
+    Map* map = object->GetMap();
+    if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
         return nullptr;
 
-    SendSwap(player, GObjectID, isHex, spawned->GetGUID().GetEntry(), true);
-    DeleteGameObject(object);
-    return spawned;
-}
+    // copy paste .gob move command
+    // copy paste .gob turn command
+    object->Relocate(x, y, z, o);
+    object->SetWorldRotationAngles(o, 0, 0);
+    object->SaveToDB();
 
-void GOMove::SaveGameObject(Player * player, uint32 GObjectID, bool isHex)
-{
-    GameObject* object = GetGameObject(player, GObjectID, isHex);
-    if (!object)
-        return;
+    // Generate a completely new spawn with new guid
+    // 3.3.5a client caches recently deleted objects and brings them back to life
+    // when CreateObject block for this guid is received again
+    // however it entirely skips parsing that block and only uses already known location
+    object->Delete();
 
-    if (!isHex)
+    object = new GameObject();
+    if (!object->LoadGameObjectFromDB(lowguid, map))
     {
-        object->SaveToDB();
-        return;
+        delete object;
+        SendRemove(player, lowguid);
+        return nullptr;
     }
 
-    float x, y, z, o;
-    object->GetPosition(x, y, z, o);
-    G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+    // copy paste from .gob phase command
+    object->SetPhaseMask(p, true);
+    object->SaveToDB();
 
-    Map* map = player->GetMap();
-    GameObject* saved = new GameObject();
-    uint32 guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
-    if (!saved->Create(guidLow, object->GetEntry(), map, object->GetPhaseMask(), Position(x, y, z, o), rotation, 0, GO_STATE_READY))
-    {
-        delete saved;
-        return;
-    }
-    saved->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), saved->GetPhaseMask());
-    guidLow = saved->GetSpawnId();
-    delete saved;
-    saved = new GameObject();
-    if (!saved->LoadGameObjectFromDB(guidLow, map))
-    {
-        delete saved;
-        return;
-    }
-    sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
-
-    SendSwap(player, GObjectID, isHex, guidLow, false);
-    DeleteGameObject(object);
+    return object;
 }
 
 void GameObjectStore::SpawnQueAdd(ObjectGuid const & guid, uint32 entry)
@@ -246,56 +215,14 @@ uint32 GameObjectStore::SpawnQueGet(ObjectGuid const & guid)
     return 0;
 }
 
-void GameObjectStore::AddTemp(uint32 GObjectID, GameObject * go)
+std::vector<GameObject*> GOMove::GetNearbyGameObjects(Player* player, float range)
 {
-    if (!go)
-        return;
-    WriteGuard lock(_tempObjectsLock);
-    tempObjects[GObjectID] = go;
-}
+    float x, y, z;
+    player->GetPosition(x, y, z);
 
-void GameObjectStore::RemoveTemp(uint32 GObjectID)
-{
-    {
-        WriteGuard lock(_tempObjectsLock);
-        tempObjects.erase(GObjectID);
-    }
-}
-
-GameObject * GameObjectStore::GetTemp(Player* player, uint32 GObjectID)
-{
-    WriteGuard lock(_tempObjectsLock);
-    auto it = tempObjects.find(GObjectID);
-    if (it != tempObjects.end())
-        return player->IsInMap(it->second) ? it->second : nullptr;
-    return nullptr;
-}
-
-void GameObjectStore::SendSelectTempInRange(Player * player, float range)
-{
-    std::vector<uint32> toSend;
-    {
-        WriteGuard lock(_tempObjectsLock);
-        for (auto& go : tempObjects)
-        {
-            if (go.second->IsWithinDistInMap(player, range))
-                toSend.push_back(go.first);
-        }
-    }
-
-    for (uint32 low : toSend)
-        GOMove::SendAdd(player, low, true);
-}
-
-GameObject * GameObjectStore::GetClosestTemp(Player * player, GameObject * closestReal)
-{
-    GameObject* obj = closestReal;
-    WriteGuard lock(_tempObjectsLock);
-    for (auto& go : tempObjects)
-    {
-        if (obj && go.second->GetDistance(player) > obj->GetDistance(player))
-            continue;
-        obj = go.second;
-    }
-    return obj;
+    std::vector<GameObject*> objects;
+    Trinity::GameObjectInRangeCheck check(x, y, z, range);
+    Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(player, objects, check);
+    player->VisitNearbyGridObject(SIZE_OF_GRIDS, searcher);
+    return objects;
 }

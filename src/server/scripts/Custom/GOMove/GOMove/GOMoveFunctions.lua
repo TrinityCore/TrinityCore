@@ -8,15 +8,6 @@ function GOMove:Update()
     end
 end
 
-function GOMove:Tonumber(val) -- returns nil if the value is not a number or 0x starting hex
-    if(type(val) == "string") then
-        if(val:find("0x") == 1) then
-            return tonumber(val, 16), true
-        end
-    end
-    return tonumber(val), false
-end
-
 function GOMove:CreateFrame(name, width, height, DataTable, both)
     local Frame = CreateFrame("Frame", name, UIParent)
     Frame:SetMovable(true)
@@ -174,10 +165,11 @@ TID("Y"                 ,   true    ,   false   )
 TID("Z"                 ,   true    ,   false   )
 TID("O"                 ,   true    ,   false   )
 TID("GROUND"            ,   true    ,   false   )
+TID("FLOOR"             ,   true    ,   false   )
 TID("RESPAWN"           ,   true    ,   true    )
 TID("GOTO"              ,   true    ,   true    )
 TID("FACE"              ,   false   ,   true    )
-TID("SAVE"              ,   true    ,   true    )
+--TID("SAVE"            ,   true    ,   true    )
 
 TID("SPAWN"             ,   false   ,   true    )
 TID("NORTH"             ,   true    ,   false   )
@@ -218,12 +210,12 @@ function GOMove:Move(ID, input)
     end
     if(not trinityID[ID][2]) then
         SendAddonMessage(".gomove "..trinityID[ID][1].." "..(0).." "..ARG, "", "WHISPER", UnitName("player"))
-    elseif(trinityID[ID][3] and GOMove:Tonumber(ARG) and GOMove:Tonumber(ARG) > 0) then
+    elseif(trinityID[ID][3] and tonumber(ARG) and tonumber(ARG) > 0) then
         SendAddonMessage(".gomove "..trinityID[ID][1].." "..ARG.." "..(0), "", "WHISPER", UnitName("player"))
     else
         local did = false
         for GUID, NAME in pairs(GOMove.Selected) do
-            if(GOMove:Tonumber(GUID)) then -- HAD TONUMBER
+            if(tonumber(GUID)) then
                 SendAddonMessage(".gomove "..trinityID[ID][1].." "..GUID.." "..ARG, "", "WHISPER", UnitName("player"))
                 if(ID == "GOTO") then
                     return

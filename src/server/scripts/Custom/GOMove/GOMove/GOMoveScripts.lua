@@ -83,7 +83,7 @@ ClearButton:SetPoint("TOPRIGHT", SelFrame, "TOPRIGHT", -30, -5)
 ClearButton:SetScript("OnClick", function()
     local empty = true
     for k,v in pairs(GOMove.Selected) do
-        if(GOMove:Tonumber(k)) then -- HAD TONUMBER
+        if(tonumber(k)) then
             empty = false
         end
     end
@@ -93,7 +93,7 @@ ClearButton:SetScript("OnClick", function()
         end
     else
         for k,v in pairs(GOMove.Selected) do
-            if(GOMove:Tonumber(k)) then -- HAD TONUMBER
+            if(tonumber(k)) then
                 GOMove.Selected:Del(k)
             end
         end
@@ -142,7 +142,7 @@ EmptyButton:SetPoint("TOPRIGHT", SelFrame, "TOPRIGHT", -45, 0)
 EmptyButton:SetHitRectInsets(9, 7, 7, 10)
 EmptyButton:SetScript("OnClick", function()
     for k,v in pairs(GOMove.Selected) do
-        if(GOMove:Tonumber(k)) then -- HAD TONUMBER
+        if(tonumber(k)) then
             GOMove.Selected:Del(k)
         end
     end
@@ -232,9 +232,9 @@ local RESPAWN = GOMove:CreateButton(MainFrame, "Respawn", 65, 25, -35, -237.5)
 function RESPAWN:OnClick()
     GOMove:Move("RESPAWN")
 end
-local SAVE = GOMove:CreateButton(MainFrame, "Save", 65, 25, 35, -237.5)
-function SAVE:OnClick()
-    GOMove:Move("SAVE")
+local FLOOR = GOMove:CreateButton(MainFrame, "Floor", 65, 25, 35, -237.5)
+function FLOOR:OnClick()
+    GOMove:Move("FLOOR")
 end
 local SELECTNEAR = GOMove:CreateButton(MainFrame, "Target", 50, 25, 55, -210)
 function SELECTNEAR:OnClick()
@@ -318,18 +318,10 @@ function GOMove.SCMD.reset()
         Frame:Show()
     end
 end
-function GOMove.SCMD.tempsave()
-    for k, name in pairs(SelFrame.Selected) do
-        local n, h = GOMove:Tonumber(k)
-        if(n and h) then
-            GOMove:Move("SAVE", k)
-        end
-    end
-end
 function GOMove.SCMD.invertselection()
     local sel = {}
     for GUID, NAME in pairs(GOMove.Selected) do
-        if(GOMove:Tonumber(GUID)) then -- HAD TONUMBER
+        if(tonumber(GUID)) then
             table.insert(sel, GUID)
         end
     end
@@ -365,9 +357,10 @@ EventFrame:RegisterEvent("ADDON_LOADED")
 EventFrame:RegisterEvent("CHAT_MSG_ADDON")
 
 EventFrame:SetScript("OnEvent",
-    function(self, event, MSG, _, Type, Sender)
+    function(self, event, MSG, MSG2, Type, Sender)
         if(event == "CHAT_MSG_ADDON" and Sender == UnitName("player")) then
-            local ID, ENTRYORGUID, ARG2, ARG3 = MSG:match("^GOMOVE|(.+)|([%a%d]+)|(.*)|([%a%d]+)$")
+            if MSG ~= "GOMOVE" then return end
+            local ID, ENTRYORGUID, ARG2, ARG3 = MSG2:match("^(.+)|([%a%d]+)|(.*)|([%a%d]+)$")
             if(ID) then
                 --if(ID == "USED") then
                 --    for k,v in ipairs(GOMove.UseL) do

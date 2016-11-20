@@ -41,10 +41,10 @@ public:
         Z,
         O,
         GROUND,
+        FLOOR,
         RESPAWN,
         GOTO,
         FACE,
-        SAVE,
 
         SPAWN,
         NORTH,
@@ -83,14 +83,10 @@ public:
             return false;
         uint32 ID = static_cast<uint32>(atoul(ID_t));
 
-        char* GObjectID_C = strtok(nullptr, " ");
-        uint32 GObjectID = 0;
-        bool isHex = false;
-        if (GObjectID_C)
-        {
-            GObjectID = strtoul(GObjectID_C, nullptr, 0); // can take in hex as well as dec
-            isHex = (std::string(GObjectID_C).find("0x") != std::string::npos);
-        }
+        char* cLowguid = strtok(nullptr, " ");
+        uint32 lowguid = 0;
+        if (cLowguid)
+            lowguid = atoul(cLowguid);
 
         char* ARG_t = strtok(nullptr, " ");
         uint32 ARG = 0;
@@ -106,9 +102,9 @@ public:
         {
             if (ID >= DELET && ID <= GOTO) // has target (needs retrieve gameobject)
             {
-                GameObject* target = GOMove::GetGameObject(player, GObjectID, isHex);
+                GameObject* target = GOMove::GetGameObject(player, lowguid);
                 if (!target)
-                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %u not found. Temp(%u)", GObjectID, isHex ? 1 : 0);
+                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %u not found.", lowguid);
                 else
                 {
                     float x, y, z, o;
@@ -116,11 +112,11 @@ public:
                     uint32 p = target->GetPhaseMask();
                     switch (ID)
                     {
-                    case DELET: GOMove::DeleteGameObject(target); GOMove::SendRemove(player, GObjectID, isHex); break;
-                    case X: GOMove::MoveGameObject(player, player->GetPositionX(), y, z, o, p, GObjectID, isHex);       break;
-                    case Y: GOMove::MoveGameObject(player, x, player->GetPositionY(), z, o, p, GObjectID, isHex);       break;
-                    case Z: GOMove::MoveGameObject(player, x, y, player->GetPositionZ(), o, p, GObjectID, isHex);       break;
-                    case O: GOMove::MoveGameObject(player, x, y, z, player->GetOrientation(), p, GObjectID, isHex);     break;
+                    case DELET: GOMove::DeleteGameObject(target); GOMove::SendRemove(player, lowguid); break;
+                    case X: GOMove::MoveGameObject(player, player->GetPositionX(), y, z, o, p, lowguid);       break;
+                    case Y: GOMove::MoveGameObject(player, x, player->GetPositionY(), z, o, p, lowguid);       break;
+                    case Z: GOMove::MoveGameObject(player, x, y, player->GetPositionZ(), o, p, lowguid);       break;
+                    case O: GOMove::MoveGameObject(player, x, y, z, player->GetOrientation(), p, lowguid);     break;
                     case RESPAWN: GOMove::SpawnGameObject(player, x, y, z, o, p, target->GetEntry());                   break;
                     case GOTO:
                     {
@@ -139,7 +135,13 @@ public:
                     {
                         float ground = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, MAX_HEIGHT);
                         if (ground != INVALID_HEIGHT)
-                            GOMove::MoveGameObject(player, x, y, ground, o, p, GObjectID, isHex);
+                            GOMove::MoveGameObject(player, x, y, ground, o, p, lowguid);
+                    } break;
+                    case FLOOR:
+                    {
+                        float floor = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, z);
+                        if (floor != INVALID_HEIGHT)
+                            GOMove::MoveGameObject(player, x, y, floor, o, p, lowguid);
                     } break;
                     }
                 }
@@ -159,20 +161,14 @@ public:
                     float const new_ori = (multi - multi_int > 0.5f) ? (multi_int + 1)*piper2 : multi_int*piper2;
                     player->SetFacingTo(new_ori);
                 } break;
-                case SAVE:
-                    GOMove::SaveGameObject(player, GObjectID, isHex);
-                    break;
                 case SELECTNEAR:
                 {
-                    GameObject* object = GOMove::Store.GetClosestTemp(player, handler->GetNearbyGameObject());
+                    GameObject* object = handler->GetNearbyGameObject();
                     if (!object)
                         ChatHandler(player->GetSession()).PSendSysMessage("No objects found");
                     else
                     {
-                        if (GOMove::IsTemporary(object->GetGUID()))
-                            GOMove::SendAdd(player, object->GetGUID().GetEntry(), true);
-                        else
-                            GOMove::SendAdd(player, object->GetSpawnId() ? object->GetSpawnId() : object->GetGUID().GetCounter(), false);
+                        GOMove::SendAdd(player, object->GetSpawnId());
                         session->SendAreaTriggerMessage("Selected %s", object->GetName().c_str());
                     }
                 } break;
@@ -183,9 +179,9 @@ public:
         {
             if (ID >= NORTH && ID <= PHASE)
             {
-                GameObject* target = GOMove::GetGameObject(player, GObjectID, isHex);
+                GameObject* target = GOMove::GetGameObject(player, lowguid);
                 if (!target)
-                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %u not found. Temporary: %s", GObjectID, isHex ? "true" : "false");
+                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %u not found", lowguid);
                 else
                 {
                     float x, y, z, o;
@@ -193,19 +189,19 @@ public:
                     uint32 p = target->GetPhaseMask();
                     switch (ID)
                     {
-                    case NORTH: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y, z, o, p, GObjectID, isHex);                            break;
-                    case EAST: GOMove::MoveGameObject(player, x, y - ((float)ARG / 100), z, o, p, GObjectID, isHex);                             break;
-                    case SOUTH: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y, z, o, p, GObjectID, isHex);                            break;
-                    case WEST: GOMove::MoveGameObject(player, x, y + ((float)ARG / 100), z, o, p, GObjectID, isHex);                             break;
-                    case NORTHEAST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, GObjectID, isHex);   break;
-                    case SOUTHEAST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, GObjectID, isHex);   break;
-                    case SOUTHWEST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, GObjectID, isHex);   break;
-                    case NORTHWEST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, GObjectID, isHex);   break;
-                    case UP: GOMove::MoveGameObject(player, x, y, z + ((float)ARG / 100), o, p, GObjectID, isHex);                               break;
-                    case DOWN: GOMove::MoveGameObject(player, x, y, z - ((float)ARG / 100), o, p, GObjectID, isHex);                             break;
-                    case RIGHT: GOMove::MoveGameObject(player, x, y, z, o - ((float)ARG / 100), p, GObjectID, isHex);                            break;
-                    case LEFT: GOMove::MoveGameObject(player, x, y, z, o + ((float)ARG / 100), p, GObjectID, isHex);                             break;
-                    case PHASE: GOMove::MoveGameObject(player, x, y, z, o, ARG, GObjectID, isHex);                                               break;
+                    case NORTH: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y, z, o, p, lowguid);                            break;
+                    case EAST: GOMove::MoveGameObject(player, x, y - ((float)ARG / 100), z, o, p, lowguid);                             break;
+                    case SOUTH: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y, z, o, p, lowguid);                            break;
+                    case WEST: GOMove::MoveGameObject(player, x, y + ((float)ARG / 100), z, o, p, lowguid);                             break;
+                    case NORTHEAST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, lowguid);   break;
+                    case SOUTHEAST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, lowguid);   break;
+                    case SOUTHWEST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, lowguid);   break;
+                    case NORTHWEST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, lowguid);   break;
+                    case UP: GOMove::MoveGameObject(player, x, y, z + ((float)ARG / 100), o, p, lowguid);                               break;
+                    case DOWN: GOMove::MoveGameObject(player, x, y, z - ((float)ARG / 100), o, p, lowguid);                             break;
+                    case RIGHT: GOMove::MoveGameObject(player, x, y, z, o - ((float)ARG / 100), p, lowguid);                            break;
+                    case LEFT: GOMove::MoveGameObject(player, x, y, z, o + ((float)ARG / 100), p, lowguid);                             break;
+                    case PHASE: GOMove::MoveGameObject(player, x, y, z, o, ARG, lowguid);                                               break;
                     }
                 }
             }
@@ -224,24 +220,8 @@ public:
                 } break;
                 case SELECTALLNEAR:
                 {
-                    if (ARG > 5000)
-                        ARG = 5000;
-
-                    QueryResult result = WorldDatabase.PQuery("SELECT guid, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%u' AND position_x BETWEEN '%f'-'%u' AND '%f'+'%u' AND position_y BETWEEN '%f'-'%u' AND '%f'+'%u' AND position_z BETWEEN '%f'-'%u' AND '%f'+'%u' ORDER BY order_ ASC LIMIT 100",
-                        player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetPositionX(), ARG, player->GetPositionX(), ARG, player->GetPositionY(), ARG, player->GetPositionY(), ARG, player->GetPositionZ(), ARG, player->GetPositionZ(), ARG);
-
-                    if (result)
-                    {
-                        do
-                        {
-                            Field* fields = result->Fetch();
-                            uint32 guidLow = fields[0].GetUInt32();
-
-                            if (GOMove::GetGameObject(player, guidLow, false))
-                                GOMove::SendAdd(player, guidLow, false);
-                        } while (result->NextRow());
-                    }
-                    GOMove::Store.SendSelectTempInRange(player, ARG);
+                    for (GameObject const * go : GOMove::GetNearbyGameObjects(player, static_cast<float>(ARG)))
+                        GOMove::SendAdd(player, go->GetSpawnId());
                 } break;
                 }
             }
