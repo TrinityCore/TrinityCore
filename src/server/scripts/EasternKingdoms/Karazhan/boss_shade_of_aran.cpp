@@ -540,7 +540,7 @@ public:
             if (!player)
                 return;
 
-            for (uint8 id : AtieshStaves)
+            for (uint32 id : AtieshStaves)
             {
                 if (!PlayerHasWeaponEquipped(player, id))
                     continue;
@@ -557,12 +557,9 @@ public:
         private:
             bool PlayerHasWeaponEquipped(Player* player, uint32 itemEntry)
             {
-                for (uint8 slot : {EQUIPMENT_SLOT_MAINHAND, EQUIPMENT_SLOT_OFFHAND, EQUIPMENT_SLOT_RANGED})
-                {
-                    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-                    if (item && item->GetEntry() == itemEntry)
-                        return true;
-                }
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                if (item && item->GetEntry() == itemEntry)
+                    return true;
 
                 return false;
             }
