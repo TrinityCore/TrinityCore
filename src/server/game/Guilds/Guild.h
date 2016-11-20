@@ -372,7 +372,7 @@ class TC_GAME_API Guild
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
-                void ChangeRank(uint8 newRank);
+                void ChangeRank(SQLTransaction& trans, uint8 newRank);
 
                 inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
@@ -824,7 +824,7 @@ class TC_GAME_API Guild
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = nullptr)
         {
-            for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+            for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
                 if (Player* player = itr->second->FindConnectedPlayer())
                     if (player != except)
                         _do(player);
@@ -832,9 +832,9 @@ class TC_GAME_API Guild
 
         // Members
         // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-        bool AddMember(ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
-        void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
-        bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
+        bool AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
+        void DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
+        bool ChangeMemberRank(SQLTransaction& trans, ObjectGuid guid, uint8 newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
 
@@ -883,7 +883,7 @@ class TC_GAME_API Guild
 
     private:
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
-        inline const RankInfo* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
+        inline RankInfo const* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
         inline RankInfo* GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
         bool _HasRankRight(Player const* player, uint32 right) const;
 
@@ -891,39 +891,39 @@ class TC_GAME_API Guild
 
         inline uint8 _GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
         inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
-        inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
+        inline BankTab const* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
 
-        inline const Member* GetMember(ObjectGuid const& guid) const
+        inline Member const* GetMember(ObjectGuid const& guid) const
         {
-            Members::const_iterator itr = m_members.find(guid);
+            auto itr = m_members.find(guid);
             return itr != m_members.end() ? itr->second : nullptr;
         }
 
         inline Member* GetMember(ObjectGuid const& guid)
         {
-            Members::iterator itr = m_members.find(guid);
+            auto itr = m_members.find(guid);
             return itr != m_members.end() ? itr->second : nullptr;
         }
 
         inline Member* GetMember(std::string const& name)
         {
-            for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+            for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
                 if (itr->second->GetName() == name)
                     return itr->second;
 
             return nullptr;
         }
 
-        static void _DeleteMemberFromDB(ObjectGuid::LowType lowguid);
+        static void _DeleteMemberFromDB(SQLTransaction& trans, ObjectGuid::LowType lowguid);
 
         // Creates log holders (either when loading or when creating guild)
         void _CreateLogHolders();
         // Tries to create new bank tab
         void _CreateNewBankTab();
         // Creates default guild ranks with names in given locale
-        void _CreateDefaultGuildRanks(LocaleConstant loc);
+        void _CreateDefaultGuildRanks(SQLTransaction& trans, LocaleConstant loc);
         // Creates new rank
-        bool _CreateRank(std::string const& name, uint32 rights);
+        bool _CreateRank(SQLTransaction& trans, std::string const& name, uint32 rights);
         // Update account number when member added/removed from guild
         void _UpdateAccountsNumber();
         bool _IsLeader(Player* player) const;
