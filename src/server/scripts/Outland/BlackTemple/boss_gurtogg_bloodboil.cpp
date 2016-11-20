@@ -66,6 +66,12 @@ enum Phases
     GROUP_PHASE_2 = 2
 };
 
+enum Sounds
+{
+    SOUND_ID_DEATH  = 11439,
+    SOUND_ID_ENRAGE = 11437
+};
+
 enum Events
 {
     EVENT_BERSERK = 1,
@@ -162,6 +168,12 @@ public:
                 Talk(SAY_SLAY);
         }
 
+        void JustDied(Unit* /*killer*/) override
+        {
+            _JustDied();
+            DoPlaySoundToSet(me, SOUND_ID_DEATH);
+        }
+
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
@@ -248,7 +260,7 @@ public:
                         break;
                     case EVENT_BERSERK:
                         DoCast(SPELL_BERSERK);
-                        Talk(SAY_ENRAGE);
+                        roll_chance_i(50) ? Talk(SAY_ENRAGE) : DoPlaySoundToSet(me, SOUND_ID_ENRAGE);
                         break;
                     default:
                         break;
