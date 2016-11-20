@@ -5122,10 +5122,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
-    // passive spells must check equipped items class (55108 for example)
-    else if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ITEM_CHECK) && (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT)))
-        if (!m_caster->ToPlayer()->HasItemFitToSpellRequirements(m_spellInfo))
-            return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
 
     // Triggered spells also have range check
     /// @todo determine if there is some flag to enable/disable the check
