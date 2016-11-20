@@ -29,10 +29,13 @@
 #include "SocialMgr.h"
 #include "Opcodes.h"
 
-#define MAX_GUILD_BANK_TAB_TEXT_LEN 500
-#define EMBLEM_PRICE 10 * GOLD
 
-std::string _GetGuildEventString(GuildEvents event)
+size_t const MAX_GUILD_BANK_TAB_TEXT_LEN = 500;
+
+uint32 const EMBLEM_PRICE = 10 * GOLD;
+
+// only used in logs
+char const* GetGuildEventString(GuildEvents event)
 {
     switch (event)
     {
@@ -82,18 +85,13 @@ std::string _GetGuildEventString(GuildEvents event)
     return "<None>";
 }
 
-inline uint32 _GetGuildBankTabPrice(uint8 tabId)
+inline uint32 GetGuildBankTabPrice(uint8 tabId)
 {
-    switch (tabId)
-    {
-        case 0: return 100;
-        case 1: return 250;
-        case 2: return 500;
-        case 3: return 1000;
-        case 4: return 2500;
-        case 5: return 5000;
-        default: return 0;
-    }
+    // these prices are in gold units, not copper
+    static uint32 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000 };
+    ASSERT(tabId < GUILD_BANK_MAX_TABS);
+
+    return tabPrices[tabId];
 }
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string const& param)
@@ -121,7 +119,7 @@ void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode
 Guild::LogHolder::~LogHolder()
 {
     // Cleanup
-    for (GuildLog::iterator itr = m_log.begin(); itr != m_log.end(); ++itr)
+    for (auto itr = m_log.begin(); itr != m_log.end(); ++itr)
         delete (*itr);
 }
 
@@ -1497,10 +1495,10 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (tabId != _GetPurchasedTabsSize())
         return;
 
-    uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
-    if (!tabCost)
+    if (tabId >= GUILD_BANK_MAX_TABS)
         return;
 
+    uint32 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
     if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
         return;
 
@@ -2855,7 +2853,7 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char*
 
     BroadcastPacket(&data);
 
-    TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
+    TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", GetGuildEventString(guildEvent), guildEvent);
 }
 
 void Guild::_SendBankList(WorldSession* session /* = NULL*/, uint8 tabId /*= 0*/, bool sendAllSlots /*= false*/, SlotIds *slots /*= NULL*/) const
