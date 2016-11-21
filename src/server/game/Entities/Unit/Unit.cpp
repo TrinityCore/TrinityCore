@@ -9182,6 +9182,8 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
+    if (GetTypeId() == TYPEID_UNIT)
+        ToCreature()->UpdateMovementFlags();
 }
 
 void Unit::Dismount()
@@ -9207,6 +9209,8 @@ void Unit::Dismount()
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
+    if (GetTypeId() == TYPEID_UNIT)
+        ToCreature()->UpdateMovementFlags();
 
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
