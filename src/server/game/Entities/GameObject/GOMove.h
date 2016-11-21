@@ -45,7 +45,7 @@ public:
     static GameObject* GetGameObject(Player* player, ObjectGuid::LowType lowguid);
     static GameObject* SpawnGameObject(Player* player, float x, float y, float z, float o, uint32 p, uint32 entry);
     static GameObject* MoveGameObject(Player* player, float x, float y, float z, float o, uint32 p, ObjectGuid::LowType lowguid);
-    static std::vector<GameObject*> GetNearbyGameObjects(Player* player, float range);
+    static std::list<GameObject*> GetNearbyGameObjects(Player* player, float range);
 };
 
 #endif
