@@ -573,7 +573,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.movementAnimKit  = fields[8].GetUInt16();
         creatureAddon.meleeAnimKit     = fields[9].GetUInt16();
 
-        Tokenizer tokens(fields[9].GetString(), ' ');
+        Tokenizer tokens(fields[10].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -607,7 +607,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             }
             else if (creatureAddon.mountInhabitType <= 0 || creatureAddon.mountInhabitType > INHABIT_ANYWHERE)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong `mountInhabitType` (%u) in `creature_template_addon`, creature will not correctly walk/swim/fly with a mount", entry, creatureAddon.mountInhabitType);
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong value (%u) for `mountInhabitType` defined in `creature_template_addon`, creature will not correctly walk/swim/fly when mounted.", entry, creatureAddon.mountInhabitType);
                 creatureAddon.mountInhabitType = INHABIT_ANYWHERE;
             }
         }
@@ -1017,8 +1017,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5        6             7              8          9
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, auras FROM creature_addon");
+    //                                                0       1       2           3            4       5       6        7             8              9         10
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, mountInhabitType, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1058,7 +1058,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.movementAnimKit  = fields[8].GetUInt16();
         creatureAddon.meleeAnimKit     = fields[9].GetUInt16();
 
-        Tokenizer tokens(fields[9].GetString(), ' ');
+        Tokenizer tokens(fields[10].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -1087,12 +1087,12 @@ void ObjectMgr::LoadCreatureAddons()
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid displayInfoId (%u) for mount defined in `creature_addon`", guid, creatureAddon.mount);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid displayInfoId (%u) for mount defined in `creature_addon`.", guid, creatureAddon.mount);
                 creatureAddon.mount = 0;
             }
             else if (creatureAddon.mountInhabitType <= 0 || creatureAddon.mountInhabitType > INHABIT_ANYWHERE)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong `mountInhabitType` (%u) in `creature_addon`, creature will not correctly walk/swim/fly with a mount", guid, creatureAddon.mountInhabitType);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has wrong value (%u) for `mountInhabitType` defined in `creature_addon`, creature will not correctly walk/swim/fly when mounted.", guid, creatureAddon.mountInhabitType);
                 creatureAddon.mountInhabitType = INHABIT_ANYWHERE;
             }
         }
