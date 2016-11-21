@@ -146,10 +146,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
 void WorldPackets::Mail::MailGetList::Read()
 {
     _worldPacket >> Mailbox;
-    LowGuids.resize(_worldPacket.read<int32>());
-
-    for (auto& l : LowGuids)
-        _worldPacket >> l;
 }
 
 WorldPacket const* WorldPackets::Mail::MailListResult::Write()
