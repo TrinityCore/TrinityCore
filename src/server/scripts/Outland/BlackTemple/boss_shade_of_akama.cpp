@@ -197,7 +197,9 @@ Position const BrokenWP[18] =
     { 478.8986f, 370.1895f, 112.7839f }
 };
 
-static float const MIDDLE_OF_ROOM = 400.0f;
+static float const MIDDLE_OF_ROOM    = 400.0f;
+static float const FACE_THE_DOOR     = 0.08726646f;
+static float const FACE_THE_PLATFORM = 3.118662f;
 
 class boss_shade_of_akama : public CreatureScript
 {
@@ -479,7 +481,7 @@ public:
                         me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
                         break;
                     case EVENT_SHADE_CHANNEL:
-                        me->SetFacingTo(3.118662f);
+                        me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
                         me->setFaction(FACTION_COMBAT);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
@@ -496,7 +498,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
-                        me->SetFacingTo(0.08726646f, true);
+                        me->SetFacingTo(FACE_THE_DOOR, true);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;

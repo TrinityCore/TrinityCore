@@ -84,7 +84,7 @@ enum GameObjectIds
     GO_TERON_DOOR_1                 = 185480,
     GO_TERON_DOOR_2                 = 186153,
     GO_GURTOGG_DOOR                 = 185892,
-    GO_TEMPLE_DOOR                  = 185479,
+    GO_DEN_OF_MORTAL_DOOR           = 185479,
     GO_MOTHER_SHAHRAZ_DOOR          = 185482,
     GO_COUNCIL_DOOR_1               = 185481,
     GO_COUNCIL_DOOR_2               = 186152,
