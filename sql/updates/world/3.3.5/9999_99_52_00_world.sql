@@ -7,7 +7,7 @@ UPDATE `creature_template` SET `spell1`=40325, `spell3`=40157, `spell4`=40175, `
 DELETE FROM `creature_text` where `entry`=22871;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (22871, 0, 0, 'I was the first you know. For me the wheel of death has spun many times. So much time has passed... I have a lot of catching up to do.' , 14, 0, 100, 0, 0, 11512, 21098, 0, 'Teron SAY_INTRO'),
-(22871, 1, 0, 'Vengeance is mine!', 14, 0, 100, 0, 0, 11513, 28969, 0, 'Teron SAY_AGGRO'),
+(22871, 1, 0, 'Vengeance is mine!', 14, 0, 100, 0, 0, 11513, 21097, 0, 'Teron SAY_AGGRO'),
 (22871, 2, 0, 'I have use for you...', 14, 0, 100, 0, 0, 11514, 21099, 0, 'Teron SAY_SLAY1'),
 (22871, 2, 1, 'It gets worse.', 14, 0, 100, 0, 0, 11515, 21100, 0, 'Teron SAY_SLAY2'),
 (22871, 3, 0, 'What are you afraid of?', 14, 0, 100, 0, 0, 11517, 21102, 0, 'Teron SAY_INCINERATE1'),
