@@ -619,7 +619,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
                 {
                     uint8 rank = GetSpellInfo()->GetRank();
                     if (totem->IsTotem())
-                        totem->CastSpell(totem, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank), true);
+                        totem->CastSpell(totem, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank), true, nullptr, nullptr, caster->GetGUID());
                 }
             }
 
