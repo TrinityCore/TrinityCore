@@ -220,7 +220,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -260,6 +260,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -444,7 +445,6 @@ public:
             else if (pointId == AKAMA_INTRO_WAYPOINT)
             {
                 me->SetWalk(false);
-                me->SetFacingTo(0.08726646f, true);
                 _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, Seconds(1));
             }
         }
@@ -496,6 +496,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
+                        me->SetFacingTo(0.08726646f, true);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;

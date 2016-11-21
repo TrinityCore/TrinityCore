@@ -47,6 +47,7 @@ enum DataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
 
     DATA_GO_ILLIDAN_GATE            = 16,
+    DATA_BLACK_TEMPLE_TRIGGER       = 17
 };
 
 enum CreatureIds
@@ -70,7 +71,8 @@ enum CreatureIds
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
     NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
     NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
-    NPC_SUPREMUS_VOLCANO            = 23085
+    NPC_SUPREMUS_VOLCANO            = 23085,
+    NPC_BLACK_TEMPLE_TRIGGER        = 22984
 };
 
 enum GameObjectIds
