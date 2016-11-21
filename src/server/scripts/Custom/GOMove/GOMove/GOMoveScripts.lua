@@ -27,12 +27,12 @@ function GOMove.SelL:Del(guid)
     end
 end
 
-GOMove.Selected = {}
+GOMove.Selected = {list = {}}
 function GOMove.Selected:Add(name, guid)
-    self[guid] = name
+    self.list[guid] = name
 end
 function GOMove.Selected:Del(guid)
-    self[guid] = nil
+    self.list[guid] = nil
 end
 
 -- FAVOURITE LIST
@@ -51,7 +51,7 @@ local SelFrame = GOMove:CreateFrame("Selection_List", 250, 280, GOMove.SelL, tru
 SelFrame:Position("BOTTOMRIGHT", FavFrame, "TOPRIGHT", 0, 0)
 function SelFrame:ButtonOnClick(ID)
     local DATAID = FauxScrollFrame_GetOffset(self.ScrollBar) + ID
-    if(GOMove.Selected[self.DataTable[DATAID][2]]) then
+    if(GOMove.Selected.list[self.DataTable[DATAID][2]]) then
         GOMove.Selected:Del(self.DataTable[DATAID][2])
     else
         GOMove.Selected:Add(self.DataTable[DATAID][1], self.DataTable[DATAID][2])
@@ -67,7 +67,7 @@ end
 function SelFrame:UpdateScript(ID)
     local DATAID = FauxScrollFrame_GetOffset(self.ScrollBar) + ID
     if(self.DataTable[DATAID]) then
-        if(GOMove.Selected[self.DataTable[DATAID][2]]) then
+        if(GOMove.Selected.list[self.DataTable[DATAID][2]]) then
             self.Buttons[ID]:GetFontString():SetTextColor(1, 0.8, 0)
         else
             self.Buttons[ID]:GetFontString():SetTextColor(1, 1, 1)
@@ -82,20 +82,16 @@ ClearButton:SetHighlightTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-U
 ClearButton:SetPoint("TOPRIGHT", SelFrame, "TOPRIGHT", -30, -5)
 ClearButton:SetScript("OnClick", function()
     local empty = true
-    for k,v in pairs(GOMove.Selected) do
-        if(tonumber(k)) then
-            empty = false
-        end
+    for k,v in pairs(GOMove.Selected.list) do
+        empty = false
     end
     if(empty) then
         for k, tbl in ipairs(SelFrame.DataTable) do
             GOMove.Selected:Add(tbl[1], tbl[2])
         end
     else
-        for k,v in pairs(GOMove.Selected) do
-            if(tonumber(k)) then
-                GOMove.Selected:Del(k)
-            end
+        for k,v in pairs(GOMove.Selected.list) do
+            GOMove.Selected:Del(k)
         end
     end
     SelFrame:Update()
@@ -141,10 +137,8 @@ EmptyButton:SetHighlightTexture("Interface\\Buttons\\CancelButton-Highlight")
 EmptyButton:SetPoint("TOPRIGHT", SelFrame, "TOPRIGHT", -45, 0)
 EmptyButton:SetHitRectInsets(9, 7, 7, 10)
 EmptyButton:SetScript("OnClick", function()
-    for k,v in pairs(GOMove.Selected) do
-        if(tonumber(k)) then
-            GOMove.Selected:Del(k)
-        end
+    for k,v in pairs(GOMove.Selected.list) do
+        GOMove.Selected:Del(k)
     end
     for i = #SelFrame.DataTable, 1, -1 do
         SelFrame.DataTable:Del(SelFrame.DataTable[i][2])
@@ -320,10 +314,8 @@ function GOMove.SCMD.reset()
 end
 function GOMove.SCMD.invertselection()
     local sel = {}
-    for GUID, NAME in pairs(GOMove.Selected) do
-        if(tonumber(GUID)) then
-            table.insert(sel, GUID)
-        end
+    for GUID, NAME in pairs(GOMove.Selected.list) do
+        table.insert(sel, GUID)
     end
     for k, tbl in ipairs(SelFrame.DataTable) do
         GOMove.Selected:Add(tbl[1], tbl[2])
@@ -356,9 +348,12 @@ local EventFrame = CreateFrame("Frame")
 EventFrame:RegisterEvent("ADDON_LOADED")
 EventFrame:RegisterEvent("CHAT_MSG_ADDON")
 
+assert(RegisterAddonMessagePrefix("GOMOVE"))
+
 EventFrame:SetScript("OnEvent",
     function(self, event, MSG, MSG2, Type, Sender)
-        if(event == "CHAT_MSG_ADDON" and Sender == UnitName("player")) then
+        local playername = UnitName("player").."-"..GetRealmName()
+        if(event == "CHAT_MSG_ADDON" and Sender == playername) then
             if MSG ~= "GOMOVE" then return end
             local ID, ENTRYORGUID, ARG2, ARG3 = MSG2:match("^(.+)|([%a%d]+)|(.*)|([%a%d]+)$")
             if(ID) then
@@ -396,7 +391,7 @@ EventFrame:SetScript("OnEvent",
                     GOMove:Update()
                 elseif(ID == "SWAP") then
                     local oldGUID, newGUID = ENTRYORGUID, ARG3
-                    GOMove.Selected:Add(GOMove.Selected[oldGUID], newGUID)
+                    GOMove.Selected:Add(GOMove.Selected.list[oldGUID], newGUID)
                     GOMove.Selected:Del(oldGUID)
                     for k,tbl in ipairs(GOMove.SelL) do
                         if(tbl[2] == oldGUID) then

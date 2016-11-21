@@ -33,22 +33,7 @@ void GOMove::SendAddonMessage(Player * player, const char * msg)
     if (!player || !msg)
         return;
 
-    char buf[256];
-    snprintf(buf, 256, "GOMOVE\t%s", msg);
-
-    // copy paste addon message packet
-    WorldPacket data; // Needs a custom built packet since TC doesnt send guid
-    uint32 messageLength = static_cast<uint32>(std::strlen(buf) + 1);
-    data.Initialize(SMSG_MESSAGECHAT, 100);
-    data << uint8(CHAT_MSG_SYSTEM);
-    data << int32(LANG_ADDON);
-    data << uint64(player->GetGUID());
-    data << uint32(0);
-    data << uint64(player->GetGUID());
-    data << uint32(messageLength);
-    data << buf;
-    data << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    player->WhisperAddon(msg, "GOMOVE", player);
 }
 
 GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
@@ -66,15 +51,15 @@ void GOMove::SendAdd(Player * player, ObjectGuid::LowType lowguid)
     GameObjectTemplate const* temp = sObjectMgr->GetGameObjectTemplate(data->id);
     if (!temp)
         return;
-    char msg[256];
-    snprintf(msg, 256, "ADD|%u|%s|%u", lowguid, temp->name.c_str(), data->id);
+    char msg[1024];
+    snprintf(msg, 1024, "ADD|%s|%s|%u", std::to_string(lowguid).c_str(), temp->name.c_str(), data->id);
     SendAddonMessage(player, msg);
 }
 
 void GOMove::SendRemove(Player * player, ObjectGuid::LowType lowguid)
 {
-    char msg[256];
-    snprintf(msg, 256, "REMOVE|%u||0", lowguid);
+    char msg[1024];
+    snprintf(msg, 1024, "REMOVE|%s||0", std::to_string(lowguid).c_str());
 
     SendAddonMessage(player, msg);
 }
@@ -86,13 +71,16 @@ void GOMove::DeleteGameObject(GameObject * object)
 
     // copy paste .gob del command
     ObjectGuid ownerGuid = object->GetOwnerGUID();
-    if (ownerGuid != ObjectGuid::Empty)
+    if (!ownerGuid.IsEmpty())
     {
         Unit* owner = ObjectAccessor::GetUnit(*object, ownerGuid);
-        if (owner && ownerGuid.IsPlayer())
-            owner->RemoveGameObject(object, false);
+        if (!owner || !ownerGuid.IsPlayer())
+            return;
+
+        owner->RemoveGameObject(object, false);
     }
-    object->SetRespawnTime(0);
+
+    object->SetRespawnTime(0);                                 // not save respawn time
     object->Delete();
     object->DeleteFromDB();
 }
@@ -105,10 +93,10 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     if (!MapManager::IsValidMapCoord(player->GetMapId(), x, y, z))
         return nullptr;
 
-    Position pos(x, y, z, o);
-
     // copy paste .gob add command
-    GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(entry);
+
+    const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(entry);
+
     if (!objectInfo)
         return nullptr;
 
@@ -117,11 +105,8 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     Map* map = player->GetMap();
 
-    GameObject* object = new GameObject();
-    ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
-
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
-    if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), pos, rot, 255, GO_STATE_READY))
+    GameObject* object = new GameObject;
+    if (!object->Create(objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete object;
         return nullptr;
@@ -129,7 +114,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     // fill the gameobject data and save to the db
     object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), p);
-    guidLow = object->GetSpawnId();
+    ObjectGuid::LowType guidLow = object->GetSpawnId();
 
     // delete the old object and do a clean load from DB with a fresh new GameObject instance.
     // this is required to avoid weird behavior and memory leaks
@@ -144,7 +129,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     }
 
     /// @todo is it really necessary to add both the real and DB table guid here ?
-    sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
+    sObjectMgr->AddGameobjectToGrid(guidLow, ASSERT_NOTNULL(sObjectMgr->GetGOData(guidLow)));
 
     if (object)
         SendAdd(player, guidLow);
@@ -171,7 +156,8 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     // copy paste .gob move command
     // copy paste .gob turn command
     object->Relocate(x, y, z, o);
-    object->SetWorldRotationAngles(o, 0, 0);
+    object->RelocateStationaryPosition(x, y, z, o);
+    object->UpdateRotationFields();
     object->SaveToDB();
 
     // Generate a completely new spawn with new guid
@@ -189,8 +175,8 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     }
 
     // copy paste from .gob phase command
-    object->SetPhaseMask(p, true);
-    object->SaveToDB();
+    // object->SetPhaseMask(p, true);
+    // object->SaveToDB();
 
     return object;
 }

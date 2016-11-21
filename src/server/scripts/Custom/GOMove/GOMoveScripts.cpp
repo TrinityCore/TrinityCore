@@ -84,9 +84,9 @@ public:
         uint32 ID = static_cast<uint32>(atoul(ID_t));
 
         char* cLowguid = strtok(nullptr, " ");
-        uint32 lowguid = 0;
+        ObjectGuid::LowType lowguid = 0;
         if (cLowguid)
-            lowguid = atoul(cLowguid);
+            lowguid = static_cast<ObjectGuid::LowType>(atoull(cLowguid));
 
         char* ARG_t = strtok(nullptr, " ");
         uint32 ARG = 0;
@@ -104,7 +104,7 @@ public:
             {
                 GameObject* target = GOMove::GetGameObject(player, lowguid);
                 if (!target)
-                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %u not found.", lowguid);
+                    ChatHandler(player->GetSession()).PSendSysMessage("Object GUID: %s not found.", std::to_string(lowguid).c_str());
                 else
                 {
                     float x, y, z, o;
@@ -133,13 +133,13 @@ public:
                     } break;
                     case GROUND:
                     {
-                        float ground = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, MAX_HEIGHT);
+                        float ground = target->GetMap()->GetHeight(0, x, y, MAX_HEIGHT);
                         if (ground != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, ground, o, p, lowguid);
                     } break;
                     case FLOOR:
                     {
-                        float floor = target->GetMap()->GetHeight(target->GetPhaseMask(), x, y, z);
+                        float floor = target->GetMap()->GetHeight(0, x, y, z);
                         if (floor != INVALID_HEIGHT)
                             GOMove::MoveGameObject(player, x, y, floor, o, p, lowguid);
                     } break;
@@ -151,7 +151,7 @@ public:
                 switch (ID)
                 {
                 case TEST:
-                    session->SendAreaTriggerMessage("%s", player->GetName().c_str());
+                    session->SendNotification("%s", player->GetName().c_str());
                     break;
                 case FACE:
                 {
@@ -169,7 +169,7 @@ public:
                     else
                     {
                         GOMove::SendAdd(player, object->GetSpawnId());
-                        session->SendAreaTriggerMessage("Selected %s", object->GetName().c_str());
+                        session->SendNotification("Selected %s", object->GetName().c_str());
                     }
                 } break;
                 }
@@ -211,7 +211,7 @@ public:
                 {
                 case SPAWN:
                 {
-                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), ARG))
+                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseMask(), ARG))
                         GOMove::Store.SpawnQueAdd(player->GetGUID(), ARG);
                 } break;
                 case SPAWNSPELL:
@@ -255,7 +255,7 @@ public:
             if (!summonPos)
                 return;
             if (uint32 entry = GOMove::Store.SpawnQueGet(player->GetGUID()))
-                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseMaskForSpawn(), entry);
+                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseMask(), entry);
         }
 
         void Register() override

@@ -192,6 +192,11 @@ TID("SPAWNSPELL"        ,   false   ,   true    )
 --TID("BIG"             ,   false   ,   false   )
 --TID("SMALL"           ,   false   ,   false   )
 
+local tem = SendChatMessage
+local function SendChatMessage(...)
+    print(...)
+    tem(...)
+end
 function GOMove:Move(ID, input)
     if(UnitIsDeadOrGhost("player")) then
         NotWhileDeadError()
@@ -209,19 +214,17 @@ function GOMove:Move(ID, input)
         return
     end
     if(not trinityID[ID][2]) then
-        SendAddonMessage(".gomove "..trinityID[ID][1].." "..(0).." "..ARG, "", "WHISPER", UnitName("player"))
+        SendChatMessage(".gomove "..trinityID[ID][1].." "..(0).." "..ARG, "WHISPER", nil, UnitName("player"))
     elseif(trinityID[ID][3] and tonumber(ARG) and tonumber(ARG) > 0) then
-        SendAddonMessage(".gomove "..trinityID[ID][1].." "..ARG.." "..(0), "", "WHISPER", UnitName("player"))
+        SendChatMessage(".gomove "..trinityID[ID][1].." "..ARG.." "..(0), "WHISPER", nil, UnitName("player"))
     else
         local did = false
-        for GUID, NAME in pairs(GOMove.Selected) do
-            if(tonumber(GUID)) then
-                SendAddonMessage(".gomove "..trinityID[ID][1].." "..GUID.." "..ARG, "", "WHISPER", UnitName("player"))
-                if(ID == "GOTO") then
-                    return
-                end
-                did = true
+        for GUID, NAME in pairs(GOMove.Selected.list) do
+            SendChatMessage(".gomove "..trinityID[ID][1].." "..GUID.." "..ARG, "WHISPER", nil, UnitName("player"))
+            if(ID == "GOTO") then
+                return
             end
+            did = true
         end
         if(not did) then
             UIErrorsFrame:AddMessage("No objects selected", 1.0, 0.0, 0.0, 53, 2)
