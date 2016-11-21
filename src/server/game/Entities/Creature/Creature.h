@@ -723,9 +723,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool CanWalk() const { return GetInhabitType() & INHABIT_GROUND; }
-        bool CanSwim() const { return GetInhabitType() & INHABIT_WATER; }
-        bool CanFly()  const override { return GetInhabitType() & INHABIT_AIR; }
+        bool CanWalk() const { return (GetInhabitType() & INHABIT_GROUND) != 0; }
+        bool CanSwim() const { return (GetInhabitType() & INHABIT_WATER) != 0; }
+        bool CanFly()  const override { return (GetInhabitType() & INHABIT_AIR)!= 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
