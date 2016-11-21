@@ -41,6 +41,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameTables.h"
 #include "GarrisonMgr.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -58,6 +59,7 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "GitRevision.h"
+#include "ScenarioMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
@@ -478,37 +480,36 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ENABLE_SINFO_LOGIN] = sConfigMgr->GetIntDefault("Server.LoginInfo", 0);
 
     ///- Read all rates from the config file
-    rate_values[RATE_HEALTH]      = sConfigMgr->GetFloatDefault("Rate.Health", 1.0f);
-    if (rate_values[RATE_HEALTH] < 0)
+    auto setRegenRate = [this](Rates rate, char const* configKey)
     {
-        TC_LOG_ERROR("server.loading", "Rate.Health (%f) must be > 0. Using 1 instead.", rate_values[RATE_HEALTH]);
-        rate_values[RATE_HEALTH] = 1;
-    }
-    rate_values[RATE_POWER_MANA]  = sConfigMgr->GetFloatDefault("Rate.Mana", 1.0f);
-    if (rate_values[RATE_POWER_MANA] < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Rate.Mana (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_MANA]);
-        rate_values[RATE_POWER_MANA] = 1;
-    }
-    rate_values[RATE_POWER_RAGE_INCOME] = sConfigMgr->GetFloatDefault("Rate.Rage.Income", 1.0f);
-    rate_values[RATE_POWER_RAGE_LOSS]   = sConfigMgr->GetFloatDefault("Rate.Rage.Loss", 1.0f);
-    if (rate_values[RATE_POWER_RAGE_LOSS] < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Rate.Rage.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RAGE_LOSS]);
-        rate_values[RATE_POWER_RAGE_LOSS] = 1;
-    }
-    rate_values[RATE_POWER_RUNICPOWER_INCOME] = sConfigMgr->GetFloatDefault("Rate.RunicPower.Income", 1.0f);
-    rate_values[RATE_POWER_RUNICPOWER_LOSS]   = sConfigMgr->GetFloatDefault("Rate.RunicPower.Loss", 1.0f);
-    if (rate_values[RATE_POWER_RUNICPOWER_LOSS] < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Rate.RunicPower.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RUNICPOWER_LOSS]);
-        rate_values[RATE_POWER_RUNICPOWER_LOSS] = 1;
-    }
-    rate_values[RATE_POWER_FOCUS]  = sConfigMgr->GetFloatDefault("Rate.Focus", 1.0f);
-    rate_values[RATE_POWER_ENERGY] = sConfigMgr->GetFloatDefault("Rate.Energy", 1.0f);
+        rate_values[rate] = sConfigMgr->GetFloatDefault(configKey, 1.0f);
+        if (rate_values[rate] < 0.0f)
+        {
+            TC_LOG_ERROR("server.loading", "%s (%f) must be > 0. Using 1 instead.", configKey, rate_values[rate]);
+            rate_values[rate] = 1.0f;
+        }
+    };
+
+    setRegenRate(RATE_HEALTH, "Rate.Health");
+    setRegenRate(RATE_POWER_MANA, "Rate.Mana");
+    setRegenRate(RATE_POWER_RAGE_INCOME, "Rate.Rage.Gain");
+    setRegenRate(RATE_POWER_RAGE_LOSS, "Rate.Rage.Loss");
+    setRegenRate(RATE_POWER_FOCUS, "Rate.Focus");
+    setRegenRate(RATE_POWER_ENERGY, "Rate.Energy");
+    setRegenRate(RATE_POWER_COMBO_POINTS_LOSS, "Rate.ComboPoints.Loss");
+    setRegenRate(RATE_POWER_RUNIC_POWER_INCOME, "Rate.RunicPower.Gain");
+    setRegenRate(RATE_POWER_RUNIC_POWER_LOSS, "Rate.RunicPower.Loss");
+    setRegenRate(RATE_POWER_SOUL_SHARDS, "Rate.SoulShards.Loss");
+    setRegenRate(RATE_POWER_LUNAR_POWER, "Rate.LunarPower.Loss");
+    setRegenRate(RATE_POWER_HOLY_POWER, "Rate.HolyPower.Loss");
+    setRegenRate(RATE_POWER_MAELSTROM, "Rate.Maelstrom.Loss");
+    setRegenRate(RATE_POWER_CHI, "Rate.Chi.Loss");
+    setRegenRate(RATE_POWER_INSANITY, "Rate.Insanity.Loss");
+    setRegenRate(RATE_POWER_ARCANE_CHARGES, "Rate.ArcaneCharges.Loss");
+    setRegenRate(RATE_POWER_FURY, "Rate.Fury.Loss");
+    setRegenRate(RATE_POWER_PAIN, "Rate.Pain.Loss");
 
     rate_values[RATE_SKILL_DISCOVERY]      = sConfigMgr->GetFloatDefault("Rate.Skill.Discovery", 1.0f);
-
     rate_values[RATE_DROP_ITEM_POOR]       = sConfigMgr->GetFloatDefault("Rate.Drop.Item.Poor", 1.0f);
     rate_values[RATE_DROP_ITEM_NORMAL]     = sConfigMgr->GetFloatDefault("Rate.Drop.Item.Normal", 1.0f);
     rate_values[RATE_DROP_ITEM_UNCOMMON]   = sConfigMgr->GetFloatDefault("Rate.Drop.Item.Uncommon", 1.0f);
@@ -807,13 +808,22 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = sConfigMgr->GetIntDefault("HeroicCharactersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 10)
+    if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 12)
     {
-        TC_LOG_ERROR("server.loading", "HeroicCharactersPerRealm (%i) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
+        TC_LOG_ERROR("server.loading", "HeroicCharactersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
         m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = 1;
     }
 
     m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForHeroicCharacter", 55);
+
+    m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
+    if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 12)
+    {
+        TC_LOG_ERROR("server.loading", "DemonHuntersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]);
+        m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = 1;
+    }
+
+    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDemonHunter", 70);
 
     m_int_configs[CONFIG_SKIP_CINEMATICS] = sConfigMgr->GetIntDefault("SkipCinematics", 0);
     if (int32(m_int_configs[CONFIG_SKIP_CINEMATICS]) < 0 || m_int_configs[CONFIG_SKIP_CINEMATICS] > 2)
@@ -865,6 +875,20 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
+    m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDemonHunterPlayerLevel", 98);
+    if (m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] < 98)
+    {
+        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel (%i) must be in range 98..MaxPlayerLevel(%u). Set to 98.",
+            m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = 98;
+    }
+    else if (m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
+    {
+        TC_LOG_ERROR("server.loading", "StartDemonHunterPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
+            m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
+    }
+
     m_int_configs[CONFIG_START_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 0);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
@@ -897,20 +921,6 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CURRENCY_RESET_INTERVAL] = 7;
     }
 
-    m_int_configs[CONFIG_CURRENCY_START_HONOR_POINTS] = sConfigMgr->GetIntDefault("Currency.StartHonorPoints", 0);
-    if (int32(m_int_configs[CONFIG_CURRENCY_START_HONOR_POINTS]) < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.StartHonorPoints (%i) must be >= 0, set to default 0.", m_int_configs[CONFIG_CURRENCY_START_HONOR_POINTS]);
-        m_int_configs[CONFIG_CURRENCY_START_HONOR_POINTS] = 0;
-    }
-    m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS] = sConfigMgr->GetIntDefault("Currency.MaxHonorPoints", 4000);
-    if (int32(m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS]) < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.MaxHonorPoints (%i) can't be negative. Set to default 4000.", m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS]);
-        m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS] = 4000;
-    }
-    m_int_configs[CONFIG_CURRENCY_MAX_HONOR_POINTS] *= 100;     //precision mod
-
     m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS] = sConfigMgr->GetIntDefault("Currency.StartApexisCrystals", 0);
     if (int32(m_int_configs[CONFIG_CURRENCY_START_APEXIS_CRYSTALS]) < 0)
     {
@@ -938,28 +948,6 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CURRENCY_MAX_JUSTICE_POINTS] = 4000;
     }
     m_int_configs[CONFIG_CURRENCY_MAX_JUSTICE_POINTS] *= 100;     //precision mod
-
-    m_int_configs[CONFIG_CURRENCY_START_CONQUEST_POINTS] = sConfigMgr->GetIntDefault("Currency.StartConquestPoints", 0);
-    if (int32(m_int_configs[CONFIG_CURRENCY_START_CONQUEST_POINTS]) < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.StartConquestPoints (%i) must be >= 0, set to default 0.", m_int_configs[CONFIG_CURRENCY_START_CONQUEST_POINTS]);
-        m_int_configs[CONFIG_CURRENCY_START_CONQUEST_POINTS] = 0;
-    }
-    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP] = sConfigMgr->GetIntDefault("Currency.ConquestPointsWeekCap", 1650);
-    if (int32(m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP]) <= 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.ConquestPointsWeekCap (%i) must be > 0, set to default 1650.", m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP]);
-        m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP] = 1650;
-    }
-    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP] *= 100;     //precision mod
-
-    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD] = sConfigMgr->GetIntDefault("Currency.ConquestPointsArenaReward", 180);
-    if (int32(m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD]) <= 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.ConquestPointsArenaReward (%i) must be > 0, set to default 180.", m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD]);
-        m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD] = 180;
-    }
-    m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD] *= 100;     //precision mod
 
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxLevel", 85);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
@@ -1010,6 +998,7 @@ void World::LoadConfigSettings(bool reload)
     }
     m_bool_configs[CONFIG_ALLOW_GM_GROUP]       = sConfigMgr->GetBoolDefault("GM.AllowInvite", false);
     m_bool_configs[CONFIG_GM_LOWER_SECURITY] = sConfigMgr->GetBoolDefault("GM.LowerSecurity", false);
+    m_int_configs[CONFIG_FORCE_SHUTDOWN_THRESHOLD] = sConfigMgr->GetIntDefault("GM.ForceShutdownThreshold", 30);
 
     m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfigMgr->GetIntDefault("Visibility.GroupMode", 1);
 
@@ -1413,6 +1402,16 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = sConfigMgr->GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = sConfigMgr->GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    // Tol Barad battlefield
+    m_bool_configs[CONFIG_TOLBARAD_ENABLE] = sConfigMgr->GetBoolDefault("TolBarad.Enable", true);
+    m_int_configs[CONFIG_TOLBARAD_PLR_MAX] = sConfigMgr->GetIntDefault("TolBarad.PlayerMax", 100);
+    m_int_configs[CONFIG_TOLBARAD_PLR_MIN] = sConfigMgr->GetIntDefault("TolBarad.PlayerMin", 0);
+    m_int_configs[CONFIG_TOLBARAD_PLR_MIN_LVL] = sConfigMgr->GetIntDefault("TolBarad.PlayerMinLvl", 85);
+    m_int_configs[CONFIG_TOLBARAD_BATTLETIME] = sConfigMgr->GetIntDefault("TolBarad.BattleTimer", 15);
+    m_int_configs[CONFIG_TOLBARAD_BONUSTIME] = sConfigMgr->GetIntDefault("TolBarad.BonusTime", 5);
+    m_int_configs[CONFIG_TOLBARAD_NOBATTLETIME] = sConfigMgr->GetIntDefault("TolBarad.NoBattleTimer", 150);
+    m_int_configs[CONFIG_TOLBARAD_RESTART_AFTER_CRASH] = sConfigMgr->GetIntDefault("TolBarad.CrashRestartTimer", 10);
+
     // Stats limits
     m_bool_configs[CONFIG_STATS_LIMITS_ENABLE] = sConfigMgr->GetBoolDefault("Stats.Limits.Enable", false);
     m_float_configs[CONFIG_STATS_LIMITS_DODGE] = sConfigMgr->GetFloatDefault("Stats.Limits.Dodge", 95.0f);
@@ -1450,6 +1449,10 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_HOTSWAP_INSTALL_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableInstall", true);
     m_bool_configs[CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnablePrefixCorrection", true);
 
+    // Check Invalid Position
+    m_bool_configs[CONFIG_CREATURE_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("Creature.CheckInvalidPosition", false);
+    m_bool_configs[CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("GameObject.CheckInvalidPosition", false);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1470,7 +1473,7 @@ void World::SetInitialWorldSettings()
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
     {
-        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
         vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
     }
 
@@ -1520,8 +1523,6 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     TC_LOG_INFO("server.loading", "Initialize data stores...");
-    ///- Load DBCs
-    LoadDBCStores(m_dataPath, m_defaultDbcLocale);
     ///- Load DB2s
     sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
     TC_LOG_INFO("misc", "Loading hotfix info...");
@@ -1529,12 +1530,10 @@ void World::SetInitialWorldSettings()
     ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
     ///- Load GameTables
-    LoadGameTables(m_dataPath, m_defaultDbcLocale);
+    LoadGameTables(m_dataPath);
 
     //Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
-
-    sSpellMgr->LoadPetFamilySpellsStore();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
@@ -1561,6 +1560,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
     sSpellMgr->LoadSpellInfoCustomAttributes();
+
+    TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
+    sSpellMgr->LoadPetFamilySpellsStore();
 
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     LoadGameObjectModelList(m_dataPath);
@@ -1596,6 +1598,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
+
+    TC_LOG_INFO("server.loading", "Loading Game Object template addons...");
+    sObjectMgr->LoadGameObjectTemplateAddons();
 
     TC_LOG_INFO("server.loading", "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
@@ -1789,6 +1794,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Pet Name Parts...");
     sObjectMgr->LoadPetNames();
 
+    TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
+    sObjectMgr->LoadSceneTemplates();
+
     CharacterDatabaseCleaner::CleanDatabase();
 
     TC_LOG_INFO("server.loading", "Loading the max pet number...");
@@ -1932,6 +1940,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
+    TC_LOG_INFO("server.loading", "Loading mount definitions...");
+    CollectionMgr::LoadMountDefinitions();
+
     TC_LOG_INFO("server.loading", "Loading GM bugs...");
     sSupportMgr->LoadBugTickets();
 
@@ -1943,9 +1954,6 @@ void World::SetInitialWorldSettings()
 
     /*TC_LOG_INFO("server.loading", "Loading GM surveys...");
     sSupportMgr->LoadSurveys();*/
-
-    TC_LOG_INFO("server.loading", "Loading client addons...");
-    AddonMgr::LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Loading garrison info...");
     sGarrisonMgr.Initialize();
@@ -2112,6 +2120,13 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
     BattlePetMgr::Initialize();
+
+    TC_LOG_INFO("server.loading", "Loading scenarios");
+    sScenarioMgr->LoadDB2Data();
+    sScenarioMgr->LoadDBData();
+
+    TC_LOG_INFO("server.loading", "Loading scenario poi data");
+    sScenarioMgr->LoadScenarioPOI();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2346,6 +2361,7 @@ void World::Update(uint32 diff)
 
             stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME));
             stmt->setUInt32(1, uint32(time(0)));
+            stmt->setUInt32(2, realm.Id.Realm);
 
             LoginDatabase.Execute(stmt);
         }
@@ -3138,7 +3154,7 @@ void World::InitRandomBGResetTime()
     m_NextRandomBGReset = bgtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!bgtime)
-        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint32(m_NextRandomBGReset));
 }
 
 void World::InitGuildResetTime()
@@ -3166,7 +3182,7 @@ void World::InitGuildResetTime()
     m_NextGuildReset = gtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!gtime)
-        sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
+        sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint32(m_NextGuildReset));
 }
 
 void World::InitCurrencyResetTime()
@@ -3196,7 +3212,7 @@ void World::InitCurrencyResetTime()
     m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
 
     if (!currencytime)
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
+        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint32(m_NextCurrencyReset));
 }
 
 void World::DailyReset()
@@ -3227,7 +3243,7 @@ void World::ResetCurrencyWeekCap()
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL));
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint64(m_NextCurrencyReset));
+    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint32(m_NextCurrencyReset));
 }
 
 void World::LoadDBAllowedSecurityLevel()
@@ -3261,7 +3277,7 @@ void World::ResetWeeklyQuests()
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
 
     m_NextWeeklyQuestReset = time_t(m_NextWeeklyQuestReset + WEEK);
-    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
+    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint32(m_NextWeeklyQuestReset));
 
     // change available weeklies
     sPoolMgr->ChangeWeeklyQuests();
@@ -3308,7 +3324,7 @@ void World::ResetMonthlyQuests()
     // plan next reset time
     m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
 
-    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
+    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint32(m_NextMonthlyQuestReset));
 }
 
 void World::ResetEventSeasonalQuests(uint16 event_id)
@@ -3336,13 +3352,13 @@ void World::ResetRandomBG()
             itr->second->GetPlayer()->SetRandomWinner(false);
 
     m_NextRandomBGReset = time_t(m_NextRandomBGReset + DAY);
-    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint32(m_NextRandomBGReset));
 }
 
 void World::ResetGuildCap()
 {
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
-    sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
+    sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint32(m_NextGuildReset));
     uint32 week = getWorldState(WS_GUILD_WEEKLY_RESET_TIME);
     week = week < 7 ? week + 1 : 1;
 
@@ -3412,7 +3428,7 @@ void World::LoadWorldStates()
 }
 
 // Setting a worldstate will save it to DB
-void World::setWorldState(uint32 index, uint64 value)
+void World::setWorldState(uint32 index, uint32 value)
 {
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     if (it != m_worldstates.end())
@@ -3436,7 +3452,7 @@ void World::setWorldState(uint32 index, uint64 value)
     m_worldstates[index] = value;
 }
 
-uint64 World::getWorldState(uint32 index) const
+uint32 World::getWorldState(uint32 index) const
 {
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     return it != m_worldstates.end() ? it->second : 0;

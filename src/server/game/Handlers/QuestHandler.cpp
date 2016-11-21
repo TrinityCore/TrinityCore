@@ -282,14 +282,25 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
                         continue;
 
-                    rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID);
-                    if (rewardProto)
+                    if (_player->CanSelectQuestPackageItem(questPackageItem))
                     {
-                        if (rewardProto->IsUsableBySpecialization(_player))
-                        {
-                            itemValid = true;
-                            break;
-                        }
+                        itemValid = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!itemValid)
+            {
+                if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItemsFallback(quest->GetQuestPackageID()))
+                {
+                    for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+                    {
+                        if (questPackageItem->ItemID != uint32(packet.ItemChoiceID))
+                            continue;
+
+                        itemValid = true;
+                        break;
                     }
                 }
             }
@@ -435,6 +446,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
+            _player->AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
             _player->RemoveActiveQuest(questId);
             _player->RemoveCriteriaTimer(CRITERIA_TIMED_TYPE_QUEST, questId);
 
@@ -665,6 +677,16 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
             response.QuestGiver.emplace_back(questgiver->GetGUID(), _player->GetQuestDialogStatus(questgiver));
         }
     }
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
+{
+    WorldPackets::Quest::WorldQuestUpdate response;
+
+    /// @todo: 7.x Has to be implemented
+    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
 
     SendPacket(response.Write());
 }

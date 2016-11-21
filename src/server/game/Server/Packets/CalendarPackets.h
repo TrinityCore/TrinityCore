@@ -168,13 +168,6 @@ namespace WorldPackets
             time_t ExpireTime = time_t(0);
         };
 
-        struct CalendarSendCalendarRaidResetInfo
-        {
-            int32 MapID = 0;
-            uint32 Duration = 0;
-            int32 Offset = 0;
-        };
-
         struct CalendarSendCalendarEventInfo
         {
             uint64 EventID = 0;
@@ -194,12 +187,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t RaidOrigin = time_t(0);
             time_t ServerTime = time_t(0);
-            time_t ServerNow = time_t(0);
             std::vector<CalendarSendCalendarInviteInfo> Invites;
             std::vector<CalendarSendCalendarRaidLockoutInfo> RaidLockouts;
-            std::vector<CalendarSendCalendarRaidResetInfo> RaidResets;
             std::vector<CalendarSendCalendarEventInfo> Events;
         };
 

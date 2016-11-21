@@ -60,7 +60,7 @@ class TC_GAME_API ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
+        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
@@ -115,10 +115,10 @@ class TC_GAME_API ChatHandler
         // Returns either the selected player or self if there is no selected player
         Player*   getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
-        // if args have single value then it return in arg2 and arg1 == NULL
+        // if args have single value then it return in arg2 and arg1 == nullptr
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);
         char*     extractQuotedArg(char* args);
 
@@ -128,7 +128,7 @@ class TC_GAME_API ChatHandler
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
-        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = NULL, std::string* player_name = NULL);
+        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;
@@ -140,13 +140,13 @@ class TC_GAME_API ChatHandler
 
         bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
     protected:
-        explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
+        explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) { }     // for CLI subclass
         static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
-        WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
+        WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
 
         // common global flag
         bool sentErrorMessage;

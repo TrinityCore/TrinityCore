@@ -20,7 +20,6 @@
 
 #include <G3D/Quat.h>
 #include "Spline.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
 

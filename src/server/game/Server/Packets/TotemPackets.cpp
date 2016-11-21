@@ -29,6 +29,9 @@ WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
     _worldPacket << Totem;
     _worldPacket << int32(Duration);
     _worldPacket << int32(SpellID);
+    _worldPacket << float(TimeMod);
+    _worldPacket.WriteBit(CannotDismiss);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

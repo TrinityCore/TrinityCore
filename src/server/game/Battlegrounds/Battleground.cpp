@@ -546,27 +546,22 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->SendDirectMessage(battlefieldStatus.Write());
 
                     // Correctly display EnemyUnitFrame
-                    player->SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, player->GetBGTeam());
+                    player->SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, player->GetBGTeam());
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
                     if (!player->IsGameMaster())
                     {
                         // remove auras with duration lower than 30s
-                        Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        player->RemoveAppliedAuras([](AuraApplication const* aurApp)
                         {
-                            AuraApplication * aurApp = iter->second;
                             Aura* aura = aurApp->GetBase();
-                            if (!aura->IsPermanent()
-                                && aura->GetDuration() <= 30*IN_MILLISECONDS
+                            return !aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
-                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                                player->RemoveAura(iter);
-                            else
-                                ++iter;
-                        }
+                                && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+                                && !aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY);
+                        });
                     }
                 }
 
@@ -861,13 +856,14 @@ void Battleground::EndBattleground(uint32 winner)
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winnerKills));
                 if (!player->GetRandomWinner())
                 {
-                    // 100cp awarded for the first random battleground won each day
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST));
                     player->SetRandomWinner(true);
+                    // TODO: win honor xp
                 }
             }
-            else // 50cp awarded for each non-rated battleground won
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST));
+            else
+            {
+                // TODO: loss honor xp
+            }
 
             player->UpdateCriteria(CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
@@ -1095,7 +1091,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetSpecId(player->GetActiveTalentGroup());
+    bp.ActiveSpec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
 
     // Add to list/maps
     m_Players[player->GetGUID()] = bp;
@@ -1914,7 +1910,7 @@ void Battleground::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
             player->StartCriteriaTimer(type, entry);
 }
 
-void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)
+void Battleground::SetBracket(PvpDifficultyEntry const* bracketEntry)
 {
     m_BracketId = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->MinLevel, bracketEntry->MaxLevel);

@@ -380,7 +380,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             else
             {
                 if (pet->isPossessed() || pet->IsVehicle()) /// @todo: confirm this check
-                    Spell::SendCastResult(GetPlayer(), spellInfo, 0, result);
+                    Spell::SendCastResult(GetPlayer(), spellInfo, spell->m_SpellVisual, spell->m_castId, result);
                 else
                     spell->SendPetCastResult(result);
 
@@ -676,7 +676,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
-    spell->m_cast_count = petCastSpell.Cast.CastID;
     spell->m_misc.Raw.Data[0] = petCastSpell.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = petCastSpell.Cast.Misc[1];
     spell->m_targets = targets;
@@ -696,6 +695,11 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
                     pet->SendPetAIReaction(petCastSpell.PetGUID);
             }
         }
+
+        WorldPackets::Spells::SpellPrepare spellPrepare;
+        spellPrepare.ClientCastID = petCastSpell.Cast.CastID;
+        spellPrepare.ServerCastID = spell->m_castId;
+        SendPacket(spellPrepare.Write());
 
         spell->prepare(&targets);
     }
@@ -720,38 +724,4 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
         petNameInvalid.RenameData.DeclinedNames = *declinedName;
 
     SendPacket(petNameInvalid.Write());
-}
-
-void WorldSession::HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& learnPetSpecializationGroup)
-{
-    if (!_player->IsInWorld())
-        return;
-
-    Pet* pet = ObjectAccessor::GetPet(*_player, learnPetSpecializationGroup.PetGUID);
-
-    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
-        pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
-        return;
-
-    if (learnPetSpecializationGroup.SpecGroupIndex >= MAX_SPECIALIZATIONS)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u out of range", learnPetSpecializationGroup.SpecGroupIndex);
-        return;
-    }
-
-    uint32 specIndex = _player->HasAuraType(SPELL_AURA_OVERRIDE_PET_SPECS) ? PET_SPEC_OVERRIDE_CLASS_INDEX : 0;
-    ChrSpecializationEntry const* petSpec = sChrSpecializationByIndexStore[specIndex][learnPetSpecializationGroup.SpecGroupIndex];
-    if (!petSpec)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - specialization index %u not found", learnPetSpecializationGroup.SpecGroupIndex);
-        return;
-    }
-
-    if (_player->getLevel() < MIN_SPECIALIZATION_LEVEL)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandlePetSetSpecializationOpcode - player level too low for specializations");
-        return;
-    }
-
-    pet->SetSpecialization(petSpec->ID);
 }

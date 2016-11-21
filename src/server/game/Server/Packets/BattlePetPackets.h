@@ -61,9 +61,10 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint16 Trap = 0;
+            bool HasJournalLock = true;
             std::vector<BattlePetSlot> Slots;
             std::vector<BattlePet> Pets;
-            bool HasJournalLock = true;
+            int32 MaxPets = 1000;
         };
 
         class BattlePetJournalLockAcquired final : public ServerPacket

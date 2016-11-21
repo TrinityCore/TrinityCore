@@ -17,8 +17,6 @@
 
 #include "ObjectDefines.h"
 #include "Containers.h"
-#include "DBCStructure.h"
-#include "DBCStores.h"
 #include "Group.h"
 #include "LFGQueue.h"
 #include "LFGMgr.h"

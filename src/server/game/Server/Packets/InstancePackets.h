@@ -160,7 +160,6 @@ namespace WorldPackets
             uint8 Type = 0;
             uint32 MapID = 0;
             uint32 DifficultyID = 0;
-            int32 TimeLeft = 0;
             bool Locked = false;
             bool Extended = false;
         };

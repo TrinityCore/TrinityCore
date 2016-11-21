@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "SpellAuraDefines.h"
 #include "SharedDefines.h"
-#include "DBCStores.h"
 #include "Chat.h"
 #include "BattlegroundMgr.h"
 #include "BattlefieldWG.h"
@@ -2344,7 +2343,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!spell->SpellLevel)
                     continue;
 
-                PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[creatureFamily->ID];
+                PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[i];
                 if (spellSet.empty())
                     ++family_count;
 
@@ -2648,17 +2647,19 @@ void SpellMgr::LoadSpellInfoStore()
 
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
+    std::unordered_map<uint32, SpellInfoLoadHelper> loadData;
 
     std::unordered_map<uint32, SpellEffectEntryMap> effectsBySpell;
     std::unordered_map<uint32, SpellVisualMap> visualsBySpell;
+    std::unordered_map<uint32, SpellEffectScalingEntry const*> spellEffectScallingByEffectId;
 
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
-        if (effect->EffectIndex >= MAX_SPELL_EFFECTS)
-        {
-            TC_LOG_ERROR("server.loading", "Spell %u has invalid EffectIndex %u, max is %u, skipped", effect->SpellID, effect->EffectIndex, uint32(MAX_SPELL_EFFECTS));
-            continue;
-        }
+        ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %u", effect->EffectIndex + 1);
+        ASSERT(effect->Effect < TOTAL_SPELL_EFFECTS, "TOTAL_SPELL_EFFECTS must be at least %u", effect->Effect + 1);
+        ASSERT(effect->EffectAura < TOTAL_AURAS, "TOTAL_AURAS must be at least %u", effect->EffectAura + 1);
+        ASSERT(effect->ImplicitTarget[0] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[0] + 1);
+        ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1] + 1);
 
         SpellEffectEntryVector& effectsForDifficulty = effectsBySpell[effect->SpellID][effect->DifficultyID];
         if (effectsForDifficulty.size() <= effect->EffectIndex)
@@ -2667,12 +2668,70 @@ void SpellMgr::LoadSpellInfoStore()
         effectsForDifficulty[effect->EffectIndex] = effect;
     }
 
+    for (SpellAuraOptionsEntry const* auraOptions : sSpellAuraOptionsStore)
+        if (!auraOptions->DifficultyID)    // TODO: implement
+            loadData[auraOptions->SpellID].AuraOptions = auraOptions;
+
+    for (SpellAuraRestrictionsEntry const* auraRestrictions : sSpellAuraRestrictionsStore)
+        if (!auraRestrictions->DifficultyID)    // TODO: implement
+            loadData[auraRestrictions->SpellID].AuraRestrictions = auraRestrictions;
+
+    for (SpellCastingRequirementsEntry const* castingRequirements : sSpellCastingRequirementsStore)
+        loadData[castingRequirements->SpellID].CastingRequirements = castingRequirements;
+
+    for (SpellCategoriesEntry const* categories : sSpellCategoriesStore)
+        if (!categories->DifficultyID)  // TODO: implement
+            loadData[categories->SpellID].Categories = categories;
+
+    for (SpellClassOptionsEntry const* classOptions : sSpellClassOptionsStore)
+        loadData[classOptions->SpellID].ClassOptions = classOptions;
+
+    for (SpellCooldownsEntry const* cooldowns : sSpellCooldownsStore)
+        if (!cooldowns->DifficultyID)   // TODO: implement
+            loadData[cooldowns->SpellID].Cooldowns = cooldowns;
+
+    for (SpellEffectScalingEntry const* spellEffectScaling : sSpellEffectScalingStore)
+        spellEffectScallingByEffectId[spellEffectScaling->SpellEffectID] = spellEffectScaling;
+
+    for (SpellEquippedItemsEntry const* equippedItems : sSpellEquippedItemsStore)
+        loadData[equippedItems->SpellID].EquippedItems = equippedItems;
+
+    for (SpellInterruptsEntry const* interrupts : sSpellInterruptsStore)
+        if (!interrupts->DifficultyID)  // TODO: implement
+            loadData[interrupts->SpellID].Interrupts = interrupts;
+
+    for (SpellLevelsEntry const* levels : sSpellLevelsStore)
+        if (!levels->DifficultyID)  // TODO: implement
+            loadData[levels->SpellID].Levels = levels;
+
+    for (SpellReagentsEntry const* reagents : sSpellReagentsStore)
+        loadData[reagents->SpellID].Reagents = reagents;
+
+    for (SpellScalingEntry const* scaling : sSpellScalingStore)
+        loadData[scaling->SpellID].Scaling = scaling;
+
+    for (SpellShapeshiftEntry const* shapeshift : sSpellShapeshiftStore)
+        loadData[shapeshift->SpellID].Shapeshift = shapeshift;
+
+    for (SpellTargetRestrictionsEntry const* targetRestrictions : sSpellTargetRestrictionsStore)
+        if (!targetRestrictions->DifficultyID)  // TODO: implement
+            loadData[targetRestrictions->SpellID].TargetRestrictions = targetRestrictions;
+
+    for (SpellTotemsEntry const* totems : sSpellTotemsStore)
+        loadData[totems->SpellID].Totems = totems;
+
     for (SpellXSpellVisualEntry const* visual : sSpellXSpellVisualStore)
         visualsBySpell[visual->SpellID][visual->DifficultyID].push_back(visual);
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i], std::move(visualsBySpell[i]));
+        {
+            loadData[i].Entry = spellEntry;
+            loadData[i].Misc = sSpellMiscStore.LookupEntry(spellEntry->MiscID);
+            mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]), spellEffectScallingByEffectId);
+        }
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3073,12 +3132,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
                 break;
-            case 5176:  // Wrath
-            case 2912:  // Starfire
-            //case 78674: // Starsurge 6.x effect 1 is no more
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->Effect = SPELL_EFFECT_DUMMY;
-                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->TargetA = TARGET_UNIT_CASTER;
-                break;
             case 70728: // Exploit Weakness (needs target selection script)
             case 70840: // Devious Minds (needs target selection script)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -3110,6 +3163,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 47134: // Quest Complete
                 //! HACK: This spell break quest complete for alliance and on retail not used °_O
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->Effect = 0;
+                break;
+            case 85123: // Siege Cannon (Tol Barad)
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
                 break;
             // VIOLET HOLD SPELLS
             //
@@ -3438,38 +3495,32 @@ void SpellMgr::LoadSpellInfoCorrections()
 
 void SpellMgr::LoadPetFamilySpellsStore()
 {
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-    {
-        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
-        if (!skillLine)
-            continue;
+    std::unordered_map<uint32, SpellLevelsEntry const*> levelsBySpell;
+    for (SpellLevelsEntry const* levels : sSpellLevelsStore)
+        if (!levels->DifficultyID)
+            levelsBySpell[levels->SpellID] = levels;
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
+    for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
+    {
+        SpellInfo const* spellInfo = GetSpellInfo(skillLine->SpellID);
         if (!spellInfo)
             continue;
 
-        SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
-        if (spellInfo->LevelsID && (!levels || levels->SpellLevel))
+        auto levels = levelsBySpell.find(skillLine->SpellID);
+        if (levels != levelsBySpell.end() && levels->second->SpellLevel)
             continue;
 
-        if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))
+        if (spellInfo->IsPassive())
         {
-            if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
+            for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
             {
-                for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
-                {
-                    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
-                    if (!cFamily)
-                        continue;
+                if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
+                    continue;
 
-                    if (skillLine->SkillLine != cFamily->SkillLine[0] && skillLine->SkillLine != cFamily->SkillLine[1])
-                        continue;
+                if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                    continue;
 
-                    if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
-                        continue;
-
-                    sPetFamilySpellsStore[i].insert(spellInfo->ID);
-                }
+                sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->Id);
             }
         }
     }

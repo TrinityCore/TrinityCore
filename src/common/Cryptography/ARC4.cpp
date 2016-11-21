@@ -17,7 +17,6 @@
  */
 
 #include "ARC4.h"
-#include <openssl/sha.h>
 
 ARC4::ARC4(uint32 len) : m_ctx()
 {

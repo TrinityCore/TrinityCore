@@ -18,6 +18,7 @@
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
 #include "Player.h"
+#include "PacketUtilities.h"
 #include "World.h"
 #include "ObjectMgr.h"
 
@@ -58,24 +59,23 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         for (uint8 i = 0; i < 2; ++i)
             _worldPacket << Stats.Flags[i];
 
-        _worldPacket << Stats.CreatureType;
-        _worldPacket << Stats.CreatureFamily;
-        _worldPacket << Stats.Classification;
+        _worldPacket << int32(Stats.CreatureType);
+        _worldPacket << int32(Stats.CreatureFamily);
+        _worldPacket << int32(Stats.Classification);
 
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
-            _worldPacket << Stats.ProxyCreatureID[i];
+            _worldPacket << int32(Stats.ProxyCreatureID[i]);
 
         for (uint32 i = 0; i < MAX_CREATURE_MODELS; ++i)
-            _worldPacket << Stats.CreatureDisplayID[i];
+            _worldPacket << int32(Stats.CreatureDisplayID[i]);
 
-        _worldPacket << Stats.HpMulti;
-        _worldPacket << Stats.EnergyMulti;
-
-        _worldPacket << int32(Stats.QuestItems.size());
-        _worldPacket << Stats.CreatureMovementInfoID;
-        _worldPacket << Stats.RequiredExpansion;
-
-        _worldPacket << int32(0); // FlagQuest
+        _worldPacket << float(Stats.HpMulti);
+        _worldPacket << float(Stats.EnergyMulti);
+        _worldPacket << uint32(Stats.QuestItems.size());
+        _worldPacket << int32(Stats.CreatureMovementInfoID);
+        _worldPacket << int32(Stats.HealthScalingExpansion);
+        _worldPacket << int32(Stats.RequiredExpansion);
+        _worldPacket << int32(Stats.VignetteID);
 
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;
@@ -196,6 +196,21 @@ void WorldPackets::Query::QueryPageText::Read()
     _worldPacket >> ItemGUID;
 }
 
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
+{
+    data << uint32(page.ID);
+    data << uint32(page.NextPageID);
+    data << int32(page.PlayerConditionID);
+    data << uint8(page.Flags);
+    data.WriteBits(page.Text.length(), 12);
+    data.FlushBits();
+
+    data.WriteString(page.Text);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
 {
     _worldPacket << PageTextID;
@@ -205,12 +220,9 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
 
     if (Allow)
     {
-        _worldPacket << Info.ID;
-        _worldPacket << Info.NextPageID;
-        _worldPacket.WriteBits(Info.Text.length(), 12);
-        _worldPacket.FlushBits();
-
-        _worldPacket.WriteString(Info.Text);
+        _worldPacket << uint32(Pages.size());
+        for (PageTextInfo const& pageText : Pages)
+            _worldPacket << pageText;
     }
 
     return &_worldPacket;
@@ -293,36 +305,39 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
     _worldPacket.WriteBit(Allow);
     _worldPacket.FlushBits();
 
+    ByteBuffer statsData;
     if (Allow)
     {
-        uint32 dataSize = Stats.GetDataSize();
+        statsData << int32(Stats.Type);
+        statsData << int32(Stats.DisplayID);
+        for (int8 i = 0; i < 4; ++i)
+            statsData << Stats.Name[i];
 
-        _worldPacket << uint32(dataSize);
-        if (dataSize)
-        {
-            _worldPacket << Stats.Type;
-            _worldPacket << Stats.DisplayID;
-            for (int8 i = 0; i < 4; i++)
-                _worldPacket << Stats.Name[i];
+        statsData << Stats.IconName;
+        statsData << Stats.CastBarCaption;
+        statsData << Stats.UnkString;
 
-            _worldPacket << Stats.IconName;
-            _worldPacket << Stats.CastBarCaption;
-            _worldPacket << Stats.UnkString;
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
+            statsData << int32(Stats.Data[i]);
 
-            for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
-                _worldPacket << Stats.Data[i];
+        statsData << float(Stats.Size);
+        statsData << uint8(Stats.QuestItems.size());
+        for (int32 questItem : Stats.QuestItems)
+            statsData << int32(questItem);
 
-            _worldPacket << Stats.Size;
-
-            _worldPacket << uint8(Stats.QuestItems.size());
-            for (int32 questItem : Stats.QuestItems)
-                _worldPacket << questItem;
-
-            _worldPacket << Stats.Expansion;
-        }
+        statsData << int32(Stats.RequiredLevel);
     }
 
+    _worldPacket << uint32(statsData.size());
+    if (!statsData.empty())
+        _worldPacket.append(statsData);
+
     return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryCorpseLocationFromClient::Read()
+{
+    _worldPacket >> Player;
 }
 
 WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
@@ -330,6 +345,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
     _worldPacket.WriteBit(Valid);
     _worldPacket.FlushBits();
 
+    _worldPacket << Player;
     _worldPacket << ActualMapID;
     _worldPacket << Position.x;
     _worldPacket << Position.y;
@@ -342,14 +358,14 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
 
 void WorldPackets::Query::QueryCorpseTransport::Read()
 {
+    _worldPacket >> Player;
     _worldPacket >> Transport;
 }
 
 WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 {
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Player;
+    _worldPacket << Position;
     _worldPacket << Facing;
 
     return &_worldPacket;
@@ -357,8 +373,7 @@ WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 
 WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
 {
-    _worldPacket << uint32(CurrentTime);
-    _worldPacket << int32(TimeOutRequest);
+    _worldPacket << int32(CurrentTime);
 
     return &_worldPacket;
 }
@@ -483,8 +498,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::ItemTextCache cons
 WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
 {
     _worldPacket.WriteBit(Valid);
-    _worldPacket << Id;
     _worldPacket << Item;
+    _worldPacket << Id;
 
     return &_worldPacket;
 }

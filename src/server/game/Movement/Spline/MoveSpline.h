@@ -134,6 +134,7 @@ namespace Movement
         int32 currentPathIdx() const;
 
         bool onTransport;
+        bool splineIsFacingOnly;
         std::string ToString() const;
     };
 }

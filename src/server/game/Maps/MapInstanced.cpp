@@ -27,6 +27,7 @@
 #include "Group.h"
 #include "Player.h"
 #include "GarrisonMap.h"
+#include "ScenarioMgr.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {
@@ -178,7 +179,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             map = FindInstanceMap(newInstanceId);
             // it is possible that the save exists but the map doesn't
             if (!map)
-                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID());
+                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
         }
         else
         {
@@ -191,7 +192,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);
             if (!map)
-                map = CreateInstance(newInstanceId, NULL, diff);
+                map = CreateInstance(newInstanceId, NULL, diff, player->GetTeamId());
         }
     }
     else
@@ -205,7 +206,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
     return map;
 }
 
-InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
+InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty, TeamId team)
 {
     // load/create a map
     std::lock_guard<std::mutex> lock(_mapLock);
@@ -225,7 +226,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     }
 
     // some instances only have one difficulty
-    GetDownscaledMapDifficultyData(GetId(), difficulty);
+    sDB2Manager.GetDownscaledMapDifficultyData(GetId(), difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save ? "" : "new ", InstanceId, GetId(), difficulty ? "heroic" : "normal");
 
@@ -237,6 +238,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
+    if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
+        map->SetInstanceScenario(instanceScenario);
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
         map->LoadAllCells();

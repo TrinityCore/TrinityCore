@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include <atomic>
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -29,6 +29,7 @@
 
 class AccountMgr;
 class AuctionHouseObject;
+class Aura;
 class AuraScript;
 class Battleground;
 class BattlegroundMap;
@@ -62,11 +63,14 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
+struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
 struct ItemTemplate;
+struct MapEntry;
 struct OutdoorPvPData;
+struct SceneTemplate;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -367,7 +371,7 @@ class TC_GAME_API ItemScript : public ScriptObject
         virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player uses the item.
-        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) { return false; }
 
         // Called when the item expires (is destroyed).
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
@@ -829,6 +833,26 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnDisband(Group* /*group*/) { }
 };
 
+class TC_GAME_API SceneScript : public ScriptObject
+{
+    protected:
+
+        SceneScript(const char* name);
+
+    public:
+        // Called when a player start a scene
+        virtual void OnSceneStart(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a player receive trigger from scene
+        virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& /*triggerName*/) { }
+
+        // Called when a scene is canceled
+        virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a scene is completed
+        virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -875,6 +899,9 @@ class TC_GAME_API ScriptMgr
         /// calls for better performance (bulk changes).
         void SwapScriptContext(bool initialize = false);
 
+        /// Returns the context name of the static context provided by the worldserver
+        static std::string const& GetNameOfStaticContext();
+
         /// Acquires a strong module reference to the module containing the given script name,
         /// which prevents the shared library which contains the script from unloading.
         /// The shared library is lazy unloaded as soon as all references to it are released.
@@ -887,8 +914,8 @@ class TC_GAME_API ScriptMgr
 
     public: /* SpellScriptLoader */
 
-        void CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector);
-        void CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector);
+        void CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const;
+        void CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const;
         SpellScriptLoader* GetSpellScriptLoader(uint32 scriptId);
 
     public: /* ServerScript */
@@ -939,7 +966,7 @@ class TC_GAME_API ScriptMgr
 
         bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
-        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
+        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
         bool OnItemRemove(Player* player, Item* item);
 
@@ -1101,6 +1128,12 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+
+    public: /* SceneScript */
+        void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+        void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
+        void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+        void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
 
     private:
         uint32 _scriptCount;

@@ -38,10 +38,10 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
-    HandleMoveWorldportAckOpcode();
+    HandleMoveWorldportAck();
 }
 
-void WorldSession::HandleMoveWorldportAckOpcode()
+void WorldSession::HandleMoveWorldportAck()
 {
     // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
@@ -176,9 +176,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
-        if (MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
+        if (MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mEntry->ID, diff))
         {
-            if (mapDiff->RaidDuration)
+            if (mapDiff->GetRaidDuration())
             {
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
@@ -241,7 +241,7 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
     SendPacket(packet.Write());
 
     if (_player->IsBeingTeleportedSeamlessly())
-        HandleMoveWorldportAckOpcode();
+        HandleMoveWorldportAck();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
@@ -392,7 +392,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(mover))
         {
-            if (seat->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
+            if (seat->Flags[0] & VEHICLE_SEAT_FLAG_ALLOW_TURNING)
             {
                 if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                 {

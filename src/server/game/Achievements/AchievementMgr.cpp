@@ -63,25 +63,29 @@ uint32 AchievementMgr::GetAchievementPoints() const
 
 bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
 {
-    if (HasAchieved(tree->Achievement->ID))
+    AchievementEntry const* achievement = tree->Achievement;
+    if (!achievement)
+        return false;
+
+    if (HasAchieved(achievement->ID))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Achievement already earned",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Achievement->ID);
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
         return false;
     }
 
-    if (tree->Achievement->MapID != -1 && referencePlayer->GetMapId() != uint32(tree->Achievement->MapID))
+    if (achievement->MapID != -1 && referencePlayer->GetMapId() != uint32(achievement->MapID))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong map",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Achievement->ID);
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
         return false;
     }
 
-    if ((tree->Achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
-        (tree->Achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
+    if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
+        (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
     {
         TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong faction",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Achievement->ID);
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
         return false;
     }
 
@@ -110,27 +114,35 @@ bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTree const* tree)
 
 void AchievementMgr::CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer)
 {
+    AchievementEntry const* achievement = tree->Achievement;
+    if (!achievement)
+        return;
+
     // counter can never complete
-    if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
+    if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
         return;
 
     // already completed and stored
-    if (HasAchieved(tree->Achievement->ID))
+    if (HasAchieved(achievement->ID))
         return;
 
-    if (IsCompletedAchievement(tree->Achievement))
-        CompletedAchievement(tree->Achievement, referencePlayer);
+    if (IsCompletedAchievement(achievement))
+        CompletedAchievement(achievement, referencePlayer);
 }
 
 void AchievementMgr::AfterCriteriaTreeUpdate(CriteriaTree const* tree, Player* referencePlayer)
 {
+    AchievementEntry const* achievement = tree->Achievement;
+    if (!achievement)
+        return;
+
     // check again the completeness for SUMM and REQ COUNT achievements,
     // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
-    if (tree->Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
-        if (IsCompletedAchievement(tree->Achievement))
-            CompletedAchievement(tree->Achievement, referencePlayer);
+    if (achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
+        if (IsCompletedAchievement(achievement))
+            CompletedAchievement(achievement, referencePlayer);
 
-    if (std::vector<AchievementEntry const*> const* achRefList = sAchievementMgr->GetAchievementByReferencedId(tree->Achievement->ID))
+    if (std::vector<AchievementEntry const*> const* achRefList = sAchievementMgr->GetAchievementByReferencedId(achievement->ID))
         for (AchievementEntry const* refAchievement : *achRefList)
             if (IsCompletedAchievement(refAchievement))
                 CompletedAchievement(refAchievement, referencePlayer);
@@ -520,6 +532,11 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
         draft.SendMailTo(trans, _owner, MailSender(MAIL_CREATURE, uint64(reward->SenderCreatureId)));
         CharacterDatabase.CommitTransaction(trans);
     }
+}
+
+bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
+{
+    return AdditionalRequirementsSatisfied(sCriteriaMgr->GetModifierTree(modifierTreeId), 0, 0, nullptr, _owner);
 }
 
 void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const

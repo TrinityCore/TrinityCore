@@ -380,6 +380,10 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
     SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_TIME_RATE, 1.0f);
 
     SetSpeedRate(MOVE_WALK,   cinfo->speed_walk);
     SetSpeedRate(MOVE_RUN,    cinfo->speed_run);
@@ -702,9 +706,8 @@ void Creature::RegenerateMana()
     if (IsInCombat() || !GetCharmerOrOwnerGUID().IsEmpty())
     {
         float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
-        float Spirit = GetStat(STAT_SPIRIT);
 
-        addvalue = uint32((Spirit / 5.0f + 17.0f) * ManaIncreaseRate);
+        addvalue = uint32((27.0f / 5.0f + 17.0f) * ManaIncreaseRate);
     }
     else
         addvalue = maxValue / 3;
@@ -737,12 +740,8 @@ void Creature::RegenerateHealth()
     if (!GetCharmerOrOwnerGUID().IsEmpty())
     {
         float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-        float Spirit = GetStat(STAT_SPIRIT);
 
-        if (GetPower(POWER_MANA) > 0)
-            addvalue = uint32(Spirit * 0.25 * HealthIncreaseRate);
-        else
-            addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
+        addvalue = 0.015f * ((float)GetMaxHealth()) * HealthIncreaseRate;
     }
     else
         addvalue = maxValue/3;
@@ -1059,7 +1058,7 @@ void Creature::SaveToDB()
         return;
     }
 
-    uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.mapID : GetMapId();
+    uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.SpawnMap : GetMapId();
     SaveToDB(mapId, data->spawnMask, GetPhaseMask());
 }
 
@@ -2277,6 +2276,10 @@ bool Creature::LoadCreaturesAddon()
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
+    SetAIAnimKitId(cainfo->aiAnimKit);
+    SetMovementAnimKitId(cainfo->movementAnimKit);
+    SetMeleeAnimKitId(cainfo->meleeAnimKit);
+
     //Load Path
     if (cainfo->path_id != 0)
         m_path_id = cainfo->path_id;
@@ -2719,8 +2722,7 @@ bool Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 
         if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
             ( // only require instant update for spells that actually have a visual
-                focusSpell->GetSpellInfo()->SpellVisual[0] ||
-                focusSpell->GetSpellInfo()->SpellVisual[1]
+                focusSpell->GetSpellInfo()->GetSpellVisual()
             ) && (
                 !focusSpell->GetCastTime() || // if the spell is instant cast
                 focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet

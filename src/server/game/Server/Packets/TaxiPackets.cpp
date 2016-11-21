@@ -63,6 +63,8 @@ void WorldPackets::Taxi::ActivateTaxi::Read()
 {
     _worldPacket >> Vendor;
     _worldPacket >> Node;
+    _worldPacket >> GroundMountID;
+    _worldPacket >> FlyingMountID;
 }
 
 WorldPacket const* WorldPackets::Taxi::ActivateTaxiReply::Write()

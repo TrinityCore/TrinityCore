@@ -25,6 +25,7 @@
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 #include "Chat.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -357,13 +358,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 }
             }
 
-            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
+            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
             {
-                if (Channel* chn = cMgr->GetChannel(target, sender))
-                {
-                    sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
-                    chn->Say(sender->GetGUID(), msg.c_str(), lang);
-                }
+                sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
+                chn->Say(sender->GetGUID(), msg.c_str(), lang);
             }
             break;
         }
@@ -488,9 +486,8 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         case CHAT_MSG_CHANNEL:
         {
-            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
-                if (Channel* chn = cMgr->GetChannel(target, sender, false))
-                    chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
+            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
+                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
             break;
         }
         default:

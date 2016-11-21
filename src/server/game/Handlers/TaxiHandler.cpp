@@ -63,8 +63,6 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
 
     SendPacket(data.Write());
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 void WorldSession::HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& taxiQueryAvailableNodes)
@@ -184,9 +182,14 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
         }
     }
 
+    uint32 preferredMountDisplay = 0;
+    if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
+        if (GetPlayer()->HasSpell(mount->SpellId))
+            preferredMountDisplay = mount->DisplayId;
+
     std::vector<uint32> nodes;
     sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
-    GetPlayer()->ActivateTaxiPathTo(nodes, unit);
+    GetPlayer()->ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
 }
 
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
@@ -194,7 +197,6 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
     WorldPackets::Taxi::ActivateTaxiReply data;
     data.Reply = reply;
     SendPacket(data.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ACTIVATETAXIREPLY");
 }
 
 void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)

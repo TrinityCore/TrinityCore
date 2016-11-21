@@ -45,6 +45,7 @@ public:
             { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "" },
             { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
             { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
+            { "scenes",   rbac::RBAC_PERM_COMMAND_LIST_SCENES,  false, &HandleListScenesCommand,   "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -436,7 +437,7 @@ public:
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName;
+            char const* name = aura->GetSpellInfo()->SpellName->Str[handler->GetSessionDbcLocale()];
             bool talent = aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
 
             std::ostringstream ss_name;
@@ -574,6 +575,30 @@ public:
         }
         else
             handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
+        return true;
+    }
+
+    static bool HandleListScenesCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* target = handler->getSelectedPlayer();
+
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneTemplateByInstanceMap();
+
+        handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr().GetActiveSceneCount());
+
+        for (auto instanceByPackage : instanceByPackageMap)
+            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->ScenePackageId, instanceByPackage.first);
+
         return true;
     }
 };

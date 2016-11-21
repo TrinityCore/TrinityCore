@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "CollectionMgr.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -98,12 +99,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool SuppressChatLog = false;
-            Optional<int32> TrackedQuantity;
+            int32 Type = 0;
             int32 Quantity = 0;
             uint32 Flags = 0;
-            int32 Type = 0;
             Optional<int32> WeeklyQuantity;
+            Optional<int32> TrackedQuantity;
+            Optional<int32> MaxQuantity;
+            bool SuppressChatLog = false;
         };
 
         class SetSelection final : public ClientPacket
@@ -126,6 +128,7 @@ namespace WorldPackets
                 Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
+                Optional<int32> MaxQuantity;
                 uint8 Flags = 0;                      // 0 = none,
             };
 
@@ -236,14 +239,12 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
-            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
-            Optional<uint32> InstanceGroupSize;
+            uint32 DifficultyID     = 0;
             uint8 IsTournamentRealm = 0;
+            bool XRealmPvpAlert     = false;
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
-            uint32 DifficultyID     = 0;
-            bool XRealmPvpAlert     = false;
+            Optional<uint32> InstanceGroupSize;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -653,7 +654,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<std::unique_ptr<CUFProfile>> CUFProfiles;
+            Array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> CUFProfiles;
         };
 
         class LoadCUFProfiles final : public ServerPacket
@@ -758,6 +759,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
+            int32 LfgDungeonID;
         };
 
         class AccountHeirloomUpdate final : public ServerPacket
@@ -822,6 +824,42 @@ namespace WorldPackets
             int32 AreaLightID = 0;
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
+        };
+
+        class DisplayGameError final : public ServerPacket
+        {
+        public:
+            DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
+            DisplayGameError(GameError error, int32 arg) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4), Error(error), Arg(arg) { }
+            DisplayGameError(GameError error, int32 arg1, int32 arg2) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4 + 4), Error(error), Arg(arg1), Arg2(arg2) { }
+
+            WorldPacket const* Write() override;
+
+            GameError Error;
+            Optional<int32> Arg;
+            Optional<int32> Arg2;
+        };
+
+        class AccountMountUpdate final : public ServerPacket
+        {
+        public:
+            AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            MountContainer const* Mounts = nullptr;
+        };
+
+        class MountSetFavorite final : public ClientPacket
+        {
+        public:
+            MountSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SET_FAVORITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MountSpellID = 0;
+            bool IsFavorite = false;
         };
     }
 }

@@ -898,9 +898,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount, true, true);
+        handler->PSendSysMessage("NOT IMPLEMENTED: %d honor NOT added.", amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS));
+        //handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS));
 
         return true;
     }
@@ -1008,14 +1008,14 @@ public:
 
         if (factionEntry->ReputationIndex < 0)
         {
-            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->Name_lang, factionId);
+            handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->Name->Str[handler->GetSessionDbcLocale()], factionId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         target->GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
         target->GetReputationMgr().SendState(target->GetReputationMgr().GetState(factionEntry));
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->Name_lang, factionId,
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->Name->Str[handler->GetSessionDbcLocale()], factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
     }
@@ -1026,7 +1026,7 @@ public:
         if (!*args)
             return false;
 
-        uint16 display_id = (uint16)atoi((char*)args);
+        uint32 display_id = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)

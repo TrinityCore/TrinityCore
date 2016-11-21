@@ -22,6 +22,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "Unit.h"
+#include <boost/any.hpp>
 
 class SpellInfo;
 struct SpellModifier;
@@ -83,11 +84,11 @@ class TC_GAME_API AuraApplication
         uint32 GetEffectsToApply() const { return _effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
-        AuraRemoveMode GetRemoveMode() const {return _removeMode;}
+        AuraRemoveMode GetRemoveMode() const { return _removeMode; }
 
-        void SetNeedClientUpdate() { _needClientUpdate = true;}
-        bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& data, bool remove) const;
+        void SetNeedClientUpdate();
+        bool IsNeedClientUpdate() const { return _needClientUpdate; }
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
 };
 
@@ -120,19 +121,20 @@ class TC_GAME_API Aura
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = NULL, int32 castItemLevel = -1);
-        static Aura* TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
-        static Aura* Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
-        Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = NULL, int32 castItemLevel = -1);
+        static Aura* TryCreate(SpellInfo const* spellproto, ObjectGuid castId, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, int32 castItemLevel = -1);
+        static Aura* Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        Aura(SpellInfo const* spellproto, ObjectGuid castId, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
 
+        ObjectGuid GetCastGUID() const { return m_castGuid; }
+        ObjectGuid GetCasterGUID() const { return m_casterGuid; }
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
-        ObjectGuid GetCasterGUID() const { return m_casterGuid; }
         uint32 GetSpellXSpellVisualId() const { return m_spellXSpellVisualId; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
@@ -194,13 +196,12 @@ class TC_GAME_API Aura
         {
             return GetCasterGUID() == target->GetGUID()
                     && m_spellInfo->Stances
-                    && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
-                    && !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT);
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT);
         }
 
         bool CanBeSaved() const;
         bool IsRemoved() const { return m_isRemoved; }
-        bool CanBeSentToClient() const;
         // Single cast aura helpers
         bool IsSingleTarget() const {return m_isSingleTarget; }
         bool IsSingleTargetWith(Aura const* aura) const;
@@ -287,17 +288,29 @@ class TC_GAME_API Aura
 
         AuraScript* GetScriptByName(std::string const& scriptName) const;
 
-        std::list<AuraScript*> m_loadedScripts;
+        std::vector<AuraScript*> m_loadedScripts;
 
         AuraEffectVector GetAuraEffects() const { return _effects; }
 
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
+        template<typename T>
+        T const* GetCastExtraParam(std::string const& key) const
+        {
+            auto itr = m_castExtraParams.find(key);
+            if (itr != m_castExtraParams.end())
+                return boost::any_cast<T>(&itr->second);
+            return nullptr;
+        }
+        void SetCastExtraParam(std::string const& keyVal, boost::any&& value) { m_castExtraParams[keyVal] = std::move(value); }
+
     private:
         void _DeleteRemovedApplications();
+
     protected:
         SpellInfo const* const m_spellInfo;
+        ObjectGuid const m_castGuid;
         ObjectGuid const m_casterGuid;
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         int32 m_castItemLevel;
@@ -326,6 +339,9 @@ class TC_GAME_API Aura
         std::chrono::steady_clock::time_point m_lastProcAttemptTime;
         std::chrono::steady_clock::time_point m_lastProcSuccessTime;
 
+        // Used to store extra parameters for an aura, eg. data across different auras
+        std::unordered_map<std::string, boost::any> m_castExtraParams;
+
     private:
         Unit::AuraApplicationList m_removedApplications;
 
@@ -335,9 +351,9 @@ class TC_GAME_API Aura
 
 class TC_GAME_API UnitAura : public Aura
 {
-    friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
-        UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        UnitAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
 
         void _ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
         void _UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp) override;
@@ -356,9 +372,9 @@ class TC_GAME_API UnitAura : public Aura
 
 class TC_GAME_API DynObjAura : public Aura
 {
-    friend Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+    friend Aura* Aura::Create(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
     public:
-        DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
+        DynObjAura(SpellInfo const* spellproto, ObjectGuid castId, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, int32 castItemLevel);
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 

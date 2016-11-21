@@ -281,7 +281,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId);
 
@@ -446,7 +446,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
     }
 
     bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->Name_lang);
+    bg->SetName(bgTemplate->BattlemasterEntry->Name->Str[sWorld->GetDefaultDbcLocale()]);
     bg->SetInstanceID(0);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
@@ -578,8 +578,6 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     battlefieldList.MaxLevel = bgTemplate->MaxLevel;
     battlefieldList.PvpAnywhere = guid.IsEmpty();
     battlefieldList.HasRandomWinToday = player->GetRandomWinner();
-    battlefieldList.HasHolidayWinToday = false;
-    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
     player->SendDirectMessage(battlefieldList.Write());
 }
 
@@ -734,7 +732,7 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 ar
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(arenaType) << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
+    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | ((uint64)arenaType << 24) | ((uint64)bgQueueTypeId << 16) | ((uint64)bgTypeId << 8) | (uint64)bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }

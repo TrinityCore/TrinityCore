@@ -45,16 +45,26 @@ bool Model::open()
 
     _unload();
 
-    memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
+    uint32 m2start = 0;
+    char const* ptr = f.getBuffer();
+    while (m2start + 4 < f.getSize() && *reinterpret_cast<uint32 const*>(ptr) != '02DM')
+    {
+        ++m2start;
+        ++ptr;
+        if (m2start + sizeof(ModelHeader) > f.getSize())
+            return false;
+    }
+
+    memcpy(&header, f.getBuffer() + m2start, sizeof(ModelHeader));
     if (header.nBoundingTriangles > 0)
     {
-        f.seek(0);
+        f.seek(m2start);
         f.seekRelative(header.ofsBoundingVertices);
         vertices = new Vec3D[header.nBoundingVertices];
         f.read(vertices,header.nBoundingVertices*12);
         for (uint32 i=0; i<header.nBoundingVertices; i++)
             vertices[i] = fixCoordSystem(vertices[i]);
-        f.seek(0);
+        f.seek(m2start);
         f.seekRelative(header.ofsBoundingTriangles);
         indices = new uint16[header.nBoundingTriangles];
         f.read(indices,header.nBoundingTriangles*2);
@@ -177,21 +187,21 @@ ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID
         return;
 
     uint16 adtId = 0;// not used for models
-    uint32 flags = MOD_M2;
+    uint32 tcflags = MOD_M2;
     if (tileX == 65 && tileY == 65)
-        flags |= MOD_WORLDSPAWN;
+        tcflags |= MOD_WORLDSPAWN;
 
     //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
-    fwrite(&flags, sizeof(uint32), 1, pDirfile);
+    fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
     fwrite(&adtId, sizeof(uint16), 1, pDirfile);
     fwrite(&id, sizeof(uint32), 1, pDirfile);
     fwrite(&pos, sizeof(float), 3, pDirfile);
     fwrite(&rot, sizeof(float), 3, pDirfile);
     fwrite(&sc, sizeof(float), 1, pDirfile);
-    uint32 nlen=strlen(ModelInstName);
+    uint32 nlen = strlen(ModelInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
 

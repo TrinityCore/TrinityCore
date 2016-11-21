@@ -27,13 +27,6 @@ enum TotemType
     TOTEM_ACTIVE     = 1,
     TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
-// Some Totems cast spells that are not in creature DB
-enum TotemSpells
-{
-    // Totemic Wrath
-    SPELL_TOTEMIC_WRATH_TALENT  = 77746,
-    SPELL_TOTEMIC_WRATH         = 77747
-};
 
 class TC_GAME_API Totem : public Minion
 {

@@ -19,26 +19,12 @@
 #define ClientConfigPackets_h__
 
 #include "Packet.h"
-#include "AddonMgr.h"
 #include "WorldSession.h"
 
 namespace WorldPackets
 {
     namespace ClientConfig
     {
-        class AddonInfo final : public ServerPacket
-        {
-            static uint8 const PublicKey[256];
-
-        public:
-            AddonInfo() : ServerPacket(SMSG_ADDON_INFO) { }
-
-            WorldPacket const* Write() override;
-
-            std::list< ::AddonInfo> const* Addons = nullptr;
-            std::list<BannedAddon> const* BannedAddons = nullptr;
-        };
-
         class AccountDataTimes final : public ServerPacket
         {
         public:

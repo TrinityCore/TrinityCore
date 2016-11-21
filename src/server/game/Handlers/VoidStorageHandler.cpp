@@ -16,6 +16,7 @@
  */
 
 #include "Common.h"
+#include "CollectionMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -154,7 +155,9 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         }
 
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR),
-            item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID), item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
+            item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID),
+            item->GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
+            item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
 
         WorldPackets::VoidStorage::VoidItem voidItem;
         voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
@@ -196,6 +199,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);
         item->SetBinding(true);
+        GetCollectionMgr()->AddItemAppearance(item);
 
         voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
 

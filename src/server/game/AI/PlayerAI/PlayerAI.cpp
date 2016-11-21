@@ -41,13 +41,13 @@ bool PlayerAI::IsPlayerHealer(Player const* who)
         default:
             return false;
         case CLASS_PALADIN:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PALADIN_HOLY;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PALADIN_HOLY;
         case CLASS_PRIEST:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_DISCIPLINE || who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_HOLY;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_DISCIPLINE || who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_HOLY;
         case CLASS_SHAMAN:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_RESTORATION;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_RESTORATION;
         case CLASS_DRUID:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_DRUID_RESTORATION;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DRUID_RESTORATION;
     }
 }
 
@@ -74,11 +74,11 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
             return false;
         }
         case CLASS_PRIEST:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_PRIEST_SHADOW;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PRIEST_SHADOW;
         case CLASS_SHAMAN:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_SHAMAN_ELEMENTAL;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_SHAMAN_ELEMENTAL;
         case CLASS_DRUID:
-            return who->GetSpecId(who->GetActiveTalentGroup()) == TALENT_SPEC_DRUID_BALANCE;
+            return who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_DRUID_BALANCE;
     }
 }
 

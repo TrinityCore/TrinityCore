@@ -20,35 +20,33 @@
 WorldPacket const* WorldPackets::Pet::PetSpells::Write()
 {
     _worldPacket << PetGUID;
-    _worldPacket << int16(_CreatureFamily);
-    _worldPacket << int16(Specialization);
-    _worldPacket << int32(TimeLimit);
-
-    uint32 petModeAndOrders = ReactState + (CommandState << 8) + (Flag << 16);
-    _worldPacket << uint32(petModeAndOrders);
-
-    for (uint32 actionButton : ActionButtons)
-        _worldPacket << int32(actionButton);
-
-    _worldPacket << int32(Actions.size());
-    _worldPacket << int32(Cooldowns.size());
-    _worldPacket << int32(SpellHistory.size());
+    _worldPacket << uint16(_CreatureFamily);
+    _worldPacket << uint16(Specialization);
+    _worldPacket << uint32(TimeLimit);
+    _worldPacket << uint16(CommandState | (Flag << 16));
+    _worldPacket << uint8(ReactState);
+    _worldPacket.append(ActionButtons.data(), ActionButtons.size());
+    _worldPacket << uint32(Actions.size());
+    _worldPacket << uint32(Cooldowns.size());
+    _worldPacket << uint32(SpellHistory.size());
 
     for (uint32 action : Actions)
-        _worldPacket << action;
+        _worldPacket << uint32(action);
 
     for (PetSpellCooldown const& cooldown : Cooldowns)
     {
         _worldPacket << int32(cooldown.SpellID);
         _worldPacket << int32(cooldown.Duration);
         _worldPacket << int32(cooldown.CategoryDuration);
-        _worldPacket << int16(cooldown.Category);
+        _worldPacket << float(cooldown.ModRate);
+        _worldPacket << uint16(cooldown.Category);
     }
 
     for (PetSpellHistory const& history : SpellHistory)
     {
         _worldPacket << int32(history.CategoryID);
         _worldPacket << int32(history.RecoveryTime);
+        _worldPacket << float(history.ChargeModRate);
         _worldPacket << int8(history.ConsumedCharges);
     }
 
@@ -184,12 +182,6 @@ void WorldPackets::Pet::PetCancelAura::Read()
 {
     _worldPacket >> PetGUID;
     _worldPacket >> SpellID;
-}
-
-void WorldPackets::Pet::LearnPetSpecializationGroup::Read()
-{
-    _worldPacket >> PetGUID;
-    _worldPacket >> SpecGroupIndex;
 }
 
 WorldPacket const* WorldPackets::Pet::SetPetSpecialization::Write()

@@ -84,7 +84,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 LastUpdateID = 0;
+            int32 LastUpdateID = 0;
             std::vector<BlackMarketItem> Items;
         };
 

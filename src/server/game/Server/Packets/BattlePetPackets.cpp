@@ -49,14 +49,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data.WriteBit(pet.Name.empty()); // NoRename
     data.FlushBits();
 
+    data.WriteString(pet.Name);
+
     if (!pet.Owner.IsEmpty())
     {
         data << pet.Owner;
         data << uint32(GetVirtualRealmAddress()); // Virtual
         data << uint32(GetVirtualRealmAddress()); // Native
     }
-
-    data.WriteString(pet.Name);
 
     return data;
 }
@@ -66,15 +66,15 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     _worldPacket << uint16(Trap);
     _worldPacket << uint32(Slots.size());
     _worldPacket << uint32(Pets.size());
+    _worldPacket << int32(MaxPets);
+    _worldPacket.WriteBit(HasJournalLock);
+    _worldPacket.FlushBits();
 
     for (auto const& slot : Slots)
         _worldPacket << slot;
 
     for (auto const& pet : Pets)
         _worldPacket << pet;
-
-    _worldPacket.WriteBit(HasJournalLock);
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -82,27 +82,24 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
 WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
 {
     _worldPacket << uint32(Pets.size());
+    _worldPacket.WriteBit(PetAdded);
+    _worldPacket.FlushBits();
 
     for (auto const& pet : Pets)
         _worldPacket << pet;
 
-    _worldPacket.WriteBit(PetAdded);
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
-
 
 WorldPacket const* WorldPackets::BattlePet::PetBattleSlotUpdates::Write()
 {
     _worldPacket << uint32(Slots.size());
-
-    for (auto const& slot : Slots)
-        _worldPacket << slot;
-
     _worldPacket.WriteBit(NewSlot);
     _worldPacket.WriteBit(AutoSlotted);
     _worldPacket.FlushBits();
+
+    for (auto const& slot : Slots)
+        _worldPacket << slot;
 
     return &_worldPacket;
 }
@@ -158,8 +155,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetDeleted::Write()
 
 WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
 {
-    _worldPacket.WriteBits(Result, 4);
-    _worldPacket.FlushBits();
+    _worldPacket.WriteBits(Result, 3);
     _worldPacket << uint32(CreatureID);
 
     return &_worldPacket;

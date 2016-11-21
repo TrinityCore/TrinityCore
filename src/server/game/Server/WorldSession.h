@@ -25,7 +25,6 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "Packet.h"
@@ -79,6 +78,13 @@ namespace WorldPackets
     namespace Achievement
     {
         class GuildSetFocusedAchievement;
+    }
+
+    namespace Artifact
+    {
+        class ArtifactAddPower;
+        class ArtifactSetAppearance;
+        class ConfirmArtifactRespec;
     }
 
     namespace AuctionHouse
@@ -201,8 +207,6 @@ namespace WorldPackets
         class LoadingScreenNotify;
         class SetActionBarToggles;
         class RequestPlayedTime;
-        class ShowingCloak;
-        class ShowingHelm;
         class SetTitle;
         class SetFactionAtWar;
         class SetFactionNotAtWar;
@@ -369,7 +373,6 @@ namespace WorldPackets
         class SwapItem;
         class WrapItem;
         class CancelTempEnchantment;
-        class TransmogrifyItems;
         class UseCritterItem;
         class UpgradeItem;
         class SocketGems;
@@ -429,6 +432,7 @@ namespace WorldPackets
         class WorldTeleport;
         class MountSpecial;
         class SetTaxiBenchmarkMode;
+        class MountSetFavorite;
     }
 
     namespace Movement
@@ -464,7 +468,7 @@ namespace WorldPackets
         class PartyUninvite;
         class GroupDecline;
         class RequestPartyMemberStats;
-        class PartyMemberStats;
+        class PartyMemberState;
         class SetPartyLeader;
         class SetPartyAssignment;
         class SetRole;
@@ -508,7 +512,6 @@ namespace WorldPackets
         class PetAction;
         class PetCancelAura;
         class PetSetAction;
-        class LearnPetSpecializationGroup;
     }
 
     namespace Petition
@@ -556,6 +559,7 @@ namespace WorldPackets
         class QuestLogRemoveQuest;
         class QuestPushResult;
         class PushQuestToParty;
+        class RequestWorldQuestUpdate;
     }
 
     namespace RaF
@@ -575,6 +579,11 @@ namespace WorldPackets
         class AddToy;
         class ToySetFavorite;
         class UseToy;
+    }
+
+    namespace Scenario
+    {
+        class QueryScenarioPOI;
     }
 
     namespace Scenes
@@ -619,7 +628,6 @@ namespace WorldPackets
 
     namespace Talent
     {
-        class SetSpecialization;
         class LearnTalents;
         class ConfirmRespecWipe;
     }
@@ -670,6 +678,12 @@ namespace WorldPackets
         class SetTradeItem;
         class UnacceptTrade;
         class TradeStatus;
+    }
+
+    namespace Transmogrification
+    {
+        class TransmogrifyItems;
+        class TransmogAppearanceSetFavorite;
     }
 
     namespace Vehicle
@@ -901,8 +915,6 @@ class TC_GAME_API WorldSession
         bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }
         bool PlayerDisconnected() const;
 
-        void ReadAddonsInfo(ByteBuffer& data);
-        void SendAddonsInfo();
         bool IsAddonRegistered(const std::string& prefix) const;
 
         void SendPacket(WorldPacket const* packet, bool forced = false);
@@ -1106,6 +1118,7 @@ class TC_GAME_API WorldSession
 
         void Handle_NULL(WorldPackets::Null& null);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
+        void LogUnprocessedTail(WorldPacket const* packet);
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
@@ -1164,10 +1177,6 @@ class TC_GAME_API WorldSession
         void HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect);
 
         void HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& mountSpecial);
-
-        // character view
-        void HandleShowingHelmOpcode(WorldPackets::Character::ShowingHelm& packet);
-        void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
@@ -1244,7 +1253,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
 
         void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& packet);
-        void HandleMoveWorldportAckOpcode();                // for server-side calls
+        void HandleMoveWorldportAck();                // for server-side calls
         void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
@@ -1447,7 +1456,6 @@ class TC_GAME_API WorldSession
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
-        void HandleSetSpecializationOpcode(WorldPackets::Talent::SetSpecialization& packet);
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
@@ -1464,6 +1472,7 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
+        void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
@@ -1521,7 +1530,6 @@ class TC_GAME_API WorldSession
         void HandlePetCancelAuraOpcode(WorldPackets::Spells::PetCancelAura& packet);
         void HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutocast& packet);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& petCastSpell);
-        void HandlePetSetSpecializationOpcode(WorldPackets::Pet::LearnPetSpecializationGroup& learnPetSpecializationGroup);
 
         void HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet);
 
@@ -1657,12 +1665,12 @@ class TC_GAME_API WorldSession
         void SendVoidStorageTransferResult(VoidTransferError result);
 
         // Transmogrification
-        void HandleTransmogrifyItems(WorldPackets::Item::TransmogrifyItems& transmogrifyItems);
+        void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
+        void HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
         void HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorImageData& getMirrorImageData);
-        void HandleRemoveGlyph(WorldPacket& recvData);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement);
         void HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipmentSet& saveEquipmentSet);
         void HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& deleteEquipmentSet);
@@ -1679,6 +1687,8 @@ class TC_GAME_API WorldSession
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
         void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
+
+        void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
 
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
@@ -1725,6 +1735,14 @@ class TC_GAME_API WorldSession
         void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
 
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
+
+        // Artifact
+        void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
+        void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
+        void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
+
+        // Scenario
+        void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
 
         union ConnectToKey
         {
@@ -1798,7 +1816,6 @@ class TC_GAME_API WorldSession
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
-        void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
         bool IsLegitCharacterForAccount(ObjectGuid lowGUID)
@@ -1828,8 +1845,6 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32, std::function<void(MessageBuffer)>> _battlenetResponseCallbacks;
         uint32 _battlenetRequestToken;
 
-        typedef std::list<AddonInfo> AddonsList;
-
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
 
@@ -1846,7 +1861,6 @@ class TC_GAME_API WorldSession
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   _tutorialsChanged;
-        AddonsList m_addonsList;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;
         uint32 recruiterId;

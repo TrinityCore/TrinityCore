@@ -130,7 +130,7 @@ WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 WorldPacket const* WorldPackets::Combat::HealthUpdate::Write()
 {
     _worldPacket << Guid;
-    _worldPacket << int32(Health);
+    _worldPacket << int64(Health);
 
     return &_worldPacket;
 }
@@ -143,6 +143,7 @@ WorldPacket const* WorldPackets::Combat::ThreatClear::Write()
 
 WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
 {
+    _worldPacket << int32(OriginalHonor);
     _worldPacket << int32(Honor);
     _worldPacket << Target;
     _worldPacket << int32(Rank);

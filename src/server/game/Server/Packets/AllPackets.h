@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "AchievementPackets.h"
+#include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
@@ -59,6 +60,7 @@
 #include "QuestPackets.h"
 #include "ReferAFriendPackets.h"
 #include "ReputationPackets.h"
+#include "ScenarioPackets.h"
 #include "ScenePackets.h"
 #include "SocialPackets.h"
 #include "SpellPackets.h"
@@ -70,6 +72,7 @@
 #include "TotemPackets.h"
 #include "ToyPackets.h"
 #include "TradePackets.h"
+#include "TransmogrificationPackets.h"
 #include "VehiclePackets.h"
 #include "VoicePackets.h"
 #include "VoidStoragePackets.h"

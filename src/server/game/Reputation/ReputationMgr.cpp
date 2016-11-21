@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "ReputationMgr.h"
 #include "ReputationPackets.h"
-#include "DBCStores.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "World.h"
@@ -44,6 +43,11 @@ ReputationRank ReputationMgr::ReputationToRank(int32 standing)
             return ReputationRank(i);
     }
     return MIN_REPUTATION_RANK;
+}
+
+FactionState const* ReputationMgr::GetState(FactionEntry const* factionEntry) const
+{
+    return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : NULL;
 }
 
 bool ReputationMgr::IsAtWar(uint32 faction_id) const
@@ -126,6 +130,11 @@ ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) cons
 {
     int32 reputation = GetBaseReputation(factionEntry);
     return ReputationToRank(reputation);
+}
+
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
+{
+    return GetForcedRankIfAny(factionTemplateEntry->Faction);
 }
 
 void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply)
@@ -235,11 +244,9 @@ void ReputationMgr::Initialize()
     _exaltedFactionCount = 0;
     _sendFactionIncreased = false;
 
-    for (unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
+    for (FactionEntry const* factionEntry : sFactionStore)
     {
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(i);
-
-        if (factionEntry && factionEntry->CanHaveReputation())
+        if (factionEntry->CanHaveReputation())
         {
             FactionState newFaction;
             newFaction.ID = factionEntry->ID;
@@ -259,61 +266,64 @@ void ReputationMgr::Initialize()
     }
 }
 
-bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
+bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool noSpillover)
 {
     sScriptMgr->OnPlayerReputationChange(_player, factionEntry->ID, standing, incremental);
     bool res = false;
-    // if spillover definition exists in DB, override DBC
-    if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
+    if (!noSpillover)
     {
-        for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
+        // if spillover definition exists in DB, override DBC
+        if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
         {
-            if (repTemplate->faction[i])
+            for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
             {
-                if (_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
+                if (repTemplate->faction[i])
                 {
-                    // bonuses are already given, so just modify standing by rate
-                    int32 spilloverRep = int32(standing * repTemplate->faction_rate[i]);
-                    SetOneFactionReputation(sFactionStore.AssertEntry(repTemplate->faction[i]), spilloverRep, incremental);
+                    if (_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
+                    {
+                        // bonuses are already given, so just modify standing by rate
+                        int32 spilloverRep = int32(standing * repTemplate->faction_rate[i]);
+                        SetOneFactionReputation(sFactionStore.AssertEntry(repTemplate->faction[i]), spilloverRep, incremental);
+                    }
                 }
             }
         }
-    }
-    else
-    {
-        float spillOverRepOut = float(standing);
-        // check for sub-factions that receive spillover
-        std::vector<uint32> const* flist = GetFactionTeamList(factionEntry->ID);
-        // if has no sub-factions, check for factions with same parent
-        if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
+        else
         {
-            spillOverRepOut *= factionEntry->ParentFactionModOut;
-            if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->ParentFactionID))
+            float spillOverRepOut = float(standing);
+            // check for sub-factions that receive spillover
+            std::vector<uint32> const* flist = sDB2Manager.GetFactionTeamList(factionEntry->ID);
+            // if has no sub-factions, check for factions with same parent
+            if (!flist && factionEntry->ParentFactionID && factionEntry->ParentFactionModOut != 0.0f)
             {
-                FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
-                // some team factions have own reputation standing, in this case do not spill to other sub-factions
-                if (parentState != _factions.end() && (parentState->second.Flags & FACTION_FLAG_SPECIAL))
+                spillOverRepOut *= factionEntry->ParentFactionModOut;
+                if (FactionEntry const* parent = sFactionStore.LookupEntry(factionEntry->ParentFactionID))
                 {
-                    SetOneFactionReputation(parent, int32(spillOverRepOut), incremental);
-                }
-                else    // spill to "sister" factions
-                {
-                    flist = GetFactionTeamList(factionEntry->ParentFactionID);
+                    FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
+                    // some team factions have own reputation standing, in this case do not spill to other sub-factions
+                    if (parentState != _factions.end() && (parentState->second.Flags & FACTION_FLAG_SPECIAL))
+                    {
+                        SetOneFactionReputation(parent, int32(spillOverRepOut), incremental);
+                    }
+                    else    // spill to "sister" factions
+                    {
+                        flist = sDB2Manager.GetFactionTeamList(factionEntry->ParentFactionID);
+                    }
                 }
             }
-        }
-        if (flist)
-        {
-            // Spillover to affiliated factions
-            for (std::vector<uint32>::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
+            if (flist)
             {
-                if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
+                // Spillover to affiliated factions
+                for (std::vector<uint32>::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
                 {
-                    if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapIn))
-                        continue;
-                    int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionModIn);
-                    if (spilloverRep != 0 || !incremental)
-                        res = SetOneFactionReputation(factionEntryCalc, spilloverRep, incremental);
+                    if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
+                    {
+                        if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->ParentFactionCapIn))
+                            continue;
+                        int32 spilloverRep = int32(spillOverRepOut * factionEntryCalc->ParentFactionModIn);
+                        if (spilloverRep != 0 || !incremental)
+                            res = SetOneFactionReputation(factionEntryCalc, spilloverRep, incremental);
+                    }
                 }
             }
         }

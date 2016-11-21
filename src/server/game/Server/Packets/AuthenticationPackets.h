@@ -92,7 +92,6 @@ namespace WorldPackets
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
             uint64 DosResponse = 0;
-            ByteBuffer AddonInfo;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
 
@@ -131,6 +130,7 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+                int32 Time = 0;
 
                 BillingInfo Billing;
 
@@ -242,6 +242,14 @@ namespace WorldPackets
 
         private:
             void Read() override;
+        };
+
+        class EnableEncryption final : public ServerPacket
+        {
+        public:
+            EnableEncryption() : ServerPacket(SMSG_ENABLE_ENCRYPTION, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

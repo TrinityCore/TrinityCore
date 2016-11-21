@@ -18,7 +18,6 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
@@ -780,7 +779,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
             if (_timeCriteriaTrees.find(tree->ID) == _timeCriteriaTrees.end() && !IsCompletedCriteriaTree(tree))
             {
                 // Start the timer
-                if (criteria->Entry->StartTimer * IN_MILLISECONDS > timeLost)
+                if (criteria->Entry->StartTimer * uint32(IN_MILLISECONDS) > timeLost)
                 {
                     _timeCriteriaTrees[tree->ID] = criteria->Entry->StartTimer * IN_MILLISECONDS - timeLost;
                     canStart = true;
@@ -1254,10 +1253,13 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_WIN_BG:
+        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case CRITERIA_TYPE_DEATH_AT_MAP:
             if (!miscValue1 || criteria->Entry->Asset.MapID != referencePlayer->GetMapId())
                 return false;
             break;
         case CRITERIA_TYPE_KILL_CREATURE:
+        case CRITERIA_TYPE_KILLED_BY_CREATURE:
             if (!miscValue1 || criteria->Entry->Asset.CreatureID != miscValue1)
                 return false;
             break;
@@ -1269,11 +1271,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             if (miscValue1 && miscValue1 != criteria->Entry->Asset.ZoneID)
-                return false;
-            break;
-        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-        case CRITERIA_TYPE_DEATH_AT_MAP:
-            if (!miscValue1 || referencePlayer->GetMapId() != criteria->Entry->Asset.MapID)
                 return false;
             break;
         case CRITERIA_TYPE_DEATH:
@@ -1296,10 +1293,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         }
-        case CRITERIA_TYPE_KILLED_BY_CREATURE:
-            if (!miscValue1 || miscValue1 != criteria->Entry->Asset.CreatureID)
-                return false;
-            break;
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
             if (!miscValue1 || !unit || unit->GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -1501,6 +1494,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
 
     switch (CriteriaAdditionalCondition(reqType))
     {
+        case CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
+        {
+            // miscValue1 is itemid
+            ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+            if (!item || item->GetBaseItemLevel() < reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY: // 4
             if (!unit || unit->GetEntry() != reqValue)
                 return false;
@@ -2072,9 +2073,9 @@ void CriteriaMgr::LoadCriteriaList()
             achievementCriteriaTreeIds[achievement->CriteriaTree] = achievement;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
-    //for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-    //    if (scenarioStep->CriteriaTreeID)
-    //        scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+    for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
+        if (scenarioStep->CriteriaTreeID)
+            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
@@ -2258,4 +2259,13 @@ Criteria const* CriteriaMgr::GetCriteria(uint32 criteriaId) const
         return nullptr;
 
     return itr->second;
+}
+
+ModifierTreeNode const* CriteriaMgr::GetModifierTree(uint32 modifierTreeId) const
+{
+    auto itr = _criteriaModifiers.find(modifierTreeId);
+    if (itr != _criteriaModifiers.end())
+        return itr->second;
+
+    return nullptr;
 }
