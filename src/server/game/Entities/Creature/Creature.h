@@ -723,9 +723,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0 || IsMounted() && (GetCreatureAddon()->mountInhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet() || IsMounted() && (GetCreatureAddon()->mountInhabitType & INHABIT_WATER) != 0; }
-        bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0 || IsMounted() && (GetCreatureAddon()->mountInhabitType & INHABIT_AIR) != 0; }
+        bool CanWalk() const { return GetInhabitType() & INHABIT_GROUND; }
+        bool CanSwim() const { return GetInhabitType() & INHABIT_WATER; }
+        bool CanFly()  const override { return GetInhabitType() & INHABIT_AIR; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
@@ -787,6 +787,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
+
+        uint8 GetInhabitType() const { return IsMounted() ? GetCreatureAddon()->mountInhabitType : GetCreatureTemplate()->InhabitType; }
 
         std::string GetAIName() const;
         std::string GetScriptName() const;
