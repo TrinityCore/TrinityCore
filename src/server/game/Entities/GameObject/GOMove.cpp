@@ -216,12 +216,12 @@ uint32 GameObjectStore::SpawnQueGet(ObjectGuid const & guid)
     return 0;
 }
 
-std::vector<GameObject*> GOMove::GetNearbyGameObjects(Player* player, float range)
+std::list<GameObject*> GOMove::GetNearbyGameObjects(Player* player, float range)
 {
     float x, y, z;
     player->GetPosition(x, y, z);
 
-    std::vector<GameObject*> objects;
+    std::list<GameObject*> objects;
     Trinity::GameObjectInRangeCheck check(x, y, z, range);
     Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(player, objects, check);
     player->VisitNearbyGridObject(SIZE_OF_GRIDS, searcher);
