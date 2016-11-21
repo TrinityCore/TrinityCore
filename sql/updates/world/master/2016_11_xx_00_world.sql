@@ -15,13 +15,13 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (339284, 339285, 0, 0, 2, 0, 0);
 
 UPDATE `creature_template` SET `difficulty_entry_1`=54162, `speed_walk`=0.714286, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824, `ScriptName`='npc_firelands_flame_archon' WHERE `entry`=54161;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.714286, `speed_run`=1.42857, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|2097152, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824 WHERE `entry`=54162;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16, `speed_walk`=0.714286, `speed_run`=1.42857, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|2097152, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824 WHERE `entry`=54162;
 UPDATE `creature_template` SET `difficulty_entry_1`=54196, `speed_walk`=0.277777, `speed_run`=1.71429, `mechanic_immune_mask`=617561687, `ScriptName`='npc_firelands_molten_flamefather' WHERE `entry`=54143;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|4194304, `mechanic_immune_mask`=617561687 WHERE `entry`=54196;
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16, `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=32832, `unit_flags2`=`unit_flags2`|4194304, `mechanic_immune_mask`=617561687 WHERE `entry`=54196;
 UPDATE `creature_template` SET `speed_walk`=0.277777, `speed_run`=1.71429, `unit_flags`=64, `unit_flags2`=32768, `mechanic_immune_mask`=617561727, `flags_extra`=1073741824, `AIName`='PassiveAI' WHERE `entry`=54145;
 UPDATE `creature_template` SET `difficulty_entry_1`=54204, `unit_flags2`=`unit_flags2`|2097152, `ScriptName`='npc_firelands_magmakin' WHERE `entry`=54144;
-UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `exp`=3, `faction`=16, `speed_walk`=0.555556, `speed_run`=1.71429, `unit_flags2`=2099200 WHERE `entry`=54204;
-UPDATE `creature_template` SET `minlevel`=88, `maxlevel`=88, `exp`=3, `faction`=14, `speed_walk`=1.14286, `speed_run`=2, `unit_flags`=32768, `unit_flags2`=2099200, `type_flags2`=128, `mechanic_immune_mask`=617562103, `flags_extra`=1073741825 WHERE `entry` IN (53587, 53588, 53589);
+UPDATE `creature_template` SET `minlevel`=87, `maxlevel`=87, `faction`=16, `speed_walk`=0.555556, `speed_run`=1.71429, `unit_flags2`=2099200 WHERE `entry`=54204;
+UPDATE `creature_template` SET `minlevel`=88, `maxlevel`=88, `faction`=14, `speed_walk`=1.14286, `speed_run`=2, `unit_flags`=32768, `unit_flags2`=2099200, `type_flags2`=128, `mechanic_immune_mask`=617562103, `flags_extra`=1073741825 WHERE `entry` IN (53587, 53588, 53589);
 UPDATE `creature_template` SET `difficulty_entry_1`=53587, `difficulty_entry_2`=53588, `difficulty_entry_3`=53589, `speed_walk`=1.14286, `mechanic_immune_mask`=617562103, `flags_extra`=`flags_extra`|1073741824, `ScriptName`='boss_baleroc' WHERE `entry`=53494;
 UPDATE `creature_template` SET `lootid`=53587 WHERE `entry`=53587;
 UPDATE `creature_template` SET `lootid`=53588 WHERE `entry`=53588;

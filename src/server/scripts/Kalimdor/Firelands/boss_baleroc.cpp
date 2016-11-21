@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 #include "firelands.h"
 
 enum Spells
@@ -97,8 +99,8 @@ enum Misc
 
 enum Phases
 {
-    PHASE_NONE,
-    PHASE_ONE
+    PHASE_NONE                      = 0,
+    PHASE_ONE                       = 1
 };
 
 // http://www.wowhead.com/npc=54161/flame-archon
@@ -253,9 +255,7 @@ class npc_firelands_magmakin : public CreatureScript
 
         struct npc_firelands_magmakinAI : public ScriptedAI
         {
-            npc_firelands_magmakinAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_firelands_magmakinAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
@@ -273,7 +273,6 @@ class npc_firelands_magmakin : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                // Not good enough, they usually just walk up to your face and look at you. Before writing a workaround maybe we can look if there's some disparity between the distance logic for DoSpellAttackIfReady and UpdateVictim
                 DoSpellAttackIfReady(SPELL_ERUPTION);
             }
         };
@@ -468,9 +467,7 @@ class npc_shard_of_torment : public CreatureScript
 
         struct npc_shard_of_tormentAI : public NullCreatureAI
         {
-            npc_shard_of_tormentAI(Creature* creature) : NullCreatureAI(creature)
-            {
-            }
+            npc_shard_of_tormentAI(Creature* creature) : NullCreatureAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
@@ -867,14 +864,17 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_SHARDS_OF_TORMENT_SUMMON);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_SHARDS_OF_TORMENT_SUMMON, true);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // Shards of torment seems to target tanks if no other targets are available as of Warlords of Draenor
                 if (targets.size() <= 1)
+                {
+                    _hasTarget = !targets.empty();
                     return;
+                }
 
                 Creature* caster = GetCaster()->ToCreature();
                 if (!caster || !caster->IsAIEnabled)
