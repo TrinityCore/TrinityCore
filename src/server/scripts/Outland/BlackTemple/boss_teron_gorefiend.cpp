@@ -49,9 +49,7 @@ enum Spells
     SPELL_SHADOWBOLT                 = 40185,
 
     //Shadow Construct
-    SPELL_SHADOWY_CONSTRUCT          = 40326,
     SPELL_ATROPHY                    = 40327,
-    SPELL_SHADOW_STRIKES             = 40334,
 
     //Player
     SPELL_SUMMON_SPIRIT              = 40266,
@@ -276,7 +274,6 @@ public:
     {
         npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
         {
-            DoCastSelf(SPELL_SHADOW_STRIKES);
             //This creature must be immune everything, except spells of Vengeful Spirit.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_MAGIC, true);
@@ -290,7 +287,6 @@ public:
                 return;
             }
 
-            DoCast(SPELL_SHADOWY_CONSTRUCT);
             targetGUID.Clear();
             _scheduler.CancelAll();
             _scheduler.Schedule(Seconds(12), [this](TaskContext atrophy)

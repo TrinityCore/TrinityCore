@@ -2,6 +2,10 @@
 UPDATE `creature_template` SET `InhabitType`=`InhabitType`|4 WHERE `entry`= 23123;
 -- Add missing spells to Ghost (Vengeful Spirit)
 UPDATE `creature_template` SET `spell1`=40325, `spell3`=40157, `spell4`=40175, `spell5`=40314, `spell7`=40322 WHERE `entry`=23109;
+-- Add missing auras in Shadowy Construct
+DELETE FROM `creature_template_addon` WHERE `entry`=23111;
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
+(23111, 0, 0, 0, 0, 0, '40326 40334');
 
 -- Teron Gorefiend texts
 DELETE FROM `creature_text` where `entry`= 22871;
