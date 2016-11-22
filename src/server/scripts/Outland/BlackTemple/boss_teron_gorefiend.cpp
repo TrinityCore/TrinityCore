@@ -91,7 +91,6 @@ enum Events
 enum Actions
 {
     ACTION_START_INTRO = 1
-
 };
 
 uint32 const SkeletronSpells[4] =

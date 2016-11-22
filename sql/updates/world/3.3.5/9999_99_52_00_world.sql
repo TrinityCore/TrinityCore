@@ -19,7 +19,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 
 -- Area Trigger
 DELETE FROM `areatrigger_scripts` WHERE `entry`=4665;
-INSERT INTO `world`.`areatrigger_scripts` (`entry`, `ScriptName`) VALUES
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 (4665,'at_teron_gorefiend_entrance');
 
 -- Spell scripts
