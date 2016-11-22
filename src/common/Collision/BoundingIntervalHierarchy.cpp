@@ -43,8 +43,8 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
     if ((right - left + 1) <= dat.maxPrims || depth >= MAX_STACK_SIZE)
     {
         // write leaf node
-        stats.updateLeaf(depth, right - left + 1);
-        createNode(tempTree, nodeIndex, left, right);
+        stats.updateLeaf(depth, rightOrig - left + 1);
+        createNode(tempTree, nodeIndex, left, rightOrig);
         return;
     }
     // calculate extents
