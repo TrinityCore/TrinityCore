@@ -178,22 +178,7 @@ public:
     }
 };
 
-class go_den_of_mortal_door : public GameObjectScript
-{
-public:
-    go_den_of_mortal_door() : GameObjectScript("go_den_of_mortal_door") { }
-
-    void OnGameObjectStateChanged(GameObject* go, uint32 state) override
-    {
-        if (state == GO_STATE_ACTIVE)
-            if(InstanceScript* instance = go->GetInstanceScript())
-                if (Creature* trigger = instance->GetCreature(DATA_BLACK_TEMPLE_TRIGGER))
-                    trigger->AI()->Talk(EMOTE_DEN_OF_MORTAL_DOOR_OPEN);
-    }
-};
-
 void AddSC_black_temple()
 {
     new npc_wrathbone_flayer();
-    new go_den_of_mortal_door();
 }

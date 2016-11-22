@@ -27,10 +27,6 @@ DoorData const doorData[] =
     { GO_SHADE_OF_AKAMA_DOOR,   DATA_SHADE_OF_AKAMA,        DOOR_TYPE_ROOM    },
     { GO_TERON_DOOR_1,          DATA_TERON_GOREFIEND,       DOOR_TYPE_ROOM    },
     { GO_TERON_DOOR_2,          DATA_TERON_GOREFIEND,       DOOR_TYPE_ROOM    },
-    { GO_DEN_OF_MORTAL_DOOR,    DATA_SHADE_OF_AKAMA,        DOOR_TYPE_PASSAGE },
-    { GO_DEN_OF_MORTAL_DOOR,    DATA_TERON_GOREFIEND,       DOOR_TYPE_PASSAGE },
-    { GO_DEN_OF_MORTAL_DOOR,    DATA_RELIQUARY_OF_SOULS,    DOOR_TYPE_PASSAGE },
-    { GO_DEN_OF_MORTAL_DOOR,    DATA_GURTOGG_BLOODBOIL,     DOOR_TYPE_PASSAGE },
     { GO_GURTOGG_DOOR,          DATA_GURTOGG_BLOODBOIL,     DOOR_TYPE_PASSAGE },
     { GO_MOTHER_SHAHRAZ_DOOR,   DATA_MOTHER_SHAHRAZ,        DOOR_TYPE_PASSAGE },
     { GO_COUNCIL_DOOR_1,        DATA_ILLIDARI_COUNCIL,      DOOR_TYPE_ROOM    },
@@ -78,8 +74,9 @@ ObjectData const creatureData[] =
 
 ObjectData const gameObjectData[] =
 {
-    { GO_ILLIDAN_GATE,          DATA_GO_ILLIDAN_GATE    },
-    { 0,                        0                       } //END
+    { GO_ILLIDAN_GATE,          DATA_GO_ILLIDAN_GATE        },
+    { GO_DEN_OF_MORTAL_DOOR,    DATA_GO_DEN_OF_MORTAL_DOOR  },
+    { 0,                        0                           } //END
 };
 
 class instance_black_temple : public InstanceMapScript
@@ -96,6 +93,52 @@ class instance_black_temple : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
+            }
+
+            void OnGameObjectCreate(GameObject* go) override
+            {
+                InstanceScript::OnGameObjectCreate(go);
+                if (go->GetEntry() == GO_DEN_OF_MORTAL_DOOR)
+                    if(CheckDenOfMortalDoor())
+                        go->SetGoState(GO_STATE_ACTIVE);
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+                switch (type)
+                {
+                    case DATA_HIGH_WARLORD_NAJENTUS:
+                        if (state == DONE)
+                            if (Creature* trigger = GetCreature(DATA_BLACK_TEMPLE_TRIGGER))
+                                trigger->AI()->Talk(EMOTE_HIGH_WARLORD_NAJENTUS_DIED);
+                        break;
+                    case DATA_SHADE_OF_AKAMA:
+                    case DATA_TERON_GOREFIEND:
+                    case DATA_GURTOGG_BLOODBOIL:
+                    case DATA_RELIQUARY_OF_SOULS:
+                        if (state == DONE && CheckDenOfMortalDoor())
+                        {
+                            if (Creature* trigger = GetCreature(DATA_BLACK_TEMPLE_TRIGGER))
+                                trigger->AI()->Talk(EMOTE_DEN_OF_MORTAL_DOOR_OPEN);
+
+                            if(GameObject* go = GetGameObject(DATA_GO_DEN_OF_MORTAL_DOOR))
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+
+            bool CheckDenOfMortalDoor()
+            {
+                for (DataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
+                    if (GetBossState(boss) != DONE)
+                        return false;
+                return true;
             }
         };
 

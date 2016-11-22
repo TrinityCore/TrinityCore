@@ -47,7 +47,8 @@ enum DataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
 
     DATA_GO_ILLIDAN_GATE            = 16,
-    DATA_BLACK_TEMPLE_TRIGGER       = 17
+    DATA_BLACK_TEMPLE_TRIGGER       = 17,
+    DATA_GO_DEN_OF_MORTAL_DOOR      = 18
 };
 
 enum TriggerEmotes
