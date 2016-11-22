@@ -43,8 +43,8 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
     if ((right - left + 1) <= dat.maxPrims || depth >= MAX_STACK_SIZE)
     {
         // write leaf node
-        stats.updateLeaf(depth, rightOrig - left + 1);
-        createNode(tempTree, nodeIndex, left, rightOrig);
+        stats.updateLeaf(depth, right - left + 1);
+        createNode(tempTree, nodeIndex, left, right);
         return;
     }
     // calculate extents
@@ -154,8 +154,8 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
             // all right
             if (prevAxis == axis && G3D::fuzzyEq(prevSplit, split)) {
                 // we are stuck here - create a leaf
-                stats.updateLeaf(depth, right - left + 1);
-                createNode(tempTree, nodeIndex, left, right);
+                stats.updateLeaf(depth, rightOrig - left + 1);
+                createNode(tempTree, nodeIndex, left, rightOrig);
                 return;
             }
             right = rightOrig;
