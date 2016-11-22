@@ -50,6 +50,12 @@ enum DataTypes
     DATA_BLACK_TEMPLE_TRIGGER       = 17
 };
 
+enum TriggerEmotes
+{
+    EMOTE_HIGH_WARLORD_NAJENTUS_DIED = 0,
+    EMOTE_DEN_OF_MORTAL_DOOR_OPEN    = 1
+};
+
 enum CreatureIds
 {
     //Bosses

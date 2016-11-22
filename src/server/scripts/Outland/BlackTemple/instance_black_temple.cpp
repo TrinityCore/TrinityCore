@@ -27,11 +27,14 @@ DoorData const doorData[] =
     { GO_SHADE_OF_AKAMA_DOOR,   DATA_SHADE_OF_AKAMA,        DOOR_TYPE_ROOM    },
     { GO_TERON_DOOR_1,          DATA_TERON_GOREFIEND,       DOOR_TYPE_ROOM    },
     { GO_TERON_DOOR_2,          DATA_TERON_GOREFIEND,       DOOR_TYPE_ROOM    },
+    { GO_DEN_OF_MORTAL_DOOR,    DATA_SHADE_OF_AKAMA,        DOOR_TYPE_PASSAGE },
+    { GO_DEN_OF_MORTAL_DOOR,    DATA_TERON_GOREFIEND,       DOOR_TYPE_PASSAGE },
+    { GO_DEN_OF_MORTAL_DOOR,    DATA_RELIQUARY_OF_SOULS,    DOOR_TYPE_PASSAGE },
+    { GO_DEN_OF_MORTAL_DOOR,    DATA_GURTOGG_BLOODBOIL,     DOOR_TYPE_PASSAGE },
     { GO_GURTOGG_DOOR,          DATA_GURTOGG_BLOODBOIL,     DOOR_TYPE_PASSAGE },
     { GO_MOTHER_SHAHRAZ_DOOR,   DATA_MOTHER_SHAHRAZ,        DOOR_TYPE_PASSAGE },
     { GO_COUNCIL_DOOR_1,        DATA_ILLIDARI_COUNCIL,      DOOR_TYPE_ROOM    },
     { GO_COUNCIL_DOOR_2,        DATA_ILLIDARI_COUNCIL,      DOOR_TYPE_ROOM    },
-  //{ GO_ILLIDAN_GATE,          DATA_GO_ILLIDAN_GATE,       DOOR_TYPE_PASSAGE },
     { GO_ILLIDAN_DOOR_R,        DATA_ILLIDAN_STORMRAGE,     DOOR_TYPE_ROOM    },
     { GO_ILLIDAN_DOOR_L,        DATA_ILLIDAN_STORMRAGE,     DOOR_TYPE_ROOM    },
     { 0,                        0,                          DOOR_TYPE_ROOM    } // END
@@ -73,10 +76,10 @@ ObjectData const creatureData[] =
     { 0,                                0                               } // end
 };
 
-enum TriggerEmotes
+ObjectData const gameObjectData[] =
 {
-    HIGH_WARLORD_NAJENTUS_DIED = 0,
-    DEN_OF_MORTAL_DOOR_OPEN    = 1
+    { GO_ILLIDAN_GATE,          DATA_GO_ILLIDAN_GATE    },
+    { 0,                        0                       } //END
 };
 
 class instance_black_temple : public InstanceMapScript
@@ -91,69 +94,9 @@ class instance_black_temple : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
             }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                if (go->GetEntry() == GO_ILLIDAN_GATE)
-                    IllidanGateGUID = go->GetGUID();
-                else if (go->GetEntry() == GO_DEN_OF_MORTAL_DOOR)
-                    DenOfMortalDoorGUID = go->GetGUID();
-
-                InstanceScript::OnGameObjectCreate(go);
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                if (type == DATA_GO_ILLIDAN_GATE)
-                    return IllidanGateGUID;
-
-                return InstanceScript::GetGuidData(type);
-            }
-
-            bool SetBossState(uint32 type, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_HIGH_WARLORD_NAJENTUS:
-                        if (state == DONE)
-                            if (Creature* trigger = GetCreature(DATA_BLACK_TEMPLE_TRIGGER))
-                                trigger->AI()->Talk(HIGH_WARLORD_NAJENTUS_DIED);
-                        break;
-                    case DATA_SHADE_OF_AKAMA:
-                    case DATA_TERON_GOREFIEND:
-                    case DATA_GURTOGG_BLOODBOIL:
-                    case DATA_RELIQUARY_OF_SOULS:
-                        if (CheckDenOfMortalDoor())
-                        {
-                            if (Creature* trigger = GetCreature(DATA_BLACK_TEMPLE_TRIGGER))
-                                trigger->AI()->Talk(DEN_OF_MORTAL_DOOR_OPEN);
-
-                            HandleGameObject(DenOfMortalDoorGUID, true);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-
-            bool CheckDenOfMortalDoor()
-            {
-                for (DataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
-                    if (GetBossState(boss) != DONE)
-                        return false;
-                return true;
-            }
-
-        protected:
-            ObjectGuid IllidanGateGUID;
-            ObjectGuid DenOfMortalDoorGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

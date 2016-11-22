@@ -221,6 +221,7 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -232,7 +233,8 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            _Reset();
+            events.Reset();
+            summons.DespawnAll();
 
             for (ObjectGuid const& spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
