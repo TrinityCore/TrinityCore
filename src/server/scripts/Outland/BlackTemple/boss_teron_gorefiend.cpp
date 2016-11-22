@@ -136,7 +136,7 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_START_INTRO && !_intro)
+            if (action == ACTION_START_INTRO && !_intro && me->IsAlive())
             {
                 _intro = true;
                 Talk(SAY_INTRO);
