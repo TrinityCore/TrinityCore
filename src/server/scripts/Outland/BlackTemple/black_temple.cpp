@@ -183,7 +183,7 @@ class go_den_of_mortal_door : public GameObjectScript
 public:
     go_den_of_mortal_door() : GameObjectScript("go_den_of_mortal_door") { }
 
-    void OnGameObjectStateChanged(GameObject* go, uint32 state)
+    void OnGameObjectStateChanged(GameObject* go, uint32 state) override
     {
         if (state = GO_STATE_ACTIVE)
             if(InstanceScript* instance = go->GetInstanceScript())
