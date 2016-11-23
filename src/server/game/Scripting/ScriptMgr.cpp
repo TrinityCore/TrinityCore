@@ -1202,12 +1202,11 @@ void ScriptMgr::FillSpellSummary()
     }
 }
 
-template<typename T, typename F>
-void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& extractor)
+template<typename T, typename F, typename O>
+void CreateSpellOrAuraScripts(uint32 spellId, std::vector<T*>& scriptVector, F&& extractor, O* objectInvoker)
 {
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
-
-    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
         // When the script is disabled continue with the next one
         if (!itr->second.second)
@@ -1218,24 +1217,28 @@ void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& e
             continue;
 
         T* script = (*tmpscript.*extractor)();
-
         if (!script)
             continue;
 
         script->_Init(&tmpscript->GetName(), spellId);
+        if (!script->_Load(objectInvoker))
+        {
+            delete script;
+            continue;
+        }
 
         scriptVector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
+void ScriptMgr::CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript, invoker);
 }
 
-void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector)
+void ScriptMgr::CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript, invoker);
 }
 
 SpellScriptLoader* ScriptMgr::GetSpellScriptLoader(uint32 scriptId)
@@ -1641,6 +1644,8 @@ bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemp
     ASSERT(actTemplate);
 
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
+    if (!baseTemplate)
+        baseTemplate = actTemplate;
     GET_SCRIPT_RET(CreatureScript, baseTemplate->ScriptID, tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }

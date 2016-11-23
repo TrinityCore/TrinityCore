@@ -61,9 +61,6 @@ G3D::Quat const WintergraspRelicRot    = { 0.f, 0.f, -0.7933531f, 0.6087617f };
 
 uint8 const WG_MAX_OBJ              = 32;
 uint8 const WG_MAX_TURRET           = 15;
-uint8 const WG_MAX_KEEP_NPC         = 39;
-uint8 const WG_MAX_OUTSIDE_NPC      = 14;
-uint8 const WG_OUTSIDE_ALLIANCE_NPC = 7;
 uint8 const WG_MAX_TELEPORTER       = 12;
 uint8 const WG_MAX_WORKSHOP         = 6;
 uint8 const WG_MAX_TOWER            = 7;
@@ -175,76 +172,6 @@ struct WintergraspObjectPositionData
     Position Pos;
     uint32 HordeEntry;
     uint32 AllianceEntry;
-};
-
-// Here there is all npc keeper spawn point
-WintergraspObjectPositionData const WGKeepNPC[WG_MAX_KEEP_NPC] =
-{
-    //  X             Y             Z            O            horde                          alliance
-    // North East
-    { { 5326.203125f, 2660.026367f, 409.100891f, 2.543383f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Roaming Guard
-    { { 5298.430176f, 2738.760010f, 409.316010f, 3.971740f }, BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER, BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH }, // Vieron Blazefeather
-    { { 5335.310059f, 2764.110107f, 409.274994f, 4.834560f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5349.810059f, 2763.629883f, 409.333008f, 4.660030f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    // North
-    { { 5373.470215f, 2789.060059f, 409.322998f, 2.600540f }, BATTLEFIELD_WG_NPC_STONE_GUARD_MUKAR, BATTLEFIELD_WG_NPC_KNIGHT_DAMERON }, // Stone Guard Mukar
-    { { 5296.560059f, 2789.870117f, 409.274994f, 0.733038f }, BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN, BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA }, // Voodoo Master Fu'jin
-    { { 5372.670000f, 2786.740000f, 409.442000f, 2.809980f }, BATTLEFIELD_WG_NPC_CHAMPION_ROS_SLAI, BATTLEFIELD_WG_NPC_MARSHAL_MAGRUDER }, // Wintergrasp Quartermaster
-    { { 5368.709961f, 2856.360107f, 409.322998f, 2.949610f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5367.910156f, 2826.520020f, 409.322998f, 3.333580f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5389.270020f, 2847.370117f, 418.759003f, 3.106690f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5388.560059f, 2834.770020f, 418.759003f, 3.071780f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5359.129883f, 2837.989990f, 409.364014f, 4.698930f }, BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH, BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH }, // Commander Dardosh
-    { { 5366.129883f, 2833.399902f, 409.322998f, 3.141590f }, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS }, // Tactical Officer Kilrath
-    //  X             Y             Z            O            horde                          alliance
-    // North West
-    { { 5350.680176f, 2917.010010f, 409.274994f, 1.466080f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5335.120117f, 2916.800049f, 409.444000f, 1.500980f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5295.560059f, 2926.669922f, 409.274994f, 0.872665f }, BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF, BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE }, // Stronghoof
-    { { 5371.399902f, 3026.510010f, 409.205994f, 3.250030f }, BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT, BATTLEFIELD_WG_NPC_ANCHORITE_TESSA }, // Primalist Mulfort
-    { { 5392.123535f, 3031.110352f, 409.187683f, 3.677212f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Roaming Guard
-    // South
-    { { 5270.060059f, 2847.550049f, 409.274994f, 3.071780f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5270.160156f, 2833.479980f, 409.274994f, 3.124140f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5179.109863f, 2837.129883f, 409.274994f, 3.211410f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5179.669922f, 2846.600098f, 409.274994f, 3.089230f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5234.970215f, 2883.399902f, 409.274994f, 4.293510f }, BATTLEFIELD_WG_NPC_LIEUTENANT_MURP, BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO }, // Lieutenant Murp
-    //  X             Y             Z            O            horde                          alliance
-    // Portal guards (from around the fortress)
-    { { 5319.209473f, 3055.947754f, 409.176636f, 1.020201f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5311.612305f, 3061.207275f, 408.734161f, 0.965223f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5264.713379f, 3017.283447f, 408.479706f, 3.482424f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5269.096191f, 3008.315918f, 408.826294f, 3.843706f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5201.414551f, 2945.096924f, 409.190735f, 0.945592f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5193.386230f, 2949.617188f, 409.190735f, 1.145859f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5148.116211f, 2904.761963f, 409.193756f, 3.368532f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5153.355957f, 2895.501465f, 409.199310f, 3.549174f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5154.353027f, 2787.349365f, 409.250183f, 2.555644f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5150.066406f, 2777.876953f, 409.343903f, 2.708797f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5193.706543f, 2732.882812f, 409.189514f, 4.845073f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5202.126953f, 2737.570557f, 409.189514f, 5.375215f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5269.181152f, 2671.174072f, 409.098999f, 2.457459f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5264.960938f, 2662.332520f, 409.098999f, 2.598828f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5307.111816f, 2616.006836f, 409.095734f, 5.355575f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
-    { { 5316.770996f, 2619.430176f, 409.027740f, 5.363431f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A }        // Standing Guard
-};
-
-WintergraspObjectPositionData const WGOutsideNPC[WG_MAX_OUTSIDE_NPC] =
-{
-    { { 5032.04f, 3681.79f, 362.980f, 4.210f }, BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER, 0 },
-    { { 5020.71f, 3626.19f, 360.150f, 4.640f }, BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN, 0 },
-    { { 4994.85f, 3660.51f, 359.150f, 2.260f }, BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH, 0 },
-    { { 5015.46f, 3677.11f, 362.970f, 6.009f }, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH, 0 },
-    { { 5031.12f, 3663.77f, 363.500f, 3.110f }, BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF, 0 },
-    { { 5042.74f, 3675.82f, 363.060f, 3.358f }, BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT, 0 },
-    { { 5014.45f, 3640.87f, 361.390f, 3.280f }, BATTLEFIELD_WG_NPC_LIEUTENANT_MURP, 0 },
-    { { 5100.07f, 2168.89f, 365.779f, 1.972f }, 0, BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH },
-    { { 5081.70f, 2173.73f, 365.878f, 0.855f }, 0, BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA },
-    { { 5078.28f, 2183.70f, 365.029f, 1.466f }, 0, BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH },
-    { { 5088.49f, 2188.18f, 365.647f, 5.253f }, 0, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS },
-    { { 5095.67f, 2193.28f, 365.924f, 4.939f }, 0, BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE },
-    { { 5088.61f, 2167.66f, 365.689f, 0.680f }, 0, BATTLEFIELD_WG_NPC_ANCHORITE_TESSA },
-    { { 5080.40f, 2199.00f, 359.489f, 2.967f }, 0, BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO },
 };
 
 struct WintergraspGameObjectData
@@ -492,6 +419,7 @@ bool BattlefieldWG::SetupBattlefield()
     m_StartGroupingTimer = 15 * MINUTE * IN_MILLISECONDS;
     m_StartGrouping = false;
 
+    m_tenacityTeam = TEAM_NEUTRAL;
     m_tenacityStack = 0;
 
     KickPosition.Relocate(5728.117f, 2714.346f, 697.733f, 0);
@@ -550,7 +478,7 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < WG_MAX_WORKSHOP; i++)
     {
         WintergraspWorkshop* workshop = new WintergraspWorkshop(this, i);
-        if (i < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+        if (i < BATTLEFIELD_WG_WORKSHOP_NE)
             workshop->GiveControlTo(GetAttackerTeam(), true);
         else
             workshop->GiveControlTo(GetDefenderTeam(), true);
@@ -558,38 +486,6 @@ bool BattlefieldWG::SetupBattlefield()
         // Note: Capture point is added once the gameobject is created.
         Workshops[i] = workshop;
     }
-
-    // Spawn NPCs in the defender's keep, both Horde and Alliance
-    for (uint8 i = 0; i < WG_MAX_KEEP_NPC; ++i)
-    {
-        // Horde npc
-        if (Creature* creature = SpawnCreature(WGKeepNPC[i].HordeEntry, WGKeepNPC[i].Pos))
-            KeepCreature[TEAM_HORDE].push_back(creature->GetGUID());
-
-        // Alliance npc
-        if (Creature* creature = SpawnCreature(WGKeepNPC[i].AllianceEntry, WGKeepNPC[i].Pos))
-            KeepCreature[TEAM_ALLIANCE].push_back(creature->GetGUID());
-    }
-
-    // Hide NPCs from the Attacker's team in the keep
-    for (auto itr = KeepCreature[GetAttackerTeam()].begin(); itr != KeepCreature[GetAttackerTeam()].end(); ++itr)
-        if (Creature* creature = GetCreature(*itr))
-            HideNpc(creature);
-
-    // Spawn Horde NPCs outside the keep
-    for (uint8 i = 0; i < WG_OUTSIDE_ALLIANCE_NPC; ++i)
-        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].HordeEntry, WGOutsideNPC[i].Pos))
-            OutsideCreature[TEAM_HORDE].push_back(creature->GetGUID());
-
-    // Spawn Alliance NPCs outside the keep
-    for (uint8 i = WG_OUTSIDE_ALLIANCE_NPC; i < WG_MAX_OUTSIDE_NPC; ++i)
-        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].AllianceEntry, WGOutsideNPC[i].Pos))
-            OutsideCreature[TEAM_ALLIANCE].push_back(creature->GetGUID());
-
-    // Hide units outside the keep that are defenders
-    for (auto itr = OutsideCreature[GetDefenderTeam()].begin(); itr != OutsideCreature[GetDefenderTeam()].end(); ++itr)
-        if (Creature* creature = GetCreature(*itr))
-            HideNpc(creature);
 
     // Spawn turrets and hide them per default
     for (uint8 i = 0; i < WG_MAX_TURRET; i++)
@@ -666,7 +562,7 @@ void BattlefieldWG::OnBattleStart()
         // Update faction of relic, only attacker can click on
         relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
         // Set in use (not allow to click on before last door is broken)
-        relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
         m_titansRelicGUID = relic->GetGUID();
     }
     else
@@ -768,27 +664,6 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         }
     }
 
-    if (!endByTimer) // One player triggered the relic
-    {
-        // Change all npc in keep
-        for (auto itr = KeepCreature[GetAttackerTeam()].begin(); itr != KeepCreature[GetAttackerTeam()].end(); ++itr)
-            if (Creature* creature = GetCreature(*itr))
-                HideNpc(creature);
-
-        for (auto itr = KeepCreature[GetDefenderTeam()].begin(); itr != KeepCreature[GetDefenderTeam()].end(); ++itr)
-            if (Creature* creature = GetCreature(*itr))
-                ShowNpc(creature, true);
-
-        // Change all npc out of keep
-        for (auto itr = OutsideCreature[GetDefenderTeam()].begin(); itr != OutsideCreature[GetDefenderTeam()].end(); ++itr)
-            if (Creature* creature = GetCreature(*itr))
-                HideNpc(creature);
-
-        for (auto itr = OutsideCreature[GetAttackerTeam()].begin(); itr != OutsideCreature[GetAttackerTeam()].end(); ++itr)
-            if (Creature* creature = GetCreature(*itr))
-                ShowNpc(creature, true);
-    }
-
     // Update all graveyard, control is to defender when no wartime
     for (uint8 i = 0; i < BATTLEFIELD_WG_GY_HORDE; i++)
         if (BfGraveyard* graveyard = GetGraveyardById(i))
@@ -816,6 +691,9 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         {
             player->CastSpell(player, SPELL_ESSENCE_OF_WINTERGRASP, true);
             player->CastSpell(player, SPELL_VICTORY_REWARD, true);
+            // Complete victory quests
+            player->AreaExploredOrEventHappens(QUEST_VICTORY_WINTERGRASP_A);
+            player->AreaExploredOrEventHappens(QUEST_VICTORY_WINTERGRASP_H);
             // Send Wintergrasp victory achievement
             DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG, player);
             // Award achievement for succeeding in Wintergrasp in 10 minutes or less
@@ -1070,33 +948,9 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     if (killer == victim)
         return;
 
-    bool again = false;
-    TeamId killerTeam = killer->GetTeamId();
-
     if (victim->GetTypeId() == TYPEID_PLAYER)
-    {
-        for (auto itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                if (player->GetDistance2d(killer) < 40)
-                    PromotePlayer(player);
-        return;
-    }
+        HandlePromotion(killer, victim);
 
-    for (auto itr = KeepCreature[GetOtherTeam(killerTeam)].begin();
-         itr != KeepCreature[GetOtherTeam(killerTeam)].end(); ++itr)
-    {
-        if (Creature* creature = GetCreature(*itr))
-        {
-            if (victim->GetEntry() == creature->GetEntry() && !again)
-            {
-                again = true;
-                for (auto iter = m_PlayersInWar[killerTeam].begin(); iter != m_PlayersInWar[killerTeam].end(); ++iter)
-                    if (Player* player = ObjectAccessor::FindPlayer(*iter))
-                        if (player->GetDistance2d(killer) < 40.0f)
-                            PromotePlayer(player);
-            }
-        }
-    }
     /// @todoRecent PvP activity worldstate
 }
 
@@ -1126,6 +980,16 @@ void BattlefieldWG::OnUnitDeath(Unit* unit)
         if (unit->IsVehicle())
             if (FindAndRemoveVehicleFromList(unit))
                 UpdateVehicleCountWG();
+}
+
+void BattlefieldWG::HandlePromotion(Player* playerKiller, Unit* unitKilled)
+{
+    uint32 teamId = playerKiller->GetTeamId();
+
+    for (auto iter = m_PlayersInWar[teamId].begin(); iter != m_PlayersInWar[teamId].end(); ++iter)
+        if (Player* player = ObjectAccessor::FindPlayer(*iter))
+            if (player->GetDistance2d(unitKilled) < 40.0f)
+                PromotePlayer(player);
 }
 
 // Update rank for player
@@ -1221,6 +1085,7 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROL_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROL_PHASE_SHIFT);
+    UpdateTenacity();
 }
 
 void BattlefieldWG::OnPlayerLeaveZone(Player* player)
@@ -1314,31 +1179,23 @@ void BattlefieldWG::SendInitWorldStatesToAll()
                 SendInitWorldStatesTo(player);
 }
 
-void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
+void BattlefieldWG::BrokenWallOrTower(TeamId team, BfWGGameObjectBuilding* building)
 {
-/*
-uint32 const WGQuest[2][6] =
-{
-    { 13186, 13181, 13222, 13538, 13177, 13179 },
-    { 13185, 13183, 13223, 13539, 13178, 13180 },
-};
-*/
-
-// might be some use for this in the future. old code commented out below. KL
-/*    if (team == GetDefenderTeam())
+    if (team == GetDefenderTeam())
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+        for (auto itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         {
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                IncrementQuest(player, WGQuest[player->GetTeamId()][2], true);
+                if (player->GetDistance2d(GetGameObject(building->GetGUID())) < 50.0f)
+                    player->KilledMonsterCredit(QUEST_CREDIT_DEFEND_SIEGE);
         }
-    }*/
+    }
 }
 
 // Called when a tower is broke
 void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
 {
-    // Destroy an attack tower
+    // Southern tower
     if (team == GetAttackerTeam())
     {
         // Update counter
@@ -1350,12 +1207,13 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->RemoveAuraFromStack(SPELL_TOWER_CONTROL);
 
-        // Add buff stack to defenders
+        // Add buff stack to defenders and give achievement/quest credit
         for (auto itr = m_PlayersInWar[GetDefenderTeam()].begin(); itr != m_PlayersInWar[GetDefenderTeam()].end(); ++itr)
         {
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
             {
                 player->CastSpell(player, SPELL_TOWER_CONTROL, true);
+                player->KilledMonsterCredit(QUEST_CREDIT_TOWERS_DESTROYED);
                 DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
             }
         }
@@ -1370,7 +1228,7 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
             SendInitWorldStatesToAll();
         }
     }
-    else
+    else // Keep tower
     {
         UpdateData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_DEF, -1);
         UpdateData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_DEF, 1);
@@ -1433,7 +1291,6 @@ void BattlefieldWG::UpdateVehicleCountWG()
 
 void BattlefieldWG::UpdateTenacity()
 {
-    TeamId team = TEAM_NEUTRAL;
     uint32 alliancePlayers = m_PlayersInWar[TEAM_ALLIANCE].size();
     uint32 hordePlayers = m_PlayersInWar[TEAM_HORDE].size();
     int32 newStack = 0;
@@ -1449,21 +1306,16 @@ void BattlefieldWG::UpdateTenacity()
     if (newStack == int32(m_tenacityStack))
         return;
 
-    if (m_tenacityStack > 0 && newStack <= 0)               // old buff was on alliance
-        team = TEAM_ALLIANCE;
-    else if (newStack >= 0)                                 // old buff was on horde
-        team = TEAM_HORDE;
-
     m_tenacityStack = newStack;
     // Remove old buff
-    if (team != TEAM_NEUTRAL)
+    if (m_tenacityTeam != TEAM_NEUTRAL)
     {
-        for (auto itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        for (auto itr = m_players[m_tenacityTeam].begin(); itr != m_players[m_tenacityTeam].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->getLevel() >= m_MinLevel)
                     player->RemoveAurasDueToSpell(SPELL_TENACITY);
 
-        for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
             if (Creature* creature = GetCreature(*itr))
                 creature->RemoveAurasDueToSpell(SPELL_TENACITY_VEHICLE);
     }
@@ -1471,7 +1323,7 @@ void BattlefieldWG::UpdateTenacity()
     // Apply new buff
     if (newStack)
     {
-        team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
+        m_tenacityTeam = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
 
         if (newStack < 0)
             newStack = -newStack;
@@ -1486,25 +1338,27 @@ void BattlefieldWG::UpdateTenacity()
         if (newStack < 5)
             buff_honor = 0;
 
-        for (auto itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
+        for (auto itr = m_PlayersInWar[m_tenacityTeam].begin(); itr != m_PlayersInWar[m_tenacityTeam].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 player->SetAuraStack(SPELL_TENACITY, player, newStack);
 
-        for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
             if (Creature* creature = GetCreature(*itr))
                 creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, newStack);
 
         if (buff_honor != 0)
         {
-            for (auto itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
+            for (auto itr = m_PlayersInWar[m_tenacityTeam].begin(); itr != m_PlayersInWar[m_tenacityTeam].end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(*itr))
                     player->CastSpell(player, buff_honor, true);
 
-            for (auto itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+            for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)
                 if (Creature* creature = GetCreature(*itr))
                     creature->CastSpell(creature, buff_honor, true);
         }
     }
+    else
+        m_tenacityTeam = TEAM_NEUTRAL;
 }
 
 WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl) : BfCapturePoint(battlefield)
@@ -1622,7 +1476,7 @@ void BfWGGameObjectBuilding::Destroyed()
                     go->SetGoState(GO_STATE_ACTIVE);
             _wg->SetRelicInteractible(true);
             if (_wg->GetRelic())
-                _wg->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                _wg->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
             else
                 TC_LOG_ERROR("bg.battlefield.wg", "Titan Relic not found.");
             break;
@@ -1630,7 +1484,7 @@ void BfWGGameObjectBuilding::Destroyed()
             break;
     }
 
-    _wg->BrokenWallOrTower(_teamControl);
+    _wg->BrokenWallOrTower(_teamControl, this);
 }
 
 void BfWGGameObjectBuilding::Init(GameObject* go)
@@ -1954,8 +1808,8 @@ void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool init /*= false*/)
 
 void WintergraspWorkshop::UpdateGraveyardAndWorkshop()
 {
-    if (_staticInfo->WorkshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
-        _wg->GetGraveyardById(_staticInfo->WorkshopId)->GiveControlTo(_teamControl);
+    if (_staticInfo->WorkshopId < BATTLEFIELD_WG_WORKSHOP_NE)
+        GiveControlTo(_wg->GetAttackerTeam(), true);
     else
         GiveControlTo(_wg->GetDefenderTeam(), true);
 }

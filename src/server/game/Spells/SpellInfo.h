@@ -24,10 +24,13 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 
+#include <boost/container/flat_set.hpp>
+
 class Unit;
 class Player;
 class Item;
 class Spell;
+class SpellMgr;
 class SpellInfo;
 struct SpellChainNode;
 struct SpellTargetPosition;
@@ -291,201 +294,252 @@ private:
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
+struct TC_GAME_API SpellDiminishInfo
+{
+    DiminishingGroup DiminishGroup = DIMINISHING_NONE;
+    DiminishingReturnsType DiminishReturnType = DRTYPE_NONE;
+    DiminishingLevels DiminishMaxLevel = DIMINISHING_LEVEL_IMMUNE;
+    int32 DiminishDurationLimit = 0;
+};
+
+struct TC_GAME_API ImmunityInfo
+{
+    uint32 SchoolImmuneMask = 0;
+    uint32 ApplyHarmfulAuraImmuneMask = 0;
+    uint32 MechanicImmuneMask = 0;
+    uint32 DispelImmune = 0;
+    uint32 DamageSchoolMask = 0;
+
+    boost::container::flat_set<AuraType> AuraTypeImmune;
+    boost::container::flat_set<SpellEffects> SpellEffectImmune;
+};
+
 class TC_GAME_API SpellInfo
 {
-public:
-    uint32 Id;
-    SpellCategoryEntry const* CategoryEntry;
-    uint32 Dispel;
-    uint32 Mechanic;
-    uint32 Attributes;
-    uint32 AttributesEx;
-    uint32 AttributesEx2;
-    uint32 AttributesEx3;
-    uint32 AttributesEx4;
-    uint32 AttributesEx5;
-    uint32 AttributesEx6;
-    uint32 AttributesEx7;
-    uint32 AttributesCu;
-    uint64 Stances;
-    uint64 StancesNot;
-    uint32 Targets;
-    uint32 TargetCreatureType;
-    uint32 RequiresSpellFocus;
-    uint32 FacingCasterFlags;
-    uint32 CasterAuraState;
-    uint32 TargetAuraState;
-    uint32 CasterAuraStateNot;
-    uint32 TargetAuraStateNot;
-    uint32 CasterAuraSpell;
-    uint32 TargetAuraSpell;
-    uint32 ExcludeCasterAuraSpell;
-    uint32 ExcludeTargetAuraSpell;
-    SpellCastTimesEntry const* CastTimeEntry;
-    uint32 RecoveryTime;
-    uint32 CategoryRecoveryTime;
-    uint32 StartRecoveryCategory;
-    uint32 StartRecoveryTime;
-    uint32 InterruptFlags;
-    uint32 AuraInterruptFlags;
-    uint32 ChannelInterruptFlags;
-    uint32 ProcFlags;
-    uint32 ProcChance;
-    uint32 ProcCharges;
-    uint32 MaxLevel;
-    uint32 BaseLevel;
-    uint32 SpellLevel;
-    SpellDurationEntry const* DurationEntry;
-    uint32 PowerType;
-    uint32 ManaCost;
-    uint32 ManaCostPerlevel;
-    uint32 ManaPerSecond;
-    uint32 ManaPerSecondPerLevel;
-    uint32 ManaCostPercentage;
-    uint32 RuneCostID;
-    SpellRangeEntry const* RangeEntry;
-    float  Speed;
-    uint32 StackAmount;
-    uint32 Totem[2];
-    int32  Reagent[MAX_SPELL_REAGENTS];
-    uint32 ReagentCount[MAX_SPELL_REAGENTS];
-    int32  EquippedItemClass;
-    int32  EquippedItemSubClassMask;
-    int32  EquippedItemInventoryTypeMask;
-    uint32 TotemCategory[2];
-    uint32 SpellVisual[2];
-    uint32 SpellIconID;
-    uint32 ActiveIconID;
-    char* SpellName[16];
-    char* Rank[16];
-    uint32 MaxTargetLevel;
-    uint32 MaxAffectedTargets;
-    uint32 SpellFamilyName;
-    flag96 SpellFamilyFlags;
-    uint32 DmgClass;
-    uint32 PreventionType;
-    int32  AreaGroupId;
-    uint32 SchoolMask;
-    SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
-    uint32 ExplicitTargetMask;
-    SpellChainNode const* ChainEntry;
+    friend class SpellMgr;
 
-    SpellInfo(SpellEntry const* spellEntry);
-    ~SpellInfo();
+    public:
+        uint32 Id;
+        SpellCategoryEntry const* CategoryEntry;
+        uint32 Dispel;
+        uint32 Mechanic;
+        uint32 Attributes;
+        uint32 AttributesEx;
+        uint32 AttributesEx2;
+        uint32 AttributesEx3;
+        uint32 AttributesEx4;
+        uint32 AttributesEx5;
+        uint32 AttributesEx6;
+        uint32 AttributesEx7;
+        uint32 AttributesCu;
+        uint64 Stances;
+        uint64 StancesNot;
+        uint32 Targets;
+        uint32 TargetCreatureType;
+        uint32 RequiresSpellFocus;
+        uint32 FacingCasterFlags;
+        uint32 CasterAuraState;
+        uint32 TargetAuraState;
+        uint32 CasterAuraStateNot;
+        uint32 TargetAuraStateNot;
+        uint32 CasterAuraSpell;
+        uint32 TargetAuraSpell;
+        uint32 ExcludeCasterAuraSpell;
+        uint32 ExcludeTargetAuraSpell;
+        SpellCastTimesEntry const* CastTimeEntry;
+        uint32 RecoveryTime;
+        uint32 CategoryRecoveryTime;
+        uint32 StartRecoveryCategory;
+        uint32 StartRecoveryTime;
+        uint32 InterruptFlags;
+        uint32 AuraInterruptFlags;
+        uint32 ChannelInterruptFlags;
+        uint32 ProcFlags;
+        uint32 ProcChance;
+        uint32 ProcCharges;
+        uint32 MaxLevel;
+        uint32 BaseLevel;
+        uint32 SpellLevel;
+        SpellDurationEntry const* DurationEntry;
+        uint32 PowerType;
+        uint32 ManaCost;
+        uint32 ManaCostPerlevel;
+        uint32 ManaPerSecond;
+        uint32 ManaPerSecondPerLevel;
+        uint32 ManaCostPercentage;
+        uint32 RuneCostID;
+        SpellRangeEntry const* RangeEntry;
+        float  Speed;
+        uint32 StackAmount;
+        uint32 Totem[2];
+        int32  Reagent[MAX_SPELL_REAGENTS];
+        uint32 ReagentCount[MAX_SPELL_REAGENTS];
+        int32  EquippedItemClass;
+        int32  EquippedItemSubClassMask;
+        int32  EquippedItemInventoryTypeMask;
+        uint32 TotemCategory[2];
+        uint32 SpellVisual[2];
+        uint32 SpellIconID;
+        uint32 ActiveIconID;
+        char* SpellName[16];
+        char* Rank[16];
+        uint32 MaxTargetLevel;
+        uint32 MaxAffectedTargets;
+        uint32 SpellFamilyName;
+        flag96 SpellFamilyFlags;
+        uint32 DmgClass;
+        uint32 PreventionType;
+        int32  AreaGroupId;
+        uint32 SchoolMask;
+        SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
+        uint32 ExplicitTargetMask;
+        SpellChainNode const* ChainEntry;
 
-    uint32 GetCategory() const;
-    bool HasEffect(SpellEffects effect) const;
-    bool HasAura(AuraType aura) const;
-    bool HasAreaAuraEffect() const;
+        SpellInfo(SpellEntry const* spellEntry);
+        ~SpellInfo();
 
-    inline bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
-    inline bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
-    inline bool HasAttribute(SpellAttr2 attribute) const { return !!(AttributesEx2 & attribute); }
-    inline bool HasAttribute(SpellAttr3 attribute) const { return !!(AttributesEx3 & attribute); }
-    inline bool HasAttribute(SpellAttr4 attribute) const { return !!(AttributesEx4 & attribute); }
-    inline bool HasAttribute(SpellAttr5 attribute) const { return !!(AttributesEx5 & attribute); }
-    inline bool HasAttribute(SpellAttr6 attribute) const { return !!(AttributesEx6 & attribute); }
-    inline bool HasAttribute(SpellAttr7 attribute) const { return !!(AttributesEx7 & attribute); }
-    inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
+        uint32 GetCategory() const;
+        bool HasEffect(SpellEffects effect) const;
+        bool HasAura(AuraType aura) const;
+        bool HasAreaAuraEffect() const;
+        bool HasOnlyDamageEffects() const;
 
-    bool IsExplicitDiscovery() const;
-    bool IsLootCrafting() const;
-    bool IsQuestTame() const;
-    bool IsProfessionOrRiding() const;
-    bool IsProfession() const;
-    bool IsPrimaryProfession() const;
-    bool IsPrimaryProfessionFirstRank() const;
-    bool IsAbilityLearnedWithProfession() const;
-    bool IsAbilityOfSkillType(uint32 skillType) const;
+        inline bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
+        inline bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
+        inline bool HasAttribute(SpellAttr2 attribute) const { return !!(AttributesEx2 & attribute); }
+        inline bool HasAttribute(SpellAttr3 attribute) const { return !!(AttributesEx3 & attribute); }
+        inline bool HasAttribute(SpellAttr4 attribute) const { return !!(AttributesEx4 & attribute); }
+        inline bool HasAttribute(SpellAttr5 attribute) const { return !!(AttributesEx5 & attribute); }
+        inline bool HasAttribute(SpellAttr6 attribute) const { return !!(AttributesEx6 & attribute); }
+        inline bool HasAttribute(SpellAttr7 attribute) const { return !!(AttributesEx7 & attribute); }
+        inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-    bool IsAffectingArea() const;
-    bool IsTargetingArea() const;
-    bool NeedsExplicitUnitTarget() const;
-    bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+        bool IsExplicitDiscovery() const;
+        bool IsLootCrafting() const;
+        bool IsQuestTame() const;
+        bool IsProfessionOrRiding() const;
+        bool IsProfession() const;
+        bool IsPrimaryProfession() const;
+        bool IsPrimaryProfessionFirstRank() const;
+        bool IsAbilityLearnedWithProfession() const;
+        bool IsAbilityOfSkillType(uint32 skillType) const;
 
-    bool IsPassive() const;
-    bool IsAutocastable() const;
-    bool IsStackableWithRanks() const;
-    bool IsPassiveStackableWithRanks() const;
-    bool IsMultiSlotAura() const;
-    bool IsStackableOnOneSlotWithDifferentCasters() const;
-    bool IsCooldownStartedOnEvent() const;
-    bool IsDeathPersistent() const;
-    bool IsRequiringDeadTarget() const;
-    bool IsAllowingDeadTarget() const;
-    bool IsGroupBuff() const;
-    bool CanBeUsedInCombat() const;
-    bool IsPositive() const;
-    bool IsPositiveEffect(uint8 effIndex) const;
-    bool IsChanneled() const;
-    bool NeedsComboPoints() const;
-    bool IsBreakingStealth() const;
-    bool IsRangedWeaponSpell() const;
-    bool IsAutoRepeatRangedSpell() const;
-    bool HasInitialAggro() const;
+        bool IsAffectingArea() const;
+        bool IsTargetingArea() const;
+        bool NeedsExplicitUnitTarget() const;
+        bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
 
-    bool IsAffectedBySpellMods() const;
-    bool IsAffectedBySpellMod(SpellModifier const* mod) const;
+        bool IsPassive() const;
+        bool IsAutocastable() const;
+        bool IsStackableWithRanks() const;
+        bool IsPassiveStackableWithRanks() const;
+        bool IsMultiSlotAura() const;
+        bool IsStackableOnOneSlotWithDifferentCasters() const;
+        bool IsCooldownStartedOnEvent() const;
+        bool IsDeathPersistent() const;
+        bool IsRequiringDeadTarget() const;
+        bool IsAllowingDeadTarget() const;
+        bool IsGroupBuff() const;
+        bool CanBeUsedInCombat() const;
+        bool IsPositive() const;
+        bool IsPositiveEffect(uint8 effIndex) const;
+        bool IsChanneled() const;
+        bool IsMoveAllowedChannel() const;
+        bool NeedsComboPoints() const;
+        bool IsNextMeleeSwingSpell() const;
+        bool IsBreakingStealth() const;
+        bool IsRangedWeaponSpell() const;
+        bool IsAutoRepeatRangedSpell() const;
+        bool HasInitialAggro() const;
 
-    bool CanPierceImmuneAura(SpellInfo const* aura) const;
-    bool CanDispelAura(SpellInfo const* aura) const;
+        bool IsAffected(uint32 familyName, flag96 const& familyFlags) const;
 
-    bool IsSingleTarget() const;
-    bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
-    bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
+        bool IsAffectedBySpellMods() const;
+        bool IsAffectedBySpellMod(SpellModifier const* mod) const;
 
-    SpellCastResult CheckShapeshift(uint32 form) const;
-    SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
-    SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
-    SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
-    SpellCastResult CheckVehicle(Unit const* caster) const;
-    bool CheckTargetCreatureType(Unit const* target) const;
+        bool CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const;
+        bool CanDispelAura(SpellInfo const* auraSpellInfo) const;
 
-    SpellSchoolMask GetSchoolMask() const;
-    uint32 GetAllEffectsMechanicMask() const;
-    uint32 GetEffectMechanicMask(uint8 effIndex) const;
-    uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
-    Mechanics GetEffectMechanic(uint8 effIndex) const;
-    bool HasAnyEffectMechanic() const;
-    uint32 GetDispelMask() const;
-    static uint32 GetDispelMask(DispelType type);
-    uint32 GetExplicitTargetMask() const;
+        bool IsSingleTarget() const;
+        bool IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const;
+        bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
 
-    AuraStateType GetAuraState() const;
-    SpellSpecificType GetSpellSpecific() const;
+        SpellCastResult CheckShapeshift(uint32 form) const;
+        SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
+        SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
+        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
+        SpellCastResult CheckVehicle(Unit const* caster) const;
+        bool CheckTargetCreatureType(Unit const* target) const;
 
-    float GetMinRange(bool positive = false) const;
-    float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
+        SpellSchoolMask GetSchoolMask() const;
+        uint32 GetAllEffectsMechanicMask() const;
+        uint32 GetEffectMechanicMask(uint8 effIndex) const;
+        uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
+        Mechanics GetEffectMechanic(uint8 effIndex) const;
+        bool HasAnyEffectMechanic() const;
+        uint32 GetDispelMask() const;
+        static uint32 GetDispelMask(DispelType type);
+        uint32 GetExplicitTargetMask() const;
 
-    int32 GetDuration() const;
-    int32 GetMaxDuration() const;
+        AuraStateType GetAuraState() const;
+        SpellSpecificType GetSpellSpecific() const;
 
-    uint32 GetMaxTicks() const;
+        float GetMinRange(bool positive = false) const;
+        float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
 
-    uint32 CalcCastTime(Spell* spell = NULL) const;
-    uint32 GetRecoveryTime() const;
+        int32 GetDuration() const;
+        int32 GetMaxDuration() const;
 
-    int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+        uint32 GetMaxTicks() const;
 
-    bool IsRanked() const;
-    uint8 GetRank() const;
-    SpellInfo const* GetFirstRankSpell() const;
-    SpellInfo const* GetLastRankSpell() const;
-    SpellInfo const* GetNextRankSpell() const;
-    SpellInfo const* GetPrevRankSpell() const;
-    SpellInfo const* GetAuraRankForLevel(uint8 level) const;
-    bool IsRankOf(SpellInfo const* spellInfo) const;
-    bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
-    bool IsHighRankOf(SpellInfo const* spellInfo) const;
+        uint32 CalcCastTime(Spell* spell = NULL) const;
+        uint32 GetRecoveryTime() const;
 
-    // loading helpers
-    void _InitializeExplicitTargetMask();
-    bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
-    bool _IsPositiveSpell() const;
-    static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
 
-    // unloading helpers
-    void _UnloadImplicitTargetConditionLists();
+        bool IsRanked() const;
+        uint8 GetRank() const;
+        SpellInfo const* GetFirstRankSpell() const;
+        SpellInfo const* GetLastRankSpell() const;
+        SpellInfo const* GetNextRankSpell() const;
+        SpellInfo const* GetPrevRankSpell() const;
+        SpellInfo const* GetAuraRankForLevel(uint8 level) const;
+        bool IsRankOf(SpellInfo const* spellInfo) const;
+        bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
+        bool IsHighRankOf(SpellInfo const* spellInfo) const;
+
+        // spell diminishing returns
+        DiminishingGroup GetDiminishingReturnsGroupForSpell(bool triggered) const;
+        DiminishingReturnsType GetDiminishingReturnsGroupType(bool triggered) const;
+        DiminishingLevels GetDiminishingReturnsMaxLevel(bool triggered) const;
+        int32 GetDiminishingReturnsLimitDuration(bool triggered) const;
+
+        // spell immunities
+        void ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const;
+        bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
+        bool CanSpellCastOverrideAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
+
+    private:
+        // loading helpers
+        void _InitializeExplicitTargetMask();
+        bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
+        bool _IsPositiveSpell() const;
+        static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
+        void _LoadSpellSpecific();
+        void _LoadAuraState();
+        void _LoadSpellDiminishInfo();
+        void _LoadImmunityInfo();
+
+        // unloading helpers
+        void _UnloadImplicitTargetConditionLists();
+
+        SpellSpecificType _spellSpecific;
+        AuraStateType _auraState;
+
+        SpellDiminishInfo _diminishInfoNonTriggered;
+        SpellDiminishInfo _diminishInfoTriggered;
+
+        ImmunityInfo _immunityInfo[MAX_SPELL_EFFECTS];
 };
 
 #endif // _SPELLINFO_H

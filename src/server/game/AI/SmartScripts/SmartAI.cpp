@@ -76,11 +76,7 @@ SmartAI::~SmartAI()
 
 bool SmartAI::IsAIControlled() const
 {
-    if (me->IsControlledByPlayer())
-        return false;
-    if (mIsCharmed)
-        return false;
-    return true;
+    return !mIsCharmed;
 }
 
 void SmartAI::UpdateDespawn(const uint32 diff)
@@ -240,7 +236,7 @@ void SmartAI::EndPath(bool fail)
             if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                 player->GroupEventHappens(mEscortQuestID, me);
 
-            if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+            if (fail)
                 player->FailQuest(mEscortQuestID);
 
             if (Group* group = player->GetGroup())
@@ -251,7 +247,7 @@ void SmartAI::EndPath(bool fail)
 
                     if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->HasCorpse())
                         groupGuy->AreaExploredOrEventHappens(mEscortQuestID);
-                    if (fail && groupGuy->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+                    else if (fail)
                         groupGuy->FailQuest(mEscortQuestID);
                 }
             }
@@ -265,7 +261,7 @@ void SmartAI::EndPath(bool fail)
                     Player* player = (*iter)->ToPlayer();
                     if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                         player->AreaExploredOrEventHappens(mEscortQuestID);
-                    if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+                    else if (fail)
                         player->FailQuest(mEscortQuestID);
                 }
             }

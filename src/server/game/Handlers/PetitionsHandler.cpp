@@ -849,12 +849,18 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 
         Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
 
-        // Add members from signatures
-        for (uint8 i = 0; i < signatures; ++i)
         {
-            Field* fields = result->Fetch();
-            guild->AddMember(ObjectGuid(HighGuid::Player, fields[0].GetUInt32()));
-            result->NextRow();
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            // Add members from signatures
+            for (uint8 i = 0; i < signatures; ++i)
+            {
+                Field* fields = result->Fetch();
+                guild->AddMember(trans, ObjectGuid(HighGuid::Player, fields[0].GetUInt32()));
+                result->NextRow();
+            }
+
+            CharacterDatabase.CommitTransaction(trans);
         }
     }
     else

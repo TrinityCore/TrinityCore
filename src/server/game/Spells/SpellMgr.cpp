@@ -18,6 +18,7 @@
 
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Spell.h"
 #include "ObjectMgr.h"
 #include "SpellAuraDefines.h"
 #include "SharedDefines.h"
@@ -48,302 +49,6 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
             return true;
 
     return false;
-}
-
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered)
-{
-    if (spellproto->IsPositive())
-        return DIMINISHING_NONE;
-
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (spellproto->Effects[i].ApplyAuraName == SPELL_AURA_MOD_TAUNT)
-            return DIMINISHING_TAUNT;
-    }
-
-    // Explicit Diminishing Groups
-    switch (spellproto->SpellFamilyName)
-    {
-        case SPELLFAMILY_GENERIC:
-        {
-            // Pet charge effects (Infernal Awakening, Demon Charge)
-            if (spellproto->SpellVisual[0] == 2816 && spellproto->SpellIconID == 15)
-                return DIMINISHING_CONTROLLED_STUN;
-            // Frost Tomb
-            else if (spellproto->Id == 48400)
-                return DIMINISHING_NONE;
-            // Gnaw
-            else if (spellproto->Id == 47481)
-                return DIMINISHING_CONTROLLED_STUN;
-            // ToC Icehowl Arctic Breath
-            else if (spellproto->SpellVisual[0] == 14153)
-                return DIMINISHING_NONE;
-            // Black Plague
-            else if (spellproto->Id == 64155)
-                return DIMINISHING_NONE;
-            // Screams of the Dead (King Ymiron)
-            else if (spellproto->Id == 51750)
-                return DIMINISHING_NONE;
-            break;
-        }
-        // Event spells
-        case SPELLFAMILY_UNK1:
-            return DIMINISHING_NONE;
-        case SPELLFAMILY_MAGE:
-        {
-            // Frostbite
-            if (spellproto->SpellFamilyFlags[1] & 0x80000000)
-                return DIMINISHING_ROOT;
-            // Shattered Barrier
-            else if (spellproto->SpellVisual[0] == 12297)
-                return DIMINISHING_ROOT;
-            // Deep Freeze
-            else if (spellproto->SpellIconID == 2939 && spellproto->SpellVisual[0] == 9963)
-                return DIMINISHING_CONTROLLED_STUN;
-            // Frost Nova / Freeze (Water Elemental)
-            else if (spellproto->SpellIconID == 193)
-                return DIMINISHING_CONTROLLED_ROOT;
-            // Dragon's Breath
-            else if (spellproto->SpellFamilyFlags[0] & 0x800000)
-                return DIMINISHING_DRAGONS_BREATH;
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Hamstring - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x2)
-                return DIMINISHING_LIMITONLY;
-            // Charge Stun (own diminishing)
-            else if (spellproto->SpellFamilyFlags[0] & 0x01000000)
-                return DIMINISHING_CHARGE;
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Curses/etc
-            if ((spellproto->SpellFamilyFlags[0] & 0x80000000) || (spellproto->SpellFamilyFlags[1] & 0x200))
-                return DIMINISHING_LIMITONLY;
-            // Seduction
-            else if (spellproto->SpellFamilyFlags[1] & 0x10000000)
-                return DIMINISHING_FEAR;
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-        {
-            // Pounce
-            if (spellproto->SpellFamilyFlags[0] & 0x20000)
-                return DIMINISHING_OPENING_STUN;
-            // Cyclone
-            else if (spellproto->SpellFamilyFlags[1] & 0x20)
-                return DIMINISHING_CYCLONE;
-            // Entangling Roots
-            // Nature's Grasp
-            else if (spellproto->SpellFamilyFlags[0] & 0x00000200)
-                return DIMINISHING_CONTROLLED_ROOT;
-            // Faerie Fire
-            else if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_ROGUE:
-        {
-            // Gouge
-            if (spellproto->SpellFamilyFlags[0] & 0x8)
-                return DIMINISHING_DISORIENT;
-            // Blind
-            else if (spellproto->SpellFamilyFlags[0] & 0x1000000)
-                return DIMINISHING_FEAR;
-            // Cheap Shot
-            else if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_OPENING_STUN;
-            // Crippling poison - Limit to 10 seconds in PvP (No SpellFamilyFlags)
-            else if (spellproto->SpellIconID == 163)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Hunter's Mark
-            if ((spellproto->SpellFamilyFlags[0] & 0x400) && spellproto->SpellIconID == 538)
-                return DIMINISHING_LIMITONLY;
-            // Scatter Shot (own diminishing)
-            else if ((spellproto->SpellFamilyFlags[0] & 0x40000) && spellproto->SpellIconID == 132)
-                return DIMINISHING_SCATTER_SHOT;
-            // Entrapment (own diminishing)
-            else if (spellproto->SpellVisual[0] == 7484 && spellproto->SpellIconID == 20)
-                return DIMINISHING_ENTRAPMENT;
-            // Wyvern Sting mechanic is MECHANIC_SLEEP but the diminishing is DIMINISHING_DISORIENT
-            else if ((spellproto->SpellFamilyFlags[1] & 0x1000) && spellproto->SpellIconID == 1721)
-                return DIMINISHING_DISORIENT;
-            // Freezing Arrow
-            else if (spellproto->SpellFamilyFlags[0] & 0x8)
-                return DIMINISHING_DISORIENT;
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Judgement of Justice - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x100000)
-                return DIMINISHING_LIMITONLY;
-            // Turn Evil
-            else if ((spellproto->SpellFamilyFlags[1] & 0x804000) && spellproto->SpellIconID == 309)
-                return DIMINISHING_FEAR;
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Storm, Earth and Fire - Earthgrab
-            if (spellproto->SpellFamilyFlags[2] & 0x4000)
-                return DIMINISHING_NONE;
-            break;
-        }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Hungering Cold (no flags)
-            if (spellproto->SpellIconID == 2797)
-                return DIMINISHING_DISORIENT;
-            // Mark of Blood
-            else if ((spellproto->SpellFamilyFlags[0] & 0x10000000) && spellproto->SpellIconID == 2285)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        default:
-            break;
-    }
-
-    // Lastly - Set diminishing depending on mechanic
-    uint32 mechanic = spellproto->GetAllEffectsMechanicMask();
-    if (mechanic & (1 << MECHANIC_CHARM))
-        return DIMINISHING_MIND_CONTROL;
-    if (mechanic & (1 << MECHANIC_SILENCE))
-        return DIMINISHING_SILENCE;
-    if (mechanic & (1 << MECHANIC_SLEEP))
-        return DIMINISHING_SLEEP;
-    if (mechanic & ((1 << MECHANIC_SAPPED) | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_SHACKLE)))
-        return DIMINISHING_DISORIENT;
-    // Mechanic Knockout, except Blast Wave
-    if (mechanic & (1 << MECHANIC_KNOCKOUT) && spellproto->SpellIconID != 292)
-        return DIMINISHING_DISORIENT;
-    if (mechanic & (1 << MECHANIC_DISARM))
-        return DIMINISHING_DISARM;
-    if (mechanic & (1 << MECHANIC_FEAR))
-        return DIMINISHING_FEAR;
-    if (mechanic & (1 << MECHANIC_STUN))
-        return triggered ? DIMINISHING_STUN : DIMINISHING_CONTROLLED_STUN;
-    if (mechanic & (1 << MECHANIC_BANISH))
-        return DIMINISHING_BANISH;
-    if (mechanic & (1 << MECHANIC_ROOT))
-        return triggered ? DIMINISHING_ROOT : DIMINISHING_CONTROLLED_ROOT;
-    if (mechanic & (1 << MECHANIC_HORROR))
-        return DIMINISHING_HORROR;
-
-    return DIMINISHING_NONE;
-}
-
-DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_TAUNT:
-        case DIMINISHING_CONTROLLED_STUN:
-        case DIMINISHING_STUN:
-        case DIMINISHING_OPENING_STUN:
-        case DIMINISHING_CYCLONE:
-        case DIMINISHING_CHARGE:
-            return DRTYPE_ALL;
-        case DIMINISHING_LIMITONLY:
-        case DIMINISHING_NONE:
-            return DRTYPE_NONE;
-        default:
-            return DRTYPE_PLAYER;
-    }
-}
-
-DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_TAUNT:
-            return DIMINISHING_LEVEL_TAUNT_IMMUNE;
-        default:
-            return DIMINISHING_LEVEL_IMMUNE;
-    }
-}
-
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto)
-{
-    if (!IsDiminishingReturnsGroupDurationLimited(group))
-        return 0;
-
-    // Explicit diminishing duration
-    switch (spellproto->SpellFamilyName)
-    {
-        case SPELLFAMILY_DRUID:
-        {
-            // Faerie Fire - limit to 40 seconds in PvP (3.1)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 40 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Wyvern Sting
-            if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return 6 * IN_MILLISECONDS;
-            // Hunter's Mark
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 120 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Repentance - limit to 6 seconds in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return 6 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Banish - limit to 6 seconds in PvP
-            if (spellproto->SpellFamilyFlags[1] & 0x8000000)
-                return 6 * IN_MILLISECONDS;
-            // Curse of Tongues - limit to 12 seconds in PvP
-            else if (spellproto->SpellFamilyFlags[2] & 0x800)
-                return 12 * IN_MILLISECONDS;
-            // Curse of Elements - limit to 120 seconds in PvP
-            else if (spellproto->SpellFamilyFlags[1] & 0x200)
-               return 120 * IN_MILLISECONDS;
-            break;
-        }
-        default:
-            break;
-    }
-
-    return 10 * IN_MILLISECONDS;
-}
-
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_BANISH:
-        case DIMINISHING_CONTROLLED_STUN:
-        case DIMINISHING_CONTROLLED_ROOT:
-        case DIMINISHING_CYCLONE:
-        case DIMINISHING_DISORIENT:
-        case DIMINISHING_ENTRAPMENT:
-        case DIMINISHING_FEAR:
-        case DIMINISHING_HORROR:
-        case DIMINISHING_MIND_CONTROL:
-        case DIMINISHING_OPENING_STUN:
-        case DIMINISHING_ROOT:
-        case DIMINISHING_STUN:
-        case DIMINISHING_SLEEP:
-        case DIMINISHING_LIMITONLY:
-            return true;
-        default:
-            return false;
-    }
 }
 
 SpellMgr::SpellMgr() { }
@@ -779,172 +484,6 @@ SpellGroupStackRule SpellMgr::GetSpellGroupStackRule(SpellGroup group) const
     return SPELL_GROUP_STACK_RULE_DEFAULT;
 }
 
-SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
-{
-    SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
-    if (itr != mSpellProcEventMap.end())
-        return &itr->second;
-    return NULL;
-}
-
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
-{
-    // No extra req need
-    uint32 procEvent_procEx = PROC_EX_NONE;
-
-    // check prockFlags for condition
-    if ((procFlags & EventProcFlag) == 0)
-        return false;
-
-    bool hasFamilyMask = false;
-
-    /**
-
-    * @brief Check auras procced by periodics
-
-    *Only damaging Dots can proc auras with PROC_FLAG_TAKEN_DAMAGE
-
-    *Only Dots can proc if ONLY has PROC_FLAG_DONE_PERIODIC or PROC_FLAG_TAKEN_PERIODIC.
-
-    *Hots can proc if ONLY has PROC_FLAG_DONE_PERIODIC and spellfamily != 0
-
-    *Only Dots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
-
-    *Only Hots can proc auras with PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS
-
-    *Only Dots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
-
-    *Only Hots can proc auras with PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS or PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
-
-    * @param procSpell the spell proccing the aura
-    * @param procFlags proc_flags of spellProc
-    * @param procExtra proc_EX of procSpell
-    * @param EventProcFlag proc_flags of aura to be procced
-    * @param spellProto SpellInfo of aura to be procced
-
-    */
-
-    /// Quick Check - If PROC_FLAG_TAKEN_DAMAGE is set for aura and procSpell dealt damage, proc no matter what kind of spell that deals the damage.
-    if (procFlags & PROC_FLAG_TAKEN_DAMAGE && EventProcFlag & PROC_FLAG_TAKEN_DAMAGE)
-        return true;
-
-    if (procFlags & PROC_FLAG_DONE_PERIODIC && EventProcFlag & PROC_FLAG_DONE_PERIODIC)
-    {
-        if (procExtra & PROC_EX_INTERNAL_HOT)
-        {
-            if (EventProcFlag == PROC_FLAG_DONE_PERIODIC)
-            {
-                /// no aura with only PROC_FLAG_DONE_PERIODIC and spellFamilyName == 0 can proc from a HOT.
-                if (!spellProto->SpellFamilyName)
-                    return false;
-            }
-            /// Aura must have positive procflags for a HOT to proc
-            else if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS)))
-                return false;
-        }
-        /// Aura must have negative or neutral(PROC_FLAG_DONE_PERIODIC only) procflags for a DOT to proc
-        /// Traps are negative spells but not always do damage (only hunter traps set PROC_FLAG_DONE_TRAP_ACTIVATION)
-        else if (EventProcFlag != PROC_FLAG_DONE_PERIODIC)
-            if (!(EventProcFlag & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_DONE_TRAP_ACTIVATION)))
-                return false;
-    }
-
-    if (procFlags & PROC_FLAG_TAKEN_PERIODIC && EventProcFlag & PROC_FLAG_TAKEN_PERIODIC)
-    {
-        if (procExtra & PROC_EX_INTERNAL_HOT)
-        {
-            /// No aura that only has PROC_FLAG_TAKEN_PERIODIC can proc from a HOT.
-            if (EventProcFlag == PROC_FLAG_TAKEN_PERIODIC)
-                return false;
-            /// Aura must have positive procflags for a HOT to proc
-            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)))
-                return false;
-        }
-        /// Aura must have negative or neutral(PROC_FLAG_TAKEN_PERIODIC only) procflags for a DOT to proc
-        else if (EventProcFlag != PROC_FLAG_TAKEN_PERIODIC)
-            if (!(EventProcFlag & (PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG)))
-                return false;
-    }
-    // Trap casts are active by default
-    if (procFlags & PROC_FLAG_DONE_TRAP_ACTIVATION)
-        active = true;
-
-    // Always trigger for this
-    if (procFlags & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
-        return true;
-
-    if (spellProcEvent)     // Exist event data
-    {
-        // Store extra req
-        procEvent_procEx = spellProcEvent->procEx;
-
-        // For melee triggers
-        if (procSpell == NULL)
-        {
-            // Check (if set) for school (melee attack has Normal school)
-            if (spellProcEvent->schoolMask && (spellProcEvent->schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
-                return false;
-        }
-        else // For spells need check school/spell family/family mask
-        {
-            // Check (if set) for school
-            if (spellProcEvent->schoolMask && (spellProcEvent->schoolMask & procSpell->SchoolMask) == 0)
-                return false;
-
-            // Check (if set) for spellFamilyName
-            if (spellProcEvent->spellFamilyName && (spellProcEvent->spellFamilyName != procSpell->SpellFamilyName))
-                return false;
-
-            // spellFamilyName is Ok need check for spellFamilyMask if present
-            if (spellProcEvent->spellFamilyMask)
-            {
-                if (!(spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags))
-                    return false;
-                hasFamilyMask = true;
-                // Some spells are not considered as active even with spellfamilyflags set
-                if (!(procEvent_procEx & PROC_EX_ONLY_ACTIVE_SPELL))
-                    active = true;
-            }
-        }
-    }
-
-    if (procExtra & (PROC_EX_INTERNAL_REQ_FAMILY))
-    {
-        if (!hasFamilyMask)
-            return false;
-    }
-
-    // Check for extra req (if none) and hit/crit
-    if (procEvent_procEx == PROC_EX_NONE)
-    {
-        // No extra req, so can trigger only for hit/crit - spell has to be active
-        if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
-            return true;
-    }
-    else // Passive spells hits here only if resist/reflect/immune/evade
-    {
-        if (procExtra & AURA_SPELL_PROC_EX_MASK)
-        {
-            // if spell marked as procing only from not active spells
-            if (active && procEvent_procEx & PROC_EX_NOT_ACTIVE_SPELL)
-                return false;
-            // if spell marked as procing only from active spells
-            if (!active && procEvent_procEx & PROC_EX_ONLY_ACTIVE_SPELL)
-                return false;
-            // Exist req for PROC_EX_EX_TRIGGER_ALWAYS
-            if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
-                return true;
-            // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
-            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
-                return true;
-        }
-        // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
-        if (procEvent_procEx & procExtra)
-            return true;
-    }
-    return false;
-}
-
 SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
 {
     SpellProcMap::const_iterator itr = mSpellProcMap.find(spellId);
@@ -953,7 +492,7 @@ SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
 {
     // proc type doesn't match
     if (!(eventInfo.GetTypeMask() & procEntry.ProcFlags))
@@ -965,29 +504,44 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
             if (eventInfo.GetActionTarget() && !actor->isHonorOrXPTarget(eventInfo.GetActionTarget()))
                 return false;
 
+    // check mana requirement
+    if (procEntry.AttributesMask & PROC_ATTR_REQ_MANA_COST)
+        if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
+            if (!eventSpellInfo->ManaCost && !eventSpellInfo->ManaCostPercentage)
+                return false;
+
     // always trigger for these types
     if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
         return true;
+
+    // do triggered cast checks
+    // Do not consider autoattacks as triggered spells
+    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
+    {
+        if (Spell const* spell = eventInfo.GetProcSpell())
+        {
+            if (spell->IsTriggered())
+            {
+                SpellInfo const* spellInfo = spell->GetSpellInfo();
+                if (!spellInfo->HasAttribute(SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2) &&
+                    !spellInfo->HasAttribute(SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC))
+                    return false;
+            }
+        }
+    }
 
     // check school mask (if set) for other trigger types
     if (procEntry.SchoolMask && !(eventInfo.GetSchoolMask() & procEntry.SchoolMask))
         return false;
 
     // check spell family name/flags (if set) for spells
-    if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION))
+    if (eventInfo.GetTypeMask() & (PERIODIC_PROC_FLAG_MASK | SPELL_PROC_FLAG_MASK))
     {
-        SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo();
+        if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
+            if (!eventSpellInfo->IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
+                return false;
 
-        if (procEntry.SpellFamilyName && eventSpellInfo && (procEntry.SpellFamilyName != eventSpellInfo->SpellFamilyName))
-            return false;
-
-        if (procEntry.SpellFamilyMask && eventSpellInfo && !(procEntry.SpellFamilyMask & eventSpellInfo->SpellFamilyFlags))
-            return false;
-    }
-
-    // check spell type mask (if set)
-    if (eventInfo.GetTypeMask() & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK))
-    {
+        // check spell type mask (if set)
         if (procEntry.SpellTypeMask && !(eventInfo.GetSpellTypeMask() & procEntry.SpellTypeMask))
             return false;
     }
@@ -1487,29 +1041,38 @@ void SpellMgr::LoadSpellLearnSkills()
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
+    for (SpellInfo const* entry : mSpellInfoMap)
     {
-        SpellInfo const* entry = GetSpellInfo(spell);
-
         if (!entry)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (entry->Effects[i].Effect == SPELL_EFFECT_SKILL)
+            SpellLearnSkillNode dbc_node;
+            switch (entry->Effects[i].Effect)
             {
-                SpellLearnSkillNode dbc_node;
-                dbc_node.skill = entry->Effects[i].MiscValue;
-                dbc_node.step  = entry->Effects[i].CalcValue();
-                if (dbc_node.skill != SKILL_RIDING)
+                case SPELL_EFFECT_SKILL:
+                    dbc_node.skill = entry->Effects[i].MiscValue;
+                    dbc_node.step = entry->Effects[i].CalcValue();
+                    if (dbc_node.skill != SKILL_RIDING)
+                        dbc_node.value = 1;
+                    else
+                        dbc_node.value = dbc_node.step * 75;
+                    dbc_node.maxvalue = dbc_node.step * 75;
+                    break;
+                case SPELL_EFFECT_DUAL_WIELD:
+                    dbc_node.skill = SKILL_DUAL_WIELD;
+                    dbc_node.step = 1;
                     dbc_node.value = 1;
-                else
-                    dbc_node.value = dbc_node.step * 75;
-                dbc_node.maxvalue = dbc_node.step * 75;
-                mSpellLearnSkills[spell] = dbc_node;
-                ++dbc_count;
-                break;
+                    dbc_node.maxvalue = 1;
+                    break;
+                default:
+                    continue;
             }
+
+            mSpellLearnSkills[entry->Id] = dbc_node;
+            ++dbc_count;
+            break;
         }
     }
 
@@ -1842,93 +1405,6 @@ void SpellMgr::LoadSpellGroupStackRules()
     TC_LOG_INFO("server.loading", ">> Loaded %u spell group stack rules in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void SpellMgr::LoadSpellProcEvents()
-{
-    uint32 oldMSTime = getMSTime();
-
-    mSpellProcEventMap.clear();                             // need for reload case
-
-    //                                                0      1           2                3                 4                 5                 6          7       8        9             10
-    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        int32 spellId = fields[0].GetInt32();
-
-        bool allRanks = false;
-        if (spellId < 0)
-        {
-            allRanks = true;
-            spellId = -spellId;
-        }
-
-        SpellInfo const* spellInfo = GetSpellInfo(spellId);
-        if (!spellInfo)
-        {
-            TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc_event` does not exist.", spellId);
-            continue;
-        }
-
-        if (allRanks)
-        {
-            if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "The spell %u is listed in `spell_proc_event` with all ranks, but spell has no ranks.", spellId);
-
-            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
-            {
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc_event` is not first rank of spell.", spellId);
-                continue;
-            }
-        }
-
-        SpellProcEventEntry spellProcEvent;
-
-        spellProcEvent.schoolMask         = fields[1].GetInt8();
-        spellProcEvent.spellFamilyName    = fields[2].GetUInt16();
-        spellProcEvent.spellFamilyMask[0] = fields[3].GetUInt32();
-        spellProcEvent.spellFamilyMask[1] = fields[4].GetUInt32();
-        spellProcEvent.spellFamilyMask[2] = fields[5].GetUInt32();
-        spellProcEvent.procFlags          = fields[6].GetUInt32();
-        spellProcEvent.procEx             = fields[7].GetUInt32();
-        spellProcEvent.ppmRate            = fields[8].GetFloat();
-        spellProcEvent.customChance       = fields[9].GetFloat();
-        spellProcEvent.cooldown           = fields[10].GetUInt32();
-
-        while (spellInfo)
-        {
-            if (mSpellProcEventMap.find(spellInfo->Id) != mSpellProcEventMap.end())
-            {
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc_event` already has its first rank in table.", spellInfo->Id);
-                break;
-            }
-
-            if (!spellInfo->ProcFlags && !spellProcEvent.procFlags)
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc_event` is probably not a triggered spell.", spellInfo->Id);
-
-            mSpellProcEventMap[spellInfo->Id] = spellProcEvent;
-
-            if (allRanks)
-                spellInfo = spellInfo->GetNextRankSpell();
-            else
-                break;
-        }
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void SpellMgr::LoadSpellProcs()
 {
     uint32 oldMSTime = getMSTime();
@@ -1940,126 +1416,290 @@ void SpellMgr::LoadSpellProcs()
     //           6              7               8        9              10              11      12        13      14
         "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
 
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
-        return;
-    }
-
     uint32 count = 0;
-    do
+    if (result)
     {
-        Field* fields = result->Fetch();
-
-        int32 spellId = fields[0].GetInt32();
-
-        bool allRanks = false;
-        if (spellId < 0)
+        do
         {
-            allRanks = true;
-            spellId = -spellId;
-        }
+            Field* fields = result->Fetch();
 
-        SpellInfo const* spellInfo = GetSpellInfo(spellId);
-        if (!spellInfo)
-        {
-            TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` does not exist", spellId);
-            continue;
-        }
+            int32 spellId = fields[0].GetInt32();
 
-        if (allRanks)
-        {
-            if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
-
-            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
+            bool allRanks = false;
+            if (spellId < 0)
             {
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` is not the first rank of the spell.", spellId);
+                allRanks = true;
+                spellId = -spellId;
+            }
+
+            SpellInfo const* spellInfo = GetSpellInfo(spellId);
+            if (!spellInfo)
+            {
+                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` does not exist", spellId);
                 continue;
             }
-        }
-
-        SpellProcEntry baseProcEntry;
-
-        baseProcEntry.SchoolMask         = fields[1].GetInt8();
-        baseProcEntry.SpellFamilyName    = fields[2].GetUInt16();
-        baseProcEntry.SpellFamilyMask[0] = fields[3].GetUInt32();
-        baseProcEntry.SpellFamilyMask[1] = fields[4].GetUInt32();
-        baseProcEntry.SpellFamilyMask[2] = fields[5].GetUInt32();
-        baseProcEntry.ProcFlags          = fields[6].GetUInt32();
-        baseProcEntry.SpellTypeMask      = fields[7].GetUInt32();
-        baseProcEntry.SpellPhaseMask     = fields[8].GetUInt32();
-        baseProcEntry.HitMask            = fields[9].GetUInt32();
-        baseProcEntry.AttributesMask     = fields[10].GetUInt32();
-        baseProcEntry.ProcsPerMinute     = fields[11].GetFloat();
-        baseProcEntry.Chance             = fields[12].GetFloat();
-        baseProcEntry.Cooldown           = Milliseconds(fields[13].GetUInt32());
-        baseProcEntry.Charges            = fields[14].GetUInt8();
-
-        while (spellInfo)
-        {
-            if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
-            {
-                TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` already has its first rank in the table.", spellInfo->Id);
-                break;
-            }
-
-            SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
-
-            // take defaults from dbcs
-            if (!procEntry.ProcFlags)
-                procEntry.ProcFlags = spellInfo->ProcFlags;
-            if (!procEntry.Charges)
-                procEntry.Charges = spellInfo->ProcCharges;
-            if (!procEntry.Chance && !procEntry.ProcsPerMinute)
-                procEntry.Chance = float(spellInfo->ProcChance);
-
-            // validate data
-            if (procEntry.SchoolMask & ~SPELL_SCHOOL_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SchoolMask` set: %u", spellInfo->Id, procEntry.SchoolMask);
-            if (procEntry.SpellFamilyName && (procEntry.SpellFamilyName < 3 || procEntry.SpellFamilyName > 17 || procEntry.SpellFamilyName == 14 || procEntry.SpellFamilyName == 16))
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellFamilyName` set: %u", spellInfo->Id, procEntry.SpellFamilyName);
-            if (procEntry.Chance < 0)
-            {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `Chance` field", spellInfo->Id);
-                procEntry.Chance = 0;
-            }
-            if (procEntry.ProcsPerMinute < 0)
-            {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `ProcsPerMinute` field", spellInfo->Id);
-                procEntry.ProcsPerMinute = 0;
-            }
-            if (procEntry.Chance == 0 && procEntry.ProcsPerMinute == 0)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have any `Chance` and `ProcsPerMinute` values defined, proc will not be triggered", spellInfo->Id);
-            if (!procEntry.ProcFlags)
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
-            if (procEntry.SpellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellTypeMask` set: %u", spellInfo->Id, procEntry.SpellTypeMask);
-            if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `SpellTypeMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
-            if (!procEntry.SpellPhaseMask && procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK)
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `SpellPhaseMask` value defined, but it is required for the defined `ProcFlags` value. Proc will not be triggered.", spellInfo->Id);
-            if (procEntry.SpellPhaseMask & ~PROC_SPELL_PHASE_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has wrong `SpellPhaseMask` set: %u", spellInfo->Id, procEntry.SpellPhaseMask);
-            if (procEntry.SpellPhaseMask && !(procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK))
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has a `SpellPhaseMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
-            if (procEntry.HitMask & ~PROC_HIT_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has wrong `HitMask` set: %u", spellInfo->Id, procEntry.HitMask);
-            if (procEntry.HitMask && !(procEntry.ProcFlags & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.ProcFlags & DONE_HIT_PROC_FLAG_MASK && (!procEntry.SpellPhaseMask || procEntry.SpellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
-                TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `HitMask` value defined, but it will not be used for defined `ProcFlags` and `SpellPhaseMask` values.", spellInfo->Id);
-
-            mSpellProcMap[spellInfo->Id] = procEntry;
 
             if (allRanks)
-                spellInfo = spellInfo->GetNextRankSpell();
-            else
-                break;
-        }
-        ++count;
+            {
+                if (!spellInfo->IsRanked())
+                    TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
+
+                if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
+                {
+                    TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` is not the first rank of the spell.", spellId);
+                    continue;
+                }
+            }
+
+            SpellProcEntry baseProcEntry;
+
+            baseProcEntry.SchoolMask = fields[1].GetInt8();
+            baseProcEntry.SpellFamilyName = fields[2].GetUInt16();
+            baseProcEntry.SpellFamilyMask[0] = fields[3].GetUInt32();
+            baseProcEntry.SpellFamilyMask[1] = fields[4].GetUInt32();
+            baseProcEntry.SpellFamilyMask[2] = fields[5].GetUInt32();
+            baseProcEntry.ProcFlags = fields[6].GetUInt32();
+            baseProcEntry.SpellTypeMask = fields[7].GetUInt32();
+            baseProcEntry.SpellPhaseMask = fields[8].GetUInt32();
+            baseProcEntry.HitMask = fields[9].GetUInt32();
+            baseProcEntry.AttributesMask = fields[10].GetUInt32();
+            baseProcEntry.ProcsPerMinute = fields[11].GetFloat();
+            baseProcEntry.Chance = fields[12].GetFloat();
+            baseProcEntry.Cooldown = Milliseconds(fields[13].GetUInt32());
+            baseProcEntry.Charges = fields[14].GetUInt8();
+
+            while (spellInfo)
+            {
+                if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+                {
+                    TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_proc` already has its first rank in the table.", spellInfo->Id);
+                    break;
+                }
+
+                SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
+
+                // take defaults from dbcs
+                if (!procEntry.ProcFlags)
+                    procEntry.ProcFlags = spellInfo->ProcFlags;
+                if (!procEntry.Charges)
+                    procEntry.Charges = spellInfo->ProcCharges;
+                if (!procEntry.Chance && !procEntry.ProcsPerMinute)
+                    procEntry.Chance = float(spellInfo->ProcChance);
+
+                // validate data
+                if (procEntry.SchoolMask & ~SPELL_SCHOOL_MASK_ALL)
+                    TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SchoolMask` set: %u", spellInfo->Id, procEntry.SchoolMask);
+                if (procEntry.SpellFamilyName && (procEntry.SpellFamilyName < SPELLFAMILY_MAGE || procEntry.SpellFamilyName > SPELLFAMILY_PET || procEntry.SpellFamilyName == 14 || procEntry.SpellFamilyName == 16))
+                    TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellFamilyName` set: %u", spellInfo->Id, procEntry.SpellFamilyName);
+                if (procEntry.Chance < 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `Chance` field", spellInfo->Id);
+                    procEntry.Chance = 0;
+                }
+                if (procEntry.ProcsPerMinute < 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in the `ProcsPerMinute` field", spellInfo->Id);
+                    procEntry.ProcsPerMinute = 0;
+                }
+                if (!procEntry.ProcFlags)
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `ProcFlags` value defined, proc will not be triggered.", spellInfo->Id);
+                if (procEntry.SpellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
+                    TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `SpellTypeMask` set: %u", spellInfo->Id, procEntry.SpellTypeMask);
+                if (procEntry.SpellTypeMask && !(procEntry.ProcFlags & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `SpellTypeMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
+                if (!procEntry.SpellPhaseMask && procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK)
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u doesn't have any `SpellPhaseMask` value defined, but it is required for the defined `ProcFlags` value. Proc will not be triggered.", spellInfo->Id);
+                if (procEntry.SpellPhaseMask & ~PROC_SPELL_PHASE_MASK_ALL)
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has wrong `SpellPhaseMask` set: %u", spellInfo->Id, procEntry.SpellPhaseMask);
+                if (procEntry.SpellPhaseMask && !(procEntry.ProcFlags & REQ_SPELL_PHASE_PROC_FLAG_MASK))
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has a `SpellPhaseMask` value defined, but it will not be used for the defined `ProcFlags` value.", spellInfo->Id);
+                if (procEntry.HitMask & ~PROC_HIT_MASK_ALL)
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has wrong `HitMask` set: %u", spellInfo->Id, procEntry.HitMask);
+                if (procEntry.HitMask && !(procEntry.ProcFlags & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.ProcFlags & DONE_HIT_PROC_FLAG_MASK && (!procEntry.SpellPhaseMask || procEntry.SpellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
+                    TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `HitMask` value defined, but it will not be used for defined `ProcFlags` and `SpellPhaseMask` values.", spellInfo->Id);
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    if ((procEntry.AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) && !spellInfo->Effects[i].IsAura())
+                        TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_DISABLE_EFF_%u, but effect %u is not an aura effect", spellInfo->Id, static_cast<uint32>(i), static_cast<uint32>(i));
+
+                mSpellProcMap[spellInfo->Id] = procEntry;
+
+                if (allRanks)
+                    spellInfo = spellInfo->GetNextRankSpell();
+                else
+                    break;
+            }
+            ++count;
+        } while (result->NextRow());
     }
-    while (result->NextRow());
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+    // Define can trigger auras
+    bool isTriggerAura[TOTAL_AURAS];
+    // Triggered always, even from triggered spells
+    bool isAlwaysTriggeredAura[TOTAL_AURAS];
+    // SpellTypeMask to add to the proc
+    uint32 spellTypeMask[TOTAL_AURAS];
+
+    // List of auras that CAN trigger but may not exist in spell_proc
+    // in most cases needed to drop charges
+
+    // some aura types need additional checks (eg SPELL_AURA_MECHANIC_IMMUNITY needs mechanic check)
+    // see AuraEffect::CheckEffectProc
+    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+    {
+        isTriggerAura[i] = false;
+        isAlwaysTriggeredAura[i] = false;
+        spellTypeMask[i] = PROC_SPELL_TYPE_MASK_ALL;
+    }
+
+    isTriggerAura[SPELL_AURA_DUMMY] = true;                                 // Most dummy auras should require scripting, but there are some exceptions (ie 12311)
+    isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;                           // "Any direct damaging attack will revive targets"
+    isTriggerAura[SPELL_AURA_MOD_THREAT] = true;                            // Only one spell: 28762 part of Mage T3 8p bonus
+    isTriggerAura[SPELL_AURA_MOD_STUN] = true;                              // Aura does not have charges but needs to be removed on trigger
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_DONE] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_TAKEN] = true;
+    isTriggerAura[SPELL_AURA_MOD_RESISTANCE] = true;
+    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true;
+    isTriggerAura[SPELL_AURA_MOD_FEAR] = true;                              // Aura does not have charges but needs to be removed on trigger
+    isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
+    isTriggerAura[SPELL_AURA_TRANSFORM] = true;
+    isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
+    isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_DAMAGE] = true;
+    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK] = true;
+    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT] = true;
+    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
+    isTriggerAura[SPELL_AURA_REFLECT_SPELLS_SCHOOL] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER] = true;
+    isTriggerAura[SPELL_AURA_ADD_CASTER_HIT_TRIGGER] = true;
+    isTriggerAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE] = true;
+    isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
+    isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_ADD_FLAT_MODIFIER] = true;
+    isTriggerAura[SPELL_AURA_ADD_PCT_MODIFIER] = true;
+    isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
+
+    isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_CONFUSE] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
+
+    spellTypeMask[SPELL_AURA_MOD_STEALTH] = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
+    spellTypeMask[SPELL_AURA_MOD_CONFUSE] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_FEAR] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_ROOT] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_STUN] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_TRANSFORM] = PROC_SPELL_TYPE_DAMAGE;
+
+    // This generates default procs to retain compatibility with previous proc system
+    TC_LOG_INFO("server.loading", "Generating spell proc data from SpellMap...");
+    count = 0;
+    oldMSTime = getMSTime();
+
+    for (SpellInfo const* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        // Data already present in DB, overwrites default proc
+        if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
+            continue;
+
+        // Nothing to do if no flags set
+        if (!spellInfo->ProcFlags)
+            continue;
+
+        bool addTriggerFlag = false;
+        uint32 procSpellTypeMask = PROC_SPELL_TYPE_NONE;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (!spellInfo->Effects[i].IsEffect())
+                continue;
+
+            uint32 auraName = spellInfo->Effects[i].ApplyAuraName;
+            if (!auraName)
+                continue;
+
+            if (!isTriggerAura[auraName])
+                continue;
+
+            procSpellTypeMask |= spellTypeMask[auraName];
+            if (isAlwaysTriggeredAura[auraName])
+                addTriggerFlag = true;
+
+            // many proc auras with taken procFlag mask don't have attribute "can proc with triggered"
+            // they should proc nevertheless (example mage armor spells with judgement)
+            if (!addTriggerFlag && (spellInfo->ProcFlags & TAKEN_HIT_PROC_FLAG_MASK) != 0)
+            {
+                switch (auraName)
+                {
+                    case SPELL_AURA_PROC_TRIGGER_SPELL:
+                    case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                        addTriggerFlag = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
+
+        if (!procSpellTypeMask)
+            continue;
+
+        SpellProcEntry procEntry;
+        procEntry.SchoolMask      = 0;
+        procEntry.ProcFlags = spellInfo->ProcFlags;
+        procEntry.SpellFamilyName = 0;
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spellInfo->Effects[i].IsEffect() && isTriggerAura[spellInfo->Effects[i].ApplyAuraName])
+                procEntry.SpellFamilyMask |= spellInfo->Effects[i].SpellClassMask;
+
+        if (procEntry.SpellFamilyMask)
+            procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
+
+        procEntry.SpellTypeMask   = procSpellTypeMask;
+        procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
+        procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
+
+        // Reflect auras should only proc off reflects
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (spellInfo->Effects[i].IsAura(SPELL_AURA_REFLECT_SPELLS) || spellInfo->Effects[i].IsAura(SPELL_AURA_REFLECT_SPELLS_SCHOOL))
+            {
+                procEntry.HitMask = PROC_HIT_REFLECT;
+                break;
+            }
+        }
+
+        procEntry.AttributesMask  = 0;
+        if (spellInfo->ProcFlags & PROC_FLAG_KILL)
+            procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;
+        if (addTriggerFlag)
+            procEntry.AttributesMask |= PROC_ATTR_TRIGGERED_CAN_PROC;
+
+        procEntry.ProcsPerMinute  = 0;
+        procEntry.Chance          = spellInfo->ProcChance;
+        procEntry.Cooldown        = Milliseconds::zero();
+        procEntry.Charges         = spellInfo->ProcCharges;
+
+        mSpellProcMap[spellInfo->Id] = procEntry;
+        ++count;
+    }
+
+    TC_LOG_INFO("server.loading", ">> Generated spell proc data for %u spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellBonusess()
@@ -2978,6 +2618,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 2895:  // Wrath of Air Totem rank 1 (Aura)
             case 68933: // Wrath of Air Totem rank 2 (Aura)
             case 29200: // Purify Helboar Meat
+            case 10872: // Abolish Disease Effect
+            case 3137:  // Abolish Poison Effect
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
@@ -3005,6 +2647,15 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // because of bug in dbc
                 spellInfo->ProcChance = 0;
                 break;
+            case 51528: // Maelstrom Weapon (Rank 1)
+            case 51529: // Maelstrom Weapon (Rank 2)
+            case 51530: // Maelstrom Weapon (Rank 3)
+            case 51531: // Maelstrom Weapon (Rank 4)
+            case 51532: // Maelstrom Weapon (Rank 5)
+                // due to discrepancies between ranks
+                spellInfo->EquippedItemSubClassMask = 0x0000FC33;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
@@ -3028,7 +2679,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS);
                 break;
             case 44978: // Wild Magic
             case 45001:
@@ -3087,6 +2738,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 56342: // Lock and Load (Rank 1)
+                // @workaround: Delete dummy effect from rank 1,
+                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
+                // core bug?
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
             case 53480: // Roar of Sacrifice
                 // missing spell effect 2 data, taken from 4.3.4
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -3121,35 +2778,16 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 33760;
                 break;
-            case 17941: // Shadow Trance
-            case 22008: // Netherwind Focus
-            case 31834: // Light's Grace
-            case 34936: // Backlash
-            case 48108: // Hot Streak
-            case 51124: // Killing Machine
-            case 54741: // Firestarter
-            case 57761: // Fireball!
-            case 64823: // Item - Druid T8 Balance 4P Bonus
-            case 34477: // Misdirection
-            case 44401: // Missile Barrage
-            case 18820: // Insight
-                spellInfo->ProcCharges = 1;
-                break;
             case 44544: // Fingers of Frost
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
-                break;
-            case 74396: // Fingers of Frost visual buff
-            case 53257: // Cobra Strikes
-                spellInfo->ProcCharges = 2;
-                spellInfo->StackAmount = 0;
-                break;
-            case 28200: // Ascendance (Talisman of Ascendance trinket)
-                spellInfo->ProcCharges = 6;
                 break;
             case 49224: // Magic Suppression - DK
             case 49610: // Magic Suppression - DK
             case 49611: // Magic Suppression - DK
                 spellInfo->ProcCharges = 0;
+                break;
+            case 52212: // Death and Decay
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                 break;
             case 37408: // Oscillation Field
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -3230,6 +2868,19 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 27915: // Anchor to Skulls
             case 27931: // Anchor to Skulls
             case 27937: // Anchor to Skulls
+            case 16177: // Ancestral Fortitude (Rank 1)
+            case 16236: // Ancestral Fortitude (Rank 2)
+            case 16237: // Ancestral Fortitude (Rank 3)
+            case 47930: // Grace
+            case 45145: // Snake Trap Effect (Rank 1)
+            case 13812: // Explosive Trap Effect (Rank 1)
+            case 14314: // Explosive Trap Effect (Rank 2)
+            case 14315: // Explosive Trap Effect (Rank 3)
+            case 27026: // Explosive Trap Effect (Rank 4)
+            case 49064: // Explosive Trap Effect (Rank 5)
+            case 49065: // Explosive Trap Effect (Rank 6)
+            case 43446: // Explosive Trap Effect (Hexlord Malacrass)
+            case 68979: // Unleashed Souls
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
@@ -3337,9 +2988,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71839: // Drain Life - Bryntroll Heroic
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
-            case 34471: // The Beast Within
-                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
-                break;
             case 56606: // Ride Jokkum
             case 61791: // Ride Vehicle (Yogg-Saron)
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
@@ -3378,7 +3026,22 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
             case 42767: // Sic'em
+            case 43092: // Stop the Ascension!: Halfdan's Soul Destruction
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
+                break;
+            case 14621: // Polymorph (Six Demon Bag)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(4); // Medium Range
+                break;
+            case 35101: // Concussive Barrage
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(155); // Hunter Range (Long)
+                break;
+            case 55741: // Desecration (Rank 1)
+            case 68766: // Desecration (Rank 2)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Melee Range
+                break;
+            case 46946: // Safeguard (Rank 1)
+            case 46947: // Safeguard (Rank 2)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
                 break;
             // VIOLET HOLD SPELLS
             //
@@ -3831,4 +3494,51 @@ void SpellMgr::LoadSpellInfoCorrections()
         properties->Category = SUMMON_CATEGORY_PET;
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoSpellSpecificAndAuraState()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        // AuraState depends on SpellSpecific
+        spellInfo->_LoadSpellSpecific();
+        spellInfo->_LoadAuraState();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo SpellSpecific and AuraState in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoDiminishing()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        spellInfo->_LoadSpellDiminishInfo();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo diminishing infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoImmunities()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        spellInfo->_LoadImmunityInfo();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo immunity infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
