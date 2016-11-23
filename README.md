@@ -80,3 +80,7 @@ Read file [THANKS](THANKS)
 [Documentation](http://www.trinitycore.net) (powered by Doxygen)
 
 [Forums](http://www.trinitycore.org/f/)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/TrinityCore/trinitycore/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
