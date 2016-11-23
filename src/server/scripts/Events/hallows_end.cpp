@@ -58,7 +58,7 @@ enum HallowsEnd
 class spell_hallows_end_bucket_lands : public SpellScriptLoader
 {
 public:
-    spell_hallows_end_bucket_lands() : SpellScriptLoader("spell_hallows_end_bucket_lands") {}
+    spell_hallows_end_bucket_lands() : SpellScriptLoader("spell_hallows_end_bucket_lands") { }
 
     class spell_hallows_end_bucket_lands_SpellScript : public SpellScript
     {
@@ -144,7 +144,7 @@ public:
 
     struct npc_costumed_orphan_matronAI : public ScriptedAI
     {
-        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_costumed_orphan_matronAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
@@ -218,7 +218,7 @@ public:
 
     struct npc_soh_fire_triggerAI : public NullCreatureAI
     {
-        npc_soh_fire_triggerAI(Creature* creature) : NullCreatureAI(creature) {}
+        npc_soh_fire_triggerAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void Reset() override
         {
