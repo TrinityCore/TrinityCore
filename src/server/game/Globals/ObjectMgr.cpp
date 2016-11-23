@@ -8760,6 +8760,8 @@ void ObjectMgr::LoadScriptNames()
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM scene_template WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM areatrigger_template WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
@@ -9616,7 +9618,6 @@ void ObjectMgr::LoadSceneTemplates()
     do
     {
         Field* fields = templates->Fetch();
-
         uint32 sceneId = fields[0].GetUInt32();
         SceneTemplate& sceneTemplate = _sceneTemplateStore[sceneId];
         sceneTemplate.SceneId           = sceneId;
@@ -9627,4 +9628,74 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadAreaTriggerTemplates()
+{
+    uint32 oldMSTime = getMSTime();
+    _areaTriggerTemplateStore.clear();
+
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_TEMPLATES);
+    PreparedQueryResult templates = WorldDatabase.Query(stmt);
+
+    if (!templates)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates. DB table `areatrigger_template` is empty.");
+        return;
+    }
+
+    uint32 count = 1;
+
+    // We create a default template in case of the spell reference an unknown template
+    AreaTriggerTemplate defaultAreaTriggerTemplate;
+    defaultAreaTriggerTemplate.Id = 0;
+    defaultAreaTriggerTemplate.Flags = AREATRIGGER_FLAG_HAS_SPHERE;
+    defaultAreaTriggerTemplate.SphereDatas.Radius = 1;
+    defaultAreaTriggerTemplate.SphereDatas.RadiusTarget = 1;
+    defaultAreaTriggerTemplate.InitMaxSearchRadius();
+    _areaTriggerTemplateStore[0] = defaultAreaTriggerTemplate;
+
+    do
+    {
+        Field* fields = templates->Fetch();
+        AreaTriggerTemplate areaTriggerTemplate;
+        areaTriggerTemplate.Id = fields[0].GetUInt32();
+        areaTriggerTemplate.Flags = fields[1].GetUInt32();
+        areaTriggerTemplate.MoveCurveId = fields[2].GetInt32();
+        areaTriggerTemplate.ScaleCurveId = fields[3].GetInt32();
+        areaTriggerTemplate.MorphCurveId = fields[4].GetInt32();
+        areaTriggerTemplate.FacingCurveId = fields[5].GetInt32();
+
+        for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
+            areaTriggerTemplate.DefaultDatas.Data[i] = fields[6 + i].GetFloat();
+
+        areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[12].GetCString());
+
+        PreparedStatement* verticesStmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_AREATRIGGER_POLYGON_VERTICES);
+        verticesStmt->setUInt32(0, areaTriggerTemplate.Id);
+        PreparedQueryResult vertices = WorldDatabase.Query(verticesStmt);
+
+        if (vertices)
+        {
+            do
+            {
+                Field* verticeFields = vertices->Fetch();
+
+                AreaTriggerPolygonVertice vertice;
+                vertice.VerticeX = verticeFields[0].GetFloat();
+                vertice.VerticeY = verticeFields[1].GetFloat();
+                vertice.VerticeTargetX = verticeFields[2].GetFloat();
+                vertice.VerticeTargetY = verticeFields[3].GetFloat();
+
+                areaTriggerTemplate.PolygonVertices.push_back(vertice);
+
+            } while (vertices->NextRow());
+        }
+
+        areaTriggerTemplate.InitMaxSearchRadius();
+        _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
+
+    } while (templates->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u spell areatrigger templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }

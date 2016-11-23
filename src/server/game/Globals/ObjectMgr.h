@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Object.h"
 #include "Bag.h"
+#include "AreaTrigger.h"
 #include "Creature.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
@@ -623,6 +624,7 @@ struct CharacterTemplate
 };
 
 typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
+typedef std::unordered_map<uint32, AreaTriggerTemplate> AreaTriggerTemplateContainer;
 
 struct SceneTemplate
 {
@@ -1080,6 +1082,7 @@ class TC_GAME_API ObjectMgr
         void LoadAreaPhases();
 
         void LoadSceneTemplates();
+        void LoadAreaTriggerTemplates();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1415,6 +1418,20 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        AreaTriggerTemplate const* GetAreaTriggerTemplate(uint32 id) const
+        {
+            auto itr = _areaTriggerTemplateStore.find(id);
+            if (itr != _areaTriggerTemplateStore.end())
+                return &itr->second;
+
+            // If not found, we search for default template
+            itr = _areaTriggerTemplateStore.find(0);
+            if (itr != _areaTriggerTemplateStore.end())
+                return &itr->second;
+
+            return nullptr;
+        }
+
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
             auto itr = _sceneTemplateStore.find(sceneId);
@@ -1578,6 +1595,7 @@ class TC_GAME_API ObjectMgr
 
         CharacterTemplateContainer _characterTemplateStore;
         SceneTemplateContainer _sceneTemplateStore;
+        AreaTriggerTemplateContainer _areaTriggerTemplateStore;
 
         enum CreatureLinkedRespawnType
         {

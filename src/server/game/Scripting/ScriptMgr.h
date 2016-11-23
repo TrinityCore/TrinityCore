@@ -28,6 +28,7 @@
 #include "Weather.h"
 
 class AccountMgr;
+class AreaTrigger;
 class AuctionHouseObject;
 class AuraScript;
 class Battleground;
@@ -834,22 +835,46 @@ class TC_GAME_API GroupScript : public ScriptObject
 
 class TC_GAME_API SceneScript : public ScriptObject
 {
+protected:
+
+    SceneScript(const char* name);
+
+public:
+    // Called when a player start a scene
+    virtual void OnSceneStart(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+    // Called when a player receive trigger from scene
+    virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& /*triggerName*/) { }
+
+    // Called when a scene is canceled
+    virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+    // Called when a scene is completed
+    virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+};
+
+class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
+{
     protected:
 
-        SceneScript(const char* name);
+        AreaTriggerEntityScript(const char* name);
 
     public:
-        // Called when a player start a scene
-        virtual void OnSceneStart(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+        // Called when the AreaTrigger has just been created
+        virtual void OnCreate(AreaTrigger* /*areaTrigger*/) { }
 
-        // Called when a player receive trigger from scene
-        virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& /*triggerName*/) { }
+        // Called on each AreaTrigger update
+        virtual void OnUpdate(AreaTrigger* /*areaTrigger*/, uint32 /*diff*/) { }
 
-        // Called when a scene is canceled
-        virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+        // Called when an unit enter the AreaTrigger
+        virtual void OnUnitEnter(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
 
-        // Called when a scene is completed
-        virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
+        virtual void OnUnitExit(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
+
+        // Called when the AreaTrigger is removed
+        virtual void OnRemove(AreaTrigger* /*areaTrigger*/) { }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -1133,6 +1158,14 @@ class TC_GAME_API ScriptMgr
         void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
         void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
         void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+
+    public: /* AreaTriggerEntityScript */
+
+        void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
+        void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
+        void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);
 
     private:
         uint32 _scriptCount;
