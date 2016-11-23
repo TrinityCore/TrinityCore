@@ -788,7 +788,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
-        uint8 GetInhabitType() const { return IsMounted() ? GetCreatureAddon()->mountInhabitType : GetCreatureTemplate()->InhabitType; }
+        uint8 GetInhabitType() const;
 
         std::string GetAIName() const;
         std::string GetScriptName() const;

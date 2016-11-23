@@ -2226,6 +2226,15 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
+uint8 Creature::GetInhabitType() const
+{
+    if (IsMounted())
+        if (CreatureAddon const* creatureAddon = GetCreatureAddon())
+            return creatureAddon->mountInhabitType;
+
+    return GetCreatureTemplate()->InhabitType;
+}
+
 //creature_addon table
 bool Creature::LoadCreaturesAddon()
 {

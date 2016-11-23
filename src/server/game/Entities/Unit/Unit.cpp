@@ -9182,8 +9182,8 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
-    if (GetTypeId() == TYPEID_UNIT)
-        ToCreature()->UpdateMovementFlags();
+    if (Creature* creature = ToCreature())
+        creature->UpdateMovementFlags();
 }
 
 void Unit::Dismount()
