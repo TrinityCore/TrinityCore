@@ -134,7 +134,7 @@ void PetAI::UpdateAI(uint32 diff)
     // Autocast (cast only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
     {
-        targetSpellStore.clear();
+        TargetSpellList targetSpellStore;
 
         for (uint8 i = 0; i < me->GetPetAutoSpellSize(); ++i)
         {

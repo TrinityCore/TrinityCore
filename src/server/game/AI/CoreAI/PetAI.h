@@ -69,8 +69,6 @@ class TC_GAME_API PetAI : public CreatureAI
         void DoAttack(Unit* target, bool chase);
         bool CanAttack(Unit* target);
         void ClearCharmInfoFlags();
-
-        TargetSpellList targetSpellStore;
 };
 #endif
 

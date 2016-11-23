@@ -2588,9 +2588,9 @@ float Creature::GetPetChaseDistance() const
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID))
         {
             if (spellInfo->GetRecoveryTime() == 0 &&  // No cooldown
-                    spellInfo->RangeEntry->ID != 1 /*Self*/ && spellInfo->RangeEntry->ID != 2 /*Combat Range*/ &&  // Range bigger than melee
-                        range < spellInfo->GetMaxRange(true))  // Bigger than previous
-                range = spellInfo->RangeEntry->minRangeHostile;
+                    spellInfo->RangeEntry->ID != 1 /*Self*/ && spellInfo->RangeEntry->ID != 2 /*Combat Range*/ &&
+                        spellInfo->GetMaxRange() > range)
+                range = spellInfo->GetMinRange();
         }
     }
 
