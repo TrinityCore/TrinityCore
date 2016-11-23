@@ -1186,6 +1186,14 @@ void Player::Update(uint32 p_time)
         }
     }
 
+	/* Hack Fix for Demon Hunter Glide, the 71680 part disables glide upon touching the ground 
+	and the 69632 part is an exception for when glide is activated without double jumping */ 
+	if (GetExtraUnitMovementFlags() <= 71680 && GetExtraUnitMovementFlags() != 69632)
+	{
+		if (getClass() == CLASS_DEMON_HUNTER && HasAura(131347))
+			RemoveAura(131347);
+	}
+
     if (m_weaponChangeTimer > 0)
     {
         if (p_time >= m_weaponChangeTimer)
