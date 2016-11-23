@@ -757,7 +757,7 @@ void MotionMaster::DirectClean(bool reset)
         pop();
         if (curr) DirectDelete(curr);
     }
-    
+
     if (empty())
         return;
 
