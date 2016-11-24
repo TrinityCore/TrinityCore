@@ -520,7 +520,7 @@ enum PlayerFlags
     PLAYER_FLAGS_AUTO_DECLINE_GUILD     = 0x08000000,       // Automatically declines guild invites
     PLAYER_FLAGS_GUILD_LEVEL_ENABLED    = 0x10000000,       // Lua_GetGuildLevelEnabled() - enables guild leveling related UI
     PLAYER_FLAGS_VOID_UNLOCKED          = 0x20000000,       // void storage
-    PLAYER_FLAGS_UNK30                  = 0x40000000,
+    PLAYER_FLAGS_MENTOR                 = 0x40000000,
     PLAYER_FLAGS_UNK31                  = 0x80000000
 };
 
