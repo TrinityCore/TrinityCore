@@ -627,6 +627,14 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class FarSight final : public ClientPacket
         {
         public:

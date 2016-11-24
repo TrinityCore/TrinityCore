@@ -726,6 +726,16 @@ void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCa
 {
 }
 
+void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
+{
+    uint32 movie = _player->GetMovie();
+    if (!movie)
+        return;
+
+    _player->SetMovie(0);
+    sScriptMgr->OnMovieComplete(_player, movie);
+}
+
 void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)
 {
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)

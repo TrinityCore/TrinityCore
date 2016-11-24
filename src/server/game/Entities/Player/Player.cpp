@@ -179,6 +179,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_cinematic = 0;
 
+    m_movie = 0;
+
     PlayerTalkClass = new PlayerMenu(GetSession());
     m_currentBuybackSlot = BUYBACK_SLOT_START;
 
@@ -5917,8 +5919,9 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendMovieStart(uint32 MovieId) const
+void Player::SendMovieStart(uint32 MovieId)
 {
+    SetMovie(MovieId);
     WorldPackets::Misc::TriggerMovie packet;
     packet.MovieID = MovieId;
     SendDirectMessage(packet.Write());

@@ -1848,6 +1848,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
 
+        uint32 GetMovie() const { return m_movie; }
+        void SetMovie(uint32 movie) { m_movie = movie; }
+
         ActionButton* AddActionButton(uint8 button, uint32 action, uint8 type);
         void RemoveActionButton(uint8 button);
         ActionButton const* GetActionButton(uint8 button);
@@ -2340,7 +2343,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsPetNeedBeTemporaryUnsummoned() const;
 
         void SendCinematicStart(uint32 CinematicSequenceId) const;
-        void SendMovieStart(uint32 MovieId) const;
+        void SendMovieStart(uint32 MovieId);
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
 
@@ -2687,7 +2690,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         JoinedChannelsList m_channels;
 
-        uint8 m_cinematic;
+        uint8 m_cinematic; 
+
+        uint32 m_movie;
 
         TradeData* m_trade;
 
