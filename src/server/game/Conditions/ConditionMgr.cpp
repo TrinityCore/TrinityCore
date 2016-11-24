@@ -105,6 +105,11 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "In Water",            false, false, false },
     { "Terrain Swap",         true, false, false },
     { "Sit/stand state",      true,  true, false },
+    { "Daily Quest Completed",true, false, false }, // Placeholder
+    { "Charmed",             false, false, false }, // Placeholder
+    { "Pet type",             true, false, false }, // Placeholder
+    { "On Taxi",             false, false, false }, // Placeholder
+    { "Quest state mask",     true,  true, false }, // Placeholder
     { "Objective Complete",   true,  true, false }
 };
 
