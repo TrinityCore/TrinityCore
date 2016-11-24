@@ -30,6 +30,7 @@
 #include "DB2Stores.h"
 #include "Player.h"
 #include "Timer.h"
+#include "WaypointManager.h"
 
 #define FLIGHT_TRAVEL_UPDATE  100
 #define TIMEDIFF_NEXT_WP      250
@@ -57,16 +58,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
 {
     public:
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
-            : i_nextMoveTime(0), IsArrivalDone(false), path_id(_path_id), repeating(_repeating), LoadedFromDB(true)  { }
-
-        WaypointMovementGenerator(WaypointPath& path, bool _repeating = true)
-            : i_nextMoveTime(0), IsArrivalDone(false), path_id(0), repeating(_repeating), LoadedFromDB(false)
-        {
-            i_path = &path;
-        }
-
-        ~WaypointMovementGenerator() { i_path = nullptr; }
-
+            : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  { }
+        ~WaypointMovementGenerator() { i_path = NULL; }
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);
         void DoReset(Creature*);
@@ -80,10 +73,6 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
         void LoadPath(Creature*);
 
         bool GetResetPos(Creature*, float& x, float& y, float& z);
-
-        TimeTrackerSmall & GetTrackerTimer() { return i_nextMoveTime; }
-
-        void UnitSpeedChanged() { i_recalculateSpeed = true; }
 
     private:
 
@@ -99,21 +88,17 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
 
         void OnArrived(Creature*);
         bool StartMove(Creature*);
-        void FormationMove(Creature*);
 
-        bool StartMoveNow(Creature* creature)
+        void StartMoveNow(Creature* creature)
         {
             i_nextMoveTime.Reset(0);
-            return StartMove(creature);
+            StartMove(creature);
         }
 
         TimeTrackerSmall i_nextMoveTime;
-        bool i_recalculateSpeed;
-
-        bool IsArrivalDone;
+        bool m_isArrivalDone;
         uint32 path_id;
         bool repeating;
-        bool LoadedFromDB;
 };
 
 /** FlightPathMovementGenerator generates movement of the player for the paths

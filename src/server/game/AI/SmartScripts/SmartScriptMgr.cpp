@@ -41,6 +41,14 @@ void SmartWaypointMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
+    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    {
+        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
+            delete pathItr->second;
+
+        delete itr->second;
+    }
+
     waypoint_map.clear();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
@@ -68,10 +76,9 @@ void SmartWaypointMgr::LoadFromDB()
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
 
-        WPPath& path = waypoint_map[entry];
-
         if (last_entry != entry)
         {
+            waypoint_map[entry] = new WPPath();
             last_id = 1;
             count++;
         }
@@ -80,14 +87,7 @@ void SmartWaypointMgr::LoadFromDB()
             TC_LOG_ERROR("sql.sql", "SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
 
         last_id++;
-
-        WayPoint point;
-        point.id = id;
-        point.x = x;
-        point.y = y;
-        point.z = z;
-
-        path.push_back(std::move(point));
+        (*waypoint_map[entry])[id] = new WayPoint(id, x, y, z);
 
         last_entry = entry;
         total++;
@@ -95,6 +95,17 @@ void SmartWaypointMgr::LoadFromDB()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
+}
+
+SmartWaypointMgr::~SmartWaypointMgr()
+{
+    for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
+    {
+        for (WPPath::iterator pathItr = itr->second->begin(); pathItr != itr->second->end(); ++pathItr)
+            delete pathItr->second;
+
+        delete itr->second;
+    }
 }
 
 SmartAIMgr* SmartAIMgr::instance()
@@ -1240,8 +1251,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_WP_START:
             {
-                WPPath const* path = sSmartWaypointMgr->GetPath(e.action.wpStart.pathID);
-                if (!path || path->empty())
+                if (!sSmartWaypointMgr->GetPath(e.action.wpStart.pathID))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature " SI64FMTD " Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                     return false;
@@ -1403,6 +1413,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
