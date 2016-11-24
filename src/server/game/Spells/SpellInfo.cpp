@@ -491,7 +491,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                         value = gtScaling->Item;
                 }
                 else
-                    value = GetRandomPropertyPoints(itemLevel != -1 ? uint32(itemLevel) : 1u, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                {
+                    uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
+                    value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                    if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
+                        if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
+                            value *= ratingMult->RatingMultiplier;
+                }
             }
             else
                 value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);

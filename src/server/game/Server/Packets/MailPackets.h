@@ -72,7 +72,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            std::vector<ObjectGuid::LowType> LowGuids;
         };
 
         class MailListResult final : public ServerPacket

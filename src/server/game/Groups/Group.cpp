@@ -55,7 +55,7 @@ Loot* Roll::getLoot()
     return getTarget();
 }
 
-Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
+Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE),
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0),
@@ -105,9 +105,9 @@ bool Group::Create(Player* leader)
     leader->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
     if (isBGGroup() || isBFGroup())
-        m_groupType = GROUPTYPE_BGRAID;
+        m_groupFlags = GROUP_MASK_BGRAID;
 
-    if (m_groupType & GROUPTYPE_RAID)
+    if (m_groupFlags & GROUP_FLAG_RAID)
         _initRaidSubGroupsCounter();
 
     if (!isLFGGroup())
@@ -149,7 +149,7 @@ bool Group::Create(Player* leader)
         stmt->setBinary(index++, m_targetIcons[5].GetRawValue());
         stmt->setBinary(index++, m_targetIcons[6].GetRawValue());
         stmt->setBinary(index++, m_targetIcons[7].GetRawValue());
-        stmt->setUInt8(index++, uint8(m_groupType));
+        stmt->setUInt8(index++, uint8(m_groupFlags));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
         stmt->setUInt32(index++, uint8(m_legacyRaidDifficulty));
@@ -184,8 +184,8 @@ void Group::LoadGroupFromDB(Field* fields)
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
 
-    m_groupType  = GroupType(fields[12].GetUInt8());
-    if (m_groupType & GROUPTYPE_RAID)
+    m_groupFlags  = GroupFlags(fields[12].GetUInt8());
+    if (m_groupFlags & GROUP_FLAG_RAID)
         _initRaidSubGroupsCounter();
 
     m_dungeonDifficulty = Player::CheckLoadedDungeonDifficultyID(Difficulty(fields[13].GetUInt8()));
@@ -194,7 +194,7 @@ void Group::LoadGroupFromDB(Field* fields)
 
     m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64());
 
-    if (m_groupType & GROUPTYPE_LFG)
+    if (m_groupFlags & GROUP_FLAG_LFG)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
 }
 
@@ -226,13 +226,13 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
 
 void Group::ConvertToLFG()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED);
+    m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_LFG | GROUP_FLAG_LFG_RESTRICTED);
     m_lootMethod = GROUP_LOOT;
     if (!isBGGroup() && !isBFGroup())
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_groupFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -243,7 +243,7 @@ void Group::ConvertToLFG()
 
 void Group::ConvertToRaid()
 {
-    m_groupType = GroupType(m_groupType | GROUPTYPE_RAID);
+    m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_RAID);
 
     _initRaidSubGroupsCounter();
 
@@ -251,7 +251,7 @@ void Group::ConvertToRaid()
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_groupFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -270,7 +270,7 @@ void Group::ConvertToGroup()
     if (m_memberSlots.size() > 5)
         return; // What message error should we send?
 
-    m_groupType = GroupType(GROUPTYPE_NORMAL);
+    m_groupFlags = GroupFlags(GROUP_FLAG_NONE);
 
     if (m_subGroupsCounts)
     {
@@ -282,7 +282,7 @@ void Group::ConvertToGroup()
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
 
-        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt8(0, uint8(m_groupFlags));
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -1438,9 +1438,9 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     WorldPackets::Party::PartyUpdate partyUpdate;
 
-    partyUpdate.PartyType = m_groupType;
-    partyUpdate.PartyIndex = 0;
-    partyUpdate.PartyFlags = uint8(IsCreated());
+    partyUpdate.PartyFlags = m_groupFlags;
+    partyUpdate.PartyIndex = (player->GetOriginalGroup() && player->GetOriginalGroup() != this) ? 1 : 0; // 0 = original group, 1 = instance/bg group
+    partyUpdate.PartyType = IsCreated() ? GROUP_TYPE_NORMAL : GROUP_TYPE_NONE;
 
     partyUpdate.PartyGUID = m_guid;
     partyUpdate.LeaderGUID = m_leaderGuid;
@@ -1494,18 +1494,27 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         partyUpdate.LfgInfos = boost::in_place();
 
         partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
-        partyUpdate.LfgInfos->BootCount = 0;                                                                            // new 6.x
-        partyUpdate.LfgInfos->Aborted = false;                                                                          // new 6.x
+        partyUpdate.LfgInfos->BootCount = 0;
+        partyUpdate.LfgInfos->Aborted = false;
 
-        partyUpdate.LfgInfos->MyFlags = 0;                                                                              // new 6.x
-        partyUpdate.LfgInfos->MyRandomSlot = 0;                                                                         // new 6.x
+        partyUpdate.LfgInfos->MyFlags = sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0;
+        partyUpdate.LfgInfos->MyRandomSlot = [player]() -> uint32
+        {
+            lfg::LfgDungeonSet const& selectedDungeons = sLFGMgr->GetSelectedDungeons(player->GetGUID());
+            if (selectedDungeons.size() == 1)
+                if (LfgDungeonsEntry const* dungeon = sLfgDungeonsStore.LookupEntry(*selectedDungeons.begin()))
+                    if (dungeon->Type == lfg::LFG_TYPE_RANDOM)
+                        return dungeon->ID;
 
-        partyUpdate.LfgInfos->MyPartialClear = sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0;    // FIXME - Dungeon save status? 2 = done
-        partyUpdate.LfgInfos->MyGearDiff = 0.f;                                                                         // new 6.x
-        partyUpdate.LfgInfos->MyFirstReward = false;                                                                    // new 6.x
+            return 0;
+        }();
 
-        partyUpdate.LfgInfos->MyStrangerCount = 0;                                                                      // new 6.x
-        partyUpdate.LfgInfos->MyKickVoteCount = 0;                                                                      // new 6.x
+        partyUpdate.LfgInfos->MyPartialClear = 0;
+        partyUpdate.LfgInfos->MyGearDiff = 0.0f;
+        partyUpdate.LfgInfos->MyFirstReward = false;
+
+        partyUpdate.LfgInfos->MyStrangerCount = 0;
+        partyUpdate.LfgInfos->MyKickVoteCount = 0;
     }
 
     player->GetSession()->SendPacket(partyUpdate.Write());
@@ -2351,12 +2360,12 @@ bool Group::IsFull() const
 
 bool Group::isLFGGroup() const
 {
-    return (m_groupType & GROUPTYPE_LFG) != 0;
+    return (m_groupFlags & GROUP_FLAG_LFG) != 0;
 }
 
 bool Group::isRaidGroup() const
 {
-    return (m_groupType & GROUPTYPE_RAID) != 0;
+    return (m_groupFlags & GROUP_FLAG_RAID) != 0;
 }
 
 bool Group::isBGGroup() const
@@ -2608,9 +2617,9 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
 void Group::SetEveryoneIsAssistant(bool apply)
 {
     if (apply)
-        m_groupType = GroupType(m_groupType | GROUPTYPE_EVERYONE_ASSISTANT);
+        m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_EVERYONE_ASSISTANT);
     else
-        m_groupType = GroupType(m_groupType & ~GROUPTYPE_EVERYONE_ASSISTANT);
+        m_groupFlags = GroupFlags(m_groupFlags & ~GROUP_FLAG_EVERYONE_ASSISTANT);
 
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         ToggleGroupMemberFlag(itr, MEMBER_FLAG_ASSISTANT, apply);
