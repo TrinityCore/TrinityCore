@@ -91,8 +91,13 @@ enum ConditionTypes
     CONDITION_IN_WATER                 = 40,                   // 0                0              0                  true if unit in water
     CONDITION_TERRAIN_SWAP             = 41,                   // terrainSwap      0              0                  true if object is in terrainswap
     CONDITION_STAND_STATE              = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_QUEST_OBJECTIVE_COMPLETE = 43,                   // quest_id         ID             0                  true if player has quest_id and has ID objective complete, but quest not yet rewarded
-    CONDITION_MAX                      = 44                    // MAX
+    //CONDITION_DAILY_QUEST_DONE         = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
+    //CONDITION_CHARMED                  = 44,                   // 0                0              0                  true if unit is currently charmed
+    //CONDITION_PET_TYPE                 = 45,                   // mask             0              0                  true if player has a pet of given type(s)
+    //CONDITION_TAXI                     = 46,                   // 0                0              0                  true if player is on taxi
+    //CONDITION_QUESTSTATE               = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
+    CONDITION_QUEST_OBJECTIVE_COMPLETE = 48,                   // quest_id         ID             0                  true if player has quest_id and has ID objective complete, but quest not yet rewarded
+    CONDITION_MAX                      = 49                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
