@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "forge_of_souls.h"

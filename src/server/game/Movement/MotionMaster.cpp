@@ -701,6 +701,14 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         _owner->GetGUID().ToString().c_str(), path_id, repeatable ? "YES" : "NO");
 }
 
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s starts moving over path (repeatable: %s).",
+        _owner->GetGUID().ToString().c_str(), repeatable ? "YES" : "NO");
+}
+
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 {
     if (!time)
