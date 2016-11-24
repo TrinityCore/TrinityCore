@@ -27,6 +27,7 @@
 #include "SmartScript.h"
 #include "SmartScriptMgr.h"
 #include "GameObjectAI.h"
+#include "WaypointManager.h"
 
 enum SmartEscortState
 {
@@ -45,7 +46,7 @@ enum SmartEscortVars
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){ }
+        ~SmartAI();
         explicit SmartAI(Creature* c);
 
         // Check whether we are currently permitted to make the creature take action
@@ -58,7 +59,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        WayPoint* GetNextWayPoint();
         bool HasEscortState(uint32 uiEscortState) const { return (mEscortState & uiEscortState) != 0; }
         void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
         void RemoveEscortState(uint32 uiEscortState) { mEscortState &= ~uiEscortState; }
@@ -209,15 +209,13 @@ class TC_GAME_API SmartAI : public CreatureAI
         void ReturnToLastOOCPos();
         void UpdatePath(const uint32 diff);
         SmartScript mScript;
-        WPPath* mWayPoints;
         uint32 mEscortState;
         uint32 mCurrentWPID;
-        uint32 mLastWPIDReached;
         bool mWPReached;
+        bool mOOCReached;
+        bool m_Ended;
         uint32 mWPPauseTimer;
-        WayPoint* mLastWP;
-        Position mLastOOCPos;//set on enter combat
-        uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
+        uint32 mEscortNPCFlags;
         bool mCanRepeatPath;
         bool mRun;
         bool mEvadeDisabled;
@@ -227,6 +225,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mInvincibilityHpLevel;
         bool AssistPlayerInCombatAgainst(Unit* who);
 
+        WaypointPath _path;
         uint32 mDespawnTime;
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
