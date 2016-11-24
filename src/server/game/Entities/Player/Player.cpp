@@ -5919,11 +5919,11 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendMovieStart(uint32 MovieId)
+void Player::SendMovieStart(uint32 movieId)
 {
-    SetMovie(MovieId);
+    SetMovie(movieId);
     WorldPackets::Misc::TriggerMovie packet;
-    packet.MovieID = MovieId;
+    packet.MovieID = movieId;
     SendDirectMessage(packet.Write());
 }
 
