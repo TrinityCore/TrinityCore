@@ -86,6 +86,9 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
 template<class T>
 void PointMovementGenerator<T>::DoFinalize(T* unit)
 {
+    if (_arrivalSpellId)
+        unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+
     if (unit->HasUnitState(UNIT_STATE_CHARGING))
         unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
 

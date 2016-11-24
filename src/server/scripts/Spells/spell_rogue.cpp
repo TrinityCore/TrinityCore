@@ -56,12 +56,248 @@ enum RogueSpells
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
-    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
+    SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169,
+    SPELL_ROGUE_TALENT_DFA_PREJUMP                  = 178236, // Executed with Base talent
+    SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD               = 163786, // Applied with Base talent
+    SPELL_ROGUE_TALENT_DFA                          = 152150, // Base talent
+    SPELL_ROGUE_TALENT_DFA_JUMP                     = 156327, // Jump - Triggered by Base Talent (jump to target)
+    SPELL_ROGUE_TALENT_DFA_JUMP_DUMMY               = 156527, // Triggered by Jump
+    SPELL_ROGUE_TALENT_DFA_DUMMY                    = 178070, // Casted after Jump
+    SPELL_ROGUE_ENVENOM                             = 32645,
+    SPELL_ROGUE_EVISCERATE                          = 2098
 };
 
 enum RogueSpellIcons
 {
-    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
+    ICON_ROGUE_IMPROVED_RECUPERATE = 4819
+};
+
+// 163786 - Death from above
+class spell_rog_death_from_above_dmg_aura : public SpellScriptLoader
+{
+public:
+    spell_rog_death_from_above_dmg_aura() : SpellScriptLoader("spell_rog_death_from_above_dmg_aura") { }
+
+    class spell_rog_death_from_above_dmg_aura_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_death_from_above_dmg_aura_AuraScript);
+
+        void Register() override
+        {
+            // maybe needed
+        }
+
+    public:
+        void SetCpSpent(uint8 n)
+        {
+            cpSpent = n;
+        }
+        uint8 GetCpSpent()
+        {
+            return cpSpent;
+        }
+
+    private:
+        uint8 cpSpent;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_death_from_above_dmg_aura_AuraScript();
+    }
+};
+
+// 152150 - Death from above
+class spell_rog_death_from_above : public SpellScriptLoader
+{
+public:
+    spell_rog_death_from_above() : SpellScriptLoader("spell_rog_death_from_above") { }
+
+    class spell_rog_death_from_above_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_death_from_above_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
+                if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
+                    script->SetCpSpent(GetCaster()->ToPlayer()->GetComboPoints());
+
+            if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA))
+                if (spell_rog_death_from_above_AuraScript* script = dynamic_cast<spell_rog_death_from_above_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above")))
+                    script->SetTarget(GetExplTargetUnit()->GetGUID());
+        }
+
+        void Register() override
+        {
+            AfterHit += SpellHitFn(spell_rog_death_from_above_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_death_from_above_SpellScript();
+    }
+
+    class spell_rog_death_from_above_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_death_from_above_AuraScript);
+
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
+        {
+            PreventDefaultAction();
+
+            if (Unit* affectedByAura = GetTarget())
+                if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), spellTarget))
+                    if (target->IsAlive() && !target->HasStealthAura() && !target->HasInvisibilityAura())
+                    {
+                        affectedByAura->CastSpell(target, SPELL_ROGUE_TALENT_DFA_JUMP, true);
+                        return;
+                    }
+            
+            GetCaster()->SetCanFly(false);
+        }
+
+        void EffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->SetCanFly(true);
+            GetTarget()->AddAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD, GetTarget());
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_death_from_above_AuraScript::HandlePeriodic, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY);
+            OnEffectApply += AuraEffectApplyFn(spell_rog_death_from_above_AuraScript::EffectApply, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+    public:
+        void SetTarget(ObjectGuid target)
+        {
+            spellTarget = target;
+        }
+
+    private:
+        ObjectGuid spellTarget;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_rog_death_from_above_AuraScript();
+    }
+};
+
+// 178070 - Death from above After jump to target dummy (damage)
+class spell_rog_death_from_above_damage : public SpellScriptLoader
+{
+public:
+    spell_rog_death_from_above_damage() : SpellScriptLoader("spell_rog_death_from_above_damage") { }
+
+    class spell_rog_death_from_above_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_death_from_above_damage_SpellScript);
+        
+        void HandleCast()
+        {
+            if (Unit* target = GetExplTargetUnit())
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->CastSpell(caster, SPELL_ROGUE_TALENT_DFA_JUMP_DUMMY);
+                    if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_TALENT_DFA_DAMAGE_MOD))
+                        if (spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript* script = dynamic_cast<spell_rog_death_from_above_dmg_aura::spell_rog_death_from_above_dmg_aura_AuraScript*>(aura->GetScriptByName("spell_rog_death_from_above_dmg_aura")))
+                            if (Player* player = caster->ToPlayer())
+                            {
+                                player->AddComboPoints(script->GetCpSpent());
+                                if (player->GetSpecId(player->GetActiveTalentGroup()) == TALENT_SPEC_ROGUE_ASSASSINATION)
+                                    caster->CastSpell(target, SPELL_ROGUE_ENVENOM, TRIGGERED_IGNORE_GCD);
+                                else
+                                    caster->CastSpell(target, SPELL_ROGUE_EVISCERATE, TRIGGERED_IGNORE_GCD);
+                            }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_rog_death_from_above_damage_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_death_from_above_damage_SpellScript();
+    }
+};
+
+// 156327 - Death from above Jump to target
+class spell_rog_death_from_above_jump_target : public SpellScriptLoader
+{
+public:
+    spell_rog_death_from_above_jump_target() : SpellScriptLoader("spell_rog_death_from_above_jump_target") { }
+
+    class spell_rog_death_from_above_jump_target_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_death_from_above_jump_target_SpellScript);
+        
+        void HandleLaunch(SpellEffIndex /*effIndex*/)
+        {
+            PreventHitEffect(EFFECT_1);
+        }
+
+        void HandleCast()
+        {
+            if (Unit* target = GetExplTargetUnit())
+            {
+                ObjectGuid const& targetGuid = target->GetGUID();
+                GetCaster()->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 60.0f, EVENT_CHARGE, false, SPELL_ROGUE_TALENT_DFA_DUMMY, targetGuid);
+            }
+        }
+
+        void HandleAfter()
+        {
+            GetCaster()->SetCanFly(false);
+        }
+
+        void Register() override
+        {
+            OnEffectLaunch += SpellEffectFn(spell_rog_death_from_above_jump_target_SpellScript::HandleLaunch, EFFECT_1, SPELL_EFFECT_JUMP);
+            OnCast += SpellCastFn(spell_rog_death_from_above_jump_target_SpellScript::HandleCast);
+            AfterHit += SpellHitFn(spell_rog_death_from_above_jump_target_SpellScript::HandleAfter);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_death_from_above_jump_target_SpellScript();
+    }
+};
+
+// 178236 - Death from above Pre Jump
+class spell_rog_death_from_above_pre_jump : public SpellScriptLoader
+{
+public:
+    spell_rog_death_from_above_pre_jump() : SpellScriptLoader("spell_rog_death_from_above_pre_jump") { }
+
+    class spell_rog_death_from_above_pre_jump_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_death_from_above_pre_jump_SpellScript);
+
+        void HandleCast()
+        {
+            if (Unit* caster = GetCaster())
+                caster->GetMotionMaster()->MoveJump(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 8.0f, caster->GetOrientation(), 9.0f, 9.0f);
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_rog_death_from_above_pre_jump_SpellScript::HandleCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rog_death_from_above_pre_jump_SpellScript();
+    }
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -1055,6 +1291,11 @@ public:
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_death_from_above_pre_jump();
+    new spell_rog_death_from_above();
+    new spell_rog_death_from_above_jump_target();
+    new spell_rog_death_from_above_damage();
+    new spell_rog_death_from_above_dmg_aura();
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();
