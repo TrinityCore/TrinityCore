@@ -198,8 +198,8 @@ Position const BrokenWP[18] =
 };
 
 static float const MIDDLE_OF_ROOM    = 400.0f;
-static float const FACE_THE_DOOR     = 0.0872665f;
-static float const FACE_THE_PLATFORM = 3.11866f;
+static float const FACE_THE_DOOR     = 0.08726646f;
+static float const FACE_THE_PLATFORM = 3.118662f;
 
 class boss_shade_of_akama : public CreatureScript
 {
