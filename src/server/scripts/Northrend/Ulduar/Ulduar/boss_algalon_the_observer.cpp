@@ -27,7 +27,6 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -877,15 +876,11 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
     public:
         npc_brann_bronzebeard_algalon() : CreatureScript("npc_brann_bronzebeard_algalon") { }
 
-        struct npc_brann_bronzebeard_algalonAI : public npc_escortAI
+        struct npc_brann_bronzebeard_algalonAI : public CreatureAI
         {
-            npc_brann_bronzebeard_algalonAI(Creature* creature) : npc_escortAI(creature)
+            npc_brann_bronzebeard_algalonAI(Creature* creature) : CreatureAI(creature)
             {
-                SetDespawnAtEnd(false);
-                SetDespawnAtFar(false);
-
-                for (uint8 i = 0; i < MAX_BRANN_WAYPOINTS_INTRO; ++i)
-                    AddWaypoint(i, BrannIntroWaypoint[i].GetPositionX(), BrannIntroWaypoint[i].GetPositionY(), BrannIntroWaypoint[i].GetPositionZ());
+                _currentPoint = 0;
             }
 
             void DoAction(int32 action) override
@@ -893,12 +888,14 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                 switch (action)
                 {
                     case ACTION_START_INTRO:
+                        _currentPoint = 0;
                         _events.Reset();
-                        Start(false, true);
+                        me->SetWalk(false);
+                        _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1);
                         break;
                     case ACTION_FINISH_INTRO:
                         Talk(SAY_BRANN_ALGALON_INTRO_2);
-                        SetEscortPaused(false);
+                        _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1);
                         break;
                     case ACTION_OUTRO:
                         me->GetMotionMaster()->MovePoint(POINT_BRANN_OUTRO, BrannOutroPos[1]);
@@ -908,27 +905,38 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 pointId) override
+            void MovementInform(uint32 movementType, uint32 pointId) override
             {
+                if (movementType != POINT_MOTION_TYPE)
+                    return;
+
+                uint32 delay = 1;
+                _currentPoint = pointId + 1;
                 switch (pointId)
                 {
                     case 2:
-                        SetEscortPaused(true);
-                        _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 8000);
-                        SetRun(false);
+                        delay = 8000;
+                        me->SetWalk(true);
                         break;
                     case 5:
-                        SetRun(true);
-                        SetEscortPaused(true);
+                        me->SetWalk(false);
                         Talk(SAY_BRANN_ALGALON_INTRO_1);
                         _events.ScheduleEvent(EVENT_SUMMON_ALGALON, 7500);
-                        break;
+                        return;
+                    case 9:
+                        me->DespawnOrUnsummon(1);
+                        return;
+                    case POINT_BRANN_OUTRO:
+                    case POINT_BRANN_OUTRO_END:
+                        return;
                 }
+
+                _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                npc_escortAI::UpdateAI(diff);
+                UpdateVictim();
 
                 if (_events.Empty())
                     return;
@@ -940,7 +948,8 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BRANN_MOVE_INTRO:
-                            SetEscortPaused(false);
+                            if (_currentPoint < MAX_BRANN_WAYPOINTS_INTRO)
+                                me->GetMotionMaster()->MovePoint(_currentPoint, BrannIntroWaypoint[_currentPoint]);
                             break;
                         case EVENT_SUMMON_ALGALON:
                             if (Creature* algalon = me->GetMap()->SummonCreature(NPC_ALGALON, AlgalonSummonPos))
@@ -958,6 +967,7 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
 
         private:
             EventMap _events;
+            uint32 _currentPoint;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
