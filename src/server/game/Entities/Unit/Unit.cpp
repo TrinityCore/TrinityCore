@@ -209,12 +209,12 @@ Unit::Unit(bool isWorldObject) :
 
     m_updateFlag = UPDATEFLAG_LIVING;
 
-    m_attackTimer[BASE_ATTACK] = 0;
-    m_attackTimer[OFF_ATTACK] = 0;
-    m_attackTimer[RANGED_ATTACK] = 0;
-    m_modAttackSpeedPct[BASE_ATTACK] = 1.0f;
-    m_modAttackSpeedPct[OFF_ATTACK] = 1.0f;
-    m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
+    for (uint32 i = 0; i < MAX_ATTACK; ++i)
+    {
+        m_baseAttackSpeed[i] = 0;
+        m_modAttackSpeedPct[i] = 1.0f;
+        m_attackTimer[i] = 0;
+    }
 
     m_extraAttacks = 0;
     m_canDualWield = false;
@@ -482,7 +482,7 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
+    m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
@@ -677,7 +677,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && (cleanDamage->attackType == BASE_ATTACK || cleanDamage->attackType == OFF_ATTACK) && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE)
     {
-        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000.f * 1.75f);
+        uint32 rage = uint32(GetBaseAttackTime(cleanDamage->attackType) / 1000.f * 1.75f);
         if (cleanDamage->attackType == OFF_ATTACK)
             rage /= 2;
         RewardRage(rage);
@@ -1309,7 +1309,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         // Reduce attack time
         if (victim->haveOffhandWeapon() && offtime < basetime)
         {
-            float percent20 = victim->GetAttackTime(OFF_ATTACK) * 0.20f;
+            float percent20 = victim->GetBaseAttackTime(OFF_ATTACK) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (offtime > percent20 && offtime <= percent60)
                 victim->setAttackTimer(OFF_ATTACK, uint32(percent20));
@@ -1321,7 +1321,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         }
         else
         {
-            float percent20 = victim->GetAttackTime(BASE_ATTACK) * 0.20f;
+            float percent20 = victim->GetBaseAttackTime(BASE_ATTACK) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (basetime > percent20 && basetime <= percent60)
                 victim->setAttackTimer(BASE_ATTACK, uint32(percent20));
@@ -9117,9 +9117,9 @@ float Unit::GetWeaponProcChance() const
     // normalized proc chance for weapon attack speed
     // (odd formula...)
     if (isAttackReady(BASE_ATTACK))
-        return (GetAttackTime(BASE_ATTACK) * 1.8f / 1000.0f);
+        return (GetBaseAttackTime(BASE_ATTACK) * 1.8f / 1000.0f);
     else if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
-        return (GetAttackTime(OFF_ATTACK) * 1.6f / 1000.0f);
+        return (GetBaseAttackTime(OFF_ATTACK) * 1.6f / 1000.0f);
     return 0;
 }
 
@@ -9764,12 +9764,6 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     ApplyPercentModFloatVar(amount, pct, apply);
 
     return ModifyPower(power, (int32)amount - GetMaxPower(power));
-}
-
-uint32 Unit::GetAttackTime(WeaponAttackType att) const
-{
-    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / m_modAttackSpeedPct[att];
-    return (uint32)f_BaseAttackTime;
 }
 
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
@@ -12423,36 +12417,46 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     return Trinity::Containers::SelectRandomContainerElement(targets);
 }
 
+uint32 Unit::GetBaseAttackTime(WeaponAttackType att) const
+{
+    return m_baseAttackSpeed[att];
+}
+
+void Unit::SetBaseAttackTime(WeaponAttackType att, uint32 val)
+{
+    m_baseAttackSpeed[att] = val;
+    UpdateAttackTimeField(att);
+}
+
+void Unit::UpdateAttackTimeField(WeaponAttackType att)
+{
+    SetUInt32Value(UNIT_FIELD_BASEATTACKTIME + att, uint32(m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]));
+}
+
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
-    float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
+    float remainingTimePct = float(m_attackTimer[att]) / (m_baseAttackSpeed[att] * m_modAttackSpeedPct[att]);
     if (val > 0)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val, !apply);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, val, !apply);
-            else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, val, !apply);
-        }
+        if (att == BASE_ATTACK)
+            ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, val, !apply);
+        else if (att == RANGED_ATTACK)
+            ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, val, !apply);
     }
     else
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, -val, apply);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            if (att == BASE_ATTACK)
-                ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, -val, apply);
-            else if (att == RANGED_ATTACK)
-                ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, -val, apply);
-        }
+        if (att == BASE_ATTACK)
+            ApplyPercentModFloatValue(UNIT_FIELD_MOD_HASTE, -val, apply);
+        else if (att == RANGED_ATTACK)
+            ApplyPercentModFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, -val, apply);
     }
-    m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
+
+    UpdateAttackTimeField(att);
+    m_attackTimer[att] = uint32(m_baseAttackSpeed[att] * m_modAttackSpeedPct[att] * remainingTimePct);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)
@@ -12618,7 +12622,7 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 {
     if (GetTypeId() != TYPEID_PLAYER)
-        return GetAttackTime(attType) / 1000.0f;
+        return GetBaseAttackTime(attType) / 1000.0f;
 
     Item* weapon = ToPlayer()->GetWeaponForAttack(attType, true);
     if (!weapon)
@@ -12855,12 +12859,12 @@ bool Unit::RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bo
     {
         if (!isVictim)
         {
-            uint32 weaponSpeed = GetAttackTime(attType);
+            uint32 weaponSpeed = GetBaseAttackTime(attType);
             chance = GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
         }
         else if (victim)
         {
-            uint32 weaponSpeed = victim->GetAttackTime(attType);
+            uint32 weaponSpeed = victim->GetBaseAttackTime(attType);
             chance = victim->GetPPMProcChance(weaponSpeed, spellProcEvent->ppmRate, spellInfo);
         }
     }
@@ -15841,11 +15845,6 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 *data << BuildAuraStateUpdateForTarget(target);
             }
             // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
-            else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
-            {
-                // convert from float to uint32 and send
-                *data << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
-            }
             // there are some float values which may be negative or can't get negative due to other checks
             else if ((index >= UNIT_FIELD_NEGSTAT && index < UNIT_FIELD_NEGSTAT + MAX_STATS) ||
                 (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index < (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + MAX_SPELL_SCHOOL)) ||

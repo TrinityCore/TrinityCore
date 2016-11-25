@@ -420,7 +420,7 @@ public:
                     //models
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
-                    me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
+                    me->SetBaseAttackTime(OFF_ATTACK, (me->GetBaseAttackTime(BASE_ATTACK)*150)/100);
                     me->SetCanDualWield(true);
                 }
             }

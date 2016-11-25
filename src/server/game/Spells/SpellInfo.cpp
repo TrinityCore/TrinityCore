@@ -2629,7 +2629,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                     if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
                         slot = OFF_ATTACK;
 
-                    speed = caster->GetAttackTime(slot);
+                    speed = caster->GetBaseAttackTime(slot);
                 }
 
                 powerCost += speed / 100;

@@ -187,7 +187,7 @@ public:
         trigger_periodicAI(Creature* creature) : NullCreatureAI(creature)
         {
             spell = me->m_spells[0] ? sSpellMgr->GetSpellInfo(me->m_spells[0]) : NULL;
-            interval = me->GetAttackTime(BASE_ATTACK);
+            interval = me->GetBaseAttackTime(BASE_ATTACK);
             timer = interval;
         }
 
