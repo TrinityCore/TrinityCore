@@ -413,7 +413,7 @@ public:
             PreventDefaultAction();
 
             Unit* attacker = eventInfo.GetActor();
-            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.125f / 2600 * attacker->GetAttackTime(BASE_ATTACK));
+            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.125f / 2600 * attacker->GetBaseAttackTime(BASE_ATTACK));
             attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
         }
 
