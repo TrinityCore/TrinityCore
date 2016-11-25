@@ -26,6 +26,8 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
+#include "Group.h"
+#include "LFGMgr.h"
 
 enum Spells
 {
@@ -55,10 +57,12 @@ enum Spells
 
     SPELL_BLACK_KNIGHT_RES  = 67693,
 
+    SPELL_CLAW              = 67774,
+    SPELL_CLAW_H            = 67879,
     SPELL_LEAP              = 67749,
     SPELL_LEAP_H            = 67880,
 
-    SPELL_KILL_CREDIT       = 68663
+    SPELL_EXPLODE_H         = 67886,
 };
 
 enum Models
@@ -79,12 +83,11 @@ class boss_black_knight : public CreatureScript
 public:
     boss_black_knight() : CreatureScript("boss_black_knight") { }
 
-    struct boss_black_knightAI : public ScriptedAI
+    struct boss_black_knightAI : public BossAI
     {
-        boss_black_knightAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+        boss_black_knightAI(Creature* creature) : BossAI(creature, BOSS_BLACK_KNIGHT)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -107,11 +110,7 @@ public:
             uiDeathBiteTimer = urand(2000, 4000);
             uiMarkedDeathTimer = urand(5000, 7000);
         }
-
-        InstanceScript* instance;
-
-        SummonList summons;
-
+        
         bool bEventInProgress;
         bool bEvent;
         bool bSummonArmy;
@@ -288,9 +287,19 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            DoCast(me, SPELL_KILL_CREDIT);
+            _JustDied();
 
-            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            {
+                if (Player * player = i->GetSource())
+                    if (Group* grp = player->GetGroup())
+                        if (grp->isLFGGroup())
+                        {
+                            sLFGMgr->FinishDungeon(grp->GetGUID(), DUNGEON_MODE(245, 249));
+                            return;
+                        }
+            }
         }
     };
 
@@ -309,43 +318,63 @@ public:
     {
         npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature)
         {
+            instance = creature->GetInstanceScript();
             Initialize();
         }
 
         void Initialize()
         {
             uiAttackTimer = 3500;
+            uiLeapTimer   = 1000;
         }
 
+        InstanceScript* instance;
         uint32 uiAttackTimer;
+        uint32 uiLeapTimer;
 
         void Reset() override
         {
             Initialize();
         }
 
-        void UpdateAI(uint32 uiDiff) override
+        void SpellHitTarget(Unit* /*victim*/, const SpellInfo* spell) override
+        {
+            if (spell->Id == SPELL_EXPLODE_H)
+                instance->SetData(DATA_I_VE_HAD_WORSE, uint32(false));
+        }
+
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            if (uiAttackTimer <= uiDiff)
+            if (uiLeapTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30, true))
                 {
-                    if (target && target->IsAlive())
-                        DoCast(target, (SPELL_LEAP));
+                    DoResetThreat();
+                    me->AddThreat(target, 5.0f);
+                    DoCast(target, SPELL_LEAP);
                 }
-                uiAttackTimer = 3500;
-            } else uiAttackTimer -= uiDiff;
 
+                uiLeapTimer = urand(7000, 10000);
+            }
+            else uiLeapTimer -= diff;
+            
+            if (uiAttackTimer <= diff)
+            {
+                DoCastVictim(SPELL_CLAW);
+                uiAttackTimer = urand(1000, 3500);
+            }
+            else uiAttackTimer -= diff;
+            
             DoMeleeAttackIfReady();
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_risen_ghoulAI(creature);
+        return GetInstanceAI<npc_risen_ghoulAI>(creature);
     }
 };
 
@@ -363,9 +392,9 @@ public:
 
         void WaypointReached(uint32 /*waypointId*/) override { }
 
-        void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            npc_escortAI::UpdateAI(diff);
 
             UpdateVictim();
         }
@@ -374,7 +403,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_black_knight_skeletal_gryphonAI(creature);
+        return GetInstanceAI<npc_black_knight_skeletal_gryphonAI>(creature);
     }
 };
 
