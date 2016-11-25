@@ -651,6 +651,17 @@ SpellInfo const* SpellScript::GetTriggeringSpell()
     return m_spell->m_triggeredByAuraSpell;
 }
 
+bool SpellScript::IsSpellCrit(Unit* target) const
+{
+    for (auto itr : m_spell->m_UniqueTargetInfo)
+    {
+        if (itr.targetGUID == target->GetGUID())
+            return itr.crit;
+    }
+
+    return false;
+}
+
 void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);
@@ -671,6 +682,11 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
 SpellValue const* SpellScript::GetSpellValue()
 {
     return m_spell->m_spellValue;
+}
+
+void SpellScript::SetSpellValue(SpellValueMod mod, int32 value)
+{
+    m_spell->SetSpellValue(mod, value);
 }
 
 SpellEffectInfo const* SpellScript::GetEffectInfo(SpellEffIndex effIndex) const

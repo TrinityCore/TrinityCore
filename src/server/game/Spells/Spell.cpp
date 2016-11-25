@@ -496,6 +496,7 @@ SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
+    CritFlag = SPELLVALUE_CRIT_FLAG_NONE;
 }
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
@@ -7000,7 +7001,10 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
 
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    if (m_spellValue->CritFlag != SPELLVALUE_CRIT_FLAG_NONE)
+        targetInfo.crit = m_spellValue->CritFlag == SPELLVALUE_CRIT_FLAG_CRIT ? true : false;
+    else
+        targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
@@ -7091,6 +7095,9 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
+            break;
+        case SPELLVALUE_CRIT_FLAG:
+            m_spellValue->CritFlag = SpellValueCritFlag(value);
             break;
         default:
             break;

@@ -274,6 +274,13 @@ class TC_GAME_API SpellCastTargets
         std::string m_strTarget;
 };
 
+enum SpellValueCritFlag : uint8
+{
+    SPELLVALUE_CRIT_FLAG_NONE = 0,
+    SPELLVALUE_CRIT_FLAG_NONCRIT = 1,
+    SPELLVALUE_CRIT_FLAG_CRIT = 2,
+};
+
 struct SpellValue
 {
     explicit  SpellValue(Difficulty diff, SpellInfo const* proto);
@@ -281,6 +288,7 @@ struct SpellValue
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
+    SpellValueCritFlag CritFlag;
 };
 
 enum SpellState
