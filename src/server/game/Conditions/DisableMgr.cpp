@@ -126,6 +126,7 @@ void LoadDisables()
             case DISABLE_TYPE_QUEST:
                 break;
             case DISABLE_TYPE_MAP:
+            case DISABLE_TYPE_LFG_MAP:
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
                 if (!mapEntry)
@@ -325,6 +326,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             break;
         }
         case DISABLE_TYPE_MAP:
+        case DISABLE_TYPE_LFG_MAP:
             if (Player const* player = unit->ToPlayer())
             {
                 MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
