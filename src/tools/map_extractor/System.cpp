@@ -85,9 +85,9 @@ struct LiquidTypeMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "sifffffSifihhbbbbbi";
+        static char const* types = "sifffffsifihhbbbbbi";
         static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2Meta instance(-1, 19, 0x28B44DCB, types, arraySizes);
+        static DB2Meta instance(-1, 19, 0x99FC34E5, types, arraySizes);
         return &instance;
     }
 };
@@ -98,7 +98,7 @@ struct MapMeta
     {
         static char const* types = "siffssshhhhhhhbbbbb";
         static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 19, 0xB32E648C, types, arraySizes);
+        static DB2Meta instance(-1, 19, 0xF7CF2DA2, types, arraySizes);
         return &instance;
     }
 };

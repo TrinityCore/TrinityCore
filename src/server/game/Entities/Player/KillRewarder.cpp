@@ -25,6 +25,7 @@
 #include "InstanceScript.h"
 #include "Pet.h"
 #include "Player.h"
+#include "Scenario.h"
 
  // == KillRewarder ====================================================
  // KillRewarder encapsulates logic of rewarding player upon kill with:
@@ -67,6 +68,7 @@
  // 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
  // 5. Credit instance encounter.
  // 6. Update guild achievements.
+ // 7. Scenario credit
 
 KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     // 1. Initialize internal variables to default values.
@@ -269,6 +271,7 @@ void KillRewarder::Reward()
 
     // 5. Credit instance encounter.
     // 6. Update guild achievements.
+    // 7. Credit scenario criterias
     if (Creature* victim = _victim->ToCreature())
     {
         if (victim->IsDungeonBoss())
@@ -278,6 +281,8 @@ void KillRewarder::Reward()
         if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                 guild->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
-    }
 
+        if (Scenario* scenario = victim->GetScenario())
+            scenario->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+    }
 }

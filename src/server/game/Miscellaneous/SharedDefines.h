@@ -554,7 +554,7 @@ enum SpellAttr5
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
     SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
-    SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
+    SPELL_ATTR5_UNK16                            = 0x00010000, // 16
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
     SPELL_ATTR5_DONT_TURN_DURING_CAST            = 0x00080000, // 19 Blocks caster's turning when casting (client does not automatically turn caster's model to face UNIT_FIELD_TARGET)
@@ -759,7 +759,7 @@ enum SpellAttr11
     SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL          = 0x00000004, //  2
     SPELL_ATTR11_UNK3                            = 0x00000008, //  3
     SPELL_ATTR11_UNK4                            = 0x00000010, //  4
-    SPELL_ATTR11_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR11_ABSORB_FALL_DAMAGE              = 0x00000020, //  5
     SPELL_ATTR11_UNK6                            = 0x00000040, //  6
     SPELL_ATTR11_RANK_IGNORES_CASTER_LEVEL       = 0x00000080, //  7 Spell_C_GetSpellRank returns SpellLevels->MaxLevel * 5 instead of std::min(SpellLevels->MaxLevel, caster->Level) * 5
     SPELL_ATTR11_UNK8                            = 0x00000100, //  8
@@ -3988,7 +3988,7 @@ enum QuestType
     QUEST_TYPE_AUTOCOMPLETE         = 0,
     QUEST_TYPE_DISABLED             = 1,
     QUEST_TYPE_NORMAL               = 2,
-    QUEST_TYPE_UNK                  = 3,
+    QUEST_TYPE_TASK                 = 3,
     MAX_QUEST_TYPES                 = 4
 };
 

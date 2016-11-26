@@ -125,7 +125,7 @@ enum SpellModOp
     SPELLMOD_STACK_AMOUNT2          = 37  // same as SPELLMOD_STACK_AMOUNT but affects tooltips
 };
 
-#define MAX_SPELLMOD 38
+#define MAX_SPELLMOD 39
 
 enum SpellValueMod
 {
@@ -1476,8 +1476,9 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
-        uint32 GetAttackTime(WeaponAttackType att) const;
-        void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME + att, val*m_modAttackSpeedPct[att]); }
+        uint32 GetBaseAttackTime(WeaponAttackType att) const;
+        void SetBaseAttackTime(WeaponAttackType att, uint32 val);
+        void UpdateAttackTimeField(WeaponAttackType att);
         void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
 
@@ -1970,7 +1971,10 @@ class TC_GAME_API Unit : public WorldObject
         int32 m_baseSpellCritChance;
 
         float m_threatModifier[MAX_SPELL_SCHOOL];
-        float m_modAttackSpeedPct[3];
+
+        uint32 m_baseAttackSpeed[MAX_ATTACK];
+        float m_modAttackSpeedPct[MAX_ATTACK];
+        uint32 m_attackTimer[MAX_ATTACK];
 
         // Event handler
         EventProcessor m_Events;
@@ -2280,8 +2284,6 @@ class TC_GAME_API Unit : public WorldObject
         void _UpdateAutoRepeatSpell();
 
         bool m_AutoRepeatFirstCast;
-
-        uint32 m_attackTimer[MAX_ATTACK];
 
         float m_createStats[MAX_STATS];
 

@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "CollectionMgr.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {

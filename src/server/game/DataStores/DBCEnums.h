@@ -706,6 +706,12 @@ enum QuestPackageFilter
     QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
 };
 
+enum ScenarioStepFlags
+{
+    SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
+    SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
@@ -819,8 +825,9 @@ enum SummonPropFlags
 
 enum TaxiNodeFlags
 {
-    TAXI_NODE_FLAG_ALLIANCE = 0x1,
-    TAXI_NODE_FLAG_HORDE    = 0x2
+    TAXI_NODE_FLAG_ALLIANCE             = 0x01,
+    TAXI_NODE_FLAG_HORDE                = 0x02,
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
 };
 
 enum TaxiPathNodeFlags
