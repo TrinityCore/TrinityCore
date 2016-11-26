@@ -3297,15 +3297,19 @@ int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
     return 0;
 }
 
-bool Unit::CanMoveDuringChannel() const
+bool Unit::IsMovementPreventedByCasting() const
 {
-    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-    {
-        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            if (!spell->GetSpellInfo()->IsMoveAllowedChannel())
-                return false;
-    }
+    // can always move when not casting
+    if (!HasUnitState(UNIT_STATE_CASTING))
+        return false;
 
+    // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
+    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
+                return false;
+
+    // prohibit movement for all other spell casts
     return true;
 }
 
@@ -5535,8 +5539,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
             }
 
             // check FFA_PVP
-            if (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP
-                && target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP)
+            if (IsFFAPvP() && target->IsFFAPvP())
                 return REP_HOSTILE;
 
             if (selfPlayerOwner)
@@ -6686,11 +6689,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             // Impurity (dummy effect)
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                PlayerSpellMap playerSpells = ToPlayer()->GetSpellMap();
-                for (PlayerSpellMap::const_iterator itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
+                PlayerSpellMap const& playerSpells = ToPlayer()->GetSpellMap();
+                for (auto itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
                 {
                     if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                         continue;
+
                     switch (itr->first)
                     {
                         case 49220:
@@ -6699,7 +6703,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                         case 49636:
                         case 49638:
                             if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
-                                AddPct(ApCoeffMod, proto->Effects[0].CalcValue());
+                                AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
                         break;
                     }
                 }
@@ -6712,14 +6716,14 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Pets just add their bonus damage to their spell damage
     // note that their spell damage is just gain of their own auras
     if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-        DoneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
+        DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
-    float coeff = 0.f;
+    float coeff = 0.0f;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus)
     {
-        WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
+        WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
         float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
         APbonus += GetTotalAttackPowerValue(attType);
 
@@ -6736,6 +6740,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 DoneTotal += int32(bonus->ap_bonus * stack * ApCoeffMod * APbonus);
         }
     }
+
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
@@ -6789,24 +6794,17 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     if (GetTypeId() == TYPEID_UNIT && !IsPet())
         DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
-    AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffect const* aurEff : mModDamagePercentDone)
+    float maxModDamagePercentSchool = 0.0f;
+    if (GetTypeId() == TYPEID_PLAYER)
     {
-        SpellInfo const* aurSpellInfo = aurEff->GetSpellInfo();
-
-        if (spellProto->EquippedItemClass == -1 && aurSpellInfo->EquippedItemClass != -1)    // prevent apply mods from weapon specific case to non weapon specific spells (Example: thunder clap and two-handed weapon specialization)
-            continue;
-
-        if ((aurEff->GetMiscValue() & spellProto->GetSchoolMask()) != 0)
-        {
-            if (aurSpellInfo->EquippedItemClass == -1)
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-            else if (!aurSpellInfo->HasAttribute(SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && (aurSpellInfo->EquippedItemSubClassMask == 0))
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-            else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements(aurSpellInfo))
-                AddPct(DoneTotalMod, aurEff->GetAmount());
-        }
+        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+            if (spellProto->GetSchoolMask() & (1 << i))
+                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
     }
+    else
+        maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
+
+    DoneTotalMod *= maxModDamagePercentSchool;
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
 
@@ -7188,14 +7186,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
     AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffect const* aurEff : mDamageDone)
-    {
-        if (!(aurEff->GetMiscValue() & schoolMask))
-            continue;
-
-        // only apply generic bonus here, weapon requiring mods are not applicable to non-melee spells
-        if (aurEff->GetSpellInfo()->EquippedItemClass == -1 && aurEff->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)
+        if (aurEff->GetMiscValue() & schoolMask)
             DoneAdvertisedBenefit += aurEff->GetAmount();
-    }
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -7216,7 +7208,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 
         // ... and attack power
         DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
-
     }
 
     return DoneAdvertisedBenefit;
@@ -7539,6 +7530,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return healamount;
 
+    float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
 
     // done scripted mod (take it from owner)
@@ -7560,6 +7552,35 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
     }
 
+    // Custom scripted damage
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Impurity (dummy effect)
+            if (GetTypeId() == TYPEID_PLAYER)
+            {
+                PlayerSpellMap const& playerSpells = ToPlayer()->GetSpellMap();
+                for (auto itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
+                {
+                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                        continue;
+
+                    switch (itr->first)
+                    {
+                        case 49220:
+                        case 49633:
+                        case 49635:
+                        case 49636:
+                        case 49638:
+                            if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
+                                AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
+                            break;
+                    }
+                }
+            }
+            break;
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
 
@@ -7573,15 +7594,15 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         {
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+                DoneTotal += int32(bonus->ap_dot_bonus * ApCoeffMod * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+                DoneTotal += int32(bonus->ap_bonus * ApCoeffMod * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
     }
     else
@@ -7886,7 +7907,8 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
     if (!spellInfo)
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+    // for example 40175
+    if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY) && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         return false;
 
     if (spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
@@ -8084,35 +8106,22 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     float DoneTotalMod = 1.0f;
 
     // Some spells don't benefit from pct done mods
-    if (spellProto && !spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+    if (spellProto)
     {
-        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        for (AuraEffect const* aurEff : mModDamagePercentDone)
+        // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
+        if (!spellProto->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
         {
-            // Apply mod if schoolmask matches...
-            if ((aurEff->GetMiscValue() & spellProto->GetSchoolMask()) != 0)
+            float maxModDamagePercentSchool = 0.0f;
+            if (GetTypeId() == TYPEID_PLAYER)
             {
-                SpellInfo const* aurSpellInfo = aurEff->GetSpellInfo();
-
-                // ... but not for SCHOOL_MASK_NORMAL, or generic weapon bonus, or creatures (creatures don't have equiped items check)
-                // for these types the damage was already calculated in AuraEffect handler, and stored into TOTAL_PCT
-                // if we include them, we'll be multiplying twice (one in Unit::CalculateDamage, the other here)
-                if ((aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (aurSpellInfo->EquippedItemClass == -1 || GetTypeId() != TYPEID_PLAYER))
-                    continue;
-
-                // generic weapon bonus (magic)
-                if (aurSpellInfo->EquippedItemClass == -1)
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-                // skips subclassmask check/has generic subclassmask set
-                else if (!aurSpellInfo->HasAttribute(SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && (aurSpellInfo->EquippedItemSubClassMask == 0))
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-
-                // This one is already applied in Player::_ApplyWeaponDependentAuraDamageMod
-                /*
-                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements(aurSpellInfo))
-                    AddPct(DoneTotalMod, aurEff->GetAmount());
-                */
+                for (uint32 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+                    if (spellProto->GetSchoolMask() & (1 << i))
+                        maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
             }
+            else
+                maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
+
+            DoneTotalMod *= maxModDamagePercentSchool;
         }
     }
 
@@ -8191,7 +8200,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom scripted damage
     if (spellProto)
-    {
         switch (spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_DEATHKNIGHT:
@@ -8200,9 +8208,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                     if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                         if (victim->GetDiseasesByCaster(owner->GetGUID()) > 0)
                             AddPct(DoneTotalMod, aurEff->GetAmount());
-                break;
+            break;
         }
-    }
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
 
@@ -8665,10 +8672,26 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         || (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->IsGameMaster()))
         return false;
 
-    // can't attack invisible (ignore stealth for aoe spells) also if the area being looked at is from a spell use the dynamic object created instead of the casting unit. Ignore stealth if target is player and unit in combat with same player
-    // skip visibility check for GO casts, needs removal when go cast is implemented
-    if (GetEntry() != WORLD_TRIGGER && (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && (obj ? !obj->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()) : !CanSeeOrDetect(target, (bySpell && bySpell->IsAffectingArea()) || (target->GetTypeId() == TYPEID_PLAYER && target->HasStealthAura() && target->IsInCombat() && IsInCombatWith(target)))))
-        return false;
+    // visibility checks
+    // skip visibility check for GO casts, needs removal when go cast is implemented. Also ignore for gameobject and dynauras
+    if (GetEntry() != WORLD_TRIGGER && (!obj || !obj->isType(TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT)))
+    {
+        // can't attack invisible
+        if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE))
+        {
+            if (obj && !obj->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
+                return false;
+            else if (!obj)
+            {
+                // ignore stealth for aoe spells. Ignore stealth if target is player and unit in combat with same player
+                bool const ignoreStealthCheck = (bySpell && bySpell->IsAffectingArea()) ||
+                    (target->GetTypeId() == TYPEID_PLAYER && target->HasStealthAura() && target->IsInCombat() && IsInCombatWith(target));
+
+                if (!CanSeeOrDetect(target, ignoreStealthCheck))
+                    return false;
+            }
+        }
+    }
 
     // can't attack dead
     if ((!bySpell || !bySpell->IsAllowingDeadTarget()) && !target->IsAlive())
@@ -8699,7 +8722,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // PvP, PvC, CvP case
     // can't attack friendly targets
-    if ( GetReactionTo(target) > REP_NEUTRAL
+    if (GetReactionTo(target) > REP_NEUTRAL
         || target->GetReactionTo(this) > REP_NEUTRAL)
         return false;
 
@@ -8707,10 +8730,8 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     Player const* playerAffectingTarget = target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) ? target->GetAffectingPlayer() : nullptr;
 
     // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
-    if  (
-        (playerAffectingAttacker && !playerAffectingTarget) ||
-        (!playerAffectingAttacker && playerAffectingTarget)
-    )
+    if ((playerAffectingAttacker && !playerAffectingTarget) ||
+        (!playerAffectingAttacker && playerAffectingTarget))
     {
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
         Unit const* creature = playerAffectingAttacker ? target : this;
@@ -8744,15 +8765,14 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     // additional checks - only PvP case
     if (playerAffectingAttacker && playerAffectingTarget)
     {
-        if (target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_PVP)
+        if (target->IsPvP())
             return true;
 
-        if (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP
-            && target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP)
+        if (IsFFAPvP() && target->IsFFAPvP())
             return true;
 
-        return (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1)
-            || (target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1);
+        return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1)
+            || target->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_UNK1);
     }
     return true;
 }
@@ -11454,26 +11474,41 @@ float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffect
 
 float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 {
-    if (!normalized || GetTypeId() != TYPEID_PLAYER)
-        return float(GetAttackTime(attType)) / 1000.0f;
+    if (GetTypeId() != TYPEID_PLAYER)
+        return GetAttackTime(attType) / 1000.0f;
 
-    Item* Weapon = ToPlayer()->GetWeaponForAttack(attType, true);
-    if (!Weapon)
-        return 2.4f;                                         // fist attack
+    Item* weapon = ToPlayer()->GetWeaponForAttack(attType, true);
+    if (!weapon)
+        return BASE_ATTACK_TIME / 1000.0f;
 
-    switch (Weapon->GetTemplate()->InventoryType)
+    if (!normalized)
+        return weapon->GetTemplate()->Delay / 1000.0f;
+
+    switch (weapon->GetTemplate()->SubClass)
     {
-        case INVTYPE_2HWEAPON:
+        case ITEM_SUBCLASS_WEAPON_AXE2:
+        case ITEM_SUBCLASS_WEAPON_MACE2:
+        case ITEM_SUBCLASS_WEAPON_POLEARM:
+        case ITEM_SUBCLASS_WEAPON_SWORD2:
+        case ITEM_SUBCLASS_WEAPON_STAFF:
+        case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
             return 3.3f;
-        case INVTYPE_RANGED:
-        case INVTYPE_RANGEDRIGHT:
-        case INVTYPE_THROWN:
+        case ITEM_SUBCLASS_WEAPON_BOW:
+        case ITEM_SUBCLASS_WEAPON_GUN:
+        case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+        case ITEM_SUBCLASS_WEAPON_THROWN:
             return 2.8f;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
+        case ITEM_SUBCLASS_WEAPON_AXE:
+        case ITEM_SUBCLASS_WEAPON_MACE:
+        case ITEM_SUBCLASS_WEAPON_SWORD:
+        case ITEM_SUBCLASS_WEAPON_EXOTIC:
+        case ITEM_SUBCLASS_WEAPON_EXOTIC2:
+        case ITEM_SUBCLASS_WEAPON_FIST:
+            return 2.4f;
+        case ITEM_SUBCLASS_WEAPON_DAGGER:
+            return 1.7f;
         default:
-            return Weapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
+            return weapon->GetTemplate()->Delay / 1000.0f;
     }
 }
 
