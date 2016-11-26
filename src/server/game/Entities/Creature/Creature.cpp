@@ -440,9 +440,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    SetAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);
-    SetAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
-    SetAttackTime(RANGED_ATTACK, cInfo->RangeAttackTime);
+    SetBaseAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);
+    SetBaseAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
+    SetBaseAttackTime(RANGED_ATTACK, cInfo->RangeAttackTime);
 
     SelectLevel();
 
