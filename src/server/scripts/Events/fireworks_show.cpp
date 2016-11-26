@@ -824,7 +824,7 @@ public:
             }
 
             // Stop
-            if ((now->tm_min == 10 && now->tm_sec == 0) || (now->tm_min == 10 && now->tm_sec == 0 && now->tm_hour == 0) && started == true)
+            if ((now->tm_min == 10 && now->tm_sec == 0) || (now->tm_min == 10 && now->tm_sec == 0 && now->tm_hour == 0 && started == true))
             {
                 started = false;
                 _events.ScheduleEvent(EVENT_CHEER, 1 * IN_MILLISECONDS);
