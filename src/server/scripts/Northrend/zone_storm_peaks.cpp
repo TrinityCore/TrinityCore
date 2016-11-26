@@ -281,6 +281,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            VehicleAI::UpdateAI(diff);
             events.Update(diff);
 
             switch (events.ExecuteEvent())
