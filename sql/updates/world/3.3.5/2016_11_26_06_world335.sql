@@ -2,14 +2,14 @@ SET @CGUID := 86075;
 SET @POOL := 32492;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6 AND `id`=4131;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `spawntimevariance`, `VerifiedBuild`) VALUES
-(@CGUID+0, 4131, 1, 0, 0, 1, 1, 11143, 0, -6484.09, -3229.87, -112.36, 3.42467, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+1, 4131, 1, 0, 0, 1, 1, 11143, 0, -6472.31, -3243.75, -113.38, 5.96223, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+2, 4131, 1, 0, 0, 1, 1, 11143, 0, -6491.48, -3245.93, -112.497, 6.10384, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+3, 4131, 1, 0, 0, 1, 1, 11143, 0, -6462.86, -3297.58, -104.92, 1.41244, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+4, 4131, 1, 0, 0, 1, 1, 11143, 0, -6485.84, -3254.02, -113.549, 0.814107, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+5, 4131, 1, 0, 0, 1, 1, 11143, 0, -6488.36, -3323.74, -94.8076, 3.46016, 300, 5, 0, 1221, 0, 1, 0, 0, 0, 0, 0),
-(@CGUID+6, 4131, 1, 0, 0, 1, 1, 11143, 0, -6496.03, -3325.49, -95.8035, 2.63545, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0, 0);
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+0, 4131, 1, 0, 0, 1, 1, 11143, 0, -6484.09, -3229.87, -112.36, 3.42467, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+1, 4131, 1, 0, 0, 1, 1, 11143, 0, -6472.31, -3243.75, -113.38, 5.96223, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+2, 4131, 1, 0, 0, 1, 1, 11143, 0, -6491.48, -3245.93, -112.497, 6.10384, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+3, 4131, 1, 0, 0, 1, 1, 11143, 0, -6462.86, -3297.58, -104.92, 1.41244, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+4, 4131, 1, 0, 0, 1, 1, 11143, 0, -6485.84, -3254.02, -113.549, 0.814107, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+5, 4131, 1, 0, 0, 1, 1, 11143, 0, -6488.36, -3323.74, -94.8076, 3.46016, 300, 5, 0, 1221, 0, 1, 0, 0, 0, 0),
+(@CGUID+6, 4131, 1, 0, 0, 1, 1, 11143, 0, -6496.03, -3325.49, -95.8035, 2.63545, 300, 3, 0, 1221, 0, 1, 0, 0, 0, 0);
 
 DELETE FROM `pool_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+6 AND `pool_entry` BETWEEN @Pool AND @Pool+6;
 DELETE FROM `pool_creature` WHERE `guid` IN(21317,21318,21314,21324,21323,21325,21327) AND `pool_entry` BETWEEN @Pool AND @Pool+6;
