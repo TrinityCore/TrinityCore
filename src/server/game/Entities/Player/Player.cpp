@@ -3323,7 +3323,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (active)
             {
                 if (spellInfo->IsPassive() && IsNeedCastPassiveSpellAtLearn(spellInfo))
-                    CastSpell (this, spellId, true);
+                    CastSpell(this, spellId, true);
             }
             else if (IsInWorld())
             {
@@ -3596,6 +3596,15 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     ShapeshiftForm form = GetShapeshiftForm();
     bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (UI64LIT(1) << (form - 1)))) ||
         (!form && spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
+
+    // Check EquippedItemClass
+    // passive spells which apply aura and have an item requirement are to be added in Player::ApplyItemDependentAuras
+    if (spellInfo->IsPassive() && spellInfo->EquippedItemClass >= 0)
+    {
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (spellInfo->Effects[i].IsAura())
+                return false;
+    }
 
     //Check CasterAuraStates
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
@@ -4225,9 +4234,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDelete_method = CHAR_DELETE_REMOVE;
     }
 
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     if (ObjectGuid::LowType guildId = GetGuildIdFromDB(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-            guild->DeleteMember(playerguid, false, false, true);
+            guild->DeleteMember(trans, playerguid, false, false, true);
 
     // close player ticket if any
     GmTicket* ticket = sTicketMgr->GetTicketByPlayer(playerguid);
@@ -4254,8 +4264,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
         {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
             stmt->setUInt32(0, guid);
             PreparedQueryResult resultMail = CharacterDatabase.Query(stmt);
@@ -4544,25 +4552,26 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             Corpse::DeleteFromDB(playerguid, trans);
-
-            CharacterDatabase.CommitTransaction(trans);
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
         case CHAR_DELETE_UNLINK:
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
-
             stmt->setUInt32(0, guid);
-
-            CharacterDatabase.Execute(stmt);
+            trans->Append(stmt);
             break;
         }
         default:
             TC_LOG_ERROR("entities.player.cheat", "Player::DeleteFromDB: Tried to delete player (%s) with unsupported delete method (%u).",
                 playerguid.ToString().c_str(), charDelete_method);
+
+            if (trans->GetSize() > 0)
+                CharacterDatabase.CommitTransaction(trans);
             return;
     }
+
+    CharacterDatabase.CommitTransaction(trans);
 
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
@@ -7386,13 +7395,8 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: Applying mods for item %s", item->GetGUID().ToString().c_str());
 
-    uint8 attacktype = Player::GetAttackBySlot(slot);
-
     if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
-
-    if (attacktype < MAX_ATTACK)
-        _ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), apply);
 
     _ApplyItemBonuses(proto, slot, apply);
 
@@ -7400,6 +7404,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
         _ApplyAmmoBonuses();
 
     ApplyItemEquipSpell(item, apply);
+    ApplyItemDependentAuras(item, apply);
     ApplyEnchantment(item, apply);
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
@@ -7753,86 +7758,26 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
         UpdateDamagePhysical(attType);
 }
 
-void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply)
+void Player::ApplyItemDependentAuras(Item* item, bool apply)
 {
-    AuraEffectList const& auraCritList = GetAuraEffectsByType(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
-    for (AuraEffectList::const_iterator itr = auraCritList.begin(); itr != auraCritList.end(); ++itr)
-        _ApplyWeaponDependentAuraCritMod(item, attackType, *itr, apply);
-
-    AuraEffectList const& auraDamageFlatList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-    for (AuraEffectList::const_iterator itr = auraDamageFlatList.begin(); itr != auraDamageFlatList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
-
-    AuraEffectList const& auraDamagePctList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
-}
-
-void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
-{
-    // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
-        return;
-
-    // generic not weapon specific case processes in aura code
-    if (aura->GetSpellInfo()->EquippedItemClass == -1)
-        return;
-
-    BaseModGroup mod;
-    switch (attackType)
+    if (apply)
     {
-        case BASE_ATTACK:   mod = CRIT_PERCENTAGE;        break;
-        case OFF_ATTACK:    mod = OFFHAND_CRIT_PERCENTAGE;break;
-        case RANGED_ATTACK: mod = RANGED_CRIT_PERCENTAGE; break;
-        default: return;
-    }
-
-    if (item->IsFitToSpellRequirements(aura->GetSpellInfo()))
-        HandleBaseModValue(mod, FLAT_MOD, float (aura->GetAmount()), apply);
-}
-
-void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
-{
-    // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
-        return;
-
-    // ignore spell mods for not wands
-    if ((aura->GetMiscValue() & SPELL_SCHOOL_MASK_MAGIC) && (!(getClassMask() & CLASSMASK_WAND_USERS)))
-        return;
-
-    // generic not weapon specific case processed in AuraEffect handler
-    if (aura->GetSpellInfo()->EquippedItemClass == -1)
-        return;
-
-    UnitMods unitMod;
-    switch (attackType)
-    {
-        case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case RANGED_ATTACK: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
-        default: return;
-    }
-
-    UnitModifierType unitModType;
-    switch (aura->GetAuraType())
-    {
-        case SPELL_AURA_MOD_DAMAGE_DONE:         unitModType = TOTAL_VALUE; break;
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE: unitModType = TOTAL_PCT;   break;
-        default: return;
-    }
-
-    if (item->IsFitToSpellRequirements(aura->GetSpellInfo()))
-    {
-        HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()), apply);
-        if (unitModType == TOTAL_VALUE)
+        PlayerSpellMap const& spells = GetSpellMap();
+        for (auto itr = spells.begin(); itr != spells.end(); ++itr)
         {
-            if (aura->GetAmount() > 0)
-                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
-            else
-                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, aura->GetAmount(), apply);
+            if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            if (!spellInfo || !spellInfo->IsPassive() || spellInfo->EquippedItemClass < 0)
+                continue;
+
+            if (!HasAura(itr->first) && HasItemFitToSpellRequirements(spellInfo))
+                AddAura(itr->first, this);  // no SMSG_SPELL_GO in sniff found
         }
     }
+    else
+        RemoveItemDependentAurasAndCasts(item);
 }
 
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
@@ -8207,10 +8152,7 @@ void Player::_RemoveAllItemMods()
             if (!proto)
                 continue;
 
-            uint32 attacktype = Player::GetAttackBySlot(i);
-            if (attacktype < MAX_ATTACK)
-                _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), false);
-
+            ApplyItemDependentAuras(m_items[i], false);
             _ApplyItemBonuses(proto, i, false);
 
             if (i == EQUIPMENT_SLOT_RANGED)
@@ -8236,10 +8178,7 @@ void Player::_ApplyAllItemMods()
             if (!proto)
                 continue;
 
-            uint32 attacktype = Player::GetAttackBySlot(i);
-            if (attacktype < MAX_ATTACK)
-                _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), true);
-
+            ApplyItemDependentAuras(m_items[i], true);
             _ApplyItemBonuses(proto, i, true);
 
             if (i == EQUIPMENT_SLOT_RANGED)
@@ -12230,9 +12169,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 // remove item dependent auras and casts (only weapon and armor slots)
                 if (slot < EQUIPMENT_SLOT_END)
                 {
-                    if (update)
-                        RemoveItemDependentAurasAndCasts(pItem);
-
                     // remove held enchantments, update expertise
                     if (slot == EQUIPMENT_SLOT_MAINHAND)
                     {
@@ -12383,9 +12319,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
             if (slot < EQUIPMENT_SLOT_END)
             {
-                // remove item dependent auras and casts (only weapon and armor slots)
-                RemoveItemDependentAurasAndCasts(pItem);
-
                 // update expertise and armor penetration - passive auras may need it
                 switch (slot)
                 {
@@ -23595,9 +23528,9 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
     {
         Aura* aura = itr->second;
 
-        // skip passive (passive item dependent spells work in another way) and not self applied auras
+        // skip not self applied auras
         SpellInfo const* spellInfo = aura->GetSpellInfo();
-        if (aura->IsPassive() ||  aura->GetCasterGUID() != GetGUID())
+        if (aura->GetCasterGUID() != GetGUID())
         {
             ++itr;
             continue;
@@ -26027,6 +25960,13 @@ void Player::ActivateSpec(uint8 spec)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
+
+    Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+    for (AuraEffect* aurEff : shapeshiftAuras)
+    {
+        aurEff->HandleShapeshiftBoosts(this, false);
+        aurEff->HandleShapeshiftBoosts(this, true);
+    }
 }
 
 void Player::ResetTimeSync()
