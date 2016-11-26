@@ -808,8 +808,8 @@ public:
             struct tm * now = localtime(&t);
 
             // Start
-            if ((now->tm_min == 0 && now->tm_sec == 0) && (!started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
-                (now->tm_hour == 0 && now->tm_min == 0 && now->tm_sec == 0) && (!started && IsEventActive(GAME_EVENT_NEW_YEAR)))
+            if (((now->tm_min == 0 && now->tm_sec == 0) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
+                ((now->tm_hour == 0 && now->tm_min == 0 && now->tm_sec == 0) && !started && IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_CHEER, 1 * IN_MILLISECONDS);
                 _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
