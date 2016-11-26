@@ -1958,9 +1958,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ResetAllPowers();
 
-        void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
+        void ApplyItemDependentAuras(Item* item, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
