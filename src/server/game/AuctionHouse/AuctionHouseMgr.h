@@ -165,7 +165,6 @@ class TC_GAME_API AuctionHouseMgr
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetAuctionsMapByHouseId(uint8 auctionHouseId);
-        AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
         Item* GetAItem(ObjectGuid::LowType id)
         {
