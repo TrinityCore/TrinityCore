@@ -166,7 +166,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
                 transport->CalculatePassengerPosition(dest.x, dest.y, dest.z);
 
         // First check distance
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
+        if (owner->GetTypeId() == TYPEID_UNIT && (owner->ToCreature()->CanFly() || owner->ToCreature()->CanSwim()))
             targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
