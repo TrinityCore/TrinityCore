@@ -753,7 +753,9 @@ class spell_hun_masters_call : public SpellScriptLoader
             SpellCastResult DoCheckCast()
             {
                 Pet* pet = GetCaster()->ToPlayer()->GetPet();
-                ASSERT(pet); // checked in Spell::CheckCast
+
+                if (!pet)
+                    return SPELL_FAILED_NO_PET;
 
                 if (!pet->IsAlive())
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
