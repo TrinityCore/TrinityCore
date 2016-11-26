@@ -9983,8 +9983,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float newValue)
 
 void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 {
-    if (rate < 0)
-        rate = 0.0f;
+    if (rate <= 0)
+        rate = 0.001f;
 
     // Update speed only on change
     if (m_speed_rate[mtype] == rate)
