@@ -199,9 +199,7 @@ class spell_najentus_needle_spine : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEEDLE_SPINE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NEEDLE_SPINE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

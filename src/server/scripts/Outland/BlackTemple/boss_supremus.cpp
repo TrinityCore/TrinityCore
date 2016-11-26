@@ -123,7 +123,7 @@ public:
 
         Unit* CalculateHatefulStrikeTarget()
         {
-            uint32 health = 0;
+            uint64 health = 0;
             Unit* target = nullptr;
 
             ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
