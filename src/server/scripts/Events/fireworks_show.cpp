@@ -805,21 +805,21 @@ public:
             _events.Update(diff);
 
             time_t t = sWorld->GetGameTime();
-            struct tm * now = localtime(&t);
+            struct tm * now = localtime_r(&t);
 
             // Start
             if (((now->tm_min == 0 && now->tm_sec == 0) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
                 ((now->tm_hour == 0 && now->tm_min == 0 && now->tm_sec == 0) && !started && IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
-                _events.ScheduleEvent(EVENT_CHEER, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 started = true;
             }
 
             // Event is active
             if ((now->tm_min >= 0 && now->tm_sec >= 1 && now->tm_min <= 9 && now->tm_sec <= 59) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
             {
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 started = true;
             }
 
@@ -827,7 +827,7 @@ public:
             if ((now->tm_min == 10 && now->tm_sec == 0) || (now->tm_min == 10 && now->tm_sec == 0 && now->tm_hour == 0 && started == true))
             {
                 started = false;
-                _events.ScheduleEvent(EVENT_CHEER, 1 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.CancelEvent(EVENT_FIRE);
             }
 
@@ -835,17 +835,17 @@ public:
             if ((now->tm_min == 10 && now->tm_sec == 30 && now->tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && big == true)
             {
                 big = false;
-                _events.ScheduleEvent(EVENT_CHEER, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_FIRE, 1 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
             }
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -888,7 +888,7 @@ public:
                         }
 
                         if (started == true)
-                            _events.Repeat(EVENT_FIRE, urandms(1, 2));
+                            _events.Repeat(EVENT_FIRE, randtime(Seconds(1), Seconds(2)));
                         break;
                     }
                 default:
