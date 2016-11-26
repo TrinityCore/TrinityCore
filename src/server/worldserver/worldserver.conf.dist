@@ -2059,7 +2059,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
 #                     1 - (Rate.XP.Weekend)
-#                    66 - (Rate.XP.Weekend.EVID)
+#                    66 - (Rate.XP.Weekend.EVID EventID (from game_event.eventEntry))
 
 Rate.XP.Kill         = 1
 Rate.XP.Quest        = 1
