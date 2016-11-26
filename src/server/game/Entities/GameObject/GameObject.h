@@ -495,6 +495,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_BUTTON:      return button.linkedTrap;
             case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrapId;
             case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrapId;
             case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrapId;
@@ -818,6 +819,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting
 
+        GameObject* GetLinkedTrap();
+        void SetLinkedTrap(GameObject* linkedTrap) { m_linkedTrap = linkedTrap->GetGUID(); }
+
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id) const override;
         bool ActivateToQuest(Player* target) const;
@@ -925,6 +929,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_lootRecipient;
         uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+
+        ObjectGuid m_linkedTrap;
+
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);

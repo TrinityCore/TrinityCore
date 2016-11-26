@@ -55,7 +55,6 @@ Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zo
         _channelFlags |= CHANNEL_FLAG_NOT_LFG;
 }
 
-
 Channel::Channel(std::string const& name, uint32 team /*= 0*/) :
     _announceEnabled(true),
     _ownershipEnabled(true),
@@ -749,7 +748,6 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang) const
     };
 
     SendToAll(builder, !info.IsModerator() ? guid : ObjectGuid::Empty);
-
 }
 
 void Channel::Invite(Player const* player, std::string const& newname)

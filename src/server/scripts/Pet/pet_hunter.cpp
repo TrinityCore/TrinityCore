@@ -42,6 +42,10 @@ enum PetSpellsMisc
     SPELL_PET_GUARD_DOG_HAPPINESS   = 54445,
     SPELL_PET_SILVERBACK_RANK_1     = 62800,
     SPELL_PET_SILVERBACK_RANK_2     = 62801,
+
+    SPELL_PET_SWOOP                 = 52825,
+    SPELL_PET_CHARGE                = 61685,
+
     PET_ICON_ID_GROWL               = 201,
     PET_ICON_ID_CLAW                = 262,
     PET_ICON_ID_BITE                = 1680,
@@ -162,10 +166,29 @@ class spell_pet_charge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pet_charge_AuraScript);
 
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PET_SWOOP) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PET_CHARGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 // Prevent console log
                 PreventDefaultAction();
+
+                // Remove +% AP aura
+                Unit* pet = eventInfo.GetActor();
+                Aura* aura = pet->GetAura(SPELL_PET_SWOOP, pet->GetGUID());
+                if (!aura)
+                    aura = pet->GetAura(SPELL_PET_CHARGE, pet->GetGUID());
+
+                if (!aura)
+                    return;
+
+                aura->DropCharge(AURA_REMOVE_BY_EXPIRE);
             }
 
             void Register() override
@@ -213,9 +236,9 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell((Unit*)nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true);
+                caster->CastSpell((Unit*)nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true, nullptr, aurEff);
 
-                float addThreat = CalculatePct(eventInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
+                float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
                 eventInfo.GetProcTarget()->AddThreat(caster, addThreat);
             }
 
@@ -260,14 +283,14 @@ class spell_pet_silverback : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggerSpell[2] = { SPELL_PET_SILVERBACK_RANK_1, SPELL_PET_SILVERBACK_RANK_2 };
 
                 PreventDefaultAction();
 
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override

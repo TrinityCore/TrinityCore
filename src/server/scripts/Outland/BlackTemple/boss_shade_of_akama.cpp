@@ -46,7 +46,7 @@ enum Spells
     SPELL_FIXATE                     = 40607,
     SPELL_CHAIN_LIGHTNING            = 39945,
     SPELL_DESTRUCTIVE_POISON         = 40874,
-    SPELL_AKAMA_SOUL_EXPEL           = 40902,
+    SPELL_AKAMA_SOUL_RETRIEVE        = 40902,
     // Shade
     SPELL_THREAT                     = 41602,
     SPELL_SHADE_OF_AKAMA_TRIGGER     = 40955,
@@ -108,7 +108,7 @@ enum Events
     EVENT_CHAIN_LIGHTNING                =  4,
     EVENT_DESTRUCTIVE_POISON             =  5,
     EVENT_START_BROKEN_FREE              =  6,
-    EVENT_START_SOUL_EXPEL               =  7,
+    EVENT_START_SOUL_RETRIEVE            =  7,
     EVENT_EVADE_CHECK                    =  8,
     EVENT_BROKEN_FREE_1                  =  9,
     EVENT_BROKEN_FREE_2                  = 10,
@@ -197,7 +197,9 @@ Position const BrokenWP[18] =
     { 478.8986f, 370.1895f, 112.7839f }
 };
 
-static float const MIDDLE_OF_ROOM = 400.0f;
+static float const MIDDLE_OF_ROOM    = 400.0f;
+static float const FACE_THE_DOOR     = 0.08726646f;
+static float const FACE_THE_PLATFORM = 3.118662f;
 
 class boss_shade_of_akama : public CreatureScript
 {
@@ -219,8 +221,9 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -230,7 +233,8 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            _Reset();
+            events.Reset();
+            summons.DespawnAll();
 
             for (ObjectGuid const& spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -246,11 +250,11 @@ public:
                 events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, Seconds(1));
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
-                if (Creature* akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
+                if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                     AttackStart(akama);
             }
 
-            if (spell->Id == SPELL_AKAMA_SOUL_EXPEL)
+            if (spell->Id == SPELL_AKAMA_SOUL_RETRIEVE)
                 DoCastSelf(SPELL_AKAMA_SOUL_EXPEL_CHANNEL);
         }
 
@@ -260,6 +264,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -273,7 +278,7 @@ public:
         {
             DoCastSelf(SPELL_SHADE_OF_AKAMA_TRIGGER);
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                 akama->AI()->DoAction(ACTION_SHADE_OF_AKAMA_DEAD);
 
             for (ObjectGuid const& spawnerGuid : _spawners)
@@ -401,7 +406,7 @@ public:
                 _isInCombat = true;
                 me->SetWalk(false);
                 me->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
-                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
                     shade->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
                     AttackStart(shade);
@@ -444,8 +449,7 @@ public:
             else if (pointId == AKAMA_INTRO_WAYPOINT)
             {
                 me->SetWalk(false);
-                me->SetFacingTo(0.08726646f, true);
-                _events.ScheduleEvent(EVENT_START_SOUL_EXPEL, Seconds(1));
+                _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, Seconds(1));
             }
         }
 
@@ -479,7 +483,7 @@ public:
                         me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
                         break;
                     case EVENT_SHADE_CHANNEL:
-                        me->SetFacingTo(3.118662f);
+                        me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
                         me->setFaction(FACTION_COMBAT);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
@@ -489,14 +493,15 @@ public:
                         break;
                     case EVENT_CHAIN_LIGHTNING:
                         DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(Seconds(8), Seconds(15));
                         break;
                     case EVENT_DESTRUCTIVE_POISON:
                         DoCastSelf(SPELL_DESTRUCTIVE_POISON);
-                        _events.Repeat(randtime(Seconds(3), Seconds(7)));
+                        _events.Repeat(Seconds(3), Seconds(7));
                         break;
-                    case EVENT_START_SOUL_EXPEL:
-                        DoCast(SPELL_AKAMA_SOUL_EXPEL);
+                    case EVENT_START_SOUL_RETRIEVE:
+                        me->SetFacingTo(FACE_THE_DOOR, true);
+                        DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;
                     case EVENT_START_BROKEN_FREE:
@@ -541,7 +546,7 @@ public:
         {
             _summons.DespawnAll();
             Talk(SAY_DEAD);
-            if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+            if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 if (shade->IsAlive())
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
@@ -587,7 +592,7 @@ public:
         {
             _scheduler.Schedule(Seconds(2), [this](TaskContext channel)
             {
-                if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
                     if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
@@ -657,12 +662,12 @@ public:
                     if (_leftSide)
                     {
                         _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Milliseconds(100));
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, randtime(Seconds(2), Seconds(5)));
+                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, Seconds(2), Seconds(5));
                     }
                     else
                     {
                         _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Seconds(10));
-                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, randtime(Seconds(2), Seconds(5)));
+                        _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, Seconds(2), Seconds(5));
                     }
                     break;
                 case ACTION_STOP_SPAWNING:
@@ -687,15 +692,15 @@ public:
                 {
                     case EVENT_SPAWN_WAVE_B:
                         DoCastSelf(SPELL_ASHTONGUE_WAVE_B);
-                        _events.Repeat(randtime(Seconds(50), Seconds(60)));
+                        _events.Repeat(Seconds(50), Seconds(60));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_SORCERER: // left
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_SORCERER);
-                        _events.Repeat(randtime(Seconds(30), Seconds(35)));
+                        _events.Repeat(Seconds(30), Seconds(35));
                         break;
                     case EVENT_SUMMON_ASHTONGUE_DEFENDER: // right
                         DoCastSelf(SPELL_SUMMON_ASHTONGUE_DEFENDER);
-                        _events.Repeat(randtime(Seconds(30), Seconds(40)));
+                        _events.Repeat(Seconds(30), Seconds(40));
                         break;
                     default:
                         break;
@@ -736,16 +741,13 @@ public:
 
         void Reset() override
         {
-            if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+            if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
                 if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                     me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
-                else
-                {
-                    if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
-                        AttackStart(akama);
-                }
+                else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
+                    AttackStart(akama);
             }
             Initialize();
         }
@@ -777,7 +779,7 @@ public:
 
                 _scheduler.Schedule(Seconds(1) + Milliseconds(500), [this](TaskContext sorcer_channel)
                 {
-                    if (Creature* shade = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SHADE_OF_AKAMA)))
+                    if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                     {
                         if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         {
@@ -789,7 +791,7 @@ public:
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             _switchToCombat = true;
-                            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+                            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                                 AttackStart(akama);
                         }
                     }
@@ -837,7 +839,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -849,9 +851,9 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(5));
-            _events.ScheduleEvent(EVENT_SHIELD_BASH, randtime(Seconds(10), Seconds(16)));
-            _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, randtime(Seconds(10), Seconds(16)));
-            _events.ScheduleEvent(EVENT_WINDFURY, randtime(Seconds(8), Seconds(12)));
+            _events.ScheduleEvent(EVENT_SHIELD_BASH, Seconds(10), Seconds(16));
+            _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, Seconds(10), Seconds(16));
+            _events.ScheduleEvent(EVENT_WINDFURY, Seconds(8), Seconds(12));
         }
 
 
@@ -868,19 +870,19 @@ public:
                 {
                     case EVENT_DEBILITATING_STRIKE:
                         DoCastVictim(SPELL_DEBILITATING_STRIKE);
-                        _events.Repeat(randtime(Seconds(20), Seconds(25)));
+                        _events.Repeat(Seconds(20), Seconds(25));
                         break;
                     case EVENT_HEROIC_STRIKE:
                         DoCastSelf(SPELL_HEROIC_STRIKE);
-                        _events.Repeat(randtime(Seconds(5), Seconds(15)));
+                        _events.Repeat(Seconds(5), Seconds(15));
                         break;
                     case EVENT_SHIELD_BASH:
                         DoCastVictim(SPELL_SHIELD_BASH);
-                        _events.Repeat(randtime(Seconds(10), Seconds(20)));
+                        _events.Repeat(Seconds(10), Seconds(20));
                         break;
                     case EVENT_WINDFURY:
                         DoCastVictim(SPELL_WINDFURY);
-                        _events.Repeat(randtime(Seconds(6), Seconds(8)));
+                        _events.Repeat(Seconds(6), Seconds(8));
                         break;
                     default:
                         break;
@@ -915,7 +917,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -926,8 +928,8 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_DEBILITATING_POISON, randtime(Milliseconds(500), Seconds(2)));
-            _events.ScheduleEvent(EVENT_EVISCERATE, randtime(Seconds(2), Seconds(5)));
+            _events.ScheduleEvent(EVENT_DEBILITATING_POISON, Milliseconds(500), Seconds(2));
+            _events.ScheduleEvent(EVENT_EVISCERATE, Seconds(2), Seconds(5));
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -945,11 +947,11 @@ public:
                 {
                     case EVENT_DEBILITATING_POISON:
                         DoCastVictim(SPELL_DEBILITATING_POISON);
-                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(Seconds(15), Seconds(20));
                         break;
                     case EVENT_EVISCERATE:
                         DoCastVictim(SPELL_EVISCERATE);
-                        _events.Repeat(randtime(Seconds(12), Seconds(20)));
+                        _events.Repeat(Seconds(12), Seconds(20));
                         break;
                     default:
                         break;
@@ -984,7 +986,7 @@ public:
 
         void Reset() override
         {
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -1014,11 +1016,11 @@ public:
                 {
                     case EVENT_RAIN_OF_FIRE:
                         DoCastVictim(SPELL_RAIN_OF_FIRE);
-                        _events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        _events.Repeat(Seconds(15), Seconds(20));
                         break;
                     case EVENT_LIGHTNING_BOLT:
                         DoCastVictim(SPELL_LIGHTNING_BOLT);
-                        _events.Repeat(randtime(Seconds(8), Seconds(15)));
+                        _events.Repeat(Seconds(8), Seconds(15));
                         break;
                     default:
                         break;
@@ -1062,7 +1064,7 @@ public:
         {
             Initialize();
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
 
@@ -1073,7 +1075,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_SPIRIT_HEAL, randtime(Seconds(5), Seconds(6)));
+            _events.ScheduleEvent(EVENT_SPIRIT_HEAL, Seconds(5), Seconds(6));
         }
 
         void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
@@ -1083,7 +1085,7 @@ public:
                 {
                     DoCastSelf(SPELL_SPIRIT_MEND);
                     _spiritMend = true;
-                    _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, randtime(Seconds(10),Seconds(15)));
+                    _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, Seconds(10),Seconds(15));
                 }
 
             if (!_chainHeal)
@@ -1091,7 +1093,7 @@ public:
                 {
                     DoCastSelf(SPELL_CHAIN_HEAL);
                     _chainHeal = true;
-                    _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, randtime(Seconds(10), Seconds(15)));
+                    _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, Seconds(10), Seconds(15));
                 }
 
         }
@@ -1108,7 +1110,7 @@ public:
                 {
                     case EVENT_SPIRIT_HEAL:
                         DoCastSelf(SPELL_SPIRITBINDER_SPIRIT_HEAL);
-                        _events.Repeat(randtime(Seconds(13), Seconds(16)));
+                        _events.Repeat(Seconds(13), Seconds(16));
                         break;
                     case EVENT_SPIRIT_MEND_RESET:
                         _spiritMend = false;
@@ -1157,7 +1159,7 @@ public:
             if (motionType != POINT_MOTION_TYPE)
                 return;
 
-            if (Creature* akama = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AKAMA_SHADE)))
+            if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
                 me->SetFacingToObject(akama);
         }
 

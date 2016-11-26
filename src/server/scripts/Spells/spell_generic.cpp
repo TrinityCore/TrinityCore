@@ -113,7 +113,8 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetSpellInfo())
                     return false;
 
                 // find Mage Armor
@@ -156,7 +157,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
                     default:
                         return;
                 }
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1099,9 +1100,17 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
             }
 
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_creature_permanent_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_creature_permanent_feign_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2312,7 +2321,8 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetSpellInfo())
                     return false;
 
                 if (GetFirstSchoolInMask(eventInfo.GetSchoolMask()) == SPELL_SCHOOL_NORMAL)
@@ -3560,7 +3570,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -3569,7 +3579,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 int32 bp = damageInfo->GetDamage() / 2;
-                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true);
+                caster->CastCustomSpell(SPELL_VAMPIRIC_TOUCH_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
             void Register() override

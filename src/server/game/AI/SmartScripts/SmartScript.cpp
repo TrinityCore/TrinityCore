@@ -65,7 +65,6 @@ SmartScript::~SmartScript()
 
 void SmartScript::OnReset()
 {
-    SetPhase(0);
     ResetBaseObject();
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
@@ -99,8 +98,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     //calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
     {
-        uint32 rnd = urand(1, 100);
-        if (e.event.event_chance <= rnd)
+        if (!roll_chance_i(e.event.event_chance))
             return;
     }
     e.runOnce = true;//used for repeat check
@@ -1069,20 +1067,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
                 if (Creature* target = (*itr)->ToCreature())
-                {
-                    if (target->IsAlive() && IsSmart(target))
-                    {
-                        ENSURE_AI(SmartAI, target->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
-                        ENSURE_AI(SmartAI, target->AI())->StartDespawn();
-                    }
-                    else
-                        target->DespawnOrUnsummon(e.action.forceDespawn.delay);
-                }
+                    target->DespawnOrUnsummon(e.action.forceDespawn.delay);
                 else if (GameObject* goTarget = (*itr)->ToGameObject())
                     goTarget->SetRespawnTime(e.action.forceDespawn.delay + 1);
-            }
 
             delete targets;
             break;
@@ -1176,7 +1164,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (!IsCreature(*itr))
                         continue;
 
-                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && !IsCreatureInControlOfSelf(*itr))
+                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCharmedCreature(*itr))
                         continue;
 
                     Position pos = (*itr)->GetPosition();
@@ -1683,6 +1671,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ResetBaseObject();
             break;
         case SMART_ACTION_CALL_SCRIPT_RESET:
+            SetPhase(0);
             OnReset();
             break;
         case SMART_ACTION_SET_RANGED_MOVEMENT:
@@ -2295,64 +2284,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             sGameEventMgr->StartEvent(eventId, true);
             break;
         }
-        case SMART_ACTION_START_CLOSEST_WAYPOINT:
-        {
-            uint32 waypoints[SMART_ACTION_PARAM_COUNT];
-            waypoints[0] = e.action.closestWaypointFromList.wp1;
-            waypoints[1] = e.action.closestWaypointFromList.wp2;
-            waypoints[2] = e.action.closestWaypointFromList.wp3;
-            waypoints[3] = e.action.closestWaypointFromList.wp4;
-            waypoints[4] = e.action.closestWaypointFromList.wp5;
-            waypoints[5] = e.action.closestWaypointFromList.wp6;
-            float distanceToClosest = std::numeric_limits<float>::max();
-            WayPoint* closestWp = nullptr;
-
-            ObjectList* targets = GetTargets(e, unit);
-            if (targets)
-            {
-                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                {
-                    if (Creature* target = (*itr)->ToCreature())
-                    {
-                        if (IsSmart(target))
-                        {
-                            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
-                            {
-                                if (!waypoints[i])
-                                    continue;
-
-                                WPPath* path = sSmartWaypointMgr->GetPath(waypoints[i]);
-
-                                if (!path || path->empty())
-                                    continue;
-
-                                WPPath::const_iterator itrWp = path->find(0);
-
-                                if (itrWp != path->end())
-                                {
-                                    if (WayPoint* wp = itrWp->second)
-                                    {
-                                        float distToThisPath = target->GetDistance(wp->x, wp->y, wp->z);
-
-                                        if (distToThisPath < distanceToClosest)
-                                        {
-                                            distanceToClosest = distToThisPath;
-                                            closestWp = wp;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (closestWp)
-                                CAST_AI(SmartAI, target->AI())->StartPath(false, closestWp->id, true);
-                        }
-                    }
-                }
-
-                delete targets;
-            }
-            break;
-        }
         case SMART_ACTION_RANDOM_SOUND:
         {
             std::vector<uint32> sounds;
@@ -2854,7 +2785,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
     if ((e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask)) || ((e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && e.runOnce))
         return;
 
-    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCreature(me) && !IsCreatureInControlOfSelf(me))
+    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCharmedCreature(me))
         return;
 
     switch (e.GetEventType())
@@ -3599,10 +3530,6 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         }
         mEvents.push_back((*i));//NOTE: 'world(0)' events still get processed in ANY instance mode
     }
-    if (mEvents.empty() && obj)
-        TC_LOG_ERROR("sql.sql", "SmartScript: Entry %u has events but no events added to list because of instance flags.", obj->GetEntry());
-    if (mEvents.empty() && at)
-        TC_LOG_ERROR("sql.sql", "SmartScript: AreaTrigger %u has events but no events added to list because of instance flags. NOTE: triggers can not handle any instance flags.", at->id);
 }
 
 void SmartScript::GetScript()

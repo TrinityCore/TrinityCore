@@ -1316,7 +1316,7 @@ public:
 
     struct go_brewfest_musicAI : public GameObjectAI
     {
-        uint32 rnd;
+        uint32 rnd = 0;
         uint32 musicTime = 1000;
 		
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
@@ -1395,6 +1395,180 @@ public:
     }
 };
 
+/*####
+## go_midsummer_music
+####*/
+
+enum MidsummerMusic
+{
+    EVENTMIDSUMMERFIREFESTIVAL_A = 12319, // 1.08 min
+    EVENTMIDSUMMERFIREFESTIVAL_H = 12325, // 1.12 min 
+};
+
+enum MidsummerMusicEvents
+{
+    EVENT_MM_START_MUSIC = 1
+};
+
+class go_midsummer_music : public GameObjectScript
+{
+public:
+    go_midsummer_music() : GameObjectScript("go_midsummer_music") { }
+
+    struct go_midsummer_musicAI : public GameObjectAI
+    {
+        go_midsummer_musicAI(GameObject* go) : GameObjectAI(go)
+        {
+            _events.ScheduleEvent(EVENT_MM_START_MUSIC, 1000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_MM_START_MUSIC:
+                    {
+                        if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
+                            break;
+
+                        std::vector<Player*> playersNearby;
+                        go->GetPlayerListInGrid(playersNearby, go->GetMap()->GetVisibilityRange());
+                        for (Player* player : playersNearby)
+                        {
+                            if (player->GetTeamId() == TEAM_HORDE)
+                                go->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_H, player);
+                            else
+                                go->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_A, player);
+                        }
+                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                        break;
+                    }
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_midsummer_musicAI(go);
+    }
+};
+
+/*####
+## go_darkmoon_faire_music
+####*/
+
+enum DarkmoonFaireMusic
+{
+    MUSIC_DARKMOON_FAIRE_MUSIC = 8440
+};
+
+enum DarkmoonFaireMusicEvents
+{
+    EVENT_DFM_START_MUSIC = 1
+};
+
+class go_darkmoon_faire_music : public GameObjectScript
+{
+public:
+    go_darkmoon_faire_music() : GameObjectScript("go_darkmoon_faire_music") { }
+
+    struct go_darkmoon_faire_musicAI : public GameObjectAI
+    {
+        go_darkmoon_faire_musicAI(GameObject* go) : GameObjectAI(go)
+        {
+            _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_DFM_START_MUSIC:
+                    if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
+                        break;
+                    go->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
+                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_darkmoon_faire_musicAI(go);
+    }
+};
+
+/*####
+## go_pirate_day_music
+####*/
+
+enum PirateDayMusic
+{
+    MUSIC_PIRATE_DAY_MUSIC = 12845
+};
+
+enum PirateDayMusicEvents
+{
+    EVENT_PDM_START_MUSIC = 1
+};
+
+class go_pirate_day_music : public GameObjectScript
+{
+public:
+    go_pirate_day_music() : GameObjectScript("go_pirate_day_music") { }
+
+    struct go_pirate_day_musicAI : public GameObjectAI
+    {
+        go_pirate_day_musicAI(GameObject* go) : GameObjectAI(go)
+        {
+            _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_PDM_START_MUSIC:
+                    if (!IsHolidayActive(HOLIDAY_PIRATES_DAY))
+                        break;
+                    go->PlayDirectMusic(MUSIC_PIRATE_DAY_MUSIC);
+                    _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_pirate_day_musicAI(go);
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1433,4 +1607,7 @@ void AddSC_go_scripts()
     new go_midsummer_ribbon_pole();
     new go_toy_train_set();
     new go_brewfest_music();
+    new go_midsummer_music();
+    new go_darkmoon_faire_music();
+    new go_pirate_day_music();
 }

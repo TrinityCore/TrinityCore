@@ -192,6 +192,17 @@ struct AreaTableEntry
             return true;
         return (flags & AREA_FLAG_SANCTUARY) != 0;
     }
+
+    bool IsFlyable() const
+    {
+        if (flags & AREA_FLAG_OUTLAND)
+        {
+            if (!(flags & AREA_FLAG_NO_FLY_ZONE))
+                return true;
+        }
+
+        return false;
+    }
 };
 
 #define MAX_GROUP_AREA_IDS 6
@@ -673,6 +684,7 @@ struct FactionTemplateEntry
         return hostileMask == 0 && friendlyMask == 0;
     }
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
+    bool ShouldSparAttack() const { return (factionFlags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry

@@ -256,11 +256,11 @@ Item::Item()
     m_paidExtendedCost = 0;
 }
 
-bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
+bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner)
 {
     Object::_Create(guidlow, 0, HighGuid::Item);
 
-    SetEntry(itemid);
+    SetEntry(itemId);
     SetObjectScale(1.0f);
 
     if (owner)
@@ -269,7 +269,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
         SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
     }
 
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemId);
     if (!itemProto)
         return false;
 
@@ -357,7 +357,7 @@ void Item::SaveToDB(SQLTransaction& trans)
 
             trans->Append(stmt);
 
-            if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+            if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
                 stmt->setUInt32(0, GetOwnerGUID().GetCounter());
@@ -372,7 +372,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+            if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
                 stmt->setUInt32(0, guid);
@@ -443,7 +443,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     // Remove bind flag for items vs NO_BIND set
     if (IsSoulBound() && proto->Bonding == NO_BIND)
     {
-        ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, false);
+        ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
         need_save = true;
     }
 
@@ -746,7 +746,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     if (m_lootGenerated)
         return false;
 
-    if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE) || !trade)))
+    if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE) || !trade)))
         return false;
 
     if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()))
@@ -824,13 +824,13 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
 {
     ItemTemplate const* proto = GetTemplate();
 
+    bool const isEnchantSpell = spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC);
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
-            ||(spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
-            if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
-                return true;
+        if (isEnchantSpell && ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
+            || (spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum())))
+            return true;
 
         if (spellInfo->EquippedItemClass != int32(proto->Class))
             return false;                                   //  wrong item class
@@ -842,7 +842,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
         }
     }
 
-    if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
+    if (isEnchantSpell && spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
         if (proto->InventoryType == INVTYPE_WEAPON &&
@@ -1017,10 +1017,10 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
 {
     if (count < 1)
-        return NULL;                                        //don't create item at zero count
+        return nullptr;                                        //don't create item at zero count
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
     if (proto)
@@ -1041,18 +1041,18 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
     }
     else
         ABORT();
-    return NULL;
+    return nullptr;
 }
 
-Item* Item::CloneItem(uint32 count, Player const* player) const
+Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
 {
     Item* newItem = CreateItem(GetEntry(), count, player);
     if (!newItem)
-        return NULL;
+        return nullptr;
 
     newItem->SetGuidValue(ITEM_FIELD_CREATOR, GetGuidValue(ITEM_FIELD_CREATOR));
     newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR, GetGuidValue(ITEM_FIELD_GIFTCREATOR));
-    newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS) & ~(ITEM_FLAG_REFUNDABLE | ITEM_FLAG_BOP_TRADEABLE));
+    newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE));
     newItem->SetUInt32Value(ITEM_FIELD_DURATION,     GetUInt32Value(ITEM_FIELD_DURATION));
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
     if (player)
@@ -1070,7 +1070,7 @@ bool Item::IsBindedNotWith(Player const* player) const
     if (GetOwnerGUID() == player->GetGUID())
         return false;
 
-    if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+    if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
         if (allowedGUIDs.find(player->GetGUID().GetCounter()) != allowedGUIDs.end())
             return false;
 
@@ -1131,10 +1131,10 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 
 void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransaction* trans /*=NULL*/)
 {
-    if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
 
-    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
+    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
     // Following is not applicable in the trading procedure
     if (changestate)
         SetState(ITEM_CHANGED, owner);
@@ -1189,13 +1189,13 @@ bool Item::IsRefundExpired()
 
 void Item::SetSoulboundTradeable(AllowedLooterSet const& allowedLooters)
 {
-    SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+    SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
 }
 
 void Item::ClearSoulboundTradeable(Player* currentOwner)
 {
-    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
     if (allowedGUIDs.empty())
         return;
 
@@ -1346,7 +1346,7 @@ bool Item::ItemContainerLoadLootFromDB()
 
                 // If container item is in a bag, add that player as an allowed looter
                 if (GetBagSlot())
-                    loot_item.allowedGUIDs.insert(GetOwner()->GetGUID().GetCounter());
+                    loot_item.AddAllowedLooter(GetOwner());
 
                 // Finally add the LootItem to the container
                 loot.items.push_back(loot_item);

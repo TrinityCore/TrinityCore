@@ -113,7 +113,7 @@ class TC_GAME_API Aura
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
-        virtual void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) = 0;
+        virtual void FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
@@ -204,7 +204,7 @@ class TC_GAME_API Aura
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
         void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
-        uint8 IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
+        uint8 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
@@ -238,9 +238,11 @@ class TC_GAME_API Aura
 
         AuraScript* GetScriptByName(std::string const& scriptName) const;
 
-        std::list<AuraScript*> m_loadedScripts;
+        std::vector<AuraScript*> m_loadedScripts;
+
     private:
         void _DeleteRemovedApplications();
+
     protected:
         SpellInfo const* const m_spellInfo;
         ObjectGuid const m_casterGuid;
@@ -283,7 +285,7 @@ class TC_GAME_API UnitAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -301,7 +303,7 @@ class TC_GAME_API DynObjAura : public Aura
     public:
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* caster) override;
 };
 
 class TC_GAME_API ChargeDropEvent : public BasicEvent

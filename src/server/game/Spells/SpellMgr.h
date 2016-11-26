@@ -160,13 +160,13 @@ enum ProcFlags
                                                 | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS,
 
     SPELL_PROC_FLAG_MASK                      = PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS
+                                                | PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK
                                                 | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS
-                                                | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,
-
-    SPELL_CAST_PROC_FLAG_MASK                  = SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION | RANGED_PROC_FLAG_MASK,
+                                                | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG
+                                                | PROC_FLAG_DONE_TRAP_ACTIVATION,
 
     PERIODIC_PROC_FLAG_MASK                    = PROC_FLAG_DONE_PERIODIC | PROC_FLAG_TAKEN_PERIODIC,
 
@@ -174,7 +174,8 @@ enum ProcFlags
                                                  | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS
                                                  | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
                                                  | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG
-                                                 | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK,
+                                                 | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_TRAP_ACTIVATION
+                                                 | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK,
 
     TAKEN_HIT_PROC_FLAG_MASK                   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK
                                                  | PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS
@@ -237,7 +238,11 @@ enum ProcAttributes
     PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000001, // requires proc target to give exp or honor for aura proc
     PROC_ATTR_TRIGGERED_CAN_PROC = 0x0000002, // aura can proc even with triggered spells
     PROC_ATTR_REQ_MANA_COST      = 0x0000004, // requires triggering spell to have a mana cost for aura proc
-    PROC_ATTR_REQ_SPELLMOD       = 0x0000008  // requires triggering spell to be affected by proccing aura to drop charges
+    PROC_ATTR_REQ_SPELLMOD       = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
+
+    PROC_ATTR_DISABLE_EFF_0      = 0x0000010, // explicitly disables aura proc from effects, USE ONLY IF 100% SURE AURA SHOULDN'T PROC
+    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, // used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
+    PROC_ATTR_DISABLE_EFF_2      = 0x0000040  // or handling not needed
 };
 
 struct SpellProcEntry
@@ -546,13 +551,6 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
-// spell diminishing returns
-TC_GAME_API DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
-TC_GAME_API DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
-TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-TC_GAME_API int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-TC_GAME_API bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
-
 class TC_GAME_API SpellMgr
 {
     // Constructors
@@ -612,7 +610,7 @@ class TC_GAME_API SpellMgr
 
         // Spell proc table
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
-        bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
+        static bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
 
         // Spell bonus data table
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
@@ -685,6 +683,8 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();
+        void LoadSpellInfoDiminishing();
+        void LoadSpellInfoImmunities();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
