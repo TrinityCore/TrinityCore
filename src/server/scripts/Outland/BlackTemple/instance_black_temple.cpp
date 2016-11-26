@@ -139,7 +139,7 @@ class instance_black_temple : public InstanceMapScript
 
             bool CheckDenOfMortalDoor()
             {
-                for (DataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
+                for (BTDataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
                     if (GetBossState(boss) != DONE)
                         return false;
                 return true;
