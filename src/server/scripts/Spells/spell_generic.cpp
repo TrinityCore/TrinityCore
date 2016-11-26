@@ -4495,6 +4495,14 @@ class spell_gen_wormhole_generator_pandaria : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_wormhole_generator_pandaria_SpellScript);
 
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                for (uint32 spellId : WormholeTargetLocations)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
             void HandleTeleportLocationSelection(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
