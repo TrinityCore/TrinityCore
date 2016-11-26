@@ -17,7 +17,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,3,40603,0,0,31,0,3,22948,0,0,0,0,'','Effect_0 and Effect_1 - Hits Gurtogg Bloodboil');
 
 -- Fix Texts
-UPDATE `creature_text` SET `text`='I hunger.',`BroadcastTextId`=21744 WHERE `entry`=22948 AND `groupid`=2 AND `id`=1;
-DELETE FROM `creature_text` WHERE `entry`=22948 AND `groupid`IN(3,4);
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+UPDATE `creature_text` SET `Text`='I hunger.',`BroadcastTextId`=21744 WHERE `CreatureID`=22948 AND `GroupID`=2 AND `ID`=1;
+DELETE FROM `creature_text` WHERE `CreatureID`=22948 AND `GroupID`IN(3,4);
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (22948,3,0,'I\'ll rip the meat from your bones!',14,0,100,0,0,11438,21745,0,'bloodboil SAY_ENRAGE');
