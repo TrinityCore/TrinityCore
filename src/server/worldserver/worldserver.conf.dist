@@ -1084,6 +1084,22 @@ Guild.BankEventLogRecordsCount = 25
 Guild.NewsLogRecordsCount = 250
 
 #
+#   Guild.SaveInterval
+#     Description: Time between guild saves
+#     
+#     Default: 15
+
+Guild.SaveInterval = 15
+
+#
+#   Guild.UndeletableLevel
+#     Description: None
+#
+#     Default: 4
+
+Guild.UndeletableLevel = 4
+
+#
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
 #        Range:       0-11
@@ -1714,6 +1730,20 @@ ListenRange.Yell = 300
 #        Default: 180000
 
 Creature.MovingStopTimeForPlayer = 180000
+
+#
+#    MonsterSight
+#       Description: None
+#       Default: 50
+
+MonsterSight = 50
+
+#
+#   GuarderSight
+#     Description: None
+#     Default: 50
+
+GuarderSight = 50
 
 #
 ###################################################################################################
