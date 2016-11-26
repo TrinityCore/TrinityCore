@@ -65,7 +65,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
 {
     AchievementEntry const* achievement = tree->Achievement;
     if (!achievement)
-        return true;
+        return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 
     if (HasAchieved(achievement->ID))
     {
