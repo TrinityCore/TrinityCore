@@ -65,7 +65,7 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
 {
     AchievementEntry const* achievement = tree->Achievement;
     if (!achievement)
-        return false;
+        return true;
 
     if (HasAchieved(achievement->ID))
     {
@@ -96,7 +96,7 @@ bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTree const* tree)
 {
     AchievementEntry const* achievement = tree->Achievement;
     if (!achievement)
-        return false;
+        return true;
 
     // counter can never complete
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
@@ -351,7 +351,7 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
         for (CriteriaTree const* tree : *trees)
         {
             // don't update already completed criteria if not forced or achievement already complete
-            if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
+            if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || (tree->Achievement && !HasAchieved(tree->Achievement->ID)))
             {
                 allComplete = false;
                 break;

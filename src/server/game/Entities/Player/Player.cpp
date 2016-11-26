@@ -14501,6 +14501,10 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         if (!HasCurrency(obj.ObjectID, obj.Amount))
                             return false;
                         break;
+                    case QUEST_OBJECTIVE_CRITERIA_TREE:
+                        if (!m_achievementMgr->IsCompletedCriteriaTree(obj.ObjectID))
+                            return false;
+                        break;
                     default:
                         TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
                             GetName().c_str(), GetGUID().ToString().c_str(), quest_id, obj.Type);
@@ -15833,6 +15837,37 @@ void Player::SendQuestUpdate(uint32 questId)
 
     UpdateForQuestWorldObjects();
     SendUpdatePhasing();
+}
+
+void Player::UpdateQuestsWithCriteriaTreeObjectives()
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questid = GetQuestSlotQuestId(i);
+        if (!questid)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
+        if (!qInfo)
+            continue;
+
+        QuestStatusData& q_status = m_QuestStatus[questid];
+        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+        {
+            for (QuestObjective const& obj : qInfo->GetObjectives())
+            {
+                if (obj.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
+                    continue;
+
+                SendQuestUpdate(questid);
+
+                if (CanCompleteQuest(questid))
+                    CompleteQuest(questid);
+
+                break;
+            }
+        }
+    }
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)

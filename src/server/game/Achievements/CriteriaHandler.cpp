@@ -813,6 +813,15 @@ void CriteriaHandler::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
     }
 }
 
+bool CriteriaHandler::IsCompletedCriteriaTree(uint32 criteriaTreeId)
+{
+    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(criteriaTreeId);
+    if (!tree)
+        return false;
+
+    return IsCompletedCriteriaTree(tree);
+}
+
 CriteriaProgress* CriteriaHandler::GetCriteriaProgress(Criteria const* entry)
 {
     auto iter = _criteriaProgress.find(entry->ID);
@@ -913,6 +922,7 @@ void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 chang
     }
 
     SendCriteriaUpdate(criteria, progress, timeElapsed, true);
+    referencePlayer->UpdateQuestsWithCriteriaTreeObjectives();
 }
 
 void CriteriaHandler::RemoveCriteriaProgress(Criteria const* criteria)
@@ -2083,8 +2093,6 @@ void CriteriaMgr::LoadCriteriaList()
         // Find linked achievement
         AchievementEntry const* achievement = GetEntry(achievementCriteriaTreeIds, tree);
         ScenarioStepEntry const* scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
-        if (!achievement && !scenarioStep)
-            continue;
 
         CriteriaTree* criteriaTree = new CriteriaTree();
         criteriaTree->ID = tree->ID;
@@ -2152,6 +2160,8 @@ void CriteriaMgr::LoadCriteriaList()
             }
             else if (tree->ScenarioStep)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
+            else
+                criteria->FlagsCu |= CRITERIA_FLAG_CU_PLAYER;
         }
 
         if (criteria->FlagsCu & (CRITERIA_FLAG_CU_PLAYER | CRITERIA_FLAG_CU_ACCOUNT))
