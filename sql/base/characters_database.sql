@@ -214,6 +214,17 @@ LOCK TABLES `auctionhouse` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `auctionbidders`
+--
+
+DROP TABLE IF EXISTS `auctionbidders`;
+CREATE TABLE `auctionbidders` (
+	`id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`bidder` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`, `bidder`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `banned_addons`
 --
 
