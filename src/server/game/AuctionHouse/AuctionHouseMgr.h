@@ -88,6 +88,7 @@ struct TC_GAME_API AuctionEntry
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
+    std::unordered_set<uint32> bidderlist;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
 
     // helpers

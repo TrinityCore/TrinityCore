@@ -656,7 +656,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->bidder == player->GetGUID().GetCounter())
+        if (Aentry && Aentry->bidderlist.find(player->GetGUID().GetCounter()) != Aentry->bidderlist.end())
         {
             if (itr->second->BuildAuctionInfo(data))
                 ++count;
@@ -866,6 +866,10 @@ void AuctionEntry::DeleteFromDB(SQLTransaction& trans) const
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->setUInt32(0, Id);
     trans->Append(stmt);
+
+    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION_BIDDERS);
+    stmt2->setUInt32(0, Id);
+    trans->Append(stmt2);
 }
 
 void AuctionEntry::SaveToDB(SQLTransaction& trans) const
@@ -913,6 +917,21 @@ bool AuctionEntry::LoadFromDB(Field* fields)
         TC_LOG_ERROR("misc", "Auction %u has not a existing item : %u", Id, itemGUIDLow);
         return false;
     }
+
+    // get list of bidders
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_BIDDERS);
+    stmt->setUInt32(0, Id);
+
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* bidderfields = result->Fetch();
+            bidderlist.insert(bidderfields[0].GetUInt32());
+        }
+        while (result->NextRow());
+    }
+
     return true;
 }
 std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) const
