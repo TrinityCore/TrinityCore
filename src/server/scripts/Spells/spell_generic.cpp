@@ -4460,6 +4460,60 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum WormholeGeneratorPandariaSpell
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING   = 126756,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER   = 126757,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS            = 126758,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE    = 126759,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE        = 126760,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF       = 126761,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE        = 126762,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN       = 126763,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE     = 126764,
+};
+
+std::vector<uint32> const WormholeTargetLocations(
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE
+});
+
+class spell_gen_wormhole_generator_pandaria : public SpellScriptLoader
+{
+    public:
+        spell_gen_wormhole_generator_pandaria() : SpellScriptLoader("spell_gen_wormhole_generator_pandaria") { }
+
+        class spell_gen_wormhole_generator_pandaria_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_wormhole_generator_pandaria_SpellScript);
+
+            void HandleTeleportLocationSelection(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                uint32 spellId = Trinity::Containers::SelectRandomContainerElement(WormholeTargetLocations);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_wormhole_generator_pandaria_SpellScript::HandleTeleportLocationSelection, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_wormhole_generator_pandaria_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4556,4 +4610,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    new spell_gen_wormhole_generator_pandaria();
 }
