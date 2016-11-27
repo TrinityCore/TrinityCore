@@ -127,7 +127,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_AUCTIONS, "SELECT id, houseid, itemguid, itemEntry, count, itemowner, buyoutprice, time, buyguid, lastbid, startbid, deposit FROM auctionhouse ah INNER JOIN item_instance ii ON ii.guid = ah.itemguid", CONNECTION_SYNCH);
     PrepareStatement(CHAR_INS_AUCTION, "INSERT INTO auctionhouse (id, houseid, itemguid, itemowner, buyoutprice, time, buyguid, lastbid, startbid, deposit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_AUCTION, "DELETE FROM auctionhouse WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_AUCTION_BIDDERS, "SELECT bidder FROM auctionbidders WHERE id = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_AUCTION_BIDDERS, "SELECT id, bidder FROM auctionbidders", CONNECTION_SYNCH);
     PrepareStatement(CHAR_INS_AUCTION_BIDDERS, "INSERT IGNORE INTO auctionbidders (id, bidder) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_AUCTION_BIDDERS, "DELETE FROM auctionbidders WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_AUCTION_BID, "UPDATE auctionhouse SET buyguid = ?, lastbid = ? WHERE id = ?", CONNECTION_ASYNC);
