@@ -262,7 +262,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
         reason = 1;
     else if (GetPlayer()->IsFalling())
         reason = 3;                                         // is jumping or falling
-    else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
+    else if (GetPlayer()->duel || GetPlayer()->InArena() || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command and in arenas.
         reason = 2;                                         // FIXME - Need the correct value
 
     WorldPackets::Character::LogoutResponse logoutResponse;
