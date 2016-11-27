@@ -3567,7 +3567,7 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     data.WriteByteSeq(targetGuid[4]);
     BroadcastPacket(&data);
 
-    member->ChangeRank(rank);
+    member->ChangeRank(trans, rank);
 
     TC_LOG_DEBUG("network", "SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: %s, Issuer: %s, RankId: %u",
         targetGuid.ToString().c_str(), setterGuid.ToString().c_str(), rank);
