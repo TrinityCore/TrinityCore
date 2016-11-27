@@ -173,7 +173,7 @@ public:
         {
             if (me->HasAura(SPELL_BANISH))
                 return;
-                
+
             bJustReset = true;
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
