@@ -1,4 +1,4 @@
-SET @OGUID:=xxxxxx;
+SET @OGUID:=9999999; -- make travis happy, change on commit
 SET @FourthOfJulyEvent:=72;
 SET @NewYearEvent:=6;
 
