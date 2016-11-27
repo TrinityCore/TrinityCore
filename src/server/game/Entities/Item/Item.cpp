@@ -805,13 +805,13 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
 {
     ItemTemplate const* proto = GetTemplate();
 
+    bool const isEnchantSpell = spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC);
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR ||
-            spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON) && proto->IsVellum())
-            if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
-                return true;
+        if (isEnchantSpell && ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
+            || (spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum())))
+            return true;
 
         if (spellInfo->EquippedItemClass != int32(proto->Class))
             return false;                                   //  wrong item class
@@ -823,7 +823,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
         }
     }
 
-    if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
+    if (isEnchantSpell && spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
         if (proto->InventoryType == INVTYPE_WEAPON &&
