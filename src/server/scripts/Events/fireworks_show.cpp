@@ -716,74 +716,62 @@ static const std::unordered_map<uint32, std::vector<Position> const&> pos =
 
 uint32 CheerPicker()
 {
-    uint32 newid;
-    switch (urand(0, 3))
-    {
-    case 0:  newid = SOUND_CHEER_1; break;
-    case 1:  newid = SOUND_CHEER_2; break;
-    case 2:  newid = SOUND_CHEER_3; break;
-    case 3:  newid = SOUND_CHEER_4; break;
-    default:
-        return 0;
-    }
+    uint32 newid = RAND(
+        SOUND_CHEER_1,
+        SOUND_CHEER_2,
+        SOUND_CHEER_3,
+        SOUND_CHEER_4
+    );
     return newid;
 }
 
 
 uint32 FireworksPicker()
 {
-    uint32 newid;
-    switch (urand(0, 22))
-    {
-    case 0:  newid = FireworkShowType1Red; break;
-    case 1:  newid = FireworkShowType2Red; break;
-    case 2:  newid = FireworkShowType1RedBIG; break;
-    case 3:  newid = FireworkShowType2RedBIG; break;
-    case 4:  newid = FireworkShowType1Blue; break;
-    case 5:  newid = FireworkShowType2Blue; break;
-    case 6:  newid = FireworkShowType1BlueBIG; break;
-    case 7:  newid = FireworkShowType2BlueBIG; break;
-    case 8:  newid = FireworkShowType1Green; break;
-    case 9:  newid = FireworkShowType2GreenBIG; break;
-    case 10: newid = FireworkShowType1GreenBIG; break;
-    case 11: newid = FireworkShowType2Green; break;
-    case 12: newid = FireworkShowType1White; break;
-    case 13: newid = FireworkShowType1WhiteBIG; break;
-    case 14: newid = FireworkShowType2White; break;
-    case 15: newid = FireworkShowType2WhiteBIG; break;
-    case 16: newid = FireworkShowType1Yellow; break;
-    case 17: newid = FireworkShowType1YellowBIG; break;
-    case 18: newid = FireworkShowType2Yellow; break;
-    case 19: newid = FireworkShowType2YellowBIG; break;
-    case 20: newid = FireworkShowType2Purple; break;
-    case 21: newid = FireworkShowType1PurpleBIG; break;
-    case 22: newid = FireworkShowType2PurpleBIG; break;
-    default:
-        return 0;
-    }
+    uint32 newid = RAND(
+        FireworkShowType1Red,
+        FireworkShowType2Red,
+        FireworkShowType1RedBIG,
+        FireworkShowType2RedBIG,
+        FireworkShowType1Blue,
+        FireworkShowType2Blue,
+        FireworkShowType1BlueBIG,
+        FireworkShowType2BlueBIG,
+        FireworkShowType1Green,
+        FireworkShowType2GreenBIG,
+        FireworkShowType1GreenBIG,
+        FireworkShowType2Green,
+        FireworkShowType1White,
+        FireworkShowType1WhiteBIG,
+        FireworkShowType2White,
+        FireworkShowType2WhiteBIG,
+        FireworkShowType1Yellow,
+        FireworkShowType1YellowBIG,
+        FireworkShowType2Yellow,
+        FireworkShowType2YellowBIG,
+        FireworkShowType2Purple,
+        FireworkShowType1PurpleBIG,
+        FireworkShowType2PurpleBIG
+    );
     return newid;
 }
 
 uint32 FireworksBIGOnlyPicker()
 {
-    uint32 newid;
-    switch (urand(0, 11))
-    {
-    case 0: newid = FireworkShowType1RedBIG; break;
-    case 1: newid = FireworkShowType2RedBIG; break;
-    case 2: newid = FireworkShowType1BlueBIG; break;
-    case 3: newid = FireworkShowType2BlueBIG; break;
-    case 4: newid = FireworkShowType2GreenBIG; break;
-    case 5: newid = FireworkShowType1GreenBIG; break;
-    case 6: newid = FireworkShowType1WhiteBIG; break;
-    case 7: newid = FireworkShowType2WhiteBIG; break;
-    case 8: newid = FireworkShowType1YellowBIG; break;
-    case 9: newid = FireworkShowType2YellowBIG; break;
-    case 10: newid = FireworkShowType1PurpleBIG; break;
-    case 11: newid = FireworkShowType2PurpleBIG; break;
-    default:
-        return 0;
-    }
+    uint32 newid = RAND(
+        FireworkShowType1RedBIG,
+        FireworkShowType2RedBIG,
+        FireworkShowType1BlueBIG,
+        FireworkShowType2BlueBIG,
+        FireworkShowType2GreenBIG,
+        FireworkShowType1GreenBIG,
+        FireworkShowType1WhiteBIG,
+        FireworkShowType2WhiteBIG,
+        FireworkShowType1YellowBIG,
+        FireworkShowType2YellowBIG,
+        FireworkShowType1PurpleBIG,
+        FireworkShowType2PurpleBIG
+    );
     return newid;
 }
 
@@ -804,12 +792,13 @@ public:
         {
             _events.Update(diff);
 
-            time_t t = sWorld->GetGameTime();
-            struct tm * now = localtime_r(&t);
+            time_t time = sWorld->GetGameTime();
+            tm localTm;
+            localtime_r(&time, &localTm);
 
             // Start
-            if (((now->tm_min == 0 && now->tm_sec == 0) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
-                ((now->tm_hour == 0 && now->tm_min == 0 && now->tm_sec == 0) && !started && IsEventActive(GAME_EVENT_NEW_YEAR)))
+            if (((localTm.tm_min == 0 && localTm.tm_sec == 0) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
+                ((localTm.tm_hour == 0 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !started && IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
@@ -817,14 +806,14 @@ public:
             }
 
             // Event is active
-            if ((now->tm_min >= 0 && now->tm_sec >= 1 && now->tm_min <= 9 && now->tm_sec <= 59) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
+            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
             {
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 started = true;
             }
 
             // Stop
-            if ((now->tm_min == 10 && now->tm_sec == 0) || (now->tm_min == 10 && now->tm_sec == 0 && now->tm_hour == 0 && started == true))
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) || (localTm.tm_min == 10 && localTm.tm_sec == 0 && localTm.tm_hour == 0 && started == true))
             {
                 started = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
@@ -832,20 +821,20 @@ public:
             }
 
             // New Year (Only!) - One more big bang!
-            if ((now->tm_min == 10 && now->tm_sec == 30 && now->tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && big == true)
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 30 && localTm.tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && big == true)
             {
                 big = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
             }
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -888,7 +877,7 @@ public:
                         }
 
                         if (started == true)
-                            _events.Repeat(EVENT_FIRE, randtime(Seconds(1), Seconds(2)));
+                            _events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(1), Seconds(2)));
                         break;
                     }
                 default:
