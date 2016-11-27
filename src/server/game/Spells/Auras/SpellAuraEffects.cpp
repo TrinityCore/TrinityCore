@@ -4137,6 +4137,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
                     target->ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, float(spellGroupVal), !apply);
 
                 target->ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, float(GetAmount()), apply);
+            }
         }
     }
 }
