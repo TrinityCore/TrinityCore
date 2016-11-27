@@ -4,3 +4,6 @@ CREATE TABLE `auctionbidders` (
 	`bidder` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`, `bidder`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `auctionbidders` (`id`, `bidder`) 
+SELECT DISTINCT `id`, `buyguid` FROM `auctionhouse` WHERE `buyguid` != 0;
