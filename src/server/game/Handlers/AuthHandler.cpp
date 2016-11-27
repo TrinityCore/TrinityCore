@@ -27,12 +27,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     WorldPackets::Auth::AuthResponse response;
     response.Result = code;
 
-    if (queued)
-    {
-        response.WaitInfo = boost::in_place();
-        response.WaitInfo->WaitCount = queuePos;
-    }
-    else if (code == ERROR_OK)
+    if (code == ERROR_OK)
     {
         response.SuccessInfo = boost::in_place();
 
@@ -53,21 +48,27 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
         response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
+    if (queued)
+    {
+        response.WaitInfo = boost::in_place();
+        response.WaitInfo->WaitCount = queuePos;
+    }
+
     SendPacket(response.Write());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)
 {
-    WorldPackets::Auth::AuthResponse response;
-    response.Result = ERROR_OK;
-
     if (position)
     {
-        response.WaitInfo = boost::in_place();
-        response.WaitInfo->WaitCount = position;
+        WorldPackets::Auth::WaitQueueUpdate waitQueueUpdate;
+        waitQueueUpdate.WaitInfo.WaitCount = position;
+        waitQueueUpdate.WaitInfo.WaitTime = 0;
+        waitQueueUpdate.WaitInfo.HasFCM = false;
+        SendPacket(waitQueueUpdate.Write());
     }
-
-    SendPacket(response.Write());
+    else
+        SendPacket(WorldPackets::Auth::WaitQueueFinish().Write());
 }
 
 void WorldSession::SendClientCacheVersion(uint32 version)
