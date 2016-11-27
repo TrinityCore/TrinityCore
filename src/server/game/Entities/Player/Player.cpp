@@ -8030,7 +8030,7 @@ void Player::ApplyItemDependentAuras(Item* item, bool apply)
         }
     }
     else
-+        RemoveItemDependentAurasAndCasts(item);
+        RemoveItemDependentAurasAndCasts(item);
 }
 
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
