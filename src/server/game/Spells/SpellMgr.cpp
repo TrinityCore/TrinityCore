@@ -2605,13 +2605,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42835: // Spout, remove damage effect, only anim is needed
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
-            case 30657: // Quake
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 30571;
-                break;
-            case 30541: // Blaze (needs conditions entry)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
-                break;
             case 63665: // Charge (Argent Tournament emote on riders)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
