@@ -36,7 +36,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
-    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    if (owner->IsMovementPreventedByCasting())
         return;
 
     if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
@@ -149,7 +149,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    if (owner->IsMovementPreventedByCasting())
     {
         if (!owner->IsStopped())
             owner->StopMoving();
