@@ -8713,6 +8713,35 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             break;
     }
 
+    // Custom scripted damage
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Impurity (dummy effect)
+            if (GetTypeId() == TYPEID_PLAYER)
+            {
+                PlayerSpellMap const& playerSpells = ToPlayer()->GetSpellMap();
+                for (auto itr = playerSpells.begin(); itr != playerSpells.end(); ++itr)
+                {
+                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                        continue;
+
+                    switch (itr->first)
+                    {
+                        case 49220:
+                        case 49633:
+                        case 49635:
+                        case 49636:
+                        case 49638:
+                            if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
+                                AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
+                            break;
+                    }
+                }
+            }
+            break;
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
     // Pets just add their bonus damage to their spell damage
@@ -9426,15 +9455,15 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         {
             coeff = bonus->dot_damage;
             if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+                DoneTotal += int32(bonus->ap_dot_bonus * ApCoeffMod * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
         else
         {
             coeff = bonus->direct_damage;
             if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+                DoneTotal += int32(bonus->ap_bonus * ApCoeffMod * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
         }
     }
     else
