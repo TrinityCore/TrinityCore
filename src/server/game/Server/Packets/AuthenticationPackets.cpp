@@ -73,6 +73,16 @@ void WorldPackets::Auth::AuthSession::Read()
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+{
+    data << uint32(waitInfo.WaitCount);
+    data << uint32(waitInfo.WaitTime);
+    data.WriteBit(waitInfo.HasFCM);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPackets::Auth::AuthResponse::AuthResponse()
     : ServerPacket(SMSG_AUTH_RESPONSE, 132)
 {
@@ -166,12 +176,14 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     }
 
     if (WaitInfo)
-    {
-        _worldPacket << uint32(WaitInfo->WaitCount);
-        _worldPacket << uint32(WaitInfo->WaitTime);
-        _worldPacket.WriteBit(WaitInfo->HasFCM);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << *WaitInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitInfo;
 
     return &_worldPacket;
 }
