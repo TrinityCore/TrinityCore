@@ -808,8 +808,10 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     bool isEnchantSpell = spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC);
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
-        if (isEnchantSpell && proto->GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS)
-            return true;
+        if (isEnchantSpell && (spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR ||
+            spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON) && proto->IsVellum())
+            if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
+                return true;
 
         if (spellInfo->EquippedItemClass != int32(proto->Class))
             return false;                                   //  wrong item class
