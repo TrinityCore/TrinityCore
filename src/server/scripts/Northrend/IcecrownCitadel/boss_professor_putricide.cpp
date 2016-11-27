@@ -132,7 +132,8 @@ enum Events
     EVENT_CHOKING_GAS_BOMB      = 12,
     EVENT_UNBOUND_PLAGUE        = 13,
     EVENT_MUTATED_PLAGUE        = 14,
-    EVENT_PHASE_TRANSITION      = 15
+    EVENT_PHASE_TRANSITION      = 15,
+    EVENT_WHILE_CASTING         = 16
 };
 
 enum Phases
@@ -343,7 +344,7 @@ class boss_professor_putricide : public CreatureScript
                 switch (_phase)
                 {
                     case PHASE_COMBAT_1:
-                        if (HealthAbovePct(80))
+                        if (HealthAbovePct(80) || WhileCasting)
                             return;
                         me->SetReactState(REACT_PASSIVE);
                         DoAction(ACTION_CHANGE_PHASE);
@@ -606,6 +607,8 @@ class boss_professor_putricide : public CreatureScript
                             Talk(EMOTE_UNSTABLE_EXPERIMENT);
                             DoCast(me, SPELL_UNSTABLE_EXPERIMENT);
                             events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(35000, 40000));
+                            WhileCasting = true;
+                            events.ScheduleEvent(EVENT_WHILE_CASTING, 2500); // SPELL_UNSTABLE_EXPERIMENT Cast Time
                             break;
                         case EVENT_TEAR_GAS:
                             me->GetMotionMaster()->MovePoint(POINT_TABLE, tablePos);
@@ -683,6 +686,9 @@ class boss_professor_putricide : public CreatureScript
                                     break;
                             }
                         }
+                        case EVENT_WHILE_CASTING:
+                            WhileCasting = false;
+                            break;
                         default:
                             break;
                     }
@@ -706,6 +712,7 @@ class boss_professor_putricide : public CreatureScript
             float const _baseSpeed;
             uint8 _oozeFloodStage;
             bool _experimentState;
+            bool WhileCasting;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
