@@ -8050,10 +8050,10 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
         return;
 
     // ignore spell mods for not wands
-    if ((aura->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) == 0 && (getClassMask() & CLASSMASK_WAND_USERS) == 0)
+    if ((aura->GetMiscValue() & SPELL_SCHOOL_MASK_MAGIC) && (!(getClassMask() & CLASSMASK_WAND_USERS)))
         return;
 
-    // generic not weapon specific case processes in aura code
+    // generic not weapon specific case processes in AuraEffect handler
     if (aura->GetSpellInfo()->EquippedItemClass == -1)
         return;
 
