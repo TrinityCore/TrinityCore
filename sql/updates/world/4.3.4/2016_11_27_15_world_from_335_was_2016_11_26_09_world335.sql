@@ -1,3 +1,4 @@
+/*
 SET @CGUID := 86075;
 SET @POOL := 32492;
 
@@ -18,3 +19,4 @@ INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALU
 (21325, @Pool+5, 0, 'Silithyd Hive Drone'),
 (@CGUID+6, @Pool+6, 0, 'Silithyd Invader'),
 (21327, @Pool+6, 0, 'Silithyd Hive Drone');
+*/

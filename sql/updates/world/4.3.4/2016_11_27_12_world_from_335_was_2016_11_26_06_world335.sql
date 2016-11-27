@@ -1,3 +1,4 @@
+/*
 SET @CGUID := 86075;
 SET @POOL := 32492;
 
@@ -69,3 +70,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5307, 0, 0, 0, 8, 0, 100, 0, 12699, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Vale Screecher - On Spellhit - Despawn'),
 (5307, 0, 1, 0, 1, 0, 100, 0, 1000, 3000, 3000, 5000, 11, 59220, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Vale Screecher - IC - Cast Chain Lightning'),
 (5308, 0, 0, 0, 8, 0, 100, 0, 12699, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Rogue Vale Screecher - On Spellhit - Despawn');
+*/
