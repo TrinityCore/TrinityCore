@@ -30,10 +30,15 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* unit)
     unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit->GetPosition(i_x, i_y, i_z);
 
-    if (!unit->IsAlive() || unit->IsStopped())
+    if (!unit->IsAlive())
         return;
 
-    unit->StopMoving();
+    unit->ClearUnitState(UNIT_STATE_MOVING);
+    Movement::MoveSplineInit init(unit);
+    init.MoveTo(i_x, i_y, i_z, false, true);
+    init.Launch();
+    unit->UpdatePosition(unit->GetPosition(), true);
+
     unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 }
 
