@@ -2589,7 +2589,7 @@ float Creature::GetPetChaseDistance() const
         {
             if (spellInfo->GetRecoveryTime() == 0 &&  // No cooldown
                     spellInfo->RangeEntry->ID != 1 /*Self*/ && spellInfo->RangeEntry->ID != 2 /*Combat Range*/ &&
-                        spellInfo->GetMaxRange() > range)
+                        spellInfo->GetMinRange() > range)
                 range = spellInfo->GetMinRange();
         }
     }
