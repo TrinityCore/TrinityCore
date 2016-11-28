@@ -278,7 +278,7 @@ INSERT INTO `npc_trainer` (`ID`,`SpellID`,`MoneyCost`,`ReqSkillLine`,`ReqSkillRa
 (201004, 76286,  65000, 164, 480,  0), -- Stormforged Shoulders
 (201004, 76287,  65000, 164, 480,  0), -- Stormforged Legguards
 (201004, 76288,  65000, 164, 490,  0), -- Stormforged Helm
-(201004, 76289,  75000, 164, 500,  0), --Stormforged Breastplate
+(201004, 76289,  75000, 164, 500,  0), -- Stormforged Breastplate
 (201004, 76291,  50000, 164, 450,  0), -- Hardened Obsidium Shield
 (201004, 76433,  50000, 164, 460,  0), -- Decapitator's Razor
 (201004, 76434,  60000, 164, 470,  0), -- Cold-Forged Shank
