@@ -32,6 +32,7 @@
 #include "SslContext.h"
 #include "DatabaseLoader.h"
 #include "LoginRESTService.h"
+#include "WheatyExceptionReport.h"
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
@@ -77,6 +78,7 @@ static uint32 _banExpiryCheckInterval;
 
 int main(int argc, char** argv)
 {
+    InitializeCrashHandler();
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
