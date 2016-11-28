@@ -27,7 +27,6 @@
 
 #include "Banner.h"
 #include "CompilerDefs.h"
-#include "WheatyExceptionReport.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/program_options.hpp>
@@ -129,7 +128,6 @@ namespace Connection_Patcher
 
 int main(int argc, char** argv)
 {
-    InitializeCrashHandler();
     using namespace Connection_Patcher;
 
     try

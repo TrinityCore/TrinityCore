@@ -1463,8 +1463,3 @@ char* WheatyExceptionReport::PrintSymbolDetail(char* pszCurrBuffer)
 }
 
 #endif  // _WIN32
-
-void InitializeCrashHandler()
-{
-    // dummy call to make the linker not discard the compilation unit
-}
