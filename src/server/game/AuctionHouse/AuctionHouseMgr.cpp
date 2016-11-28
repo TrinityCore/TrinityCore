@@ -374,12 +374,14 @@ void AuctionHouseMgr::LoadAuctions()
         do
         {
             Field* fields = resultBidders->Fetch();
-            auto it = bidderlists.find(fields[0].GetUInt32());
+            uint32 auctionId = fields[0].GetUInt32();
+
+            auto it = bidderlists.find(auctionId);
             if (it == bidderlists.end())
             {
                 // new entry in bidder lists
-                bidderlists.emplace(fields[0].GetUInt32(), std::unordered_set<ObjectGuid::LowType>());
-                it = bidderlists.find(fields[0].GetUInt32());
+                bidderlists.emplace(auctionId, std::unordered_set<ObjectGuid::LowType>());
+                it = bidderlists.find(auctionId);
             }
             it->second.insert(fields[1].GetUInt32());
             ++countBidders;
