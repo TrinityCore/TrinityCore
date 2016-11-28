@@ -174,7 +174,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 {
                     if (id == 1)
                     {
-                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation());
+                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation(), true);
                         TurnAudience();
 
                         switch (talkWing)
@@ -701,6 +701,31 @@ class npc_torturer_lecraft : public CreatureScript
         }
 };
 
+enum MessengerTorvus
+{
+    NPC_MESSENGER_TORVUS        = 26649,
+    QUEST_MESSAGE_FROM_THE_WEST = 12033,
+    
+    TALK_0 = 0
+};
+
+class at_nearby_messenger_torvus : public AreaTriggerScript
+{
+public:
+    at_nearby_messenger_torvus() : AreaTriggerScript("at_nearby_messenger_torvus") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    {
+        if (player->IsAlive())
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
+                if (player->CanTakeQuest(quest, false))
+                    if (Creature* creature = player->FindNearestCreature(NPC_MESSENGER_TORVUS, 50.0f, true))
+                        creature->AI()->Talk(TALK_0, player);
+
+        return true;
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -708,4 +733,5 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
     new npc_torturer_lecraft();
+    new at_nearby_messenger_torvus();
 }

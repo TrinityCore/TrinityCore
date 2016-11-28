@@ -146,7 +146,8 @@ public:
             return false;
 
         // player's guild membership checked in AddMember before add
-        return targetGuild->AddMember(targetGuid);
+        SQLTransaction trans(nullptr);
+        return targetGuild->AddMember(trans, targetGuid);
     }
 
     static bool HandleGuildUninviteCommand(ChatHandler* handler, char const* args)
@@ -164,7 +165,8 @@ public:
         if (!targetGuild)
             return false;
 
-        targetGuild->DeleteMember(targetGuid, false, true, true);
+        SQLTransaction trans(nullptr);
+        targetGuild->DeleteMember(trans, targetGuid, false, true, true);
         return true;
     }
 
@@ -191,7 +193,8 @@ public:
             return false;
 
         uint8 newRank = uint8(atoi(rankStr));
-        return targetGuild->ChangeMemberRank(targetGuid, newRank);
+        SQLTransaction trans(nullptr);
+        return targetGuild->ChangeMemberRank(trans, targetGuid, newRank);
     }
 
     static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)

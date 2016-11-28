@@ -22,7 +22,7 @@
 
 void Metric::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
-    _realmName = realmName;
+    _realmName = FormatInfluxDBTagValue(realmName);
     _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusLogger = overallStatusLogger;

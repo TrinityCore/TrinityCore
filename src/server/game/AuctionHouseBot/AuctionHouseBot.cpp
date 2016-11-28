@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "Log.h"
 #include "Item.h"
 #include "World.h"
 #include "Config.h"
+#include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseBotBuyer.h"
@@ -55,6 +57,31 @@ bool AuctionBotConfig::Initialize()
 
     _itemsPerCycleBoost = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_BOOST);
     _itemsPerCycleNormal = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_NORMAL);
+
+    if (uint32 ahBotAccId = GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
+    {
+        // check character count
+        if (AccountMgr::GetCharactersCount(GetConfig(CONFIG_AHBOT_ACCOUNT_ID)))
+        {
+            // find account guids associated with ahbot account
+            uint32 count = 0;
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
+            stmt->setUInt32(0, ahBotAccId);
+            if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+            {
+                do
+                {
+                    Field* fields = result->Fetch();
+                    _AHBotCharacters.push_back(fields[0].GetUInt32());
+                    ++count;
+                } while (result->NextRow());
+            }
+
+            TC_LOG_DEBUG("ahbot", "AuctionHouseBot found %u characters", count);
+        }
+        else
+            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID %u has no associated characters.", ahBotAccId);
+    }
 
     return true;
 }
@@ -111,6 +138,8 @@ void AuctionBotConfig::SetConfig(AuctionBotConfigFloatValues index, char const* 
 //Get AuctionHousebot configuration file
 void AuctionBotConfig::GetConfigFromFile()
 {
+    SetConfig(CONFIG_AHBOT_ACCOUNT_ID, "AuctionHouseBot.Account", 0);
+
     SetConfigMax(CONFIG_AHBOT_ALLIANCE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Alliance.Items.Amount.Ratio", 100, 10000);
     SetConfigMax(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Horde.Items.Amount.Ratio", 100, 10000);
     SetConfigMax(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Neutral.Items.Amount.Ratio", 100, 10000);
@@ -272,6 +301,40 @@ char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
     return names[houseType];
 }
 
+// Picks a random character from the list of AHBot chars
+uint32 AuctionBotConfig::GetRandChar() const
+{
+    if (_AHBotCharacters.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
+}
+
+// Picks a random AHBot character, but excludes a specific one. This is used
+// to have another character than the auction owner place bids
+uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
+{
+    if (_AHBotCharacters.empty())
+        return 0;
+
+    std::vector<uint32> filteredCharacters;
+    filteredCharacters.reserve(_AHBotCharacters.size() - 1);
+
+    for (uint32 charId : _AHBotCharacters)
+        if (charId != exclude)
+            filteredCharacters.push_back(charId);
+
+    if (filteredCharacters.empty())
+        return 0;
+
+    return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
+}
+
+bool AuctionBotConfig::IsBotChar(uint32 characterID) const
+{
+    return !characterID || std::find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
+}
+
 uint32 AuctionBotConfig::GetConfigItemAmountRatio(AuctionHouseType houseType) const
 {
     switch (houseType)
@@ -408,7 +471,7 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
             if (Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow))
             {
                 ItemTemplate const* prototype = item->GetTemplate();
-                if (!auctionEntry->owner)                         // Add only ahbot items
+                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                 {
                     if (prototype->Quality < MAX_AUCTION_QUALITY)
                         ++statusInfo[i].QualityInfo[prototype->Quality];
@@ -426,7 +489,7 @@ void AuctionHouseBot::Rebuild(bool all)
     {
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
-            if (!itr->second->owner)                        // ahbot auction
+            if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction
                 if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
                     itr->second->expire_time = sWorld->GetGameTime();
     }

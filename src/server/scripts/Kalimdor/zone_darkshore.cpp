@@ -316,7 +316,7 @@ public:
 enum Threshwackonator
 {
     EMOTE_START             = 0,
-    SAY_AT_CLOSE            = 1,
+    SAY_AT_CLOSE            = 0,
     QUEST_GYROMAST_REV      = 2078,
     NPC_GELKAK              = 6667,
     FACTION_HOSTILE         = 14
@@ -344,7 +344,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    Talk(SAY_AT_CLOSE, who);
+                    who->ToCreature()->AI()->Talk(SAY_AT_CLOSE, who);
                     DoAtEnd();
                 }
             }

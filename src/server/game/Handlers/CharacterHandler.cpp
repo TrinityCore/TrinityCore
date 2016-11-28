@@ -1850,13 +1850,10 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             {
                 // Reset guild
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-
                 stmt->setUInt32(0, lowGuid);
-
-                PreparedQueryResult result = CharacterDatabase.Query(stmt);
-                if (result)
+                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                     if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
-                        guild->DeleteMember(factionChangeInfo.Guid, false, false, true);
+                        guild->DeleteMember(trans, factionChangeInfo.Guid, false, false, true);
 
                 Player::LeaveAllArenaTeams(factionChangeInfo.Guid);
             }

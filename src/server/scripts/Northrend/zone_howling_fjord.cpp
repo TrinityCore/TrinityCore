@@ -40,13 +40,38 @@ EndContentData */
 ######*/
 enum Entries
 {
-    NPC_APOTHECARY_HANES         = 23784,
-    FACTION_ESCORTEE_A           = 774,
-    FACTION_ESCORTEE_H           = 775,
-    NPC_HANES_FIRE_TRIGGER       = 23968,
-    QUEST_TRAIL_OF_FIRE          = 11241,
-    SPELL_COSMETIC_LOW_POLY_FIRE = 56274,
-    SPELL_HEALING_POTION         = 17534
+    NPC_APOTHECARY_HANES = 23784,
+    FACTION_ESCORTEE_H   = 775,
+    QUEST_TRAIL_OF_FIRE  = 11241,
+
+    SPELL_HEALING_POTION = 17534,
+    SPELL_BURN           = 42685,
+    
+    EVENT_EMOTE_BEG    = 1,
+    EVENT_BEGIN        = 2,
+    EVENT_START_ESCORT = 3,
+    EVENT_TALK_1       = 4,
+    EVENT_KNEEL        = 5,
+    EVENT_TALK_2       = 6,
+    EVENT_BURN_CRATES  = 7,
+    EVENT_TALK_3       = 8,
+    EVENT_TALK_4       = 9,
+    EVENT_LAUGH        = 10,
+    EVENT_TALK_5       = 11,
+    EVENT_TALK_6       = 12,
+    EVENT_TALK_8       = 13,
+
+    TALK_0 = 0,
+    TALK_1 = 1,
+    TALK_2 = 2,
+    TALK_3 = 3,
+    TALK_4 = 4,
+    TALK_5 = 5,
+    TALK_6 = 6,
+    TALK_7 = 7,
+    TALK_8 = 8,
+
+    EQUIP_TORCH = 2
 };
 
 class npc_apothecary_hanes : public CreatureScript
@@ -58,16 +83,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
         {
-            switch (player->GetTeam())
-            {
-                case ALLIANCE:
-                    creature->setFaction(FACTION_ESCORTEE_A);
-                    break;
-                case HORDE:
-                    creature->setFaction(FACTION_ESCORTEE_H);
-                    break;
-            }
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(npc_Apothecary_HanesAI, (creature->AI()))->StartEscort(player);
         }
         return true;
     }
@@ -79,12 +95,25 @@ public:
             Initialize();
         }
 
+        void StartEscort(Player* player)
+        {
+            events.ScheduleEvent(EVENT_BEGIN, Seconds(2));
+            events.ScheduleEvent(EVENT_START_ESCORT, Seconds(6));
+            _player = player->GetGUID();
+        }
+
         void Initialize()
         {
             PotTimer = 10000; //10 sec cooldown on potion
+            events.Reset();
+            events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(2));
+            me->SetStandState(UNIT_STAND_STATE_KNEEL);
+            _player = ObjectGuid();
         }
 
         uint32 PotTimer;
+        EventMap events;
+        ObjectGuid _player;
 
         void Reset() override
         {
@@ -98,7 +127,7 @@ public:
                 player->FailQuest(QUEST_TRAIL_OF_FIRE);
         }
 
-        void UpdateEscortAI(uint32 diff) override
+        void UpdateAI(uint32 diff) override
         {
             if (HealthBelowPct(75))
             {
@@ -108,8 +137,77 @@ public:
                     PotTimer = 10000;
                 } else PotTimer -= diff;
             }
+
             if (GetAttack() && UpdateVictim())
                 DoMeleeAttackIfReady();
+
+            npc_escortAI::UpdateAI(diff);
+
+            if (me->IsInCombat())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_EMOTE_BEG:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_BEG);
+                        events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(25));
+                        break;
+                    case EVENT_BEGIN:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_0, player);
+                        break;
+                    case EVENT_START_ESCORT:
+                        events.Reset();
+                        me->setFaction(FACTION_ESCORTEE_H);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
+                        break;
+                    case EVENT_TALK_1:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_1, player);
+                        break;
+                    case EVENT_KNEEL:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+                        break;
+                    case EVENT_TALK_2:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_2, player);
+                        me->LoadEquipment(EQUIP_TORCH);
+                        me->SetSheath(SHEATH_STATE_MELEE);
+                        break;
+                    case EVENT_BURN_CRATES:
+                        DoCastAOE(SPELL_BURN, true);
+                        break;
+                    case EVENT_TALK_3:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_3, player);
+                        break;
+                    case EVENT_TALK_4:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_4, player);
+                        break;
+                    case EVENT_LAUGH:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                        break;
+                    case EVENT_TALK_5:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_5, player);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                        break;
+                    case EVENT_TALK_6:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_6, player);
+                        break;
+                    case EVENT_TALK_8:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                            Talk(TALK_8, player);
+                        break;
+                }
+            }
         }
 
         void WaypointReached(uint32 waypointId) override
@@ -121,42 +219,36 @@ public:
             switch (waypointId)
             {
                 case 1:
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    SetRun(true);
+                    events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
+                    events.ScheduleEvent(EVENT_KNEEL, Seconds(5));
+                    events.ScheduleEvent(EVENT_TALK_2, Seconds(6));
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
-                case 23:
-                    player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    me->DespawnOrUnsummon();
+                case 12:
+                    events.ScheduleEvent(EVENT_BURN_CRATES, Seconds(1));
+                    events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
                     break;
-                case 5:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
-                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                    SetRun(false);
+                case 20:
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
                     break;
-                case 6:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
-                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                    SetRun(true);
+                case 21:
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_TALK_4, Seconds(3));
                     break;
-                case 8:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
-                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                    SetRun(false);
+                case 28:
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_LAUGH, Seconds(7));
+                    events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
+                    events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
-                case 9:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
-                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                case 35:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                        Talk(TALK_7, player);
                     break;
-                case 10:
-                    SetRun(true);
-                    break;
-                case 13:
-                    SetRun(false);
-                    break;
-                case 14:
-                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER, 10.0f))
-                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                    SetRun(true);
+                case 40:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
                     break;
             }
         }
@@ -495,6 +587,74 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         }
 };
 
+enum SummonSpells
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
+    SPELL_SUMMON_DARKCLAW_BAT             = 43276,
+    SPELL_SUMMON_FANGGORE_WORG            = 43277,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER    = 43278,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER  = 43279,
+    SPELL_SUMMON_GJALERBRON_WARRIOR       = 43280,
+    SPELL_SUMMON_PUTRID_HORROR            = 43281,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER    = 43282,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
+    SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
+    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
+    NPC_MIST_WHISPER_SCOUT                = 24211
+};
+
+const uint32 rivenWidowCocoonVictims[11] =
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS,
+    SPELL_SUMMON_DARKCLAW_BAT,
+    SPELL_SUMMON_FANGGORE_WORG,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER,
+    SPELL_SUMMON_GJALERBRON_WARRIOR,
+    SPELL_SUMMON_PUTRID_HORROR,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN,
+    SPELL_SUMMON_WINTERSKORN_ORACLE
+};
+
+class npc_riven_widow_cocoon : public CreatureScript
+{
+public:
+    npc_riven_widow_cocoon() : CreatureScript("npc_riven_widow_cocoon") { }
+
+    struct npc_riven_widow_cocoonAI : public ScriptedAI
+    {
+        npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            Player* player = killer->ToPlayer();
+
+            if (!player)
+                return;
+
+            if (roll_chance_i(20))
+            {
+                player->CastSpell(me, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
+                player->KilledMonsterCredit(NPC_MIST_WHISPER_SCOUT);
+            }
+            else
+                player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
+        }		
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_riven_widow_cocoonAI(creature);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
@@ -503,4 +663,5 @@ void AddSC_howling_fjord()
     new npc_daegarn();
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
+    new npc_riven_widow_cocoon();
  }
