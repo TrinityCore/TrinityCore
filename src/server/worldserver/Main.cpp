@@ -47,6 +47,7 @@
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
 #include "Metric.h"
+#include "WheatyExceptionReport.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
@@ -99,6 +100,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    InitializeCrashHandler();
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);

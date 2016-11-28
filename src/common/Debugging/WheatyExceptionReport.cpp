@@ -50,8 +50,11 @@ inline LPTSTR ErrorMessage(DWORD dw)
 //============================== Global Variables =============================
 
 //
-// Declare the static variables of the WheatyExceptionReport class
+// Declare the static variables of the WheatyExceptionReport class and force their initialization before any other static in the program
 //
+#pragma warning(push)
+#pragma warning(disable: 4073) // C4073: initializers put in library initialization area
+#pragma init_seg(lib)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
@@ -65,9 +68,9 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
+#pragma warning(pop)
 
 //============================== Class Methods =============================
 
@@ -1460,3 +1463,8 @@ char* WheatyExceptionReport::PrintSymbolDetail(char* pszCurrBuffer)
 }
 
 #endif  // _WIN32
+
+void InitializeCrashHandler()
+{
+    // dummy call to make the linker not discard the compilation unit
+}
