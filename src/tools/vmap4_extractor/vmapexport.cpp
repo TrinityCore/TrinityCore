@@ -50,7 +50,6 @@
 
 #include "vmapexport.h"
 #include "Banner.h"
-#include "WheatyExceptionReport.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
@@ -492,7 +491,6 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    InitializeCrashHandler();
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;

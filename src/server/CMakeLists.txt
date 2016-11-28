@@ -17,7 +17,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
 endif()
 
 if(WIN32)
-  set(sources_windows
+  list(APPEND sources_windows
     ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h
   )

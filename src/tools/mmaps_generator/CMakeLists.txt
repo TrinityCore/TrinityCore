@@ -12,6 +12,10 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+endif()
+
 add_executable(mmaps_generator ${PRIVATE_SOURCES})
 
 target_link_libraries(mmaps_generator
