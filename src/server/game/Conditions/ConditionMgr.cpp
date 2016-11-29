@@ -57,7 +57,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Npc Vendor",
     "Spell Proc",
     "Terrain Swap",
-    "Phase"
+    "Phase",
+    "Quest Available"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -826,7 +827,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
-            sourceType == CONDITION_SOURCE_TYPE_PHASE);
+            sourceType == CONDITION_SOURCE_TYPE_PHASE ||
+            sourceType == CONDITION_SOURCE_TYPE_QUEST_AVAILABLE);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1704,6 +1706,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         }
         case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
         case CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK:
+        case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
