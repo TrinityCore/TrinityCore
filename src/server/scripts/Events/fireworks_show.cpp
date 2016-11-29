@@ -1,23 +1,22 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
-#include "time.h"
 
 enum FireworksShowTypeObjects
 {
@@ -714,67 +713,6 @@ static const std::unordered_map<uint32, std::vector<Position> const&> pos =
     { TELDRASSIL, DarnassusPos }
 };
 
-uint32 CheerPicker()
-{
-    uint32 newid = RAND(
-        SOUND_CHEER_1,
-        SOUND_CHEER_2,
-        SOUND_CHEER_3,
-        SOUND_CHEER_4
-    );
-    return newid;
-}
-
-
-uint32 FireworksPicker()
-{
-    uint32 newid = RAND(
-        FireworkShowType1Red,
-        FireworkShowType2Red,
-        FireworkShowType1RedBIG,
-        FireworkShowType2RedBIG,
-        FireworkShowType1Blue,
-        FireworkShowType2Blue,
-        FireworkShowType1BlueBIG,
-        FireworkShowType2BlueBIG,
-        FireworkShowType1Green,
-        FireworkShowType2GreenBIG,
-        FireworkShowType1GreenBIG,
-        FireworkShowType2Green,
-        FireworkShowType1White,
-        FireworkShowType1WhiteBIG,
-        FireworkShowType2White,
-        FireworkShowType2WhiteBIG,
-        FireworkShowType1Yellow,
-        FireworkShowType1YellowBIG,
-        FireworkShowType2Yellow,
-        FireworkShowType2YellowBIG,
-        FireworkShowType2Purple,
-        FireworkShowType1PurpleBIG,
-        FireworkShowType2PurpleBIG
-    );
-    return newid;
-}
-
-uint32 FireworksBIGOnlyPicker()
-{
-    uint32 newid = RAND(
-        FireworkShowType1RedBIG,
-        FireworkShowType2RedBIG,
-        FireworkShowType1BlueBIG,
-        FireworkShowType2BlueBIG,
-        FireworkShowType2GreenBIG,
-        FireworkShowType1GreenBIG,
-        FireworkShowType1WhiteBIG,
-        FireworkShowType2WhiteBIG,
-        FireworkShowType1YellowBIG,
-        FireworkShowType2YellowBIG,
-        FireworkShowType1PurpleBIG,
-        FireworkShowType2PurpleBIG
-    );
-    return newid;
-}
-
 class go_cheer_speaker : public GameObjectScript
 {
 public:
@@ -784,8 +722,68 @@ public:
     {
         go_cheer_speakerAI(GameObject* go) : GameObjectAI(go)
         {
-            started = false;
-            big = true;
+            _started = false;
+            _big = true;
+        }
+
+        uint32 CheerPicker()
+        {
+            uint32 newid = RAND(
+                SOUND_CHEER_1,
+                SOUND_CHEER_2,
+                SOUND_CHEER_3,
+                SOUND_CHEER_4
+            );
+            return newid;
+        }
+
+        uint32 FireworksPicker()
+        {
+            uint32 newid = RAND(
+                FireworkShowType1Red,
+                FireworkShowType2Red,
+                FireworkShowType1RedBIG,
+                FireworkShowType2RedBIG,
+                FireworkShowType1Blue,
+                FireworkShowType2Blue,
+                FireworkShowType1BlueBIG,
+                FireworkShowType2BlueBIG,
+                FireworkShowType1Green,
+                FireworkShowType2GreenBIG,
+                FireworkShowType1GreenBIG,
+                FireworkShowType2Green,
+                FireworkShowType1White,
+                FireworkShowType1WhiteBIG,
+                FireworkShowType2White,
+                FireworkShowType2WhiteBIG,
+                FireworkShowType1Yellow,
+                FireworkShowType1YellowBIG,
+                FireworkShowType2Yellow,
+                FireworkShowType2YellowBIG,
+                FireworkShowType2Purple,
+                FireworkShowType1PurpleBIG,
+                FireworkShowType2PurpleBIG
+            );
+            return newid;
+        }
+
+        uint32 FireworksBIGOnlyPicker()
+        {
+            uint32 newid = RAND(
+                FireworkShowType1RedBIG,
+                FireworkShowType2RedBIG,
+                FireworkShowType1BlueBIG,
+                FireworkShowType2BlueBIG,
+                FireworkShowType2GreenBIG,
+                FireworkShowType1GreenBIG,
+                FireworkShowType1WhiteBIG,
+                FireworkShowType2WhiteBIG,
+                FireworkShowType1YellowBIG,
+                FireworkShowType2YellowBIG,
+                FireworkShowType1PurpleBIG,
+                FireworkShowType2PurpleBIG
+            );
+            return newid;
         }
 
         void UpdateAI(uint32 diff) override
@@ -797,33 +795,33 @@ public:
             localtime_r(&time, &localTm);
 
             // Start
-            if (((localTm.tm_min == 0 && localTm.tm_sec == 0) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
-                ((localTm.tm_hour == 0 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !started && IsEventActive(GAME_EVENT_NEW_YEAR)))
+            if (((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
+                ((localTm.tm_hour == 0 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                started = true;
+                _started = true;
             }
 
             // Event is active
-            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59) && !started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
+            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
             {
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                started = true;
+                _started = true;
             }
 
             // Stop
-            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) || (localTm.tm_min == 10 && localTm.tm_sec == 0 && localTm.tm_hour == 0 && started == true))
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) || (localTm.tm_min == 10 && localTm.tm_sec == 0 && localTm.tm_hour == 0 && _started == true))
             {
-                started = false;
+                _started = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.CancelEvent(EVENT_FIRE);
             }
 
             // New Year (Only!) - One more big bang!
-            if ((localTm.tm_min == 10 && localTm.tm_sec == 30 && localTm.tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && big == true)
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 30 && localTm.tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && _big == true)
             {
-                big = false;
+                _big = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
@@ -851,14 +849,13 @@ public:
                         auto it = pos.find(go->GetZoneId());
                         if (it != pos.end())
                         {
-                            std::vector<Position> const& zoneFireworks = it->second;
-                            uint32 rndpos = urand(0, zoneFireworks.size());
+                            Position const& rndpos = Trinity::Containers::SelectRandomContainerElement(it->second);
                             float rndrot = frand(-1.0000000f, 1.0000000f);
                             float rndrot2 = frand(-1.0000000f, 1.0000000f);
 
-                            if (big)
+                            if (_big)
                             {
-                                if (GameObject* firework = go->SummonGameObject(FireworksBIGOnlyPicker(), zoneFireworks[rndpos], G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = go->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                                 {
                                     firework->setActive(true);
                                     firework->SetRespawnTime(0);
@@ -867,7 +864,7 @@ public:
                             }
                             else
                             {
-                                if (GameObject* firework = go->SummonGameObject(FireworksPicker(), zoneFireworks[rndpos], G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = go->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                                 {
                                     firework->setActive(true);
                                     firework->SetRespawnTime(0);
@@ -876,8 +873,9 @@ public:
                             }
                         }
 
-                        if (started == true)
-                            _events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(1), Seconds(2)));
+                        if (_started == true)
+                            _events.ScheduleEvent(EVENT_FIRE, Seconds(1), Seconds(2));
+
                         break;
                     }
                 default:
@@ -887,8 +885,8 @@ public:
         }
     private:
         EventMap _events;
-        bool started;
-        bool big;
+        bool _started;
+        bool _big;
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
