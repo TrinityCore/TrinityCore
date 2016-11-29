@@ -2750,7 +2750,7 @@ public:
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
         }
 
         void Register() override
@@ -2787,7 +2787,7 @@ public:
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
         }
 
         void Register() override
