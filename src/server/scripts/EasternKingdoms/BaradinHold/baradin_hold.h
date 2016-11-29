@@ -27,14 +27,14 @@
 
 uint32 const EncounterCount = 3;
 
-enum BHDataTypesBH
+enum BHDataTypes
 {
     DATA_ARGALOTH           = 0,
     DATA_OCCUTHAR           = 1,
     DATA_ALIZABAL           = 2
 };
 
-enum BHCreatureIdsBH
+enum BHCreatureIds
 {
     BOSS_ARGALOTH           = 47120,
     BOSS_OCCUTHAR           = 52363,
