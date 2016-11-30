@@ -646,7 +646,7 @@ public:
             }
             else
                 player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
-        }		
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
