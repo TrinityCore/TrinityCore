@@ -109,7 +109,6 @@ class TC_GAME_API MotionMaster
 
         void Clear(bool reset = true);
         void MovementExpired(bool reset = true);
-        void ClearExpireList();
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
         MovementGeneratorType GetMotionSlotType(int slot) const;
@@ -182,6 +181,7 @@ class TC_GAME_API MotionMaster
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);
         void DelayedDelete(MovementGenerator* curr);
+        void ClearExpireList();
 
         ExpireList* _expireList;
         MovementGenerator* _slot[MAX_MOTION_SLOT];
