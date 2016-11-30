@@ -9983,8 +9983,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float newValue)
 
 void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 {
-    if (rate <= 0)
-        rate = 0.001f;
+    rate = std::max(rate, 0.01f);
 
     // Update speed only on change
     if (m_speed_rate[mtype] == rate)
