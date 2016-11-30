@@ -6584,7 +6584,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     if (apply)
     {
         AreaTrigger* areaTrigger = new AreaTrigger;
-        if (!areaTrigger->CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), target->GetPosition(), aurApp->GetBase()->GetCastGUID(), 0))
+        if (!areaTrigger->CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), target->GetPosition()))
             delete areaTrigger;
     }
     else

@@ -67,7 +67,7 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId, uint32 spellXSpellVisualId/* = 0*/)
+bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId/* = ObjectGuid::Empty*/, uint32 spellXSpellVisualId/* = 0*/)
 {
     _casterGuid = caster->GetGUID();
     _targetGuid = target != nullptr ? target->GetGUID() : ObjectGuid::Empty;
@@ -108,6 +108,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     CopyPhaseFrom(caster);
     SetTransport(caster->GetTransport());
+
+    if (target && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+    {
+        m_movementInfo.transport.guid = target->GetGUID();
+    }
 
     if (GetTemplate()->IsPolygon())
         UpdatePolygonOrientation();
