@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `conversation_template`;
 CREATE TABLE `conversation_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
+  `FirstLineId` INT (10) UNSIGNED NOT NULL,
   `LastLineDuration` INT (10) UNSIGNED NOT NULL,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`)
@@ -21,7 +22,7 @@ CREATE TABLE `conversation_actor_template` (
 DROP TABLE IF EXISTS `conversation_line_template`;
 CREATE TABLE `conversation_line_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
-  `Unk1` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `PreviousLineDuration` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `Unk2` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `Unk3` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
@@ -37,15 +38,6 @@ CREATE TABLE `conversation_actors` (
   PRIMARY KEY (`ConversationId`, `ConversationActorId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `conversation_lines`;
-CREATE TABLE `conversation_lines` (
-  `ConversationId` INT (10) UNSIGNED NOT NULL,
-  `ConversationLineId` INT (10) NOT NULL,
-  `Idx` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `VerifiedBuild` INT (10) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`ConversationId`, `ConversationLineId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 
 INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`Unk1`,`Unk2`,`Unk3`,`Unk4`,`VerifiedBuild`) VALUES
 (49825, 93221, 65308, 0, 1, 0, 22624),
@@ -55,18 +47,12 @@ INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`
 (705, 50124, 0, 22624),
 (1025, 49825, 0, 22624);
 
-INSERT INTO `conversation_line_template`(`Id`,`Unk1`,`Unk2`,`Unk3`,`VerifiedBuild`) VALUES
+INSERT INTO `conversation_line_template`(`Id`,`PreviousLineDuration`,`Unk2`,`Unk3`,`VerifiedBuild`) VALUES
 (1445, 0, 254, 0, 22624),
 (1446, 4924, 254, 540016640, 22624),
 (1683, 0, 296, 0, 22624),
 (1684, 6151, 296, 0, 22624);
 
-INSERT INTO `conversation_lines`(`ConversationId`,`ConversationLineId`,`Idx`,`VerifiedBuild`) VALUES
-(705, 1683, 0, 22624),
-(705, 1684, 1, 22624),
-(1025, 1445, 0, 22624),
-(1025, 1446, 1, 22624);
-
-INSERT INTO `conversation_template`(`Id`,`LastLineDuration`,`VerifiedBuild`) VALUES
-(705, 6544, 22624),
-(1025, 3458, 22624);
+INSERT INTO `conversation_template`(`Id`,`FirstLineId`,`LastLineDuration`,`VerifiedBuild`) VALUES
+(705, 1445, 6544, 22624),
+(1025, 1683, 3458, 22624);

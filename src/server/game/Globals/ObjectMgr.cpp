@@ -9665,7 +9665,7 @@ void ObjectMgr::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded %u conversation template actors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
-    QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, Unk1, Unk2, Unk3 FROM conversation_line_template");
+    QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, PreviousLineDuration, Unk2, Unk3 FROM conversation_line_template");
 
     if (lineTemplates)
     {
@@ -9676,10 +9676,10 @@ void ObjectMgr::LoadConversationTemplates()
             Field* fields = lineTemplates->Fetch();
 
             ConversationLineTemplate conversationLine;
-            conversationLine.Id = fields[0].GetUInt32();
-            conversationLine.Unk1 = fields[1].GetUInt32();
-            conversationLine.Unk2 = fields[2].GetUInt32();
-            conversationLine.Unk3 = fields[3].GetUInt32();
+            conversationLine.Id                     = fields[0].GetUInt32();
+            conversationLine.PreviousLineDuration   = fields[1].GetUInt32();
+            conversationLine.Unk2                   = fields[2].GetUInt32();
+            conversationLine.Unk3                   = fields[3].GetUInt32();
             _conversationLineTemplateStore[conversationLine.Id] = conversationLine;
 
             ++count;
@@ -9688,7 +9688,7 @@ void ObjectMgr::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded %u conversation template lines in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 
-    QueryResult templates = WorldDatabase.Query("SELECT Id, LastLineDuration, VerifiedBuild FROM conversation_template");
+    QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineDuration, VerifiedBuild FROM conversation_template");
 
     if (templates)
     {
@@ -9700,7 +9700,8 @@ void ObjectMgr::LoadConversationTemplates()
 
             ConversationTemplate conversationTemplate;
             conversationTemplate.Id = fields[0].GetUInt32();
-            conversationTemplate.LastLineDuration = fields[1].GetUInt32();
+            conversationTemplate.FirstLineId = fields[1].GetUInt32();
+            conversationTemplate.LastLineDuration = fields[2].GetUInt32();
 
             QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id);
 
@@ -9716,18 +9717,17 @@ void ObjectMgr::LoadConversationTemplates()
                 } while (actors->NextRow());
             }
 
-            QueryResult lines = WorldDatabase.PQuery("SELECT ConversationLineId FROM conversation_lines WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id);
+            ConversationLineEntry const* currentConversationLine = sConversationLineStore.LookupEntry(conversationTemplate.FirstLineId);
 
-            if (lines)
+            while (currentConversationLine != nullptr)
             {
-                do
-                {
-                    Field* fields = lines->Fetch();
-                    uint32 lineId = fields[0].GetUInt32();
-                    ConversationLineTemplate conversationActorTemplate = _conversationLineTemplateStore[lineId];
+                ConversationLineTemplate conversationActorTemplate = _conversationLineTemplateStore[currentConversationLine->ID];
+                conversationTemplate.Lines.push_back(conversationActorTemplate);
 
-                    conversationTemplate.Lines.push_back(conversationActorTemplate);
-                } while (lines->NextRow());
+                if (!currentConversationLine->NextLineID)
+                    break;
+
+                currentConversationLine = sConversationLineStore.LookupEntry(currentConversationLine->NextLineID);
             }
 
             _conversationTemplateStore[conversationTemplate.Id] = conversationTemplate;

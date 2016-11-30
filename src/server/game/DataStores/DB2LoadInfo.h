@@ -749,6 +749,26 @@ struct CinematicSequencesLoadInfo
     }
 };
 
+struct ConversationLineLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT,   "ID" },
+            { false, FT_INT,   "Unk1" },
+            { false, FT_INT,   "Unk2" },
+            { false, FT_INT,   "Unk3" },
+            { false, FT_SHORT, "NextLineID" },
+            { false, FT_SHORT, "Unk4" },
+            { false, FT_BYTE,  "UnkBoolean" },
+            { false, FT_BYTE,  "Unk5" },
+            { false, FT_BYTE,  "Unk6" },
+        };
+        return{ &fields[0], std::extent<decltype(fields)>::value, ConversationLineMeta::Instance(), HOTFIX_SEL_CONVERSATION_LINE };
+    }
+};
+
 struct CreatureDisplayInfoLoadInfo
 {
     static DB2LoadInfo Instance()

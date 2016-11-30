@@ -37,7 +37,7 @@ struct ConversationActorTemplate
 struct ConversationLineTemplate
 {
     uint32 Id;      // Link to ConversationLine.db2
-    uint32 Unk1;
+    uint32 PreviousLineDuration;
     uint32 Unk2;
     uint32 Unk3;
 };
@@ -45,6 +45,7 @@ struct ConversationLineTemplate
 struct ConversationTemplate
 {
     uint32 Id;
+    uint32 FirstLineId;
     uint32 LastLineDuration;
 
     std::vector<ConversationActorTemplate> Actors;

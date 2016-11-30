@@ -77,7 +77,6 @@ void Conversation::Remove()
 {
     if (IsInWorld())
     {
-        SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
     }
@@ -104,7 +103,7 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
         return false;
 
     SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, conversationTemplate->LastLineDuration);
-    _duration = (conversationTemplate->Lines.size() - 1) * 10000 + conversationTemplate->LastLineDuration; // Estimated duration, need further investigation
+    _duration = conversationTemplate->LastLineDuration;
 
     uint16 actorsIndex = 0;
     for (ConversationActorTemplate actor : conversationTemplate->Actors)
@@ -112,7 +111,10 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
 
     uint16 linesIndex = 0;
     for (ConversationLineTemplate line : conversationTemplate->Lines)
+    {
+        _duration += line.PreviousLineDuration;
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
+    }
 
     if (!GetMap()->AddToMap(this))
         return false;

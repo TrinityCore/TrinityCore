@@ -302,7 +302,7 @@ void Trinity::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType &m)
 template<class Check>
 void Trinity::WorldObjectLastSearcher<Check>::Visit(ConversationMapType &m)
 {
-    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
         return;
 
     for (ConversationMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
