@@ -1247,7 +1247,7 @@ public:
     {
         uint32 rnd = 0;
         uint32 musicTime = 1000;
-		
+
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
             _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
