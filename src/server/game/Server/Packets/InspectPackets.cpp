@@ -76,7 +76,7 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
     {
         if (gemData.ItemId)
         {
-            WorldPackets::Item::ItemGemInstanceData gem;
+            WorldPackets::Item::ItemGemData gem;
             gem.Slot = i;
             gem.Item.Initialize(&gemData);
             Gems.push_back(gem);
@@ -145,6 +145,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData c
     data << int32(bracket.SeasonPlayed);
     data << int32(bracket.SeasonWon);
     data << int32(bracket.WeeklyBestRating);
+    data << int32(bracket.Unk710);
     data << uint8(bracket.Bracket);
 
     return data;

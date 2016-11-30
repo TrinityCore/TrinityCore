@@ -2750,7 +2750,7 @@ public:
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
         }
 
         void Register() override
@@ -2787,7 +2787,7 @@ public:
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Item* artifact = GetOwner()->ToPlayer()->GetItemByGuid(GetAura()->GetCastItemGUID()))
-                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * std::max(artifact->GetTotalPurchasedArtifactPowers(), 34u) / 100;
+                amount = GetSpellInfo()->GetEffect(EFFECT_1)->BasePoints * artifact->GetTotalPurchasedArtifactPowers() / 100;
         }
 
         void Register() override
@@ -2800,6 +2800,240 @@ public:
     {
         return new spell_item_artifical_damage_AuraScript();
     }
+};
+
+enum AuraProcRemoveSpells
+{
+    SPELL_TALISMAN_OF_ASCENDANCE    = 28200,
+    SPELL_JOM_GABBAR                = 29602,
+    SPELL_BATTLE_TRANCE             = 45040,
+    SPELL_WORLD_QUELLER_FOCUS       = 90900,
+    SPELL_AZURE_WATER_STRIDER       = 118089,
+    SPELL_CRIMSON_WATER_STRIDER     = 127271,
+    SPELL_ORANGE_WATER_STRIDER      = 127272,
+    SPELL_JADE_WATER_STRIDER        = 127274,
+    SPELL_GOLDEN_WATER_STRIDER      = 127278,
+    SPELL_BRUTAL_KINSHIP_1          = 144671,
+    SPELL_BRUTAL_KINSHIP_2          = 145738
+};
+
+// 28200 - Ascendance
+class spell_item_talisman_of_ascendance : public SpellScriptLoader
+{
+    public:
+        spell_item_talisman_of_ascendance() : SpellScriptLoader("spell_item_talisman_of_ascendance") { }
+
+        class spell_item_talisman_of_ascendance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_talisman_of_ascendance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TALISMAN_OF_ASCENDANCE))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_talisman_of_ascendance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_talisman_of_ascendance_AuraScript();
+        }
+};
+
+// 29602 - Jom Gabbar
+class spell_item_jom_gabbar : public SpellScriptLoader
+{
+    public:
+        spell_item_jom_gabbar() : SpellScriptLoader("spell_item_jom_gabbar") { }
+
+        class spell_item_jom_gabbar_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_jom_gabbar_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_JOM_GABBAR))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_jom_gabbar_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_jom_gabbar_AuraScript();
+        }
+};
+
+// 45040 - Battle Trance
+class spell_item_battle_trance : public SpellScriptLoader
+{
+    public:
+        spell_item_battle_trance() : SpellScriptLoader("spell_item_battle_trance") { }
+
+        class spell_item_battle_trance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_battle_trance_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BATTLE_TRANCE))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_battle_trance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_battle_trance_AuraScript();
+        }
+};
+
+// 90900 - World-Queller Focus
+class spell_item_world_queller_focus : public SpellScriptLoader
+{
+    public:
+        spell_item_world_queller_focus() : SpellScriptLoader("spell_item_world_queller_focus") { }
+
+        class spell_item_world_queller_focus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_world_queller_focus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WORLD_QUELLER_FOCUS))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_world_queller_focus_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_world_queller_focus_AuraScript();
+        }
+};
+
+// 118089 - Azure Water Strider
+// 127271 - Crimson Water Strider
+// 127272 - Orange Water Strider
+// 127274 - Jade Water Strider
+// 127278 - Golden Water Strider
+class spell_item_water_strider : public SpellScriptLoader
+{
+    public:
+        spell_item_water_strider() : SpellScriptLoader("spell_item_water_strider") { }
+
+        class spell_item_water_strider_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_water_strider_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_AZURE_WATER_STRIDER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_CRIMSON_WATER_STRIDER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ORANGE_WATER_STRIDER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_JADE_WATER_STRIDER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_GOLDEN_WATER_STRIDER))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(GetSpellInfo()->GetEffect(EFFECT_1)->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_water_strider_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_water_strider_AuraScript();
+        }
+};
+
+// 144671 - Brutal Kinship
+// 145738 - Brutal Kinship
+class spell_item_brutal_kinship : public SpellScriptLoader
+{
+    public:
+        spell_item_brutal_kinship() : SpellScriptLoader("spell_item_brutal_kinship") { }
+
+        class spell_item_brutal_kinship_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_brutal_kinship_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BRUTAL_KINSHIP_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_BRUTAL_KINSHIP_2))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_item_brutal_kinship_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_brutal_kinship_AuraScript();
+        }
 };
 
 void AddSC_item_spell_scripts()
@@ -2874,4 +3108,9 @@ void AddSC_item_spell_scripts()
     new spell_item_toy_train_set_pulse();
     new spell_item_artifical_stamina();
     new spell_item_artifical_damage();
+    new spell_item_talisman_of_ascendance();
+    new spell_item_battle_trance();
+    new spell_item_world_queller_focus();
+    new spell_item_water_strider();
+    new spell_item_brutal_kinship();
 }

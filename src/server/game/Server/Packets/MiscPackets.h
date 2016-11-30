@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "CollectionMgr.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -653,7 +654,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<std::unique_ptr<CUFProfile>> CUFProfiles;
+            Array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> CUFProfiles;
         };
 
         class LoadCUFProfiles final : public ServerPacket
@@ -837,6 +838,28 @@ namespace WorldPackets
             GameError Error;
             Optional<int32> Arg;
             Optional<int32> Arg2;
+        };
+
+        class AccountMountUpdate final : public ServerPacket
+        {
+        public:
+            AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            MountContainer const* Mounts = nullptr;
+        };
+
+        class MountSetFavorite final : public ClientPacket
+        {
+        public:
+            MountSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SET_FAVORITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MountSpellID = 0;
+            bool IsFavorite = false;
         };
     }
 }

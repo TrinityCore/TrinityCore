@@ -225,10 +225,10 @@ enum CUFBoolOptions
     CUF_AUTO_ACTIVATE_40_PLAYERS,
     CUF_AUTO_ACTIVATE_SPEC_1,
     CUF_AUTO_ACTIVATE_SPEC_2,
+    CUF_AUTO_ACTIVATE_SPEC_3,
+    CUF_AUTO_ACTIVATE_SPEC_4,
     CUF_AUTO_ACTIVATE_PVP,
     CUF_AUTO_ACTIVATE_PVE,
-
-    // The unks is _LOCKED and _SHOWN and _DYNAMIC, unknown order
 
     CUF_BOOL_OPTIONS_COUNT,
 };
@@ -520,7 +520,7 @@ enum PlayerFlags
     PLAYER_FLAGS_AUTO_DECLINE_GUILD     = 0x08000000,       // Automatically declines guild invites
     PLAYER_FLAGS_GUILD_LEVEL_ENABLED    = 0x10000000,       // Lua_GetGuildLevelEnabled() - enables guild leveling related UI
     PLAYER_FLAGS_VOID_UNLOCKED          = 0x20000000,       // void storage
-    PLAYER_FLAGS_UNK30                  = 0x40000000,
+    PLAYER_FLAGS_MENTOR                 = 0x40000000,
     PLAYER_FLAGS_UNK31                  = 0x80000000
 };
 
@@ -584,12 +584,16 @@ enum PlayerFieldBytes2Offsets
 {
     PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
     PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2     // uint16!
 };
 
-static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
+enum PlayerFieldBytes3Offsets
+{
+    PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID                  = 0     // uint16!
+};
 
-#define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
+static_assert((PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
+
+#define PLAYER_BYTES_3_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_3_OFFSET_OVERRIDE_SPELLS_ID / 2)
 
 #define KNOWN_TITLES_SIZE   6
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE * 64)        // 4 uint64 fields
@@ -670,7 +674,7 @@ enum QuestSaveType
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
 // Size of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 875
+#define QUESTS_COMPLETED_BITS_SIZE 1000
 
 enum QuestSlotOffsets
 {
@@ -712,8 +716,8 @@ typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
 enum AttackSwingErr
 {
     ATTACKSWINGERR_CANT_ATTACK = 0,
-    ATTACKSWINGERR_NOTINRANGE  = 1,
-    ATTACKSWINGERR_BADFACING   = 2,
+    ATTACKSWINGERR_BADFACING   = 1,
+    ATTACKSWINGERR_NOTINRANGE  = 2,
     ATTACKSWINGERR_DEADTARGET  = 3
 };
 
@@ -1256,7 +1260,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0, uint32 preferredMountDisplay = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight() const;
@@ -1525,6 +1529,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void IncompleteQuest(uint32 quest_id);
         uint32 GetQuestMoneyReward(Quest const* quest) const;
         uint32 GetQuestXPReward(Quest const* quest);
+        bool CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackageItem) const;
         void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
         void FailQuest(uint32 quest_id);
         bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
@@ -1962,8 +1967,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
 
-        void UpdateAllSpellCritChances();
-        void UpdateSpellCritChance(uint32 school);
+        void UpdateSpellCritChance();
         void UpdateArmorPenetration(int32 amount);
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
@@ -2041,6 +2045,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CleanupChannels();
         void UpdateLocalChannels(uint32 newZone);
         void LeaveLFGChannel();
+
+        typedef std::list<Channel*> JoinedChannelsList;
+        JoinedChannelsList const& GetJoinedChannels() const { return m_channels; }
 
         void SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal);
         uint16 GetMaxSkillValue(uint32 skill) const;        // max + perm. bonus + temp bonus
@@ -2141,9 +2148,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ResetAllPowers();
 
-        void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
+        void ApplyItemDependentAuras(Item* item, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
@@ -2631,9 +2636,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
          */
         uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
 
-        /// Updates weekly conquest point cap (dynamic cap)
-        void UpdateConquestCurrencyCap(uint32 currency) const;
-
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
         std::vector<Item*> m_itemUpdateQueue;
@@ -2681,7 +2683,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldSession* m_session;
 
-        typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList m_channels;
 
         uint8 m_cinematic;
@@ -2816,7 +2817,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
-        uint32 _maxPersonalArenaRate;
 
         std::unique_ptr<Garrison> _garrison;
 

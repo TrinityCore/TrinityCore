@@ -43,8 +43,8 @@
 #include "OutdoorPvPMgr.h"
 #include "Unit.h"
 #include "BattlefieldMgr.h"
-#include "GameObjectPackets.h"
 #include "MiscPackets.h"
+#include "InstanceScenario.h"
 
 Object::Object()
 {
@@ -1416,7 +1416,7 @@ void Object::SetDynamicValue(uint16 index, uint16 offset, uint32 value)
     if (_dynamicChangesArrayMask[index].size() <= offset)
         _dynamicChangesArrayMask[index].resize((offset / 32 + 1) * 32);
 
-    if (values[offset] != value)
+    if (values[offset] != value || changeType == UpdateMask::VALUE_AND_SIZE_CHANGED)
     {
         values[offset] = value;
         _dynamicChangesMask[index] = changeType;
@@ -2186,13 +2186,6 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
-{
-    WorldPackets::GameObject::GameObjectDespawn packet;
-    packet.ObjectGUID = guid;
-    SendMessageToSet(packet.Write(), true);
-}
-
 void WorldObject::SetMap(Map* map)
 {
     ASSERT(map);
@@ -2370,6 +2363,15 @@ void WorldObject::SetZoneScript()
                 m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }
     }
+}
+
+Scenario* WorldObject::GetScenario() const
+{
+    if (IsInWorld())
+        if (InstanceMap* instanceMap = GetMap()->ToInstanceMap())
+            return instanceMap->GetInstanceScenario();
+
+    return nullptr;
 }
 
 TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 /*vehId*/) const

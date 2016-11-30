@@ -432,6 +432,7 @@ namespace WorldPackets
         class WorldTeleport;
         class MountSpecial;
         class SetTaxiBenchmarkMode;
+        class MountSetFavorite;
     }
 
     namespace Movement
@@ -578,6 +579,11 @@ namespace WorldPackets
         class AddToy;
         class ToySetFavorite;
         class UseToy;
+    }
+
+    namespace Scenario
+    {
+        class QueryScenarioPOI;
     }
 
     namespace Scenes
@@ -1112,6 +1118,7 @@ class TC_GAME_API WorldSession
 
         void Handle_NULL(WorldPackets::Null& null);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
+        void LogUnprocessedTail(WorldPacket const* packet);
 
         void HandleCharEnum(PreparedQueryResult result);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
@@ -1681,6 +1688,8 @@ class TC_GAME_API WorldSession
         void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
 
+        void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
+
         // Scenes
         void HandleSceneTriggerEvent(WorldPackets::Scenes::SceneTriggerEvent& sceneTriggerEvent);
         void HandleScenePlaybackComplete(WorldPackets::Scenes::ScenePlaybackComplete& scenePlaybackComplete);
@@ -1731,6 +1740,9 @@ class TC_GAME_API WorldSession
         void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);
         void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
         void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
+
+        // Scenario
+        void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
 
         union ConnectToKey
         {
@@ -1804,7 +1816,6 @@ class TC_GAME_API WorldSession
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
-        void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
         bool IsLegitCharacterForAccount(ObjectGuid lowGUID)

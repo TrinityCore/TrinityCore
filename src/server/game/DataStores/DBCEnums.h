@@ -147,7 +147,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 1942
+#define BATTLE_PET_SPECIES_MAX_ID 1986
 
 enum ChrSpecializationFlag
 {
@@ -535,6 +535,7 @@ enum SpawnMask
 
 enum FactionTemplateFlags
 {
+    FACTION_TEMPLATE_ENEMY_SPAR             = 0x00000020,   // guessed, sparring with enemies?
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
     FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
@@ -705,6 +706,12 @@ enum QuestPackageFilter
     QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
 };
 
+enum ScenarioStepFlags
+{
+    SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
+    SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
+};
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
@@ -746,7 +753,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 236
+#define TaxiMaskSize 239
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -818,8 +825,9 @@ enum SummonPropFlags
 
 enum TaxiNodeFlags
 {
-    TAXI_NODE_FLAG_ALLIANCE = 0x1,
-    TAXI_NODE_FLAG_HORDE    = 0x2
+    TAXI_NODE_FLAG_ALLIANCE             = 0x01,
+    TAXI_NODE_FLAG_HORDE                = 0x02,
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
 };
 
 enum TaxiPathNodeFlags
@@ -881,12 +889,8 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
-    CURRENCY_TYPE_CONQUEST_POINTS       = 390,
-    CURRENCY_TYPE_HONOR_POINTS          = 392,
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
-    CURRENCY_TYPE_CONQUEST_META_ARENA   = 483,
-    CURRENCY_TYPE_CONQUEST_META_RBG     = 484,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
 };

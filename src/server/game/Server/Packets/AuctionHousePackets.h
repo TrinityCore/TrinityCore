@@ -31,19 +31,10 @@ namespace WorldPackets
     {
         struct AuctionItem
         {
-            struct AuctionItemEnchant
-            {
-                AuctionItemEnchant(int32 id, uint32 expiration, int32 charges, uint8 slot) : ID(id), Expiration(expiration), Charges(charges), Slot(slot) { }
-                int32 ID = 0;
-                uint32 Expiration = 0;
-                int32 Charges = 0;
-                uint8 Slot = 0;
-            };
-
             Item::ItemInstance Item;
             int32 Count = 0;
             int32 Charges = 0;
-            std::vector<AuctionItemEnchant> Enchantments;
+            std::vector<Item::ItemEnchantData> Enchantments;
             int32 Flags = 0;
             int32 AuctionItemID = 0;
             ObjectGuid Owner;
@@ -59,7 +50,7 @@ namespace WorldPackets
             uint32 EndTime = 0;
             ObjectGuid Bidder;
             uint64 BidAmount = 0;
-            std::vector<Item::ItemGemInstanceData> Gems;
+            std::vector<Item::ItemGemData> Gems;
         };
 
         struct AuctionOwnerNotification

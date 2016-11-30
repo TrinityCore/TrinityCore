@@ -171,28 +171,32 @@ enum QuestFlags
 // last checked in 19802
 enum QuestFlagsEx
 {
-    QUEST_FLAGS_EX_NONE                                     = 0X000000,
-    QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS                    = 0X000001,
-    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_COMPLETE                 = 0X000002,
-    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT                   = 0X000004,
-    QUEST_FLAGS_EX_DISALLOW_PLAYER_AS_QUESTGIVER            = 0X000008,
-    QUEST_FLAGS_EX_DISPLAY_CLASS_CHOICE_REWARDS             = 0X000010,
-    QUEST_FLAGS_EX_DISPLAY_SPEC_CHOICE_REWARDS              = 0X000020,
-    QUEST_FLAGS_EX_REMOVE_FROM_LOG_ON_PERIDOIC_RESET        = 0X000040,
-    QUEST_FLAGS_EX_ACCOUNT_LEVEL_QUEST                      = 0X000080,
-    QUEST_FLAGS_EX_LEGENDARY_QUEST                          = 0X000100,
-    QUEST_FLAGS_EX_NO_GUILD_XP                              = 0X000200,
-    QUEST_FLAGS_EX_RESET_CACHE_ON_ACCEPT                    = 0X000400,
-    QUEST_FLAGS_EX_NO_ABANDON_ONCE_ANY_OBJECTIVE_COMPLETE   = 0X000800,
-    QUEST_FLAGS_EX_RECAST_ACCEPT_SPELL_ON_LOGIN             = 0X001000,
-    QUEST_FLAGS_EX_UPDATE_ZONE_AURAS                        = 0X002000,
-    QUEST_FLAGS_EX_NO_CREDIT_FOR_PROXY                      = 0X004000,
-    QUEST_FLAGS_EX_DISPLAY_AS_DAILY_QUEST                   = 0X008000,
-    QUEST_FLAGS_EX_PART_OF_QUEST_LINE                       = 0X010000,
-    QUEST_FLAGS_EX_QUEST_FOR_INTERNAL_BUILDS_ONLY           = 0X020000,
-    QUEST_FLAGS_EX_SUPPRESS_SPELL_LEARN_TEXT_LINE           = 0X040000,
-    QUEST_FLAGS_EX_DISPLAY_HEADER_AS_OBJECTIVE_FOR_TASKS    = 0X080000,
-    QUEST_FLAGS_EX_GARRISON_NON_OWNERS_ALLOWED              = 0X100000
+    QUEST_FLAGS_EX_NONE                                                 = 0x0000000,
+    QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS                                = 0x0000001,
+    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_COMPLETE                             = 0x0000002,
+    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT                               = 0x0000004,
+    QUEST_FLAGS_EX_DISALLOW_PLAYER_AS_QUESTGIVER                        = 0x0000008,
+    QUEST_FLAGS_EX_DISPLAY_CLASS_CHOICE_REWARDS                         = 0x0000010,
+    QUEST_FLAGS_EX_DISPLAY_SPEC_CHOICE_REWARDS                          = 0x0000020,
+    QUEST_FLAGS_EX_REMOVE_FROM_LOG_ON_PERIDOIC_RESET                    = 0x0000040,
+    QUEST_FLAGS_EX_ACCOUNT_LEVEL_QUEST                                  = 0x0000080,
+    QUEST_FLAGS_EX_LEGENDARY_QUEST                                      = 0x0000100,
+    QUEST_FLAGS_EX_NO_GUILD_XP                                          = 0x0000200,
+    QUEST_FLAGS_EX_RESET_CACHE_ON_ACCEPT                                = 0x0000400,
+    QUEST_FLAGS_EX_NO_ABANDON_ONCE_ANY_OBJECTIVE_COMPLETE               = 0x0000800,
+    QUEST_FLAGS_EX_RECAST_ACCEPT_SPELL_ON_LOGIN                         = 0x0001000,
+    QUEST_FLAGS_EX_UPDATE_ZONE_AURAS                                    = 0x0002000,
+    QUEST_FLAGS_EX_NO_CREDIT_FOR_PROXY                                  = 0x0004000,
+    QUEST_FLAGS_EX_DISPLAY_AS_DAILY_QUEST                               = 0x0008000,
+    QUEST_FLAGS_EX_PART_OF_QUEST_LINE                                   = 0x0010000,
+    QUEST_FLAGS_EX_QUEST_FOR_INTERNAL_BUILDS_ONLY                       = 0x0020000,
+    QUEST_FLAGS_EX_SUPPRESS_SPELL_LEARN_TEXT_LINE                       = 0x0040000,
+    QUEST_FLAGS_EX_DISPLAY_HEADER_AS_OBJECTIVE_FOR_TASKS                = 0x0080000,
+    QUEST_FLAGS_EX_GARRISON_NON_OWNERS_ALLOWED                          = 0x0100000,
+    QUEST_FLAGS_EX_REMOVE_QUEST_ON_WEEKLY_RESET                         = 0x0200000,
+    QUEST_FLAGS_EX_SUPPRESS_FAREWELL_AUDIO_AFTER_QUEST_ACCEPT           = 0x0400000,
+    QUEST_FLAGS_EX_REWARDS_BYPASS_WEEKLY_CAPS_AND_SEASON_TOTAL          = 0x0800000,
+    QUEST_FLAGS_EX_CLEAR_PROGRESS_OF_CRITERIA_TREE_OBJECTIVES_ON_ACCEPT = 0x1000000
 };
 
 enum QuestSpecialFlags
@@ -268,6 +272,7 @@ struct QuestObjective
     int32  ObjectID     = 0;
     int32  Amount       = 0;
     uint32 Flags        = 0;
+    uint32 Flags2       = 0;
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;

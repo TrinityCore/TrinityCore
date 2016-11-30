@@ -28,8 +28,8 @@
 class DB2StorageBase
 {
 public:
-    DB2StorageBase(char const* fileName, DB2Meta const* meta, HotfixDatabaseStatements preparedStmtIndex)
-        : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _meta(meta), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex) { }
+    DB2StorageBase(char const* fileName, DB2LoadInfo&& loadInfo)
+        : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(std::move(loadInfo)), _dataTable(nullptr), _dataTableEx(nullptr) { }
 
     virtual ~DB2StorageBase()
     {
@@ -53,7 +53,7 @@ public:
 
     uint32 GetFieldCount() const { return _fieldCount; }
 
-    DB2Meta const* GetMeta() const { return _meta; }
+    DB2LoadInfo const* GetLoadInfo() const { return &_loadInfo; }
 
     virtual bool Load(std::string const& path, uint32 locale) = 0;
     virtual bool LoadStringsFrom(std::string const& path, uint32 locale) = 0;
@@ -63,14 +63,14 @@ public:
 protected:
     void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const
     {
-        if (!_meta->HasIndexFieldInData())
+        if (!_loadInfo.Meta->HasIndexFieldInData())
             entry += 4;
 
-        for (uint32 i = 0; i < _meta->FieldCount; ++i)
+        for (uint32 i = 0; i < _loadInfo.Meta->FieldCount; ++i)
         {
-            for (uint32 a = 0; a < _meta->ArraySizes[i]; ++a)
+            for (uint32 a = 0; a < _loadInfo.Meta->ArraySizes[i]; ++a)
             {
-                switch (_meta->Types[i])
+                switch (_loadInfo.Meta->Types[i])
                 {
                     case FT_INT:
                         buffer << *(uint32*)entry;
@@ -113,11 +113,10 @@ protected:
     uint32 _layoutHash;
     std::string _fileName;
     uint32 _fieldCount;
-    DB2Meta const* _meta;
+    DB2LoadInfo _loadInfo;
     char* _dataTable;
     char* _dataTableEx;
     std::vector<char*> _stringPool;
-    HotfixDatabaseStatements _hotfixStatement;
 };
 
 template<class T>
@@ -128,7 +127,7 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* fileName, DB2Meta const* meta, HotfixDatabaseStatements preparedStmtIndex) : DB2StorageBase(fileName, meta, preparedStmtIndex),
+    DB2Storage(char const* fileName, DB2LoadInfo&& loadInfo) : DB2StorageBase(fileName, std::move(loadInfo)),
         _indexTableSize(0)
     {
         _indexTable.AsT = NULL;
@@ -155,7 +154,7 @@ public:
     {
         DB2FileLoader db2;
         // Check if load was successful, only then continue
-        if (!db2.Load((path + _fileName).c_str(), _meta))
+        if (!db2.Load((path + _fileName).c_str(), &_loadInfo))
             return false;
 
         _fieldCount = db2.GetCols();
@@ -184,11 +183,11 @@ public:
 
         DB2FileLoader db2;
         // Check if load was successful, only then continue
-        if (!db2.Load((path + _fileName).c_str(), _meta))
+        if (!db2.Load((path + _fileName).c_str(), &_loadInfo))
             return false;
 
         // load strings from another locale db2 data
-        if (_meta->GetStringFieldCount(true))
+        if (_loadInfo.GetStringFieldCount(true))
             if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
                 _stringPool.push_back(stringBlock);
         return true;
@@ -197,17 +196,17 @@ public:
     void LoadFromDB() override
     {
         char* extraStringHolders = nullptr;
-        _dataTableEx = DB2DatabaseLoader(_fileName, _meta).Load(_hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPool);
+        _dataTableEx = DB2DatabaseLoader(_fileName, &_loadInfo).Load(_indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPool);
         if (extraStringHolders)
             _stringPool.push_back(extraStringHolders);
     }
 
     void LoadStringsFromDB(uint32 locale) override
     {
-        if (!_meta->GetStringFieldCount(true))
+        if (!_loadInfo.GetStringFieldCount(true))
             return;
 
-        DB2DatabaseLoader(_fileName, _meta).LoadStrings(HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTableSize, _indexTable.AsChar, _stringPool);
+        DB2DatabaseLoader(_fileName, &_loadInfo).LoadStrings(locale, _indexTableSize, _indexTable.AsChar, _stringPool);
     }
 
     iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }

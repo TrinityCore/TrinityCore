@@ -23,6 +23,7 @@
 
 class DB2FileLoaderImpl;
 struct DB2Meta;
+struct DB2FieldMeta;
 
 #pragma pack(push, 1)
 struct DB2Header
@@ -43,13 +44,27 @@ struct DB2Header
 };
 #pragma pack(pop)
 
+struct TC_SHARED_API DB2LoadInfo
+{
+    DB2LoadInfo();
+    DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement);
+
+    uint32 GetStringFieldCount(bool localizedOnly) const;
+
+    DB2FieldMeta const* Fields;
+    std::size_t FieldCount;
+    DB2Meta const* Meta;
+    HotfixDatabaseStatements Statement;
+    std::string TypesString;
+};
+
 class TC_SHARED_API DB2FileLoader
 {
 public:
     DB2FileLoader();
     ~DB2FileLoader();
 
-    bool Load(char const* filename, DB2Meta const* meta);
+    bool Load(char const* filename, DB2LoadInfo const* loadInfo);
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
     char* AutoProduceStrings(char* dataTable, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
@@ -66,15 +81,15 @@ private:
 class TC_SHARED_API DB2DatabaseLoader
 {
 public:
-    DB2DatabaseLoader(std::string const& storageName, DB2Meta const* meta) : _storageName(storageName), _meta(meta) { }
+    DB2DatabaseLoader(std::string const& storageName, DB2LoadInfo const* loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
 
-    char* Load(HotfixDatabaseStatements preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
-    void LoadStrings(HotfixDatabaseStatements preparedStatement, uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
+    char* Load(uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool);
+    void LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
     static char* AddString(char const** holder, std::string const& value);
 
 private:
     std::string _storageName;
-    DB2Meta const* _meta;
+    DB2LoadInfo const* _loadInfo;
 };
 
 #endif

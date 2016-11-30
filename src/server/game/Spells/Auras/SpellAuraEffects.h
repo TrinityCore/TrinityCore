@@ -94,8 +94,6 @@ class TC_GAME_API AuraEffect
 
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
-        void CleanupTriggeredSpells(Unit* target);
-
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
@@ -184,6 +182,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceMoveForward(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  threat
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -207,6 +206,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  immunity
         void HandleModStateImmunityMask(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -258,7 +258,6 @@ class TC_GAME_API AuraEffect
         void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack speed
         void HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;

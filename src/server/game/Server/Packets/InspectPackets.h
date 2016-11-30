@@ -54,7 +54,7 @@ namespace WorldPackets
             uint8 Index = 0;
             bool Usable = false;
             std::vector<InspectEnchantData> Enchants;
-            std::vector<Item::ItemGemInstanceData> Gems;
+            std::vector<Item::ItemGemData> Gems;
         };
 
         struct InspectGuildData
@@ -126,6 +126,7 @@ namespace WorldPackets
             int32 SeasonPlayed     = 0;
             int32 SeasonWon        = 0;
             int32 WeeklyBestRating = 0;
+            int32 Unk710           = 0;
             uint8 Bracket          = 0;
         };
 

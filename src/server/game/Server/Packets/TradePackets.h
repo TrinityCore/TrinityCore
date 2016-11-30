@@ -160,7 +160,7 @@ namespace WorldPackets
                 bool Lock = false;
                 uint32 MaxDurability = 0;
                 uint32 Durability = 0;
-                std::vector<Item::ItemGemInstanceData> Gems;
+                std::vector<Item::ItemGemData> Gems;
             };
 
             struct TradeItem

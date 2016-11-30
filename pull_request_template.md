@@ -1,22 +1,30 @@
+[//]: # (***************************)
+[//]: # (** FILL IN THIS TEMPLATE **)
+[//]: # (***************************)
+
 **Changes proposed:**
 
 -  
 -  
 -  
 
-**Target branch(es):** 3.3.5/6.x
+**Target branch(es):** 3.3.5/master
 
-**Issues addressed:** Closes #
+- [ ] 3.3.5
+- [ ] master
 
-**Tests performed:** (Does it build, tested in-game, etc)
+**Issues addressed:** Closes #  (insert issue tracker number)
 
-**Known issues and TODO list:**
+
+**Tests performed:** (Does it build, tested in-game, etc.)
+
+
+**Known issues and TODO list:** (add/remove lines as needed)
 
 - [ ] 
 - [ ] 
 
-**NOTE** Enable the setting "Allow edits from maintainers." when creating your pull request.  
-**NOTE** If your Pull Request is ONLY SQL create an issue instead!  
-**NOTE** You no longer need to squash your commits, on merge we will squash it for you. (GitHub added a new feature)
-
-**SUGGESTION** If your Pull Request contains SQL give it an impossible date, for example 9999_99_99_99_database.sql. This way it will be free on merge. Myself, i prefer to use 9999_99_99_xxxxx.sql where xxxxx is the id of the pull request, on that way we can merge multiple pull requests containing sql files on a row and rename the files with a single commit.
+[//]: # (**DEPRECATION NOTICE** Instead of creating new PRs to the (old) 6.x branch, make sure the target branch is **master** instead of 6.x.)
+[//]: # (**NOTE** Enable the setting "[√] Allow edits from maintainers." when creating your pull request (if not enabled already).)
+[//]: # (**NOTE** If this PR __only__ contains SQL files, open a new issue instead and post or link the SQL there.)
+[//]: # (**SUGGESTION** When adding new SQL files, name them 9999_99_99_99_db_name.sql to reduce the chance of possible merge conflicts.)

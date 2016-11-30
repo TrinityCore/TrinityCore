@@ -29,6 +29,7 @@
 #include "GridStates.h"
 #include "Group.h"
 #include "InstancePackets.h"
+#include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "MapInstanced.h"
 #include "MiscPackets.h"
@@ -3052,7 +3053,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent)
   : Map(id, expiry, InstanceId, SpawnMode, _parent),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(NULL), i_script_id(0)
+    i_data(NULL), i_script_id(0), i_scenario(nullptr)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -3065,7 +3066,7 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
 InstanceMap::~InstanceMap()
 {
     delete i_data;
-    i_data = NULL;
+    delete i_scenario;
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -3230,6 +3231,9 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (i_data)
         i_data->OnPlayerEnter(player);
 
+    if (i_scenario)
+        i_scenario->OnPlayerEnter(player);
+
     return true;
 }
 
@@ -3242,6 +3246,9 @@ void InstanceMap::Update(const uint32 t_diff)
         i_data->Update(t_diff);
         i_data->UpdateCombatResurrection(t_diff);
     }
+
+    if (i_scenario)
+        i_scenario->Update(t_diff);
 }
 
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
@@ -3250,6 +3257,8 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     //if last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+    if (i_scenario)
+        i_scenario->OnPlayerExit(player);
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);

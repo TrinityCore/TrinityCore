@@ -1,1 +1,0 @@
-UPDATE `command` SET `help`='Syntax: .cooldown [#spell_id]\r\n\r\nRemove all (if spell_id not provided) or #spel_id spell cooldown from selected character or their pet or you (if no selection).' WHERE `name`='cooldown';

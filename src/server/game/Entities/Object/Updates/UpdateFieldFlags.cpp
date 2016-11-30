@@ -2579,7 +2579,9 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_COMBAT_RATING_EXPERTISE
     UF_FLAG_PRIVATE,                                        // PLAYER_BLOCK_PERCENTAGE
     UF_FLAG_PRIVATE,                                        // PLAYER_DODGE_PERCENTAGE
+    UF_FLAG_PRIVATE,                                        // PLAYER_DODGE_PERCENTAGE_FROM_ATTRIBUTE
     UF_FLAG_PRIVATE,                                        // PLAYER_PARRY_PERCENTAGE
+    UF_FLAG_PRIVATE,                                        // PLAYER_PARRY_PERCENTAGE_FROM_ATTRIBUTE
     UF_FLAG_PRIVATE,                                        // PLAYER_CRIT_PERCENTAGE
     UF_FLAG_PRIVATE,                                        // PLAYER_RANGED_CRIT_PERCENTAGE
     UF_FLAG_PRIVATE,                                        // PLAYER_OFFHAND_CRIT_PERCENTAGE
@@ -2991,6 +2993,12 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+33
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+34
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+35
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+36
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+37
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+38
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+39
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+40
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_ARENA_TEAM_INFO_1_1+41
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_MAX_LEVEL
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_MAX_CREATURE_SCALING_LEVEL
@@ -3015,7 +3023,8 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_UI_SPELL_HIT_MODIFIER
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_HOME_REALM_TIME_OFFSET
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_MOD_PET_HASTE
-    UF_FLAG_PRIVATE | UF_FLAG_URGENT_SELF_ONLY,             // PLAYER_FIELD_BYTES2
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_BYTES2
+    UF_FLAG_PRIVATE | UF_FLAG_URGENT_SELF_ONLY,             // PLAYER_FIELD_BYTES3
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_LFG_BONUS_FACTION_ID
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_LOOT_SPEC_ID
     UF_FLAG_PRIVATE | UF_FLAG_URGENT_SELF_ONLY,             // PLAYER_FIELD_OVERRIDE_ZONE_PVP_TYPE
@@ -3906,6 +3915,131 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+872
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+873
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+874
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+875
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+876
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+877
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+878
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+879
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+880
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+881
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+882
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+883
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+884
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+885
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+886
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+887
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+888
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+889
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+890
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+891
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+892
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+893
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+894
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+895
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+896
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+897
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+898
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+899
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+900
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+901
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+902
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+903
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+904
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+905
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+906
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+907
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+908
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+909
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+910
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+911
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+912
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+913
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+914
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+915
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+916
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+917
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+918
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+919
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+920
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+921
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+922
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+923
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+924
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+925
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+926
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+927
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+928
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+929
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+930
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+931
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+932
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+933
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+934
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+935
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+936
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+937
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+938
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+939
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+940
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+941
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+942
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+943
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+944
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+945
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+946
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+947
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+948
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+949
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+950
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+951
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+952
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+953
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+954
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+955
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+956
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+957
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+958
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+959
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+960
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+961
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+962
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+963
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+964
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+965
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+966
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+967
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+968
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+969
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+970
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+971
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+972
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+973
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+974
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+975
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+976
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+977
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+978
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+979
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+980
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+981
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+982
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+983
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+984
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+985
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+986
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+987
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+988
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+989
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+990
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+991
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+992
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+993
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+994
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+995
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+996
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+997
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+998
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_QUEST_COMPLETED+999
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_HONOR
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_HONOR_NEXT_LEVEL
 };
@@ -3924,6 +4058,8 @@ uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_TRANSMOG
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS
+    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL
+    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL
 };
 
 uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =
@@ -3986,7 +4122,8 @@ uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END] =
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_CASTER+1
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_CASTER+2
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_CASTER+3
-    UF_FLAG_DYNAMIC,                                        // DYNAMICOBJECT_BYTES
+    UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_TYPE
+    UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_SPELLID
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_RADIUS
     UF_FLAG_PUBLIC,                                         // DYNAMICOBJECT_CASTTIME
@@ -4079,9 +4216,13 @@ uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END] =
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // AREATRIGGER_TIME_TO_TARGET_SCALE
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // AREATRIGGER_TIME_TO_TARGET_EXTRA_SCALE
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_SPELLID
-    UF_FLAG_DYNAMIC,                                        // AREATRIGGER_SPELLVISUALID
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_SPELL_X_SPELL_VISUAL_ID
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // AREATRIGGER_BOUNDS_RADIUS_2D
     UF_FLAG_PUBLIC,                                         // AREATRIGGER_DECAL_PROPERTIES_ID
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_CREATING_EFFECT_GUID
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_CREATING_EFFECT_GUID+1
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_CREATING_EFFECT_GUID+2
+    UF_FLAG_PUBLIC,                                         // AREATRIGGER_CREATING_EFFECT_GUID+3
 };
 
 uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END] =

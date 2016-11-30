@@ -794,7 +794,7 @@ void Item::LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<
                     switch (enchant->Effect[i])
                     {
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE:
-                            if (artifactPower->RelicType == enchant->EffectSpellID[i])
+                            if (uint32(artifactPower->RelicType) == enchant->EffectSpellID[i])
                                 power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                             break;
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
@@ -1143,13 +1143,11 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
 {
     ItemTemplate const* proto = GetTemplate();
 
+    bool isEnchantSpell = spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) || spellInfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC);
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
-        // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR ||
-            spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON) && proto->IsVellum())
-            if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
-                return true;
+        if (isEnchantSpell && proto->GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS)
+            return true;
 
         if (spellInfo->EquippedItemClass != int32(proto->GetClass()))
             return false;                                   //  wrong item class
@@ -1161,7 +1159,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
         }
     }
 
-    if (spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
+    if (isEnchantSpell && spellInfo->EquippedItemInventoryTypeMask != 0)       // 0 == any inventory type
     {
         // Special case - accept weapon type for main and offhand requirements
         if (proto->GetInventoryType() == INVTYPE_WEAPON &&
@@ -1447,6 +1445,8 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
     std::size_t maskPos = data->wpos();
     data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
+    using DynamicFieldChangeTypeUT = std::underlying_type<UpdateMask::DynamicFieldChangeType>::type;
+
     for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
         std::vector<uint32> const& values = _dynamicValues[index];
@@ -1456,7 +1456,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             UpdateMask::SetUpdateBit(data->contents() + maskPos, index);
 
             std::size_t arrayBlockCount = UpdateMask::GetBlockCount(values.size());
-            *data << uint16(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
+            *data << DynamicFieldChangeTypeUT(UpdateMask::EncodeDynamicFieldChangeType(arrayBlockCount, _dynamicChangesMask[index], updateType));
             if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] == UpdateMask::VALUE_AND_SIZE_CHANGED)
                 *data << uint32(values.size());
 
@@ -1466,7 +1466,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             {
                 for (std::size_t v = 0; v < values.size(); ++v)
                 {
-                    if (updateType == UPDATETYPE_VALUES ? _dynamicChangesArrayMask[index][v] : values[v])
+                    if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index][v])
                     {
                         UpdateMask::SetUpdateBit(data->contents() + arrayMaskPos, v);
                         *data << uint32(values[v]);
@@ -1480,6 +1480,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
                 // work around stupid item modifier field requirements - push back values mask by sizeof(m) bytes if size was not appended yet
                 if (updateType == UPDATETYPE_VALUES && _dynamicChangesMask[index] != UpdateMask::VALUE_AND_SIZE_CHANGED && _changesMask[ITEM_FIELD_MODIFIERS_MASK])
                 {
+                    data->put(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT), data->read<uint16>(arrayMaskPos - sizeof(DynamicFieldChangeTypeUT)) | UpdateMask::VALUE_AND_SIZE_CHANGED);
                     *data << m;
                     arrayMaskPos += sizeof(m);
                 }
@@ -1957,7 +1958,7 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
         {
             if (proto->GetBuyCount() <= 1)
             {
-                ItemClassEntry const* classEntry = sItemClassStore.LookupEntry(proto->GetClass());
+                ItemClassEntry const* classEntry = sDB2Manager.GetItemClassByOldEnum(proto->GetClass());
                 if (classEntry)
                     cost *= classEntry->PriceMod;
                 else
@@ -2159,7 +2160,7 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (!_bonusData.HasItemLevelBonus && !_bonusData.ItemLevelOverride)
+    if (_bonusData.HasItemLevelBonus || !_bonusData.ItemLevelOverride)
     {
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
         {
@@ -2352,7 +2353,7 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Pl
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE:
                     for (ItemDynamicFieldArtifactPowers const& artifactPower : GetArtifactPowers())
                     {
-                        if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->RelicType == enchant->EffectSpellID[i])
+                        if (uint32(sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->RelicType) == enchant->EffectSpellID[i])
                         {
                             ItemDynamicFieldArtifactPowers newPower = artifactPower;
                             if (apply)
@@ -2400,7 +2401,7 @@ void Item::CopyArtifactDataFromParent(Item* parent)
 
 void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId)
 {
-    Player const* owner = GetOwner();
+    Player* owner = GetOwner();
     if (!owner)
         return;
 
@@ -2430,6 +2431,8 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
     artifactXpGain.ArtifactGUID = GetGUID();
     artifactXpGain.Amount = amount;
     owner->SendDirectMessage(artifactXpGain.Write());
+
+    SetState(ITEM_CHANGED, owner);
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

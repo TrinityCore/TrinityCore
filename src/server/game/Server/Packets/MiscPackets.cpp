@@ -642,3 +642,25 @@ WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
+{
+    _worldPacket.WriteBit(IsFullUpdate);
+    _worldPacket << uint32(Mounts->size());
+
+    for (auto const& spell : *Mounts)
+    {
+        _worldPacket << int32(spell.first);
+        _worldPacket.WriteBits(spell.second, 2);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::MountSetFavorite::Read()
+{
+    _worldPacket >> MountSpellID;
+    IsFavorite = _worldPacket.ReadBit();
+}

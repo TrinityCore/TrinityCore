@@ -96,7 +96,6 @@ TC_GAME_API extern DB2Storage<ItemArmorQualityEntry>                sItemArmorQu
 TC_GAME_API extern DB2Storage<ItemArmorShieldEntry>                 sItemArmorShieldStore;
 TC_GAME_API extern DB2Storage<ItemArmorTotalEntry>                  sItemArmorTotalStore;
 TC_GAME_API extern DB2Storage<ItemBagFamilyEntry>                   sItemBagFamilyStore;
-TC_GAME_API extern DB2Storage<ItemClassEntry>                       sItemClassStore;
 TC_GAME_API extern DB2Storage<ItemDamageAmmoEntry>                  sItemDamageAmmoStore;
 TC_GAME_API extern DB2Storage<ItemDamageOneHandEntry>               sItemDamageOneHandStore;
 TC_GAME_API extern DB2Storage<ItemDamageOneHandCasterEntry>         sItemDamageOneHandCasterStore;
@@ -125,6 +124,7 @@ TC_GAME_API extern DB2Storage<MailTemplateEntry>                    sMailTemplat
 TC_GAME_API extern DB2Storage<MapEntry>                             sMapStore;
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
+TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
@@ -136,6 +136,8 @@ TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortSt
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
 TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
+TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
+TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
 TC_GAME_API extern DB2Storage<SkillLineEntry>                       sSkillLineStore;
 TC_GAME_API extern DB2Storage<SceneScriptEntry>                     sSceneScriptStore;
 TC_GAME_API extern DB2Storage<SceneScriptPackageEntry>              sSceneScriptPackageStore;
@@ -247,6 +249,7 @@ public:
     typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
     typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
     typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
+    typedef std::array<ItemClassEntry const*, 19> ItemClassByOldEnumContainer;
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
@@ -258,7 +261,8 @@ public:
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
     typedef std::array<std::vector<std::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
-    typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
+    typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
+    typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
     typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
     typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
     typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
@@ -303,6 +307,7 @@ public:
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
+    ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const { return _itemsWithCurrencyCost.count(itemId) > 0; }
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const;
@@ -323,9 +328,10 @@ public:
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
-    static PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-    static PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
+    static PvpDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+    static PvpDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
+    std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
     uint32 GetRulesetItemUpgrade(uint32 itemId) const;
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
@@ -364,6 +370,7 @@ private:
     ItemBonusListLevelDeltaContainer _itemLevelDeltaToBonusListContainer;
     ItemBonusTreeContainer _itemBonusTrees;
     ItemChildEquipmentContainer _itemChildEquipment;
+    ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
     ItemModifiedAppearanceByItemContainer _itemDefaultAppearancesByItem;
@@ -376,7 +383,7 @@ private:
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
-    PowerTypeEntry const* _powerTypes[MAX_POWERS];
+    PowerTypesContainer _powerTypes;
     QuestPackageItemContainer _questPackages;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;

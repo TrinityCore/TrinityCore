@@ -44,7 +44,7 @@ namespace Trinity
         }
 
         template<class T, class Predicate>
-        void RandomResizeList(std::list<T> &list, Predicate& predicate, uint32 size)
+        void RandomResizeList(std::list<T> &list, Predicate predicate, uint32 size)
         {
             //! First use predicate filter
             std::list<T> listCopy;
