@@ -118,13 +118,6 @@ public:
             creature->SetReactState(REACT_PASSIVE);
         }
 
-        void Reset() override
-        {
-            _Reset();
-            _intro = false;
-            events.SetPhase(PHASE_INTRO);
-        }
-
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
@@ -150,6 +143,7 @@ public:
             {
                 _intro = true;
                 Talk(SAY_INTRO);
+                events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_FINISH_INTRO, Seconds(20));
             }
         }
@@ -206,8 +200,7 @@ public:
                         events.Repeat(Seconds(18), Seconds(30));
                         break;
                     case EVENT_FINISH_INTRO:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     default:
