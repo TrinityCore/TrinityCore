@@ -1027,7 +1027,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
-        
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_gatewatcher_web_wrap_AuraScript();
@@ -1048,7 +1048,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
             if (!instance)
                 return false;
 
-            for (DataTypes watcherData : {DATA_WATCHER_GASHRA, DATA_WATCHER_NARJIL, DATA_WATCHER_SILTHIK})
+            for (ANDataTypes watcherData : {DATA_WATCHER_GASHRA, DATA_WATCHER_NARJIL, DATA_WATCHER_SILTHIK})
             {
                 if (Creature* watcher = instance->GetCreature(watcherData))
                     if (watcher->IsAlive())

@@ -107,7 +107,7 @@ enum SummonGroups
     SUMMON_GROUP_GUARDIAN_FIRST             = 01 /*..04 */,
     SUMMON_GROUP_MINION_FIRST               = 05 /*..11 */
 };
-static const std::initializer_list<Data64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
+static const std::initializer_list<NAXData64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
 
 enum Phases
 {
@@ -227,7 +227,7 @@ public:
             }
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                for (Data64 portalData : portalList)
+                for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
 
@@ -469,7 +469,7 @@ public:
                         case EVENT_TRANSITION_REPLY:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICH_KING)))
                                 lichKing->AI()->Talk(SAY_ANSWER_REQUEST);
-                            for (Data64 portalData : portalList)
+                            for (NAXData64 portalData : portalList)
                                 if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                                     portal->SetGoState(GO_STATE_ACTIVE);
                             break;
