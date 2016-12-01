@@ -88,10 +88,10 @@ void MotionMaster::UpdateMotion(uint32 diff)
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
-    bool IsMoveGenUpdateSuccess = top()->Update(_owner, diff);
+    bool isMoveGenUpdateSuccess = top()->Update(_owner, diff);
     _cleanFlag &= ~MMCF_UPDATE;
 
-    if (!IsMoveGenUpdateSuccess)
+    if (!isMoveGenUpdateSuccess)
         MovementExpired();
 
     if (_expireList)
