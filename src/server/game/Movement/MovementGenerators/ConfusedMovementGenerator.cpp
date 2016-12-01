@@ -36,7 +36,7 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* unit)
     // send to clients the order to immobilize the unit and make it face a random direction.
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z, false, true);
-    init.SetFacing(frand(0.0f, 2*(float)M_PI));
+    init.SetFacing(frand(0.0f, 2 * static_cast<float>(M_PI)));
     init.SetWalk(true);
     init.Launch();
 
