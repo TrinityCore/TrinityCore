@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "black_temple.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "PassiveAI.h"
 #include "GridNotifiers.h"
+
+#include "black_temple.h"
 
 enum Says
 {
