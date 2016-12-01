@@ -22,7 +22,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum Data
+enum VAData
 {
     DATA_ARCHAVON       = 0,
     DATA_EMALON         = 1,
@@ -30,7 +30,7 @@ enum Data
     DATA_TORAVON        = 3,
 };
 
-enum CreatureIds
+enum VACreatureIds
 {
     NPC_ARCHAVON        = 31125,
     NPC_EMALON          = 33993,
@@ -38,13 +38,13 @@ enum CreatureIds
     NPC_TORAVON         = 38433
 };
 
-enum AchievementCriteriaIds
+enum VAAchievementCriteriaIds
 {
     CRITERIA_EARTH_WIND_FIRE_10 = 12018,
     CRITERIA_EARTH_WIND_FIRE_25 = 12019,
 };
 
-enum AchievementSpells
+enum VAAchievementSpells
 {
     SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
 };

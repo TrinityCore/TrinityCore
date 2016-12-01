@@ -27,14 +27,14 @@
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum BHDataTypes
 {
     DATA_ARGALOTH           = 0,
     DATA_OCCUTHAR           = 1,
     DATA_ALIZABAL           = 2
 };
 
-enum CreatureIds
+enum BHCreatureIds
 {
     BOSS_ARGALOTH           = 47120,
     BOSS_OCCUTHAR           = 52363,
@@ -45,7 +45,7 @@ enum CreatureIds
     NPC_OCCUTHAR_EYE        = 52368
 };
 
-enum GameObjectIds
+enum BHGameObjectIds
 {
     GO_ARGALOTH_DOOR        = 207619,
     GO_OCCUTHAR_DOOR        = 208953,

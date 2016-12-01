@@ -21,7 +21,7 @@
 #define SCScriptName "instance_stonecore"
 #define DataHeader "SC"
 
-enum DataTypes
+enum SCDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_CORBORUS,
@@ -44,7 +44,7 @@ enum DataTypes
     DATA_STONECORE_TELEPORTER_2,
 };
 
-enum Misc
+enum SCMisc
 {
     ACTION_CORBORUS_INTRO,
     ACTION_SLABHIDE_INTRO,

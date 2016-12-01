@@ -26,7 +26,7 @@
 
 uint32 const EncounterCount = 7;
 
-enum DataTypes
+enum FLDataTypes
 {
     DATA_BETH_TILAC         = 0,
     DATA_LORD_RHYOLITH      = 1,
@@ -37,7 +37,7 @@ enum DataTypes
     DATA_RAGNAROS           = 6,
 };
 
-enum CreatureIds
+enum FLCreatureIds
 {
     //Bosses
     NPC_SHANNOX                     = 53691,

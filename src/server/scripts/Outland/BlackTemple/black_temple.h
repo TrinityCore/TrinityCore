@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount         = 9;
 
-enum DataTypes
+enum BTDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_HIGH_WARLORD_NAJENTUS      = 0,
@@ -57,7 +57,7 @@ enum TriggerEmotes
     EMOTE_DEN_OF_MORTAL_DOOR_OPEN    = 1
 };
 
-enum CreatureIds
+enum BTCreatureIds
 {
     //Bosses
     NPC_HIGH_WARLORD_NAJENTUS       = 22887,
@@ -82,7 +82,7 @@ enum CreatureIds
     NPC_BLACK_TEMPLE_TRIGGER        = 22984
 };
 
-enum GameObjectIds
+enum BTGameObjectIds
 {
     GO_NAJENTUS_GATE                = 185483,
     GO_NAJENTUS_SPINE               = 185584,

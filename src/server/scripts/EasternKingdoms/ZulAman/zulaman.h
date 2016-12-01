@@ -22,7 +22,7 @@ uint32 const EncounterCount = 6;
 #define ZulAmanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
-enum DataTypes
+enum ZADataTypes
 {
     // BossState
     DATA_AKILZONEVENT                = 0,
@@ -42,7 +42,7 @@ enum DataTypes
     DATA_ZULAMAN_STATE
 };
 
-enum CreatureIds
+enum ZACreatureIds
 {
     NPC_AKILZON                 = 23574,
     NPC_NALORAKK                = 23576,
@@ -55,24 +55,24 @@ enum CreatureIds
     NPC_HEXLORD_TRIGGER         = 24363
 };
 
-enum GameObjectIds
+enum ZAGameObjectIds
 {
     GO_STRANGE_GONG             = 187359,
     GO_MASSIVE_GATE             = 186728,
 };
 
-enum ZulAmanEvents
+enum ZAEvents
 {
     EVENT_START_ZULAMAN         = 15897,
     EVENT_UPDATE_ZULAMAN_TIMER  = 1,
 };
 
-enum ZulAmanAction
+enum ZAAction
 {
     ACTION_START_ZULAMAN        = 1
 };
 
-enum ZulAmanWorldStates
+enum ZAWorldStates
 {
     WORLD_STATE_ZULAMAN_TIMER_ENABLED   = 3104,
     WORLD_STATE_ZULAMAN_TIMER           = 3106,
