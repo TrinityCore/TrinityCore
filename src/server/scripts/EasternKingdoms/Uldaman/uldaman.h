@@ -23,7 +23,7 @@
 
 #define MAX_ENCOUNTER                   3
 
-enum DataTypes
+enum UDDataTypes
 {
     DATA_ALTAR_DOORS                    = 1,
     DATA_ANCIENT_DOOR                   = 2,
@@ -33,7 +33,7 @@ enum DataTypes
     DATA_IRONAYA_SEAL                   = 6,
 };
 
-enum GameObjectIds
+enum UDGameObjectIds
 {
     GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
     GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
