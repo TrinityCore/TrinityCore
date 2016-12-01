@@ -2617,6 +2617,7 @@ struct ItemSpecStats
         }
         else if (item->Class == ITEM_CLASS_GEM)
         {
+            ItemType = 7;
             if (GemPropertiesEntry const* gem = sGemPropertiesStore.LookupEntry(sparse->GemProperties))
             {
                 if (gem->Type & SOCKET_COLOR_RELIC_IRON)
@@ -2747,47 +2748,49 @@ void ObjectMgr::LoadItemTemplates()
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
+            {
                 if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpecOverride->SpecID))
+                {
+                    itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
                     itemTemplate.Specializations[0].set(ItemTemplate::CalculateItemSpecBit(specialization));
-
-            itemTemplate.Specializations[1] |= itemTemplate.Specializations[0];
+                    itemTemplate.Specializations[1] |= itemTemplate.Specializations[0];
+                    itemTemplate.Specializations[2] |= itemTemplate.Specializations[0];
+                }
+            }
         }
         else
         {
             ItemSpecStats itemSpecStats(db2Data, sparse);
 
-            if (itemSpecStats.ItemSpecStatCount)
+            for (ItemSpecEntry const* itemSpec : sItemSpecStore)
             {
-                for (ItemSpecEntry const* itemSpec : sItemSpecStore)
+                if (itemSpecStats.ItemType != itemSpec->ItemType)
+                    continue;
+
+                bool hasPrimary = itemSpec->PrimaryStat == ITEM_SPEC_STAT_NONE;
+                bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+                for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
                 {
-                    if (itemSpecStats.ItemType != itemSpec->ItemType)
-                        continue;
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
+                        hasPrimary = true;
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
+                        hasSecondary = true;
+                }
 
-                    bool hasPrimary = false;
-                    bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
-                    for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
+                if (!hasPrimary || !hasSecondary)
+                    continue;
+
+                if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
+                {
+                    if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
                     {
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
-                            hasPrimary = true;
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
-                            hasSecondary = true;
-                    }
-
-                    if (!hasPrimary || !hasSecondary)
-                        continue;
-
-                    if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
-                    {
-                        if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
-                        {
-                            itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
-                            std::size_t specBit = ItemTemplate::CalculateItemSpecBit(specialization);
-                            itemTemplate.Specializations[0].set(specBit);
-                            if (itemSpec->MaxLevel > 40)
-                                itemTemplate.Specializations[1].set(specBit);
-                            if (itemSpec->MaxLevel >= 110)
-                                itemTemplate.Specializations[2].set(specBit);
-                        }
+                        itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
+                        std::size_t specBit = ItemTemplate::CalculateItemSpecBit(specialization);
+                        itemTemplate.Specializations[0].set(specBit);
+                        if (itemSpec->MaxLevel > 40)
+                            itemTemplate.Specializations[1].set(specBit);
+                        if (itemSpec->MaxLevel >= 110)
+                            itemTemplate.Specializations[2].set(specBit);
                     }
                 }
             }

@@ -18,3 +18,4 @@ CMakeLists.txt.user
 *.LOCAL.*
 nbproject/*
 .idea/*
+cmake-build-*/
