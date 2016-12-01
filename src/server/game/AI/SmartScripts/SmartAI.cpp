@@ -45,6 +45,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     // Spawn in run mode
     mRun = true;
     m_Ended = false;
+    mEvadeDisabled = false;
 
     mCanAutoAttack = true;
     mCanCombatMove = true;
