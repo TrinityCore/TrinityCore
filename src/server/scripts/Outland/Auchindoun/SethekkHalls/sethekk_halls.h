@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount             = 3;
 
-enum DataTypes
+enum SHDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_DARKWEAVER_SYTH                = 0,
@@ -34,13 +34,13 @@ enum DataTypes
     DATA_TALON_KING_COFFER              = 3
 };
 
-enum CreatureIds
+enum SHCreatureIds
 {
     NPC_ANZU                            = 23035,
     NPC_BROOD_OF_ANZU                   = 23132
 };
 
-enum GameObjectIds
+enum SHGameObjectIds
 {
     GO_IKISS_DOOR                       = 177203,
     GO_TALON_KING_COFFER                = 187372
