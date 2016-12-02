@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum DTKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_TROLLGORE                      = 0,
@@ -50,7 +50,7 @@ enum DataTypes
     ACTION_CRYSTAL_HANDLER_DIED
 };
 
-enum CreatureIds
+enum DTKCreatureIds
 {
     NPC_TROLLGORE                       = 26630,
     NPC_NOVOS                           = 26631,
@@ -76,7 +76,7 @@ enum CreatureIds
     NPC_WORLD_TRIGGER                   = 22515
 };
 
-enum GameObjectIds
+enum DTKGameObjectIds
 {
     GO_NOVOS_CRYSTAL_1                  = 189299,
     GO_NOVOS_CRYSTAL_2                  = 189300,

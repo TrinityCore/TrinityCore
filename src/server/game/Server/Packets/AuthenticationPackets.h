@@ -99,6 +99,13 @@ namespace WorldPackets
             void Read() override;
         };
 
+        struct AuthWaitInfo
+        {
+            uint32 WaitCount = 0; ///< position of the account in the login queue
+            uint32 WaitTime = 0; ///< Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
+            bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
@@ -146,13 +153,6 @@ namespace WorldPackets
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
             };
 
-            struct AuthWaitInfo
-            {
-                uint32 WaitCount = 0; ///< position of the account in the login queue
-                uint32 WaitTime = 0; ///< Wait time in login queue in minutes, if sent queued and this value is 0 client displays "unknown time"
-                bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
-            };
-
             AuthResponse();
 
             WorldPacket const* Write() override;
@@ -160,6 +160,24 @@ namespace WorldPackets
             Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
             Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
             uint32 Result = 0; ///< the result of the authentication process, possible values are @ref BattlenetRpcErrorCode
+        };
+
+        class WaitQueueUpdate final : public ServerPacket
+        {
+        public:
+            WaitQueueUpdate() : ServerPacket(SMSG_WAIT_QUEUE_UPDATE, 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            AuthWaitInfo WaitInfo;
+        };
+
+        class WaitQueueFinish final : public ServerPacket
+        {
+        public:
+            WaitQueueFinish() : ServerPacket(SMSG_WAIT_QUEUE_FINISH, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
 
         enum class ConnectToSerial : uint32
