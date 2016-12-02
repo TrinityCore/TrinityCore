@@ -32,7 +32,7 @@ script:
   - ./contrib/check_updates.sh characters master characters
   - mysql -u trinity -ptrinity world -h 127.0.0.1 < sql/base/dev/world_database.sql
   - mysql -u trinity -ptrinity hotfixes -h 127.0.0.1 < sql/base/dev/hotfixes_database.sql
-  - cat sql/updates/world/master/*.sql | mysql - utrinity -ptrinity world -h 127.0.0.1
+  - cat sql/updates/world/master/*.sql | mysql -u trinity -ptrinity world -h 127.0.0.1
   - cat sql/updates/hotfixes/master/*.sql | mysql -u trinity -ptrinity hotfixes -h 127.0.0.1
   - mysql -u root -h 127.0.0.1 < sql/create/drop_mysql.sql
   - cd bin
