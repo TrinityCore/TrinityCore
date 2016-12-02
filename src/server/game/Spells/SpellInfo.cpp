@@ -2828,7 +2828,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
             if (auraSpellInfo->Dispel == dispelImmunity)
                 return true;
 
-        bool immuneToAllEffects = true;        
+        bool immuneToAllEffects = true;
         for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             uint32 effectName = auraSpellInfo->Effects[effIndex].Effect;
