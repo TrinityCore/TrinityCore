@@ -18,9 +18,10 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "black_temple.h"
-#include "GridNotifiersImpl.h"
 #include "PassiveAI.h"
+#include "GridNotifiers.h"
+
+#include "black_temple.h"
 
 enum Says
 {
@@ -184,7 +185,7 @@ public:
 
             events.Update(diff);
 
-              while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
@@ -235,8 +236,7 @@ public:
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                         }
-                        //Solo attempts dont change phase (he reset first phase spells)
-                        else
+                        else // If no other targets are found, reset phase 1
                         {
                             events.SetPhase(PHASE_1);
                             events.CancelEventGroup(GROUP_PHASE_2);
@@ -289,26 +289,28 @@ public:
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                 ScheduleEvents();
-                //When phase 2 ends, he need attack back the tanker of the first phase
-                if (Unit* target = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
-                    if (Unit* phase2tanker = ObjectAccessor::GetUnit(*me, _targetGUID))
+
+                // Attack the stored target
+                if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
+                    if (Unit* currentTarget = ObjectAccessor::GetUnit(*me, _targetGUID))
                     {
-                        DoModifyThreatPercent(phase2tanker, -100);
-                        AttackStart(target);
-                        me->AddThreat(target, _oldThreat);
+                        DoModifyThreatPercent(currentTarget, -100);
+                        AttackStart(oldTarget);
+                        me->AddThreat(oldTarget, _oldThreat);
                         Initialize();
                     }
             }
         }
-        private:
-            ObjectGuid _targetGUID;
-            ObjectGuid _oldTargetGUID;
-            float _oldThreat;
+
+    private:
+        ObjectGuid _targetGUID;
+        ObjectGuid _oldTargetGUID;
+        float _oldThreat;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gurtogg_bloodboilAI>(creature);
+        return GetBlackTempleAI<boss_gurtogg_bloodboilAI>(creature);
     }
 };
 
@@ -330,7 +332,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_fel_geyserAI(creature);
+        return GetBlackTempleAI<npc_fel_geyserAI>(creature);
     }
 };
 
