@@ -290,7 +290,7 @@ public:
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
                 ScheduleEvents();
-                
+
                 // Attack the stored target
                 if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
                     if (Unit* currentTarget = ObjectAccessor::GetUnit(*me, _targetGUID))
