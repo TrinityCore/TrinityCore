@@ -26,6 +26,10 @@ set(SRC_FILES
   Program.cpp
 )
 
+if (WIN32)
+  list(APPEND SRC_FILES ${sources_windows})
+endif()
+
 add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
 
 if (MSVC)

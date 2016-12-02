@@ -21,14 +21,14 @@
 
 #define DataHeader "SS"
 
-enum WaterEventState
+enum SSWaterEventState
 {
     WATERSTATE_NONE     = 0,
     WATERSTATE_FRENZY   = 1,
     WATERSTATE_SCALDING = 2
 };
 
-enum DataTypes
+enum SSDataTypes
 {
     DATA_CANSTARTPHASE3             = 1,
     DATA_CARIBDIS                   = 2,
