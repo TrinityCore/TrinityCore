@@ -236,7 +236,7 @@ public:
             events.Reset();
             summons.DespawnAll();
 
-            for (ObjectGuid const& spawnerGuid : _spawners)
+            for (ObjectGuid const spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                     spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
@@ -268,7 +268,7 @@ public:
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
-                for (ObjectGuid const& spawnerGuid : _spawners)
+                for (ObjectGuid const spawnerGuid : _spawners)
                     if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                         spawner->AI()->DoAction(ACTION_STOP_SPAWNING);
             }
@@ -281,7 +281,7 @@ public:
             if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                 akama->AI()->DoAction(ACTION_SHADE_OF_AKAMA_DEAD);
 
-            for (ObjectGuid const& spawnerGuid : _spawners)
+            for (ObjectGuid const spawnerGuid : _spawners)
                 if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                     spawner->AI()->DoAction(ACTION_DESPAWN_ALL_SPAWNS);
 
@@ -323,11 +323,11 @@ public:
                     }
                     case EVENT_START_CHANNELERS_AND_SPAWNERS:
                     {
-                        for (ObjectGuid const& summonGuid : summons)
+                        for (ObjectGuid const summonGuid : summons)
                             if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
                                 channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                        for (ObjectGuid const& spawnerGuid : _spawners)
+                        for (ObjectGuid const spawnerGuid : _spawners)
                             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
                                 spawner->AI()->DoAction(ACTION_START_SPAWNING);
 
@@ -349,14 +349,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            GuidVector _spawners;
-            bool _isInPhaseOne;
+    private:
+        GuidVector _spawners;
+        bool _isInPhaseOne;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_shade_of_akamaAI>(creature);
+        return GetBlackTempleAI<boss_shade_of_akamaAI>(creature);
     }
 };
 
@@ -560,19 +560,19 @@ public:
             }
         }
 
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            SummonList _summons;
-            DummyEntryCheckPredicate _pred;
-            ObjectGuid _chosen; //Creature that should yell the speech special.
-            bool _isInCombat;
-            bool _hasYelledOnce;
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
+        SummonList _summons;
+        DummyEntryCheckPredicate _pred;
+        ObjectGuid _chosen; //Creature that should yell the speech special.
+        bool _isInCombat;
+        bool _hasYelledOnce;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_akamaAI>(creature);
+        return GetBlackTempleAI<npc_akamaAI>(creature);
     }
 };
 
@@ -611,14 +611,14 @@ public:
             _scheduler.Update(diff);
         }
 
-        private:
-            InstanceScript* _instance;
-            TaskScheduler _scheduler;
+    private:
+        InstanceScript* _instance;
+        TaskScheduler _scheduler;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_channelerAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_channelerAI>(creature);
     }
 };
 
@@ -708,15 +708,15 @@ public:
             }
         }
 
-        private:
-            EventMap _events;
-            SummonList _summons;
-            bool _leftSide;
+    private:
+        EventMap _events;
+        SummonList _summons;
+        bool _leftSide;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_creature_generator_akamaAI>(creature);
+        return GetBlackTempleAI<npc_creature_generator_akamaAI>(creature);
     }
 };
 
@@ -812,16 +812,16 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            InstanceScript* _instance;
-            TaskScheduler _scheduler;
-            bool _switchToCombat;
-            bool _inBanish;
+    private:
+        InstanceScript* _instance;
+        TaskScheduler _scheduler;
+        bool _switchToCombat;
+        bool _inBanish;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_sorcererAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_sorcererAI>(creature);
     }
 };
 
@@ -892,14 +892,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_defenderAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_defenderAI>(creature);
     }
 };
 
@@ -961,14 +961,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_rogueAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_rogueAI>(creature);
     }
 };
 
@@ -1030,14 +1030,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_elementalistAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_elementalistAI>(creature);
     }
 };
 
@@ -1129,16 +1129,16 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            bool _spiritMend;
-            bool _chainHeal;
+    private:
+        InstanceScript* _instance;
+        EventMap _events;
+        bool _spiritMend;
+        bool _chainHeal;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_spiritbinderAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_spiritbinderAI>(creature);
     }
 };
 
@@ -1189,7 +1189,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_brokenAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_brokenAI>(creature);
     }
 };
 

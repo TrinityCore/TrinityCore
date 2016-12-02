@@ -1270,7 +1270,7 @@ class go_toy_train_set : public GameObjectScript
 enum BrewfestMusic
 {
     EVENT_BREWFESTDWARF01 = 11810, // 1.35 min
-    EVENT_BREWFESTDWARF02 = 11812, // 1.55 min 
+    EVENT_BREWFESTDWARF02 = 11812, // 1.55 min
     EVENT_BREWFESTDWARF03 = 11813, // 0.23 min
     EVENT_BREWFESTGOBLIN01 = 11811, // 1.08 min
     EVENT_BREWFESTGOBLIN02 = 11814, // 1.33 min
@@ -1318,7 +1318,7 @@ public:
     {
         uint32 rnd = 0;
         uint32 musicTime = 1000;
-		
+
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
             _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
@@ -1402,7 +1402,7 @@ public:
 enum MidsummerMusic
 {
     EVENTMIDSUMMERFIREFESTIVAL_A = 12319, // 1.08 min
-    EVENTMIDSUMMERFIREFESTIVAL_H = 12325, // 1.12 min 
+    EVENTMIDSUMMERFIREFESTIVAL_H = 12325, // 1.12 min
 };
 
 enum MidsummerMusicEvents
