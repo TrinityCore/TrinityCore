@@ -46,7 +46,7 @@ ObjectData const gameobjectData[] =
     { 0,                  0                  } // END
 };
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     { DATA_KRIKTHIR, new RectangleBoundary(400.0f, 580.0f, 623.5f, 810.0f) },
     { DATA_HADRONOX, new ZRangeBoundary(666.0f, 776.0f) },
