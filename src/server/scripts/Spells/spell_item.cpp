@@ -121,13 +121,13 @@ enum AlchemistStone
     SPELL_ALCHEMISTS_STONE_EXTRA_MANA       = 21400
 };
 
-// Item - 13503: Alchemist's Stone 
-// Item - 35748: Guardian's Alchemist Stone 
-// Item - 35749: Sorcerer's Alchemist Stone 
-// Item - 35750: Redeemer's Alchemist Stone 
-// Item - 35751: Assassin's Alchemist Stone 
-// Item - 44322: Mercurial Alchemist Stone 
-// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 13503: Alchemist's Stone
+// Item - 35748: Guardian's Alchemist Stone
+// Item - 35749: Sorcerer's Alchemist Stone
+// Item - 35750: Redeemer's Alchemist Stone
+// Item - 35751: Assassin's Alchemist Stone
+// Item - 44322: Mercurial Alchemist Stone
+// Item - 44323: Indestructible Alchemist's Stone
 // Item - 44324: Mighty Alchemist's Stone
 
 // 17619 - Alchemist's Stone
@@ -282,9 +282,9 @@ class spell_item_arcane_shroud : public SpellScriptLoader
 };
 
 // Item - 12846: Argent Dawn Commission
-// Item - 13209: Seal of the Dawn 
-// Item - 19812: Rune of the Dawn 
- 
+// Item - 13209: Seal of the Dawn
+// Item - 19812: Rune of the Dawn
+
 // 17670 - Argent Dawn Commission
 class spell_item_argent_dawn_commission : public SpellScriptLoader
 {
@@ -331,7 +331,7 @@ enum AuraOfMadness
     SAY_MADNESS             = 21954
 };
 
-// Item - 31859: Darkmoon Card: Madness 
+// Item - 31859: Darkmoon Card: Madness
 // 39446 - Aura of Madness
 class spell_item_aura_of_madness : public SpellScriptLoader
 {
@@ -1362,8 +1362,8 @@ enum MarkOfConquest
     SPELL_MARK_OF_CONQUEST_ENERGIZE     = 39599
 };
 
-// Item - 27920: Mark of Conquest 
-// Item - 27921: Mark of Conquest 
+// Item - 27920: Mark of Conquest
+// Item - 27921: Mark of Conquest
 // 33510 - Health Restore
 class spell_item_mark_of_conquest : public SpellScriptLoader
 {
@@ -4439,9 +4439,9 @@ class spell_item_universal_remote : public SpellScriptLoader
                 {
                     uint8 chance = urand(0, 99);
                     if (chance < 15)
-                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem());
                     else if (chance < 25)
-                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem());
                     else
                         GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
                 }

@@ -844,7 +844,7 @@ class boss_kaelthas : public CreatureScript
                         default:
                             break;
                     }
-                    
+
                     if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_GAINING_POWER) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_STUNNED))
                         return;
                 }

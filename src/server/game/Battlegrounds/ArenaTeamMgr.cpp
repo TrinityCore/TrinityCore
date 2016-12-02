@@ -188,7 +188,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
         {
             if (at->FinishWeek())
                 at->SaveToDB();
-            
+
             at->NotifyStatsChanged();
         }
     }
