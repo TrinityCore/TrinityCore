@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount         = 9;
 
-enum DataTypes
+enum BTDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_HIGH_WARLORD_NAJENTUS      = 0,
@@ -51,7 +51,7 @@ enum DataTypes
     DATA_GO_ILLIDAN_DOOR_L          = 18
 };
 
-enum CreatureIds
+enum BTCreatureIds
 {
     NPC_HIGH_WARLORD_NAJENTUS       = 22887,
     NPC_SUPREMUS                    = 22898,
@@ -71,7 +71,7 @@ enum CreatureIds
     NPC_SUPREMUS_VOLCANO            = 23085
 };
 
-enum GameObjectIds
+enum BTGameObjectIds
 {
     GO_NAJENTUS_GATE                = 185483,
     GO_NAJENTUS_SPINE               = 185584,

@@ -20,7 +20,7 @@
 
 #define DataHeader "DM"
 
-enum CannonState
+enum DMCannonState
 {
     CANNON_NOT_USED,
     CANNON_GUNPOWDER_USED,
@@ -29,18 +29,18 @@ enum CannonState
     EVENT_DONE
 };
 
-enum Data
+enum DMData
 {
     EVENT_STATE,
     EVENT_RHAHKZOR
 };
 
-enum Data64
+enum DMData64
 {
     DATA_SMITE_CHEST
 };
 
-enum GameObjects
+enum DMGameObjects
 {
     GO_FACTORY_DOOR                                        = 13965,
     GO_IRONCLAD_DOOR                                       = 16397,
@@ -48,4 +48,5 @@ enum GameObjects
     GO_DOOR_LEVER                                          = 101833,
     GO_MR_SMITE_CHEST                                      = 144111
 };
+
 #endif
