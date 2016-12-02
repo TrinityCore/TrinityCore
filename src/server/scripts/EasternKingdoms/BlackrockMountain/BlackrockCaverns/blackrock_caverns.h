@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount             = 5;
 
-enum DataTypes
+enum BRCDataTypes
 {
     // Encounter States // Boss GUIDs
     DATA_ROMOGG_BONECRUSHER             = 0,
@@ -36,7 +36,7 @@ enum DataTypes
     DATA_RAZ_THE_CRAZED                 = 5
 };
 
-enum CreatureIds
+enum BRCCreatureIds
 {
     NPC_TWILIGHT_FLAME_CALLER           = 39708,
     NPC_RAZ_THE_CRAZED                  = 39670,

@@ -74,7 +74,7 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_HORSEMEN_IS_TIMED_KILL = NAXData::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
     DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };
