@@ -611,6 +611,19 @@ namespace WorldPackets
             int32 SoundKitID = 0;
         };
 
+        class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
+        {
+        public:
+            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20) { }
+            PlaySpeakerbotSound(ObjectGuid const& sourceObjectGUID, int32 soundKitID)
+                : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
+            int32 SoundKitID = 0;
+        };
+
         class CompleteCinematic final : public ClientPacket
         {
         public:
