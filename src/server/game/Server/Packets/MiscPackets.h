@@ -599,6 +599,19 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
         };
 
+        class PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetObjectGUID;
+            ObjectGuid SourceObjectGUID;
+            int32 SoundKitID = 0;
+            G3D::Vector3 Position;
+        };
+
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
