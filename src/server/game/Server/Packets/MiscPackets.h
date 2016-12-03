@@ -40,7 +40,7 @@ namespace WorldPackets
             WeatherState WeatherID = WeatherState(0);
         };
 
-        class PlayMusic final : public ServerPacket
+        class TC_GAME_API PlayMusic final : public ServerPacket
         {
         public:
             PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
@@ -49,6 +49,18 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+            ObjectGuid SourceObjectGUID;
+            
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket

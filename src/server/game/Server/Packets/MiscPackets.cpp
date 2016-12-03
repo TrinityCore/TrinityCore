@@ -33,14 +33,22 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
 
 WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
 {
-    _worldPacket << uint32(SoundKitID);
+    _worldPacket << SoundKitID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << SoundKitID;
+    _worldPacket << SourceObjectGUID;
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 {
-    _worldPacket << uint32(SoundKitID);
+    _worldPacket << SoundKitID;
 
     return &_worldPacket;
 }
