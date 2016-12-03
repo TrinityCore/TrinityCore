@@ -1400,14 +1400,14 @@ std::vector<uint32> const WormholeTargetLocations =
 };
 
 // 126755 - Wormhole: Pandaria
-class spell_item_wormhole_generator_pandaria : public SpellScriptLoader
+class spell_item_wormhole_pandaria : public SpellScriptLoader
 {
     public:
-        spell_item_wormhole_generator_pandaria() : SpellScriptLoader("spell_item_wormhole_generator_pandaria") { }
+        spell_item_wormhole_pandaria() : SpellScriptLoader("spell_item_wormhole_pandaria") { }
 
-        class spell_item_wormhole_generator_pandaria_SpellScript : public SpellScript
+        class spell_item_wormhole_pandaria_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_wormhole_generator_pandaria_SpellScript);
+            PrepareSpellScript(spell_item_wormhole_pandaria_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -1421,18 +1421,18 @@ class spell_item_wormhole_generator_pandaria : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 uint32 spellId = Trinity::Containers::SelectRandomContainerElement(WormholeTargetLocations);
-                GetCaster()->CastSpell(GetCaster(), spellId, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_item_wormhole_generator_pandaria_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_item_wormhole_pandaria_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_item_wormhole_generator_pandaria_SpellScript();
+            return new spell_item_wormhole_pandaria_SpellScript();
         }
 };
 
@@ -3138,7 +3138,7 @@ void AddSC_item_spell_scripts()
     new spell_item_six_demon_bag();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
-    new spell_item_wormhole_generator_pandaria();
+    new spell_item_wormhole_pandaria();
     new spell_item_worn_troll_dice();
     new spell_item_red_rider_air_rifle();
 
