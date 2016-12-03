@@ -1657,7 +1657,18 @@ void SpellMgr::LoadSpellProcs()
         }
 
         if (!procSpellTypeMask)
+        {
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (spellInfo->Effects[i].IsAura())
+                {
+                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags %u, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo->Id, spellInfo->ProcFlags);
+                    break;
+                }
+            }
+
             continue;
+        }
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
