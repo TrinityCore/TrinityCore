@@ -1,6 +1,6 @@
 DELETE FROM `spell_script_names` WHERE `spell_id`=126755;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(126755, 'spell_gen_wormhole_generator_pandaria');
+(126755, 'spell_item_wormhole_generator_pandaria');
 
 DELETE FROM `spell_target_position` WHERE `ID` IN (126756,126757,126758,126759,126760,126761,126762,126763,126764);
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
