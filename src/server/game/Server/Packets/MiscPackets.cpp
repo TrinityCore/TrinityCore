@@ -442,6 +442,14 @@ WorldPacket const* WorldPackets::Misc::PlaySound::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << int32(SoundKitID);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::FarSight::Read()
 {
     Enable = _worldPacket.ReadBit();
