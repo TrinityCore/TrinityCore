@@ -1,0 +1,3 @@
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES ('1784', '158185', '2', 'Stealth mod');
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES ('1784', '158188', '2', 'Stealth shapeshift');
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES ('115191', '158185', '2', 'Stealth mod');
