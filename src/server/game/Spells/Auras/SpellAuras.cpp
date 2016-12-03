@@ -883,11 +883,13 @@ void Aura::SetStackAmount(uint8 stackAmount)
             m_effects[i]->ChangeAmount(m_effects[i]->CalculateAmount(caster), false, true);
 
     for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
+    {
         if (!(*apptItr)->GetRemoveMode())
         {
-            HandleAuraSpecificMods(*apptItr, caster, true, true);
             HandleAuraSpecificPeriodics(*apptItr, caster);
+            HandleAuraSpecificMods(*apptItr, caster, true, true);
         }
+    }
 
     SetNeedClientUpdateForTargets();
 }
