@@ -724,21 +724,15 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
                 caster->CastCustomSpell(SPELL_AURA_OF_DESIRE_DAMAGE, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                amount = aurEff->GetAmount() - 5;
-            }
-
             void UpdateAmount(AuraEffect const* /*effect*/)
             {
                 if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_1))
-                    effect->RecalculateAmount();
+                    effect->ChangeAmount(effect->GetAmount() - 5);
             }
 
             void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
