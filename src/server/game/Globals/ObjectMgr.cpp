@@ -9761,7 +9761,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
             uint32 areatriggerId            = areatriggerSpellMiscFields[1].GetUInt32();
             miscTemplate.Template           = GetAreaTriggerTemplate(areatriggerId);
 
-            if (miscTemplate.Template == nullptr)
+            if (!miscTemplate.Template)
             {
                 TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` reference invalid AreaTriggerId %u for miscId %u", areatriggerId, miscTemplate.MiscId);
                 continue;

@@ -4914,15 +4914,15 @@ void Unit::RemoveAllGameObjects()
 void Unit::_RegisterAreaTrigger(AreaTrigger* areaTrigger)
 {
     m_areaTrigger.push_back(areaTrigger);
-    //if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
-    //    ToCreature()->AI()->JustRegisteredAreaTrigger(areaTrigger);
+    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+        ToCreature()->AI()->JustRegisteredAreaTrigger(areaTrigger);
 }
 
 void Unit::_UnregisterAreaTrigger(AreaTrigger* areaTrigger)
 {
     m_areaTrigger.erase(std::remove(m_areaTrigger.begin(), m_areaTrigger.end(), areaTrigger));
-    //if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
-    //    ToCreature()->AI()->JustUnregisteredDynObject(dynObj);
+    if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+        ToCreature()->AI()->JustUnregisteredAreaTrigger(areaTrigger);
 }
 
 AreaTrigger* Unit::GetAreaTrigger(uint32 spellId) const

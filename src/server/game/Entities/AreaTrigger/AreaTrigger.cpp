@@ -70,7 +70,7 @@ void AreaTrigger::RemoveFromWorld()
 bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId/* = ObjectGuid::Empty*/, uint32 spellXSpellVisualId/* = 0*/)
 {
     _casterGuid = caster->GetGUID();
-    _targetGuid = target != nullptr ? target->GetGUID() : ObjectGuid::Empty;
+    _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
 
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -82,7 +82,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     _areaTriggerMiscTemplate = sObjectMgr->GetAreaTriggerMiscTemplate(spellMiscId);
 
-    if (_areaTriggerMiscTemplate == nullptr)
+    if (!_areaTriggerMiscTemplate)
     {
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
         return false;
