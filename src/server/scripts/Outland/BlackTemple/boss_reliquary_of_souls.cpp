@@ -141,7 +141,10 @@ public:
 
     struct boss_reliquary_of_soulsAI : public BossAI
     {
-        boss_reliquary_of_soulsAI(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false) { }
+        boss_reliquary_of_soulsAI(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false)
+        {
+            creature->m_SightDistance = 70.0f;
+        }
 
         void Reset() override
         {
@@ -153,7 +156,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!_inCombat && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster() && me->GetDistance2d(who) <= 70.0f)
+            if (!_inCombat && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster())
             {
                 _inCombat = true;
                 DoZoneInCombat();
