@@ -69,7 +69,6 @@ void AreaTrigger::RemoveFromWorld()
 
 bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId/* = ObjectGuid::Empty*/, uint32 spellXSpellVisualId/* = 0*/)
 {
-    _casterGuid = caster->GetGUID();
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
 
     SetMap(caster->GetMap());
@@ -197,9 +196,8 @@ void AreaTrigger::Remove()
         if (Unit* caster = GetCaster())
             caster->_UnregisterAreaTrigger(this);
 
-        for (ObjectGuid insideUnitGuid : _insideUnits)
-            if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, insideUnitGuid))
-                sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
+        // Handle removal of all units, calling OnUnitExit & deleting auras if needed
+        HandleUnitEnterExit({});
 
         sScriptMgr->OnAreaTriggerEntityRemove(this);
 
@@ -305,19 +303,25 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
     GuidUnorderedSet exitUnits = _insideUnits;
     _insideUnits.clear();
 
+    std::vector<Unit*> enteringUnits;
+
     for (Unit* unit : newTargetList)
     {
         if (exitUnits.erase(unit->GetGUID()) == 0) // erase(key_type) returns number of elements erased
-        {
-            if (Player* player = unit->ToPlayer())
-                if (player->isDebugAreaTriggers)
-                    ChatHandler(player->GetSession()).PSendSysMessage("You entered areatrigger %u", GetTemplate()->Id);
-
-            AddAuras(unit);
-            sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
-        }
+            enteringUnits.push_back(unit);
 
         _insideUnits.insert(unit->GetGUID());
+    }
+
+    // Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
+    for (Unit* unit : enteringUnits)
+    {
+        if (Player* player = unit->ToPlayer())
+            if (player->isDebugAreaTriggers)
+                ChatHandler(player->GetSession()).PSendSysMessage("You entered areatrigger %u", GetTemplate()->Id);
+
+        AddAuras(unit);
+        sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
     }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
@@ -436,7 +440,7 @@ void AreaTrigger::AddAuras(Unit* unit)
     {
         if (UnitFitToAuraRequirement(unit, aura.TargetType))
         {
-            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            if (Unit* caster = GetCaster())
             {
                 if (aura.CastType == AREATRIGGER_AURA_CASTTYPE_CAST)
                     caster->CastSpell(unit, aura.AuraId, true);
@@ -451,7 +455,7 @@ void AreaTrigger::RemoveAuras(Unit* unit)
 {
     for (AreaTriggerAuras aura : GetTemplate()->Auras)
     {
-        unit->RemoveAurasDueToSpell(aura.AuraId, _casterGuid);
+        unit->RemoveAurasDueToSpell(aura.AuraId, GetCasterGuid());
     }
 }
 
@@ -461,21 +465,21 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
     {
         case AREATRIGGER_AURA_USER_FRIEND:
         {
-            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            if (Unit* caster = GetCaster())
                 return caster->IsFriendlyTo(unit);
 
             return false;
         }
         case AREATRIGGER_AURA_USER_ENEMY:
         {
-            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            if (Unit* caster = GetCaster())
                 return !caster->IsFriendlyTo(unit);
 
             return false;
         }
         case AREATRIGGER_AURA_USER_RAID:
         {
-            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            if (Unit* caster = GetCaster())
                 if (Player* casterPlayer = caster->ToPlayer())
                     if (Player* targetPlayer = unit->ToPlayer())
                         return casterPlayer->IsInSameRaidWith(targetPlayer);
@@ -484,7 +488,7 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
         }
         case AREATRIGGER_AURA_USER_PARTY:
         {
-            if (Unit* caster = ObjectAccessor::GetUnit(*this, _casterGuid))
+            if (Unit* caster = GetCaster())
                 if (Player* casterPlayer = caster->ToPlayer())
                     if (Player* targetPlayer = unit->ToPlayer())
                         return casterPlayer->IsInSameGroupWith(targetPlayer);

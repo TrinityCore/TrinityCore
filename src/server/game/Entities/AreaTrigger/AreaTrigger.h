@@ -56,7 +56,9 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
         AreaTriggerTemplate const* GetTemplate() const { return _areaTriggerMiscTemplate->Template; }
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
-        Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, _casterGuid); }
+
+        ObjectGuid GetCasterGuid() const { return GetGuidValue(AREATRIGGER_CASTER); }
+        Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, GetCasterGuid()); }
         Unit* GetTarget() const { return ObjectAccessor::GetUnit(*this, _targetGuid); }
 
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
@@ -71,7 +73,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UpdatePolygonOrientation();
         void UpdateSplinePosition();
 
-        ObjectGuid _casterGuid;
         ObjectGuid _targetGuid;
 
         int32 _duration;
