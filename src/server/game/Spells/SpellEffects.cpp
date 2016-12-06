@@ -3109,6 +3109,9 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->IsAlive())
         return;
 
+    if (!m_caster->HasAuraType(SPELL_AURA_484) && unitTarget->HasAuraType(SPELL_AURA_484))
+        return;
+    
     /// @todo not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
     // there is no CURRENT_AUTOREPEAT_SPELL spells that can be interrupted
