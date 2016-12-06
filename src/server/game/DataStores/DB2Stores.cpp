@@ -940,6 +940,32 @@ DB2StorageBase const* DB2Manager::GetStorage(uint32 type) const
     return nullptr;
 }
 
+static void LoadBroadcastTextLocales()
+{
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
+    QueryResult result = HotfixDatabase.Query("SELECT ID, locale, MaleText_lang, FemaleText_lang FROM broadcast_text_locale");
+
+    if(!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        if(locale == LOCALE_enUS)
+            continue;
+        BroadcastTextEntry const* broadcastText = sBroadcastTextStore.LookupEntry(fields[0].GetUInt32());
+        if(broadcastText) {
+            broadcastText->FemaleText->Str[locale] = (new std::string(fields[2].GetString()))->c_str();;
+            broadcastText->MaleText->Str[locale] = (new std::string(fields[3].GetString()))->c_str();;
+        }
+        count++;
+    } while(result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u broadcast_text locale strings in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DB2Manager::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
@@ -977,6 +1003,8 @@ void DB2Manager::LoadHotfixData()
     } while (result->NextRow());
 
     TC_LOG_INFO("misc", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+    LoadBroadcastTextLocales();
 }
 
 time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
