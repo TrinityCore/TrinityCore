@@ -1203,6 +1203,33 @@ class spell_dru_wild_growth : public SpellScriptLoader
         }
 };
 
+// Spell 105737 Might of Ursoc Guardian Druid.
+class spell_dru_might_of_ursoc : public SpellScriptLoader
+{
+    public:
+        spell_dru_might_of_ursoc() : SpellScriptLoader("spell_dru_might_of_ursoc") { }
+
+        class spell_dru_might_of_ursoc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_might_of_ursoc_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = GetUnitOwner()->CountPctFromMaxHealth(amount);
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_might_of_ursoc_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_2);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_might_of_ursoc_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
