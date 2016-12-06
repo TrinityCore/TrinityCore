@@ -1257,4 +1257,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();
+    new spell_dru_might_of_ursoc();
 }
