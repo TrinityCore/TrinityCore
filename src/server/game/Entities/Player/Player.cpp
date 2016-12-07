@@ -2472,6 +2472,13 @@ void Player::GiveLevel(uint8 level)
     }
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
+
+    // Learn Running wild and Apprentice Riding to worgens that reach level 20
+    if (level >= 20 && getRace() == RACE_WORGEN)	
+    {
+        learnSpell(87840, true); // Running wild
+        learnSpell(33388, true); // Apprentice Riding
+    }
 }
 
 void Player::InitTalentForLevel()
