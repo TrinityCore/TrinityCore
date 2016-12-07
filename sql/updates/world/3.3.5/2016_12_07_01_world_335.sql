@@ -1,4 +1,4 @@
-SET @OGUID:=9709
+SET @OGUID:=9709;
 SET @FourthOfJulyEvent:=72;
 SET @NewYearEvent:=6;
 
