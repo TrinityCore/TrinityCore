@@ -1,5 +1,5 @@
--- DEVELOPER THAT WILL MERGE IT, PLEASE CHANGE GUIDS FOR A CURRENT CLEAN GUID AND DELETE THIS COMMENT
-SET @GUID:=865901;
+--
+SET @GUID:=87977;
 DELETE FROM `creature` WHERE `id` IN(17256,17474) AND `map`=544;
 DELETE FROM `linked_respawn` WHERE `guid` IN(90982,90981,90980,90979,90978); -- Delete Linked respawn from channelers
 INSERT INTO `creature` (`guid`,`id`,`map`,`zoneId`,`areaId`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`,`VerifiedBuild`) VALUES
