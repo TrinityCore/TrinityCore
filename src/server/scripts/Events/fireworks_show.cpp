@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "CreatureAIImpl.h"
 
 enum FireworksShowTypeObjects
 {
