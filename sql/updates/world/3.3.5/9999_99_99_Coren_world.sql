@@ -18,6 +18,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@CGUID*10,1,895.4048, -126.9586, -49.74198,0,0,0,100,0);
 
 UPDATE `gameobject_template` SET `ScriptName`='go_direbrew_mole_machine' WHERE `entry`=188508;
+UPDATE `gameobject_template` SET `displayId`=1287, `VerifiedBuild`=0 WHERE `entry`=188509;
 UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry`=23795;
 UPDATE `creature_template` SET `ScriptName`='npc_direbrew_antagonist' WHERE `entry`=23795;
 UPDATE `creature_template` SET `ScriptName`='npc_direbrew_minion' WHERE `entry`=26776;
