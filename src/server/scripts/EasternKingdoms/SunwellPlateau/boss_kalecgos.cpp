@@ -61,7 +61,7 @@ enum Spells
     SPELL_FROST_BREATH                          = 44799,
     SPELL_TAIL_LASH                             = 45122,
 
-    SPELL_BANISH                                = 44836,
+    SPELL_BANISH                                = 136466,          // Changed in MoP  - Patch 5.3 for solo player.
     SPELL_TRANSFORM_KALEC                       = 44670,
     SPELL_ENRAGE                                = 44807,
 
@@ -171,6 +171,9 @@ public:
 
         void EnterEvadeMode(EvadeReason why) override
         {
+            if (me->HasAura(SPELL_BANISH))
+                return;
+
             bJustReset = true;
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
