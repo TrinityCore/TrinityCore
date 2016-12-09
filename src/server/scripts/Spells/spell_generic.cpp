@@ -4460,6 +4460,33 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+// 180457 - Unholy Resurrection.
+class spell_gen_rasthe_unholy_resurrection : public SpellScriptLoader
+{
+public:
+    spell_gen_rasthe_unholy_resurrection() : SpellScriptLoader("spell_gen_rasthe_unholy_resurrection") { }
+
+    class spell_gen_rasthe_unholy_resurrection_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_rasthe_unholy_resurrection_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+             if (Unit* target = GetHitUnit())
+                 target->SetHealth(target->CountPctFromMaxHealth(25));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_rasthe_unholy_resurrection_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_rasthe_unholy_resurrection_SpellScript();
+    }
+};
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4556,4 +4583,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    new spell_gen_rasthe_unholy_resurrection();
 }
