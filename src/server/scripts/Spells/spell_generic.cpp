@@ -4241,7 +4241,7 @@ public:
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
              if (Unit* target = GetHitUnit())
-                 target->SetHealth(target->CountPctFromMaxHealth(10));
+                 target->SetHealth(target->CountPctFromMaxHealth(25));
         }
 
         void Register() override
