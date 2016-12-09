@@ -402,9 +402,24 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                     if (AuraEffect const* levelMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 1563, EFFECT_0))
                         levelBonus = CalculatePct(1.0f, levelMod->GetAmount());
 
-                    if (Item const* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
-                        if (AuraEffect const* weaponMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 1563, EFFECT_1))
-                            weaponBonus = CalculatePct(static_cast<float>(ASSERT_NOTNULL(weapon->GetTemplate())->getFeralBonus()), weaponMod->GetAmount());
+                    // = 0 if removing the weapon, do not calculate bonus (uses template)
+                    if (m_baseFeralAP)
+                    {
+                        if (Item const* weapon = m_items[EQUIPMENT_SLOT_MAINHAND])
+                        {
+                            if (AuraEffect const* weaponMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 1563, EFFECT_1))
+                            {
+                                ItemTemplate const* itemTemplate = weapon->GetTemplate();
+                                int32 bonusAP = 0;
+                                for (uint32 i = 0; i < itemTemplate->StatsCount; ++i)
+                                    if (itemTemplate->ItemStat[i].ItemStatType == ITEM_MOD_ATTACK_POWER)
+                                        bonusAP += itemTemplate->ItemStat[i].ItemStatValue;
+
+                                bonusAP += m_baseFeralAP;
+                                weaponBonus = CalculatePct(static_cast<float>(bonusAP), weaponMod->GetAmount());
+                            }
+                        }
+                    }
                 }
 
                 switch (GetShapeshiftForm())
