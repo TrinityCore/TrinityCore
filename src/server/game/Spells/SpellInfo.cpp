@@ -3931,6 +3931,10 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
     if (IsPassive())
         return this;
 
+    // Client ignores spell with these attributes (sub_53D9D0)
+    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR2_UNK3))
+        return this;
+
     bool needRankSelection = false;
     for (SpellEffectInfo const* effect : GetEffectsForDifficulty(DIFFICULTY_NONE))
     {
