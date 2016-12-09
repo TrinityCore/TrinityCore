@@ -1373,6 +1373,69 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
         }
 };
 
+enum WormholeGeneratorPandariaSpell
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING   = 126756,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER   = 126757,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS            = 126758,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE    = 126759,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE        = 126760,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF       = 126761,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE        = 126762,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN       = 126763,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE     = 126764,
+};
+
+std::vector<uint32> const WormholeTargetLocations =
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE
+};
+
+// 126755 - Wormhole: Pandaria
+class spell_item_wormhole_pandaria : public SpellScriptLoader
+{
+    public:
+        spell_item_wormhole_pandaria() : SpellScriptLoader("spell_item_wormhole_pandaria") { }
+
+        class spell_item_wormhole_pandaria_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_wormhole_pandaria_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (uint32 spellId : WormholeTargetLocations)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
+            void HandleTeleport(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                uint32 spellId = Trinity::Containers::SelectRandomContainerElement(WormholeTargetLocations);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_wormhole_pandaria_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_wormhole_pandaria_SpellScript();
+        }
+};
+
 // 47776 - Roll 'dem Bones
 class spell_item_worn_troll_dice : public SpellScriptLoader
 {
@@ -3075,6 +3138,7 @@ void AddSC_item_spell_scripts()
     new spell_item_six_demon_bag();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
+    new spell_item_wormhole_pandaria();
     new spell_item_worn_troll_dice();
     new spell_item_red_rider_air_rifle();
 
