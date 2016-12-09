@@ -416,6 +416,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                     case FORM_DIREBEAR:
                         val2 = getLevel() * levelBonus + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + weaponBonus + m_baseFeralAP;
                         break;
+                    case FORM_MOONKIN:
+                        val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP;
+                        break;
                     default:
                         val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
                         break;
