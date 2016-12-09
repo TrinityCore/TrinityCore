@@ -483,13 +483,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
             if (!_spellInfo->Scaling.ScalesFromItemLevel)
             {
                 if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
-                {
-                    GtSpellScalingEntry const* gtScaling = sSpellScalingGameTable.GetRow(level);
-                    if (_spellInfo->Scaling.Class > 0)
-                        value = GetSpellScalingColumnForClass(gtScaling, _spellInfo->Scaling.Class);
-                    else
-                        value = gtScaling->Item;
-                }
+                    value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
                 else
                 {
                     uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;

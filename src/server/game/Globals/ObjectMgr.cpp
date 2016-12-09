@@ -2585,7 +2585,7 @@ struct ItemSpecStats
                     break;
             }
         }
-        else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
+        else if (item->Class == ITEM_CLASS_ARMOR)
         {
             switch (item->SubClass)
             {
@@ -2609,11 +2609,18 @@ struct ItemSpecStats
                     ItemType = 4;
                     break;
                 default:
-                    ItemType = 6;
                     if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                    {
+                        ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_SHIELD);
+                    }
                     else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                    {
+                        ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_RELIC);
+                    }
+                    else
+                        ItemType = 0;
                     break;
             }
         }

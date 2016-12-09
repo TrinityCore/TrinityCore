@@ -758,6 +758,22 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << Target;
+    _worldPacket << TargetPostion;
+    _worldPacket << SpellVisualID;
+    _worldPacket << TravelSpeed;
+    _worldPacket << MissReason;
+    _worldPacket << ReflectStatus;
+    _worldPacket << Orientation;
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
