@@ -24,6 +24,7 @@
 #include "G3D/AABox.h"
 
 #include "Define.h"
+#include "ObjectIgnoreDefinitions.h"
 
 #include <stdexcept>
 #include <vector>

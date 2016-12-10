@@ -31,6 +31,7 @@
 #include "MapInstanced.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "ObjectIgnoreDefinitions.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
@@ -2593,9 +2594,10 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
+//SPELL LOS CALLSTACK
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask, ObjectIgnoreFlags ignoreFlags) const
 {
-    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
+    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2, ignoreFlags)
         && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
 }
 

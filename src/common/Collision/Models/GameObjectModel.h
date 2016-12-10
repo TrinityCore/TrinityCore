@@ -25,6 +25,7 @@
 #include <G3D/Ray.h>
 
 #include "Define.h"
+#include "ObjectIgnoreDefinitions.h"
 #include <memory>
 
 namespace VMAP
@@ -65,7 +66,7 @@ public:
 
     bool isEnabled() const {return phasemask != 0;}
 
-    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
+    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, ObjectIgnoreFlags ignoreFlags) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 

@@ -25,6 +25,7 @@
 #include <G3D/Ray.h>
 
 #include "Define.h"
+#include "ObjectIgnoreDefinitions.h"
 
 namespace VMAP
 {
@@ -66,7 +67,7 @@ namespace VMAP
             ModelInstance(): iInvScale(0.0f), iModel(nullptr) { }
             ModelInstance(const ModelSpawn &spawn, WorldModel* model);
             void setUnloaded() { iModel = nullptr; }
-            bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;
+            bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, ObjectIgnoreFlags ignoreFlags) const;
             void intersectPoint(const G3D::Vector3& p, AreaInfo &info) const;
             bool GetLocationInfo(const G3D::Vector3& p, LocationInfo &info) const;
             bool GetLiquidLevel(const G3D::Vector3& p, LocationInfo &info, float &liqHeight) const;
