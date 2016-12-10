@@ -2410,8 +2410,13 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     uint32 dispel_type = m_spellInfo->Effects[effIndex].MiscValue;
     uint32 dispelMask  = SpellInfo::GetDispelMask(DispelType(dispel_type));
 
+    bool checkPositiveAuraWhenFriendly = true;
+    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+       if (ihit->missCondition == SPELL_MISS_REFLECT)
+           checkPositiveAuraWhenFriendly = false;    
+
     DispelChargesList dispel_list;
-    unitTarget->GetDispellableAuraList(m_caster, dispelMask, dispel_list);
+    unitTarget->GetDispellableAuraList(m_caster, dispelMask, dispel_list, checkPositiveAuraWhenFriendly);
     if (dispel_list.empty())
         return;
 
