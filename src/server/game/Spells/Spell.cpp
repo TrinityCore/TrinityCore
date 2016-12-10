@@ -5886,12 +5886,6 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     bool usableWhileStunned = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_STUNNED);
     bool usableWhileFeared = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED);
     bool usableWhileConfused = m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED);
-    if (m_spellInfo->HasAttribute(SPELL_ATTR7_USABLE_IN_STUN_FEAR_CONFUSION))
-    {
-        usableWhileStunned = true;
-        usableWhileFeared = true;
-        usableWhileConfused = true;
-    }
 
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult result = SPELL_CAST_OK;
@@ -5901,18 +5895,18 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     if (!m_caster->GetCharmerGUID().IsEmpty())
     {
         if (Unit* charmer = m_caster->GetCharmer())
-            if (charmer->GetUnitBeingMoved() != m_caster && CheckCasterNotImmunedCharmAuras(param1))
+            if (charmer->GetUnitBeingMoved() != m_caster && !CheckSpellCancelsCharm(param1))
                 result = SPELL_FAILED_CHARMED;
     }
-    else if (unitflag & UNIT_FLAG_STUNNED && !usableWhileStunned && CheckCasterNotImmunedStunAuras(param1))
+    else if (unitflag & UNIT_FLAG_STUNNED && !usableWhileStunned && !CheckSpellCancelsStun(param1))
         result = SPELL_FAILED_STUNNED;
-    else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && CheckCasterNotImmunedSilenceAuras(param1))
+    else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
         result = SPELL_FAILED_SILENCED;
-    else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_PACIFY && CheckCasterNotImmunedPacifyAuras(param1))
+    else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_PACIFY && !CheckSpellCancelsPacify(param1))
         result = SPELL_FAILED_PACIFIED;
-    else if (unitflag & UNIT_FLAG_FLEEING && !usableWhileFeared && CheckCasterNotImmunedFearAuras(param1))
+    else if (unitflag & UNIT_FLAG_FLEEING && !usableWhileFeared && !CheckSpellCancelsFear(param1))
         result = SPELL_FAILED_FLEEING;
-    else if (unitflag & UNIT_FLAG_CONFUSED && !usableWhileConfused && CheckCasterNotImmunedDisorientAuras(param1))
+    else if (unitflag & UNIT_FLAG_CONFUSED && !usableWhileConfused && !CheckSpellCancelsConfuse(param1))
         result = SPELL_FAILED_CONFUSED;
     else if (m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
         result = SPELL_FAILED_NO_ACTIONS;
@@ -5924,17 +5918,16 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     return SPELL_CAST_OK;
 }
 
-// based on sub_00804430 from 12340 client
-bool Spell::CheckCasterHasNotImmunedAuraType(AuraType auraType, uint32* param1) const
+bool Spell::CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const
 {
     // Checking auras is needed now, because you are prevented by some state but the spell grants immunity.
     Unit::AuraEffectList const& auraEffects = m_caster->GetAuraEffectsByType(auraType);
     if (auraEffects.empty())
-        return false;
+        return true;
 
     for (AuraEffect const* aurEff : auraEffects)
     {
-        if (m_spellInfo->CanSpellCastOverrideAuraEffect(aurEff))
+        if (m_spellInfo->SpellCancelsAuraEffect(aurEff))
             continue;
 
         if (param1)
@@ -5943,44 +5936,46 @@ bool Spell::CheckCasterHasNotImmunedAuraType(AuraType auraType, uint32* param1) 
             if (!*param1)
                 *param1 = aurEff->GetSpellInfo()->Mechanic;
         }
-        return true;
+
+        return false;
     }
 
-    return false;
+    return true;
 }
 
-bool Spell::CheckCasterNotImmunedCharmAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsCharm(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_CHARM, param1) ||
-        CheckCasterHasNotImmunedAuraType(SPELL_AURA_AOE_CHARM, param1) ||
-        CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_POSSESS, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_CHARM, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_AOE_CHARM, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_POSSESS, param1);
 }
 
-bool Spell::CheckCasterNotImmunedStunAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsStun(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_STUN, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_STUN, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_STRANGULATE, param1);
 }
 
-bool Spell::CheckCasterNotImmunedSilenceAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsSilence(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_SILENCE, param1) ||
-        CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_PACIFY_SILENCE, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_SILENCE, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_PACIFY_SILENCE, param1);
 }
 
-bool Spell::CheckCasterNotImmunedPacifyAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsPacify(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_PACIFY, param1) ||
-        CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_PACIFY_SILENCE, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_PACIFY, param1) &&
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_PACIFY_SILENCE, param1);
 }
 
-bool Spell::CheckCasterNotImmunedFearAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsFear(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_FEAR, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_FEAR, param1);
 }
 
-bool Spell::CheckCasterNotImmunedDisorientAuras(uint32* param1) const
+bool Spell::CheckSpellCancelsConfuse(uint32* param1) const
 {
-    return CheckCasterHasNotImmunedAuraType(SPELL_AURA_MOD_CONFUSE, param1);
+    return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_CONFUSE, param1);
 }
 
 SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
