@@ -216,7 +216,7 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT_TARGET
 };
 
-typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
+typedef std::vector<std::pair<uint32, ObjectGuid>> DispelList;
 
 static const uint32 SPELL_INTERRUPT_NONPLAYER = 32747;
 
@@ -572,6 +572,7 @@ class TC_GAME_API Spell
         GameObject* gameObjTarget;
         WorldLocation* destTarget;
         int32 damage;
+        SpellMissInfo targetMissInfo;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
         Aura* m_spellAura;
@@ -601,18 +602,18 @@ class TC_GAME_API Spell
         // Targets store structures and data
         struct TargetInfo
         {
-            // a bug in gcc-4.7 needs a destructor to call move operator instead of copy operator in std::vector remove
-            ~TargetInfo() { }
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            SpellMissInfo missCondition:8;
-            SpellMissInfo reflectResult:8;
-            uint8  effectMask:8;
-            bool   processed:1;
-            bool   alive:1;
-            bool   crit:1;
-            bool   scaleAura:1;
             int32  damage;
+
+            SpellMissInfo missCondition;
+            SpellMissInfo reflectResult;
+
+            uint8  effectMask;
+            bool   processed;
+            bool   alive;
+            bool   crit;
+            bool   scaleAura;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
         uint8 m_channelTargetEffectMask;                        // Mask req. alive targets
@@ -621,8 +622,8 @@ class TC_GAME_API Spell
         {
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            uint8  effectMask:8;
-            bool   processed:1;
+            uint8  effectMask;
+            bool   processed;
         };
         std::list<GOTargetInfo> m_UniqueGOTargetInfo;
 

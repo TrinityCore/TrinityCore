@@ -173,7 +173,7 @@ class TC_GAME_API Aura
         bool IsSingleTargetWith(Aura const* aura) const;
         void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
         void UnregisterSingleTarget();
-        int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
+        int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
         void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 * amount);
 
