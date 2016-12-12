@@ -1593,7 +1593,7 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
     return true;
 }
 
-uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType /*attackType*/)
+uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType)
 {
     float armor = float(victim->GetArmor());
 
@@ -1621,36 +1621,34 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     // Apply Player CR_ARMOR_PENETRATION rating and buffs from stances\specializations etc.
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        float bonusPct = 0;
-        AuraEffectList const& armorPenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
-        for (AuraEffectList::const_iterator itr = armorPenAuras.begin(); itr != armorPenAuras.end(); ++itr)
-        {
-            if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
-            {
-                if (!spellInfo || (*itr)->IsAffectedOnSpell(spellInfo) || (*itr)->GetMiscValue() & spellInfo->GetSchoolMask())
-                    bonusPct += (*itr)->GetAmount();
-                else if (!(*itr)->GetMiscValue() && !(*itr)->HasSpellClassMask())
-                    bonusPct += (*itr)->GetAmount();
-            }
-            else
-            {
-                if (ToPlayer()->HasItemFitToSpellRequirements((*itr)->GetSpellInfo()))
-                    bonusPct += (*itr)->GetAmount();
-            }
-        }
+        float arpPct = ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION);
 
-        float maxArmorPen = 0;
+        Item* weapon = ToPlayer()->GetWeaponForAttack(attackType, true);
+        arpPct += GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT, [weapon](AuraEffect const* aurEff) -> bool
+        {
+            // item neutral spell
+            if (aurEff->GetSpellInfo()->EquippedItemClass == -1)
+                return true;
+            // item dependent spell
+            else if (weapon && weapon->IsFitToSpellRequirements(aurEff->GetSpellInfo()))
+                return true;
+
+            return false;
+        });
+
+        // no more than 100%
+        RoundToInterval(arpPct, 0.f, 100.f);
+
+        float maxArmorPen = 0.f;
         if (victim->getLevel() < 60)
             maxArmorPen = float(400 + 85 * victim->getLevel());
         else
             maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
 
         // Cap armor penetration to this number
-        maxArmorPen = std::min((armor + maxArmorPen) / 3, armor);
+        maxArmorPen = std::min((armor + maxArmorPen) / 3.f, armor);
         // Figure out how much armor do we ignore
-        float armorPen = CalculatePct(maxArmorPen, bonusPct + ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION));
-        // Got the value, apply it
-        armor -= std::min(armorPen, maxArmorPen);
+        armor -= CalculatePct(maxArmorPen, arpPct);
     }
 
     if (armor < 0.0f)
@@ -1660,15 +1658,11 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (levelModifier > 59)
         levelModifier = levelModifier + 4.5f * (levelModifier - 59);
 
-    float tmpvalue = 0.1f * armor / (8.5f * levelModifier + 40);
-    tmpvalue = tmpvalue / (1.0f + tmpvalue);
+    float damageReduction = 0.1f * armor / (8.5f * levelModifier + 40);
+    damageReduction /= (1.0f + damageReduction);
 
-    if (tmpvalue < 0.0f)
-        tmpvalue = 0.0f;
-    if (tmpvalue > 0.75f)
-        tmpvalue = 0.75f;
-
-    return std::max<uint32>(damage * (1.0f - tmpvalue), 1);
+    RoundToInterval(damageReduction, 0.f, 0.75f);
+    return std::max<uint32>(damage * (1.0f - damageReduction), 1);
 }
 
 uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const
