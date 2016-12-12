@@ -34,6 +34,7 @@ enum Spells
     SPELL_ARCANE_EXPLOSION      = 26192,
     SPELL_EARTH_SHOCK           = 26194,
     SPELL_TRUE_FULFILLMENT      = 785,
+    SPELL_TRUE_FULFILLMENT_2    = 2313,          // After hit target 785 should cast on hit target spell id 2313.
     SPELL_INITIALIZE_IMAGE      = 3730,
     SPELL_SUMMON_IMAGES         = 747
 };
@@ -84,6 +85,12 @@ class boss_skeram : public CreatureScript
                     ((TempSummon*)me)->UnSummon();
             }
 
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            {
+                if (spell->Id == SPELL_TRUE_FULFILLMENT)
+                    target->CastSpell(target, SPELL_TRUE_FULFILLMENT_2, true, NULL, NULL, me->GetGUID());
+            }
+            
             void JustSummoned(Creature* creature) override
             {
                 // Shift the boss and images (Get it? *Shift*?)
