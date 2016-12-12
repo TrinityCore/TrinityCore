@@ -1093,7 +1093,7 @@ public:
                                     Talk(SAY_PHASE310);
                                 SetHoldState(false);
                                 bStepping = false;
-                                SetRun(true);
+                                SetRun(false);
                                 JumpToNextStep(2000);
                             }
                             break;
