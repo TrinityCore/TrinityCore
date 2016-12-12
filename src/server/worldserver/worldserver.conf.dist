@@ -1804,6 +1804,14 @@ ChatLevelReq.Whisper = 1
 ChatLevelReq.Say = 1
 
 #
+#    AllowPlayerCommands
+#        Description: Allow players to use commands.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AllowPlayerCommands = 0
+
+#
 #    PreserveCustomChannels
 #        Description: Store custom chat channel settings like password, automatic ownership handout
 #                     or ban list in the database. Needs to be enabled to save custom
