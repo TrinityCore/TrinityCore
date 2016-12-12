@@ -4738,32 +4738,35 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
-    // check death state
-    if (!m_caster->IsAlive() && !m_spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) && !(m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
-        return SPELL_FAILED_CASTER_DEAD;
+	// check death state
+	if (!m_caster->IsAlive() && !m_spellInfo->HasAttribute(SPELL_ATTR0_PASSIVE) && !(m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
+		return SPELL_FAILED_CASTER_DEAD;
 
-    // check cooldowns to prevent cheating
-    if (!m_spellInfo->IsPassive())
-    {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        {
-            //can cast triggered (by aura only?) spells while have this flag
-            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
-                return SPELL_FAILED_SPELL_IN_PROGRESS;
+	// check cooldowns to prevent cheating
+	if (!m_spellInfo->IsPassive())
+	{
+		if (m_caster->GetTypeId() == TYPEID_PLAYER)
+		{
+			//can cast triggered (by aura only?) spells while have this flag
+			if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
+				return SPELL_FAILED_SPELL_IN_PROGRESS;
 
-            // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
-            if (m_caster->ToPlayer()->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
-                return SPELL_FAILED_NOT_READY;
-        }
+			// check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
+			if (m_caster->ToPlayer()->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
+				return SPELL_FAILED_NOT_READY;
+		}
 
-        if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry, IsIgnoringCooldowns()))
-        {
-            if (m_triggeredByAuraSpell)
-                return SPELL_FAILED_DONT_REPORT;
-            else
-                return SPELL_FAILED_NOT_READY;
-        }
-    }
+		if (!m_caster->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry, IsIgnoringCooldowns()))
+		{
+			if (m_triggeredByAuraSpell)
+				return SPELL_FAILED_DONT_REPORT;
+			else if (m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))  // Shadowform, Tricks of the Trade, Misdirection
+				return SPELL_FAILED_FIZZLE;
+			else
+				return SPELL_FAILED_NOT_READY;
+		}
+	}
+
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR7_IS_CHEAT_SPELL) && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
     {
