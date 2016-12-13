@@ -3568,7 +3568,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 // Glyph of Scourge Strike
                 case 69961:
                 {
-                    Unit::AuraEffectList const &mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    Unit::AuraEffectList const& mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
                     {
                         AuraEffect const* aurEff = *i;

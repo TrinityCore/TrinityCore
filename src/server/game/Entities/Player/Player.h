@@ -2036,7 +2036,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ClearAfkReports() { m_bgData.bgAfkReporter.clear(); }
 
         bool GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const;
-        bool isTotalImmunity() const;
         bool CanUseBattlegroundObject(GameObject* gameobject) const;
         bool isTotalImmune() const;
         bool CanCaptureTowerPoint() const;

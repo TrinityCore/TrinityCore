@@ -1141,11 +1141,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
             {
-                Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-                for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                    if ((*j)->IsAffectedOnSpell(m_spellInfo))
-                        maxTargets += (*j)->GetAmount();
-
+                maxTargets += m_caster->GetTotalAuraModifierByAffectMask(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS, m_spellInfo);
                 Trinity::Containers::RandomResizeList(targets, maxTargets);
             }
 
@@ -1228,11 +1224,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
         {
-            Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
-            for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectedOnSpell(m_spellInfo))
-                    maxTargets += (*j)->GetAmount();
-
+            maxTargets += m_caster->GetTotalAuraModifierByAffectMask(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS, m_spellInfo);
             Trinity::Containers::RandomResizeList(targets, maxTargets);
         }
 
@@ -4926,10 +4918,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
-    Unit::AuraEffectList const& blockSpells = m_caster->GetAuraEffectsByType(SPELL_AURA_BLOCK_SPELL_FAMILY);
-    for (Unit::AuraEffectList::const_iterator blockItr = blockSpells.begin(); blockItr != blockSpells.end(); ++blockItr)
-        if (uint32((*blockItr)->GetMiscValue()) == m_spellInfo->SpellFamilyName)
-            return SPELL_FAILED_SPELL_UNAVAILABLE;
+    if (m_caster->HasAuraTypeWithMiscvalue(SPELL_AURA_BLOCK_SPELL_FAMILY, m_spellInfo->SpellFamilyName))
+        return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     bool reqCombat = true;
     Unit::AuraEffectList const& stateAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
@@ -6984,16 +6974,12 @@ void Spell::HandleLaunchPhase()
             multiplier[i] = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
     bool usesAmmo = m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DIRECT_DAMAGE);
-    Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
-    for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-    {
-        if ((*j)->IsAffectedOnSpell(m_spellInfo))
-            usesAmmo = false;
-    }
+    if (m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_CONSUME_NO_AMMO, m_spellInfo))
+        usesAmmo = false;
 
     PrepareTargetProcessing();
 
-    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         TargetInfo& target = *ihit;
 
@@ -7010,7 +6996,7 @@ void Spell::HandleLaunchPhase()
             bool ammoTaken = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
             {
-                if (!(mask & 1<<i))
+                if (!(mask & 1 << i))
                     continue;
                 switch (m_spellInfo->Effects[i].Effect)
                 {
@@ -7019,8 +7005,8 @@ void Spell::HandleLaunchPhase()
                     case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
                     case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
                     case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                    ammoTaken=true;
-                    TakeAmmo();
+                        ammoTaken = true;
+                        TakeAmmo();
                 }
                 if (ammoTaken)
                     break;
