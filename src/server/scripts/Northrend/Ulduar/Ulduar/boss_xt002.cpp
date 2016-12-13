@@ -1048,7 +1048,7 @@ class spell_xt002_submerged : public SpellScriptLoader
                     return;
 
                 target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
+                target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             }
 
             void Register() override
