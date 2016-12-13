@@ -3004,6 +3004,14 @@ LevelReq.Auction = 1
 LevelReq.Mail = 1
 
 #
+#    AllowPlayerCommands
+#        Description: Allow players to use commands.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowPlayerCommands = 0
+
+#
 #     PlayerDump.DisallowPaths
 #        Description: Disallow using paths in PlayerDump output files
 #        Default:     1
