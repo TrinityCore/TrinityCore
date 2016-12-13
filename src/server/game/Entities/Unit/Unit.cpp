@@ -7898,6 +7898,9 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
     {
         // State/effect immunities applied by aura expect full spell immunity
         // Ignore effects with mechanic, they are supposed to be checked separately
+        if (!spellInfo->Effects[i].IsEffect())
+            continue;
+
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))
         {
             immuneToAllEffects = false;
@@ -7908,17 +7911,14 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
     if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
-    if (!spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+    SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
+    for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
     {
-        SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-        for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-        {
-            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second);
-            if ((itr->first & spellInfo->GetSchoolMask())
-                && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive() && IsFriendlyTo(caster))
-                && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
-                return true;
-        }
+        SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second);
+        if ((itr->first & spellInfo->GetSchoolMask())
+            && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive() && IsFriendlyTo(caster))
+            && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+            return true;
     }
 
     return false;
