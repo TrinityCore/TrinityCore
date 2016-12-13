@@ -88,7 +88,7 @@ class boss_skeram : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRUE_FULFILLMENT)
-                    target->CastSpell(target, SPELL_TRUE_FULFILLMENT_2, true, NULL, NULL, me->GetGUID());
+                    caster->CastSpell(target, SPELL_TRUE_FULFILLMENT_2, true)
             }
             
             void JustSummoned(Creature* creature) override
