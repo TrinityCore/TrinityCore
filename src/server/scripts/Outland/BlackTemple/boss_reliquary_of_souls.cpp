@@ -813,7 +813,7 @@ class spell_reliquary_of_souls_spite : public SpellScriptLoader
                     caster->CastSpell(GetTarget(), SPELL_SPITE_DAMAGE, true);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_reliquary_of_souls_spite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DAMAGE_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
             }
