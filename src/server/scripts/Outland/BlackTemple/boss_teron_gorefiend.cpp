@@ -345,6 +345,7 @@ public:
                     me->AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
+                // He should target Vengeful Spirits only if has no other player available
                 else if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoResetThreat();

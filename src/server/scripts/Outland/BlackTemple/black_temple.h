@@ -49,8 +49,13 @@ enum BTDataTypes
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
 
     DATA_GO_ILLIDAN_GATE            = 16,
+
     DATA_BLACK_TEMPLE_TRIGGER       = 17,
-    DATA_GO_DEN_OF_MORTAL_DOOR      = 18
+    DATA_GO_DEN_OF_MORTAL_DOOR      = 18,
+
+    DATA_ESSENCE_OF_SUFFERING       = 19,
+    DATA_ESSENCE_OF_DESIRE          = 20,
+    DATA_ESSENCE_OF_ANGER           = 21
 };
 
 enum TriggerEmotes
@@ -81,7 +86,9 @@ enum BTCreatureIds
     NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
     NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
     NPC_SUPREMUS_VOLCANO            = 23085,
-    NPC_BLACK_TEMPLE_TRIGGER        = 22984
+    NPC_BLACK_TEMPLE_TRIGGER        = 22984,
+    NPC_RELIQUARY_WORLD_TRIGGER     = 23472,
+    NPC_ENSLAVED_SOUL               = 23469
 };
 
 enum BTGameObjectIds
