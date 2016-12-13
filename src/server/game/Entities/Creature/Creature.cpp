@@ -2226,6 +2226,15 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
+uint8 Creature::GetInhabitType() const
+{
+    if (IsMounted())
+        if (CreatureAddon const* creatureAddon = GetCreatureAddon())
+            return creatureAddon->mountInhabitType;
+
+    return GetCreatureTemplate()->InhabitType;
+}
+
 //creature_addon table
 bool Creature::LoadCreaturesAddon()
 {
@@ -2254,7 +2263,7 @@ bool Creature::LoadCreaturesAddon()
         //! Check using InhabitType as movement flags are assigned dynamically
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !(GetCreatureTemplate()->InhabitType & INHABIT_AIR))
+        if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && (!(GetInhabitType() & INHABIT_AIR)))
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -2651,9 +2660,9 @@ void Creature::UpdateMovementFlags()
 
     bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
+    if (GetInhabitType() & INHABIT_AIR && isInAir && !IsFalling())
     {
-        if (GetCreatureTemplate()->InhabitType & INHABIT_GROUND)
+        if (GetInhabitType() & INHABIT_GROUND)
             SetCanFly(true);
         else
             SetDisableGravity(true);
@@ -2667,7 +2676,7 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         SetFall(false);
 
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
+    SetSwim((GetInhabitType() & INHABIT_WATER) && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
