@@ -397,6 +397,7 @@ bool ChatHandler::ParseCommands(char const* text)
     ASSERT(*text);
 
     std::string fullcmd = text;
+    
     if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
        return false;
     /// chat case (.command or !command format)
