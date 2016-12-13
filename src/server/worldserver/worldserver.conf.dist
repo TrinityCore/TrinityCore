@@ -1806,8 +1806,8 @@ ChatLevelReq.Say = 1
 #
 #    AllowPlayerCommands
 #        Description: Allow players to use commands.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
 
 AllowPlayerCommands = 0
 
