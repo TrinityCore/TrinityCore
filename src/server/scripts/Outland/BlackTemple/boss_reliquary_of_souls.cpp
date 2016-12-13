@@ -156,7 +156,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!_inCombat && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster())
+            if (!_inCombat && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster() && CanAIAttack(who))
             {
                 _inCombat = true;
                 DoZoneInCombat();
