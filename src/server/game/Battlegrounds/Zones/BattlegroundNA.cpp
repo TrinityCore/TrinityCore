@@ -20,9 +20,21 @@
 #include "Player.h"
 #include "WorldPacket.h"
 
+BattlegroundGOSpawnPoint const BG_NA_GameObjects[BG_NA_OBJECT_MAX] =
+{
+    // gates
+    { BG_NA_OBJECT_TYPE_DOOR_1, { 4031.854000f, 2966.833000f, 12.646200f, -2.64878800f }, { 0.f, 0.f, 0.96979620f, -0.2439165f }, RESPAWN_IMMEDIATELY },
+    { BG_NA_OBJECT_TYPE_DOOR_2, { 4081.179000f, 2874.970000f, 12.391710f,  0.49280450f }, { 0.f, 0.f, 0.24391650f,  0.9697962f }, RESPAWN_IMMEDIATELY },
+    { BG_NA_OBJECT_TYPE_DOOR_3, { 4023.709000f, 2981.777000f, 10.701170f, -2.64878800f }, { 0.f, 0.f, 0.96979620f, -0.2439165f }, RESPAWN_IMMEDIATELY },
+    { BG_NA_OBJECT_TYPE_DOOR_4, { 4090.064000f, 2858.438000f, 10.236310f,  0.49280450f }, { 0.f, 0.f, 0.24391650f,  0.9697962f }, RESPAWN_IMMEDIATELY },
+    // buffs
+    { BG_NA_OBJECT_TYPE_BUFF_1, { 4009.189941f, 2895.250000f, 13.052700f, -1.44862400f }, { 0.f, 0.f, 0.66262010f, -0.7489557f }, 2 * MINUTE          },
+    { BG_NA_OBJECT_TYPE_BUFF_2, { 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f }, { 0.f, 0.f, 0.03489945f, -0.9993908f }, 2 * MINUTE          }
+};
+
 BattlegroundNA::BattlegroundNA()
 {
-    BgObjects.resize(BG_NA_OBJECT_MAX);
+    SetGameObjectsNumber(BG_NA_OBJECT_MAX);
 }
 
 void BattlegroundNA::StartingEventCloseDoors()
@@ -64,17 +76,14 @@ void BattlegroundNA::FillInitialWorldStates(WorldPacket& data)
 
 bool BattlegroundNA::SetupBattleground()
 {
-    // gates
-    if (!AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854f, 2966.833f, 12.6462f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_2, BG_NA_OBJECT_TYPE_DOOR_2, 4081.179f, 2874.97f, 12.39171f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_3, BG_NA_OBJECT_TYPE_DOOR_3, 4023.709f, 2981.777f, 10.70117f, -2.648788f, 0, 0, 0.9697962f, -0.2439165f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_NA_OBJECT_DOOR_4, BG_NA_OBJECT_TYPE_DOOR_4, 4090.064f, 2858.438f, 10.23631f, 0.4928045f, 0, 0, 0.2439165f, 0.9697962f, RESPAWN_IMMEDIATELY)
-    // buffs
-        || !AddObject(BG_NA_OBJECT_BUFF_1, BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
-        || !AddObject(BG_NA_OBJECT_BUFF_2, BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
+    for (uint32 i = 0; i < BG_NA_OBJECT_MAX; ++i)
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundNA: Failed to spawn some object!");
-        return false;
+        BattlegroundGOSpawnPoint const& object = BG_NA_GameObjects[i];
+        if (!AddObject(i, object.Entry, object.Pos, object.Rot, object.SpawnTime))
+        {
+            TC_LOG_ERROR("bg.battleground", "BattleGroundNA: Failed to spawn GameObject! (Entry: %u). Battleground not created!", object.Entry);
+            return false;
+        }
     }
 
     return true;
