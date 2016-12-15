@@ -26,11 +26,11 @@ set(SRC_FILES
   Program.cpp
 )
 
-add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
+if (WIN32)
+  list(APPEND SRC_FILES ${sources_windows})
+endif()
 
-if (MSVC)
-  set_target_properties(connection_patcher PROPERTIES LINK_FLAGS "/level='requireAdministrator' /uiAccess='false'")
-endif ()
+add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
 
 target_link_libraries(connection_patcher
   PUBLIC

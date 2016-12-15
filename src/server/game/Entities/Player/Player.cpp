@@ -446,7 +446,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     InitDisplayIds();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
     {
-        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
+        SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_PVP);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
 
@@ -2193,7 +2193,7 @@ void Player::SetGameMaster(bool on)
             pet->getHostileRefManager().setOnlineOfflineState(false);
         }
 
-        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
         ResetContestedPvP();
 
         getHostileRefManager().setOnlineOfflineState(false);
@@ -2216,7 +2216,7 @@ void Player::SetGameMaster(bool on)
 
         // restore FFA PvP Server state
         if (sWorld->IsFFAPvPRealm())
-            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
 
         // restore FFA PvP area state, remove not allowed for GM mounts
         UpdateArea(m_areaUpdateId);
@@ -2567,9 +2567,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
 
     //reset attack power, damage and attack speed fields
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, 2000.0f);
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME + 1, 2000.0f); // offhand attack time
-    SetFloatValue(UNIT_FIELD_RANGEDATTACKTIME, 2000.0f);
+    SetBaseAttackTime(BASE_ATTACK, BASE_ATTACK_TIME);
+    SetBaseAttackTime(OFF_ATTACK, BASE_ATTACK_TIME);
+    SetBaseAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
 
     SetFloatValue(UNIT_FIELD_MINDAMAGE, 0.0f);
     SetFloatValue(UNIT_FIELD_MAXDAMAGE, 0.0f);
@@ -2655,7 +2655,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST | PLAYER_ALLOW_ONLY_ABILITY);
 
     RemoveStandFlags(UNIT_STAND_FLAGS_ALL);                 // one form stealth modified bytes
-    RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
+    RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
     SetUInt32Value(PLAYER_FIELD_BYTES2, 0);                 // flags empty by default
@@ -4212,7 +4212,7 @@ void Player::BuildPlayerRepop()
     StopMirrorTimers();                                     //disable timers(bars)
 
     // set and clear other
-    SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+    SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
 }
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
@@ -4224,7 +4224,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     // speed change, land walk
 
     // remove death flag + set aura
-    SetByteValue(UNIT_FIELD_BYTES_1, 3, 0x00);
+    SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 
     // This must be called always even on Players with race != RACE_NIGHTELF in case of faction change
@@ -5170,10 +5170,10 @@ void Player::SetRegularAttackTime()
         {
             ItemTemplate const* proto = tmpitem->GetTemplate();
             if (proto->GetDelay())
-                SetAttackTime(WeaponAttackType(i), proto->GetDelay());
+                SetBaseAttackTime(WeaponAttackType(i), proto->GetDelay());
         }
         else
-            SetAttackTime(WeaponAttackType(i), BASE_ATTACK_TIME);  // If there is no weapon reset attack time to base (might have been changed from forms)
+            SetBaseAttackTime(WeaponAttackType(i), BASE_ATTACK_TIME);  // If there is no weapon reset attack time to base (might have been changed from forms)
     }
 }
 
@@ -6865,13 +6865,13 @@ void Player::UpdateArea(uint32 newArea)
     pvpInfo.IsInNoPvPArea = false;
     if (area && area->IsSanctuary())    // in sanctuary
     {
-        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
         if (!duel)
             CombatStopWithPets();
     }
     else
-        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_SANCTUARY);
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
     if (area && area->Flags[0] & areaRestFlag)
@@ -7139,16 +7139,12 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: Applying mods for item %s", item->GetGUID().ToString().c_str());
 
-    uint8 attacktype = Player::GetAttackBySlot(slot, item->GetTemplate()->GetInventoryType());
-
     if (item->GetSocketColor(0))                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
 
-    if (attacktype < MAX_ATTACK)
-        _ApplyWeaponDependentAuraMods(item, WeaponAttackType(attacktype), apply);
-
     _ApplyItemBonuses(item, slot, apply);
     ApplyItemEquipSpell(item, apply);
+    ApplyItemDependentAuras(item, apply);
     ApplyArtifactPowers(item, apply);
     ApplyEnchantment(item, apply);
 
@@ -7471,92 +7467,32 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
 
     SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
     if (proto->GetDelay() && !(shapeshift && shapeshift->CombatRoundTime))
-        SetAttackTime(attType, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
+        SetBaseAttackTime(attType, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
 
     if (CanModifyStats() && (damage || proto->GetDelay()))
         UpdateDamagePhysical(attType);
 }
 
-void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply)
+void Player::ApplyItemDependentAuras(Item* item, bool apply)
 {
-    AuraEffectList const& auraCritList = GetAuraEffectsByType(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
-    for (AuraEffectList::const_iterator itr = auraCritList.begin(); itr != auraCritList.end(); ++itr)
-        _ApplyWeaponDependentAuraCritMod(item, attackType, *itr, apply);
-
-    AuraEffectList const& auraDamageFlatList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-    for (AuraEffectList::const_iterator itr = auraDamageFlatList.begin(); itr != auraDamageFlatList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
-
-    AuraEffectList const& auraDamagePctList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
-}
-
-void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
-{
-    // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
-        return;
-
-    // generic not weapon specific case processes in aura code
-    if (aura->GetSpellInfo()->EquippedItemClass == -1)
-        return;
-
-    BaseModGroup mod;
-    switch (attackType)
+    if (apply)
     {
-        case BASE_ATTACK:   mod = CRIT_PERCENTAGE;        break;
-        case OFF_ATTACK:    mod = OFFHAND_CRIT_PERCENTAGE;break;
-        case RANGED_ATTACK: mod = RANGED_CRIT_PERCENTAGE; break;
-        default: return;
-    }
-
-    if (item->IsFitToSpellRequirements(aura->GetSpellInfo()))
-        HandleBaseModValue(mod, FLAT_MOD, float (aura->GetAmount()), apply);
-}
-
-void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
-{
-    // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
-        return;
-
-    // ignore spell mods for not wands
-    if ((aura->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) == 0 && (getClassMask() & CLASSMASK_WAND_USERS) == 0)
-        return;
-
-    // generic not weapon specific case processes in aura code
-    if (aura->GetSpellInfo()->EquippedItemClass == -1)
-        return;
-
-    UnitMods unitMod;
-    switch (attackType)
-    {
-        case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
-        case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
-        case RANGED_ATTACK: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
-        default: return;
-    }
-
-    UnitModifierType unitModType;
-    switch (aura->GetAuraType())
-    {
-        case SPELL_AURA_MOD_DAMAGE_DONE:         unitModType = TOTAL_VALUE; break;
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE: unitModType = TOTAL_PCT;   break;
-        default: return;
-    }
-
-    if (item->IsFitToSpellRequirements(aura->GetSpellInfo()))
-    {
-        HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()), apply);
-        if (unitModType == TOTAL_VALUE)
+        PlayerSpellMap const& spells = GetSpellMap();
+        for (auto itr = spells.begin(); itr != spells.end(); ++itr)
         {
-            if (aura->GetAmount() > 0)
-                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
-            else
-                ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG, aura->GetAmount(), apply);
+            if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+            if (!spellInfo || !spellInfo->IsPassive() || spellInfo->EquippedItemClass < 0)
+                continue;
+
+            if (!HasAura(itr->first) && HasItemFitToSpellRequirements(spellInfo))
+                AddAura(itr->first, this);  // no SMSG_SPELL_GO in sniff found
         }
     }
+    else
+        RemoveItemDependentAurasAndCasts(item);
 }
 
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
@@ -7812,7 +7748,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
 
             if (proto->SpellPPMRate)
             {
-                uint32 WeaponSpeed = GetAttackTime(attType);
+                uint32 WeaponSpeed = GetBaseAttackTime(attType);
                 chance = GetPPMProcChance(WeaponSpeed, proto->SpellPPMRate, spellInfo);
             }
             else if (chance > 100.0f)
@@ -8018,10 +7954,7 @@ void Player::_RemoveAllItemMods()
             if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            uint32 attacktype = Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType());
-            if (attacktype < MAX_ATTACK)
-                _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), false);
-
+            ApplyItemDependentAuras(m_items[i], false);
             _ApplyItemBonuses(m_items[i], i, false);
         }
     }
@@ -8040,10 +7973,7 @@ void Player::_ApplyAllItemMods()
             if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
                 continue;
 
-            uint32 attacktype = Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType());
-            if (attacktype < MAX_ATTACK)
-                _ApplyWeaponDependentAuraMods(m_items[i], WeaponAttackType(attacktype), true);
-
+            ApplyItemDependentAuras(m_items[i], true);
             _ApplyItemBonuses(m_items[i], i, true);
         }
     }
@@ -12011,8 +11941,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 // remove item dependent auras and casts (only weapon and armor slots)
                 if (slot < EQUIPMENT_SLOT_END)
                 {
-                    RemoveItemDependentAurasAndCasts(pItem);
-
                     // remove held enchantments, update expertise
                     if (slot == EQUIPMENT_SLOT_MAINHAND)
                     {
@@ -12161,9 +12089,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
             if (slot < EQUIPMENT_SLOT_END)
             {
-                // remove item dependent auras and casts (only weapon and armor slots)
-                RemoveItemDependentAurasAndCasts(pItem);
-
                 // update expertise and armor penetration - passive auras may need it
                 switch (slot)
                 {
@@ -14948,7 +14873,7 @@ bool Player::CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackage
         case QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION:
             return rewardProto->IsUsableByLootSpecialization(this);
         case QUEST_PACKAGE_FILTER_CLASS:
-            return (rewardProto->ItemSpecClassMask & getClassMask()) != 0;
+            return !rewardProto->ItemSpecClassMask || (rewardProto->ItemSpecClassMask & getClassMask()) != 0;
         case QUEST_PACKAGE_FILTER_EVERYONE:
             return true;
         default:
@@ -18081,8 +18006,18 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
     //                                  24                        25                          26                         27                         28
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29           30           31          32           33           34          35           36           37   40    41
-    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY (ii.flags & 0x80000) ASC, bag ASC, slot ASC
+    //                29           30           31                32          33           34           35                36          37           38           39                40
+    //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
+    //                       41                      42   43    44
+    //        fixedScalingLevel, artifactKnowledgeLevel, bag, slot
+    // FROM character_inventory ci
+    // JOIN item_instance ii ON ci.item = ii.guid
+    // LEFT JOIN item_instance_gems ig ON ii.guid = ig.itemGuid
+    // LEFT JOIN item_instance_transmog iit ON ii.guid = iit.itemGuid
+    // LEFT JOIN item_instance_modifiers im ON ii.guid = im.itemGuid
+    // WHERE ci.guid = ?
+    // ORDER BY (ii.flags & 0x80000) ASC, bag ASC, slot ASC
+
     //NOTE: ORDER BY ii.flags & 0x80000 makes child items load last - they need their parents to be already loaded
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
@@ -18136,8 +18071,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
                     item->LoadArtifactData(std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
 
-                ObjectGuid bagGuid = fields[40].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[40].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[41].GetUInt8();
+                ObjectGuid bagGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[43].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[44].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18478,7 +18413,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[40].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[40].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[43].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -20489,7 +20424,7 @@ void Player::outDebugValues() const
     TC_LOG_DEBUG("entities.unit", "MIN_DAMAGE is: \t\t%f\tMAX_DAMAGE is: \t\t%f", GetFloatValue(UNIT_FIELD_MINDAMAGE), GetFloatValue(UNIT_FIELD_MAXDAMAGE));
     TC_LOG_DEBUG("entities.unit", "MIN_OFFHAND_DAMAGE is: \t%f\tMAX_OFFHAND_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE), GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE));
     TC_LOG_DEBUG("entities.unit", "MIN_RANGED_DAMAGE is: \t%f\tMAX_RANGED_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE), GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE));
-    TC_LOG_DEBUG("entities.unit", "ATTACK_TIME is: \t%u\t\tRANGE_ATTACK_TIME is: \t%u", GetAttackTime(BASE_ATTACK), GetAttackTime(RANGED_ATTACK));
+    TC_LOG_DEBUG("entities.unit", "ATTACK_TIME is: \t%u\t\tRANGE_ATTACK_TIME is: \t%u", GetBaseAttackTime(BASE_ATTACK), GetBaseAttackTime(RANGED_ATTACK));
 }
 
 /*********************************************************/
@@ -21758,9 +21693,9 @@ void Player::InitDataForForm(bool reapplyMods)
     SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
     if (ssEntry && ssEntry->CombatRoundTime)
     {
-        SetAttackTime(BASE_ATTACK, ssEntry->CombatRoundTime);
-        SetAttackTime(OFF_ATTACK, ssEntry->CombatRoundTime);
-        SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
+        SetBaseAttackTime(BASE_ATTACK, ssEntry->CombatRoundTime);
+        SetBaseAttackTime(OFF_ATTACK, ssEntry->CombatRoundTime);
+        SetBaseAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
     }
     else
         SetRegularAttackTime();
@@ -22324,16 +22259,16 @@ void Player::UpdatePvPState(bool onlyFFA)
     {
         if (!IsFFAPvP())
         {
-            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-                (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+                (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
     else if (IsFFAPvP())
     {
-        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
         for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-            (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
     }
 
     if (onlyFFA)
@@ -24125,16 +24060,28 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         }
         case ITEM_CLASS_ARMOR:
         {
-            // tabard not have dependent spells
-            for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_MAINHAND; ++i)
-                if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (!spellInfo->HasAttribute(SPELL_ATTR8_ARMOR_SPECIALIZATION))
+            {
+                // tabard not have dependent spells
+                for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_MAINHAND; ++i)
+                    if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                            return true;
+
+                // shields can be equipped to offhand slot
+                if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                     if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
                         return true;
-
-            // shields can be equipped to offhand slot
-            if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
-                    return true;
+            }
+            else
+            {
+                for (uint8 i : {EQUIPMENT_SLOT_HEAD, EQUIPMENT_SLOT_SHOULDERS, EQUIPMENT_SLOT_CHEST, EQUIPMENT_SLOT_WAIST, EQUIPMENT_SLOT_LEGS, EQUIPMENT_SLOT_FEET, EQUIPMENT_SLOT_WRISTS, EQUIPMENT_SLOT_HANDS})
+                {
+                    Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
+                    if (!item || !item->IsFitToSpellRequirements(spellInfo))
+                        return false;
+                }
+            }
 
             break;
         }
@@ -24171,9 +24118,9 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
     {
         Aura* aura = itr->second;
 
-        // skip passive (passive item dependent spells work in another way) and not self applied auras
+        // skip not self applied auras
         SpellInfo const* spellInfo = aura->GetSpellInfo();
-        if (aura->IsPassive() ||  aura->GetCasterGUID() != GetGUID())
+        if (aura->GetCasterGUID() != GetGUID())
         {
             ++itr;
             continue;
