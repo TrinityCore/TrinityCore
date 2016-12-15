@@ -222,6 +222,7 @@ class PlayerOrPetCheck
         }
 };
 
+// 26192 - Arcane Explosion
 class spell_skeram_arcane_explosion : public SpellScriptLoader
 {
     public:
@@ -248,6 +249,7 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
         }
 };
 
+// 785 - True Fulfillment
 class spell_skeram_true_fulfillment : public SpellScriptLoader
 {
 public:
