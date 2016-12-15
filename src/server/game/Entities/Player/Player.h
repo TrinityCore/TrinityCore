@@ -2032,7 +2032,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ApplyItemDependentAuras(Item* item, bool apply);
 
-        void _ApplyItemMods(Item* item, uint8 slot, bool apply);
+        void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
