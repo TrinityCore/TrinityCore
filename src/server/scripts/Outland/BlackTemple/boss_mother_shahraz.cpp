@@ -75,7 +75,7 @@ uint32 const BeamTriggers[4] =
     SPELL_SINISTER_PERIODIC,
     SPELL_VILE_PERIODIC,
     SPELL_WICKED_PERIODIC,
-    SPELL_SINFUL_PERIODIC,
+    SPELL_SINFUL_PERIODIC
 };
 
 uint32 const RandomBeam[4] =
@@ -83,7 +83,7 @@ uint32 const RandomBeam[4] =
     SPELL_BEAM_SINISTER,
     SPELL_BEAM_VILE,
     SPELL_BEAM_WICKED,
-    SPELL_BEAM_SINFUL,
+    SPELL_BEAM_SINFUL
 };
 
 uint32 const PrismaticAuras[6]=
@@ -206,6 +206,7 @@ public:
     }
 };
 
+// 40869 - Fatal Attraction
 class spell_mother_shahraz_fatal_attraction : public SpellScriptLoader
 {
 public:
@@ -252,6 +253,7 @@ public:
     }
 };
 
+// 40870 - Fatal Attraction Dummy Visual
 class spell_mother_shahraz_fatal_attraction_link : public SpellScriptLoader
 {
 public:
@@ -285,6 +287,7 @@ public:
     }
 };
 
+// 40816 - Saber Lash
 class spell_mother_shahraz_saber_lash : public SpellScriptLoader
 {
 public:
@@ -322,6 +325,10 @@ public:
     }
 };
 
+/* 40863 - Sinister Periodic
+   40865 - Vile Periodic
+   40866 - Wicked Periodic
+   40862 - Sinful Periodic */
 class spell_mother_shahraz_generic_periodic : public SpellScriptLoader
 {
 public:
@@ -359,6 +366,7 @@ public:
     }
 };
 
+// 40867 - Random Periodic
 class spell_mother_shahraz_random_periodic : public SpellScriptLoader
 {
 public:
