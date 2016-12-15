@@ -1622,7 +1622,7 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
         if (!auraSpellInfo ||
             (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&
                 auraSpellInfo->Mechanic != MECHANIC_INVULNERABILITY &&
-                (auraSpellInfo->Mechanic != MECHANIC_BANISH || IsRankOf(auraSpellInfo)))) // Banish shouldn't be immune to itself
+                (auraSpellInfo->Mechanic != MECHANIC_BANISH || (IsRankOf(auraSpellInfo) && auraSpellInfo->Dispel != DISPEL_NONE)))) // Banish shouldn't be immune to itself, but Cyclone should
             return true;
     }
 
