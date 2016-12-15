@@ -1193,6 +1193,7 @@ public:
     }
 };
 
+// 40401 - Shade Soul Channel (serverside spell)
 class spell_shade_soul_channel_serverside : public SpellScriptLoader
 {
 public:
@@ -1226,6 +1227,7 @@ public:
     }
 };
 
+// 40520 - Shade Soul Channel
 class spell_shade_soul_channel : public SpellScriptLoader
 {
 public:

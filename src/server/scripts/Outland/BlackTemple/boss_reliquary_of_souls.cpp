@@ -711,6 +711,7 @@ public:
     }
 };
 
+// 41350 - Aura of Desire
 class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
 {
     public:
@@ -758,6 +759,7 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
         }
 };
 
+// 28819 - Submerge Visual
 class spell_reliquary_of_souls_submerge : public SpellScriptLoader
 {
     public:
@@ -791,6 +793,7 @@ class spell_reliquary_of_souls_submerge : public SpellScriptLoader
         }
 };
 
+// 41376 - Spite
 class spell_reliquary_of_souls_spite : public SpellScriptLoader
 {
     public:
@@ -825,6 +828,7 @@ class spell_reliquary_of_souls_spite : public SpellScriptLoader
         }
 };
 
+// 41305 - Frenzy
 class spell_reliquary_of_souls_frenzy : public SpellScriptLoader
 {
     public:
