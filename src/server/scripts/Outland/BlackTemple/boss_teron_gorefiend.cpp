@@ -386,6 +386,7 @@ public:
     }
 };
 
+// 40251 - Shadow of Death
 class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 {
     public:
@@ -442,6 +443,7 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
         }
 };
 
+// 40268 - Spiritual Vengeance
 class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 {
     public:
@@ -469,6 +471,7 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
         }
 };
 
+// 41999 - Shadow of Death Remove
 class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 {
     public:
