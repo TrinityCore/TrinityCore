@@ -336,6 +336,7 @@ public:
     }
 };
 
+// 42005 - Bloodboil
 class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
 {
     public:
@@ -368,6 +369,7 @@ class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
         }
 };
 
+// 40618 - Insignificance
 class spell_gurtogg_bloodboil_insignificance : public SpellScriptLoader
 {
 public:
