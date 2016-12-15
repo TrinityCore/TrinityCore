@@ -256,6 +256,7 @@ public:
     }
 };
 
+// 41986 - Anger
 class spell_soul_fragment_anger : public SpellScriptLoader
 {
     public:
