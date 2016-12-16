@@ -446,31 +446,35 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
+                uint32 const gemFields = 4;
                 for (ItemDynamicFieldGems const& gemData : GetGems())
                 {
                     if (gemData.ItemId)
                     {
-                        stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, gemData.ItemId);
+                        stmt->setUInt32(1 + i * gemFields, gemData.ItemId);
                         std::ostringstream gemBonusListIDs;
                         for (uint16 bonusListID : gemData.BonusListIDs)
                             if (bonusListID)
                                 gemBonusListIDs << bonusListID << ' ';
-                        stmt->setString(2 + i * MAX_GEM_SOCKETS, gemBonusListIDs.str());
-                        stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, gemData.Context);
+                        stmt->setString(2 + i * gemFields, gemBonusListIDs.str());
+                        stmt->setUInt8(3 + i * gemFields, gemData.Context);
+                        stmt->setUInt32(4 + i * gemFields, m_gemScalingLevels[i]);
                     }
                     else
                     {
-                        stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, 0);
-                        stmt->setString(2 + i * MAX_GEM_SOCKETS, "");
-                        stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, 0);
+                        stmt->setUInt32(1 + i * gemFields, 0);
+                        stmt->setString(2 + i * gemFields, "");
+                        stmt->setUInt8(3 + i * gemFields, 0);
+                        stmt->setUInt32(4 + i * gemFields, 0);
                     }
                     ++i;
                 }
                 for (; i < MAX_GEM_SOCKETS; ++i)
                 {
-                    stmt->setUInt32(1 + i * MAX_GEM_SOCKETS, 0);
-                    stmt->setString(2 + i * MAX_GEM_SOCKETS, "");
-                    stmt->setUInt8(3 + i * MAX_GEM_SOCKETS, 0);
+                    stmt->setUInt32(1 + i * gemFields, 0);
+                    stmt->setString(2 + i * gemFields, "");
+                    stmt->setUInt8(3 + i * gemFields, 0);
+                    stmt->setUInt32(4 + i * gemFields, 0);
                 }
                 trans->Append(stmt);
             }
@@ -621,8 +625,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
     //                                  24                        25                          26                         27                         28
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29           30           31          32           33           34          35           36           37                 38                      39
-    //        gemItemId1, gemBonuses1, gemContext1, gemItemId2, gemBonuses2, gemContext2, gemItemId3, gemBonuses3, gemContext3, fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //                29           30           31                32          33           34           35                36          37           38           39                40
+    //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
+    //                       41                      42
+    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -736,24 +742,25 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[27].GetUInt32());
     SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[28].GetUInt32());
 
+    uint32 const gemFields = 4;
     ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
     memset(gemData, 0, sizeof(gemData));
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        gemData[i].ItemId = fields[29 + i * MAX_GEM_SOCKETS].GetUInt32();
-        Tokenizer gemBonusListIDs(fields[30 + i * MAX_GEM_SOCKETS].GetString(), ' ');
+        gemData[i].ItemId = fields[29 + i * gemFields].GetUInt32();
+        Tokenizer gemBonusListIDs(fields[30 + i * gemFields].GetString(), ' ');
         uint32 b = 0;
         for (char const* token : gemBonusListIDs)
             if (uint32 bonusListID = atoul(token))
                 gemData[i].BonusListIDs[b++] = bonusListID;
 
-        gemData[i].Context = fields[31 + i * MAX_GEM_SOCKETS].GetUInt8();
+        gemData[i].Context = fields[31 + i * gemFields].GetUInt8();
         if (gemData[i].ItemId)
-            SetGem(i, &gemData[i]);
+            SetGem(i, &gemData[i], fields[32 + i * gemFields].GetUInt32());
     }
 
-    SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[38].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[39].GetUInt32());
+    SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[41].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[42].GetUInt32());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1238,9 +1245,10 @@ ItemDynamicFieldGems const* Item::GetGem(uint16 slot) const
     return GetDynamicStructuredValue<ItemDynamicFieldGems>(ITEM_DYNAMIC_FIELD_GEMS, slot);
 }
 
-void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
+void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalingLevel)
 {
     ASSERT(slot < MAX_GEM_SOCKETS);
+    m_gemScalingLevels[slot] = gemScalingLevel;
     _bonusData.GemItemLevelBonus[slot] = 0;
     if (ItemTemplate const* gemTemplate = sObjectMgr->GetItemTemplate(gem->ItemId))
     {
@@ -1254,6 +1262,11 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
                     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListId))
                         for (ItemBonusEntry const* itemBonus : *bonuses)
                             gemBonus.AddBonus(itemBonus->Type, itemBonus->Value);
+
+                uint32 gemBaseItemLevel = gemTemplate->GetBaseItemLevel();
+                if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(gemBonus.ScalingStatDistribution))
+                    if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, gemScalingLevel)))
+                        gemBaseItemLevel = scaledIlvl;
 
                 for (uint32 i = 0; i < MAX_ITEM_ENCHANTMENT_EFFECTS; ++i)
                 {
@@ -1269,7 +1282,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem)
                         }
                         case ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE:
                         {
-                            if (uint32 bonusListId = sDB2Manager.GetItemBonusListForItemLevelDelta(int16(sDB2Manager.GetCurveValueAt(CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS, gemTemplate->GetBaseItemLevel() + gemBonus.ItemLevelBonus))))
+                            if (uint32 bonusListId = sDB2Manager.GetItemBonusListForItemLevelDelta(int16(sDB2Manager.GetCurveValueAt(CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS, gemBaseItemLevel + gemBonus.ItemLevelBonus))))
                                 if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListId))
                                     for (ItemBonusEntry const* itemBonus : *bonuses)
                                         if (itemBonus->Type == ITEM_BONUS_ITEM_LEVEL)

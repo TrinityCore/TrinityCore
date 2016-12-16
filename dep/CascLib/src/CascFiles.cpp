@@ -582,6 +582,9 @@ static int ParseFile_BuildInfo(TCascStorage * hs, void * pvListFile)
         FreeCascBlob(&CdnHost);
         FreeCascBlob(&CdnPath);
         FreeCascBlob(&TagString);
+
+        // Rewind column names pointer back to start of line
+        szLinePtr1 = szLineEnd1 - nLength1;
     }
 
     // All four must be present
