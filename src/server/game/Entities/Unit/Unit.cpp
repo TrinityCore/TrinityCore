@@ -11132,7 +11132,8 @@ int32 Unit::GetCreatePowers(Powers power) const
 {
     if (power == POWER_MANA)
         return GetCreateMana();
-
+	if (power == POWER_HOLY_POWER)
+		return(getClass() == CLASS_PALADIN && GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_PALADIN_RETRIBUTION ? 5 : 0);
     if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
         return powerType->MaxPower;
 
