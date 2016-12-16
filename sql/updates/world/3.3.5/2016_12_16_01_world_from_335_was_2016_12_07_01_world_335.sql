@@ -1,3 +1,4 @@
+/*
 SET @OGUID:=9709;
 SET @FourthOfJulyEvent:=72;
 SET @NewYearEvent:=6;
@@ -49,3 +50,4 @@ DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+33 
 INSERT INTO `game_event_gameobject` SELECT @FourthOfJulyEvent, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+33;
 DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+33 AND `eventEntry`=@NewYearEvent;
 INSERT INTO `game_event_gameobject` SELECT @NewYearEvent, gameobject.guid FROM `gameobject` WHERE gameobject.guid BETWEEN @OGUID+0 AND @OGUID+33;
+*/

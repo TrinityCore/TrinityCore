@@ -1,3 +1,4 @@
+/*
 -- Historian Karnik SAI
 SET @ENTRY := 2916;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
@@ -21,3 +22,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (2915, 1, 0, 'I''ll tell you more, Karnik, in time. But first, send this traveler''ta Belgrum--there''s more business''ta attend to.', 12, 0, 100, 0, 0, 0, 918, 'Hammertoe''s Spirit'),
 (2916, 0, 0, 'Ragnaros? Terrible news indeed...', 12, 0, 100, 0, 0, 0, 956, 'Historian Karnik'),
 (2916, 1, 0, 'You heard him, traveler. Speak to me again when you''re ready to speak to Belgrum.', 12, 0, 100, 0, 0, 0, 958, 'Historian Karnik');
+*/

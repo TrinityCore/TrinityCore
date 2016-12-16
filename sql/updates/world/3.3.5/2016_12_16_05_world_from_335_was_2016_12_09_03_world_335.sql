@@ -1,3 +1,4 @@
+/*
 -- [Q] Challenge to the Black Flight -- http://wotlk.openwow.com/quest=11162
 -- Smolderwing SAI
 SET @ENTRY := 23789;
@@ -32,3 +33,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceGroup`=0 AND `SourceEntry`=42425;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (17,0,42425,0,0,29,0,23789,200,0,1,0,0,"","Cannot cast Plant Stonemaul Banner if Smolderwing is in range");
+*/

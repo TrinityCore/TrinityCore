@@ -1,3 +1,4 @@
+/*
 -- 
 -- [Q] Call of Fire -- http://wotlk.openwow.com/quest=9467
 -- Temper SAI
@@ -39,3 +40,4 @@ UPDATE `creature_template` SET `MovementType` = 0 WHERE entry = 17220;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND  `SourceGroup`=1 AND `SourceEntry`=30218;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 30218, 0, 0, 31, 0, 3, 17274, 0, 0, 0, 0, '', 'Fireball only target Temper''s Target');
+*/

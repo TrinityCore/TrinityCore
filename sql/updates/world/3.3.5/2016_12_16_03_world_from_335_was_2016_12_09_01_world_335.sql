@@ -1,3 +1,4 @@
+/*
 -- [Q] Elixir of Agony -- http://wotlk.openwow.com/quest=524
 -- Dusty Rug SAI
 SET @ENTRY := 1728;
@@ -77,3 +78,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 UPDATE creature SET spawntimesecs = 90 WHERE id = 2284;
 -- Tainted Keg - respawntime updated
 DELETE FROM `gameobject` WHERE `guid`=30031;
+*/

@@ -1,3 +1,4 @@
+/*
 -- [Q] Suspicious Hoofprints -- http://wotlk.openwow.com/quest=1268
 -- Krog SAI
 SET @ENTRY := 4926;
@@ -41,3 +42,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (4926, 0, 0, 'Kagoro, I require your presence!', 12, 0, 100, 0, 0, 0, 1755, 'Krog'),
 (4926, 1, 0, 'Go to the Shady Rest Inn and follow the tracks. See where they lead and report back to me.', 12, 0, 100, 1, 0, 0, 1648, 'Krog'),
 (4972, 0, 0, 'Understood. I will return shortly.', 12, 0, 100, 1, 0, 0, 1649, 'Kagoro');
+*/
