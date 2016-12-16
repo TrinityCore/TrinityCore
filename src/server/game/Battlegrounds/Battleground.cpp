@@ -1792,7 +1792,7 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
-            if (player && player->IsAlive() && !player->HasByteFlag(UNIT_FIELD_BYTES_2, 3, FORM_SPIRITOFREDEMPTION))
+            if (player && player->IsAlive() && player->GetShapeshiftForm() != FORM_SPIRITOFREDEMPTION)
                 ++count;
         }
     }

@@ -903,10 +903,10 @@ public:
             switch (AnimationCount)
             {
             case 0:
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             case 3:
-                me->RemoveFlag(UNIT_FIELD_BYTES_1, 8);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
             case 5:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
