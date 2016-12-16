@@ -476,6 +476,7 @@ public:
     }
 };
 
+// 30541 - Blaze
 class spell_magtheridon_blaze_target : public SpellScriptLoader
 {
     public:
@@ -510,6 +511,7 @@ class spell_magtheridon_blaze_target : public SpellScriptLoader
         }
 };
 
+// 30410 - Shadow Grasp
 class spell_magtheridon_shadow_grasp : public SpellScriptLoader
 {
     public:
@@ -545,6 +547,7 @@ class spell_magtheridon_shadow_grasp : public SpellScriptLoader
         }
 };
 
+// 30166 - Shadow Grasp (Visual Effect)
 class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 {
     public:
