@@ -127,7 +127,7 @@ public:
             events.Reset();
             me->setFaction(7);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+            me->SetStandState(UNIT_STAND_STATE_KNEEL);
             me->LoadEquipment(0, true);
         }
 
@@ -162,7 +162,7 @@ public:
             wait_timer = 5000;
             phase = PHASE_TO_EQUIP;
 
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
@@ -412,7 +412,7 @@ class npc_eye_of_acherus : public CreatureScript
             {
                 if (movementType == WAYPOINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END - 1)
                 {
-                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                    me->SetSheath(SHEATH_STATE_MELEE);
                     me->RemoveAllAuras();
 
                     if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
