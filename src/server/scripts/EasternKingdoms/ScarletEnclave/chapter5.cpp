@@ -33,7 +33,7 @@ enum mograine
     ENCOUNTER_ABOMINATION_NUMBER      = 2,  // how many of abomination
     ENCOUNTER_BEHEMOTH_NUMBER         = 1,  // how many of behemoth
     ENCOUNTER_GHOUL_NUMBER            = 5, // how many of ghoul
-    ENCOUNTER_WARRIOR_NUMBER          = 1,  // how many of warrior
+    ENCOUNTER_WARRIOR_NUMBER          = 2,  // how many of warrior
 #else
     ENCOUNTER_DK_NUMBER               = 5,  // how many player queue to start the quest, or -
     ENCOUNTER_DK_TIMER                = 10, // *every 5 minutes. These have to be done in instance data
@@ -373,7 +373,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->Mount(25279);
                 me->SetVisible(true);
-
+				if(!me->IsAlive()) me->Respawn();
                 UpdateWorldState(me->GetMap(), WORLD_STATE_REMAINS, 0);
                 //UpdateWorldState(me->GetMap(), WORLD_STATE_COUNTDOWN, 0);
                 UpdateWorldState(me->GetMap(), WORLD_STATE_EVENT_BEGIN, 0);
@@ -514,8 +514,10 @@ public:
 
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKoltiraGUID))
                         temp->Dismount();
-                    if (Creature* temp = ObjectAccessor::GetCreature(*me, uiThassarianGUID))
-                        temp->Dismount();
+					if (Creature* temp = ObjectAccessor::GetCreature(*me, uiThassarianGUID))
+						temp->Dismount();
+					if (Creature* temp = ObjectAccessor::GetCreature(*me, uiOrbazGUID))
+						temp->Dismount();
 
                     bIsBattle = true;
                     break;
@@ -750,11 +752,17 @@ public:
                                     temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }));
                             JumpToNextStep(5000);
                             break;
-
+						/*
+						case 10:
+							JumpToNextStep(1000);
+							break;
+						*/
                         // ******* After battle *****************************************************************
                         case 11: // Tirion starts to speak
-                            if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID))
-                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN28);
+							if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID)) {
+								temp->Dismount();
+								temp->AI()->Talk(SAY_LIGHT_OF_DAWN28);
+							}
                             JumpToNextStep(21000);
                             break;
 
@@ -929,6 +937,10 @@ public:
                             JumpToNextStep(0);
                             break;
 
+						case 34:
+							JumpToNextStep(1000);
+							break;
+
                         case 35: // Lich king counterattacks
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiLichKingGUID))
                             {
@@ -940,6 +952,10 @@ public:
                             SetHoldState(false); // Darion got kicked by lich king
                             JumpToNextStep(0);
                             break;
+
+						case 36:
+							JumpToNextStep(1000);
+							break;
 
                         case 37: // Lich king counterattacks
                             me->SetStandState(UNIT_STAND_STATE_KNEEL);
