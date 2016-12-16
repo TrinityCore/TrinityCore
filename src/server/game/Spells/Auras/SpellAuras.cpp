@@ -1612,7 +1612,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     bool sameCaster = GetCasterGUID() == existingAura->GetCasterGUID();
 
     // passive auras don't stack with another rank of the spell cast by same caster
-    if (IsPassive() && sameCaster && m_spellInfo->IsDifferentRankOf(existingSpellInfo))
+    if (IsPassive() && sameCaster && m_spellInfo->IsRankOf(existingSpellInfo))
         return false;
 
     for (SpellEffectInfo const* effect : existingAura->GetSpellEffectInfos())

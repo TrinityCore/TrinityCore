@@ -387,7 +387,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         // init db2 string field slots by pointers to string holders
                         char const*** slot = (char const***)(&dataTable[offset]);
                         *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
-                        if (_loadInfo->Meta->Types[x] == FT_STRING)
+                        if (_loadInfo->TypesString[fieldIndex] == FT_STRING)
                             stringFieldOffset += sizeof(LocalizedString);
                         else
                             stringFieldOffset += sizeof(char*);
