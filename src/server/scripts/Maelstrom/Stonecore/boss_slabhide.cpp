@@ -113,7 +113,7 @@ class boss_slabhide : public CreatureScript
                 me->setActive(true);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_PASSIVE);
                 instance->SetData(DATA_SLABHIDE_INTRO, NOT_STARTED);
                 _isFlying = false;
@@ -129,7 +129,7 @@ class boss_slabhide : public CreatureScript
 
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _isFlying = false;
             }
@@ -192,7 +192,7 @@ class boss_slabhide : public CreatureScript
                     case POINT_SLABHIDE_INTRO_LAND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetHover(false);
                         me->SetHomePosition(SlabhideIntroLandPos);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -256,7 +256,7 @@ class boss_slabhide : public CreatureScript
                         case EVENT_STALACTITE:
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetHover(true);
 
                             DoCast(me, SPELL_STALACTITE_SUMMON);
@@ -273,7 +273,7 @@ class boss_slabhide : public CreatureScript
                         case EVENT_ATTACK:
                             me->SetCanFly(false);
                             me->SetDisableGravity(false);
-                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetHover(false);
 
                             events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));

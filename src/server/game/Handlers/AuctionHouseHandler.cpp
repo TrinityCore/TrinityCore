@@ -628,7 +628,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
     Optional<AuctionSearchFilters> filters;
 
     WorldPackets::AuctionHouse::AuctionListItemsResult result;
-    if (packet.ClassFilters.empty())
+    if (!packet.ClassFilters.empty())
     {
         filters = boost::in_place();
 
