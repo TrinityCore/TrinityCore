@@ -341,6 +341,7 @@ public:
                     me->AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
+                // He should target Vengeful Spirits only if has no other player available
                 else if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoResetThreat();
@@ -378,6 +379,7 @@ public:
     }
 };
 
+// 40251 - Shadow of Death
 class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 {
     public:
@@ -433,6 +435,7 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
         }
 };
 
+// 40268 - Spiritual Vengeance
 class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 {
     public:
@@ -460,6 +463,7 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
         }
 };
 
+// 41999 - Shadow of Death Remove
 class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 {
     public:
