@@ -1469,6 +1469,7 @@ class TC_GAME_API Unit : public WorldObject
 
         Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
+        void UpdateDisplayPower();
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_LUNAR_POWER ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
