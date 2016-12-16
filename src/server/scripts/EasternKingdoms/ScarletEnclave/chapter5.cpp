@@ -752,11 +752,6 @@ public:
                                     temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].GetPositionWithOffset({ float(rand32() % 30), float(rand32() % 30), 0.0f, 0.0f }));
                             JumpToNextStep(5000);
                             break;
-						/*
-						case 10:
-							JumpToNextStep(1000);
-							break;
-						*/
                         // ******* After battle *****************************************************************
                         case 11: // Tirion starts to speak
 							if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID)) {
