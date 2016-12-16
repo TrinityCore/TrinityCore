@@ -6675,6 +6675,58 @@ void Unit::setPowerType(Powers new_powertype)
     }
 }
 
+void Unit::UpdateDisplayPower()
+{
+    Powers displayPower = POWER_MANA;
+    switch (GetShapeshiftForm())
+    {
+        case FORM_GHOUL:
+        case FORM_CAT_FORM:
+            displayPower = POWER_ENERGY;
+            break;
+        case FORM_BEAR_FORM:
+            displayPower = POWER_RAGE;
+            break;
+        case FORM_TRAVEL_FORM:
+        case FORM_GHOST_WOLF:
+            displayPower = POWER_MANA;
+            break;
+        default:
+        {
+            ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
+            if (cEntry && cEntry->PowerType < MAX_POWERS)
+                displayPower = Powers(cEntry->PowerType);
+            if (GetTypeId() == TYPEID_PLAYER)
+            {
+                switch (GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                {
+                    case TALENT_SPEC_PRIEST_SHADOW:
+                        displayPower = POWER_INSANITY;
+                        break;
+                    case TALENT_SPEC_SHAMAN_ELEMENTAL:
+                    case TALENT_SPEC_SHAMAN_ENHANCEMENT:
+                        displayPower = POWER_MAELSTROM;
+                        break;
+                    case TALENT_SPEC_MONK_MISTWEAVER:
+                        displayPower = POWER_MANA;
+                        break;
+                    case TALENT_SPEC_DRUID_BALANCE:
+                        displayPower = POWER_LUNAR_POWER;   // only balance druids get lunar power, even if other specs have access to moonkin form
+                        break;
+                    case TALENT_SPEC_DEMON_HUNTER_VENGEANCE:
+                        displayPower = POWER_PAIN;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
+    }
+
+    setPowerType(displayPower);
+}
+
 FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
 {
     FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(getFaction());
