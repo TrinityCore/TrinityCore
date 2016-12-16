@@ -2669,6 +2669,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+            case 29441: // Magic Absorption (Rank 1)
+            case 29444: // Magic Absorption (Rank 2)
+                // Caused off by 1 calculation (ie 79 resistance at level 80)
+                spellInfo->SpellLevel = 0;
+                break;
             case 5308:  // Execute (Rank 1)
             case 20658: // Execute (Rank 2)
             case 20660: // Execute (Rank 3)

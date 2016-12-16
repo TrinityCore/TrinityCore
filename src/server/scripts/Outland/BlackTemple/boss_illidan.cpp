@@ -587,7 +587,7 @@ public:
                     SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 else
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetSheath(SHEATH_STATE_MELEE);
             }
         }
 
@@ -875,7 +875,7 @@ public:
                 case 10: // attack
                     DoResetThreat();
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                    me->SetSheath(SHEATH_STATE_MELEE);
                     EnterPhase(PHASE_NORMAL_2);
                     break;
                 default:
@@ -899,7 +899,7 @@ public:
             {
                 // Requip warglaives if needed
                 SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                me->SetSheath(SHEATH_STATE_MELEE);
             }
             else
             {
@@ -1866,7 +1866,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 8:
         // Equip our warglaives!
         SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
-        me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+        me->SetSheath(SHEATH_STATE_MELEE);
         me->SetWalk(false);
         break;
     case 9:
