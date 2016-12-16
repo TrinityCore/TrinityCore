@@ -755,7 +755,7 @@ public:
 
                         // ******* After battle *****************************************************************
                         case 11: // Tirion starts to speak
-                        if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID)) {
+                            if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID)) {
                                 temp->Dismount();
                                 temp->AI()->Talk(SAY_LIGHT_OF_DAWN28);
 							}
