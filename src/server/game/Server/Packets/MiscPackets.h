@@ -156,6 +156,14 @@ namespace WorldPackets
             uint32 SoundKitID = 0;
         };
 
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class OverrideLight final : public ServerPacket
         {
         public:

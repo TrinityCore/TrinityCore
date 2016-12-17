@@ -938,6 +938,16 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
 */
 }
 
+void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
+{
+    uint32 movie = _player->GetMovie();
+    if (!movie)
+        return;
+
+    _player->SetMovie(0);
+    sScriptMgr->OnMovieComplete(_player, movie);
+}
+
 void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
 {
     uint8 actionBar;

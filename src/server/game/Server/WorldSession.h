@@ -83,6 +83,10 @@ namespace WorldPackets
         class Hello;
         class TrainerBuySpell;
     }
+    namespace Misc
+    {
+        class CompleteMovie;
+    }
     namespace Query
     {
         class QueryCreature;
@@ -806,6 +810,7 @@ class TC_GAME_API WorldSession
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
+        void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
