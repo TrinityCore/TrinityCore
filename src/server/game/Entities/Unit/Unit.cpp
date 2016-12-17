@@ -6693,32 +6693,17 @@ void Unit::UpdateDisplayPower()
             break;
         default:
         {
-            ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
-            if (cEntry && cEntry->PowerType < MAX_POWERS)
-                displayPower = Powers(cEntry->PowerType);
-            if (GetTypeId() == TYPEID_PLAYER)
+            Unit::AuraEffectList const& powerTypeAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_DISPLAY);
+            if (!powerTypeAuras.empty())
             {
-                switch (GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
-                {
-                    case TALENT_SPEC_PRIEST_SHADOW:
-                        displayPower = POWER_INSANITY;
-                        break;
-                    case TALENT_SPEC_SHAMAN_ELEMENTAL:
-                    case TALENT_SPEC_SHAMAN_ENHANCEMENT:
-                        displayPower = POWER_MAELSTROM;
-                        break;
-                    case TALENT_SPEC_MONK_MISTWEAVER:
-                        displayPower = POWER_MANA;
-                        break;
-                    case TALENT_SPEC_DRUID_BALANCE:
-                        displayPower = POWER_LUNAR_POWER;   // only balance druids get lunar power, even if other specs have access to moonkin form
-                        break;
-                    case TALENT_SPEC_DEMON_HUNTER_VENGEANCE:
-                        displayPower = POWER_PAIN;
-                        break;
-                    default:
-                        break;
-                }
+                AuraEffect const* powerTypeAura = powerTypeAuras.front();
+                displayPower = Powers(powerTypeAura->GetMiscValue());
+            }
+            else
+            {
+                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
+                if (cEntry && cEntry->PowerType < MAX_POWERS)
+                    displayPower = Powers(cEntry->PowerType);
             }
             break;
         }
@@ -8297,8 +8282,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             {
                 if (!spellProto->IsPositive())
                 {
-                    // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE
-                    crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
                 }
