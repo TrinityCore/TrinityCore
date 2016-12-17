@@ -311,7 +311,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_COMMENTATOR_START_WARGAME,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_COMPLAINT,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleComplaint);
     DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteCinematic);
-    DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteMovie);
     DEFINE_HANDLER(CMSG_CONFIRM_ARTIFACT_RESPEC,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleConfirmArtifactRespec);
     DEFINE_HANDLER(CMSG_CONFIRM_RESPEC_WIPE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleConfirmRespecWipeOpcode);
     DEFINE_HANDLER(CMSG_CONNECT_TO_FAILED,                                  STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess);
