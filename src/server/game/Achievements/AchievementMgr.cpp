@@ -452,6 +452,10 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (_owner->IsGameMaster())
         return;
 
+    if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
+        (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
+        return;
+
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
