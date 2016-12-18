@@ -160,11 +160,8 @@ class boss_skeram : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
                             break;
                         case EVENT_FULLFILMENT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                            {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
                                 DoCast(target, SPELL_TRUE_FULFILLMENT);
-                                DoCast(target, SPELL_GENERIC_DISMOUNT, true);
-                            }
                             events.ScheduleEvent(EVENT_FULLFILMENT, urand(20000, 30000));
                             break;
                         case EVENT_BLINK:
@@ -268,6 +265,7 @@ public:
 
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_GENERIC_DISMOUNT, true);
             GetCaster()->CastSpell(GetHitUnit(), SPELL_TRUE_FULFILLMENT_2, true);
         }
 
