@@ -21370,7 +21370,7 @@ void Player::SendSpellModifiers() const
         }), pctMod.ModifierData.end());
 
         flatMods.Modifiers.emplace_back(std::move(flatMod));
-        pctMods.Modifiers.emplace_back(std::move(flatMod));
+        pctMods.Modifiers.emplace_back(std::move(pctMod));
     }
 
     if (!flatMods.Modifiers.empty())
