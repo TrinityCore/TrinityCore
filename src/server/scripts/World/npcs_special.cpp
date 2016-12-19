@@ -37,6 +37,8 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "MoveSplineInit.h"
 
 /*########
 # npc_air_force_bots
@@ -2501,6 +2503,120 @@ public:
     }
 };
 
+enum BountifulTable
+{
+    SEAT_TURKEY_CHAIR                       = 0,
+    SEAT_CRANBERRY_CHAIR                    = 1,
+    SEAT_STUFFING_CHAIR                     = 2,
+    SEAT_SWEET_POTATO_CHAIR                 = 3,
+    SEAT_PIE_CHAIR                          = 4,
+    SEAT_FOOD_HOLDER                        = 5,
+    SEAT_PLATE_HOLDER                       = 6,
+    NPC_THE_TURKEY_CHAIR                    = 34812,
+    NPC_THE_CRANBERRY_CHAIR                 = 34823,
+    NPC_THE_STUFFING_CHAIR                  = 34819,
+    NPC_THE_SWEET_POTATO_CHAIR              = 34824,
+    NPC_THE_PIE_CHAIR                       = 34822,
+    SPELL_CRANBERRY_SERVER                  = 61793,
+    SPELL_PIE_SERVER                        = 61794,
+    SPELL_STUFFING_SERVER                   = 61795,
+    SPELL_TURKEY_SERVER                     = 61796,
+    SPELL_SWEET_POTATOES_SERVER             = 61797
+};
+
+typedef std::unordered_map<uint32 /*Entry*/, uint32 /*Spell*/> ChairSpells;
+ChairSpells const _chairSpells =
+{
+    { NPC_THE_CRANBERRY_CHAIR, SPELL_CRANBERRY_SERVER },
+    { NPC_THE_PIE_CHAIR, SPELL_PIE_SERVER },
+    { NPC_THE_STUFFING_CHAIR, SPELL_STUFFING_SERVER },
+    { NPC_THE_TURKEY_CHAIR, SPELL_TURKEY_SERVER },
+    { NPC_THE_SWEET_POTATO_CHAIR, SPELL_SWEET_POTATOES_SERVER },
+};
+
+class CastFoodSpell : public BasicEvent
+{
+    public:
+        CastFoodSpell(Unit* owner, uint32 spellId) : _owner(owner), _spellId(spellId) { }
+
+        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+        {
+            _owner->CastSpell(_owner, _spellId, true);
+            return false;
+        }
+
+    private:
+        Unit* _owner;
+        uint32 _spellId;
+};
+
+class npc_bountiful_table : public CreatureScript
+{
+public:
+    npc_bountiful_table() : CreatureScript("npc_bountiful_table") { }
+
+    struct npc_bountiful_tableAI : public PassiveAI
+    {
+        npc_bountiful_tableAI(Creature* creature) : PassiveAI(creature) { }
+
+        void PassengerBoarded(Unit* who, int8 seatId, bool /*apply*/) override
+        {
+            float x = 0.0f;
+            float y = 0.0f;
+            float z = 0.0f;
+            float o = 0.0f;
+
+            switch (seatId)
+            {
+                case SEAT_TURKEY_CHAIR:
+                    x = 3.87f;
+                    y = 2.07f;
+                    o = 3.700098f;
+                    break;
+                case SEAT_CRANBERRY_CHAIR:
+                    x = 3.87f;
+                    y = -2.07f;
+                    o = 2.460914f;
+                    break;
+                case SEAT_STUFFING_CHAIR:
+                    x = -2.52f;
+                    break;
+                case SEAT_SWEET_POTATO_CHAIR:
+                    x = -0.09f;
+                    y = -3.24f;
+                    o = 1.186824f;
+                    break;
+                case SEAT_PIE_CHAIR:
+                    x = -0.18f;
+                    y = 3.24f;
+                    o = 5.009095f;
+                    break;
+                case SEAT_FOOD_HOLDER:
+                case SEAT_PLATE_HOLDER:
+                    if (Vehicle* holders = who->GetVehicleKit())
+                        holders->InstallAllAccessories(true);
+                    return;
+                default:
+                    break;
+            }
+
+            Movement::MoveSplineInit init(who);
+            init.DisableTransportPathTransformations();
+            init.MoveTo(x, y, z, false);
+            init.SetFacing(o);
+            init.Launch();
+            who->m_Events.AddEvent(new CastFoodSpell(who, _chairSpells.at(who->GetEntry())), who->m_Events.CalculateTime(1000));
+            if (who->GetTypeId() == TYPEID_UNIT)
+                who->SetDisplayId(who->ToCreature()->GetCreatureTemplate()->Modelid1);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_bountiful_tableAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2524,4 +2640,5 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
+    new npc_bountiful_table();
 }
