@@ -4711,6 +4711,10 @@ void ObjectMgr::LoadQuests()
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
         if (qinfo->RequiredPlayerKills)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
+
+        // If forcing manual quest acceptance through config, then remove auto-accept flag
+        if (qinfo->Flags & QUEST_FLAGS_AUTO_ACCEPT && sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT))
+            qinfo->Flags &= ~QUEST_FLAGS_AUTO_ACCEPT;
     }
 
     // check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
