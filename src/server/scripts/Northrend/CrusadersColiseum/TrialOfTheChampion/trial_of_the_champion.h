@@ -220,7 +220,7 @@ enum Vehicles
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
 
-enum WaypointData
+enum TotcWaypointData
 {
     DATA_GENERATE_WAYPOINTS_FOR_BOSS_1              = 1,
     DATA_GENERATE_WAYPOINTS_FOR_BOSS_2,

@@ -66,7 +66,7 @@ enum Spells
     SPELL_RAISE_ARELAS      = 67705,
     SPELL_RAISE_JAEREN      = 67715,
 
-    // Phase 2 
+    // Phase 2
     SPELL_ARMY_DEAD         = 67761,
     SPELL_DESECRATION       = 67778,
     SPELL_GHOUL_EXPLODE     = 67751,
@@ -337,7 +337,7 @@ public:
         {
             if (spell->Id == SPELL_BLACK_KNIGHT_RES)
             {
-                // TODO: According to sniffs, The Black Knight should update 
+                // TODO: According to sniffs, The Black Knight should update
                 // creature template to another entry, not just change his display id
                 // But the other templates are missing correct damage modifiers
                 me->SetFullHealth();
@@ -550,7 +550,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override 
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 10)
             {

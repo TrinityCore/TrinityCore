@@ -225,7 +225,7 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=67706;
 INSERT INTO `spell_linked_spell` VALUES (67706,67710,1,'Rogue Champion - Trigger Deadly Poison on Fan of Knives');
 
 -- Achievement criteria data
--- for achievement IDs 3778, 4018, 4019, 4048, 4049, 4050, 4051, 4052, 4053, 4054, 4055, 4296, 4297, 4298, 
+-- for achievement IDs 3778, 4018, 4019, 4048, 4049, 4050, 4051, 4052, 4053, 4054, 4055, 4296, 4297, 4298,
 
 -- Variables
 SET @CRITERIA_JACOB := 11420;
@@ -405,7 +405,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN
 -- Eadric' Vengeance spell should have internal cooldown and procChance
 -- Proc spell should properly be removed on successful melee crit
 DELETE FROM `spell_proc_event` WHERE `entry` IN (66865,66889);
-INSERT INTO `spell_proc_event` (`entry`,`procFlags`,`procEx`,`CustomChance`,`Cooldown`) VALUES 
+INSERT INTO `spell_proc_event` (`entry`,`procFlags`,`procEx`,`CustomChance`,`Cooldown`) VALUES
 (66865,4,0,20,10),
 (66889,4,2,0,0);
 -- Also the proc spell of Vengeance should not remove original aura
@@ -454,7 +454,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALU
 
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (66905, 66798, 67751);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 7, 66905, 0, 0, 31, 0, 3, 35119, 0, 0, 0, 0, '', 'Hammer of the Righteous (Eadric the Pure)'),
 (13, 1, 66798, 0, 0, 31, 0, 3, 35004, 0, 0, 0, 0, '', 'Death''s Respite (The Black Knight)'),
 (13, 1, 66798, 0, 1, 31, 0, 3, 35005, 0, 0, 0, 0, '', 'Death''s Respite (The Black Knight)'),

@@ -408,7 +408,7 @@ public:
 
                 bMemory = true;
             }
-            
+
             if (damage >= me->GetHealth())
             {
                 damage = 0;
@@ -541,7 +541,7 @@ public:
                         me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
                         break;
                     default:
-                        break; 
+                        break;
                 }
             }
 
@@ -590,7 +590,7 @@ public:
         {
             if (damage >= me->GetHealth())
             {
-                // We can't make memory despawn yet 
+                // We can't make memory despawn yet
                 // to give correct achievement credit later when Paletress is defeated
                 // so we make him invisible
                 damage = 0;
@@ -1144,7 +1144,7 @@ class spell_eadric_hammer_of_righteous : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HAMMER_RIGHT_DUMMY) || 
+                if (!sSpellMgr->GetSpellInfo(SPELL_HAMMER_RIGHT_DUMMY) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HAMMER_JUSTICE_STUN))
                     return false;
                 return true;

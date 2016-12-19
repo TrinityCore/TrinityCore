@@ -265,7 +265,7 @@ struct boss_grand_championAI : BossAI
             IsChampionDown = false;
         _Reset();
     }
-    
+
     bool GrandChampionsOutOfVehicles()
     {
         for (int i = 0; i < 3; i++)
@@ -291,13 +291,13 @@ struct boss_grand_championAI : BossAI
         }
         return true;
     }
-    
+
     void AttackRandomPlayer()
     {
         Map::PlayerList const &players = me->GetMap()->GetPlayers();
         if (players.isEmpty())
             return;
-    
+
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             Player *plr = itr->GetSource();
@@ -452,7 +452,7 @@ struct boss_grand_championAI : BossAI
                 mount->SetWalk(false);
                 mount->SetReactState(REACT_PASSIVE);
                 mount->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                
+
                 uint32 newMountEntry = instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? VEHICLE_ARGENT_BATTLEWORG_COSMETIC : VEHICLE_ARGENT_WARHORSE_COSMETIC;
                 Creature* newMount = nullptr;
                 float dist = 0.0f;
@@ -828,7 +828,7 @@ public:
             npc_escortAI::EnterEvadeMode(why);
         }
 
-        void WaypointReached(uint32 waypointId) override 
+        void WaypointReached(uint32 waypointId) override
         {
             uint32 TeamInInstance = instance->GetData(DATA_TEAM_IN_INSTANCE);
             // Grand Champions reached their final positions in the jousting event
@@ -907,7 +907,7 @@ public:
 
                 if (me->HasUnitState(UNIT_STATE_MELEE_ATTACKING))
                     me->AttackStop();
-                
+
                 me->GetMotionMaster()->MoveFollow(target, 0, 0);
             }
             else if (IsLesserChampion())
