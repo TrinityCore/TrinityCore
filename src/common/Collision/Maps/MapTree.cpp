@@ -34,7 +34,6 @@ using G3D::Vector3;
 
 namespace VMAP
 {
-    //SPELL LOS CALLSTACK
     class MapRayCallback
     {
         public:
@@ -144,7 +143,6 @@ namespace VMAP
     If intersection is found within pMaxDist, sets pMaxDist to intersection distance and returns true.
     Else, pMaxDist is not modified and returns false;
     */
-    //SPELL LOS CALLSTACK
     bool StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit, ObjectIgnoreFlags ignoreFlags) const
     {
         float distance = pMaxDist;
@@ -154,8 +152,8 @@ namespace VMAP
             pMaxDist = distance;
         return intersectionCallBack.didHit();
     }
+
     //=========================================================
-    //SPELL LOS CALLSTACk
     bool StaticMapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2, ObjectIgnoreFlags ignoreFlag) const
     {
         float maxDist = (pos2 - pos1).magnitude();

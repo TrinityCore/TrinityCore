@@ -443,7 +443,7 @@ namespace VMAP
         std::vector<GroupModel>::const_iterator models;
         bool hit;
     };
-    //SPELL LOS CALLSTACK
+
     bool WorldModel::IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ObjectIgnoreFlags ignoreFlags) const
     {
         // If the caller asked us to ignore certain objects we should check flags

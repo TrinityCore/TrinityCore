@@ -30,7 +30,7 @@ namespace VMAP
         iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.f, G3D::pif()*iRot.x/180.f, G3D::pif()*iRot.z/180.f).inverse();
         iInvScale = 1.f/iScale;
     }
-    //SPELL LOS CALLSTACK
+
     bool ModelInstance::intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, ObjectIgnoreFlags ignoreFlags) const
     {
         if (!iModel)

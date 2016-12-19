@@ -1238,7 +1238,6 @@ bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, 
     return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
 }
 
-//SPELL LOS CALLSTACK
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz, ObjectIgnoreFlags ignoreFlags) const
 {
     /*float x, y, z;
