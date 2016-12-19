@@ -21,8 +21,8 @@
 
 enum ObjectIgnoreFlags
 {
-	IGNORE_NONE = 0x00,
-	IGNORE_M2 = 0x01
+    IGNORE_NONE = 0x00,
+    IGNORE_M2 = 0x01
 };
 
 
