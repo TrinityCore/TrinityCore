@@ -1350,7 +1350,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
 
     // Allow 5-man parties to use raid warnings
-    m_int_configs[CONFIG_CHAT_PARTY_RAID_WARNINGS] = sConfigMgr->GetIntDefault("PartyRaidWarnings", 0);
+    m_bool_configs[CONFIG_CHAT_PARTY_RAID_WARNINGS] = sConfigMgr->GetBoolDefault("PartyRaidWarnings", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
