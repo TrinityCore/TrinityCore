@@ -852,6 +852,20 @@ void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uin
     receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
 }
 
+void GuildAchievementMgr::SendAchievementMembers(Player* receiver, uint32 achievementId) const
+{
+    auto itr = _completedAchievements.find(achievementId);
+    if (itr != _completedAchievements.end())
+    {
+        WorldPackets::Achievement::GuildAchievementMembers guildAchievementMembers;
+        guildAchievementMembers.GuildGUID = _owner->GetGUID();
+        guildAchievementMembers.AchievementID = achievementId;
+        guildAchievementMembers.Member.reserve(itr->second.CompletingPlayers.size());
+        for (ObjectGuid const& member : itr->second.CompletingPlayers)
+            guildAchievementMembers.Member.emplace_back(member);
+    }
+}
+
 void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
 {
     TC_LOG_DEBUG("criteria.achievement", "GuildAchievementMgr::CompletedAchievement(%u)", achievement->ID);
