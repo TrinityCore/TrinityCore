@@ -37,8 +37,8 @@ enum MonkSpells
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
-    SPELL_MONK_ROLL										= 109132,
-	SPELL_MONK_ROLL_TRIGGER								= 107427,
+    SPELL_MONK_ROLL					= 109132,
+    SPELL_MONK_ROLL_TRIGGER				= 107427,
     
 };
 
@@ -307,9 +307,11 @@ public:
 	{
 		PrepareSpellScript(spell_monk_roll_SpellScript);
 
-		bool Validate(SpellInfo const* /*spell*/)
+		bool Validate(SpellInfo const* /*spell*/) override
 		{
 			if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
+				return false;
+			if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL_TRIGGER))
 				return false;
 			return true;
 		}
@@ -330,21 +332,17 @@ public:
 		void HandleAfterCast()
 		{
 			Unit* caster = GetCaster();
-			if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-				return;
-
 			caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
-
 		}
 
-		void Register()
+		void Register() override
 		{
 			BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
 			AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
 		}
 	};
 
-	SpellScript* GetSpellScript() const
+	SpellScript* GetSpellScript() const override
 	{
 		return new spell_monk_roll_SpellScript();
 	}
