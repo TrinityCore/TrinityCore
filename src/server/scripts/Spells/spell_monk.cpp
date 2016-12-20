@@ -37,6 +37,9 @@ enum MonkSpells
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+    SPELL_MONK_ROLL										= 109132,
+	SPELL_MONK_ROLL_TRIGGER								= 107427,
+    
 };
 
 // 117952 - Crackling Jade Lightning
@@ -294,6 +297,59 @@ public:
     }
 };
 
+// Roll - 109132 or Roll (3 charges) - 121827
+class spell_monk_roll : public SpellScriptLoader
+{
+public:
+	spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
+
+	class spell_monk_roll_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_monk_roll_SpellScript);
+
+		bool Validate(SpellInfo const* /*spell*/)
+		{
+			if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
+				return false;
+			return true;
+		}
+
+		void HandleBeforeCast()
+		{
+			Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+			if (!aur)
+				return;
+
+			AuraApplication* app = aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+			if (!app)
+				return;
+
+			app->ClientUpdate();
+		}
+
+		void HandleAfterCast()
+		{
+			Unit* caster = GetCaster();
+			if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+				return;
+
+			caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
+
+		}
+
+		void Register()
+		{
+			BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
+			AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_monk_roll_SpellScript();
+	}
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
@@ -301,4 +357,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_provoke();
     new spell_monk_surging_mist();
     new spell_monk_surging_mist_glyphed();
+    new spell_monk_roll();
 }
