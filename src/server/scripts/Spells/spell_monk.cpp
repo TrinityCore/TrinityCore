@@ -297,6 +297,7 @@ public:
     }
 };
 
+
 // Roll - 109132 or Roll (3 charges) - 121827
 class spell_monk_roll : public SpellScriptLoader
 {
@@ -309,20 +310,23 @@ public:
 
 		bool Validate(SpellInfo const* /*spell*/) override
 		{
-			if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
-				return false;
 			if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL_TRIGGER))
 				return false;
 			return true;
 		}
 
+		bool Load() override
+		{
+			return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+		}
+
 		void HandleBeforeCast()
 		{
-			Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
-			if (!aur)
+			Aura* aura = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+			if (!aura)
 				return;
 
-			AuraApplication* app = aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+			AuraApplication* app = aura->GetApplicationOfTarget(GetCaster()->GetGUID());
 			if (!app)
 				return;
 
