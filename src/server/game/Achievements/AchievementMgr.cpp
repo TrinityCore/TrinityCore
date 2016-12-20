@@ -863,6 +863,8 @@ void GuildAchievementMgr::SendAchievementMembers(Player* receiver, uint32 achiev
         guildAchievementMembers.Member.reserve(itr->second.CompletingPlayers.size());
         for (ObjectGuid const& member : itr->second.CompletingPlayers)
             guildAchievementMembers.Member.emplace_back(member);
+
+        receiver->SendDirectMessage(guildAchievementMembers.Write());
     }
 }
 
