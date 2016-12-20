@@ -28,7 +28,6 @@
 #include "Log.h"
 #include "VMapDefinitions.h"
 #include "Errors.h"
-#include "ObjectIgnoreDefinitions.h"
 
 using G3D::Vector3;
 

@@ -24,7 +24,6 @@
 #include <vector>
 #include "Define.h"
 #include "IVMapManager.h"
-#include "ObjectIgnoreDefinitions.h"
 
 //===========================================================
 

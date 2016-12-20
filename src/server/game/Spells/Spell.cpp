@@ -54,7 +54,6 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TradeData.h"
-#include "ObjectIgnoreDefinitions.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

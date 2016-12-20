@@ -31,7 +31,6 @@
 #include "MapInstanced.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ObjectIgnoreDefinitions.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "Transport.h"

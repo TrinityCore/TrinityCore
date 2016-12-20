@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "Errors.h"
 #include "Metric.h"
-#include "ObjectIgnoreDefinitions.h"
 
 #include <string>
 #include <sstream>

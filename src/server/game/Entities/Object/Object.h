@@ -24,7 +24,6 @@
 #include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
-#include "ObjectIgnoreDefinitions.h"
 #include "Map.h"
 
 #include <set>

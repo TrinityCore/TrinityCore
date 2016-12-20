@@ -31,7 +31,6 @@
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "ObjectGuid.h"
-#include "ObjectIgnoreDefinitions.h"
 
 #include <bitset>
 #include <list>
