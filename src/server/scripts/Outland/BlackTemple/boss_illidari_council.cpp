@@ -470,13 +470,12 @@ public:
                         _canUseArcaneExplosion = true;
                         break;
                     case EVENT_ARCANE_EXPLOSION:
-                        if (_canUseArcaneExplosion)
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
-                            {
-                                DoCastSelf(SPELL_ARCANE_EXPLOSION);
-                                _canUseArcaneExplosion = false;
-                                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
-                            }
+                        if (_canUseArcaneExplosion && SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
+                        {
+                            DoCastSelf(SPELL_ARCANE_EXPLOSION);
+                            _canUseArcaneExplosion = false;
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
+                        }
                         events.Repeat(Seconds(1));
                         break;
                     default:
