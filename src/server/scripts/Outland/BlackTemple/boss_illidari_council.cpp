@@ -277,7 +277,7 @@ public:
 
     struct boss_gathios_the_shattererAI : public BossAI
     {
-        boss_gathios_the_shattererAI(Creature* creature) : BossAI(creature, DATA_GATHIOS_THE_SHATTERER), _lastSeal(SPELL_SEAL_OF_BLOOD)
+        boss_gathios_the_shattererAI(Creature* creature) : BossAI(creature, DATA_GATHIOS_THE_SHATTERER)
         {
             SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
         }
@@ -371,8 +371,6 @@ public:
                     break;
             }
         }
-    private:
-        uint32 _lastSeal;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
