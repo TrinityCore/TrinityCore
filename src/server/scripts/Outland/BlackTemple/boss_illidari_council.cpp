@@ -399,6 +399,7 @@ public:
             me->ResetLootMode();
             events.Reset();
             _canUseArcaneExplosion = true;
+            DoCastSelf(SPELL_DAMPEN_MAGIC);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -408,7 +409,6 @@ public:
             if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
                 DoZoneInCombat(illidari);
 
-            DoCastSelf(SPELL_DAMPEN_MAGIC);
             events.ScheduleEvent(EVENT_FLAMESTRIKE, Seconds(8));
             events.ScheduleEvent(EVENT_BLIZZARD, Seconds(25));
             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, Seconds(5));

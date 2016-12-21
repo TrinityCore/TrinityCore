@@ -55,7 +55,7 @@ DELETE FROM `creature_text` WHERE `entry` IN(22951,22949,22950,22952) AND (`grou
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (22949,2,1,'You are MINE!',14,0,100,0,0,11427,21739,0,'council gath SPECIAL2'),
 (22949,3,0,'Selama am\'oronor!',14,0,100,0,0,11423,21735,0,'council gath SLAY'),
-(22949,4,0,'Well done!',14,0,100,0,0,11424,36764,0,'council gath SLAY_COMT'),
+(22949,4,0,'Well done!',14,0,100,0,0,11424,21736,0,'council gath SLAY_COMT'),
 (22949,5,0,'Lord Illidan, I...',14,0,100,0,0,11425,21737,0,'council gath DEATH'),
 (22951,2,1,'I\'m full of surprises!',14,0,100,0,0,11487,21719,0,'council mala SPECIAL2'),
 (22951,3,0,'My work is done.',14,0,100,0,0,11483,21712,0,'council mala SLAY'),
