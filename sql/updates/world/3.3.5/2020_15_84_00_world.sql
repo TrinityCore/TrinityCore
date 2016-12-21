@@ -27,7 +27,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `linked_respawn` SET `linkedGuid`=52479 WHERE `linkedGuid`=52762;
 
 UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128, `ScriptName`='npc_veras_vanish_effect' WHERE `entry`=23451;
-
 UPDATE `creature_template` SET `ScriptName`='boss_illidari_council' WHERE `entry`=23426;
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23499; 
 
