@@ -3114,6 +3114,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(157); // 90yd
     });
 
     // Sindragosa's Fury
