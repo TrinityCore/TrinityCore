@@ -209,120 +209,120 @@ public:
 // 40869 - Fatal Attraction
 class spell_mother_shahraz_fatal_attraction : public SpellScriptLoader
 {
-public:
-    spell_mother_shahraz_fatal_attraction() : SpellScriptLoader("spell_mother_shahraz_fatal_attraction") { }
+    public:
+        spell_mother_shahraz_fatal_attraction() : SpellScriptLoader("spell_mother_shahraz_fatal_attraction") { }
 
-    class spell_mother_shahraz_fatal_attraction_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mother_shahraz_fatal_attraction_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_mother_shahraz_fatal_attraction_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SABER_LASH_IMMUNITY)
-                || !sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_mother_shahraz_fatal_attraction_SpellScript);
 
-        void FilterTargets(std::list<WorldObject*>& targets)
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SABER_LASH_IMMUNITY)
+                    || !sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION))
+                    return false;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SABER_LASH_IMMUNITY));
+            }
+
+            void SetDest(SpellDestination& dest)
+            {
+                dest.Relocate(TeleportPoint[urand(0, 6)]);
+            }
+
+            void HandleTeleport(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_FATAL_ATTRACTION, true);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mother_shahraz_fatal_attraction_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_mother_shahraz_fatal_attraction_SpellScript::SetDest, EFFECT_1, TARGET_DEST_CASTER_RANDOM);
+                OnEffectHitTarget += SpellEffectFn(spell_mother_shahraz_fatal_attraction_SpellScript::HandleTeleport, EFFECT_1, SPELL_EFFECT_TELEPORT_UNITS);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SABER_LASH_IMMUNITY));
+            return new spell_mother_shahraz_fatal_attraction_SpellScript();
         }
-
-        void SetDest(SpellDestination& dest)
-        {
-            dest.Relocate(TeleportPoint[urand(0, 6)]);
-        }
-
-        void HandleTeleport(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_FATAL_ATTRACTION, true);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mother_shahraz_fatal_attraction_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_mother_shahraz_fatal_attraction_SpellScript::SetDest, EFFECT_1, TARGET_DEST_CASTER_RANDOM);
-            OnEffectHitTarget += SpellEffectFn(spell_mother_shahraz_fatal_attraction_SpellScript::HandleTeleport, EFFECT_1, SPELL_EFFECT_TELEPORT_UNITS);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_mother_shahraz_fatal_attraction_SpellScript();
-    }
 };
 
 // 40870 - Fatal Attraction Dummy Visual
 class spell_mother_shahraz_fatal_attraction_link : public SpellScriptLoader
 {
-public:
-    spell_mother_shahraz_fatal_attraction_link() : SpellScriptLoader("spell_mother_shahraz_fatal_attraction_link") { }
+    public:
+        spell_mother_shahraz_fatal_attraction_link() : SpellScriptLoader("spell_mother_shahraz_fatal_attraction_link") { }
 
-    class spell_mother_shahraz_fatal_attraction_link_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mother_shahraz_fatal_attraction_link_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_mother_shahraz_fatal_attraction_link_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION_DAMAGE))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_mother_shahraz_fatal_attraction_link_SpellScript);
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_FATAL_ATTRACTION_DAMAGE, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mother_shahraz_fatal_attraction_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            GetCaster()->CastSpell(GetCaster(), SPELL_FATAL_ATTRACTION_DAMAGE, true);
+            return new spell_mother_shahraz_fatal_attraction_link_SpellScript();
         }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mother_shahraz_fatal_attraction_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_mother_shahraz_fatal_attraction_link_SpellScript();
-    }
 };
 
 // 40816 - Saber Lash
 class spell_mother_shahraz_saber_lash : public SpellScriptLoader
 {
-public:
-    spell_mother_shahraz_saber_lash() : SpellScriptLoader("spell_mother_shahraz_saber_lash") { }
+    public:
+        spell_mother_shahraz_saber_lash() : SpellScriptLoader("spell_mother_shahraz_saber_lash") { }
 
-    class spell_mother_shahraz_saber_lash_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mother_shahraz_saber_lash_AuraScript);
-
-        bool Validate(SpellInfo const* spellInfo) override
+        class spell_mother_shahraz_saber_lash_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].TriggerSpell))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_mother_shahraz_saber_lash_AuraScript);
 
-        void OnTrigger(AuraEffect const* aurEff)
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void OnTrigger(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+
+                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    GetUnitOwner()->CastSpell(target, triggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_saber_lash_AuraScript::OnTrigger, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-
-            uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-            if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-                GetUnitOwner()->CastSpell(target, triggerSpell, true);
+            return new spell_mother_shahraz_saber_lash_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_saber_lash_AuraScript::OnTrigger, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_mother_shahraz_saber_lash_AuraScript();
-    }
 };
 
 /* 40863 - Sinister Periodic
@@ -331,75 +331,75 @@ public:
    40862 - Sinful Periodic */
 class spell_mother_shahraz_generic_periodic : public SpellScriptLoader
 {
-public:
-    spell_mother_shahraz_generic_periodic() : SpellScriptLoader("spell_mother_shahraz_generic_periodic") { }
+    public:
+        spell_mother_shahraz_generic_periodic() : SpellScriptLoader("spell_mother_shahraz_generic_periodic") { }
 
-    class spell_mother_shahraz_generic_periodic_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mother_shahraz_generic_periodic_AuraScript);
-
-        bool Validate(SpellInfo const* spellInfo) override
+        class spell_mother_shahraz_generic_periodic_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_mother_shahraz_generic_periodic_AuraScript);
 
-        void OnTrigger(AuraEffect const* aurEff)
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void OnTrigger(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+
+                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    GetUnitOwner()->CastSpell(target, triggerSpell, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_generic_periodic_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-
-            uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-            if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-                GetUnitOwner()->CastSpell(target, triggerSpell, true);
+            return new spell_mother_shahraz_generic_periodic_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_generic_periodic_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_mother_shahraz_generic_periodic_AuraScript();
-    }
 };
 
 // 40867 - Random Periodic
 class spell_mother_shahraz_random_periodic : public SpellScriptLoader
 {
-public:
-    spell_mother_shahraz_random_periodic() : SpellScriptLoader("spell_mother_shahraz_random_periodic") { }
+    public:
+        spell_mother_shahraz_random_periodic() : SpellScriptLoader("spell_mother_shahraz_random_periodic") { }
 
-    class spell_mother_shahraz_random_periodic_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mother_shahraz_random_periodic_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_mother_shahraz_random_periodic_AuraScript : public AuraScript
         {
-            for (uint32 spellId : RandomBeam)
-                if (!sSpellMgr->GetSpellInfo(spellId))
-                    return false;
-            return true;
-        }
+            PrepareAuraScript(spell_mother_shahraz_random_periodic_AuraScript);
 
-        void OnPeriodic(AuraEffect const* /*aurEffect*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (uint32 spellId : RandomBeam)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEffect*/)
+            {
+                PreventDefaultAction();
+                GetUnitOwner()->CastSpell(GetUnitOwner(), RandomBeam[urand(0, 3)], true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_random_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-            GetUnitOwner()->CastSpell(GetUnitOwner(), RandomBeam[urand(0, 3)], true);
+            return new spell_mother_shahraz_random_periodic_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mother_shahraz_random_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_mother_shahraz_random_periodic_AuraScript();
-    }
 };
 
 void AddSC_boss_mother_shahraz()
