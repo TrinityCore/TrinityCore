@@ -14315,7 +14315,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             return 29407;
                         case 4: // White
                             return 29408;
-                        default: // original - Dark Blue
+                        default: // Original - Dark Blue
                             return 892;
                     }
                 }
@@ -14337,7 +14337,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         case 7: // Purple
                         case 10:
                             return 33665;
-                        default: // original - white
+                        default: // Original - White
                             return 33669;
                     }
                 }
@@ -14355,12 +14355,12 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             case 2: // Black
                             case 7:
                                 return 33661;
-                            case 4: // yellow
+                            case 4: // Yellow
                                 return 33664;
                             case 3: // White
                             case 5:
                                 return 33663;
-                            default: // original - Gray
+                            default: // Original - Gray
                                 return 33660;
                         }
                     }
@@ -14380,7 +14380,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                                 return 33664;
                             case 2: // White
                                 return 33663;
-                            default: // original - Gray
+                            default: // Original - Gray
                                 return 33660;
                         }
                     }
@@ -14414,7 +14414,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             case 4:
                             case 5:
                                 return 29412;
-                            default: // original - Grey
+                            default: // Original - Grey
                                 return 8571;
                         }
                     }
@@ -14436,7 +14436,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             case 2:
                             case 3:
                                 return 29412;
-                            default: // original - Grey
+                            default: // Original - Grey
                                 return 8571;
                         }
                     }
@@ -14462,8 +14462,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             return 29416;
                         case 3: // Light Blue
                             return 29417;
-                        default: // original - Violet
-                            return 2281;
+                        default: // Original - Violet
+                            return 29415;
                     }
                 }
                 else if (getRace() == RACE_TROLL)
@@ -14485,7 +14485,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         case 11:
                         case 12:
                             return 33658;
-                        default: // original - Blue
+                        default: // Original - Blue
                             return 33655;
                     }
                 }
@@ -14508,7 +14508,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             case 3: // White
                             case 5:
                                 return 33654;
-                            default: // original - Gray
+                            default: // Original - Gray
                                 return 33650;
                         }
                     }
@@ -14528,7 +14528,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                                 return 33654;
                             case 2: // White
                                 return 33653;
-                            default: // original - Gray
+                            default: // Original - Gray
                                 return 33650;
                         }
                     }
@@ -14562,7 +14562,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                                 return 29420;
                             case 18: // Completly White
                                 return 29421;
-                            default: // original - Brown
+                            default: // Original - Brown
                                 return 2289;
                         }
                     }
@@ -14584,13 +14584,13 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                                 return 29420;
                             case 10: // Completly White
                                 return 29421;
-                            default: // original - Brown
+                            default: // Original - Brown
                                 return 2289;
                         }
                     }
                 }
                 else if (Player::TeamForRace(getRace()) == ALLIANCE)
-                    return 2281;
+                    return 29415;
                 else
                     return 2289;
             case FORM_FLIGHT_FORM:
@@ -14598,12 +14598,35 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 20857;
                 return 20872;
             case FORM_FLIGHT_FORM_EPIC:
-                if (Player::TeamForRace(getRace()) == ALLIANCE)
-                    return (getRace() == RACE_WORGEN ? 37729 : 21243);
-                if (getRace() == RACE_TROLL)
-                    return 37730;
-                return 21244;
+                if (HasAura(219062)) // Glyph of the Sentinel
+                {
+                    switch (getRace())
+                    {
+                        case RACE_NIGHTELF: // Blue
+                            return 64328;
+                        case RACE_TAUREN: // Brown
+                            return 64329;
+                        case RACE_WORGEN: // Purple
+                            return 64330;
+                        case RACE_TROLL: // White
+                            return 64331;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    if (Player::TeamForRace(getRace()) == ALLIANCE)
+                        return (getRace() == RACE_WORGEN ? 37729 : 21243);
+                    if (getRace() == RACE_TROLL)
+                        return 37730;
+                    return 21244;
+                }
             case FORM_MOONKIN_FORM:
+            {
+                if (HasAura(114301)) // Glyph of Stars
+                    return GetNativeDisplayId();
+
                 switch (getRace())
                 {
                     case RACE_NIGHTELF:
@@ -14618,8 +14641,33 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                         break;
                 }
                 break;
+            }
+            case FORM_AQUATIC_FORM:
+                if (HasAura(114333)) // Glyph of the Orca
+                    return 4591;
+            case FORM_TRAVEL_FORM:
+            {
+                if (HasAura(131113)) // Glyph of the Cheetah
+                    return 1043;
+
+                if (HasAura(224122)) // Glyph of the Doe
+                    return 70450;
+
+                switch (getRace())
+                {
+                    case RACE_NIGHTELF:
+                    case RACE_WORGEN:
+                        return 40816;
+                    case RACE_TROLL:
+                    case RACE_TAUREN:
+                        return 45339;
+                    default:
+                        break;
+                }
+                break;
+            }
             case FORM_GHOST_WOLF:
-                if (HasAura(58135)) //! Glyph of Arctic Wolf
+                if (HasAura(58135)) // Glyph of Spectral Wolf
                     return 27312;
             default:
                 break;
