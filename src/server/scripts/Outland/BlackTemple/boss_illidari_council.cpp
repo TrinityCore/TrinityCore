@@ -765,7 +765,13 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
+                if (Player* target = GetTarget()->ToPlayer())
+                {
+                    // Workaround, Trinity dont broadcast packets for units that you cant see
+                    target->m_clientGUIDs.insert(caster->GetGUID());
+                    caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
+                    target->m_clientGUIDs.erase(caster->GetGUID());
+                }
         }
 
         void Register() override

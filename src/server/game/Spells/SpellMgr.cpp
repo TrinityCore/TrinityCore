@@ -3476,6 +3476,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            case 41485: // Deadly Poison - Black Temple
+            case 41487: // Envenom - Black Temple
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                break;
             default:
                 break;
         }
