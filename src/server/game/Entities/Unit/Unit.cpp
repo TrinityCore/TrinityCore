@@ -14645,6 +14645,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
             case FORM_AQUATIC_FORM:
                 if (HasAura(114333)) // Glyph of the Orca
                     return 4591;
+                return 2428;
             case FORM_TRAVEL_FORM:
             {
                 if (HasAura(131113)) // Glyph of the Cheetah
