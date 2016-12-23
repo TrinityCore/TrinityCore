@@ -65,7 +65,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=-30410 AND `spell_effect`
 
 UPDATE `creature_template` SET `flags_extra`=128, `ScriptName`='npc_magtheridon_room' WHERE `entry`=17516;
 
-UPDATE `spell_dbc` SET `AttributesEx3`=262400, `EffectImplicitTargetA1`=53, `EffectImplicitTargetB1`=0, `EffectRadiusIndex1`=16, `MaxAffectedTargets`=1,  `RangeIndex`=13 WHERE `Id`=30630;
+UPDATE `spell_dbc` SET `AttributesEx3`=262400, `RangeIndex`=13 WHERE `Id`=30630;
+UPDATE `spelleffect_dbc` SET `EffectImplicitTargetA`=53, `EffectImplicitTargetB`=0, `EffectRadiusIndex`=16 WHERE `EffectSpellId`=30630;
 
 DELETE FROM `creature_text` WHERE `entry`=17257;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
