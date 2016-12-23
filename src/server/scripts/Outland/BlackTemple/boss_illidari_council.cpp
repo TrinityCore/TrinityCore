@@ -117,18 +117,6 @@ uint32 const CouncilData[4] =
     DATA_VERAS_DARKSHADOW
 };
 
-uint32 const GathiosAuras[2] =
-{
-    SPELL_CHROMATIC_AURA,
-    SPELL_DEVOTION_AURA
-};
-
-uint32 const GathiosBless[2] =
-{
-    SPELL_BLESS_PROTECTION,
-    SPELL_BLESS_SPELL_WARDING
-};
-
 static uint32 GetRandomBossExcept(uint32 exception)
 {
     std::vector<uint32> bossData;
@@ -256,6 +244,61 @@ public:
     }
 };
 
+struct BossIllidariCouncilAI : public BossAI
+{
+    BossIllidariCouncilAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)
+    {
+        SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
+    }
+
+    void Reset() override
+    {
+        me->SetCombatPulseDelay(0);
+        events.Reset();
+    }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        me->SetCombatPulseDelay(5);
+        me->setActive(true);
+        if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
+            DoZoneInCombat(illidari);
+        ScheduleTasks();
+    }
+
+    virtual void ScheduleTasks() = 0;
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_COUNCIL_DEATH);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
+            illidari->AI()->EnterEvadeMode(why);
+    }
+
+    void DamageTaken(Unit* who, uint32 &damage) override
+    {
+        if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
+            damage = me->GetHealth() - 1;
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_COUNCIL_SLAY);
+
+        if (roll_chance_i(30))
+            if (Creature* boss = instance->GetCreature(GetRandomBossExcept(_bossId)))
+                boss->AI()->Talk(SAY_COUNCIL_COMNT);
+    }
+
+private:
+    uint32 _bossId;
+};
+
 class HammerTargetSelector : public std::unary_function<Unit*, bool>
 {
 public:
@@ -275,60 +318,18 @@ class boss_gathios_the_shatterer : public CreatureScript
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
 
-    struct boss_gathios_the_shattererAI : public BossAI
+    struct boss_gathios_the_shattererAI : public BossIllidariCouncilAI
     {
-        boss_gathios_the_shattererAI(Creature* creature) : BossAI(creature, DATA_GATHIOS_THE_SHATTERER)
-        {
-            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
-        }
+        boss_gathios_the_shattererAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_GATHIOS_THE_SHATTERER) { }
 
-        void Reset() override
+        void ScheduleTasks() override
         {
-            me->SetCombatPulseDelay(0);
-            me->ResetLootMode();
-            events.Reset();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            me->SetCombatPulseDelay(5);
-            me->setActive(true);
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                DoZoneInCombat(illidari);
-
             DoCastSelf(SPELL_SEAL_OF_BLOOD);
             events.ScheduleEvent(EVENT_BLESS, Seconds(20));
             events.ScheduleEvent(EVENT_CONSECRATION, Seconds(10));
             events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, Seconds(10));
             events.ScheduleEvent(EVENT_JUDGEMENT, Seconds(15));
             events.ScheduleEvent(EVENT_AURA, Seconds(6));
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                illidari->AI()->EnterEvadeMode(why);
-        }
-
-        void DamageTaken(Unit* who, uint32 &damage) override
-        {
-            if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
-                damage = 0;
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_COUNCIL_DEATH);
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_COUNCIL_SLAY);
-
-            if (roll_chance_i(30))
-                if (Creature* boss = instance->GetCreature(GetRandomBossExcept(DATA_GATHIOS_THE_SHATTERER)))
-                    boss->AI()->Talk(SAY_COUNCIL_COMNT);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -345,13 +346,13 @@ public:
                     if (!TargetList.empty())
                     {
                         Unit* target = Trinity::Containers::SelectRandomContainerElement(TargetList);
-                        DoCast(target, GathiosBless[urand(0, 1)]);
+                        DoCast(target, RAND(SPELL_BLESS_PROTECTION, SPELL_BLESS_SPELL_WARDING));
                     }
                     events.Repeat(Seconds(30), Seconds(45));
                     break;
                 }
                 case EVENT_AURA:
-                    DoCastSelf(GathiosAuras[urand(0, 1)]);
+                    DoCastSelf(RAND(SPELL_CHROMATIC_AURA, SPELL_DEVOTION_AURA));
                     events.Repeat(Seconds(30));
                     break;
                 case EVENT_HAMMER_OF_JUSTICE:
@@ -384,59 +385,54 @@ class boss_high_nethermancer_zerevor : public CreatureScript
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
 
-    struct boss_high_nethermancer_zerevorAI : public BossAI
+    struct boss_high_nethermancer_zerevorAI : public BossIllidariCouncilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* creature) : BossAI(creature, DATA_HIGH_NETHERMANCER_ZEREVOR), _canUseArcaneExplosion(true)
-        {
-            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
-        }
+        boss_high_nethermancer_zerevorAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_HIGH_NETHERMANCER_ZEREVOR), _canUseArcaneExplosion(true) { }
 
         void Reset() override
         {
-            me->SetCombatPulseDelay(0);
-            me->ResetLootMode();
-            events.Reset();
+            BossIllidariCouncilAI::Reset();
             _canUseArcaneExplosion = true;
             DoCastSelf(SPELL_DAMPEN_MAGIC);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void ScheduleTasks() override
         {
-            me->SetCombatPulseDelay(5);
-            me->setActive(true);
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                DoZoneInCombat(illidari);
-
             events.ScheduleEvent(EVENT_FLAMESTRIKE, Seconds(8));
             events.ScheduleEvent(EVENT_BLIZZARD, Seconds(25));
             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, Seconds(5));
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                illidari->AI()->EnterEvadeMode(why);
-        }
-
-        void DamageTaken(Unit* who, uint32 &damage) override
-        {
-            if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
-                damage = 0;
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_COUNCIL_DEATH);
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_COUNCIL_SLAY);
-
-            if (roll_chance_i(30))
-                if (Creature* boss = instance->GetCreature(GetRandomBossExcept(DATA_HIGH_NETHERMANCER_ZEREVOR)))
-                    boss->AI()->Talk(SAY_COUNCIL_COMNT);
+            switch (eventId)
+            {
+                case EVENT_FLAMESTRIKE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FLAMESTRIKE);
+                    Talk(SAY_COUNCIL_SPECIAL);
+                    events.Repeat(Seconds(40));
+                    break;
+                case EVENT_BLIZZARD:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_BLIZZARD);
+                    events.Repeat(Seconds(15), Seconds(40));
+                    break;
+                case EVENT_ARCANE_EXPLOSION_CHECK:
+                    _canUseArcaneExplosion = true;
+                    break;
+                case EVENT_ARCANE_EXPLOSION:
+                    if (_canUseArcaneExplosion && SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
+                    {
+                        DoCastSelf(SPELL_ARCANE_EXPLOSION);
+                        _canUseArcaneExplosion = false;
+                        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
+                    }
+                    events.Repeat(Seconds(1));
+                    break;
+                default:
+                    break;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -451,35 +447,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
-                {
-                    case EVENT_FLAMESTRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FLAMESTRIKE);
-                        Talk(SAY_COUNCIL_SPECIAL);
-                        events.Repeat(Seconds(40));
-                        break;
-                    case EVENT_BLIZZARD:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_BLIZZARD);
-                        events.Repeat(Seconds(15), Seconds(40));
-                        break;
-                    case EVENT_ARCANE_EXPLOSION_CHECK:
-                        _canUseArcaneExplosion = true;
-                        break;
-                    case EVENT_ARCANE_EXPLOSION:
-                        if (_canUseArcaneExplosion && SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
-                        {
-                            DoCastSelf(SPELL_ARCANE_EXPLOSION);
-                            _canUseArcaneExplosion = false;
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
-                        }
-                        events.Repeat(Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
-
+                ExecuteEvent(eventId);
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
@@ -503,36 +471,15 @@ class boss_lady_malande : public CreatureScript
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
 
-    struct boss_lady_malandeAI : public BossAI
+    struct boss_lady_malandeAI : public BossIllidariCouncilAI
     {
-        boss_lady_malandeAI(Creature* creature) : BossAI(creature, DATA_LADY_MALANDE)
-        {
-            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
-        }
+        boss_lady_malandeAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_LADY_MALANDE) { }
 
-        void Reset() override
+        void ScheduleTasks() override
         {
-            me->SetCombatPulseDelay(0);
-            me->ResetLootMode();
-            events.Reset();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            me->SetCombatPulseDelay(5);
-            me->setActive(true);
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                DoZoneInCombat(illidari);
-
             events.ScheduleEvent(EVENT_CIRCLE_OF_HEALING, Seconds(20));
             events.ScheduleEvent(EVENT_REFLECTIVE_SHIELD, Seconds(25));
             events.ScheduleEvent(EVENT_DIVINE_WRATH, Seconds(32));
-        }
-
-        void DamageTaken(Unit* who, uint32 &damage) override
-        {
-            if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
-                damage = 0;
         }
 
         void HealReceived(Unit* /*who*/, uint32& addhealth) override
@@ -542,25 +489,26 @@ public:
             me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                illidari->AI()->EnterEvadeMode(why);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_COUNCIL_DEATH);
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_COUNCIL_SLAY);
-
-            if (roll_chance_i(30))
-                if (Creature* boss = instance->GetCreature(GetRandomBossExcept(DATA_LADY_MALANDE)))
-                    boss->AI()->Talk(SAY_COUNCIL_COMNT);
+            switch (eventId)
+            {
+                case EVENT_CIRCLE_OF_HEALING:
+                    DoCastSelf(SPELL_CIRCLE_OF_HEALING);
+                    events.Repeat(Seconds(20), Seconds(35));
+                    break;
+                case EVENT_REFLECTIVE_SHIELD:
+                    DoCastSelf(SPELL_REFLECTIVE_SHIELD);
+                    Talk(SAY_COUNCIL_SPECIAL);
+                    events.Repeat(Seconds(40));
+                    break;
+                case EVENT_DIVINE_WRATH:
+                    DoCastVictim(SPELL_DIVINE_WRATH);
+                    events.Repeat(Seconds(20));
+                    break;
+                default:
+                    break;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -575,25 +523,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
-                {
-                    case EVENT_CIRCLE_OF_HEALING:
-                        DoCastSelf(SPELL_CIRCLE_OF_HEALING);
-                        events.Repeat(Seconds(20), Seconds(35));
-                        break;
-                    case EVENT_REFLECTIVE_SHIELD:
-                        DoCastSelf(SPELL_REFLECTIVE_SHIELD);
-                        Talk(SAY_COUNCIL_SPECIAL);
-                        events.Repeat(Seconds(40));
-                        break;
-                    case EVENT_DIVINE_WRATH:
-                        DoCastVictim(SPELL_DIVINE_WRATH);
-                        events.Repeat(Seconds(20));
-                        break;
-                    default:
-                        break;
-                }
-
+                ExecuteEvent(eventId);
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
@@ -614,58 +544,18 @@ class boss_veras_darkshadow : public CreatureScript
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
 
-    struct boss_veras_darkshadowAI : public BossAI
+    struct boss_veras_darkshadowAI : public BossIllidariCouncilAI
     {
-        boss_veras_darkshadowAI(Creature* creature) : BossAI(creature, DATA_VERAS_DARKSHADOW)
+        boss_veras_darkshadowAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_VERAS_DARKSHADOW)
         {
             me->SetMaxHealth(1327900);
             me->SetFullHealth();
-            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
         }
 
-        void Reset() override
+        void ScheduleTasks() override
         {
-            me->SetCombatPulseDelay(0);
-            me->ResetLootMode();
-            events.Reset();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            me->SetCombatPulseDelay(5);
-            me->setActive(true);
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                DoZoneInCombat(illidari);
-
             events.ScheduleEvent(EVENT_DEADLY_STRIKE, Seconds(18));
             events.ScheduleEvent(EVENT_VANISH, Seconds(18));
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
-                illidari->AI()->EnterEvadeMode(why);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_COUNCIL_DEATH);
-        }
-
-        void DamageTaken(Unit* who, uint32 &damage) override
-        {
-            if (damage >= me->GetHealth() && who->GetGUID() != me->GetGUID())
-                damage = 0;
-        }
-
-        void KilledUnit(Unit* victim) override
-        {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_COUNCIL_SLAY);
-
-            if (roll_chance_i(30))
-                if (Creature* boss = instance->GetCreature(GetRandomBossExcept(DATA_VERAS_DARKSHADOW)))
-                    boss->AI()->Talk(SAY_COUNCIL_COMNT);
         }
 
         void ExecuteEvent(uint32 eventId) override
