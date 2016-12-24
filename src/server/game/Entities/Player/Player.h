@@ -150,7 +150,9 @@ enum TalentSpecialization // talent tabs
     TALENT_SPEC_WARLOCK_DESTRUCTION     = 267,
     TALENT_SPEC_MONK_BREWMASTER         = 268,
     TALENT_SPEC_MONK_BATTLEDANCER       = 269,
-    TALENT_SPEC_MONK_MISTWEAVER         = 270
+    TALENT_SPEC_MONK_MISTWEAVER         = 270,
+    TALENT_SPEC_DEMON_HUNTER_HAVOC      = 577,
+    TALENT_SPEC_DEMON_HUNTER_VENGEANCE  = 581
 };
 
 enum SpecResetType
@@ -1821,6 +1823,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
         void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
+        void SendSpellModifiers() const;
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         uint32 GetLastPotionId() const { return m_lastPotionId; }
@@ -1847,6 +1850,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint8 getCinematic() const { return m_cinematic; }
         void setCinematic(uint8 cine) { m_cinematic = cine; }
+
+        uint32 GetMovie() const { return m_movie; }
+        void SetMovie(uint32 movie) { m_movie = movie; }
 
         ActionButton* AddActionButton(uint8 button, uint32 action, uint8 type);
         void RemoveActionButton(uint8 button);
@@ -2338,7 +2344,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsPetNeedBeTemporaryUnsummoned() const;
 
         void SendCinematicStart(uint32 CinematicSequenceId) const;
-        void SendMovieStart(uint32 MovieId) const;
+        void SendMovieStart(uint32 movieId);
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
 
@@ -2686,6 +2692,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         JoinedChannelsList m_channels;
 
         uint8 m_cinematic;
+
+        uint32 m_movie;
 
         TradeData* m_trade;
 
