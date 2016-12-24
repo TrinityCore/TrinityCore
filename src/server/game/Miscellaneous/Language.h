@@ -889,10 +889,14 @@ enum TrinityStrings
     LANG_CHARACTER_DELETED_LIST_LINE_CHAT = 1026,
     LANG_SQLDRIVER_QUERY_LOGGING_ENABLED  = 1027,
     LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
-    LANG_ACCOUNT_INVALID_BNET_NAME      = 1029, // 6.x ONLY
-    LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030, // 6.x enum value name but different text in DB
-    LANG_ACCOUNT_PASS_TOO_LONG          = 1031,
-    // Room for more level 4              1032-1099 not used
+    LANG_ACCOUNT_INVALID_BNET_NAME      = 1029, // master branch ONLY
+    LANG_ACCOUNT_USE_BNET_COMMANDS      = 1030, // master branch enum value name but different text in DB
+    LANG_ACCOUNT_PASS_TOO_LONG          = 1031, // master branch ONLY
+    LANG_ACCOUNT_CREATED_BNET_WITH_GAME = 1032, // master branch ONLY
+    LANG_ACCOUNT_CREATED_BNET           = 1033, // master branch ONLY
+    LANG_ACCOUNT_BNET_LIST_HEADER       = 1034, // master branch ONLY
+    LANG_ACCOUNT_BNET_LIST_NO_ACCOUNTS  = 1035, // master branch ONLY
+    // Room for more level 4              1036-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
