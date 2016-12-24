@@ -1241,6 +1241,34 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+class spell_pri_inner_fire : public SpellScriptLoader
+{
+    public:
+        spell_pri_inner_fire() : SpellScriptLoader("spell_pri_inner_fire") { }
+ 
+        class spell_pri_inner_fire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_inner_fire_AuraScript);
+ 
+            void Prepare(ProcEventInfo& /*eventInfo*/)
+            {
+                if (Unit* owner = GetUnitOwner())
+                    if (owner->HasAuraType(SPELL_AURA_SCHOOL_ABSORB))
+                        PreventDefaultAction(); // will prevent charge drop
+            }
+ 
+            void Register()
+            {
+                DoPrepareProc += AuraProcFn(spell_pri_inner_fire_AuraScript::Prepare);
+            }
+    };
+ 
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_inner_fire_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1269,4 +1297,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_inner_fire();
 }
