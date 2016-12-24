@@ -43,13 +43,14 @@ public:
 
         static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     ""                          },
-            { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME, true,  &HandleGameAccountCreateCommand, ""                          },
-            { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,             false, NULL,                            "", accountLockCommandTable },
-            { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,         true,  NULL,                            "", accountSetCommandTable  },
-            { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   ""                          },
-            { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,        true,  &HandleAccountLinkCommand,       ""                          },
-            { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,      true,  &HandleAccountUnlinkCommand,     ""                          },
+            { "create",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,             true,  &HandleAccountCreateCommand,     ""                          },
+            { "gameaccountcreate", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE_GAME,        true,  &HandleGameAccountCreateCommand, ""                          },
+            { "lock",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,                    false, NULL,                            "", accountLockCommandTable },
+            { "set",               rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,                true,  NULL,                            "", accountSetCommandTable  },
+            { "password",          rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,           false, &HandleAccountPasswordCommand,   ""                          },
+            { "link",              rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LINK,               true,  &HandleAccountLinkCommand,       ""                          },
+            { "unlink",            rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_UNLINK,             true,  &HandleAccountUnlinkCommand,     ""                          },
+            { "listgameaccounts",  rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LIST_GAME_ACCOUTNS, true,  &HandleListGameAccountsCommand,  ""                          }
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -457,6 +458,40 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
         }
+
+        return true;
+    }
+
+    static bool HandleListGameAccountsCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* battlenetAccountName = strtok((char*)args, " ");
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
+        stmt->setString(0, battlenetAccountName);
+        if (PreparedQueryResult accountList = LoginDatabase.Query(stmt))
+        {
+            auto formatDisplayName = [](char const* name) -> std::string
+            {
+                if (char const* hashPos = strchr(name, '#'))
+                    return std::string("WoW") + ++hashPos;
+                else
+                    return name;
+            };
+
+            handler->SendSysMessage("----------------------------------------------------");
+            handler->SendSysMessage(LANG_ACCOUNT_BNET_LIST_HEADER);
+            handler->SendSysMessage("----------------------------------------------------");
+            do
+            {
+                Field* fields = accountList->Fetch();
+                handler->PSendSysMessage("| %10u | %-16.16s | %-16.16s |", fields[0].GetUInt32(), fields[1].GetCString(), formatDisplayName(fields[1].GetCString()).c_str());
+            } while (accountList->NextRow());
+            handler->SendSysMessage("----------------------------------------------------");
+        }
+        else
+            handler->PSendSysMessage(LANG_ACCOUNT_BNET_LIST_NO_ACCOUNTS, battlenetAccountName);
 
         return true;
     }

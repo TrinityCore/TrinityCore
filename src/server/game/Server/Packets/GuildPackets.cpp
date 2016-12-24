@@ -802,7 +802,6 @@ WorldPacket const* WorldPackets::Guild::PlayerSaveGuildEmblem::Write()
     return &_worldPacket;
 }
 
-
 void WorldPackets::Guild::GuildSetAchievementTracking::Read()
 {
     uint32 count;

@@ -1409,6 +1409,11 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
     }
 }
 
+void Guild::HandleGetAchievementMembers(WorldSession* session, uint32 achievementId)
+{
+    m_achievementMgr.SendAchievementMembers(session->GetPlayer(), achievementId);
+}
+
 void Guild::HandleSetMOTD(WorldSession* session, std::string const& motd)
 {
     if (m_motd == motd)

@@ -122,6 +122,7 @@ public:
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
     void SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const;
+    void SendAchievementMembers(Player* receiver, uint32 achievementId) const;
 
     void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
