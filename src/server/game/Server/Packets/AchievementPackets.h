@@ -213,6 +213,38 @@ namespace WorldPackets
 
             std::vector<EarnedAchievement> Earned;
         };
+
+        class GuildGetAchievementMembers final : public ClientPacket
+        {
+        public:
+            GuildGetAchievementMembers(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PlayerGUID;
+            ObjectGuid GuildGUID;
+            int32 AchievementID = 0;
+        };
+
+        struct GuildAchievementMember
+        {
+            GuildAchievementMember() = default;
+            GuildAchievementMember(ObjectGuid guid) : MemberGUID(guid) { }
+
+            ObjectGuid MemberGUID;
+        };
+
+        class GuildAchievementMembers final : public ServerPacket
+        {
+        public:
+            GuildAchievementMembers() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_MEMBERS) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            int32 AchievementID = 0;
+            std::vector<GuildAchievementMember> Member;
+        };
     }
 }
 

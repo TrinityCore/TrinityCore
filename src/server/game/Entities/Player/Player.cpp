@@ -179,6 +179,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_cinematic = 0;
 
+    m_movie = 0;
+
     PlayerTalkClass = new PlayerMenu(GetSession());
     m_currentBuybackSlot = BUYBACK_SLOT_START;
 
@@ -5917,10 +5919,11 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendMovieStart(uint32 MovieId) const
+void Player::SendMovieStart(uint32 movieId)
 {
+    SetMovie(movieId);
     WorldPackets::Misc::TriggerMovie packet;
-    packet.MovieID = MovieId;
+    packet.MovieID = movieId;
     SendDirectMessage(packet.Write());
 }
 
@@ -17595,6 +17598,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(getClass(), GetActiveTalentGroup()))
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, spec->ID);
 
+    UpdateDisplayPower();
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
     GetSession()->GetCollectionMgr()->LoadToys();
@@ -21135,44 +21139,48 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod: Player '%s' (%s), SpellID: %d", GetName().c_str(), GetGUID().ToString().c_str(), mod->spellId);
-    OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-    WorldPackets::Spells::SetSpellModifier packet(opcode);
-
-    int i = 0;
-    flag128 _mask;
-
-    /// @todo Implement sending of bulk modifiers instead of single
-    packet.Modifiers.resize(1);
-    WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
-
-    spellMod.ModIndex = mod->op;
-
-    for (int eff = 0; eff < 128; ++eff)
+    if (!IsLoading())
     {
-        if (eff != 0 && (eff % 32) == 0)
-            _mask[i++] = 0;
+        OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-        _mask[i] = uint32(1) << (eff - (32 * i));
-        if (mod->mask & _mask)
+        WorldPackets::Spells::SetSpellModifier packet(opcode);
+
+        int i = 0;
+        flag128 _mask;
+
+        /// @todo Implement sending of bulk modifiers instead of single
+        packet.Modifiers.resize(1);
+        WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
+
+        spellMod.ModIndex = mod->op;
+
+        for (int eff = 0; eff < 128; ++eff)
         {
-            WorldPackets::Spells::SpellModifierData modData;
+            if (eff != 0 && (eff % 32) == 0)
+                _mask[i++] = 0;
 
-            for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    modData.ModifierValue += (*itr)->value;
+            _mask[i] = uint32(1) << (eff - (32 * i));
+            if (mod->mask & _mask)
+            {
+                WorldPackets::Spells::SpellModifierData modData;
 
-            modData.ModifierValue += apply ? mod->value : -(mod->value);
-            if (mod->type == SPELLMOD_PCT)
-                modData.ModifierValue = 1.0f + (modData.ModifierValue * 0.01f);
+                for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
+                    if ((*itr)->type == mod->type && (*itr)->mask & _mask)
+                        modData.ModifierValue += (*itr)->value;
 
-            modData.ClassIndex = eff;
+                modData.ModifierValue += apply ? mod->value : -(mod->value);
+                if (mod->type == SPELLMOD_PCT)
+                    modData.ModifierValue = 1.0f + (modData.ModifierValue * 0.01f);
 
-            spellMod.ModifierData.push_back(modData);
+                modData.ClassIndex = eff;
+
+                spellMod.ModifierData.push_back(modData);
+            }
         }
-    }
 
-    SendDirectMessage(packet.Write());
+        SendDirectMessage(packet.Write());
+    }
 
     if (apply)
         m_spellMods[mod->op].push_back(mod);
@@ -21314,6 +21322,62 @@ void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
         return;
 
     m_spellModTakingSpell = apply ? spell : NULL;
+}
+
+void Player::SendSpellModifiers() const
+{
+    WorldPackets::Spells::SetSpellModifier flatMods(SMSG_SET_FLAT_SPELL_MODIFIER);
+    WorldPackets::Spells::SetSpellModifier pctMods(SMSG_SET_PCT_SPELL_MODIFIER);
+    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
+    {
+        WorldPackets::Spells::SpellModifier flatMod;
+        flatMod.ModifierData.resize(128);
+        WorldPackets::Spells::SpellModifier pctMod;
+        pctMod.ModifierData.resize(128);
+        flatMod.ModIndex = pctMod.ModIndex = i;
+        for (uint8 j = 0; j < 128; ++j)
+        {
+            flag128 mask;
+            mask[j / 32] = 1u << (j % 32);
+
+            flatMod.ModifierData[j].ClassIndex = j;
+            flatMod.ModifierData[j].ModifierValue = 0.0f;
+            pctMod.ModifierData[j].ClassIndex = j;
+            pctMod.ModifierData[j].ModifierValue = 1.0f;
+
+            for (SpellModifier* mod : m_spellMods[i])
+            {
+                if (mod->mask & mask)
+                {
+                    if (mod->type == SPELLMOD_FLAT)
+                        flatMod.ModifierData[j].ModifierValue += mod->value;
+                    else
+                        pctMod.ModifierData[j].ModifierValue += mod->value;
+                }
+            }
+
+            pctMod.ModifierData[j].ModifierValue = 1.0f + (pctMod.ModifierData[j].ModifierValue * 0.01f);
+        }
+
+        flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
+        {
+            return G3D::fuzzyEq(mod.ModifierValue, 0.0f);
+        }), flatMod.ModifierData.end());
+
+        pctMod.ModifierData.erase(std::remove_if(pctMod.ModifierData.begin(), pctMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
+        {
+            return G3D::fuzzyEq(mod.ModifierValue, 1.0f);
+        }), pctMod.ModifierData.end());
+
+        flatMods.Modifiers.emplace_back(std::move(flatMod));
+        pctMods.Modifiers.emplace_back(std::move(pctMod));
+    }
+
+    if (!flatMods.Modifiers.empty())
+        SendDirectMessage(flatMods.Write());
+
+    if (!pctMods.Modifiers.empty())
+        SendDirectMessage(pctMods.Write());
 }
 
 // send Proficiency
@@ -21700,29 +21764,7 @@ void Player::InitDataForForm(bool reapplyMods)
     else
         SetRegularAttackTime();
 
-    switch (form)
-    {
-        case FORM_GHOUL:
-        case FORM_CAT_FORM:
-        {
-            if (getPowerType() != POWER_ENERGY)
-                setPowerType(POWER_ENERGY);
-            break;
-        }
-        case FORM_BEAR_FORM:
-        {
-            if (getPowerType() != POWER_RAGE)
-                setPowerType(POWER_RAGE);
-            break;
-        }
-        default:                                            // 0, for example
-        {
-            ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
-            if (cEntry && cEntry->PowerType < MAX_POWERS && uint32(getPowerType()) != cEntry->PowerType)
-                setPowerType(Powers(cEntry->PowerType));
-            break;
-        }
-    }
+    UpdateDisplayPower();
 
     // update auras at form change, ignore this at mods reapply (.reset stats/etc) when form not change.
     if (!reapplyMods)
@@ -23093,6 +23135,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     // worldServerInfo.XRealmPvpAlert;  /// @todo
     SendDirectMessage(worldServerInfo.Write());
+
+    // Spell modifiers
+    SendSpellModifiers();
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
     WorldPackets::Misc::AccountMountUpdate mountUpdate;
@@ -26090,6 +26135,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     SendActionButtons(1);
 
+    UpdateDisplayPower();
     Powers pw = getPowerType();
     if (pw != POWER_MANA)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
