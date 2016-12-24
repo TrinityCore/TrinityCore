@@ -734,7 +734,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_SUGGESTION_UNASSIGN             = 827, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_SUGGESTION_VIEW                 = 828, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_ALL                       = 829, // not on 3.3.5a
-    // 830 reuse
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_LIST_GAME_ACCOUTNS        = 830, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_BUG                       = 831, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT                 = 832, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833, // not on 3.3.5a
