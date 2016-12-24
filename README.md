@@ -30,13 +30,13 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 ## Requirements
 
 
-Software requirements are available in the [wiki](https://trinitycore.atlassian.net/wiki/display/tc/Requirements) for
+Software requirements are available in the [wiki](https://www.trinitycore.info/display/tc/Requirements) for
 Windows, Linux and OS X.
 
 
 ## Install
 
-Detailed installation guides are available in the [wiki](https://trinitycore.atlassian.net/wiki/display/tc/Installation+Guide) for
+Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and OS X.
 
 
@@ -74,5 +74,5 @@ Read file [THANKS](THANKS).
 ## Links
 
 * [Website](https://www.trinitycore.org)
-* [Wiki](https://trinitycore.atlassian.net/wiki)
+* [Wiki](https://www.trinitycore.info)
 * [Forums](https://community.trinitycore.org)
