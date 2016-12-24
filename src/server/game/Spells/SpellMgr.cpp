@@ -3293,6 +3293,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(157); // 90yd
                 break;
             case 72706: // Achievement Check (Valithria Dreamwalker)
             case 71357: // Order Whelp
