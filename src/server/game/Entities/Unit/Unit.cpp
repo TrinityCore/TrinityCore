@@ -6675,6 +6675,43 @@ void Unit::setPowerType(Powers new_powertype)
     }
 }
 
+void Unit::UpdateDisplayPower()
+{
+    Powers displayPower = POWER_MANA;
+    switch (GetShapeshiftForm())
+    {
+        case FORM_GHOUL:
+        case FORM_CAT_FORM:
+            displayPower = POWER_ENERGY;
+            break;
+        case FORM_BEAR_FORM:
+            displayPower = POWER_RAGE;
+            break;
+        case FORM_TRAVEL_FORM:
+        case FORM_GHOST_WOLF:
+            displayPower = POWER_MANA;
+            break;
+        default:
+        {
+            Unit::AuraEffectList const& powerTypeAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_DISPLAY);
+            if (!powerTypeAuras.empty())
+            {
+                AuraEffect const* powerTypeAura = powerTypeAuras.front();
+                displayPower = Powers(powerTypeAura->GetMiscValue());
+            }
+            else
+            {
+                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
+                if (cEntry && cEntry->PowerType < MAX_POWERS)
+                    displayPower = Powers(cEntry->PowerType);
+            }
+            break;
+        }
+    }
+
+    setPowerType(displayPower);
+}
+
 FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
 {
     FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(getFaction());
@@ -8245,8 +8282,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             {
                 if (!spellProto->IsPositive())
                 {
-                    // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE
-                    crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
                 }

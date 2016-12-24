@@ -774,6 +774,7 @@ public:
     void HandleRoster(WorldSession* session);
     void SendQueryResponse(WorldSession* session);
     void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds);
+    void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId);
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);

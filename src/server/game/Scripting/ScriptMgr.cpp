@@ -2181,6 +2181,11 @@ void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus 
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
 }
 
+void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
