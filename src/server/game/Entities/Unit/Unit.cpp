@@ -14302,6 +14302,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 if (getRace() == RACE_NIGHTELF)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                    if (HasAura(210333)) // Glyph of the Feral Chameleon
+                        hairColor = urand(0, 10);
+
                     switch (hairColor)
                     {
                         case 7: // Violet
@@ -14322,6 +14325,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_TROLL)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                    if (HasAura(210333)) // Glyph of the Feral Chameleon
+                        hairColor = urand(0, 12);
+
                     switch (hairColor)
                     {
                         case 0: // Red
@@ -14345,6 +14351,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 {
                     // Based on Skin color
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+                    if (HasAura(210333)) // Glyph of the Feral Chameleon
+                        skinColor = urand(0, 9);
+
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14389,6 +14398,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_TAUREN)
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+                    if (HasAura(210333)) // Glyph of the Feral Chameleon
+                        skinColor = urand(0, 20);
+
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14450,6 +14462,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 if (getRace() == RACE_NIGHTELF)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                    if (HasAura(107059)) // Glyph of the Ursol Chameleon
+                        hairColor = urand(0, 8);
+
                     switch (hairColor)
                     {
                         case 0: // Green
@@ -14469,6 +14484,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_TROLL)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                    if (HasAura(107059)) // Glyph of the Ursol Chameleon
+                        hairColor = urand(0, 14);
+
                     switch (hairColor)
                     {
                         case 0: // Red
@@ -14493,6 +14511,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 {
                     // Based on Skin color
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+                    if (HasAura(107059)) // Glyph of the Ursol Chameleon
+                        skinColor = urand(0, 8);
+
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14537,6 +14558,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 else if (getRace() == RACE_TAUREN)
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+                    if (HasAura(107059)) // Glyph of the Ursol Chameleon
+                        skinColor = urand(0, 20);
+
                     // Male
                     if (getGender() == GENDER_MALE)
                     {
@@ -14624,9 +14648,6 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 }
             case FORM_MOONKIN_FORM:
             {
-                if (HasAura(114301)) // Glyph of Stars
-                    return GetNativeDisplayId();
-
                 switch (getRace())
                 {
                     case RACE_NIGHTELF:
