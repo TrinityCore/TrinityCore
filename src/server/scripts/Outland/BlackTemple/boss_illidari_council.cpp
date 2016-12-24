@@ -244,9 +244,9 @@ public:
     }
 };
 
-struct BossIllidariCouncilAI : public BossAI
+struct IllidariCouncilBossAI : public BossAI
 {
-    BossIllidariCouncilAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)
+    IllidariCouncilBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)
     {
         SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
     }
@@ -318,9 +318,9 @@ class boss_gathios_the_shatterer : public CreatureScript
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
 
-    struct boss_gathios_the_shattererAI : public BossIllidariCouncilAI
+    struct boss_gathios_the_shattererAI : public IllidariCouncilBossAI
     {
-        boss_gathios_the_shattererAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_GATHIOS_THE_SHATTERER) { }
+        boss_gathios_the_shattererAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_GATHIOS_THE_SHATTERER) { }
 
         void ScheduleTasks() override
         {
@@ -385,13 +385,13 @@ class boss_high_nethermancer_zerevor : public CreatureScript
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
 
-    struct boss_high_nethermancer_zerevorAI : public BossIllidariCouncilAI
+    struct boss_high_nethermancer_zerevorAI : public IllidariCouncilBossAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_HIGH_NETHERMANCER_ZEREVOR), _canUseArcaneExplosion(true) { }
+        boss_high_nethermancer_zerevorAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_HIGH_NETHERMANCER_ZEREVOR), _canUseArcaneExplosion(true) { }
 
         void Reset() override
         {
-            BossIllidariCouncilAI::Reset();
+            IllidariCouncilBossAI::Reset();
             _canUseArcaneExplosion = true;
             DoCastSelf(SPELL_DAMPEN_MAGIC);
         }
@@ -471,9 +471,9 @@ class boss_lady_malande : public CreatureScript
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
 
-    struct boss_lady_malandeAI : public BossIllidariCouncilAI
+    struct boss_lady_malandeAI : public IllidariCouncilBossAI
     {
-        boss_lady_malandeAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_LADY_MALANDE) { }
+        boss_lady_malandeAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_LADY_MALANDE) { }
 
         void ScheduleTasks() override
         {
@@ -544,9 +544,9 @@ class boss_veras_darkshadow : public CreatureScript
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }
 
-    struct boss_veras_darkshadowAI : public BossIllidariCouncilAI
+    struct boss_veras_darkshadowAI : public IllidariCouncilBossAI
     {
-        boss_veras_darkshadowAI(Creature* creature) : BossIllidariCouncilAI(creature, DATA_VERAS_DARKSHADOW)
+        boss_veras_darkshadowAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_VERAS_DARKSHADOW)
         {
             me->SetMaxHealth(1327900);
             me->SetFullHealth();
@@ -765,13 +765,7 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-                if (Player* target = GetTarget()->ToPlayer())
-                {
-                    // Workaround, Trinity dont broadcast packets for units that you cant see
-                    target->m_clientGUIDs.insert(caster->GetGUID());
-                    caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
-                    target->m_clientGUIDs.erase(caster->GetGUID());
-                }
+                caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
         }
 
         void Register() override
