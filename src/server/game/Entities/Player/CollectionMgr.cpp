@@ -475,7 +475,16 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
     }
 
     // Static item appearances known by every player
-    static uint32 const hiddenAppearanceItems[3] = { 134110, 134111, 134112 };
+    static uint32 constexpr hiddenAppearanceItems[] =
+    {
+        134110, // Hidden Helm
+        134111, // Hidden Cloak
+        134112, // Hidden Shoulder
+        142503, // Hidden Shirt
+        142504, // Hidden Tabard
+        143539  // Hidden Belt
+    };
+
     for (uint32 hiddenItem : hiddenAppearanceItems)
     {
         ItemModifiedAppearanceEntry const* hiddenAppearance = sDB2Manager.GetItemModifiedAppearance(hiddenItem, 0);
