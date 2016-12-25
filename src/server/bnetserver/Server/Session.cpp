@@ -638,7 +638,7 @@ bool Battlenet::Session::ReadHeaderHandler()
 {
     Header header;
     if (!header.ParseFromArray(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize()))
-        return true;
+        return false;
 
     _packetBuffer.Resize(header.size());
     return true;

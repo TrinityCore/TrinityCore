@@ -741,7 +741,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         std::wstring name;
         ASSERT(Utf8toWStr(namesProfanity->Name, name));
         if (namesProfanity->Language != -1)
-            _nameValidators[namesProfanity->Language].emplace_back(name, std::regex::icase | std::regex::optimize);
+            _nameValidators[namesProfanity->Language].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
         else
         {
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
@@ -749,7 +749,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 if (i == LOCALE_none)
                     continue;
 
-                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
             }
         }
     }
@@ -758,7 +758,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         std::wstring name;
         ASSERT(Utf8toWStr(namesReserved->Name, name));
-        _nameValidators[TOTAL_LOCALES].emplace_back(name, std::regex::icase | std::regex::optimize);
+        _nameValidators[TOTAL_LOCALES].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
@@ -772,7 +772,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 continue;
 
             if (namesReserved->LocaleMask & (1 << i))
-                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
         }
     }
 
@@ -1580,13 +1580,13 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
 
 ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const
 {
-    for (std::wregex const& regex : _nameValidators[locale])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : _nameValidators[locale])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (std::wregex const& regex : _nameValidators[TOTAL_LOCALES])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : _nameValidators[TOTAL_LOCALES])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;
