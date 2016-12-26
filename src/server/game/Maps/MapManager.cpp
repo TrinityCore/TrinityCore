@@ -315,8 +315,8 @@ void MapManager::InitInstanceIds()
     {
         uint32 maxId = (*result)[0].GetUInt32();
 
-        // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
+        // resize to maxId + 1, if we have instance with id n, there are n+1 elements
+        _instanceIds.resize(maxId + 1);
     }
 }
 
@@ -331,14 +331,7 @@ uint32 MapManager::GenerateInstanceId()
     uint32 newInstanceId = _nextInstanceId;
 
     // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
-    {
-        if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
-        {
-            _nextInstanceId = i;
-            break;
-        }
-    }
+    while (_nextInstanceId < 0xFFFFFFFF && ++_nextInstanceId < _instanceIds.size() && _instanceIds[_nextInstanceId]);
 
     if (newInstanceId == _nextInstanceId)
     {
@@ -347,7 +340,10 @@ uint32 MapManager::GenerateInstanceId()
     }
 
     // Allocate space if necessary
-    if (newInstanceId >= uint32(_instanceIds.size()))
+    // Bugged and unneded, if we only increase instance id as the core runs, there is no need to set _instanceIds[x] to true
+    // Its enough to set it for instances loaded from db to avoid overriding this id, and _instanceIds is resized acordingly
+
+    /*if (newInstanceId >= uint32(_instanceIds.size()))
     {
         // Due to the odd memory allocation behavior of vector<bool> we match size to capacity before triggering a new allocation
         if (_instanceIds.size() < _instanceIds.capacity())
@@ -358,17 +354,12 @@ uint32 MapManager::GenerateInstanceId()
             _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
     }
 
-    _instanceIds[newInstanceId] = true;
+    _instanceIds[newInstanceId] = true;*/
 
     return newInstanceId;
 }
 
 void MapManager::FreeInstanceId(uint32 instanceId)
 {
-    // If freed instance id is lower than the next id available for new instances, use the freed one instead
-    if (instanceId < _nextInstanceId)
-        SetNextInstanceId(instanceId);
-
-    _instanceIds[instanceId] = false;
     sAchievementMgr->OnInstanceDestroyed(instanceId);
 }
