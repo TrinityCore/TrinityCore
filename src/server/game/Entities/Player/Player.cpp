@@ -25455,6 +25455,7 @@ void Player::SendEquipmentSetList()
     {
         if (itr->second.state == EQUIPMENT_SET_DELETED)
             continue;
+
         data.appendPackGUID(itr->second.Guid);
         data << uint32(itr->first);
         data << itr->second.Name;
@@ -25464,8 +25465,10 @@ void Player::SendEquipmentSetList()
             // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HighGuid::Item
             if (itr->second.IgnoreMask & (1 << i))
                 data.appendPackGUID(uint64(1));
-            else
+            else if (itr->second.Items[i] > 0) // send proper data (do not append 0 with high guid)
                 data << ObjectGuid(HighGuid::Item, 0, itr->second.Items[i]).WriteAsPacked();
+            else
+                data.appendPackGUID(uint64(0));
         }
 
         ++count;                                            // client have limit but it checked at loading and set
