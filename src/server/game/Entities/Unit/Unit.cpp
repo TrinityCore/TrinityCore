@@ -13484,7 +13484,8 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         return false;
     }
 
-    bool const turn = (GetOrientation() != orientation);
+    // Check if angular distance changed
+    bool const turn = M_PI - fabs(fabs(GetOrientation() - orientation) - M_PI) > 0.001f;
 
     // G3D::fuzzyEq won't help here, in some cases magnitudes differ by a little more than G3D::eps, but should be considered equal
     bool const relocated = (teleport || 
