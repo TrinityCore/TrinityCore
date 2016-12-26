@@ -21,9 +21,25 @@
 
 #include "Common.h"
 
+enum class ItemRandomEnchantmentType : uint8
+{
+    Property    = 0,
+    Suffix      = 1,
+    BonusList   = 2
+};
+
+struct ItemRandomEnchantmentId
+{
+    ItemRandomEnchantmentId() = default;
+    ItemRandomEnchantmentId(ItemRandomEnchantmentType type, uint32 id) : Type(type), Id(id) { }
+
+    ItemRandomEnchantmentType Type = ItemRandomEnchantmentType::Property;
+    uint32 Id = 0;
+};
+
 TC_GAME_API void LoadRandomEnchantmentsTable();
-TC_GAME_API uint32 GetItemEnchantMod(int32 entry);
+TC_GAME_API ItemRandomEnchantmentId GetItemEnchantMod(int32 entry, ItemRandomEnchantmentType type);
 TC_GAME_API uint32 GenerateEnchSuffixFactor(uint32 item_id);
 TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
-#endif
 
+#endif

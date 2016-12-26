@@ -11421,7 +11421,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId /*= 0*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomEnchantmentId const& randomPropertyId /*= {}*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11434,8 +11434,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, itemId, count);
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
 
-        if (randomPropertyId)
-            item->SetItemRandomProperties(randomPropertyId);
+        item->SetItemRandomProperties(randomPropertyId);
 
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
@@ -11473,7 +11472,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             {
                 ItemPosCountVec childDest;
                 CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, childDest, childTemplate, count, false, nullptr, NULL_BAG, NULL_SLOT);
-                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, 0, {}, {}, addToCollection))
+                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, {}, addToCollection))
                 {
                     childItem->SetGuidValue(ITEM_FIELD_CREATOR, item->GetGUID());
                     childItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD);
@@ -18002,18 +18001,20 @@ void Player::LoadCorpse(PreparedQueryResult result)
 
 void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, uint32 timeDiff)
 {
-    //           0          1            2                3      4         5        6      7             8                 9          10          11    12
-    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
-    //               13                  14                  15              16                  17            18
+    //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
+    //               14                  15                  16              17                  18            19
     //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-    //                                    19                           20                           21                           22                           23
+    //                                    20                           21                           22                           23                           24
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-    //                                  24                        25                          26                         27                         28
+    //                                  25                        26                          27                         28                         29
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29           30           31                32          33           34           35                36          37           38           39                40
+    //                30           31           32                33          34           35           36                37          38           39           40                41
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       41                      42   43    44
-    //        fixedScalingLevel, artifactKnowledgeLevel, bag, slot
+    //                       42                      43
+    //        fixedScalingLevel, artifactKnowledgeLevel
+    //         44    45
+    //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
     // LEFT JOIN item_instance_gems ig ON ii.guid = ig.itemGuid
@@ -18075,8 +18076,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
                     item->LoadArtifactData(std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
 
-                ObjectGuid bagGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[43].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[44].GetUInt8();
+                ObjectGuid bagGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[44].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[45].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18210,13 +18211,13 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
         ObjectGuid creatorGuid = fields[3].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()) : ObjectGuid::Empty;
-        uint32 randomProperty = fields[4].GetUInt32();
-        uint32 suffixFactor = fields[5].GetUInt32();
-        uint32 upgradeId = fields[6].GetUInt32();
-        uint32 fixedScalingLevel = fields[7].GetUInt32();
-        uint32 artifactKnowledgeLevel = fields[8].GetUInt32();
+        ItemRandomEnchantmentId randomProperty(ItemRandomEnchantmentType(fields[4].GetUInt8()), fields[5].GetUInt32());
+        uint32 suffixFactor = fields[6].GetUInt32();
+        uint32 upgradeId = fields[7].GetUInt32();
+        uint32 fixedScalingLevel = fields[8].GetUInt32();
+        uint32 artifactKnowledgeLevel = fields[9].GetUInt32();
         std::vector<uint32> bonusListIDs;
-        Tokenizer bonusListIdTokens(fields[9].GetString(), ' ');
+        Tokenizer bonusListIdTokens(fields[10].GetString(), ' ');
         for (char const* token : bonusListIdTokens)
             bonusListIDs.push_back(atoul(token));
 
@@ -18417,7 +18418,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[43].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[44].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -19955,21 +19956,21 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt8(3, i);
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
-            stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
-            stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
-            stmt->setUInt32(7, _voidStorageItems[i]->ItemUpgradeId);
-            stmt->setUInt32(8, _voidStorageItems[i]->FixedScalingLevel);
-            stmt->setUInt32(9, _voidStorageItems[i]->ArtifactKnowledgeLevel);
+            stmt->setUInt8(5, uint8(_voidStorageItems[i]->ItemRandomPropertyId.Type));
+            stmt->setUInt32(6, _voidStorageItems[i]->ItemRandomPropertyId.Id);
+            stmt->setUInt32(7, _voidStorageItems[i]->ItemSuffixFactor);
+            stmt->setUInt32(8, _voidStorageItems[i]->ItemUpgradeId);
+            stmt->setUInt32(9, _voidStorageItems[i]->FixedScalingLevel);
+            stmt->setUInt32(10, _voidStorageItems[i]->ArtifactKnowledgeLevel);
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
-            stmt->setString(10, bonusListIDs.str());
+            stmt->setString(11, bonusListIDs.str());
         }
 
         trans->Append(stmt);
     }
 }
-
 
 void Player::_SaveCUFProfiles(SQLTransaction& trans)
 {

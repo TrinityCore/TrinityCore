@@ -162,7 +162,7 @@ class Roll : public LootValidatorRef
 
         ObjectGuid itemGUID;
         uint32 itemid;
-        int32  itemRandomPropId;
+        ItemRandomEnchantmentId itemRandomPropId;
         uint32 itemRandomSuffix;
         uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
