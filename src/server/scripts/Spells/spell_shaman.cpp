@@ -609,6 +609,11 @@ class spell_sha_fire_nova : public SpellScriptLoader
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
+                float distance = 30.0f;
+                Creature* totem = GetCaster()->GetMap()->GetCreature(GetCaster()->m_SummonSlot[1]);
+                if (GetCaster()->GetExactDist2d(totem->GetPositionX(), totem->GetPositionY()) > distance)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
                 return SPELL_CAST_OK;
             }
 
