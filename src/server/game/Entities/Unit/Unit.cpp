@@ -10851,6 +10851,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (isRewardAllowed && creature && creature->GetLootRecipient())
         player = creature->GetLootRecipient();
 
+    // Exploit fix
+    if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
+        isRewardAllowed = false;
+
     // Reward player, his pets, and group/raid members
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
