@@ -251,8 +251,17 @@ std::string Log::GetTimestampStr()
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d",
-        aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    try
+    {
+        return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d",
+            aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    }
+    catch (std::exception const& ex)
+    {
+        fprintf(stderr, "Failed to initialize timestamp part of log filename! %s", ex.what());
+        fflush(stderr);
+        ABORT();
+    }
 }
 
 bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLogger /* = true */)
