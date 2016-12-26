@@ -53,6 +53,9 @@ class TC_GAME_API HostileRefManager : public RefManager<Unit, ThreatManager>
         // Remove specific faction references
         void deleteReferencesForFaction(uint32 faction);
 
+        // for combat bugs
+        void deleteReferencesOutOfRange(float range);
+
         HostileReference* getFirst() { return ((HostileReference*) RefManager<Unit, ThreatManager>::getFirst()); }
 
         void updateThreatTables();
