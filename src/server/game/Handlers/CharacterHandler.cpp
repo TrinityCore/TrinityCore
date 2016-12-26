@@ -1489,7 +1489,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         recvData >> itemGuid.ReadAsPacked();
 
         // if client sends 0, it means empty slot
-        if (itemGuid.GetRawValue() == 0)
+        if (itemGuid.IsEmpty())
         {
             eqSet.Items[i] = 0;
             continue;
