@@ -599,6 +599,19 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
         };
 
+        class PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetObjectGUID;
+            ObjectGuid SourceObjectGUID;
+            int32 SoundKitID = 0;
+            G3D::Vector3 Position;
+        };
+
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
@@ -608,6 +621,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGuid;
+            int32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
+        {
+        public:
+            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20) { }
+            PlaySpeakerbotSound(ObjectGuid const& sourceObjectGUID, int32 soundKitID)
+                : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
         };
 

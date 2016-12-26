@@ -434,10 +434,28 @@ void WorldPackets::Misc::ObjectUpdateRescued::Read()
     _worldPacket >> ObjectGUID;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << TargetObjectGUID;
+    _worldPacket << Position;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 {
     _worldPacket << int32(SoundKitID);
     _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << int32(SoundKitID);
 
     return &_worldPacket;
 }

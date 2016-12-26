@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum AZDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_ZEREKETH                               = 0,
@@ -42,7 +42,7 @@ enum DataTypes
     DATA_WARDENS_SHIELD                         = 11
 };
 
-enum CreatureIds
+enum AZCreatureIds
 {
     NPC_DALLIAH                                 = 20885,
     NPC_SOCCOTHRATES                            = 20886,
@@ -50,7 +50,7 @@ enum CreatureIds
     NPC_ALPHA_POD_TARGET                        = 21436
 };
 
-enum GameObjectIds
+enum AZGameObjectIds
 {
     GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA    = 184318, // door opened when Wrath-Scryer Soccothrates dies
     GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA     = 184319, // door opened when Dalliah the Doomsayer dies

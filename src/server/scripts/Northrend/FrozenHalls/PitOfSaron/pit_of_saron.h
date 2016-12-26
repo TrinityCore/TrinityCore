@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum POSDataTypes
 {
     // Encounter states and GUIDs
     DATA_GARFROST           = 0,
@@ -39,7 +39,7 @@ enum DataTypes
     DATA_TEAM_IN_INSTANCE   = 8
 };
 
-enum CreatureIds
+enum POSCreatureIds
 {
     NPC_GARFROST                                = 36494,
     NPC_KRICK                                   = 36477,
@@ -89,7 +89,7 @@ enum CreatureIds
     NPC_ICY_BLAST                               = 36731
 };
 
-enum GameObjectIds
+enum POSGameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,

@@ -21,7 +21,7 @@
 
 #define DataHeader "ZF"
 
-enum zfEntries
+enum ZFEntries
 {
     ENTRY_ZUM_RAH       = 7271,
     ENTRY_BLY           = 7604,
@@ -36,12 +36,12 @@ enum zfEntries
     EVENT_GAHZRILLA
 };
 
-enum DataTypes
+enum ZFDataTypes
 {
     DATA_ZUM_RAH = 0
 };
 
-enum zfPyramidPhases
+enum ZFPyramidPhases
 {
     PYRAMID_NOT_STARTED, //default
     PYRAMID_CAGES_OPEN, //happens in GO hello for cages
