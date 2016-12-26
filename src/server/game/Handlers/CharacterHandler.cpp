@@ -1488,6 +1488,13 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         ObjectGuid itemGuid;
         recvData >> itemGuid.ReadAsPacked();
 
+        // if client sends 0, it means empty slot
+        if (itemGuid.GetRawValue() == 0)
+        {
+            eqSet.Items[i] = 0;
+            continue;
+        }
+
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
         if (itemGuid.GetRawValue() == 1)
         {
@@ -1496,13 +1503,13 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
             continue;
         }
 
+        // some cheating checks
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item && itemGuid)                               // cheating check 1
-            return;
-
-        if (item && item->GetGUID() != itemGuid)             // cheating check 2
-            return;
+        if (!item || item->GetGUID() != itemGuid)
+        {
+            eqSet.Items[i] = 0;
+            continue;
+        }
 
         eqSet.Items[i] = itemGuid.GetCounter();
     }
