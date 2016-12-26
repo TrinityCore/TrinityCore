@@ -621,13 +621,16 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(this, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER && this != victim)
+    if (victim->GetTypeId() == TYPEID_PLAYER)
     {
-        // Signal to pets that their owner was attacked
-        Pet* pet = victim->ToPlayer()->GetPet();
+        if (this != victim)
+        {
+            // Signal to pets that their owner was attacked
+            Pet* pet = victim->ToPlayer()->GetPet();
 
-        if (pet && pet->IsAlive())
-            pet->AI()->OwnerAttackedBy(this);
+            if (pet && pet->IsAlive())
+                pet->AI()->OwnerAttackedBy(this);
+        }
 
         if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
             return 0;
@@ -1071,29 +1074,29 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     damageInfo->damage = damage;
 }
 
-void Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss)
+uint32 Unit::DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss)
 {
     if (!damageInfo)
-        return;
+        return 0;
 
     Unit* victim = damageInfo->target;
 
     if (!victim)
-        return;
+        return 0;
 
     if (!victim->IsAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode()))
-        return;
+        return 0;
 
     SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(damageInfo->SpellID);
     if (!spellProto)
     {
         TC_LOG_DEBUG("entities.unit", "Unit::DealSpellDamage has wrong damageInfo->SpellID: %u", damageInfo->SpellID);
-        return;
+        return 0;
     }
 
     // Call default DealDamage
     CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, BASE_ATTACK, MELEE_HIT_NORMAL);
-    DealDamage(victim, damageInfo->damage, &cleanDamage, SPELL_DIRECT_DAMAGE, SpellSchoolMask(damageInfo->schoolMask), spellProto, durabilityLoss);
+    return DealDamage(victim, damageInfo->damage, &cleanDamage, SPELL_DIRECT_DAMAGE, SpellSchoolMask(damageInfo->schoolMask), spellProto, durabilityLoss);
 }
 
 /// @todo for melee need create structure as in

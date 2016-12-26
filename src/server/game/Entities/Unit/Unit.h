@@ -1563,7 +1563,7 @@ class TC_GAME_API Unit : public WorldObject
         void HandleProcExtraAttackFor(Unit* victim);
 
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
-        void DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
+        uint32 DealSpellDamage(SpellNonMeleeDamage const* damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
         uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE, 1.0f, 100.0f, damage); }
