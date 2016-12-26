@@ -515,13 +515,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = areaTrigger->GetMiscTemplate();
         AreaTriggerTemplate const* areaTriggerTemplate = areaTrigger->GetTemplate();
 
-        uint32 elapsedMs = areaTrigger->GetTimeSinceCreated();
+        *data << uint32(areaTrigger->GetTimeSinceCreated());
 
-        *data << uint32(elapsedMs);
-
-        *data << float(0); // RollPitchYaw X
-        *data << float(0); // RollPitchYaw Y
-        *data << float(0); // RollPitchYaw Z
+        *data << G3D::Vector3::zero(); // RollPitchYaw
 
         bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
         bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
@@ -541,8 +537,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
-        bool hasAreaTriggerSpline   = areaTriggerMiscTemplate->HasSplines();
-        bool hasAreaTriggerUnkType  = false;// areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
+        bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
+        bool hasAreaTriggerUnkType  = false; // areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK5);
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -568,42 +564,35 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         if (hasUnk3)
             data->WriteBit(0);
 
+        data->FlushBits();
+
         if (hasAreaTriggerSpline)
         {
             std::vector<G3D::Vector3> const& splinePoints = areaTrigger->GetSpline().getPoints();
 
-            *data << float(areaTriggerMiscTemplate->TimeToTarget);
-            *data << float(areaTrigger->GetTimeSinceCreated()); // ElapsedTimeForMovement
+            *data << uint32(areaTrigger->GetTimeToTarget());
+            *data << uint32(areaTrigger->GetElapsedTimeForMovement());
 
-            data->FlushBits();
             data->WriteBits(splinePoints.size(), 16);
 
             for (G3D::Vector3 const& spline : splinePoints)
-            {
-                *data << spline.x;
-                *data << spline.y;
-                *data << spline.z;
-            }
+                *data << spline;
         }
 
         if (hasTargetRollPitchYaw)
-        {
-            *data << float(0); // X
-            *data << float(0); // Y
-            *data << float(0); // Z
-        }
+            *data << G3D::Vector3::zero();
 
         if (hasScaleCurveID)
-            *data << int32(areaTriggerMiscTemplate->ScaleCurveId);
+            *data << uint32(areaTriggerMiscTemplate->ScaleCurveId);
 
         if (hasMorphCurveID)
-            *data << int32(areaTriggerMiscTemplate->MorphCurveId);
+            *data << uint32(areaTriggerMiscTemplate->MorphCurveId);
 
         if (hasFacingCurveID)
-            *data << int32(areaTriggerMiscTemplate->FacingCurveId);
+            *data << uint32(areaTriggerMiscTemplate->FacingCurveId);
 
         if (hasMoveCurveID)
-            *data << int32(areaTriggerMiscTemplate->MoveCurveId);
+            *data << uint32(areaTriggerMiscTemplate->MoveCurveId);
 
         if (hasUnk2)
             *data << int32(0);

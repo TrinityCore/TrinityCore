@@ -35,11 +35,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, ObjectGuid castId = ObjectGuid::Empty, uint32 spellXSpellVisualId = 0);
+        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
         void Update(uint32 p_time) override;
         void Remove();
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
+        uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration) { _duration = newDuration; _totalDuration = newDuration; }
@@ -61,7 +62,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, GetCasterGuid()); }
         Unit* GetTarget() const { return ObjectAccessor::GetUnit(*this, _targetGuid); }
 
+        void InitSplineOffsets(::Movement::PointsArray splinePoints);
+        void InitSplines(::Movement::PointsArray const& splinePoints);
+        bool HasSplines() const { return !_spline.empty(); }
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
+        uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: fix me
 
         bool CheckIsInPolygon2D(Position* pos) const;
 
@@ -84,7 +89,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> _spline;
 
         bool _reachedDestination;
-        int32 lastSplineIndex;
+        int32 _lastSplineIndex;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
