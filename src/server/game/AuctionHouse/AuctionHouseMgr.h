@@ -128,10 +128,10 @@ class TC_GAME_API AuctionHouseObject
 
     struct PlayerGetAllThrottleData
     {
-        uint32 Global;
-        uint32 Cursor;
-        uint32 Tombstone;
-        time_t NextAllowedReplication;
+        uint32 Global = 0;
+        uint32 Cursor = 0;
+        uint32 Tombstone = 0;
+        time_t NextAllowedReplication = 0;
 
         bool IsReplicationInProgress() const { return Cursor != Tombstone && Global != 0; }
     };
