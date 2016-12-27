@@ -313,6 +313,9 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     OpcodeClient opcode = static_cast<OpcodeClient>(header->cmd);
 
+    if (opcode >= NUM_OPCODE_HANDLERS)
+        return ReadDataHandlerResult::Ok;
+
     WorldPacket packet(opcode, std::move(_packetBuffer));
 
     if (sPacketLog->CanLogPacket())
