@@ -24,10 +24,10 @@
 class WhoListPlayerInfo
 {
 public:
-    WhoListPlayerInfo(ObjectGuid::LowType guidLow, uint32 team, AccountTypes security, uint8 level, uint8 clss, uint8 race, uint32 zoneid, uint8 gender, bool visible, std::wstring const& wpname,
-        std::wstring const& wgname, std::string const& aname, std::string const& pname, std::string const& gname) :
+    WhoListPlayerInfo(ObjectGuid::LowType guidLow, uint32 team, AccountTypes security, uint8 level, uint8 clss, uint8 race, uint32 zoneid, uint8 gender, bool visible, std::wstring const& widePlayerName,
+        std::wstring const& wideGuildName, std::string const& playerName, std::string const& guildName) :
         _guidLow(guidLow), _team(team), _security(security), _level(level), _class(clss), _race(race), _zoneid(zoneid), _gender(gender), _visible(visible),
-        _wpname(wpname), _wgname(wgname), _aname(aname), _pname(pname), _gname(gname) {}
+        _widePlayerName(widePlayerName), _wideGuildName(wideGuildName), _playerName(playerName), _guildName(guildName) {}
 
     ObjectGuid::LowType GetGuidLow() const { return _guidLow; }
     uint32 GetTeam() const { return _team; }
@@ -38,11 +38,10 @@ public:
     uint32 GetZoneId() const { return _zoneid; }
     uint8 GetGender() const { return _gender; }
     bool IsVisible() const { return _visible; }
-    std::wstring const& Getwpname() const { return _wpname; }
-    std::wstring const& Getwgname() const { return _wgname; }
-    std::string const& Getaname() const { return _aname; }
-    std::string const& Getpname() const { return _pname; }
-    std::string const& Getgname() const { return _gname; }
+    std::wstring const& GetWidePlayerName() const { return _widePlayerName; }
+    std::wstring const& GetWideGuildName() const { return _wideGuildName; }
+    std::string const& GetPlayerName() const { return _playerName; }
+    std::string const& GetGuildName() const { return _guildName; }
 
 private:
     ObjectGuid::LowType _guidLow;
@@ -54,11 +53,10 @@ private:
     uint32 _zoneid;
     uint8 _gender;
     bool _visible;
-    std::wstring _wpname;
-    std::wstring _wgname;
-    std::string _aname;
-    std::string _pname;
-    std::string _gname;
+    std::wstring _widePlayerName;
+    std::wstring _wideGuildName;
+    std::string _playerName;
+    std::string _guildName;
 };
 
 typedef std::vector<WhoListPlayerInfo> WhoListInfoVector;

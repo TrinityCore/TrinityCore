@@ -34,32 +34,28 @@ void WhoListStorageMgr::Update()
     _whoListStorage.clear();
     _whoListStorage.reserve(sWorld->GetPlayerCount()+1);
 
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
     HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (!itr->second->FindMap() || itr->second->GetSession()->PlayerLoading())
             continue;
 
-        std::string pname = itr->second->GetName();
-        std::wstring wpname;
-        if (!Utf8toWStr(pname, wpname))
+        std::string playerName = itr->second->GetName();
+        std::wstring widePlayerName;
+        if (!Utf8toWStr(playerName, widePlayerName))
             continue;
-        wstrToLower(wpname);
 
-        std::string gname = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
-        std::wstring wgname;
-        if (!Utf8toWStr(gname, wgname))
+        wstrToLower(widePlayerName);
+
+        std::string guildName = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
+        std::wstring wideGuildName;
+        if (!Utf8toWStr(guildName, wideGuildName))
             continue;
-        wstrToLower(wgname);
 
-        std::string aname;
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(itr->second->GetZoneId()))
-            aname = areaEntry->area_name[sWorld->GetDefaultDbcLocale()];
+        wstrToLower(wideGuildName);
 
-        _whoListStorage.push_back( WhoListPlayerInfo(itr->second->GetGUID().GetCounter(), itr->second->GetTeam(), itr->second->GetSession()->GetSecurity(), itr->second->getLevel(), 
+        _whoListStorage.emplace_back(itr->second->GetGUID().GetCounter(), itr->second->GetTeam(), itr->second->GetSession()->GetSecurity(), itr->second->getLevel(), 
             itr->second->getClass(), itr->second->getRace(), itr->second->GetZoneId(), itr->second->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER), itr->second->IsVisible(), 
-            wpname, wgname, aname, pname, gname) );
+            widePlayerName, wideGuildName, playerName, guildName);
     }
 }
