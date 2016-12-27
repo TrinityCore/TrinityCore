@@ -432,7 +432,7 @@ class boss_blood_council_controller : public CreatureScript
 
 struct BloodPrincesBossAI : public BossAI
 {
-    BloodPrincesBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _isEmpowered(false), _spawnHealth (creature->GetMaxHealth())
+    BloodPrincesBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _spawnHealth (creature->GetMaxHealth()), _isEmpowered(false)
     {
         SetBoundary(instance->GetBossBoundary(DATA_BLOOD_PRINCE_COUNCIL));
     }
