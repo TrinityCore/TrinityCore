@@ -781,6 +781,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             if (miscValue2)
                 achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByTypeAndMiscValue(type, miscValue2);
             break;
+        default:
+            break;
     }
 
     if (!achievementCriteriaList)
@@ -2254,114 +2256,116 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         switch (criteria->Type)
         {
-        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.CreatureID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.MapID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.AchievementID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ZoneID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.MapID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.CreatureID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.QuestID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ObjectiveId].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.AreaID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
-        {
-            WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteria->Asset.WorldMapOverlayID);
-            if (!worldOverlayEntry)
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.CreatureID].push_back(criteria);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.MapID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.AchievementID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ZoneID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.MapID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.CreatureID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.QuestID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ObjectiveId].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.AreaID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+            {
+                WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteria->Asset.WorldMapOverlayID);
+                if (!worldOverlayEntry)
+                    break;
 
-            for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
-                if (worldOverlayEntry->areatableID[j])
-                {
-                    bool valid = true;
-                    for (uint8 i = 0; i < j; ++i)
-                        if (worldOverlayEntry->areatableID[j] == worldOverlayEntry->areatableID[i])
-                            valid = false;
-                    if (valid)
-                        m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->areatableID[j]].push_back(criteria);
-                }
-            break;
-        }
-        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.FactionID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemSlot].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ClassID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.RaceID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.EmoteID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.GameObjectID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.GameObjectID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.LootType].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
-            break;
-        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-            m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
-            break;
+                for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                    if (worldOverlayEntry->areatableID[j])
+                    {
+                        bool valid = true;
+                        for (uint8 i = 0; i < j; ++i)
+                            if (worldOverlayEntry->areatableID[j] == worldOverlayEntry->areatableID[i])
+                                valid = false;
+                        if (valid)
+                            m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->areatableID[j]].push_back(criteria);
+                    }
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.FactionID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemSlot].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ClassID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.RaceID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.EmoteID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ItemID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.GameObjectID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.GameObjectID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.LootType].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SpellID].push_back(criteria);
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.SkillID].push_back(criteria);
+                break;
+            default:
+                break;
         }
 
         if (criteria->StartTimer)
