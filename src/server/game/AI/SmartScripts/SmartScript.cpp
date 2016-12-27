@@ -2065,7 +2065,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-		case SMART_ACTION_GO_SET_GO_STATE:
+        case SMART_ACTION_GO_SET_GO_STATE:
         {
             ObjectList* targets = GetTargets(e, unit);
 
