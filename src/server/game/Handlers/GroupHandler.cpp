@@ -379,7 +379,7 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     if (!group)
         return;
 
-    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.RollType);
+    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.LootListID - 1, packet.RollType);
 
     switch (packet.RollType)
     {

@@ -188,6 +188,73 @@ namespace WorldPackets
 
             uint32 SpecID = 0;
         };
+
+        class StartLootRoll final : public ServerPacket
+        {
+        public:
+            StartLootRoll() : ServerPacket(SMSG_START_LOOT_ROLL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            int32 MapID = 0;
+            uint32 RollTime = 0;
+            uint8 Method = 0;
+            uint8 ValidRolls = 0;
+            LootItemData Item;
+        };
+
+        class LootRollBroadcast : public ServerPacket
+        {
+        public:
+            LootRollBroadcast() : ServerPacket(SMSG_LOOT_ROLL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Player;
+            int32 Roll = 0;             ///< Roll value can be negative, it means that it is an "offspec" roll but only during roll selection broadcast (not when sending the result)
+            uint8 RollType = 0;
+            LootItemData Item;
+            bool Autopassed = false;    ///< Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
+        };
+
+        class LootRollWon : public ServerPacket
+        {
+        public:
+            LootRollWon() : ServerPacket(SMSG_LOOT_ROLL_WON) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Winner;
+            int32 Roll = 0;
+            uint8 RollType = 0;
+            LootItemData Item;
+            bool MainSpec = false;
+        };
+
+        class LootAllPassed : public ServerPacket
+        {
+        public:
+            LootAllPassed() : ServerPacket(SMSG_LOOT_ALL_PASSED) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            LootItemData Item;
+        };
+
+        class LootRollsComplete : public ServerPacket
+        {
+        public:
+            LootRollsComplete() : ServerPacket(SMSG_LOOT_ROLLS_COMPLETE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            uint8 LootListID = 0;
+        };
     }
 }
 
