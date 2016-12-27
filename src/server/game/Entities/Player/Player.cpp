@@ -17675,7 +17675,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
-    // Should be removed
     m_achievementMgr->CheckAllAchievementCriteria();
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
