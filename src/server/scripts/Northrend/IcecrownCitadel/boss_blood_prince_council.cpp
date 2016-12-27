@@ -913,7 +913,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                         if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
                         {
                             summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
-                            summon->SetSpeedRate(MOVE_FLIGHT, 0.15f); // todo: creature is swimming, check if this is blizzlike or not.
+                            summon->SetSpeedRate(MOVE_RUN, 0.14f);
                             summon->GetMotionMaster()->MovePoint(0, triggerEndPos);
                         }
                         break;
@@ -1112,7 +1112,7 @@ class npc_dark_nucleus : public CreatureScript
 
         struct npc_dark_nucleusAI : public ScriptedAI
         {
-            npc_dark_nucleusAI(Creature* creature) : ScriptedAI(creature), _lockedTarget(false) { }
+            npc_dark_nucleusAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -1166,7 +1166,6 @@ class npc_dark_nucleus : public CreatureScript
 
         private:
             TaskScheduler _scheduler;
-            bool _lockedTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
