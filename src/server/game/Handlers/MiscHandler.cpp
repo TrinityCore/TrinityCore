@@ -45,6 +45,7 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "WhoListStorage.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -242,49 +243,44 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
     uint32 displaycount = 0;
 
-    WorldPacket data(SMSG_WHO, 50);                       // guess size
+    WorldPacket data(SMSG_WHO, 500);                      // guess size
     data << uint32(matchcount);                           // placeholder, count of players matching criteria
     data << uint32(displaycount);                         // placeholder, count of players displayed
 
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
-    HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+    WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
+    for (WhoListInfoVector::const_iterator itr = whoList.begin(); itr != whoList.end(); ++itr)
     {
-        Player* target = itr->second;
+        WhoListPlayerInfo target = *itr;
         // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-        if (target->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
+        if (target.GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
             continue;
 
         // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-        if (!HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList))
-            continue;
-
-        // do not process players which are not in world
-        if (!target->IsInWorld())
+        if (!HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target.GetSecurity() > AccountTypes(gmLevelInWhoList))
             continue;
 
         // check if target is globally visible for player
-        if (!target->IsVisibleGloballyFor(_player))
-            continue;
+        if (_player->GetGUID().GetCounter() != target.GetGuidLow() && !target.IsVisible())
+            if (AccountMgr::IsPlayerAccount(_player->GetSession()->GetSecurity()) || target.GetSecurity() > _player->GetSession()->GetSecurity())
+                continue;
 
         // check if target's level is in level range
-        uint8 lvl = target->getLevel();
+        uint8 lvl = target.GetLevel();
         if (lvl < level_min || lvl > level_max)
             continue;
 
         // check if class matches classmask
-        uint8 class_ = target->getClass();
+        uint8 class_ = target.GetClass();
         if (!(classmask & (1 << class_)))
             continue;
 
         // check if race matches racemask
-        uint32 race = target->getRace();
+        uint32 race = target.GetRace();
         if (!(racemask & (1 << race)))
             continue;
 
-        uint32 pzoneid = target->GetZoneId();
-        uint8 gender = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+        uint32 pzoneid = target.GetZoneId();
+        uint8 gender = target.GetGender();
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
@@ -300,28 +296,15 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!z_show)
             continue;
 
-        std::string pname = target->GetName();
-        std::wstring wpname;
-        if (!Utf8toWStr(pname, wpname))
-            continue;
-        wstrToLower(wpname);
-
+        std::wstring const& wpname = target.Getwpname();
         if (!(wplayer_name.empty() || wpname.find(wplayer_name) != std::wstring::npos))
             continue;
 
-        std::string gname = sGuildMgr->GetGuildNameById(target->GetGuildId());
-        std::wstring wgname;
-        if (!Utf8toWStr(gname, wgname))
-            continue;
-        wstrToLower(wgname);
-
+        std::wstring const& wgname = target.Getwgname();
         if (!(wguild_name.empty() || wgname.find(wguild_name) != std::wstring::npos))
             continue;
 
-        std::string aname;
-        if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(pzoneid))
-            aname = areaEntry->area_name[GetSessionDbcLocale()];
-
+        std::string const& aname = target.Getaname();
         bool s_show = true;
         for (uint32 i = 0; i < str_count; ++i)
         {
@@ -345,8 +328,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if ((matchcount++) >= sWorld->getIntConfig(CONFIG_MAX_WHO))
             continue;
 
-        data << pname;                                    // player name
-        data << gname;                                    // guild name
+        data << target.Getpname();                        // player name
+        data << target.Getgname();                        // guild name
         data << uint32(lvl);                              // player level
         data << uint32(class_);                           // player class
         data << uint32(race);                             // player race
