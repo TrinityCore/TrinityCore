@@ -28,7 +28,7 @@ UPDATE `linked_respawn` SET `linkedGuid`=52479 WHERE `linkedGuid`=52762;
 
 UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128, `ScriptName`='npc_veras_vanish_effect' WHERE `entry`=23451;
 UPDATE `creature_template` SET `ScriptName`='boss_illidari_council' WHERE `entry`=23426;
-UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23499; 
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=23499;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN(
 'spell_illidari_council_empyreal_balance',
@@ -39,7 +39,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN(
 'spell_illidari_council_judgement',
 'spell_illidari_council_seal',
 'spell_boss_lady_malande_shield',
-'spell_illidari_council_reflective_shield');
+'spell_illidari_council_reflective_shield',
+'spell_illidari_dampen_magic');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (41499,'spell_illidari_council_empyreal_balance'),
 (41333,'spell_illidari_council_empyreal_equivalency'),
@@ -49,7 +50,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (41467,'spell_illidari_council_judgement'),
 (41469,'spell_illidari_council_seal'),
 (41459,'spell_illidari_council_seal'),
-(41475,'spell_illidari_council_reflective_shield');
+(41475,'spell_illidari_council_reflective_shield'),
+(41478,'spell_illidari_dampen_magic');
 
 DELETE FROM `creature_text` WHERE `entry` IN(22951,22949,22950,22952) AND (`groupid` IN(3,4,5,6) OR (`groupid`=2 AND `id`=1));
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES

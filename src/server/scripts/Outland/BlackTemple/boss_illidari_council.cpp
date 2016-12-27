@@ -93,6 +93,7 @@ enum IllidariEvents
     EVENT_BLIZZARD,
     EVENT_ARCANE_EXPLOSION,
     EVENT_ARCANE_EXPLOSION_CHECK,
+    EVENT_DAMPEN_MAGIC,
     EVENT_BLESS,
     EVENT_CONSECRATION,
     EVENT_AURA,
@@ -106,7 +107,8 @@ enum IllidariEvents
 
 enum IllidariMisc
 {
-    SUMMON_COUNCIL_GROUP = 1
+    SUMMON_COUNCIL_GROUP = 1,
+    ACTION_REFRESH_DAMPEN
 };
 
 uint32 const CouncilData[4] =
@@ -401,8 +403,14 @@ public:
             events.ScheduleEvent(EVENT_FLAMESTRIKE, Seconds(8));
             events.ScheduleEvent(EVENT_BLIZZARD, Seconds(25));
             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, Seconds(5));
+            DoCastSelf(SPELL_DAMPEN_MAGIC);
         }
 
+        void DoAction(int32 actionId) override
+        {
+            if (actionId == ACTION_REFRESH_DAMPEN)
+                events.ScheduleEvent(EVENT_DAMPEN_MAGIC, Seconds(50));
+        }
         void ExecuteEvent(uint32 eventId) override
         {
             switch (eventId)
@@ -429,6 +437,9 @@ public:
                         events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
                     }
                     events.Repeat(Seconds(1));
+                    break;
+                case EVENT_DAMPEN_MAGIC:
+                    DoCastSelf(SPELL_DAMPEN_MAGIC);
                     break;
                 default:
                     break;
@@ -608,176 +619,176 @@ public:
 // 41499 - Empyreal Balance
 class spell_illidari_council_empyreal_balance : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_empyreal_balance() : SpellScriptLoader("spell_illidari_council_empyreal_balance") { }
+    public:
+        spell_illidari_council_empyreal_balance() : SpellScriptLoader("spell_illidari_council_empyreal_balance") { }
 
-    class spell_illidari_council_empyreal_balance_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_illidari_council_empyreal_balance_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_illidari_council_empyreal_balance_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_BALANCE_OF_POWER))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_illidari_council_empyreal_balance_SpellScript);
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BALANCE_OF_POWER))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                target->CastSpell(target, SPELL_BALANCE_OF_POWER, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_balance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            Unit* target = GetHitUnit();
-            target->CastSpell(target, SPELL_BALANCE_OF_POWER, true);
+            return new spell_illidari_council_empyreal_balance_SpellScript();
         }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_balance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_illidari_council_empyreal_balance_SpellScript();
-    }
 };
 
 // 41333 - Empyreal Equivalency
 class spell_illidari_council_empyreal_equivalency : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_empyreal_equivalency() : SpellScriptLoader("spell_illidari_council_empyreal_equivalency") { }
+    public:
+        spell_illidari_council_empyreal_equivalency() : SpellScriptLoader("spell_illidari_council_empyreal_equivalency") { }
 
-    class spell_illidari_council_empyreal_equivalency_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_illidari_council_empyreal_equivalency_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        class spell_illidari_council_empyreal_equivalency_SpellScript : public SpellScript
         {
-            Unit* target = GetHitUnit();
-            int32 casterHpPct = (int32) GetCaster()->GetHealthPct();
-            uint32 newHp = target->CountPctFromMaxHealth(casterHpPct);
-            if (newHp <= 0)
-                newHp = target->GetMaxHealth() - 1;
-            target->SetHealth(newHp);
-        }
+            PrepareSpellScript(spell_illidari_council_empyreal_equivalency_SpellScript);
 
-        void Register() override
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                int32 casterHpPct = (int32) GetCaster()->GetHealthPct();
+                uint32 newHp = target->CountPctFromMaxHealth(casterHpPct);
+                if (newHp <= 0)
+                    newHp = target->GetMaxHealth() - 1;
+                target->SetHealth(newHp);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_equivalency_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_illidari_council_empyreal_equivalency_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            return new spell_illidari_council_empyreal_equivalency_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_illidari_council_empyreal_equivalency_SpellScript();
-    }
 };
 
 // 41341 - Balance of Power
 class spell_illidari_council_balance_of_power : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_balance_of_power() : SpellScriptLoader("spell_illidari_council_balance_of_power") { }
+    public:
+        spell_illidari_council_balance_of_power() : SpellScriptLoader("spell_illidari_council_balance_of_power") { }
 
-    class spell_illidari_council_balance_of_power_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidari_council_balance_of_power_AuraScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_illidari_council_balance_of_power_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHARED_RULE))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_illidari_council_balance_of_power_AuraScript);
 
-        void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHARED_RULE))
+                    return false;
+                return true;
+            }
+
+            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+            {
+                PreventDefaultAction();
+                int32 bp = dmgInfo.GetDamage();
+                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_illidari_council_balance_of_power_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-            int32 bp = dmgInfo.GetDamage();
-            GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
+            return new spell_illidari_council_balance_of_power_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_illidari_council_balance_of_power_AuraScript::Absorb, EFFECT_0);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_illidari_council_balance_of_power_AuraScript();
-    }
 };
 
 // 41480 - Deadly Strike
 class spell_illidari_council_deadly_strike : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_deadly_strike() : SpellScriptLoader("spell_illidari_council_deadly_strike") { }
+    public:
+        spell_illidari_council_deadly_strike() : SpellScriptLoader("spell_illidari_council_deadly_strike") { }
 
-    class spell_illidari_council_deadly_strike_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidari_council_deadly_strike_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_illidari_council_deadly_strike_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_POISON))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_illidari_council_deadly_strike_AuraScript);
 
-        void OnTrigger(AuraEffect const* aurEff)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_POISON))
+                    return false;
+                return true;
+            }
+
+            void OnTrigger(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+
+                if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_council_deadly_strike_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            PreventDefaultAction();
-
-            if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-                GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, true, nullptr, aurEff);
+            return new spell_illidari_council_deadly_strike_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_council_deadly_strike_AuraScript::OnTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_illidari_council_deadly_strike_AuraScript();
-    }
 };
 
 // 41485 - Deadly Poison
 class spell_illidari_council_deadly_poison : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_deadly_poison() : SpellScriptLoader("spell_illidari_council_deadly_poison") { }
+    public:
+        spell_illidari_council_deadly_poison() : SpellScriptLoader("spell_illidari_council_deadly_poison") { }
 
-    class spell_illidari_council_deadly_poison_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidari_council_deadly_poison_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_illidari_council_deadly_poison_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_ENVENOM))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_illidari_council_deadly_poison_AuraScript);
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ENVENOM))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_deadly_poison_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
+            return new spell_illidari_council_deadly_poison_AuraScript();
         }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_deadly_poison_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_illidari_council_deadly_poison_AuraScript();
-    }
 };
 
 // 41475 - Reflective Shield
@@ -822,89 +833,121 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
 // 41467 - Judgement
 class spell_illidari_council_judgement : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_judgement() : SpellScriptLoader("spell_illidari_council_judgement") { }
+    public:
+        spell_illidari_council_judgement() : SpellScriptLoader("spell_illidari_council_judgement") { }
 
-    class spell_illidari_council_judgement_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_illidari_council_judgement_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_illidari_council_judgement_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_BLOOD)
-                || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_COMMAND)
-                || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_PRIMER))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_illidari_council_judgement_SpellScript);
 
-        void HandleScript(SpellEffIndex /*effIndex*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_BLOOD)
+                    || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_OF_COMMAND)
+                    || !sSpellMgr->GetSpellInfo(SPELL_JUDGEMENT_PRIMER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                uint32 judgementId = caster->HasAura(SPELL_SEAL_OF_BLOOD) ? SPELL_JUDGEMENT_OF_BLOOD : SPELL_JUDGEMENT_OF_COMMAND;
+                caster->CastSpell(target, SPELL_JUDGEMENT_PRIMER, true);
+                caster->CastSpell(target, judgementId, true);
+            }
+
+            void OnFinishCast()
+            {
+                if (Creature* caster = GetCaster()->ToCreature())
+                    caster->AI()->Talk(SAY_COUNCIL_SPECIAL);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_illidari_council_judgement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                AfterCast += SpellCastFn(spell_illidari_council_judgement_SpellScript::OnFinishCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            uint32 judgementId = caster->HasAura(SPELL_SEAL_OF_BLOOD) ? SPELL_JUDGEMENT_OF_BLOOD : SPELL_JUDGEMENT_OF_COMMAND;
-            caster->CastSpell(target, SPELL_JUDGEMENT_PRIMER, true);
-            caster->CastSpell(target, judgementId, true);
+            return new spell_illidari_council_judgement_SpellScript();
         }
-
-        void OnFinishCast()
-        {
-            if (Creature* caster = GetCaster()->ToCreature())
-                caster->AI()->Talk(SAY_COUNCIL_SPECIAL);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_illidari_council_judgement_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            AfterCast += SpellCastFn(spell_illidari_council_judgement_SpellScript::OnFinishCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_illidari_council_judgement_SpellScript();
-    }
 };
 
 /* 41469 - Seal of Command
    41459 - Seal of Blood */
 class spell_illidari_council_seal : public SpellScriptLoader
 {
-public:
-    spell_illidari_council_seal() : SpellScriptLoader("spell_illidari_council_seal") { }
+    public:
+        spell_illidari_council_seal() : SpellScriptLoader("spell_illidari_council_seal") { }
 
-    class spell_illidari_council_seal_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidari_council_seal_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_illidari_council_seal_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_COMMAND)
-                || !sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_BLOOD))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_illidari_council_seal_AuraScript);
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            if (target->IsInWorld() && target->IsAlive())
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                uint32 spellId = aurEff->GetId() == SPELL_SEAL_OF_COMMAND ? SPELL_SEAL_OF_BLOOD : SPELL_SEAL_OF_COMMAND;
-                target->CastSpell(target, spellId, true);
+                if (!sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_COMMAND)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SEAL_OF_BLOOD))
+                    return false;
+                return true;
             }
-        }
 
-        void Register() override
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (target->IsInWorld() && target->IsAlive())
+                {
+                    uint32 spellId = aurEff->GetId() == SPELL_SEAL_OF_COMMAND ? SPELL_SEAL_OF_BLOOD : SPELL_SEAL_OF_COMMAND;
+                    target->CastSpell(target, spellId, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_seal_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_seal_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_illidari_council_seal_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_illidari_council_seal_AuraScript();
-    }
+// 41478 - Dampen Magic
+class spell_illidari_dampen_magic : public SpellScriptLoader
+{
+    public:
+        spell_illidari_dampen_magic() : SpellScriptLoader("spell_illidari_dampen_magic") { }
+
+        class spell_illidari_dampen_magic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_illidari_dampen_magic_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* target = GetTarget()->ToCreature())
+                {
+                    AuraRemoveMode mode = GetTargetApplication()->GetRemoveMode();
+                    if (mode == AURA_REMOVE_BY_ENEMY_SPELL || mode == AURA_REMOVE_BY_EXPIRE)
+                        target->AI()->DoAction(ACTION_REFRESH_DAMPEN);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_illidari_dampen_magic_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_illidari_dampen_magic_AuraScript();
+        }
 };
 
 void AddSC_boss_illidari_council()
@@ -923,4 +966,5 @@ void AddSC_boss_illidari_council()
     new spell_illidari_council_reflective_shield();
     new spell_illidari_council_judgement();
     new spell_illidari_council_seal();
+    new spell_illidari_dampen_magic();
 }
