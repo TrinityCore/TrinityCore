@@ -163,10 +163,10 @@ public:
     uint32 MiscId;
     uint32 AreaTriggerEntry;
 
-    int32 MoveCurveId;
-    int32 ScaleCurveId;
-    int32 MorphCurveId;
-    int32 FacingCurveId;
+    uint32 MoveCurveId;
+    uint32 ScaleCurveId;
+    uint32 MorphCurveId;
+    uint32 FacingCurveId;
 
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;

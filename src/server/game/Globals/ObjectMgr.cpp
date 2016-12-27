@@ -9767,12 +9767,12 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            miscTemplate.MoveCurveId        = areatriggerSpellMiscFields[2].GetInt32();
-            miscTemplate.ScaleCurveId       = areatriggerSpellMiscFields[3].GetInt32();
-            miscTemplate.MorphCurveId       = areatriggerSpellMiscFields[4].GetInt32();
-            miscTemplate.FacingCurveId      = areatriggerSpellMiscFields[5].GetInt32();
-            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[6].GetInt32();
-            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetInt32();
+            miscTemplate.MoveCurveId        = areatriggerSpellMiscFields[2].GetUInt32();
+            miscTemplate.ScaleCurveId       = areatriggerSpellMiscFields[3].GetUInt32();
+            miscTemplate.MorphCurveId       = areatriggerSpellMiscFields[4].GetUInt32();
+            miscTemplate.FacingCurveId      = areatriggerSpellMiscFields[5].GetUInt32();
+            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[6].GetUInt32();
+            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetUInt32();
 
             if (miscTemplate.MoveCurveId)
                 miscTemplate.SplinePoints = splineByMoveCurve[miscTemplate.MoveCurveId];
