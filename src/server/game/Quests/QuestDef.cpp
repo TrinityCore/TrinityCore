@@ -19,6 +19,8 @@
 #include "QuestDef.h"
 #include "Player.h"
 #include "World.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -319,4 +321,148 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
     // Dungeon Finder/Daily/Repeatable (if not weekly, monthly or seasonal) quests are never considered rewarded serverside.
     // This affects counters and client requests for completed quests.
     return (!IsDFQuest() && !IsDaily() && (!IsRepeatable() || IsWeekly() || IsMonthly() || IsSeasonal()));
+}
+
+void Quest::InitializeQueryData()
+{
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        std::string locQuestTitle = GetTitle();
+        std::string locQuestDetails = GetDetails();
+        std::string locQuestObjectives = GetObjectives();
+        std::string locQuestAreaDescription = GetAreaDescription();
+        std::string locQuestCompletedText = GetCompletedText();
+
+        std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+            locQuestObjectiveText[i] = ObjectiveText[i];
+
+
+        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
+        {
+            ObjectMgr::GetLocaleString(localeData->Title, loc, locQuestTitle);
+            ObjectMgr::GetLocaleString(localeData->Details, loc, locQuestDetails);
+            ObjectMgr::GetLocaleString(localeData->Objectives, loc, locQuestObjectives);
+            ObjectMgr::GetLocaleString(localeData->AreaDescription, loc, locQuestAreaDescription);
+            ObjectMgr::GetLocaleString(localeData->CompletedText, loc, locQuestCompletedText);
+
+            for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+                ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
+        }
+
+        QueryData[loc].Initialize(SMSG_QUEST_QUERY_RESPONSE, 1);
+
+        QueryData[loc] << uint32(GetQuestId());                         // quest id
+        QueryData[loc] << uint32(GetQuestMethod());                     // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
+        QueryData[loc] << uint32(GetQuestLevel());                      // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+        QueryData[loc] << uint32(GetMinLevel());                        // min level
+        QueryData[loc] << uint32(GetZoneOrSort());                      // zone or sort to display in quest log
+
+        QueryData[loc] << uint32(GetType());                            // quest type
+        QueryData[loc] << uint32(GetSuggestedPlayers());                // suggested players count
+
+        QueryData[loc] << uint32(GetRepObjectiveFaction());             // shown in quest log as part of quest objective
+        QueryData[loc] << uint32(GetRepObjectiveValue());               // shown in quest log as part of quest objective
+
+        QueryData[loc] << uint32(GetRepObjectiveFaction2());            // shown in quest log as part of quest objective OPPOSITE faction
+        QueryData[loc] << uint32(GetRepObjectiveValue2());              // shown in quest log as part of quest objective OPPOSITE faction
+
+        QueryData[loc] << uint32(GetNextQuestInChain());                // client will request this quest from NPC, if not 0
+        QueryData[loc] << uint32(GetXPId());                            // used for calculating rewarded experience
+
+        if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+            QueryData[loc] << uint32(0);                                // Hide money rewarded
+        else
+            QueryData[loc] << uint32(GetRewOrReqMoney());               // reward money (below max lvl)
+
+        QueryData[loc] << uint32(GetRewMoneyMaxLevel());                // used in XP calculation at client
+        QueryData[loc] << uint32(GetRewSpell());                        // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
+        QueryData[loc] << int32(GetRewSpellCast());                     // cast spell
+
+                                                                        // rewarded honor points
+        QueryData[loc] << uint32(GetRewHonorAddition());
+        QueryData[loc] << float(GetRewHonorMultiplier());
+        QueryData[loc] << uint32(GetSrcItemId());                       // source item id
+        QueryData[loc] << uint32(GetFlags() & 0xFFFF);                  // quest flags
+        QueryData[loc] << uint32(GetCharTitleId());                     // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
+        QueryData[loc] << uint32(GetPlayersSlain());                    // players slain
+        QueryData[loc] << uint32(GetBonusTalents());                    // bonus talents
+        QueryData[loc] << uint32(GetRewArenaPoints());                  // bonus arena points
+        QueryData[loc] << uint32(0);                                    // review rep show mask
+
+        if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        {
+            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                QueryData[loc] << uint32(0) << uint32(0);
+            for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+                QueryData[loc] << uint32(0) << uint32(0);
+        }
+        else
+        {
+            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            {
+                QueryData[loc] << uint32(RewardItemId[i]);
+                QueryData[loc] << uint32(RewardItemIdCount[i]);
+            }
+            for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            {
+                QueryData[loc] << uint32(RewardChoiceItemId[i]);
+                QueryData[loc] << uint32(RewardChoiceItemCount[i]);
+            }
+        }
+
+        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
+            QueryData[loc] << uint32(RewardFactionId[i]);
+
+        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
+            QueryData[loc] << int32(RewardFactionValueId[i]);
+
+        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
+            QueryData[loc] << int32(RewardFactionValueIdOverride[i]);
+
+        QueryData[loc] << uint32(GetPOIContinent());
+        QueryData[loc] << float(GetPOIx());
+        QueryData[loc] << float(GetPOIy());
+        QueryData[loc] << uint32(GetPointOpt());
+
+        if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+            Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
+
+        QueryData[loc] << locQuestTitle;
+        QueryData[loc] << locQuestObjectives;
+        QueryData[loc] << locQuestDetails;
+        QueryData[loc] << locQuestAreaDescription;
+        QueryData[loc] << locQuestCompletedText;                          // display in quest objectives window once all objectives are completed
+
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        {
+            if (RequiredNpcOrGo[i] < 0)
+                QueryData[loc] << uint32((RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
+            else
+                QueryData[loc] << uint32(RequiredNpcOrGo[i]);
+
+            QueryData[loc] << uint32(RequiredNpcOrGoCount[i]);
+            QueryData[loc] << uint32(ItemDrop[i]);
+            QueryData[loc] << uint32(0);                                  // req source count?
+        }
+
+        for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+        {
+            QueryData[loc] << uint32(RequiredItemId[i]);
+            QueryData[loc] << uint32(RequiredItemCount[i]);
+        }
+
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+            QueryData[loc] << locQuestObjectiveText[i];
+    }
+}
+
+void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
+{
+    // Adds the quest level to the front of the quest title
+    // example: [13] Westfall Stew
+
+    std::stringstream questTitlePretty;
+    questTitlePretty << "[" << level << "] " << title;
+    title = questTitlePretty.str();
 }

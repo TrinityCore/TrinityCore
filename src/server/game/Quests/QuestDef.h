@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
+#include "WorldPacket.h"
 
 #include <string>
 #include <vector>
@@ -307,10 +308,14 @@ class TC_GAME_API Quest
         void SetEventIdForQuest(uint16 eventId) { _eventIdForQuest = eventId; }
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
+        static void AddQuestLevelToTitle(std::string& title, int32 level);
+        void InitializeQueryData();
+
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;
         typedef std::vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
+        WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data
     private:

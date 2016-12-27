@@ -146,6 +146,54 @@ uint32 CreatureTemplate::GetFirstVisibleModel() const
     return 17519;
 }
 
+void CreatureTemplate::InitializeQueryData()
+{
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        QueryData[loc].Initialize(SMSG_CREATURE_QUERY_RESPONSE, 1);
+
+        std::string locName = Name, locTitle = Title;
+        if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(Entry))
+        {
+            ObjectMgr::GetLocaleString(cl->Name, loc, locName);
+            ObjectMgr::GetLocaleString(cl->Title, loc, locTitle);
+        }
+
+        QueryData[loc] << uint32(Entry);                              // creature entry
+        QueryData[loc] << locName;
+        QueryData[loc] << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
+        QueryData[loc] << locTitle;
+        QueryData[loc] << IconName;                                   // "Directions" for guard, string for Icons 2.3.0
+        QueryData[loc] << uint32(type_flags);                         // flags
+        QueryData[loc] << uint32(type);                               // CreatureType.dbc
+        QueryData[loc] << uint32(family);                             // CreatureFamily.dbc
+        QueryData[loc] << uint32(rank);                               // Creature Rank (elite, boss, etc)
+        QueryData[loc] << uint32(KillCredit[0]);                      // new in 3.1, kill credit
+        QueryData[loc] << uint32(KillCredit[1]);                      // new in 3.1, kill credit
+        QueryData[loc] << uint32(Modelid1);                           // Modelid1
+        QueryData[loc] << uint32(Modelid2);                           // Modelid2
+        QueryData[loc] << uint32(Modelid3);                           // Modelid3
+        QueryData[loc] << uint32(Modelid4);                           // Modelid4
+        QueryData[loc] << float(ModHealth);                           // dmg/hp modifier
+        QueryData[loc] << float(ModMana);                             // dmg/mana modifier
+        QueryData[loc] << uint8(RacialLeader);
+
+        CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry);
+        if (items)
+        {
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                QueryData[loc] << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+        }
+        else
+        {
+            for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                QueryData[loc] << uint32(0);
+        }
+
+        QueryData[loc] << uint32(movementId);                         // CreatureMovementInfo.dbc
+    }
+}
+
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))

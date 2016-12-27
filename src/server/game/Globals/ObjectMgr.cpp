@@ -9325,3 +9325,23 @@ void ObjectMgr::LoadCreatureQuestItems()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
+
+void ObjectMgr::InitializeQueriesData()
+{
+    // Initialize Query data for creatures
+    for (CreatureTemplateContainer::iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
+        itr->second.InitializeQueryData();
+
+    // Initialize Query Data for gameobjects
+    for (GameObjectTemplateContainer::iterator itr = _gameObjectTemplateStore.begin(); itr != _gameObjectTemplateStore.end(); ++itr)
+        itr->second.InitializeQueryData();
+
+    // Initialize Query Data for items
+    for (ItemTemplateContainer::iterator itr = _itemTemplateStore.begin(); itr != _itemTemplateStore.end(); ++itr)
+        itr->second.InitializeQueryData();
+
+    // Initialize Query Data for quests
+    for (QuestMap::iterator itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
+        itr->second->InitializeQueryData();
+
+}
