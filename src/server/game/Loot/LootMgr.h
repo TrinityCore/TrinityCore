@@ -384,6 +384,7 @@ struct TC_GAME_API Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
 
+    LootItem const* GetItemInSlot(uint32 lootSlot) const;
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, QuestItem** qitem = NULL, QuestItem** ffaitem = NULL, QuestItem** conditem = NULL);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemFor(Player* player) const;

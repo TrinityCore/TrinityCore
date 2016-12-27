@@ -91,8 +91,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             loot = &creature->loot;
         }
 
-        // Since 6.x client sends loot starting from 1 hence the -1
-        player->StoreLootItem(req.LootListID-1, loot);
+        player->StoreLootItem(req.LootListID - 1, loot);
 
         // If player is removing the last LootItem, delete the empty container.
         if (loot->isLooted() && lguid.IsItem())

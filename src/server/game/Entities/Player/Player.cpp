@@ -8423,8 +8423,7 @@ void Player::SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uin
     WorldPackets::Loot::LootRemoved packet;
     packet.Owner = owner;
     packet.LootObj = lootObj;
-    // Since 6.x client expects loot to be starting from 1 hence the +1
-    packet.LootListID = lootSlot+1;
+    packet.LootListID = lootSlot + 1;
     GetSession()->SendPacket(packet.Write());
 }
 
