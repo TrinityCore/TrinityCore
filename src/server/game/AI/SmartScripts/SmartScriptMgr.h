@@ -562,7 +562,8 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
-    // 118 - 127 : 3.3.5 reserved
+    SMART_ACTION_GO_SET_GO_STATE                    = 118,    // state
+    // 119 - 127 : 3.3.5 reserved
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
@@ -1034,6 +1035,11 @@ struct SmartAction
         {
             uint32 flag;
         } goFlag;
+
+        struct
+        {
+            uint32 state;
+        } goState;
 
         struct
         {
