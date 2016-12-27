@@ -551,8 +551,9 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
+    SMART_ACTION_SET_INHABIT_TYPE                   = 118,    // 1-7
 
-    SMART_ACTION_END                                = 118
+    SMART_ACTION_END                                = 119
 };
 
 struct SmartAction
@@ -1059,6 +1060,11 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+
+        struct
+        {
+            uint32 type;
+        } inhabitType;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

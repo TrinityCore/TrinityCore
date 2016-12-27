@@ -200,6 +200,8 @@ m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(
     ResetLootMode(); // restore default loot mode
     m_TriggerJustRespawned = false;
     m_isTempWorldObject = false;
+
+    SetInhabitType(GetCreatureTemplate()->InhabitType);
 }
 
 Creature::~Creature()
@@ -2268,7 +2270,7 @@ bool Creature::LoadCreaturesAddon()
         //! Check using InhabitType as movement flags are assigned dynamically
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER) & UNIT_BYTE1_FLAG_HOVER && !(GetCreatureTemplate()->InhabitType & INHABIT_AIR))
+        if (GetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER) & UNIT_BYTE1_FLAG_HOVER && !(GetInhabitType() & INHABIT_AIR))
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -2793,9 +2795,9 @@ void Creature::UpdateMovementFlags()
 
     bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
+    if (GetInhabitType() & INHABIT_AIR && isInAir && !IsFalling())
     {
-        if (GetCreatureTemplate()->InhabitType & INHABIT_GROUND)
+        if (GetInhabitType() & INHABIT_GROUND)
             SetCanFly(true);
         else
             SetDisableGravity(true);
@@ -2809,7 +2811,7 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
+    SetSwim(GetInhabitType() & INHABIT_WATER && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
