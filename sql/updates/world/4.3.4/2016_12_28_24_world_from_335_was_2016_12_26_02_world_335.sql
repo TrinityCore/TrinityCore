@@ -1,3 +1,4 @@
+/*
 -- 
 -- [Q] To Catch A Sparrowhawk -- http://wotlk.openwow.com/quest=10987
 -- Watcher Elaira SAI
@@ -36,3 +37,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (23036, 0, 0, '%s cautiously approaches Wather Elaira.', 16, 0, 100, 0, 0, 0, 20739, 'Captive Sparrowhawk'),
 (22981, 1, 0, 'I\'m going to train you to help $N with very important task. After that, I promose you\'ll be free to return home.', 12, 0, 100, 1, 0, 0, 20740, 'Watcher Elaira'),
 (22981, 2, 0, 'You will hear the call when you are needed. Fly east, to Skettis, and wait there for $N\'s signal.', 12, 0, 100, 1, 0, 0, 20751, 'Watcher Elaira');
+*/

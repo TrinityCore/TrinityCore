@@ -1,3 +1,4 @@
+/*
 --
 -- [Q] The Knife Revealed -- http://wotlk.openwow.com/quest=4129
 -- Quintis Jonespyre SAI
@@ -19,3 +20,4 @@ DELETE FROM `creature_text` WHERE `entry`=7879;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
 (7879, 0, 0, 'I will need to focus my energies onto this knife.  By doing so, I should catch some of the stronger psychic impressions associated with it.', 12, 0, 100, 0, 0, 0, 5148, 'Quintis Jonespyre'),
 (7879, 1, 0, 'I... I''ve seen enough I think... so very draining...', 12, 0, 100, 462, 0, 0, 5149, 'Quintis Jonespyre');
+*/

@@ -1,3 +1,4 @@
+/*
 --
 -- [Q] Reclaiming the Charred Vale -- http://wotlk.openwow.com/quest=1059
 -- Falfindel Waywarder SAI
@@ -68,3 +69,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (4059, 3, -4483, -755.56, -31.94, 'Forest Spirit'),
 (4059, 4, -4481, -686.51, -14.39, 'Forest Spirit'),
 (4059, 5, -4472, -571.90, 5.91, 'Forest Spirit');
+*/

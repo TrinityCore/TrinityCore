@@ -1,3 +1,4 @@
+/*
 --
 -- [Q] Felbound Ancients -- http://wotlk.openwow.com/quest=4441
 -- Eridan Bluewind SAI
@@ -23,3 +24,4 @@ DELETE FROM `creature_text` WHERE `entry`=9116;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
 (9116, 0, 0, 'May this evil aura be banished from this artifact!', 12, 0, 100, 0, 0, 0, 8366, 'Eridan Bluewind'),
 (9116, 1, 0, 'I can feel the presence of evil leaving...', 12, 0, 100, 0, 0, 0, 8367, 'Eridan Bluewind');
+*/
