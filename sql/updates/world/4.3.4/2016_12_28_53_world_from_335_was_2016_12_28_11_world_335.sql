@@ -1,3 +1,4 @@
+/*
 -- [Q] Vyletongue Corruption -- http://wotlk.openwow.com/?quest=7029
 -- Vark Battlescar SAI
 SET @ENTRY := 11823;
@@ -16,3 +17,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `creature_text` WHERE `entry`=11823;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
 (11823, 0, 0, '$n, please take a look at the sample of the Vylestem vine that I took from the caverns, so that you know what to look for...', 12, 0, 100, 0, 0, 0, 8923, 'Vark Battlescar');
+*/
