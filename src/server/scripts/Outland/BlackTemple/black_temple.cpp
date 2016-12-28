@@ -310,13 +310,13 @@ class spell_illidari_nightlord_shadow_inferno : public SpellScriptLoader
                 GetUnitOwner()->CastCustomSpell(SPELL_SHADOW_INFERNO_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetUnitOwner(), true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidari_nightlord_shadow_inferno_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_illidari_nightlord_shadow_inferno_AuraScript();
         }
