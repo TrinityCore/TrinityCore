@@ -27,7 +27,7 @@ uint32 const EncounterCount         = 9;
 
 enum BTDataTypes
 {
-    // Encounter States/Boss GUIDs
+    // Encounter States
     DATA_HIGH_WARLORD_NAJENTUS      = 0,
     DATA_SUPREMUS                   = 1,
     DATA_SHADE_OF_AKAMA             = 2,
@@ -88,7 +88,14 @@ enum BTCreatureIds
     NPC_SUPREMUS_VOLCANO            = 23085,
     NPC_BLACK_TEMPLE_TRIGGER        = 22984,
     NPC_RELIQUARY_WORLD_TRIGGER     = 23472,
-    NPC_ENSLAVED_SOUL               = 23469
+    NPC_ENSLAVED_SOUL               = 23469,
+    NPC_ASHTONGUE_STALKER           = 23374,
+    NPC_ASHTONGUE_BATTLELORD        = 22844,
+    NPC_ASHTONGUE_MYSTIC            = 22845,
+    NPC_ASHTONGUE_PRIMALIST         = 22847,
+    NPC_ASHTONGUE_STORMCALLER       = 22846,
+    NPC_ASHTONGUE_FERAL_SPIRIT      = 22849,
+    NPC_STORM_FURY                  = 22848
 };
 
 enum BTGameObjectIds
@@ -107,6 +114,12 @@ enum BTGameObjectIds
     GO_ILLIDAN_GATE                 = 185905,
     GO_ILLIDAN_DOOR_R               = 186261,
     GO_ILLIDAN_DOOR_L               = 186262
+};
+
+enum BlackTempleFactions
+{
+    ASHTONGUE_FACTION_FRIEND        = 1820,
+    AKAMA_FACTION_COMBAT            = 1868
 };
 
 template<typename AI>
