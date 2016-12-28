@@ -167,6 +167,14 @@ namespace WorldPackets
             ObjectGuid Owner;
         };
 
+        class LootReleaseAll final : public ServerPacket
+        {
+        public:
+            LootReleaseAll() : ServerPacket(SMSG_LOOT_RELEASE_ALL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class LootList final : public ServerPacket
         {
         public:
@@ -254,6 +262,24 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             uint8 LootListID = 0;
+        };
+
+        class AELootTargets : public ServerPacket
+        {
+        public:
+            AELootTargets(uint32 count) : ServerPacket(SMSG_AE_LOOT_TARGETS, 4), Count(count) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count;
+        };
+
+        class AELootTargetsAck : public ServerPacket
+        {
+        public:
+            AELootTargetsAck() : ServerPacket(SMSG_AE_LOOT_TARGET_ACK, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

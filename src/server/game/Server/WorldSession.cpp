@@ -510,9 +510,8 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
-        ObjectGuid lguid = _player->GetLootGUID();
-        if (!lguid.IsEmpty())
-            DoLootRelease(lguid);
+        if (!_player->GetLootGUID().IsEmpty())
+            DoLootReleaseAll();
 
         ///- If the player just died before logging out, make him appear as a ghost
         if (_player->GetDeathTimer())

@@ -1077,6 +1077,7 @@ class TC_GAME_API WorldSession
         void SendPetitionShowList(ObjectGuid guid);
 
         void DoLootRelease(ObjectGuid lguid);
+        void DoLootReleaseAll();
 
         // Account mute time
         time_t m_muteTime;

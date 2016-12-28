@@ -29,6 +29,8 @@
 #include <vector>
 #include <list>
 
+class Item;
+
 namespace WorldPackets
 {
     namespace Loot
@@ -411,6 +413,27 @@ private:
     // Loot GUID
     ObjectGuid _GUID;
     uint32 _difficultyBonusTreeMod;
+};
+
+class TC_GAME_API AELootResult
+{
+public:
+    struct ResultValue
+    {
+        Item* item;
+        uint8 count;
+        LootType lootType;
+    };
+
+    typedef std::vector<ResultValue> OrderedStorage;
+
+    void Add(Item* item, uint8 count, LootType lootType);
+
+    OrderedStorage::const_iterator begin() const;
+    OrderedStorage::const_iterator end() const;
+
+    OrderedStorage _byOrder;
+    std::unordered_map<Item*, OrderedStorage::size_type> _byItem;
 };
 
 TC_GAME_API extern LootStore LootTemplates_Creature;
