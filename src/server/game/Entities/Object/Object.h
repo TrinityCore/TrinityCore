@@ -557,6 +557,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
+        Player* WorldObject::SelectNearestPlayer(float distance) const;
 
         template <typename Container>
         void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;

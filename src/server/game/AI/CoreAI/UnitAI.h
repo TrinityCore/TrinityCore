@@ -115,6 +115,33 @@ struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, boo
         bool _playerOnly;
 };
 
+// Simple selector for units using mana
+struct TC_GAME_API PowerUsersSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly) : _me(unit), _power(power), _dist(dist), _playerOnly(playerOnly) { }
+        bool operator()(Unit const* target) const;
+
+    private:
+        Unit const* _me;
+        float const _dist;
+        bool const _playerOnly;
+        Powers const _power;
+};
+
+struct TC_GAME_API FarthestTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) : _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) {}
+        bool operator()(Unit const* target) const;
+
+    private:
+        const Unit* _me;
+        float _dist;
+        bool _playerOnly;
+        bool _inLos;
+};
+
 class TC_GAME_API UnitAI
 {
     protected:

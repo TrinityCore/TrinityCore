@@ -54,6 +54,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TradeData.h"
+#include "GameObjectAI.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -2813,6 +2814,9 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, NULL, go, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
+
+    if (go->AI())
+        go->AI()->SpellHit(m_caster, m_spellInfo);
 
     CallScriptOnHitHandlers();
     CallScriptAfterHitHandlers();

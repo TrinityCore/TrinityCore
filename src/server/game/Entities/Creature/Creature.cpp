@@ -2025,17 +2025,6 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
     return target;
 }
 
-Player* Creature::SelectNearestPlayer(float distance) const
-{
-    Player* target = nullptr;
-
-    Trinity::NearestPlayerInObjectRangeCheck checker(this, distance);
-    Trinity::PlayerLastSearcher<Trinity::NearestPlayerInObjectRangeCheck> searcher(this, target, checker);
-    VisitNearbyObject(distance, searcher);
-
-    return target;
-}
-
 void Creature::SendAIReaction(AiReaction reactionType)
 {
     WorldPacket data(SMSG_AI_REACTION, 12);
