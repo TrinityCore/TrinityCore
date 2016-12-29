@@ -7615,6 +7615,9 @@ void Player::ApplyArtifactPowers(Item* item, bool apply)
         if (!rank)
             continue;
 
+        if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->Flags & ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS)
+            rank = 1;
+
         ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, rank - 1);
         if (!artifactPowerRank)
             continue;
