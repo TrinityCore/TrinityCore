@@ -1102,8 +1102,7 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Unit* target = GetTarget();
-                target->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff, caster->GetGUID());
+                caster->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override

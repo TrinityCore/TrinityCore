@@ -2669,6 +2669,16 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+            case 51627: // Turn the Tables (Rank 1)
+            case 51628: // Turn the Tables (Rank 2)
+            case 51629: // Turn the Tables (Rank 3)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 52910: // Turn the Tables
+            case 52914: // Turn the Tables
+            case 52915: // Turn the Tables
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
             case 29441: // Magic Absorption (Rank 1)
             case 29444: // Magic Absorption (Rank 2)
                 // Caused off by 1 calculation (ie 79 resistance at level 80)
