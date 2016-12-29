@@ -879,3 +879,12 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
 
     SendPacket(&data);
 }
+
+void WorldSession::HandleBattlegroundStateQuery(WorldPacket& /*recvData*/)
+{
+    Battleground* bg = _player->GetBattleground();
+    if(bg)
+    {
+        bg->GetStatus();
+    }
+}
