@@ -831,7 +831,7 @@ void Item::LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<
         if (!(scaledArtifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS))
             continue;
 
-        power.CurrentRankWithBonus = totalPurchasedRanks;
+        power.CurrentRankWithBonus = totalPurchasedRanks + 1;
         SetArtifactPower(&power);
     }
 }
