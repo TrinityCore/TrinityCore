@@ -5889,14 +5889,54 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
 
     // Get unit state
     uint32 const unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);
+
+    // this check should only be done when player does cast directly
+    // (ie not when it's called from a script) Breaks for example PlayerAI when charmed
+    /*
     if (!m_caster->GetCharmerGUID().IsEmpty())
     {
         if (Unit* charmer = m_caster->GetCharmer())
             if (charmer->GetUnitBeingMoved() != m_caster && !CheckSpellCancelsCharm(param1))
                 result = SPELL_FAILED_CHARMED;
     }
-    else if (unitflag & UNIT_FLAG_STUNNED && !usableWhileStunned && !CheckSpellCancelsStun(param1))
-        result = SPELL_FAILED_STUNNED;
+    */
+
+    if (unitflag & UNIT_FLAG_STUNNED)
+    {
+        // spell is usable while stunned, check if caster has allowed stun auras, another stun types must prevent cast spell
+        if (usableWhileStunned)
+        {
+            static uint32 const allowedStunMask =
+                1 << MECHANIC_STUN
+                | 1 << MECHANIC_SLEEP;
+
+            bool foundNotStun = false;
+            Unit::AuraEffectList const& stunAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_STUN);
+            for (AuraEffect const* stunEff : stunAuras)
+            {
+                uint32 const stunMechanicMask = stunEff->GetSpellInfo()->GetAllEffectsMechanicMask();
+                if (stunMechanicMask && !(stunMechanicMask & allowedStunMask))
+                {
+                    foundNotStun = true;
+
+                    // fill up aura mechanic info to send client proper error message
+                    if (param1)
+                    {
+                        *param1 = stunEff->GetSpellInfo()->GetEffect(stunEff->GetEffIndex())->Mechanic;
+                        if (!*param1)
+                            *param1 = stunEff->GetSpellInfo()->Mechanic;
+                    }
+                    break;
+                }
+            }
+
+            if (foundNotStun)
+                result = SPELL_FAILED_STUNNED;
+        }
+        // Not usable while stunned, however spell might provide some immunity that allows to cast it anyway
+        else if (!CheckSpellCancelsStun(param1))
+            result = SPELL_FAILED_STUNNED;
+    }
     else if (unitflag & UNIT_FLAG_SILENCED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE && !CheckSpellCancelsSilence(param1))
         result = SPELL_FAILED_SILENCED;
     else if (unitflag & UNIT_FLAG_PACIFIED && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_PACIFY && !CheckSpellCancelsPacify(param1))
