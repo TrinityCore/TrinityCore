@@ -35,6 +35,7 @@
 
 void GameObjectTemplate::InitializeQueryData()
 {
+    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
     {
         std::string locName = name;
@@ -47,29 +48,31 @@ void GameObjectTemplate::InitializeQueryData()
             ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, loc, locCastBarCaption);
         }
 
-        QueryData[loc].Initialize(SMSG_GAMEOBJECT_QUERY_RESPONSE, 1);
-        QueryData[loc] << entry;
-        QueryData[loc] << uint32(type);
-        QueryData[loc] << uint32(displayId);
-        QueryData[loc] << locName;
-        QueryData[loc] << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
-        QueryData[loc] << locIconName;                                // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
-        QueryData[loc] << locCastBarCaption;                          // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-        QueryData[loc] << unk1;                                       // 2.0.3, string
-        QueryData[loc].append(raw.data, MAX_GAMEOBJECT_DATA);
-        QueryData[loc] << float(size);                                // go size
+        queryTemp.Initialize(SMSG_GAMEOBJECT_QUERY_RESPONSE, 1000);
+        queryTemp << uint32(entry);
+        queryTemp << uint32(type);
+        queryTemp << uint32(displayId);
+        queryTemp << locName;
+        queryTemp << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
+        queryTemp << locIconName;                                // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
+        queryTemp << locCastBarCaption;                          // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
+        queryTemp << unk1;                                       // 2.0.3, string
+        queryTemp.append(raw.data, MAX_GAMEOBJECT_DATA);
+        queryTemp << float(size);                                // go size
 
         GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
         if (items)
         {
             for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-                QueryData[loc] << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+                queryTemp << (i < items->size() ? uint32((*items)[i]) : uint32(0));
         }
         else
         {
             for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-                QueryData[loc] << uint32(0);
+                queryTemp << uint32(0);
         }
+
+        QueryData[loc] = queryTemp;
     }
 }
 

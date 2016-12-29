@@ -150,6 +150,7 @@ void ItemTemplate::_LoadTotalAP()
 
 void ItemTemplate::InitializeQueryData()
 {
+    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
     {
         std::string locName = Name1;
@@ -161,64 +162,63 @@ void ItemTemplate::InitializeQueryData()
             ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
         }
 
-        // guess size
-        QueryData[loc].Initialize(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 1);
-        QueryData[loc] << ItemId;
-        QueryData[loc] << Class;
-        QueryData[loc] << SubClass;
-        QueryData[loc] << SoundOverrideSubclass;
-        QueryData[loc] << locName;
-        QueryData[loc] << uint8(0x00);                                //Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-        QueryData[loc] << uint8(0x00);                                //Name3; // blizz not send name there, just uint8(0x00);
-        QueryData[loc] << uint8(0x00);                                //Name4; // blizz not send name there, just uint8(0x00);
-        QueryData[loc] << DisplayInfoID;
-        QueryData[loc] << Quality;
-        QueryData[loc] << Flags;
-        QueryData[loc] << Flags2;
-        QueryData[loc] << BuyPrice;
-        QueryData[loc] << SellPrice;
-        QueryData[loc] << InventoryType;
-        QueryData[loc] << AllowableClass;
-        QueryData[loc] << AllowableRace;
-        QueryData[loc] << ItemLevel;
-        QueryData[loc] << RequiredLevel;
-        QueryData[loc] << RequiredSkill;
-        QueryData[loc] << RequiredSkillRank;
-        QueryData[loc] << RequiredSpell;
-        QueryData[loc] << RequiredHonorRank;
-        QueryData[loc] << RequiredCityRank;
-        QueryData[loc] << RequiredReputationFaction;
-        QueryData[loc] << RequiredReputationRank;
-        QueryData[loc] << int32(MaxCount);
-        QueryData[loc] << int32(Stackable);
-        QueryData[loc] << ContainerSlots;
-        QueryData[loc] << StatsCount;                         // item stats count
+        queryTemp.Initialize(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 1000);
+        queryTemp << ItemId;
+        queryTemp << Class;
+        queryTemp << SubClass;
+        queryTemp << SoundOverrideSubclass;
+        queryTemp << locName;
+        queryTemp << uint8(0x00);                                //Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
+        queryTemp << uint8(0x00);                                //Name3; // blizz not send name there, just uint8(0x00);
+        queryTemp << uint8(0x00);                                //Name4; // blizz not send name there, just uint8(0x00);
+        queryTemp << DisplayInfoID;
+        queryTemp << Quality;
+        queryTemp << Flags;
+        queryTemp << Flags2;
+        queryTemp << BuyPrice;
+        queryTemp << SellPrice;
+        queryTemp << InventoryType;
+        queryTemp << AllowableClass;
+        queryTemp << AllowableRace;
+        queryTemp << ItemLevel;
+        queryTemp << RequiredLevel;
+        queryTemp << RequiredSkill;
+        queryTemp << RequiredSkillRank;
+        queryTemp << RequiredSpell;
+        queryTemp << RequiredHonorRank;
+        queryTemp << RequiredCityRank;
+        queryTemp << RequiredReputationFaction;
+        queryTemp << RequiredReputationRank;
+        queryTemp << int32(MaxCount);
+        queryTemp << int32(Stackable);
+        queryTemp << ContainerSlots;
+        queryTemp << StatsCount;                         // item stats count
         for (uint32 i = 0; i < StatsCount; ++i)
         {
-            QueryData[loc] << ItemStat[i].ItemStatType;
-            QueryData[loc] << ItemStat[i].ItemStatValue;
+            queryTemp << ItemStat[i].ItemStatType;
+            queryTemp << ItemStat[i].ItemStatValue;
         }
-        QueryData[loc] << ScalingStatDistribution;            // scaling stats distribution
-        QueryData[loc] << ScalingStatValue;                   // some kind of flags used to determine stat values column
+        queryTemp << ScalingStatDistribution;            // scaling stats distribution
+        queryTemp << ScalingStatValue;                   // some kind of flags used to determine stat values column
         for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
         {
-            QueryData[loc] << Damage[i].DamageMin;
-            QueryData[loc] << Damage[i].DamageMax;
-            QueryData[loc] << Damage[i].DamageType;
+            queryTemp << Damage[i].DamageMin;
+            queryTemp << Damage[i].DamageMax;
+            queryTemp << Damage[i].DamageType;
         }
 
         // resistances (7)
-        QueryData[loc] << Armor;
-        QueryData[loc] << HolyRes;
-        QueryData[loc] << FireRes;
-        QueryData[loc] << NatureRes;
-        QueryData[loc] << FrostRes;
-        QueryData[loc] << ShadowRes;
-        QueryData[loc] << ArcaneRes;
+        queryTemp << Armor;
+        queryTemp << HolyRes;
+        queryTemp << FireRes;
+        queryTemp << NatureRes;
+        queryTemp << FrostRes;
+        queryTemp << ShadowRes;
+        queryTemp << ArcaneRes;
 
-        QueryData[loc] << Delay;
-        QueryData[loc] << AmmoType;
-        QueryData[loc] << RangedModRange;
+        queryTemp << Delay;
+        queryTemp << AmmoType;
+        queryTemp << RangedModRange;
 
         for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
         {
@@ -229,62 +229,64 @@ void ItemTemplate::InitializeQueryData()
             {
                 bool db_data = Spells[s].SpellCooldown >= 0 || Spells[s].SpellCategoryCooldown >= 0;
 
-                QueryData[loc] << Spells[s].SpellId;
-                QueryData[loc] << Spells[s].SpellTrigger;
-                QueryData[loc] << uint32(-abs(Spells[s].SpellCharges));
+                queryTemp << Spells[s].SpellId;
+                queryTemp << Spells[s].SpellTrigger;
+                queryTemp << uint32(-abs(Spells[s].SpellCharges));
 
                 if (db_data)
                 {
-                    QueryData[loc] << uint32(Spells[s].SpellCooldown);
-                    QueryData[loc] << uint32(Spells[s].SpellCategory);
-                    QueryData[loc] << uint32(Spells[s].SpellCategoryCooldown);
+                    queryTemp << uint32(Spells[s].SpellCooldown);
+                    queryTemp << uint32(Spells[s].SpellCategory);
+                    queryTemp << uint32(Spells[s].SpellCategoryCooldown);
                 }
                 else
                 {
-                    QueryData[loc] << uint32(spell->RecoveryTime);
-                    QueryData[loc] << uint32(spell->GetCategory());
-                    QueryData[loc] << uint32(spell->CategoryRecoveryTime);
+                    queryTemp << uint32(spell->RecoveryTime);
+                    queryTemp << uint32(spell->GetCategory());
+                    queryTemp << uint32(spell->CategoryRecoveryTime);
                 }
             }
             else
             {
-                QueryData[loc] << uint32(0);
-                QueryData[loc] << uint32(0);
-                QueryData[loc] << uint32(0);
-                QueryData[loc] << uint32(-1);
-                QueryData[loc] << uint32(0);
-                QueryData[loc] << uint32(-1);
+                queryTemp << uint32(0);
+                queryTemp << uint32(0);
+                queryTemp << uint32(0);
+                queryTemp << uint32(-1);
+                queryTemp << uint32(0);
+                queryTemp << uint32(-1);
             }
         }
-        QueryData[loc] << Bonding;
-        QueryData[loc] << locDescription;
-        QueryData[loc] << PageText;
-        QueryData[loc] << LanguageID;
-        QueryData[loc] << PageMaterial;
-        QueryData[loc] << StartQuest;
-        QueryData[loc] << LockID;
-        QueryData[loc] << int32(Material);
-        QueryData[loc] << Sheath;
-        QueryData[loc] << RandomProperty;
-        QueryData[loc] << RandomSuffix;
-        QueryData[loc] << Block;
-        QueryData[loc] << ItemSet;
-        QueryData[loc] << MaxDurability;
-        QueryData[loc] << Area;
-        QueryData[loc] << Map;                                // Added in 1.12.x & 2.0.1 client branch
-        QueryData[loc] << BagFamily;
-        QueryData[loc] << TotemCategory;
+        queryTemp << Bonding;
+        queryTemp << locDescription;
+        queryTemp << PageText;
+        queryTemp << LanguageID;
+        queryTemp << PageMaterial;
+        queryTemp << StartQuest;
+        queryTemp << LockID;
+        queryTemp << int32(Material);
+        queryTemp << Sheath;
+        queryTemp << RandomProperty;
+        queryTemp << RandomSuffix;
+        queryTemp << Block;
+        queryTemp << ItemSet;
+        queryTemp << MaxDurability;
+        queryTemp << Area;
+        queryTemp << Map;                                // Added in 1.12.x & 2.0.1 client branch
+        queryTemp << BagFamily;
+        queryTemp << TotemCategory;
         for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
         {
-            QueryData[loc] << Socket[s].Color;
-            QueryData[loc] << Socket[s].Content;
+            queryTemp << Socket[s].Color;
+            queryTemp << Socket[s].Content;
         }
-        QueryData[loc] << socketBonus;
-        QueryData[loc] << GemProperties;
-        QueryData[loc] << RequiredDisenchantSkill;
-        QueryData[loc] << ArmorDamageModifier;
-        QueryData[loc] << Duration;                           // added in 2.4.2.8209, duration (seconds)
-        QueryData[loc] << ItemLimitCategory;                  // WotLK, ItemLimitCategory
-        QueryData[loc] << HolidayId;                          // Holiday.dbc?
+        queryTemp << socketBonus;
+        queryTemp << GemProperties;
+        queryTemp << RequiredDisenchantSkill;
+        queryTemp << ArmorDamageModifier;
+        queryTemp << Duration;                           // added in 2.4.2.8209, duration (seconds)
+        queryTemp << ItemLimitCategory;                  // WotLK, ItemLimitCategory
+        queryTemp << HolidayId;                          // Holiday.dbc?
+
+        QueryData[loc] = queryTemp;
     }
 }

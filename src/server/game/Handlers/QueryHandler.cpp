@@ -341,7 +341,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     for (uint32 i = 0; i < count; ++i)
         questIds.insert(recvData.read<uint32>()); // quest id
 
-    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + (4 + 4)*questIds.size());
+    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + (4 + 4 + 40)*questIds.size());
     data << uint32(questIds.size()); // count
 
     for (auto itr = questIds.begin(); itr != questIds.end(); ++itr)
@@ -357,30 +357,10 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
         if (questOk)
         {
-            QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
-
-            if (POI)
+            ByteBuffer const* POIByteBuffer = sObjectMgr->GetQuestPOIByteBuffer(questId);
+            if (POIByteBuffer)
             {
-                data << uint32(questId); // quest ID
-                data << uint32(POI->size()); // POI count
-
-                for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
-                {
-                    data << uint32(itr->Id);                // POI index
-                    data << int32(itr->ObjectiveIndex);     // objective index
-                    data << uint32(itr->MapId);             // mapid
-                    data << uint32(itr->AreaId);            // areaid
-                    data << uint32(itr->FloorId);           // floorid
-                    data << uint32(itr->Unk3);              // unknown
-                    data << uint32(itr->Unk4);              // unknown
-                    data << uint32(itr->points.size());     // POI points count
-
-                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
-                    {
-                        data << int32(itr2->x); // POI point x
-                        data << int32(itr2->y); // POI point y
-                    }
-                }
+                data.append(*POIByteBuffer);
             }
             else
             {

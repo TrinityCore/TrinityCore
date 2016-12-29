@@ -615,7 +615,19 @@ struct QuestPOI
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
-typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+
+struct QuestPOIWrapper
+{
+    uint32 QuestId;
+    QuestPOIVector DataVector;
+    ByteBuffer QueryDataBuffer;
+
+    void InitializeQueryData(uint32 questId);
+
+    QuestPOIWrapper() : QuestId(0), QueryDataBuffer(0) { }
+};
+
+typedef std::unordered_map<uint32, QuestPOIWrapper> QuestPOIContainer;
 
 struct GraveYardData
 {
@@ -881,7 +893,15 @@ class TC_GAME_API ObjectMgr
         {
             QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
             if (itr != _questPOIStore.end())
-                return &itr->second;
+                return &itr->second.DataVector;
+            return nullptr;
+        }
+
+        ByteBuffer const* GetQuestPOIByteBuffer(uint32 questId)
+        {
+            QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
+            if (itr != _questPOIStore.end())
+                return &itr->second.QueryDataBuffer;
             return nullptr;
         }
 

@@ -7387,7 +7387,11 @@ void ObjectMgr::LoadQuestPOI()
         if (questId < POIs.size() && id < POIs[questId].size())
         {
             POI.points = POIs[questId][id];
-            _questPOIStore[questId].push_back(POI);
+            QuestPOIContainer::iterator itr = _questPOIStore.find(questId);
+            if (itr == _questPOIStore.end())
+                _questPOIStore[questId] = QuestPOIWrapper();
+
+            _questPOIStore[questId].DataVector.push_back(POI);
         }
         else
             TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %u POI id %u", questId, id);
@@ -9344,4 +9348,34 @@ void ObjectMgr::InitializeQueriesData()
     for (QuestMap::iterator itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         itr->second->InitializeQueryData();
 
+    // Initialize Quest POI data
+    for (QuestPOIContainer::iterator itr = _questPOIStore.begin(); itr != _questPOIStore.end(); ++itr)
+        itr->second.InitializeQueryData(itr->first);
+}
+
+void QuestPOIWrapper::InitializeQueryData(uint32 questId)
+{
+    ByteBuffer tempBuffer;
+    tempBuffer << uint32(questId);                    // quest ID
+    tempBuffer << uint32(DataVector.size());          // POI count
+
+    for (QuestPOIVector::const_iterator itr = DataVector.begin(); itr != DataVector.end(); ++itr)
+    {
+        tempBuffer << uint32(itr->Id);                // POI index
+        tempBuffer << int32(itr->ObjectiveIndex);     // objective index
+        tempBuffer << uint32(itr->MapId);             // mapid
+        tempBuffer << uint32(itr->AreaId);            // areaid
+        tempBuffer << uint32(itr->FloorId);           // floorid
+        tempBuffer << uint32(itr->Unk3);              // unknown
+        tempBuffer << uint32(itr->Unk4);              // unknown
+        tempBuffer << uint32(itr->points.size());     // POI points count
+
+        for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+        {
+            tempBuffer << int32(itr2->x); // POI point x
+            tempBuffer << int32(itr2->y); // POI point y
+        }
+    }
+
+    QueryDataBuffer = tempBuffer;
 }
