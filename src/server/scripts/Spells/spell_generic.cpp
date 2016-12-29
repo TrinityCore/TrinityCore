@@ -1983,16 +1983,13 @@ class spell_gen_mount : public SpellScriptLoader
                     }
 
                     if (mount)
-                    {
-                        PreventHitAura();
                         target->CastSpell(target, mount, true);
-                    }
                 }
             }
 
             void Register() override
             {
-                 OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
         private:
