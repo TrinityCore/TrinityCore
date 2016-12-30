@@ -2757,10 +2757,23 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 47977: // Magic Broom
+            case 48025: // Headless Horseman's Mount
+            case 54729: // Winged Steed of the Ebon Blade
+            case 71342: // Big Love Rocket
+            case 72286: // Invincible
+            case 74856: // Blazing Hippogryph
+            case 75614: // Celestial Steed
+            case 75973: // X-53 Touring Rocket
+                // First two effects apply auras, which shouldn't be there
+                // due to NO_TARGET applying aura on current caster (core bug)
+                // Just wipe effect data, to mimic blizz-behavior
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
             case 56342: // Lock and Load (Rank 1)
-                // @workaround: Delete dummy effect from rank 1,
-                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
-                // core bug?
+                // @workaround: Delete dummy effect from rank 1
+                // effect apply aura has NO_TARGET but core still applies it to caster (same as above)
                 spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
             case 53480: // Roar of Sacrifice
