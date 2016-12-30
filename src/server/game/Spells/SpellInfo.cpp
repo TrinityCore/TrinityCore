@@ -692,8 +692,6 @@ uint32 SpellEffectInfo::GetMissingTargetMask(bool srcSet /*= false*/, bool dstSe
 {
     uint32 effImplicitTargetMask = GetTargetFlagMask(GetUsedTargetObjectType());
     uint32 providedTargetMask = GetProvidedTargetMask() | mask;
-    if (!providedTargetMask) // no targets to select
-        return 0;
 
     // remove all flags covered by effect target mask
     if (providedTargetMask & TARGET_FLAG_UNIT_MASK)
