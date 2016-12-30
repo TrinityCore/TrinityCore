@@ -124,9 +124,9 @@ struct TC_GAME_API PowerUsersSelector : public std::unary_function<Unit*, bool>
 
     private:
         Unit const* _me;
+        Powers const _power;
         float const _dist;
         bool const _playerOnly;
-        Powers const _power;
 };
 
 struct TC_GAME_API FarthestTargetSelector : public std::unary_function<Unit*, bool>
