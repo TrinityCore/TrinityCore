@@ -392,12 +392,12 @@ void WorldSession::SendSpiritResurrect()
         if (corpseGrave != ghostGrave)
             _player->TeleportTo(corpseGrave->map_id, corpseGrave->x, corpseGrave->y, corpseGrave->z, _player->GetOrientation());
         // or update at original position
-        else
-            _player->UpdateObjectVisibility();
+        //else
+        //    _player->UpdateObjectVisibility(); called in ResurrectPlayer
     }
     // or update at original position
-    else
-        _player->UpdateObjectVisibility();
+    //else
+    //    _player->UpdateObjectVisibility(); called in ResurrectPlayer
 }
 
 void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
