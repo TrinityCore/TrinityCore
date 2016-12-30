@@ -92,7 +92,7 @@ public:
             return true;
         }
 
-        ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
+        ObjectGuid targetGuid = sWorld->GetCharacterGuidByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
         if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
@@ -452,10 +452,10 @@ public:
         if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
-            guid = sObjectMgr->GetPlayerGUIDByName(name);
+            guid = sWorld->GetCharacterGuidByName(name);
 
         // Target must exist
-        if (!guid)
+        if (guid.IsEmpty())
         {
             handler->SendSysMessage(LANG_NO_PLAYERS_FOUND);
             return true;

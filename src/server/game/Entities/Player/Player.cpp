@@ -4228,22 +4228,26 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
     ObjectGuid::LowType guid = playerguid.GetCounter();
     uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerguid);
+    std::string name;
+    if (characterInfo)
+        name = characterInfo->Name;
 
     if (deleteFinally)
         charDelete_method = CHAR_DELETE_REMOVE;
-    else if (CharacterInfo const* nameData = sWorld->GetCharacterInfo(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+    else if (characterInfo)    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDelete_minLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
-        if (nameData->Level < charDelete_minLvl)
+        if (characterInfo->Level < charDelete_minLvl)
             charDelete_method = CHAR_DELETE_REMOVE;
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (ObjectGuid::LowType guildId = GetGuildIdFromDB(playerguid))
+    if (ObjectGuid::LowType guildId = Player::GetGuildIdFromCharacterInfo(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(trans, playerguid, false, false, true);
 
@@ -4583,7 +4587,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
 
-    sWorld->DeleteCharacterInfo(playerguid);
+    sWorld->DeleteCharacterInfo(playerguid, name);
 }
 
 /**
@@ -6995,32 +6999,13 @@ void Player::ModifyArenaPoints(int32 value, SQLTransaction trans)
     }
 }
 
-ObjectGuid::LowType Player::GetGuildIdFromDB(ObjectGuid guid)
+ObjectGuid::LowType Player::GetGuildIdFromCharacterInfo(ObjectGuid guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
         return 0;
 
-    uint32 id = result->Fetch()[0].GetUInt32();
-    return id;
-}
-
-uint8 Player::GetRankFromDB(ObjectGuid guid)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 v = result->Fetch()[1].GetUInt8();
-        return v;
-    }
-    else
-        return 0;
+    return characterInfo->GuildId;
 }
 
 void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
@@ -7034,18 +7019,13 @@ void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 va
     SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
 }
 
-uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, uint8 type)
+uint32 Player::GetArenaTeamIdFromCharacterInfo(ObjectGuid guid, uint8 type)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID);
-    stmt->setUInt32(0, guid.GetCounter());
-    stmt->setUInt8(1, type);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
         return 0;
 
-    uint32 id = (*result)[0].GetUInt32();
-    return id;
+    return characterInfo->ArenaTeamId[type];
 }
 
 uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
@@ -7094,19 +7074,13 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
     return zone;
 }
 
-uint32 Player::GetLevelFromDB(ObjectGuid guid)
+uint32 Player::GetLevelFromCharacterInfo(ObjectGuid guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
         return 0;
 
-    Field* fields = result->Fetch();
-    uint8 level = fields[0].GetUInt8();
-
-    return level;
+    return characterInfo->Level;
 }
 
 void Player::UpdateArea(uint32 newArea)
@@ -20994,17 +20968,13 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
 
 void Player::LeaveAllArenaTeams(ObjectGuid guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ARENA_TEAMS);
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
         return;
 
-    do
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
     {
-        Field* fields = result->Fetch();
-        uint32 arenaTeamId = fields[0].GetUInt32();
+        uint32 arenaTeamId = characterInfo->ArenaTeamId[i];
         if (arenaTeamId != 0)
         {
             ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
@@ -21012,7 +20982,6 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
                 arenaTeam->DelMember(guid, true);
         }
     }
-    while (result->NextRow());
 }
 
 void Player::SetRestBonus(float rest_bonus_new)
@@ -26403,6 +26372,12 @@ std::string Player::GetCoordsMapAreaAndZoneString() const
     std::ostringstream str;
     str << Position::ToString() << " " << GetMapAreaAndZoneString();
     return str.str();
+}
+
+void Player::SetInGuild(uint32 guildId)
+{
+    SetUInt32Value(PLAYER_GUILDID, guildId);
+    sWorld->UpdateCharacterGuildId(GetGUID(), guildId);
 }
 
 Guild* Player::GetGuild()
