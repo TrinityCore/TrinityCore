@@ -5616,7 +5616,7 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
         return;
 
     AreaTrigger* areaTrigger = new AreaTrigger();
-    if (!areaTrigger->CreateAreaTrigger(effectInfo->MiscValue, GetCaster(), nullptr, GetSpellInfo(), destTarget->GetPosition(), m_SpellVisual, m_castId))
+    if (!areaTrigger->CreateAreaTrigger(effectInfo->MiscValue, GetCaster(), nullptr, GetSpellInfo(), destTarget->GetPosition(), GetSpellInfo()->GetDuration(), m_SpellVisual, m_castId))
         delete areaTrigger;
 }
 

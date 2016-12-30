@@ -4951,7 +4951,7 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
         if (areaTrigger->GetSpellId() == spellId)
         {
             areaTrigger->Remove();
-            i = m_areaTrigger.erase(i);
+            i = m_areaTrigger.begin();
         }
         else
             ++i;

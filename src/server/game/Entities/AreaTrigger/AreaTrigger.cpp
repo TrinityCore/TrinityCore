@@ -31,8 +31,8 @@
 #include "ScriptMgr.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
-_duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-_reachedDestination(false), _lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
+    _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
+    _reachedDestination(false), _lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -67,7 +67,7 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/)
+bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
 
@@ -80,7 +80,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     }
 
     _areaTriggerMiscTemplate = sObjectMgr->GetAreaTriggerMiscTemplate(spellMiscId);
-
     if (!_areaTriggerMiscTemplate)
     {
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
@@ -91,7 +90,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(GetTemplate()->Id);
-    SetDuration(spell->GetDuration());
+    SetDuration(duration);
 
     SetObjectScale(1.0f);
 
@@ -100,9 +99,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
-    SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET, GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : spell->GetDuration());
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : spell->GetDuration());
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET, GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : duration);
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : duration);
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
     CopyPhaseFrom(caster);
@@ -183,6 +181,13 @@ void AreaTrigger::Remove()
         RemoveFromWorld();
         AddObjectToRemoveList();
     }
+}
+
+void AreaTrigger::SetDuration(int32 newDuration)
+{
+    _duration = newDuration;
+    _totalDuration = newDuration;
+    SetUInt32Value(AREATRIGGER_DURATION, newDuration);
 }
 
 void AreaTrigger::SearchUnitInSphere()
