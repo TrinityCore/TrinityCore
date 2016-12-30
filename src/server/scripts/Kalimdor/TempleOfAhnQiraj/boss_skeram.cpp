@@ -258,7 +258,8 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_TRUE_FULFILLMENT_2))
+            if (!sSpellMgr->GetSpellInfo(SPELL_TRUE_FULFILLMENT_2)
+                || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISMOUNT))
                 return false;
             return true;
         }

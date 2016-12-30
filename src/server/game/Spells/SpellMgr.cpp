@@ -2669,6 +2669,16 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+            case 51627: // Turn the Tables (Rank 1)
+            case 51628: // Turn the Tables (Rank 2)
+            case 51629: // Turn the Tables (Rank 3)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 52910: // Turn the Tables
+            case 52914: // Turn the Tables
+            case 52915: // Turn the Tables
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
             case 29441: // Magic Absorption (Rank 1)
             case 29444: // Magic Absorption (Rank 2)
                 // Caused off by 1 calculation (ie 79 resistance at level 80)
@@ -2747,10 +2757,23 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 47977: // Magic Broom
+            case 48025: // Headless Horseman's Mount
+            case 54729: // Winged Steed of the Ebon Blade
+            case 71342: // Big Love Rocket
+            case 72286: // Invincible
+            case 74856: // Blazing Hippogryph
+            case 75614: // Celestial Steed
+            case 75973: // X-53 Touring Rocket
+                // First two effects apply auras, which shouldn't be there
+                // due to NO_TARGET applying aura on current caster (core bug)
+                // Just wipe effect data, to mimic blizz-behavior
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
             case 56342: // Lock and Load (Rank 1)
-                // @workaround: Delete dummy effect from rank 1,
-                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
-                // core bug?
+                // @workaround: Delete dummy effect from rank 1
+                // effect apply aura has NO_TARGET but core still applies it to caster (same as above)
                 spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
             case 53480: // Roar of Sacrifice
@@ -2889,6 +2912,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49064: // Explosive Trap Effect (Rank 5)
             case 49065: // Explosive Trap Effect (Rank 6)
             case 43446: // Explosive Trap Effect (Hexlord Malacrass)
+            case 50661: // Weakened Resolve
             case 68979: // Unleashed Souls
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
