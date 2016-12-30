@@ -1117,39 +1117,6 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
         }
 };
 
-// 52910,52914,52915 - Turn the Tables proc
-class spell_rog_turn_the_tables_proc : public SpellScriptLoader
-{
-    public:
-        spell_rog_turn_the_tables_proc() : SpellScriptLoader("spell_rog_turn_the_tables_proc") { }
-
-        class spell_rog_turn_the_tables_proc_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_turn_the_tables_proc_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                Unit* target = GetOriginalCaster();
-                if (!target)
-                    return;
-
-                targets.push_back(target);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_turn_the_tables_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rog_turn_the_tables_proc_SpellScript();
-        }
-};
-
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1172,5 +1139,4 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
     new spell_rog_turn_the_tables();
-    new spell_rog_turn_the_tables_proc();
 }
