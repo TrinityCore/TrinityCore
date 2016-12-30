@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature` SET `position_x`= -12369      ,  `position_y`  =     -963.837      , `position_z`  =        12.9651       , `orientation`  =        2.86234      , `spawndist`=0,`MovementType`=2 WHERE `guid` =       849;
 UPDATE `creature` SET `position_x`= -12351.8    ,  `position_y`  =       -969.239    , `position_z`  =          13.1489     , `orientation`  =          1.18682    , `spawndist`=0,`MovementType`=2 WHERE `guid` =         856;
@@ -10791,3 +10792,4 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (12679, 12683, 3, 360, 2, 0, 0);
 
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN (73646, 73640, 73641, 73644, 73642, 130396, 66993, 55154, 55137, 55164, 70875, 70873, 62891, 70874, 83345, 66990, 129972, 125495, 63380, 57720, 91203, 57723, 12680, 12681, 12682, 12683, 129208, 129230, 129234, 129243, 12701, 12703, 12702, 12684, 12688, 12694, 12696, 79567, 79568, 79569, 70888, 70887, 83330, 83331);
+*/

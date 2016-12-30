@@ -1,3 +1,4 @@
+/*
 -- Booty Bay Bruiser 1
 SET @NPC := 178;
 SET @PATH := @NPC * 10;
@@ -313,3 +314,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 5, -5703.14, -576.05, 401.19, 0),
 (@PATH, 6, -5712.95, -566.86, 399.93, 0),
 (@PATH, 7, -5719.97, -550.44, 398.7, 0);
+*/
