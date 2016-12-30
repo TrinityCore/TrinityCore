@@ -2845,8 +2845,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellFamilyFlags[2] = 0x80000000;
     });
 
-    // Unleashed Souls
-    ApplySpellFix({ 68979 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        50661, // Weakened Resolve
+        68979  // Unleashed Souls
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
     });
