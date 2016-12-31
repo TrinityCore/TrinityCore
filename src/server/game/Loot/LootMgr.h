@@ -114,7 +114,8 @@ enum LootError
     LOOT_ERROR_MASTER_UNIQUE_ITEM       = 13,   // Player has too many of that item already
     LOOT_ERROR_MASTER_OTHER             = 14,   // Can't assign item to that player
     LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
-    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16    // You can't do that while shapeshifted.
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16,   // You can't do that while shapeshifted.
+    LOOT_ERROR_NO_LOOT                  = 17    // There is no loot.
 };
 
 // type of Loot Item in Loot View
