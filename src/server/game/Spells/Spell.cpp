@@ -6693,25 +6693,9 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     // check weapon presence in slots for main/offhand weapons
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT) && m_spellInfo->EquippedItemClass >= 0)
     {
-        SpellCastResult itemRes = [this]() -> SpellCastResult
+        auto weaponCheck = [this](WeaponAttackType attackType) -> SpellCastResult
         {
-            switch (m_attackType)
-            {
-                case BASE_ATTACK:
-                    // main hand weapon required
-                    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
-                        return SPELL_CAST_OK;
-                    break;
-                case OFF_ATTACK:
-                    // offhand hand weapon required
-                    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
-                        return SPELL_CAST_OK;
-                    break;
-                default:
-                    return SPELL_CAST_OK;
-            }
-
-            Item const* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
+            Item const* item = m_caster->ToPlayer()->GetWeaponForAttack(attackType);
 
             // skip spell if no weapon in slot or broken
             if (!item || item->IsBroken())
@@ -6720,10 +6704,23 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
             // skip spell if weapon not fit to triggered spell
             if (!item->IsFitToSpellRequirements(m_spellInfo))
                 return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-        }();
 
-        if (itemRes != SPELL_CAST_OK)
-            return itemRes;
+            return SPELL_CAST_OK;
+        };
+
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
+        {
+            SpellCastResult mainHandResult = weaponCheck(BASE_ATTACK);
+            if (mainHandResult != SPELL_CAST_OK)
+                return mainHandResult;
+        }
+
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+        {
+            SpellCastResult offHandResult = weaponCheck(OFF_ATTACK);
+            if (offHandResult != SPELL_CAST_OK)
+                return offHandResult;
+        }
     }
 
     return SPELL_CAST_OK;
