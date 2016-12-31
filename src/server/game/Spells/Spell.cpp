@@ -6701,10 +6701,12 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     // main hand weapon required
                     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
                         return SPELL_CAST_OK;
+                    break;
                 case OFF_ATTACK:
                     // offhand hand weapon required
                     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
                         return SPELL_CAST_OK;
+                    break;
                 default:
                     return SPELL_CAST_OK;
             }
