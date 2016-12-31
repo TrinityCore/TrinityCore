@@ -22,6 +22,7 @@
 #include "DB2Stores.h"
 #include "GameTables.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Map.h"
@@ -1572,6 +1573,45 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
 bool SpellInfo::HasInitialAggro() const
 {
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+}
+
+WeaponAttackType SpellInfo::GetAttackType() const
+{
+    WeaponAttackType result;
+    switch (DmgClass)
+    {
+        case SPELL_DAMAGE_CLASS_MELEE:
+            if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+                result = OFF_ATTACK;
+            else
+                result = BASE_ATTACK;
+            break;
+        case SPELL_DAMAGE_CLASS_RANGED:
+            result = IsRangedWeaponSpell() ? RANGED_ATTACK : BASE_ATTACK;
+            break;
+        default:
+            // Wands
+            if (IsAutoRepeatRangedSpell())
+                result = RANGED_ATTACK;
+            else
+                result = BASE_ATTACK;
+            break;
+    }
+
+    return result;
+}
+
+bool SpellInfo::IsItemFitToSpellRequirements(Item const* item) const
+{
+    // item neutral spell
+    if (EquippedItemClass == -1)
+        return true;
+
+    // item dependent spell
+    if (item && item->IsFitToSpellRequirements(this))
+        return true;
+
+    return false;
 }
 
 bool SpellInfo::IsAffected(uint32 familyName, flag128 const& familyFlags) const
