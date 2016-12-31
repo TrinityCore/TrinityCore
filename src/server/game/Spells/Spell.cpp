@@ -529,25 +529,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     memset(m_damageMultipliers, 0, sizeof(m_damageMultipliers));
 
     // Get data for type of attack
-    switch (m_spellInfo->DmgClass)
-    {
-        case SPELL_DAMAGE_CLASS_MELEE:
-            if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
-                m_attackType = OFF_ATTACK;
-            else
-                m_attackType = BASE_ATTACK;
-            break;
-        case SPELL_DAMAGE_CLASS_RANGED:
-            m_attackType = m_spellInfo->IsRangedWeaponSpell() ? RANGED_ATTACK : BASE_ATTACK;
-            break;
-        default:
-                                                            // Wands
-            if (m_spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG))
-                m_attackType = RANGED_ATTACK;
-            else
-                m_attackType = BASE_ATTACK;
-            break;
-    }
+    m_attackType = info->GetAttackType();
 
     m_spellSchoolMask = info->GetSchoolMask();           // Can be override for some spell (wand shoot for example)
 
@@ -6567,12 +6549,25 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     }
 
     // check weapon presence in slots for main/offhand weapons
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT) && m_spellInfo->EquippedItemClass >=0)
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT) && m_spellInfo->EquippedItemClass >= 0)
     {
-        // main hand weapon required
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
+        SpellCastResult itemRes = [this]() -> SpellCastResult
         {
-            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(BASE_ATTACK);
+            switch (m_attackType)
+            {
+                case BASE_ATTACK:
+                    // main hand weapon required
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
+                        return SPELL_CAST_OK;
+                case OFF_ATTACK:
+                    // offhand hand weapon required
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+                        return SPELL_CAST_OK;
+                default:
+                    return SPELL_CAST_OK;
+            }
+
+            Item const* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
 
             // skip spell if no weapon in slot or broken
             if (!item || item->IsBroken())
@@ -6581,21 +6576,10 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
             // skip spell if weapon not fit to triggered spell
             if (!item->IsFitToSpellRequirements(m_spellInfo))
                 return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-        }
+        }();
 
-        // offhand hand weapon required
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
-        {
-            Item* item = m_caster->ToPlayer()->GetWeaponForAttack(OFF_ATTACK);
-
-            // skip spell if no weapon in slot or broken
-            if (!item || item->IsBroken())
-                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-
-            // skip spell if weapon not fit to triggered spell
-            if (!item->IsFitToSpellRequirements(m_spellInfo))
-                return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-        }
+        if (itemRes != SPELL_CAST_OK)
+            return itemRes;
     }
 
     return SPELL_CAST_OK;

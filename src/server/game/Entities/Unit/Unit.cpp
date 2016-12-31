@@ -1623,17 +1623,10 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     {
         float arpPct = ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION);
 
-        Item* weapon = ToPlayer()->GetWeaponForAttack(attackType, true);
+        Item const* weapon = ToPlayer()->GetWeaponForAttack(attackType, true);
         arpPct += GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT, [weapon](AuraEffect const* aurEff) -> bool
         {
-            // item neutral spell
-            if (aurEff->GetSpellInfo()->EquippedItemClass == -1)
-                return true;
-            // item dependent spell
-            else if (weapon && weapon->IsFitToSpellRequirements(aurEff->GetSpellInfo()))
-                return true;
-
-            return false;
+            return aurEff->GetSpellInfo()->IsItemFitToSpellRequirements(weapon);
         });
 
         // no more than 100%
