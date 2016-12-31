@@ -8439,7 +8439,7 @@ void Player::SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, L
 {
     WorldPackets::Loot::LootResponse lootResponse;
     lootResponse.LootObj = lootObj;
-    lootResponse.Owner = GetLootWorldObjectGUID(lootObj);
+    lootResponse.Owner = owner;
     lootResponse.Acquired = false;
     lootResponse.FailureReason = error;
     SendDirectMessage(lootResponse.Write());
