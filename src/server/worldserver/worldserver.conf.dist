@@ -3358,10 +3358,10 @@ AuctionHouseBot.BuyPrice.Seller = 1
 #    AuctionHouseBot.BidPrice.*
 #       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
 #       Default:     0.6 - (Min)
-#                    1.4 - (Max)
+#                    0.9 - (Max)
 
 AuctionHouseBot.BidPrice.Min = 0.6
-AuctionHouseBot.BidPrice.Max = 1.4
+AuctionHouseBot.BidPrice.Max = 0.9
 
 #
 #    AuctionHouseBot.Alliance.Price.Ratio
