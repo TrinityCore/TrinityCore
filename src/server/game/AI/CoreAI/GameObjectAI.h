@@ -61,7 +61,7 @@ class TC_GAME_API GameObjectAI
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
         virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
-        virtual void SpellHit(Unit* unit, const SpellInfo* spellInfo) { }
+        virtual void SpellHit(Unit* /*unit*/, const SpellInfo* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
