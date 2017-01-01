@@ -329,10 +329,11 @@ enum ItemQualities
     ITEM_QUALITY_EPIC                  = 4, // PURPLE
     ITEM_QUALITY_LEGENDARY             = 5, // ORANGE
     ITEM_QUALITY_ARTIFACT              = 6, // LIGHT YELLOW
-    ITEM_QUALITY_HEIRLOOM              = 7
+    ITEM_QUALITY_HEIRLOOM              = 7, // LIGHT BLUE
+    ITEM_QUALITY_WOW_TOKEN             = 8  // LIGHT BLUE
 };
 
-#define MAX_ITEM_QUALITY                 8
+#define MAX_ITEM_QUALITY                 9
 
 enum SpellCategory
 {
@@ -349,7 +350,8 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
     0xffa335ee, // PURPLE
     0xffff8000, // ORANGE
     0xffe6cc80, // LIGHT YELLOW
-    0xffe6cc80  // LIGHT YELLOW
+    0xff00ccff, // LIGHT BLUE
+    0xff00ccff  // LIGHT BLUE
 };
 
 // ***********************************

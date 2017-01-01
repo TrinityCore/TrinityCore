@@ -78,6 +78,7 @@ namespace WorldPackets
     namespace Achievement
     {
         class GuildSetFocusedAchievement;
+        class GuildGetAchievementMembers;
     }
 
     namespace Artifact
@@ -422,6 +423,7 @@ namespace WorldPackets
         class ObjectUpdateFailed;
         class ObjectUpdateRescued;
         class CompleteCinematic;
+        class CompleteMovie;
         class NextCinematicCamera;
         class FarSight;
         class LoadCUFProfiles;
@@ -1075,6 +1077,7 @@ class TC_GAME_API WorldSession
         void SendPetitionShowList(ObjectGuid guid);
 
         void DoLootRelease(ObjectGuid lguid);
+        void DoLootReleaseAll();
 
         // Account mute time
         time_t m_muteTime;
@@ -1319,6 +1322,7 @@ class TC_GAME_API WorldSession
         void HandleGuildLeave(WorldPackets::Guild::GuildLeave& leave);
         void HandleGuildDelete(WorldPackets::Guild::GuildDelete& packet);
         void HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet);
+        void HandleGuildGetAchievementMembers(WorldPackets::Achievement::GuildGetAchievementMembers& getAchievementMembers);
         void HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet);
         void HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMotdText& packet);
         void HandleGuildNewsUpdateSticky(WorldPackets::Guild::GuildNewsUpdateSticky& packet);
@@ -1514,6 +1518,7 @@ class TC_GAME_API WorldSession
 
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
+        void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
 
         void HandleQueryPageText(WorldPackets::Query::QueryPageText& packet);
 

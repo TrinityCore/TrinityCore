@@ -16,22 +16,25 @@ else ()
 endif ()
 
 set(FMT_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/cppformat/format.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/cppformat/format.cc)
+  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/format.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/format.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/ostream.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/ostream.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/time.h)
 
 if (HAVE_OPEN)
   set(FMT_SOURCES ${FMT_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cppformat/posix.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/cppformat/posix.cc)
+    ${CMAKE_CURRENT_SOURCE_DIR}/fmt/posix.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/fmt/posix.cc)
 endif()
 
-add_library(cppformat STATIC ${FMT_SOURCES})
+add_library(fmt STATIC ${FMT_SOURCES})
 
-target_include_directories(cppformat
+target_include_directories(fmt
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-set_target_properties(cppformat
+set_target_properties(fmt
     PROPERTIES
       FOLDER
         "dep")

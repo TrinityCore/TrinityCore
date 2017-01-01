@@ -614,6 +614,14 @@ namespace WorldPackets
             ObjectGuid Player;
             ObjectGuid Victim;
         };
+
+        class GroupDestroyed final : public ServerPacket
+        {
+        public:
+            GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

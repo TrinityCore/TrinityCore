@@ -104,9 +104,11 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::Tr
 {
     buffer << uint8(tradeItem.Slot);
     buffer << uint32(tradeItem.StackCount);
-    buffer << tradeItem.Item;
     buffer << tradeItem.GiftCreator;
-    if (buffer.WriteBit(tradeItem.Unwrapped.is_initialized()))
+    buffer << tradeItem.Item;
+    buffer.WriteBit(tradeItem.Unwrapped.is_initialized());
+    buffer.FlushBits();
+    if (tradeItem.Unwrapped)
         buffer << *tradeItem.Unwrapped;
 
     return buffer;
