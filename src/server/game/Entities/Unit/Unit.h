@@ -675,7 +675,7 @@ enum CombatRating
     CR_UNUSED_12                        = 31
 };
 
-#define MAX_COMBAT_RATING         31
+#define MAX_COMBAT_RATING         32
 
 enum DamageEffectType
 {
