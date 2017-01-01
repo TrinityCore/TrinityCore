@@ -2779,6 +2779,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             }
 
             // TODO: validate attributes
+            if (attributes & SPELL_ATTR0_CU_SHARE_DAMAGE)
+            {
+                if (!spellInfo->HasEffect(SPELL_EFFECT_SCHOOL_DAMAGE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Spell %u listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
+                    continue;
+                }
+            }
 
             spellInfo->AttributesCu |= attributes;
             ++count;
