@@ -23,6 +23,7 @@
 #include "DBCStructure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
+#include "Unit.h"
 
 #include <boost/container/flat_set.hpp>
 
