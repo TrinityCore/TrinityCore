@@ -75,7 +75,7 @@ ObjectData const creatureData[] =
     { NPC_VERAS_DARKSHADOW,             DATA_VERAS_DARKSHADOW           },
     { NPC_BLOOD_ELF_COUNCIL_VOICE,      DATA_BLOOD_ELF_COUNCIL_VOICE    },
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
-    { 0,                                0                               } // end
+    { 0,                                0                               } // END
 };
 
 ObjectData const gameObjectData[] =
