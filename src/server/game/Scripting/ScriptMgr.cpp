@@ -2371,6 +2371,13 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
 }
 
 // AreaTriggerEntityScript
+void ScriptMgr::OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnInitialize(areaTrigger);
+}
 
 void ScriptMgr::OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger)
 {

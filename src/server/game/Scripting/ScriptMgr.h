@@ -844,6 +844,9 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         AreaTriggerEntityScript(const char* name);
 
     public:
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        virtual void OnInitialize(AreaTrigger* /*areaTrigger*/) { }
+
         // Called when the AreaTrigger has just been created
         virtual void OnCreate(AreaTrigger* /*areaTrigger*/) { }
 
@@ -1165,6 +1168,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* AreaTriggerEntityScript */
 
+        void OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger);
         void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
         void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
         void OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex);

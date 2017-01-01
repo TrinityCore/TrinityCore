@@ -32,7 +32,7 @@
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _reachedDestination(false), _lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
+    _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -117,6 +117,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     if (GetMiscTemplate()->HasSplines())
         InitSplineOffsets(GetMiscTemplate()->SplinePoints);
 
+    sScriptMgr->OnAreaTriggerEntityInitialize(this);
+
     if (!GetMap()->AddToMap(this))
         return false;
 
@@ -129,11 +131,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
 void AreaTrigger::Update(uint32 p_time)
 {
-    if (GetDuration() > int32(p_time))
-        _duration -= p_time;
-    else
-        Remove(); // expired
-
     WorldObject::Update(p_time);
     _timeSinceCreated += p_time;
 
@@ -146,6 +143,17 @@ void AreaTrigger::Update(uint32 p_time)
         UpdateSplinePosition();
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
+
+    if (GetDuration() != -1)
+    {
+        if (GetDuration() > int32(p_time))
+            _UpdateDuration(_duration - p_time);
+        else
+        {
+            Remove(); // expired
+            return;
+        }
+    }
 
     switch (GetTemplate()->Type)
     {
@@ -170,6 +178,8 @@ void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
+        _isRemoved = true;
+
         if (Unit* caster = GetCaster())
             caster->_UnregisterAreaTrigger(this);
 
@@ -187,7 +197,17 @@ void AreaTrigger::SetDuration(int32 newDuration)
 {
     _duration = newDuration;
     _totalDuration = newDuration;
-    SetUInt32Value(AREATRIGGER_DURATION, newDuration);
+
+    // negative duration (permanent areatrigger) sent as 0
+    SetUInt32Value(AREATRIGGER_DURATION, std::max(newDuration, 0));
+}
+
+void AreaTrigger::_UpdateDuration(int32 newDuration)
+{
+    _duration = newDuration;
+
+    // don't broadcast update
+    UpdateUInt32Value(AREATRIGGER_DURATION, _duration);
 }
 
 void AreaTrigger::SearchUnitInSphere()

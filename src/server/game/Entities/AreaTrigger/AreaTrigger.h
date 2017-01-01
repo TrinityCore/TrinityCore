@@ -38,6 +38,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
         void Update(uint32 p_time) override;
         void Remove();
+        bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
@@ -71,6 +72,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool CheckIsInPolygon2D(Position* pos) const;
 
     protected:
+        void _UpdateDuration(int32 newDuration);
+
         void AddAuras(Unit* unit);
         void RemoveAuras(Unit* unit);
         bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
@@ -84,6 +87,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         int32 _totalDuration;
         uint32 _timeSinceCreated;
         float _previousCheckOrientation;
+        bool _isRemoved;
 
         std::vector<AreaTriggerPolygonVertice> _polygonVertices;
         ::Movement::Spline<int32> _spline;
