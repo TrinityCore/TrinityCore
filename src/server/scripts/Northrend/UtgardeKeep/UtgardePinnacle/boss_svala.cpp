@@ -188,7 +188,7 @@ class boss_svala : public CreatureScript
                     events.SetPhase(INTRO);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
+                    if (GameObject* mirror = instance->GetGameObject(DATA_UTGARDE_MIRROR))
                         mirror->SetGoState(GO_STATE_READY);
 
                     if (Creature* arthas = me->SummonCreature(NPC_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
@@ -331,7 +331,7 @@ class boss_svala : public CreatureScript
                             break;
                         }
                         case EVENT_INTRO_DESPAWN_ARTHAS:
-                            if (GameObject* mirror = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_UTGARDE_MIRROR)))
+                            if (GameObject* mirror = instance->GetGameObject(DATA_UTGARDE_MIRROR))
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
