@@ -1,3 +1,4 @@
+/*
 -- Klaven Mortwake -- http://wotlk.openwow.com/npc=7053
 UPDATE `creature` SET `position_x` = -11124.1, `position_y` = 545.44, `position_z` = 70.4323, `orientation` = 1.72551, `Spawndist` = 0, MovementType = 0 WHERE guid = 66996;
 
@@ -38,3 +39,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (7053, 5, -11133.4,550.86,70.3957,  'Klaven Mortwake'),
 (7053, 6, -11132.2,539.132,70.3766, 'Klaven Mortwake'),
 (7053, 7, -11128.9,544.692,70.4022, 'Klaven Mortwake');
+*/

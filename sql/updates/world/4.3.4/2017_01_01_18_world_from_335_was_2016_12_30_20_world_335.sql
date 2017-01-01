@@ -1,3 +1,4 @@
+/*
 -- Horde Laborer SAI
 SET @GUID := -14429;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14718;
@@ -136,3 +137,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (14718, 18, 1034.2, -2114.47, 122.947,  'Horde Laborer'),
 (14718, 19, 1032.9, -2106.12, 122.947,  'Horde Laborer'),
 (14718, 20, 1029.66, -2104.47, 122.947, 'Horde Laborer'); -- work 3
+*/

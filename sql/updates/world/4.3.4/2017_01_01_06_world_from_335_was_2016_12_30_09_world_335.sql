@@ -1,3 +1,4 @@
+/*
 -- 
 -- Erin -- http://www.wowhead.com/npc=850/erin#comments
 SET @NPC := 6156;
@@ -48,4 +49,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 39, -9219.75, -2090.06, 81.5803, 0, 1),
 (@PATH, 40, -9207.11, -2090.25, 85.8603, 0, 1),
 (@PATH, 41, -9198.75, -2092.32, 87.6703, 0, 1);
-
+*/

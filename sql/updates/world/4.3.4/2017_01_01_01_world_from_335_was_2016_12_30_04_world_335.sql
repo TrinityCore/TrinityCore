@@ -1,3 +1,4 @@
+/*
 -- 
 SET @NPC := 101356;
 SET @PATH := @NPC * 10;
@@ -1569,3 +1570,4 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (37385, 36692, 3, 0, 2, 0, 0);
 
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN (70846, 70847, 70848, 70849, 36692);
+*/

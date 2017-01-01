@@ -1,3 +1,4 @@
+/*
 -- Nurse Lillian SAI -- http://wotlk.openwow.com/npc=5042
 SET @ENTRY := 5042;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
@@ -35,3 +36,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (5042, 13, -8755.62, 815.616, 97.635, 'Nurse Lillian'),
 (5042, 14, -8766.1, 820.151, 97.635, 'Nurse Lillian'),
 (5042, 15, -8766.37, 820.027, 97.635, 'Nurse Lillian');
+*/
