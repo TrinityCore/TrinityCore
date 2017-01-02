@@ -14,7 +14,7 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 cppformat (type safe format library)
   https://github.com/cppformat/cppformat
-  Version: 5174b8ca281426af604b85fdf53be8a748b33f56
+  Version: 3.0.1 7fa8f8fa48b0903deab5bb42e6760477173ac485
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
