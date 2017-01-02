@@ -61,6 +61,7 @@ enum BRDDataTypes
     DATA_SF_BRAZIER_N       = 25,
     DATA_SF_BRAZIER_S       = 26,
     DATA_MOIRA              = 27,
+    DATA_COREN              = 28
 };
 
 #endif
