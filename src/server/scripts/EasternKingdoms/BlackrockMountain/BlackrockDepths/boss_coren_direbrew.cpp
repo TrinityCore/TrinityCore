@@ -524,12 +524,12 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ(), SPELL_MOLE_MACHINE_MINION_SUMMONER, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MOLE_MACHINE_MINION_SUMMONER, true);
             }
 
             void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_direbrew_summon_mole_machine_target_picker_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_direbrew_summon_mole_machine_target_picker_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
