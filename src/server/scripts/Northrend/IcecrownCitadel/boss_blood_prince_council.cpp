@@ -462,10 +462,10 @@ struct BloodPrincesBossAI : public BossAI
         me->setActive(true);
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
             DoZoneInCombat(controller);
-        ScheduleTasks();
+        ScheduleEvents();
     }
 
-    virtual void ScheduleTasks() = 0;
+    virtual void ScheduleEvents() = 0;
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -625,7 +625,7 @@ class boss_prince_keleseth_icc : public CreatureScript
         {
             boss_prince_kelesethAI(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH) { }
 
-            void ScheduleTasks() override
+            void ScheduleEvents() override
             {
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                 events.ScheduleEvent(EVENT_SHADOW_RESONANCE, Seconds(10), Seconds(15));
@@ -703,7 +703,7 @@ class boss_prince_taldaram_icc : public CreatureScript
         {
             boss_prince_taldaramAI(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
 
-            void ScheduleTasks() override
+            void ScheduleEvents() override
             {
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                 events.ScheduleEvent(EVENT_GLITTERING_SPARKS, Seconds(12), Seconds(15));
@@ -788,7 +788,7 @@ class boss_prince_valanar_icc : public CreatureScript
         {
             boss_prince_valanarAI(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
 
-            void ScheduleTasks() override
+            void ScheduleEvents() override
             {
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                 events.ScheduleEvent(EVENT_KINETIC_BOMB, Seconds(18), Seconds(24));
