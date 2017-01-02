@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,6 @@ enum DirebrewNpcs
 
 enum DirebrewSpells
 {
-    SPELL_SUMMON_DIREBREW_MINION       = 47375,
     SPELL_MOLE_MACHINE_EMERGE          = 50313,
     SPELL_DIREBREW_DISARM_PRE_CAST     = 47407,
     SPELL_MOLE_MACHINE_TARGET_PICKER   = 47691,
@@ -65,20 +64,16 @@ enum DirebrewSpells
     SPELL_CHUCK_MUG                    = 50276,
     SPELL_PORT_TO_COREN                = 52850,
     SPELL_SEND_MUG_CONTROL_AURA        = 47369,
-    SPELL_SEND_MUG_FOAM_DISABLED       = 47372,
     SPELL_SEND_MUG_TARGET_PICKER       = 47370,
     SPELL_SEND_FIRST_MUG               = 47333,
     SPELL_SEND_SECOND_MUG              = 47339,
     SPELL_REQUEST_SECOND_MUG           = 47344,
     SPELL_HAS_DARK_BREWMAIDENS_BREW    = 47331,
-    SPELL_CREATE_DARK_BREWMAIDENS_BREW = 47345,
-    SPELL_DARK_BREWMAIDENS_STUN        = 47340,
-    SPELL_DARK_BREWMAIDENS_BREW        = 47376,
     SPELL_BARRELED_CONTROL_AURA        = 50278,
     SPELL_BARRELED                     = 47442
 };
 
-enum Phases
+enum DirebrewPhases
 {
     PHASE_ALL = 1,
     PHASE_INTRO,
@@ -87,7 +82,7 @@ enum Phases
     PHASE_THREE
 };
 
-enum Events
+enum DirebrewEvents
 {
     EVENT_INTRO_1 = 1,
     EVENT_INTRO_2,
@@ -114,7 +109,7 @@ Position const AntagonistPos[3] =
 {
     { 895.3782f, -132.1722f, -49.66423f, 2.6529f   },
     { 893.9837f, -133.2879f, -49.66541f, 2.583087f },
-    { 896.2667f, -130.483f,  -49.66249f, 2.600541f },
+    { 896.2667f, -130.483f,  -49.66249f, 2.600541f }
 };
 
 class boss_coren_direbrew : public CreatureScript
@@ -464,6 +459,7 @@ public:
     }
 };
 
+// 47407 - Direbrew's Disarm (precast)
 class spell_direbrew_disarm : public SpellScriptLoader
 {
     public:
@@ -475,7 +471,8 @@ class spell_direbrew_disarm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM) || !sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM_GROW))
+                if (!sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM)
+                    || !sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM_GROW))
                     return false;
                 return true;
             }
@@ -508,6 +505,7 @@ class spell_direbrew_disarm : public SpellScriptLoader
         }
 };
 
+// 47691 - Summon Mole Machine Target Picker
 class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoader
 {
     public:
@@ -541,6 +539,7 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
         }
 };
 
+// 47370 - Send Mug Target Picker
 class spell_send_mug_target_picker : public SpellScriptLoader
 {
     public:
@@ -553,8 +552,6 @@ class spell_send_mug_target_picker : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
-                if (!caster)
-                    return;
 
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
 
@@ -594,6 +591,7 @@ class spell_send_mug_target_picker : public SpellScriptLoader
         }
 };
 
+// 47344 - Request Second Mug
 class spell_request_second_mug : public SpellScriptLoader
 {
     public:
@@ -627,6 +625,7 @@ class spell_request_second_mug : public SpellScriptLoader
         }
 };
 
+// 47369 - Send Mug Control Aura
 class spell_send_mug_control_aura : public SpellScriptLoader
 {
     public:
@@ -660,6 +659,7 @@ class spell_send_mug_control_aura : public SpellScriptLoader
         }
 };
 
+// 50278 - Barreled Control Aura
 class spell_barreled_control_aura : public SpellScriptLoader
 {
     public:
