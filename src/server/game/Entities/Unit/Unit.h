@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -675,7 +675,7 @@ enum CombatRating
     CR_UNUSED_12                        = 31
 };
 
-#define MAX_COMBAT_RATING         31
+#define MAX_COMBAT_RATING         32
 
 enum DamageEffectType
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -7615,6 +7615,9 @@ void Player::ApplyArtifactPowers(Item* item, bool apply)
         if (!rank)
             continue;
 
+        if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->Flags & ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS)
+            rank = 1;
+
         ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, rank - 1);
         if (!artifactPowerRank)
             continue;
@@ -8019,6 +8022,28 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
     }
 }
 
+ObjectGuid Player::GetLootWorldObjectGUID(ObjectGuid const& lootObjectGuid) const
+{
+    auto itr = m_AELootView.find(lootObjectGuid);
+    if (itr != m_AELootView.end())
+        return itr->second;
+
+    return ObjectGuid::Empty;
+}
+
+void Player::RemoveAELootedObject(ObjectGuid const& lootObjectGuid)
+{
+    m_AELootView.erase(lootObjectGuid);
+}
+
+bool Player::HasLootWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
+{
+    return m_AELootView.end() != std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid, ObjectGuid> const& lootView)
+    {
+        return lootView.second == lootWorldObjectGuid;
+    });
+}
+
 /*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
@@ -8060,10 +8085,15 @@ void Player::SendLootRelease(ObjectGuid guid) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendLoot(ObjectGuid guid, LootType loot_type)
+void Player::SendLootReleaseAll() const
+{
+    SendDirectMessage(WorldPackets::Loot::LootReleaseAll().Write());
+}
+
+void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = false*/)
 {
     ObjectGuid currentLootGuid = GetLootGUID();
-    if (!currentLootGuid.IsEmpty())
+    if (!currentLootGuid.IsEmpty() && !aeLooting)
         m_session->DoLootRelease(currentLootGuid);
 
     Loot* loot;
@@ -8244,7 +8274,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
         Creature* creature = GetMap()->GetCreature(guid);
 
         // must be in range and creature must be alive for pickpocket and must be dead for another loot
-        if (!creature || creature->IsAlive() != (loot_type == LOOT_PICKPOCKETING) || !creature->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+        if (!creature || creature->IsAlive() != (loot_type == LOOT_PICKPOCKETING) || (!aeLooting && !creature->IsWithinDistInMap(this, INTERACTION_DISTANCE)))
         {
             SendLootRelease(guid);
             return;
@@ -8278,7 +8308,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 }
                 else
                 {
-                    SendLootError(guid, LOOT_ERROR_ALREADY_PICKPOCKETED);
+                    SendLootError(loot->GetGUID(), guid, LOOT_ERROR_ALREADY_PICKPOCKETED);
                     return;
                 }
             } // else - still has pickpocket loot generated & not fully taken
@@ -8381,34 +8411,38 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             }
         }
 
-        SetLootGUID(guid);
+        if (!aeLooting)
+            SetLootGUID(guid);
 
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = guid;
-        packet.Owner = loot->GetGUID();
+        packet.Owner = guid;
+        packet.LootObj = loot->GetGUID();
         packet._LootMethod = _lootMethod;
         packet.AcquireReason = loot_type;
         packet.Acquired = true; // false == No Loot (this too^^)
+        packet.AELooting = aeLooting;
         loot->BuildLootResponse(packet, this, permission);
         SendDirectMessage(packet.Write());
 
         // add 'this' player as one of the players that are looting 'loot'
         loot->AddLooter(GetGUID());
+        m_AELootView[loot->GetGUID()] = guid;
     }
     else
-        SendLootError(GetLootGUID(), LOOT_ERROR_DIDNT_KILL);
+        SendLootError(loot->GetGUID(), guid, LOOT_ERROR_DIDNT_KILL);
 
     if (loot_type == LOOT_CORPSE && !guid.IsItem())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendLootError(ObjectGuid guid, LootError error) const
+void Player::SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, LootError error) const
 {
-    WorldPacket data(SMSG_LOOT_RESPONSE, 10);
-    data << guid;
-    data << uint8(LOOT_NONE);
-    data << uint8(error);
-    SendDirectMessage(&data);
+    WorldPackets::Loot::LootResponse lootResponse;
+    lootResponse.LootObj = lootObj;
+    lootResponse.Owner = owner;
+    lootResponse.Acquired = false;
+    lootResponse.FailureReason = error;
+    SendDirectMessage(lootResponse.Write());
 }
 
 void Player::SendNotifyLootMoneyRemoved(ObjectGuid lootObj) const
@@ -8418,13 +8452,12 @@ void Player::SendNotifyLootMoneyRemoved(ObjectGuid lootObj) const
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendNotifyLootItemRemoved(ObjectGuid owner, ObjectGuid lootObj, uint8 lootSlot) const
+void Player::SendNotifyLootItemRemoved(ObjectGuid lootObj, uint8 lootSlot) const
 {
     WorldPackets::Loot::LootRemoved packet;
-    packet.Owner = owner;
+    packet.Owner = GetLootWorldObjectGUID(lootObj);
     packet.LootObj = lootObj;
-    // Since 6.x client expects loot to be starting from 1 hence the +1
-    packet.LootListID = lootSlot+1;
+    packet.LootListID = lootSlot + 1;
     GetSession()->SendPacket(packet.Write());
 }
 
@@ -11421,7 +11454,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, int32 randomPropertyId /*= 0*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomEnchantmentId const& randomPropertyId /*= {}*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11434,8 +11467,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, itemId, count);
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
 
-        if (randomPropertyId)
-            item->SetItemRandomProperties(randomPropertyId);
+        item->SetItemRandomProperties(randomPropertyId);
 
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
@@ -11473,7 +11505,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             {
                 ItemPosCountVec childDest;
                 CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, childDest, childTemplate, count, false, nullptr, NULL_BAG, NULL_SLOT);
-                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, 0, {}, {}, addToCollection))
+                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, {}, addToCollection))
                 {
                     childItem->SetGuidValue(ITEM_FIELD_CREATOR, item->GetGUID());
                     childItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD);
@@ -18002,18 +18034,20 @@ void Player::LoadCorpse(PreparedQueryResult result)
 
 void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, uint32 timeDiff)
 {
-    //           0          1            2                3      4         5        6      7             8                 9          10          11    12
-    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
-    //               13                  14                  15              16                  17            18
+    //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
+    //               14                  15                  16              17                  18            19
     //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-    //                                    19                           20                           21                           22                           23
+    //                                    20                           21                           22                           23                           24
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-    //                                  24                        25                          26                         27                         28
+    //                                  25                        26                          27                         28                         29
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                29           30           31                32          33           34           35                36          37           38           39                40
+    //                30           31           32                33          34           35           36                37          38           39           40                41
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       41                      42   43    44
-    //        fixedScalingLevel, artifactKnowledgeLevel, bag, slot
+    //                       42                      43
+    //        fixedScalingLevel, artifactKnowledgeLevel
+    //         44    45
+    //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
     // LEFT JOIN item_instance_gems ig ON ii.guid = ig.itemGuid
@@ -18075,8 +18109,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
                     item->LoadArtifactData(std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
 
-                ObjectGuid bagGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[43].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[44].GetUInt8();
+                ObjectGuid bagGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[44].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[45].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18210,13 +18244,13 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
         ObjectGuid creatorGuid = fields[3].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()) : ObjectGuid::Empty;
-        uint32 randomProperty = fields[4].GetUInt32();
-        uint32 suffixFactor = fields[5].GetUInt32();
-        uint32 upgradeId = fields[6].GetUInt32();
-        uint32 fixedScalingLevel = fields[7].GetUInt32();
-        uint32 artifactKnowledgeLevel = fields[8].GetUInt32();
+        ItemRandomEnchantmentId randomProperty(ItemRandomEnchantmentType(fields[4].GetUInt8()), fields[5].GetUInt32());
+        uint32 suffixFactor = fields[6].GetUInt32();
+        uint32 upgradeId = fields[7].GetUInt32();
+        uint32 fixedScalingLevel = fields[8].GetUInt32();
+        uint32 artifactKnowledgeLevel = fields[9].GetUInt32();
         std::vector<uint32> bonusListIDs;
-        Tokenizer bonusListIdTokens(fields[9].GetString(), ' ');
+        Tokenizer bonusListIdTokens(fields[10].GetString(), ' ');
         for (char const* token : bonusListIdTokens)
             bonusListIDs.push_back(atoul(token));
 
@@ -18417,7 +18451,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[43].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[44].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -19955,21 +19989,21 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt8(3, i);
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
-            stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
-            stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
-            stmt->setUInt32(7, _voidStorageItems[i]->ItemUpgradeId);
-            stmt->setUInt32(8, _voidStorageItems[i]->FixedScalingLevel);
-            stmt->setUInt32(9, _voidStorageItems[i]->ArtifactKnowledgeLevel);
+            stmt->setUInt8(5, uint8(_voidStorageItems[i]->ItemRandomPropertyId.Type));
+            stmt->setUInt32(6, _voidStorageItems[i]->ItemRandomPropertyId.Id);
+            stmt->setUInt32(7, _voidStorageItems[i]->ItemSuffixFactor);
+            stmt->setUInt32(8, _voidStorageItems[i]->ItemUpgradeId);
+            stmt->setUInt32(9, _voidStorageItems[i]->FixedScalingLevel);
+            stmt->setUInt32(10, _voidStorageItems[i]->ArtifactKnowledgeLevel);
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
-            stmt->setString(10, bonusListIDs.str());
+            stmt->setString(11, bonusListIDs.str());
         }
 
         trans->Append(stmt);
     }
 }
-
 
 void Player::_SaveCUFProfiles(SQLTransaction& trans)
 {
@@ -25110,7 +25144,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     }
 }
 
-void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
+void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* = nullptr*/)
 {
     QuestItem* qitem = nullptr;
     QuestItem* ffaitem = nullptr;
@@ -25126,14 +25160,14 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
     if (!item->AllowedForPlayer(this))
     {
-        SendLootRelease(GetLootGUID());
+        SendLootReleaseAll();
         return;
     }
 
     // questitems use the blocked field for other purposes
     if (!qitem && item->is_blocked)
     {
-        SendLootRelease(GetLootGUID());
+        SendLootReleaseAll();
         return;
     }
 
@@ -25148,7 +25182,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(GetLootGUID(), loot->GetGUID(), lootSlot);
+                SendNotifyLootItemRemoved(loot->GetGUID(), lootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -25158,7 +25192,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(GetLootGUID(), loot->GetGUID(), lootSlot);
+                SendNotifyLootItemRemoved(loot->GetGUID(), lootSlot);
             }
             else
             {
@@ -25180,10 +25214,16 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
                 if (Guild* guild = GetGuild())
                     guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
-        SendNewItem(newitem, uint32(item->count), false, false, true);
-        UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
-        UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, item->itemid, item->count, loot->loot_type);
-        UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+        // if aeLooting then we must delay sending out item so that it appears properly stacked in chat
+        if (!aeResult)
+        {
+            SendNewItem(newitem, uint32(item->count), false, false, true);
+            UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
+            UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, item->itemid, item->count, loot->loot_type);
+            UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+        }
+        else
+            aeResult->Add(newitem, item->count, loot->loot_type);
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (!loot->containerID.IsEmpty())

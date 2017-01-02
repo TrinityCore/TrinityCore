@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -155,7 +155,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         }
 
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR),
-            item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID),
+            item->GetItemRandomEnchantmentId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID),
             item->GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
             item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
 

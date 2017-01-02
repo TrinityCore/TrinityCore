@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -511,9 +511,8 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
-        ObjectGuid lguid = _player->GetLootGUID();
-        if (!lguid.IsEmpty())
-            DoLootRelease(lguid);
+        if (!_player->GetLootGUID().IsEmpty())
+            DoLootReleaseAll();
 
         ///- If the player just died before logging out, make him appear as a ghost
         if (_player->GetDeathTimer())

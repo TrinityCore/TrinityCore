@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2779,6 +2779,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             }
 
             // TODO: validate attributes
+            if (attributes & SPELL_ATTR0_CU_SHARE_DAMAGE)
+            {
+                if (!spellInfo->HasEffect(SPELL_EFFECT_SCHOOL_DAMAGE))
+                {
+                    TC_LOG_ERROR("sql.sql", "Spell %u listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
+                    continue;
+                }
+            }
 
             spellInfo->AttributesCu |= attributes;
             ++count;
