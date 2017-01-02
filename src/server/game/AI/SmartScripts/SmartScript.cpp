@@ -2057,6 +2057,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_GO_SET_GO_STATE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetGoState((GOState)e.action.goState.state);
+
+            delete targets;
+            break;
+        }
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         {
             ObjectList* targets = GetTargets(e, unit);
