@@ -335,8 +335,6 @@ struct PalehoofMinionsBossAI : public BossAI
         ScheduleTasks();
     }
 
-    virtual void ScheduleTasks() = 0;
-
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_START_FIGHT)
