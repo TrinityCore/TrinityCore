@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1737,57 +1737,13 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
+    SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(GetMiscValue());
+    ASSERT(shapeInfo, "Spell %u uses unknown ShapeshiftForm (%u).", GetId(), GetMiscValue());
+
     Unit* target = aurApp->GetTarget();
 
-    uint32 modelid = 0;
-    Powers PowerType = POWER_MANA;
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
-
-    switch (form)
-    {
-        case FORM_CAT_FORM:
-        case FORM_GHOUL:
-        case FORM_TIGER_STANCE:
-        case FORM_OX_STANCE:
-            PowerType = POWER_ENERGY;
-            break;
-
-        case FORM_BEAR_FORM:
-
-        case FORM_BATTLE_STANCE:
-        case FORM_DEFENSIVE_STANCE:
-        case FORM_BERSERKER_STANCE:
-            PowerType = POWER_RAGE;
-            break;
-
-        case FORM_TREE_OF_LIFE:
-        case FORM_TRAVEL_FORM:
-        case FORM_AQUATIC_FORM:
-        case FORM_AMBIENT:
-
-        case FORM_THARONJA_SKELETON:
-        case FORM_DARKMOON_TEST_OF_STRENGTH:
-        case FORM_BLB_PLAYER:
-        case FORM_SHADOW_DANCE:
-        case FORM_CRANE_STANCE:
-        case FORM_GHOST_WOLF:
-
-        case FORM_SERPENT_STANCE:
-        case FORM_ZOMBIE:
-        case FORM_METAMORPHOSIS:
-        case FORM_UNDEAD:
-        case FORM_FLIGHT_FORM_EPIC:
-        case FORM_SHADOWFORM:
-        case FORM_FLIGHT_FORM:
-        case FORM_STEALTH:
-        case FORM_MOONKIN_FORM:
-        case FORM_SPIRIT_OF_REDEMPTION:
-            break;
-        default:
-            TC_LOG_ERROR("spells", "Auras: Unknown Shapeshift Type: %u", GetMiscValue());
-    }
-
-    modelid = target->GetModelForForm(form);
+    uint32 modelid = target->GetModelForForm(form);
 
     if (apply)
     {
@@ -1919,8 +1875,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        SpellShapeshiftFormEntry const* shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
-        ASSERT(shapeInfo);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
         for (uint8 i = 0; i < MAX_SHAPESHIFT_SPELLS; ++i)
         {
