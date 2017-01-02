@@ -579,7 +579,7 @@ class spell_palehoof_crazed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_palehoof_crazed_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_CRAZED_TAUNT);
             }
@@ -645,7 +645,7 @@ class spell_palehoof_awaken_subboss : public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
                 GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
