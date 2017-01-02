@@ -1522,7 +1522,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest.x, dest.y, dest.z, e.action.MoveToPos.disablePathfinding == 0);
             }
             else
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
+            {
+                float x, y, z;
+                x = target->GetPositionX();
+                y = target->GetPositionY();
+                z = target->GetPositionZ();
+                target->GetContactPoint(me, x, y, z, e.action.MoveToPos.ContactDistance);
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
+
+            }
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
