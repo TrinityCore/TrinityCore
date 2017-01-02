@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "black_temple.h"
+#include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "PassiveAI.h"
 #include "InstanceScript.h"
