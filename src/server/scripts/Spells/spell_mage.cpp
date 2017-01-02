@@ -68,7 +68,9 @@ enum MageSpells
 
 enum MageSpellIcons
 {
-    SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945
+    SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945,
+    SPELL_ICON_MAGE_PRESENCE_OF_MIND  = 139,
+    SPELL_ICON_MAGE_CLEARCASTING      = 212
 };
 
 // Incanter's Absorbtion
@@ -114,6 +116,16 @@ class spell_mage_arcane_potency : public SpellScriptLoader
                 return true;
             }
 
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                // due to family mask sharing with brain freeze/missile barrage proc, we need to filter out by icon id
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || (spellInfo->SpellIconID != SPELL_ICON_MAGE_CLEARCASTING && spellInfo->SpellIconID != SPELL_ICON_MAGE_PRESENCE_OF_MIND))
+                    return false;
+
+                return true;
+            }
+
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggerSpell[2] = { SPELL_MAGE_ARCANE_POTENCY_RANK_1, SPELL_MAGE_ARCANE_POTENCY_RANK_2 };
@@ -126,6 +138,7 @@ class spell_mage_arcane_potency : public SpellScriptLoader
 
             void Register() override
             {
+                DoCheckProc += AuraCheckProcFn(spell_mage_arcane_potency_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_mage_arcane_potency_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };

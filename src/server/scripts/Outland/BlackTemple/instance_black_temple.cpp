@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,7 +70,7 @@ ObjectData const creatureData[] =
     { NPC_VERAS_DARKSHADOW,             DATA_VERAS_DARKSHADOW           },
     { NPC_BLOOD_ELF_COUNCIL_VOICE,      DATA_BLOOD_ELF_COUNCIL_VOICE    },
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
-    { 0,                                0                               } // end
+    { 0,                                0                               } // END
 };
 
 ObjectData const gameObjectData[] =
@@ -105,6 +105,28 @@ class instance_black_temple : public InstanceMapScript
                         HandleGameObject(ObjectGuid::Empty, true, go);
             }
 
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_ASHTONGUE_STALKER:
+                    case NPC_ASHTONGUE_BATTLELORD:
+                    case NPC_ASHTONGUE_MYSTIC:
+                    case NPC_ASHTONGUE_PRIMALIST:
+                    case NPC_ASHTONGUE_STORMCALLER:
+                    case NPC_ASHTONGUE_FERAL_SPIRIT:
+                    case NPC_STORM_FURY:
+                        AshtongueGUIDs.emplace_back(creature->GetGUID());
+                        if (GetBossState(DATA_SHADE_OF_AKAMA) == DONE)
+                            creature->setFaction(ASHTONGUE_FACTION_FRIEND);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -118,6 +140,11 @@ class instance_black_temple : public InstanceMapScript
                                 trigger->AI()->Talk(EMOTE_HIGH_WARLORD_NAJENTUS_DIED);
                         break;
                     case DATA_SHADE_OF_AKAMA:
+                        if (state == DONE)
+                            for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
+                                if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
+                                    ashtongue->setFaction(ASHTONGUE_FACTION_FRIEND);
+                        // no break
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
                     case DATA_RELIQUARY_OF_SOULS:
@@ -144,6 +171,8 @@ class instance_black_temple : public InstanceMapScript
                         return false;
                 return true;
             }
+        protected:
+            GuidVector AshtongueGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
