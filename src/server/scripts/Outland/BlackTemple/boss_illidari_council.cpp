@@ -266,10 +266,10 @@ struct IllidariCouncilBossAI : public BossAI
         me->setActive(true);
         if (Creature* illidari = instance->GetCreature(DATA_ILLIDARI_COUNCIL))
             DoZoneInCombat(illidari);
-        ScheduleTasks();
+        ScheduleEvents();
     }
 
-    virtual void ScheduleTasks() = 0;
+    virtual void ScheduleEvents() = 0;
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -325,7 +325,7 @@ public:
     {
         boss_gathios_the_shattererAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_GATHIOS_THE_SHATTERER) { }
 
-        void ScheduleTasks() override
+        void ScheduleEvents() override
         {
             DoCastSelf(SPELL_SEAL_OF_BLOOD);
             events.ScheduleEvent(EVENT_BLESS, Seconds(20));
@@ -399,7 +399,7 @@ public:
             DoCastSelf(SPELL_DAMPEN_MAGIC);
         }
 
-        void ScheduleTasks() override
+        void ScheduleEvents() override
         {
             events.ScheduleEvent(EVENT_FLAMESTRIKE, Seconds(8));
             events.ScheduleEvent(EVENT_BLIZZARD, Seconds(25));
@@ -487,7 +487,7 @@ public:
     {
         boss_lady_malandeAI(Creature* creature) : IllidariCouncilBossAI(creature, DATA_LADY_MALANDE) { }
 
-        void ScheduleTasks() override
+        void ScheduleEvents() override
         {
             events.ScheduleEvent(EVENT_CIRCLE_OF_HEALING, Seconds(20));
             events.ScheduleEvent(EVENT_REFLECTIVE_SHIELD, Seconds(25));
@@ -564,7 +564,7 @@ public:
             me->SetFullHealth();
         }
 
-        void ScheduleTasks() override
+        void ScheduleEvents() override
         {
             events.ScheduleEvent(EVENT_DEADLY_STRIKE, Seconds(18));
             events.ScheduleEvent(EVENT_VANISH, Seconds(18));
