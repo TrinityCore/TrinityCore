@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -772,11 +772,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ProfessorPutricideGUID;
                     case DATA_PUTRICIDE_TABLE:
                         return PutricideTableGUID;
-                    case DATA_PRINCE_KELESETH_GUID:
+                    case DATA_PRINCE_KELESETH:
                         return BloodCouncilGUIDs[0];
-                    case DATA_PRINCE_TALDARAM_GUID:
+                    case DATA_PRINCE_TALDARAM:
                         return BloodCouncilGUIDs[1];
-                    case DATA_PRINCE_VALANAR_GUID:
+                    case DATA_PRINCE_VALANAR:
                         return BloodCouncilGUIDs[2];
                     case DATA_BLOOD_PRINCES_CONTROL:
                         return BloodCouncilControllerGUID;

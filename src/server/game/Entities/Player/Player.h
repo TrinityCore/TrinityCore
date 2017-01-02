@@ -1607,9 +1607,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr);
         template <SpellModOp op, class T>
         void ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell = nullptr) const;
-        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
-        void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
+        static bool HasSpellModApplied(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
@@ -1958,6 +1957,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ResetAllPowers();
 
+        void CastAllObtainSpells();
+        void ApplyItemObtainSpells(Item* item, bool apply);
         void ApplyItemDependentAuras(Item* item, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
@@ -2634,7 +2635,7 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
         case SPELLMOD_CASTING_TIME:
         {
             SpellModifier* modInstantSpell = nullptr;
-            for (SpellModifier* mod : m_spellMods[SPELLMOD_CASTING_TIME])
+            for (SpellModifier* mod : m_spellMods[op])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -2658,7 +2659,7 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
         case SPELLMOD_CRITICAL_CHANCE:
         {
             SpellModifier* modCritical = nullptr;
-            for (SpellModifier* mod : m_spellMods[SPELLMOD_CRITICAL_CHANCE])
+            for (SpellModifier* mod : m_spellMods[op])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -2694,14 +2695,22 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
                 break;
             case SPELLMOD_PCT:
             {
-                // skip percent mods for null basevalue (most important for spell mods with charges)
+                // skip percent mods with null basevalue (most important for spell mods with charges)
                 if (basevalue == T(0))
                     continue;
 
                 // special case (skip > 10sec spell casts for instant cast setting)
-                if (op == SPELLMOD_CASTING_TIME)
+                if (op == SPELLMOD_CASTING_TIME && mod->value <= -100 && basevalue >= T(10000))
+                    continue;
+                else if (!Player::HasSpellModApplied(mod, spell))
                 {
-                    if (mod->value <= -100 && basevalue >= T(10000))
+                    // special case for Surge of Light, don't apply critical chance reduction if other mods not applied (ie procs while casting another spell)
+                    // (Surge of Light is the only PCT_MOD on critical chance)
+                    if (op == SPELLMOD_CRITICAL_CHANCE)
+                        continue;
+                    // special case for Backdraft, dont' apply GCD reduction if cast time reduction wasn't applied (ie when Backlash is consumed first)
+                    // (Backdraft is the only PCT_MOD on global cooldown)
+                    else if (op == SPELLMOD_GLOBAL_COOLDOWN)
                         continue;
                 }
 

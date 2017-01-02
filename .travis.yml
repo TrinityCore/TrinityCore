@@ -9,11 +9,16 @@ git:
   depth: 1
 
 before_install:
+  - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+  - echo "yes" | sudo add-apt-repository 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main'
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install clang-3.9
   - sudo apt-get -qq install build-essential libtool make cmake cmake-data openssl
   - sudo apt-get -qq install libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
   - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-filesystem1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev libboost-iostreams1.55-dev
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init
+  - export CC=clang-3.9 CXX=clang++-3.9
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
