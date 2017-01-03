@@ -1523,10 +1523,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             else
             {
-                Position Pos = target->GetPosition();
-                Pos.m_positionZ = target->GetPositionZ();
-                target->MovePosition(Pos, e.action.MoveToPos.ContactDistance, me->GetAngle(target));
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, Pos, e.action.MoveToPos.disablePathfinding == 0);
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                if (e.action.MoveToPos.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.MoveToPos.ContactDistance);
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
             }
             break;
         }
