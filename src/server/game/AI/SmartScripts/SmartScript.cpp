@@ -1523,6 +1523,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             else
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
+            
+            if (e.GetTargetType() == SMART_TARGET_HOME_POSITION)
+                me->GetMotionMaster()->MoveTargetedHome();
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -2750,6 +2753,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             }
         }
         case SMART_TARGET_POSITION:
+        case SMART_TARGET_HOME_POSITION:
         case SMART_TARGET_NONE:
         default:
             break;

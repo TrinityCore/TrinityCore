@@ -1116,8 +1116,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist, playerOnly
     SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
     SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
+    SMART_TARGET_HOME_POSITION                  = 28,   // Home Position
 
-    SMART_TARGET_END                            = 28
+    SMART_TARGET_END                            = 29
 };
 
 struct SmartTarget
