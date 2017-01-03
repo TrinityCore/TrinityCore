@@ -106,18 +106,18 @@ enum Misc
 class WormAttackEvent : public BasicEvent
 {
 public:
-    WormAttackEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+    WormAttackEvent(TempSummon* owner) : BasicEvent(), _owner(owner) { }
 
     bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
     {
         _owner->SetReactState(REACT_AGGRESSIVE);
-        _owner->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+        _owner->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
         _owner->SetInCombatWithZone();
         return true;
     }
 
 private:
-    Creature* _owner;
+    TempSummon* _owner;
 };
 
 class OrbFinalPositionEvent : public BasicEvent
@@ -510,7 +510,7 @@ public:
         {
             if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
             {
-                summon->m_Events.AddEvent(new WormAttackEvent(summon), summon->m_Events.CalculateTime(2000));
+                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2000));
                 summon->GetMotionMaster()->MoveRandom(5.0f);
             }
         }
@@ -558,6 +558,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
+        {
             if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
                 if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
                 {
@@ -565,6 +566,7 @@ public:
                     go->SetGoState(GO_STATE_ACTIVE);
                     palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
                 }
+        }
         return true;
     }
 };
