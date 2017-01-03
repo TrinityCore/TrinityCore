@@ -18,13 +18,16 @@
 #ifndef TRINITYCORE_AREATRIGGER_H
 #define TRINITYCORE_AREATRIGGER_H
 
+#include "MoveSplineInitArgs.h"
 #include "Object.h"
-#include "ObjectAccessor.h"
 #include "Position.h"
-#include "AreaTriggerTemplate.h"
+#include "Spline.h"
 
-class Unit;
+class AreaTriggerTemplate;
+class AreaTriggerMiscTemplate;
 class SpellInfo;
+class Unit;
+struct AreaTriggerPolygonVertice;
 
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
@@ -56,12 +59,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
         AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
-        AreaTriggerTemplate const* GetTemplate() const { return _areaTriggerMiscTemplate->Template; }
-        uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+        AreaTriggerTemplate const* GetTemplate() const;
+        uint32 GetScriptId() const;
 
         ObjectGuid const& GetCasterGuid() const { return GetGuidValue(AREATRIGGER_CASTER); }
-        Unit* GetCaster() const { return ObjectAccessor::GetUnit(*this, GetCasterGuid()); }
-        Unit* GetTarget() const { return ObjectAccessor::GetUnit(*this, _targetGuid); }
+        Unit* GetCaster() const;
+        Unit* GetTarget() const;
 
         void InitSplineOffsets(::Movement::PointsArray splinePoints);
         void InitSplines(::Movement::PointsArray const& splinePoints);

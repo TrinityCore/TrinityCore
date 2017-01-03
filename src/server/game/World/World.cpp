@@ -22,6 +22,7 @@
 
 #include "World.h"
 #include "AchievementMgr.h"
+#include "AreaTriggerDataStore.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
@@ -1795,7 +1796,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPetNames();
 
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
-    sObjectMgr->LoadAreaTriggerTemplates();
+    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();

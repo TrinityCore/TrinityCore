@@ -45,6 +45,7 @@
 #include "BattlefieldMgr.h"
 #include "MiscPackets.h"
 #include "InstanceScenario.h"
+#include "AreaTriggerTemplate.h"
 
 Object::Object()
 {

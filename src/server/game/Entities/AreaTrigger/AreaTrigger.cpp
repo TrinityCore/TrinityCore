@@ -16,13 +16,14 @@
  */
 
 #include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
+#include "AreaTriggerTemplate.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "Object.h"
-#include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"
@@ -79,7 +80,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         return false;
     }
 
-    _areaTriggerMiscTemplate = sObjectMgr->GetAreaTriggerMiscTemplate(spellMiscId);
+    _areaTriggerMiscTemplate = sAreaTriggerDataStore->GetAreaTriggerMiscTemplate(spellMiscId);
     if (!_areaTriggerMiscTemplate)
     {
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
@@ -340,6 +341,26 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> newTargetList)
             sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
         }
     }
+}
+
+AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
+{
+    return _areaTriggerMiscTemplate->Template;
+}
+
+uint32 AreaTrigger::GetScriptId() const
+{
+    return GetTemplate()->ScriptId;
+}
+
+Unit* AreaTrigger::GetCaster() const
+{
+    return ObjectAccessor::GetUnit(*this, GetCasterGuid());
+}
+
+Unit* AreaTrigger::GetTarget() const
+{
+    return ObjectAccessor::GetUnit(*this, _targetGuid);
 }
 
 void AreaTrigger::UpdatePolygonOrientation()

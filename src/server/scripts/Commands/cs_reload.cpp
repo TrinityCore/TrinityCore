@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "AreaTriggerDataStore.h"
 #include "AuctionHouseMgr.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
@@ -1131,7 +1132,7 @@ public:
     static bool HandleReloadAreaTriggerTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading areatrigger_template table...");
-        sObjectMgr->LoadAreaTriggerTemplates();
+        sAreaTriggerDataStore->LoadAreaTriggerTemplates();
         handler->SendGlobalGMSysMessage("AreaTrigger templates reloaded. Already spawned AT won't be affected. New scriptname need a reboot.");
         return true;
     }

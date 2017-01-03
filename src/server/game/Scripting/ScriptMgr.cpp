@@ -2394,7 +2394,8 @@ void ScriptMgr::OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff)
     GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
     tmpscript->OnUpdate(areaTrigger, diff);
 }
-
+// place include here to signify its debug intention only!!!
+#include "AreaTriggerTemplate.h"
 void ScriptMgr::OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex)
 {
     ASSERT(areaTrigger);
