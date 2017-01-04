@@ -23,6 +23,15 @@
 #include <unordered_map>
 #include <map>
 
+enum GroupAIs
+{
+    GROUP_AI_NOASSIST_FOLLOW         = 0,
+    GROUP_AI_ASSISTLEADER_FOLLOW     = 1,
+    GROUP_AI_ASSISTGROUP_FOLLOW      = 2,
+    GROUP_AI_ASSISTGROUP_NOFOLLOW    = 3,
+    GROUP_AI_ASSISTLEADER_NOFOLLOW   = 4
+};
+
 class Creature;
 class CreatureGroup;
 
