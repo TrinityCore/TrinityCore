@@ -2404,7 +2404,7 @@ void ScriptMgr::OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, 
     if (Unit* caster = areaTrigger->GetCaster())
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
-                player->SummonCreature(WORLD_TRIGGER, areaTrigger->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, areaTrigger->GetMiscTemplate()->TimeToTarget);
+                player->SummonCreature(WORLD_TRIGGER, areaTrigger->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, areaTrigger->GetTimeToTarget());
 
     GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
     tmpscript->OnSplineIndexReached(areaTrigger, splineIndex);

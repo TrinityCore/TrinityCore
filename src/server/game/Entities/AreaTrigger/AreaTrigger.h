@@ -66,11 +66,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
-        void InitSplineOffsets(::Movement::PointsArray splinePoints);
-        void InitSplines(::Movement::PointsArray const& splinePoints);
+        void InitSplineOffsets(::Movement::PointsArray splinePoints, uint32 timeToTarget);
+        void InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
-        uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: fix me
+        uint32 GetElapsedTimeForMovement() const { return _totalMovementTime; }
 
         bool CheckIsInPolygon2D(Position* pos) const;
 
@@ -82,7 +82,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
 
         void UpdatePolygonOrientation();
-        void UpdateSplinePosition();
+        void UpdateSplinePosition(uint32 diff);
 
         ObjectGuid _targetGuid;
 
@@ -97,6 +97,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         bool _reachedDestination;
         int32 _lastSplineIndex;
+        uint32 _movementTime;
+        uint32 _totalMovementTime;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;

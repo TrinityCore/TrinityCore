@@ -17,6 +17,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
+#include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
 #include "CellImpl.h"
 #include "Chat.h"
@@ -33,7 +34,8 @@
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _areaTriggerMiscTemplate(nullptr)
+    _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _movementTime(0), _totalMovementTime(0),
+    _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -100,8 +102,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET, GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : duration);
-    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : duration);
+    uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
+    SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : GetUInt32Value(AREATRIGGER_DURATION));
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
 
     CopyPhaseFrom(caster);
@@ -116,7 +118,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         UpdatePolygonOrientation();
 
     if (GetMiscTemplate()->HasSplines())
-        InitSplineOffsets(GetMiscTemplate()->SplinePoints);
+        InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
 
     sScriptMgr->OnAreaTriggerEntityInitialize(this);
 
@@ -141,7 +143,7 @@ void AreaTrigger::Update(uint32 p_time)
             GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
     }
     else
-        UpdateSplinePosition();
+        UpdateSplinePosition(p_time);
 
     sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
 
@@ -208,7 +210,10 @@ void AreaTrigger::_UpdateDuration(int32 newDuration)
     _duration = newDuration;
 
     // don't broadcast update
-    UpdateUInt32Value(AREATRIGGER_DURATION, _duration);
+    // should be sent in object create packets only
+    // needs more search
+    //UpdateUInt32Value(AREATRIGGER_DURATION, _duration);
+    m_uint32Values[AREATRIGGER_DURATION] = _duration;
 }
 
 void AreaTrigger::SearchUnitInSphere()
@@ -526,7 +531,7 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
     return true;
 }
 
-void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints)
+void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints, uint32 timeToTarget)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -542,19 +547,39 @@ void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints)
         spline.z += GetPositionZ();
     }
 
-    InitSplines(splinePoints);
+    InitSplines(splinePoints, timeToTarget);
 }
 
-void AreaTrigger::InitSplines(::Movement::PointsArray const& splinePoints)
+void AreaTrigger::InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget)
 {
     if (splinePoints.size() < 2)
         return;
 
+    _movementTime = 0;
+
     _spline.init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
     _spline.initLengths();
+
+    // temporary until we have a better solution
+    // should be sent in object create packets only
+    // needs more search
+    //UpdateUInt32Value(AREATRIGGER_TIME_TO_TARGET, timeToTarget);
+    m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
+
+    if (IsInWorld())
+    {
+        WorldPackets::AreaTrigger::AreaTriggerReShape reshape;
+        reshape.TriggerGUID = GetGUID();
+        reshape.AreaTriggerSpline = boost::in_place();
+        reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
+        reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
+        reshape.AreaTriggerSpline->Points = splinePoints;
+
+        SendMessageToSet(reshape.Write(), true);
+    }
 }
 
-void AreaTrigger::UpdateSplinePosition()
+void AreaTrigger::UpdateSplinePosition(uint32 diff)
 {
     if (_reachedDestination)
         return;
@@ -562,7 +587,10 @@ void AreaTrigger::UpdateSplinePosition()
     if (!HasSplines())
         return;
 
-    if (GetElapsedTimeForMovement() >= GetTimeToTarget())
+    _movementTime += diff;
+    _totalMovementTime += diff;
+
+    if (_movementTime >= GetTimeToTarget())
     {
         _reachedDestination = true;
         _lastSplineIndex = int32(_spline.last());
@@ -575,7 +603,7 @@ void AreaTrigger::UpdateSplinePosition()
         return;
     }
 
-    float currentTimePercent = float(GetElapsedTimeForMovement()) / float(GetTimeToTarget());
+    float currentTimePercent = float(_movementTime) / float(GetTimeToTarget());
 
     if (currentTimePercent <= 0)
         return;
