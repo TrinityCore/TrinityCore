@@ -176,7 +176,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
     if (!groupAI)
         return;
 
-    if (groupAI == 1 && member != m_leader)
+    if ((groupAI == 1 || groupAI == 4) && member != m_leader)
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -231,6 +231,10 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         Creature* member = itr->first;
         if (member == m_leader || !member->IsAlive() || member->GetVictim())
             continue;
+
+        uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
+        if (groupAI == 3 || groupAI == 4)
+            return;
 
         if (itr->second->point_1)
             if (m_leader->GetCurrentWaypointID() == itr->second->point_1 - 1 || m_leader->GetCurrentWaypointID() == itr->second->point_2 - 1)
