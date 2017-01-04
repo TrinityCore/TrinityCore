@@ -21386,11 +21386,9 @@ void Player::SendSpellModifiers() const
                     if (mod->type == SPELLMOD_FLAT)
                         flatMod.ModifierData[j].ModifierValue += mod->value;
                     else
-                        pctMod.ModifierData[j].ModifierValue += mod->value;
+                        pctMod.ModifierData[j].ModifierValue *= 1.0f + (mod->value * 0.01f);
                 }
             }
-
-            pctMod.ModifierData[j].ModifierValue = 1.0f + (pctMod.ModifierData[j].ModifierValue * 0.01f);
         }
 
         flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
