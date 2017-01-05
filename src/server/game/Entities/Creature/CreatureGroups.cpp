@@ -176,7 +176,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
     if (!groupAI)
         return;
 
-    if ((groupAI == FLAG_AGGRO_ON_AGGRO || groupAI == FLAG_AGGRO_ON_AGGRO_NOFOLLOW) && member != m_leader)
+    if ((groupAI == GROUP_AI_ASSISTLEADER_FOLLOW || groupAI == GROUP_AI_ASSISTLEADER_NOFOLLOW) && member != m_leader)
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -233,7 +233,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
             continue;
 
         uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
-        if (groupAI == FLAG_TO_AGGRO_ON_AGGRO_NOFOLLOW || groupAI == FLAG_AGGRO_ON_AGGRO_NOFOLLOW)
+        if (groupAI == GROUP_AI_ASSISTGROUP_NOFOLLOW || groupAI == GROUP_AI_ASSISTLEADER_NOFOLLOW)
             return;
 
         if (itr->second->point_1)

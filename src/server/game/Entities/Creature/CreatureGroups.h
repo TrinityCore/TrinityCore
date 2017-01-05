@@ -23,13 +23,13 @@
 #include <unordered_map>
 #include <map>
 
-enum GroupAIFlags
+enum GroupAIs
 {
-    FLAG_AGGRO_NONE                  = 0,          // If any creature from group is attacked, members won't assist
-    FLAG_AGGRO_ON_AGGRO              = 0x00000001, // Group members will assist only their leader if attacked and follow him
-    FLAG_TO_AGGRO_ON_AGGRO           = 0x00000002, // Group members will assist all group members and follow the leader
-    FLAG_TO_AGGRO_ON_AGGRO_NOFOLLOW  = 0x00000004, // Group members will assist all group members without following the leader
-    FLAG_AGGRO_ON_AGGRO_NOFOLLOW     = 0x00000008  // Group members will assist only their leader if attacked without following him
+    GROUP_AI_NOASSIST_FOLLOW       = 0, // If any creature from group is attacked, members won't assist
+    GROUP_AI_ASSISTLEADER_FOLLOW   = 1, // Group members will assist only their leader if attacked and follow him
+    GROUP_AI_ASSISTGROUP_FOLLOW    = 2, // Group members will assist all group members and follow the leader
+    GROUP_AI_ASSISTGROUP_NOFOLLOW  = 4, // Group members will assist all group members without following the leader
+    GROUP_AI_ASSISTLEADER_NOFOLLOW = 5  // Group members will assist only their leader if attacked without following him
 };
 
 class Creature;
