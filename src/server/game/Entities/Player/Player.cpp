@@ -2018,6 +2018,9 @@ void Player::RegenerateHealth()
 
 void Player::ResetAllPowers()
 {
+    if (getClass() == CLASS_ROGUE || getClass() == CLASS_DRUID)
+       ClearComboPoints();
+
     SetHealth(GetMaxHealth());
     switch (getPowerType())
     {
