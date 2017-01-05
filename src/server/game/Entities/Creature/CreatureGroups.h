@@ -26,10 +26,10 @@
 enum GroupAIFlags
 {
     FLAG_AGGRO_NONE                  = 0, // If any creature from group is attacked, members won't assist
-    FLAG_AGGRO_ON_AGGRO              = 1, // Group member will assist only their leader if attacked and follow him
+    FLAG_AGGRO_ON_AGGRO              = 1, // Group members will assist only their leader if attacked and follow him
     FLAG_TO_AGGRO_ON_AGGRO           = 2, // Group members will assist all group members and follow the leader
-    FLAG_TO_AGGRO_ON_AGGRO_NOFOLLOW  = 3, // Group member will assist only their leader if attacked without following him
-    FLAG_AGGRO_ON_AGGRO_NOFOLLOW     = 4  // Group members will assist all group members without following the leader
+    FLAG_TO_AGGRO_ON_AGGRO_NOFOLLOW  = 3, // Group members will assist all group members without following the leader
+    FLAG_AGGRO_ON_AGGRO_NOFOLLOW     = 4  // Group members will assist only their leader if attacked without following him
 };
 
 class Creature;
