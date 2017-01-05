@@ -190,7 +190,7 @@ public:
         uint32 spawntm = 300;
 
         if (spawntime)
-            spawntm = atoul((char*)spawntime);
+            spawntm = atoul(spawntime);
 
         G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoul(id);

@@ -221,7 +221,7 @@ public:
         if (!gridX || !gridY)
             return false;
 
-        uint32 mapId = id ? (uint32)atoul(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         // center of grid
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -422,7 +422,7 @@ public:
         if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
             return false;
 
-        uint32 areaId = id ? (uint32)atoul(id) : player->GetZoneId();
+        uint32 areaId = id ? atoul(id) : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -492,7 +492,7 @@ public:
         float y = (float)atof(goY);
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? (uint32)atoul(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         if (goZ)
         {
