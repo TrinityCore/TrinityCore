@@ -21199,13 +21199,25 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             {
                 WorldPackets::Spells::SpellModifierData modData;
 
-                for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                    if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                        modData.ModifierValue += (*itr)->value;
+                if (mod->type == SPELLMOD_FLAT)
+                {
+                    for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_FLAT].begin(); itr != m_spellMods[mod->op][SPELLMOD_FLAT].end(); ++itr)
+                        if (*itr != mod && (*itr)->mask & _mask)
+                            modData.ModifierValue += (*itr)->value;
 
-                modData.ModifierValue += apply ? mod->value : -(mod->value);
-                if (mod->type == SPELLMOD_PCT)
-                    modData.ModifierValue = 1.0f + (modData.ModifierValue * 0.01f);
+                    if (apply)
+                        modData.ModifierValue += mod->value;
+                }
+                else
+                {
+                    modData.ModifierValue = 1.0f;
+                    for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_PCT].begin(); itr != m_spellMods[mod->op][SPELLMOD_PCT].end(); ++itr)
+                        if (*itr != mod && (*itr)->mask & _mask)
+                            modData.ModifierValue *= CalculatePct(1.0f, (*itr)->value);
+
+                    if (apply)
+                        modData.ModifierValue *= CalculatePct(1.0f, mod->value);
+                }
 
                 modData.ClassIndex = eff;
 
@@ -21217,10 +21229,10 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 
     if (apply)
-        m_spellMods[mod->op].push_back(mod);
+        m_spellMods[mod->op][mod->type].push_back(mod);
     else
     {
-        m_spellMods[mod->op].remove(mod);
+        m_spellMods[mod->op][mod->type].remove(mod);
         // mods bound to aura will be removed in AuraEffect::~AuraEffect
         if (!mod->ownerAura)
             delete mod;
@@ -21237,49 +21249,52 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
 
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
-        for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end(); ++itr)
+        for (uint8 j = 0; j < SPELLMOD_END; ++j)
         {
-            SpellModifier* mod = *itr;
+            for (SpellModList::iterator itr = m_spellMods[i][j].begin(); itr != m_spellMods[i][j].end(); ++itr)
+            {
+                SpellModifier* mod = *itr;
 
-            // Spellmods without aura set cannot be charged
-            if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
-                continue;
+                // Spellmods without aura set cannot be charged
+                if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
+                    continue;
 
-            // Restore only specific owner aura mods
-            if (ownerAuraId && (ownerAuraId != mod->ownerAura->GetSpellInfo()->Id))
-                continue;
+                // Restore only specific owner aura mods
+                if (ownerAuraId && (ownerAuraId != mod->ownerAura->GetSpellInfo()->Id))
+                    continue;
 
-            if (aura && mod->ownerAura != aura)
-                continue;
+                if (aura && mod->ownerAura != aura)
+                    continue;
 
-            // Check if mod affected this spell
-            // First, check if the mod aura applied at least one spellmod to this spell
-            Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
-            if (iterMod == spell->m_appliedMods.end())
-                continue;
-            // Second, check if the current mod is one of those applied by the mod aura
-            if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
-                continue;
+                // Check if mod affected this spell
+                // First, check if the mod aura applied at least one spellmod to this spell
+                Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
+                if (iterMod == spell->m_appliedMods.end())
+                    continue;
+                // Second, check if the current mod is one of those applied by the mod aura
+                if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
+                    continue;
 
-            // remove from list - This will be done after all mods have been gone through
-            // to ensure we iterate over all mods of an aura before removing said aura
-            // from applied mods (Else, an aura with two mods on the current spell would
-            // only see the first of its modifier restored)
-            aurasQueue.push_back(mod->ownerAura);
+                // remove from list - This will be done after all mods have been gone through
+                // to ensure we iterate over all mods of an aura before removing said aura
+                // from applied mods (Else, an aura with two mods on the current spell would
+                // only see the first of its modifier restored)
+                aurasQueue.push_back(mod->ownerAura);
 
-            // add mod charges back to mod
-            if (mod->charges == -1)
-                mod->charges = 1;
-            else
-                mod->charges++;
+                // add mod charges back to mod
+                if (mod->charges == -1)
+                    mod->charges = 1;
+                else
+                    mod->charges++;
 
-            // Do not set more spellmods than available
-            if (mod->ownerAura->GetCharges() < mod->charges)
-                mod->charges = mod->ownerAura->GetCharges();
+                // Do not set more spellmods than available
+                if (mod->ownerAura->GetCharges() < mod->charges)
+                    mod->charges = mod->ownerAura->GetCharges();
 
-            // Skip this check for now - aura charges may change due to various reason
-            /// @todo track these changes correctly
-            //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
+                // Skip this check for now - aura charges may change due to various reason
+                /// @todo track these changes correctly
+                //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
+            }
         }
     }
 
@@ -21306,27 +21321,30 @@ void Player::RemoveSpellMods(Spell* spell)
     if (spell->m_appliedMods.empty())
         return;
 
-    for (uint8 i=0; i<MAX_SPELLMOD; ++i)
+    for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
     {
-        for (SpellModList::const_iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
+        for (uint8 j = 0; j < SPELLMOD_END; ++j)
         {
-            SpellModifier* mod = *itr;
-            ++itr;
+            for (SpellModList::const_iterator itr = m_spellMods[i][j].begin(); itr != m_spellMods[i][j].end();)
+            {
+                SpellModifier* mod = *itr;
+                ++itr;
 
-            // spellmods without aura set cannot be charged
-            if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
-                continue;
+                // spellmods without aura set cannot be charged
+                if (!mod->ownerAura || !mod->ownerAura->IsUsingCharges())
+                    continue;
 
-            // check if mod affected this spell
-            Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
-            if (iterMod == spell->m_appliedMods.end())
-                continue;
+                // check if mod affected this spell
+                Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
+                if (iterMod == spell->m_appliedMods.end())
+                    continue;
 
-            // remove from list
-            spell->m_appliedMods.erase(iterMod);
+                // remove from list
+                spell->m_appliedMods.erase(iterMod);
 
-            if (mod->ownerAura->DropCharge(AURA_REMOVE_BY_EXPIRE))
-                itr = m_spellMods[i].begin();
+                if (mod->ownerAura->DropCharge(AURA_REMOVE_BY_EXPIRE))
+                    itr = m_spellMods[i][j].begin();
+            }
         }
     }
 }
@@ -21379,16 +21397,13 @@ void Player::SendSpellModifiers() const
             pctMod.ModifierData[j].ClassIndex = j;
             pctMod.ModifierData[j].ModifierValue = 1.0f;
 
-            for (SpellModifier* mod : m_spellMods[i])
-            {
+            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_FLAT])
                 if (mod->mask & mask)
-                {
-                    if (mod->type == SPELLMOD_FLAT)
-                        flatMod.ModifierData[j].ModifierValue += mod->value;
-                    else
-                        pctMod.ModifierData[j].ModifierValue *= 1.0f + (mod->value * 0.01f);
-                }
-            }
+                    flatMod.ModifierData[j].ModifierValue += mod->value;
+
+            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_PCT])
+                if (mod->mask & mask)
+                    pctMod.ModifierData[j].ModifierValue *= 1.0f + CalculatePct(1.0f, mod->value);
         }
 
         flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
