@@ -1995,6 +1995,7 @@ Support.SuggestionsEnabled = 0
 #        Default:     1 - (Raid)
 #                     0 - (Party)
 #                     2 - (Faction)
+#                     3 - (None)
 
 Visibility.GroupMode = 1
 
