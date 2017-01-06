@@ -307,7 +307,8 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     else if (moveType == WAYPOINT_MOTION_TYPE)
     {
         //Call WP function
-        WaypointReached(pointId);
+        if (pointId < _path.size())
+            WaypointReached(_path.at(pointId).id);
 
         //End of the line
         if (LastWP && LastWP == pointId)
