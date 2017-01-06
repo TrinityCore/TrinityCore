@@ -3376,6 +3376,15 @@ void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
     itr->second.Level = level;
 }
 
+void World::UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId)
+{
+    auto itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.AccountId = accountId;
+}
+
 void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
