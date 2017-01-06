@@ -289,8 +289,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         bool IsInEffectHook() const;
     private:
         Spell* m_spell;
-        uint8 m_hitPreventEffectMask;
-        uint8 m_hitPreventDefaultEffectMask;
+        uint32 m_hitPreventEffectMask;
+        uint32 m_hitPreventDefaultEffectMask;
     public:
         //
         // SpellScript interface

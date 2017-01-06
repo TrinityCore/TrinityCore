@@ -19818,7 +19818,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setBinary(index++, key.Item.GetRawValue());
         stmt->setUInt32(index++, key.SpellId);
         stmt->setUInt32(index++, key.EffectMask);
-        stmt->setUInt8(index++, recalculateMask);
+        stmt->setUInt32(index++, recalculateMask);
         stmt->setUInt8(index++, aura->GetStackAmount());
         stmt->setInt32(index++, aura->GetMaxDuration());
         stmt->setInt32(index++, aura->GetDuration());
