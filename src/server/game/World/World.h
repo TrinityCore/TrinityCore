@@ -794,6 +794,7 @@ class TC_GAME_API World
         bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
         void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level);
+        void UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId);
         void UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name = nullptr);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
