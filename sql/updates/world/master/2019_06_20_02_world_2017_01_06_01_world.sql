@@ -9,9 +9,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,1,47669,0,2,31,0,3,26685,0,0,0,0,'','Effect_0 hits Massive Jormungar'),
 (13,1,47669,0,3,31,0,3,26686,0,0,0,0,'','Effect_0 hits Ferocious Rhino');
 
---DELETE FROM `linked_respawn` WHERE `linkedGuid`=126102;
---DELETE FROM `creature` WHERE `guid` IN(126091,126092,126093,126094,126256);
---DELETE FROM `creature_addon` WHERE `guid` IN(126091,126092,126093,126094,126256);
+-- DELETE FROM `linked_respawn` WHERE `linkedGuid`=126102;
+-- DELETE FROM `creature` WHERE `guid` IN(126091,126092,126093,126094,126256);
+-- DELETE FROM `creature_addon` WHERE `guid` IN(126091,126092,126093,126094,126256);
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=26687; -- Gortok Palehoof
 INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`entry`,`position_x`,`position_y`,`position_z`,`orientation`,`summonType`,`summonTime`) VALUES
 (26687,0,1,26683,262.195,-440.502,104.82 ,3.9968 ,6,6000),
@@ -39,12 +39,12 @@ UPDATE `creature_template` SET `ScriptName`='boss_massive_jormungar' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='boss_ferocious_rhino' WHERE `entry`=26686;
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=26688;
 
---DELETE FROM `spelldifficulty_dbc` WHERE  `id` IN (48261,48256,48140,48137,48105,48136,48133);
---INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES
---(48261, 48261, 59268),
---(48256, 48256, 59267),
---(48140, 48140, 59273),
---(48137, 48137, 59265),
---(48105, 48105, 59263),
---(48136, 48136, 59272),
---(48133, 48133, 59271);
+-- DELETE FROM `spelldifficulty_dbc` WHERE  `id` IN (48261,48256,48140,48137,48105,48136,48133);
+-- INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES
+-- (48261, 48261, 59268),
+-- (48256, 48256, 59267),
+-- (48140, 48140, 59273),
+-- (48137, 48137, 59265),
+-- (48105, 48105, 59263),
+-- (48136, 48136, 59272),
+-- (48133, 48133, 59271);
