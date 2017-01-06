@@ -473,7 +473,10 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
         return;
 
     if (MovementType == WAYPOINT_MOTION_TYPE || (MovementType == POINT_MOTION_TYPE && Data == SMART_ESCORT_LAST_OOC_POINT))
-        MovepointReached(Data);
+    {
+        if (Data < _path.size())
+            MovepointReached(_path.at(Data).id);
+    }
 }
 
 void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
