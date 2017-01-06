@@ -47,6 +47,7 @@ enum DataTypes
 
 enum CreatureIds
 {
+    // Bosses
     NPC_SVALA_SORROWGRAVE           = 26668,
     NPC_GORTOK_PALEHOOF             = 26687,
     NPC_SKADI_THE_RUTHLESS          = 26693,
@@ -60,7 +61,8 @@ enum CreatureIds
     NPC_RAVENOUS_FURBOLG            = 26684,
     NPC_MASSIVE_JORMUNGAR           = 26685,
     NPC_FEROCIOUS_RHINO             = 26686,
-    NPC_PALEHOOF_ORB                = 26688,
+    NPC_PALEHOOF_ORB                = 22515, // World Trigger
+    NPC_JORMUNGAR_WORM              = 27228,
 
     // Skadi
     NPC_GRAUF                       = 26893,
