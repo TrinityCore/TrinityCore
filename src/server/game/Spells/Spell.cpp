@@ -2264,7 +2264,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
     if (!unit && target->targetGUID.IsPlayer()) // only players may be targeted across maps
     {
-        uint8 farMask = 0;
+        uint32 farMask = 0;
         // create far target mask
         for (SpellEffectInfo const* effect : GetEffects())
             if (effect && effect->IsFarUnitTargetEffect())
@@ -2570,7 +2570,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         }
     }
 
-    uint8 aura_effmask = 0;
+    uint32 aura_effmask = 0;
     for (SpellEffectInfo const* effect : GetEffects())
         if (effect && (effectMask & (1 << effect->EffectIndex) && effect->IsUnitOwnedAuraEffect()))
             aura_effmask |= 1 << effect->EffectIndex;
@@ -2694,7 +2694,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     return SPELL_MISS_NONE;
 }
 
-void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
+void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
 {
     // Apply additional spell effects to target
     /// @todo move this code to scripts
@@ -7343,7 +7343,7 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
     return true;
 }
 
-bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura) const
+bool Spell::CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura /*= nullptr*/) const
 {
     bool only_on_caster = (triggeredByAura && (triggeredByAura->HasAttribute(SPELL_ATTR4_PROC_ONLY_ON_CASTER)));
     // If triggeredByAura has SPELL_ATTR4_PROC_ONLY_ON_CASTER then it can only proc on a cast spell with TARGET_UNIT_CASTER
