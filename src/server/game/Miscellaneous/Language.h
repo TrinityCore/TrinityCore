@@ -984,9 +984,11 @@ enum TrinityStrings
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
     LANG_GUILD_INFO_LEVEL               = 1184,
+    LANG_CHANGEACCOUNT_SUCCESS          = 1184,             // log
+    // Room for more level 3              1185-1198 not used
 
     // Debug commands
-    LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
+    LANG_GUILD_INFO_LEVEL               = 1999, // LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT -- unused on 3.3.5a
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
     LANG_DEBUG_AREATRIGGER_ON           = 1202,
