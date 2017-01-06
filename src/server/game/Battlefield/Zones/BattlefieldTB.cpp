@@ -208,7 +208,7 @@ void BattlefieldTB::OnPlayerJoinWar(Player* player)
     player->SetPvP(true);
 
     // Bonus damage buff for attackers
-    if (player->GetTeam() == GetAttackerTeam() && GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED) > 0)
+    if (player->GetTeamId() == GetAttackerTeam() && GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED) > 0)
         player->CastCustomSpell(SPELL_TOWER_ATTACK_BONUS, SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED), player, TRIGGERED_FULL_MASK);
 }
 
