@@ -983,7 +983,6 @@ enum TrinityStrings
     LANG_GUILD_INFO_BANK_GOLD           = 1181,
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
-    LANG_GUILD_INFO_LEVEL               = 1184,
     LANG_CHANGEACCOUNT_SUCCESS          = 1184,             // log
     // Room for more level 3              1185-1198 not used
 
