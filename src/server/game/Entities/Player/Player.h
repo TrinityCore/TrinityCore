@@ -74,8 +74,9 @@ enum SkillFieldOffset
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
 {
-    SPELLMOD_FLAT         = 107,                            // SPELL_AURA_ADD_FLAT_MODIFIER
-    SPELLMOD_PCT          = 108                             // SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_FLAT         = 0,                            // SPELL_AURA_ADD_FLAT_MODIFIER
+    SPELLMOD_PCT          = 1,                            // SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_END
 };
 
 // 2^n values, Player::m_isunderwater is a bitmask. These are Trinity internal values, they are never send to any client
@@ -2681,7 +2682,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
 
-        SpellModList m_spellMods[MAX_SPELLMOD];
+        SpellModList m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
@@ -2864,7 +2865,7 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
     if (m_spellModTakingSpell)
         spell = m_spellModTakingSpell;
 
-    for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
+    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_FLAT].begin(); itr != m_spellMods[op][SPELLMOD_FLAT].end(); ++itr)
     {
         SpellModifier* mod = *itr;
 
@@ -2875,21 +2876,30 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        if (mod->type == SPELLMOD_FLAT)
-            totalflat += mod->value;
-        else if (mod->type == SPELLMOD_PCT)
-        {
-            // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (basevalue == T(0))
-                continue;
+        totalflat += mod->value;
+        DropModCharge(mod, spell);
+    }
 
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
-                continue;
+    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_PCT].begin(); itr != m_spellMods[op][SPELLMOD_PCT].end(); ++itr)
+    {
+        SpellModifier* mod = *itr;
 
-            totalmul += CalculatePct(1.0f, mod->value);
-        }
+        // Charges can be set only for mods with auras
+        if (!mod->ownerAura)
+            ASSERT(mod->charges == 0);
 
+        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+            continue;
+
+        // skip percent mods for null basevalue (most important for spell mods with charges)
+        if (basevalue + totalflat == T(0))
+            continue;
+
+        // special case (skip > 10sec spell casts for instant cast setting)
+        if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
+            continue;
+
+        totalmul *= 1.0f + CalculatePct(1.0f, mod->value);
         DropModCharge(mod, spell);
     }
 
