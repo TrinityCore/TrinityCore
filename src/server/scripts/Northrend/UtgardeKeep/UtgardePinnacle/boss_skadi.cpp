@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -164,7 +164,7 @@ public:
             _Reset();
             Initialize();
             me->SetReactState(REACT_PASSIVE);
-            if (!ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAUF)))
+            if (!instance->GetCreature(DATA_GRAUF))
                 me->SummonCreature(NPC_GRAUF, GraufLoc);
 
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
@@ -242,7 +242,7 @@ public:
                         })
                         .Schedule(Seconds(2), [this](TaskContext /*context*/)
                         {
-                            if (Creature* grauf = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GRAUF)))
+                            if (Creature* grauf = instance->GetCreature(DATA_GRAUF))
                                 DoCast(grauf, SPELL_RIDE_GRAUF);
                         });
 
@@ -347,7 +347,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                 skadi->AI()->DoAction(ACTION_GAUNTLET_END);
 
             me->DespawnOrUnsummon(6000);
@@ -412,7 +412,7 @@ public:
                         {
                             me->GetMotionMaster()->MovePath(GRAUF_PATH_LEFT, false);
                             DoCast(SPELL_FREEZING_CLOUD_LEFT_PERIODIC);
-                            if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+                            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                                 skadi->AI()->DoAction(ACTION_FLAME);
                         })
                         .Schedule(Seconds(10), [this](TaskContext /*context*/)
@@ -431,7 +431,7 @@ public:
                         {
                             me->GetMotionMaster()->MovePath(GRAUF_PATH_RIGHT, false);
                             DoCast(SPELL_FREEZING_CLOUD_RIGHT_PERIODIC);
-                            if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+                            if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                                 skadi->AI()->DoAction(ACTION_FLAME);
                         })
                         .Schedule(Seconds(10), [this](TaskContext /*context*/)
@@ -447,7 +447,7 @@ public:
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_LAUNCH_HARPOON)
-                if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+                if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                     skadi->AI()->DoAction(ACTION_HARPOON_HIT);
         }
 
@@ -488,7 +488,7 @@ struct npc_skadi_trashAI : public ScriptedAI
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
-        if (Creature* skadi = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
             skadi->AI()->JustSummoned(me);
     }
 
@@ -946,7 +946,7 @@ class at_skadi_gaunlet : public AreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == NOT_STARTED)
-                    if (Creature* skadi = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
+                    if (Creature* skadi = instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                     {
                         skadi->AI()->DoAction(ACTION_START_ENCOUNTER);
                         return true;

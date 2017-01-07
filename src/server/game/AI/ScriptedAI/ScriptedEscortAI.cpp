@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -308,7 +308,8 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
     else if (moveType == WAYPOINT_MOTION_TYPE)
     {
         //Call WP function
-        WaypointReached(pointId);
+        if (pointId < _path.size())
+            WaypointReached(_path.at(pointId).id);
 
         //End of the line
         if (LastWP && LastWP == pointId)
