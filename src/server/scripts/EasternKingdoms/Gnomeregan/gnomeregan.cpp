@@ -545,8 +545,56 @@ public:
 
 };
 
+// 12709 - Collecting Fallout
+class spell_collecting_fallout : public SpellScriptLoader
+{
+    public:
+        spell_collecting_fallout() : SpellScriptLoader("spell_collecting_fallout") { }
+
+        class spell_collecting_fallout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_collecting_fallout_SpellScript);
+
+            bool Load() override
+            {
+                _spellFail = true;
+                return true;
+            }
+
+            void OnLaunch(SpellEffIndex effIndex)
+            {
+                // estimated 25% chance of success
+                if (roll_chance_i(25))
+                    _spellFail = false;
+                else
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void HandleFail(SpellEffIndex effIndex)
+            {
+                if (!_spellFail)
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunch += SpellEffectFn(spell_collecting_fallout_SpellScript::OnLaunch, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+                OnEffectLaunch += SpellEffectFn(spell_collecting_fallout_SpellScript::HandleFail, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+
+            bool _spellFail;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_collecting_fallout_SpellScript();
+        }
+};
+
 void AddSC_gnomeregan()
 {
     new npc_blastmaster_emi_shortfuse();
     new boss_grubbis();
+
+    new spell_collecting_fallout();
 }
