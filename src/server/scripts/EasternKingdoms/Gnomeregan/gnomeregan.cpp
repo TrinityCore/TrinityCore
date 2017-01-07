@@ -26,6 +26,7 @@ Script Data End */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "Player.h"
 #include "gnomeregan.h"
 
