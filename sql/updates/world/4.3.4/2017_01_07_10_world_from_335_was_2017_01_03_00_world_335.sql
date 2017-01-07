@@ -1,3 +1,4 @@
+/*
 -- 
 -- Remove Loot From NPC Who SHould Not Have Any
 DELETE FROM `creature_loot_template` WHERE `entry` IN 
@@ -1095,3 +1096,4 @@ UPDATE `areatrigger_teleport` SET `target_position_x` = -327.5286, `target_posit
 
 -- NOTE! be carefull with this unitflags 32768. Implement NPC Swimming Proper Animations
 UPDATE `creature_template` SET `Unit_Flags`=`Unit_Flags`|32768 WHERE `InhabitType` IN (2);
+*/

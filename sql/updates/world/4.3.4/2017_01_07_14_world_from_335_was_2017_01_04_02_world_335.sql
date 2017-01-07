@@ -1,4 +1,5 @@
 -- 
+/*
 SET @NPC := 26908;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
@@ -70,3 +71,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 62, -1709.83, -507.869, -12.8309, 0),
 (@PATH, 63, -1729.44, -528.724, -13.8673, 0),
 (@PATH, 64, -1731.65, -542.165, -13.1692, 0);
+*/

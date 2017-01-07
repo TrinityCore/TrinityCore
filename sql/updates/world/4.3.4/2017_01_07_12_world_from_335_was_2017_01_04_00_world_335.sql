@@ -1,3 +1,4 @@
+/*
 -- Right and Left Camp Attack
 -- ======================================
 -- All Bosses Are Immune To Crowd Control -- Daze, Horror, Shackle, Banish, Polymorph, Knockout, Freeze, Stun, Snare, Sleep, Silence, Pacify, Root, Fear, Distract, Disarm, Confused, Charm
@@ -135,3 +136,4 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 
 -- VanCleef Adds (Should Not Random Move)
 UPDATE `creature` SET `SpawnDist` = 0, `MovementType` = 0 WHERE `guid` IN (79369,79370);
+*/
