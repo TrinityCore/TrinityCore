@@ -746,7 +746,7 @@ public:
             if (target)
                 handler->SendSysMessage(LANG_WAYPOINT_CREATSELECTED);
 
-            pathid = atoi((char*)guid_str);
+            pathid = atoul(guid_str);
         }
 
         std::string show = show_str;
@@ -765,7 +765,7 @@ public:
             }
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
-            stmt->setUInt32(0, target->GetGUID().GetCounter());
+            stmt->setUInt32(0, target->GetSpawnId());
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
             if (!result)
@@ -825,7 +825,7 @@ public:
                 {
                     Field* fields = result2->Fetch();
                     uint32 wpguid = fields[0].GetUInt32();
-                    Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit, VISUAL_WAYPOINT, wpguid));
+                    Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(wpguid);
 
                     if (!creature)
                     {
@@ -880,7 +880,7 @@ public:
 
                 // Set "wpguid" column to the visual waypoint
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
-                stmt->setInt32(0, int32(wpCreature->GetSpawnId()));
+                stmt->setUInt32(0, wpCreature->GetSpawnId());
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
                 WorldDatabase.Execute(stmt);
@@ -1021,15 +1021,16 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit, VISUAL_WAYPOINT, guid));
+                ObjectGuid::LowType lowguid = fields[0].GetUInt32();
+
+                Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
                 if (!creature)
                 {
-                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, guid);
+                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, lowguid);
                     hasError = true;
 
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-                    stmt->setUInt32(0, guid);
+                    stmt->setUInt32(0, lowguid);
                     WorldDatabase.Execute(stmt);
                 }
                 else
