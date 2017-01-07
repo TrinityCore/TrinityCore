@@ -1311,26 +1311,31 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             float angle = targetType.CalcDirectionAngle();
             float objSize = m_caster->GetObjectSize();
 
-            if (dist < objSize)
-                dist = objSize;
-
             switch (targetType.GetTarget())
             {
                 case TARGET_DEST_CASTER_SUMMON:
                     dist = PET_FOLLOW_DIST;
                     break;
                 case TARGET_DEST_CASTER_RANDOM:
-                    dist = objSize + (dist - objSize) * float(rand_norm());
+                    if (dist > objSize)
+                        dist = objSize + (dist - objSize) * float(rand_norm());
                     break;
                 case TARGET_DEST_CASTER_FRONT_LEFT:
                 case TARGET_DEST_CASTER_BACK_LEFT:
                 case TARGET_DEST_CASTER_FRONT_RIGHT:
                 case TARGET_DEST_CASTER_BACK_RIGHT:
-                    dist = dist + objSize;
+                {
+                    static float const DefaultTotemDistance = 3.0f;
+                    if (!effect->HasRadius() && !effect->HasMaxRadius())
+                        dist = DefaultTotemDistance;
                     break;
+                }
                 default:
                     break;
             }
+
+            if (dist < objSize)
+                dist = objSize;
 
             Position pos = dest._position;
             m_caster->MovePositionToFirstCollision(pos, dist, angle);
