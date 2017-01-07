@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -473,7 +473,10 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
         return;
 
     if (MovementType == WAYPOINT_MOTION_TYPE || (MovementType == POINT_MOTION_TYPE && Data == SMART_ESCORT_LAST_OOC_POINT))
-        MovepointReached(Data);
+    {
+        if (Data < _path.size())
+            MovepointReached(_path.at(Data).id);
+    }
 }
 
 void SmartAI::EnterEvadeMode(EvadeReason /*why*/)

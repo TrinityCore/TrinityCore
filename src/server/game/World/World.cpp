@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1351,6 +1351,9 @@ void World::LoadConfigSettings(bool reload)
 
     // prevent character rename on character customization
     m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
+
+    // Allow 5-man parties to use raid warnings
+    m_bool_configs[CONFIG_CHAT_PARTY_RAID_WARNINGS] = sConfigMgr->GetBoolDefault("PartyRaidWarnings", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -3390,6 +3393,15 @@ void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
         return;
 
     itr->second.Level = level;
+}
+
+void World::UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId)
+{
+    auto itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.AccountId = accountId;
 }
 
 void World::ReloadRBAC()
