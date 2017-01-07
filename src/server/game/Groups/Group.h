@@ -218,6 +218,7 @@ class TC_GAME_API Group
             uint8       group;
             uint8       flags;
             uint8       roles;
+            int32       updateSequenceNumber;
             bool        readyChecked;
         };
         typedef std::list<MemberSlot> MemberSlotList;
@@ -431,7 +432,6 @@ class TC_GAME_API Group
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
-        uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
 
