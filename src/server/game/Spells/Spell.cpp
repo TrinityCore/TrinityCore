@@ -2447,9 +2447,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
 
+        damageInfo.damage = caster->DealSpellDamage(&damageInfo, true);
         m_damage = damageInfo.damage;
-
-        caster->DealSpellDamage(&damageInfo, true);
 
         // Send log damage message to client
         caster->SendSpellNonMeleeDamageLog(&damageInfo);
