@@ -58,7 +58,7 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE),
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
-m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0),
+m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_maxEnchantingLevel(0), m_dbStoreId(0),
 m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0)
 {
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
@@ -392,6 +392,7 @@ bool Group::AddMember(Player* player)
     member.group        = subGroup;
     member.flags        = 0;
     member.roles        = 0;
+    member.updateSequenceNumber = 1;
     member.readyChecked = false;
     m_memberSlots.push_back(member);
 
@@ -801,11 +802,11 @@ void Group::Disband(bool hideDestroy /* = false */)
         {
             WorldPackets::Party::PartyUpdate partyUpdate;
             partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
-            partyUpdate.PartyIndex = 1; // 0 = original group, 1 = instance/bg group
+            partyUpdate.PartyIndex = 0; // this was the original group if player->GetGroup() returned nullptr
             partyUpdate.PartyType = GROUP_TYPE_NONE;
             partyUpdate.PartyGUID = m_guid;
             partyUpdate.MyIndex = -1;
-            partyUpdate.SequenceNum = m_counter;
+            partyUpdate.SequenceNum = citr->updateSequenceNumber;
             player->GetSession()->SendPacket(partyUpdate.Write());
         }
 
@@ -1428,7 +1429,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     partyUpdate.PartyGUID = m_guid;
     partyUpdate.LeaderGUID = m_leaderGuid;
 
-    partyUpdate.SequenceNum = m_counter++;              // 3.3, value increases every time this packet gets sent
+    partyUpdate.SequenceNum = slot->updateSequenceNumber++;              // 3.3, value increases every time this packet gets sent
 
     partyUpdate.MyIndex = -1;
     uint8 index = 0;
