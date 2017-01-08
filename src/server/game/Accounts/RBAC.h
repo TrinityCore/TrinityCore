@@ -755,6 +755,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SCENE_CANCEL                           = 848,
     RBAC_PERM_COMMAND_LIST_SCENES                            = 849,
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850,
+    RBAC_PERM_COMMAND_GO_OFFSET                              = 851,
 
     // custom permissions 1000+
     RBAC_PERM_MAX

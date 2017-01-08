@@ -52,7 +52,7 @@ public:
             { "bugticket",          rbac::RBAC_PERM_COMMAND_GO_BUG_TICKET,          false, &HandleGoTicketCommand<BugTicket>,           "" },
             { "complaintticket",    rbac::RBAC_PERM_COMMAND_GO_COMPLAINT_TICKET,    false, &HandleGoTicketCommand<ComplaintTicket>,     "" },
             { "suggestionticket",   rbac::RBAC_PERM_COMMAND_GO_SUGGESTION_TICKET,   false, &HandleGoTicketCommand<SuggestionTicket>,    "" },
-            { "",                   rbac::RBAC_PERM_COMMAND_GO,                     false, &HandleGoXYZCommand,                         "" },
+            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -99,7 +99,7 @@ public:
             if (!id)
                 return false;
 
-            int32 entry = atoi(id);
+            uint32 entry = atoul(id);
             if (!entry)
                 return false;
 
@@ -107,17 +107,17 @@ public:
         }
         else
         {
-            int32 guid = atoi(param1);
+            ObjectGuid::LowType guidLow = atoull(param1);
 
             // Number is invalid - maybe the user specified the mob's name
-            if (!guid)
+            if (!guidLow)
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
                 whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
             }
             else
-                whereClause <<  "WHERE guid = '" << guid << '\'';
+                whereClause <<  "WHERE guid = '" << guidLow << '\'';
         }
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map FROM creature %s", whereClause.str().c_str());
@@ -170,7 +170,7 @@ public:
         if (!gyId)
             return false;
 
-        int32 graveyardId = atoi(gyId);
+        uint32 graveyardId = atoul(gyId);
 
         if (!graveyardId)
             return false;
@@ -219,7 +219,7 @@ public:
         if (!gridX || !gridY)
             return false;
 
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         // center of grid
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -262,15 +262,15 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guid = strtoull(id, nullptr, 10);
-        if (!guid)
+        ObjectGuid::LowType guidLow = atoull(id);
+        if (!guidLow)
             return false;
 
         float x, y, z, o;
         uint32 mapId;
 
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
         {
             x = goData->posX;
             y = goData->posY;
@@ -382,7 +382,7 @@ public:
         if (!id)
             return false;
 
-        int32 nodeId = atoi(id);
+        uint32 nodeId = atoul(id);
         if (!nodeId)
             return false;
 
@@ -427,7 +427,7 @@ public:
         if (!id)
             return false;
 
-        int32 areaTriggerId = atoi(id);
+        uint32 areaTriggerId = atoul(id);
 
         if (!areaTriggerId)
             return false;
@@ -485,7 +485,7 @@ public:
         if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
             return false;
 
-        uint32 areaId = id ? (uint32)atoi(id) : player->GetZoneId();
+        uint32 areaId = id ? atoul(id) : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -555,7 +555,7 @@ public:
         float y = (float)atof(goY);
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         if (goZ)
         {
@@ -603,7 +603,7 @@ public:
         if (!id)
             return false;
 
-        uint32 ticketId = atoi(id);
+        uint32 ticketId = atoul(id);
         if (!ticketId)
             return false;
 
@@ -624,6 +624,50 @@ public:
             player->SaveRecallPosition();
 
         ticket->TeleportTo(player);
+        return true;
+    }
+
+    static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goX = strtok((char*)args, " ");
+        char* goY = strtok(NULL, " ");
+        char* goZ = strtok(NULL, " ");
+        char* port = strtok(NULL, " ");
+
+        float x, y, z, o;
+        player->GetPosition(x, y, z, o);
+        if (goX)
+            x += atof(goX);
+        if (goY)
+            y += atof(goY);
+        if (goZ)
+            z += atof(goZ);
+        if (port)
+            o += atof(port);
+
+        if (!Trinity::IsValidMapCoord(x, y, z, o))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, player->GetMapId());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(player->GetMapId(), x, y, z, o);
         return true;
     }
 };
