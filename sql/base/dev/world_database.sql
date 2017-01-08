@@ -622,6 +622,9 @@ CREATE TABLE `creature_template_addon` (
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
   `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `aiAnimKit` smallint(6) NOT NULL DEFAULT '0',
+  `movementAnimKit` smallint(6) NOT NULL DEFAULT '0',
+  `meleeAnimKit` smallint(6) NOT NULL DEFAULT '0',
   `auras` text,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
