@@ -1303,7 +1303,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                 case TARGET_DEST_CASTER_BACK_RIGHT:
                 {
                     static float const DefaultTotemDistance = 3.0f;
-                    if (!effect->HasRadius() && !effect->HasMaxRadius())
+                    if (!m_spellInfo->Effects[effIndex].HasRadius())
                         dist = DefaultTotemDistance;
                     break;
                 }
