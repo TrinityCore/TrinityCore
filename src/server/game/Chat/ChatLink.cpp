@@ -358,8 +358,10 @@ std::string ItemChatLink::FormatName(uint8 index, LocalizedString* suffixStrings
     std::stringstream ss;
     ss << _item->GetName(LocaleConstant(index));
 
-    if (suffixStrings)
-        ss << ' ' << suffixStrings->Str[index];
+    if (!(_item->GetFlags3() & ITEM_FLAG3_HIDE_NAME_SUFFIX))
+        if (suffixStrings)
+            ss << ' ' << suffixStrings->Str[index];
+
     return ss.str();
 }
 
