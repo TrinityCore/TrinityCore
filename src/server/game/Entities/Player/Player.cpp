@@ -21113,14 +21113,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
-    // check node starting pos data set case if provided
-    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
-    {
-        GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
-        return false;
-    }
     // node must have pos if taxi master case (npc != NULL)
-    else if (npc)
+    if (npc)
     {
         GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         return false;
