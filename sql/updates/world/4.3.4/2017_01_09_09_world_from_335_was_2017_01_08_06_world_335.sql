@@ -1,3 +1,4 @@
+/*
 -- 
 -- ======================================
 -- Mark (Little Boy Playing in Goldshire) -- BACKPORTED FROM UDB 4.3.4
@@ -848,3 +849,4 @@ UPDATE `creature` SET `spawntimesecs`=300 WHERE `id`= 1922; -- Grey Forest Wolf 
 UPDATE `creature` SET `spawntimesecs`=300 WHERE `id`= 6093; -- Dead-Tooth Jack (6093)
 UPDATE `creature` SET `spawntimesecs`=300 WHERE `id`= 6846; -- Defias Dockmaster (6846)
 UPDATE `creature` SET `spawntimesecs`=300 WHERE `id`= 6927; -- Defias Dockworker (6927)
+*/
