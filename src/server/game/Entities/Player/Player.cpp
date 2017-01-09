@@ -21113,7 +21113,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
-	// check node starting pos data set case if provided
+    // check node starting pos data set case if provided
     if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
         if (node->map_id != GetMapId() || !IsInDist(node->x, node->y, node->z, 6 * INTERACTION_DISTANCE))
@@ -21122,7 +21122,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
             return false;
         }
     }
-
     // node must have pos if taxi master case (npc != NULL)
     else if (npc)
     {
