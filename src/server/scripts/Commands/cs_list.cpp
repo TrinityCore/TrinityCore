@@ -115,9 +115,9 @@ public:
                 uint16 mapId    = fields[4].GetUInt16();
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), cInfo->Name.c_str(), x, y, z, mapId);
                 else
-                    handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, std::to_string(guid).c_str(), cInfo->Name.c_str(), x, y, z, mapId);
             }
             while (result->NextRow());
         }
@@ -244,7 +244,7 @@ public:
 
                 char const* itemPos = "[in mail]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_MAIL, itemGuid, itemSenderName.c_str(), itemSender, itemSenderAccountId, itemReceiverName.c_str(), itemReceiver, itemReceiverAccount, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_MAIL, std::to_string(itemGuid).c_str(), itemSenderName.c_str(), std::to_string(itemSender).c_str(), itemSenderAccountId, itemReceiverName.c_str(), std::to_string(itemReceiver).c_str(), itemReceiverAccount, itemPos);
             }
             while (result->NextRow());
 
@@ -405,9 +405,9 @@ public:
                 uint32 entry    = fields[5].GetUInt32();
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_GO_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), gInfo->name.c_str(), x, y, z, mapId);
                 else
-                    handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, guid, gInfo->name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, std::to_string(guid).c_str(), gInfo->name.c_str(), x, y, z, mapId);
             }
             while (result->NextRow());
         }
@@ -431,7 +431,7 @@ public:
         char const* passiveStr = handler->GetTrinityString(LANG_PASSIVE);
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
-        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
+        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, std::to_string(auras.size()).c_str());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
 
@@ -456,7 +456,7 @@ public:
             if (auraList.empty())
                 continue;
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
+            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
 
             for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
@@ -522,7 +522,7 @@ public:
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1, messageId, subject.c_str(), gold, silv, copp);
-                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), std::to_string(senderId).c_str(), receiverStr.c_str(), std::to_string(receiverId).c_str());
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
 
                     if (hasItem == 1)

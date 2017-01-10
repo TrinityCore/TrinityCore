@@ -296,7 +296,7 @@ public:
         if (show == "add")
         {
             if (arg_id)
-                id = atoi(arg_id);
+                id = atoul(arg_id);
 
             if (id)
             {
@@ -338,7 +338,7 @@ public:
                 return true;
             }
 
-            id = atoi(arg_id);
+            id = atoul(arg_id);
 
             uint32 a2, a3, a4, a5, a6;
             float a8, a9, a10, a11;
@@ -383,7 +383,7 @@ public:
                 return true;
             }
 
-            id = atoi(arg_id);
+            id = atoul(arg_id);
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
             stmt->setUInt32(0, id);
@@ -411,11 +411,11 @@ public:
                 return true;
             }
 
-            id = atoi(arg_id);
+            id = atoul(arg_id);
 
             if (!id)
             {
-                handler->SendSysMessage("|cffff33ffERROR: No vallid waypoint script id not present.|r");
+                handler->SendSysMessage("|cffff33ffERROR: No valid waypoint script id not present.|r");
                 return true;
             }
 
@@ -449,8 +449,8 @@ public:
 
             if (arg_str_2 == "setid")
             {
-                uint32 newid = atoi(arg_3);
-                handler->PSendSysMessage("%s%s|r|cff00ffff%u|r|cff00ff00%s|r|cff00ffff%u|r", "|cff00ff00", "Wp Event: Wypoint scipt guid: ", newid, " id changed: ", id);
+                uint32 newid = atoul(arg_3);
+                handler->PSendSysMessage("%s%s|r|cff00ffff%u|r|cff00ff00%s|r|cff00ffff%u|r", "|cff00ff00", "Wp Event: Wypoint script guid: ", newid, " id changed: ", id);
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_SCRIPT_ID);
                 stmt->setUInt32(0, newid);
@@ -517,7 +517,7 @@ public:
                 }
                 else if (arg_str_2 == "dataint")
                 {
-                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%u' WHERE guid='%u'", arg_2, atoi(arg_3), id); // Query can't be a prepared statement
+                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%u' WHERE guid='%u'", arg_2, atoul(arg_3), id); // Query can't be a prepared statement
 
                     handler->PSendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff%u|r|cff00ff00 dataint updated.|r", id);
                     return true;
@@ -581,7 +581,7 @@ public:
 
         if (!result)
         {
-            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUID().ToString().c_str());
+            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, std::to_string(target->GetSpawnId()).c_str());
             // Select waypoint number from database
             // Since we compare float values, we have to deal with
             // some difficulties.
@@ -601,7 +601,7 @@ public:
 
             if (!result)
             {
-                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, target->GetGUID().ToString().c_str());
+                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, std::to_string(target->GetSpawnId()).c_str());
                 return true;
             }
         }
@@ -774,7 +774,7 @@ public:
 
             if (!result)
             {
-                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, target->GetSpawnId());
+                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, std::to_string(target->GetSpawnId()).c_str());
                 return true;
             }
 
@@ -833,7 +833,7 @@ public:
 
                     if (!creature)
                     {
-                        handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, wpguid);
+                        handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, std::to_string(wpguid).c_str());
                         hasError = true;
 
                         stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
@@ -913,7 +913,7 @@ public:
 
         if (show == "first")
         {
-            handler->PSendSysMessage("|cff00ff00DEBUG: wp first, GUID: %u|r", pathid);
+            handler->PSendSysMessage("|cff00ff00DEBUG: wp first, pathid: %u|r", pathid);
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
             stmt->setUInt32(0, pathid);
@@ -1035,7 +1035,7 @@ public:
                 Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
                 if (!creature)
                 {
-                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, lowguid);
+                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, std::to_string(lowguid).c_str());
                     hasError = true;
 
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);

@@ -240,7 +240,7 @@ public:
             return false;
         }
 
-        encounterId = atoi(param1);
+        encounterId = atoul(param1);
         state = atoi(param2);
 
         // Reject improper values.
@@ -253,7 +253,7 @@ public:
 
         map->GetInstanceScript()->SetBossState(encounterId, EncounterState(state));
         std::string stateName = InstanceScript::GetBossStateName(state);
-        handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state, stateName);
+        handler->PSendSysMessage(LANG_COMMAND_INST_SET_BOSS_STATE, encounterId, state, stateName.c_str());
         return true;
     }
 
@@ -307,7 +307,7 @@ public:
             return false;
         }
 
-        encounterId = atoi(param1);
+        encounterId = atoul(param1);
 
         if (encounterId > map->GetInstanceScript()->GetEncounterCount())
         {
@@ -316,9 +316,9 @@ public:
             return false;
         }
 
-        uint32 state = map->GetInstanceScript()->GetBossState(encounterId);
+        int32 state = map->GetInstanceScript()->GetBossState(encounterId);
         std::string stateName = InstanceScript::GetBossStateName(state);
-        handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state, stateName);
+        handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state, stateName.c_str());
         return true;
     }
 };

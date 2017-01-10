@@ -118,7 +118,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 teamId = atoi((char*)args);
+        uint32 teamId = atoul(args);
         if (!teamId)
             return false;
 
@@ -225,7 +225,7 @@ public:
         if (!idStr)
             return false;
 
-        uint32 teamId = atoi(idStr);
+        uint32 teamId = atoul(idStr);
         if (!teamId)
             return false;
 
@@ -297,7 +297,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 teamId = atoi((char*)args);
+        uint32 teamId = atoul(args);
         if (!teamId)
             return false;
 
