@@ -431,6 +431,8 @@ class spell_warl_demon_soul : public SpellScriptLoader
                             case CREATURE_FAMILY_IMP:
                                 caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_IMP);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
