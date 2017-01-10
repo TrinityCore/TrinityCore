@@ -193,7 +193,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (other->GetVictim())
             continue;
 
-        if ((other != m_leader && groupAI & FLAG_AGGRO_ON_AGGRO) || (other == m_leader && groupAI & FLAG_TO_AGGRO_ON_AGGRO) && other->IsValidAttackTarget(target))
+        if (((other != m_leader && groupAI & FLAG_AGGRO_ON_AGGRO) || (other == m_leader && groupAI & FLAG_TO_AGGRO_ON_AGGRO)) && other->IsValidAttackTarget(target))
             other->AI()->AttackStart(target);
     }
 }
