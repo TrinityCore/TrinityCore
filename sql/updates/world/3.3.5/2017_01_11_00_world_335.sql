@@ -584,7 +584,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`position_x`,`position_y
 
 -- Individual Gameobject Spawn Pools
 DELETE FROM `pool_gameobject` WHERE pool_entry = 372;
-SET @POOL_ARATHIGUID := 146005; -- SAME AS @ARATHIGUID IN THE BEGINNING
+SET @POOL_ARATHIGUID := 90670; -- SAME AS @ARATHIGUID IN THE BEGINNING
 DELETE FROM `pool_gameobject` WHERE `guid` BETWEEN @ARATHIGUID+0 AND @ARATHIGUID+572;
 INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES
 ((@POOL_ARATHIGUID := @POOL_ARATHIGUID + 1), 372, 0, 'Arathi Highlands - Briarthorn'),
