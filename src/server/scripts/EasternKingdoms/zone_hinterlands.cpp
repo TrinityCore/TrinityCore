@@ -231,5 +231,5 @@ public:
 void AddSC_hinterlands()
 {
     new npc_oox09hl();
-    new npc_sharpbeak_AI();
+    new npc_sharpbeak();
 }
