@@ -191,7 +191,7 @@ public:
     {
         npc_sharpbeak_AI(Creature* creature) : VehicleAI(creature) { }
  
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             uint32 summonedBySpell = me->GetUInt32Value(UNIT_CREATED_BY_SPELL);
  
