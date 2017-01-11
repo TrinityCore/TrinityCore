@@ -28,6 +28,61 @@ typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
 #define CALLBACK_STAGE_INVALID uint8(-1)
 
+class TC_DATABASE_API QueryCallbackNew
+{
+    struct String
+    {
+        explicit String(std::future<QueryResult>&& result) : Result(std::move(result)) { }
+        String(String&&) = default;
+        String& operator=(String&&) = default;
+        ~String() { }
+
+        std::future<QueryResult> Result;
+        std::function<void(QueryResult)> Callback;
+    };
+
+    struct Prepared
+    {
+        explicit Prepared(std::future<PreparedQueryResult>&& result) : Result(std::move(result)) { }
+        Prepared(Prepared&&) = default;
+        Prepared& operator=(Prepared&&) = default;
+        ~Prepared() { }
+
+        std::future<PreparedQueryResult> Result;
+        std::function<void(PreparedQueryResult)> Callback;
+    };
+
+public:
+    explicit QueryCallbackNew(std::future<QueryResult>&& result);
+    explicit QueryCallbackNew(std::future<PreparedQueryResult>&& result);
+    QueryCallbackNew(QueryCallbackNew&& right);
+    QueryCallbackNew& operator=(QueryCallbackNew&& right);
+    ~QueryCallbackNew();
+
+    QueryCallbackNew&& WithCallback(std::function<void(QueryResult)>&& callback);
+    QueryCallbackNew&& WithPreparedCallback(std::function<void(PreparedQueryResult)>&& callback);
+
+    enum Status
+    {
+        NotReady,
+        NextStep,
+        Completed
+    };
+
+    Status InvokeIfReady();
+
+private:
+    void MoveFrom(QueryCallbackNew&& other);
+    void DestroyCurrentMember();
+
+    union
+    {
+        String _string;
+        Prepared _prepared;
+    };
+    bool _isPrepared;
+};
+
 template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
