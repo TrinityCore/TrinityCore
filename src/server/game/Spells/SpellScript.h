@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,10 +75,10 @@ class TC_GAME_API _SpellScript
                 EffectHook(uint8 _effIndex);
                 virtual ~EffectHook() { }
 
-                uint32 GetAffectedEffectsMask(SpellInfo const* spellInfo);
-                bool IsEffectAffected(SpellInfo const* spellInfo, uint8 effIndex);
-                virtual bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) = 0;
-                std::string EffIndexToString();
+                uint32 GetAffectedEffectsMask(SpellInfo const* spellInfo) const;
+                bool IsEffectAffected(SpellInfo const* spellInfo, uint8 effIndex) const;
+                virtual bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const = 0;
+                std::string EffIndexToString() const;
             protected:
                 uint8 effIndex;
         };
@@ -87,8 +87,8 @@ class TC_GAME_API _SpellScript
         {
             public:
                 EffectNameCheck(uint16 _effName) { effName = _effName; }
-                bool Check(SpellInfo const* spellInfo, uint8 effIndex);
-                std::string ToString();
+                bool Check(SpellInfo const* spellInfo, uint8 effIndex) const;
+                std::string ToString() const;
             private:
                 uint16 effName;
         };
@@ -97,8 +97,8 @@ class TC_GAME_API _SpellScript
         {
             public:
                 EffectAuraNameCheck(uint16 _effAurName) { effAurName = _effAurName; }
-                bool Check(SpellInfo const* spellInfo, uint8 effIndex);
-                std::string ToString();
+                bool Check(SpellInfo const* spellInfo, uint8 effIndex) const;
+                std::string ToString() const;
             private:
                 uint16 effAurName;
         };
@@ -199,8 +199,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         {
             public:
                 EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName);
-                std::string ToString();
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
+                std::string ToString() const;
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const override;
                 void Call(SpellScript* spellScript, SpellEffIndex effIndex);
             private:
                 SpellEffectFnType pEffectHandlerScript;
@@ -228,8 +228,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         {
             public:
                 TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest);
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
-                std::string ToString();
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const override;
+                std::string ToString() const;
                 uint16 GetTarget() const { return targetType; }
             protected:
                 uint16 targetType;
@@ -279,8 +279,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Spell* spell);
         void _InitHit();
-        bool _IsEffectPrevented(SpellEffIndex effIndex) { return (m_hitPreventEffectMask & (1 << effIndex)) != 0; }
-        bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) { return (m_hitPreventDefaultEffectMask & (1 << effIndex)) != 0; }
+        bool _IsEffectPrevented(SpellEffIndex effIndex) const { return (m_hitPreventEffectMask & (1 << effIndex)) != 0; }
+        bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) const { return (m_hitPreventDefaultEffectMask & (1 << effIndex)) != 0; }
         void _PrepareScriptCall(SpellScriptHookType hookType);
         void _FinishScriptCall();
         bool IsInCheckCastHook() const;
@@ -289,8 +289,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         bool IsInEffectHook() const;
     private:
         Spell* m_spell;
-        uint8 m_hitPreventEffectMask;
-        uint8 m_hitPreventDefaultEffectMask;
+        uint32 m_hitPreventEffectMask;
+        uint32 m_hitPreventDefaultEffectMask;
     public:
         //
         // SpellScript interface
@@ -368,11 +368,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // methods allowing interaction with Spell object
         //
         // methods useable during all spell handling phases
-        Unit* GetCaster();
-        Unit* GetOriginalCaster();
-        SpellInfo const* GetSpellInfo();
-        SpellValue const* GetSpellValue();
-        SpellEffectInfo const* GetEffectInfo(SpellEffIndex) const;
+        Unit* GetCaster() const;
+        Unit* GetOriginalCaster() const;
+        SpellInfo const* GetSpellInfo() const;
+        SpellValue const* GetSpellValue() const;
+        SpellEffectInfo const* GetEffectInfo(SpellEffIndex effIndex) const;
 
         // methods useable after spell is prepared
         // accessors to the explicit targets of the spell
@@ -386,48 +386,48 @@ class TC_GAME_API SpellScript : public _SpellScript
         // - ImplicitTargetXX set to TARGET_XXX_TARGET_YYY, _TARGET_ here means that explicit target is used by the effect, so spell needs one too
 
         // returns: WorldLocation which was selected as a spell destination or NULL
-        WorldLocation const* GetExplTargetDest();
+        WorldLocation const* GetExplTargetDest() const;
 
         void SetExplTargetDest(WorldLocation& loc);
 
         // returns: WorldObject which was selected as an explicit spell target or NULL if there's no target
-        WorldObject* GetExplTargetWorldObject();
+        WorldObject* GetExplTargetWorldObject() const;
 
         // returns: Unit which was selected as an explicit spell target or NULL if there's no target
-        Unit* GetExplTargetUnit();
+        Unit* GetExplTargetUnit() const;
 
         // returns: GameObject which was selected as an explicit spell target or NULL if there's no target
-        GameObject* GetExplTargetGObj();
+        GameObject* GetExplTargetGObj() const;
 
         // returns: Item which was selected as an explicit spell target or NULL if there's no target
-        Item* GetExplTargetItem();
+        Item* GetExplTargetItem() const;
 
         // methods useable only during spell hit on target, or during spell launch on target:
         // returns: target of current effect if it was Unit otherwise NULL
-        Unit* GetHitUnit();
+        Unit* GetHitUnit() const;
         // returns: target of current effect if it was Creature otherwise NULL
-        Creature* GetHitCreature();
+        Creature* GetHitCreature() const;
         // returns: target of current effect if it was Player otherwise NULL
-        Player* GetHitPlayer();
+        Player* GetHitPlayer() const;
         // returns: target of current effect if it was Item otherwise NULL
-        Item* GetHitItem();
+        Item* GetHitItem() const;
         // returns: target of current effect if it was GameObject otherwise NULL
-        GameObject* GetHitGObj();
+        GameObject* GetHitGObj() const;
         // returns: destination of current effect
-        WorldLocation* GetHitDest();
+        WorldLocation* GetHitDest() const;
         // setter/getter for for damage done by spell to target of spell hit
         // returns damage calculated before hit, and real dmg done after hit
-        int32 GetHitDamage();
+        int32 GetHitDamage() const;
         void SetHitDamage(int32 damage);
         void PreventHitDamage() { SetHitDamage(0); }
         // setter/getter for for heal done by spell to target of spell hit
         // returns healing calculated before hit, and real dmg done after hit
-        int32 GetHitHeal();
+        int32 GetHitHeal() const;
         void SetHitHeal(int32 heal);
         void PreventHitHeal() { SetHitHeal(0); }
-        Spell* GetSpell() { return m_spell; }
+        Spell* GetSpell() const { return m_spell; }
         // returns current spell hit target aura
-        Aura* GetHitAura();
+        Aura* GetHitAura() const;
         // prevents applying aura on current spell hit target
         void PreventHitAura();
 
@@ -448,13 +448,13 @@ class TC_GAME_API SpellScript : public _SpellScript
         void SetEffectValue(int32 value);
 
         // returns: cast item if present.
-        Item* GetCastItem();
+        Item* GetCastItem() const;
 
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
 
         // Returns SpellInfo from the spell that triggered the current one
-        SpellInfo const* GetTriggeringSpell();
+        SpellInfo const* GetTriggeringSpell() const;
 
         // finishes spellcast prematurely with selected error message
         void FinishCast(SpellCastResult result);
@@ -540,8 +540,8 @@ class TC_GAME_API AuraScript : public _SpellScript
         {
             public:
                 EffectBase(uint8 _effIndex, uint16 _effName);
-                std::string ToString();
-                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) override;
+                std::string ToString() const;
+                bool CheckEffect(SpellInfo const* spellInfo, uint8 effIndex) const override;
         };
         class TC_GAME_API EffectPeriodicHandler : public EffectBase
         {
@@ -666,7 +666,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         bool _Load(Aura* aura);
         void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
         void _FinishScriptCall();
-        bool _IsDefaultActionPrevented();
+        bool _IsDefaultActionPrevented() const;
     private:
         Aura* m_aura;
         AuraApplication const* m_auraApplication;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1267,7 +1267,7 @@ namespace Trinity
 
             bool operator()(GameObject* go) const
             {
-                if (go->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(go, m_fRange, false))
+                if ((!m_uiEntry || go->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(go, m_fRange, false))
                     return true;
 
                 return false;
@@ -1286,7 +1286,7 @@ namespace Trinity
 
             bool operator()(Unit* unit) const
             {
-                if (unit->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(unit, m_fRange, false))
+                if ((!m_uiEntry || unit->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(unit, m_fRange, false))
                     return true;
 
                 return false;

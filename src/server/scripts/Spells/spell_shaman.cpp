@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -511,7 +511,7 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
-// 23551 - Lightning Shield
+// 23551 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield : public SpellScriptLoader
 {
     public:
@@ -546,7 +546,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
         }
 };
 
-// 23552 - Lightning Shield
+// 23552 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 {
     public:
@@ -593,7 +593,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
                     return false;
                 return true;
             }
@@ -801,33 +801,6 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
         }
 };
 
-// 324 - Lightning Shield
-class spell_sha_lightning_shield : public SpellScriptLoader
-{
-public:
-    spell_sha_lightning_shield() : SpellScriptLoader("spell_sha_lightning_shield") { }
-
-    class spell_sha_lightning_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_sha_lightning_shield_AuraScript);
-
-        void UnsetUsingCharges(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetAura()->SetUsingCharges(false);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_sha_lightning_shield_AuraScript::UnsetUsingCharges, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_sha_lightning_shield_AuraScript();
-    }
-};
-
 // 210621 - Path of Flames Spread
 class spell_sha_path_of_flames_spread : public SpellScriptLoader
 {
@@ -978,7 +951,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_burst();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
-    new spell_sha_lightning_shield();
     new spell_sha_path_of_flames_spread();
     new spell_sha_tidal_waves();
     new spell_sha_windfury();

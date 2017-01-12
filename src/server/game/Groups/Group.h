@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,6 +38,14 @@ class WorldPacket;
 class WorldSession;
 
 struct MapEntry;
+
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        struct LootItemData;
+    }
+}
 
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
@@ -100,6 +108,7 @@ enum GroupFlags
     GROUP_FLAG_RAID                 = 0x002,
     GROUP_FLAG_LFG_RESTRICTED       = 0x004, // Script_HasLFGRestrictions()
     GROUP_FLAG_LFG                  = 0x008,
+    GROUP_FLAG_DESTROYED            = 0x010,
     GROUP_FLAG_ONE_PERSON_PARTY     = 0x020, // Script_IsOnePersonParty()
     GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
     GROUP_FLAG_GUILD_GROUP          = 0x100,
@@ -154,15 +163,15 @@ enum GroupUpdatePetFlags
 class Roll : public LootValidatorRef
 {
     public:
-        Roll(ObjectGuid _guid, LootItem const& li);
+        explicit Roll(LootItem const& li);
         ~Roll();
         void setLoot(Loot* pLoot);
         Loot* getLoot();
         void targetObjectBuildLink() override;
+        void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
 
-        ObjectGuid itemGUID;
         uint32 itemid;
-        int32  itemRandomPropId;
+        ItemRandomEnchantmentId itemRandomPropId;
         uint32 itemRandomSuffix;
         uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
@@ -209,6 +218,7 @@ class TC_GAME_API Group
             uint8       group;
             uint8       flags;
             uint8       roles;
+            int32       updateSequenceNumber;
             bool        readyChecked;
         };
         typedef std::list<MemberSlot> MemberSlotList;
@@ -337,6 +347,7 @@ class TC_GAME_API Group
         void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
+        void SendUpdateDestroyGroupToPlayer(Player* player, uint8 partyIndex, int32 sequenceNum) const;
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>
@@ -361,17 +372,17 @@ class TC_GAME_API Group
         /*********************************************************/
 
         bool isRollLootActive() const { return !RollId.empty(); }
-        void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
-        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
-        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootAllPassed(Roll const& roll);
+        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
+        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootAllPassed(Roll const& roll) const;
+        void SendLootRollsComplete(Roll const& roll) const;
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
-        Rolls::iterator GetRoll(ObjectGuid Guid);
+        Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
         void CountTheRoll(Rolls::iterator roll);
-        void CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
+        void CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint8 lootListId, uint8 choice);
         void EndRoll(Loot* loot);
 
         // related to disenchant rolls
@@ -422,7 +433,6 @@ class TC_GAME_API Group
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
-        uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
 
