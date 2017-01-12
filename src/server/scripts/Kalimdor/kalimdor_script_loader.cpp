@@ -113,7 +113,7 @@ void AddSC_the_barrens();
 void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
-void AddSC_mulgore();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKalimdorScripts()
