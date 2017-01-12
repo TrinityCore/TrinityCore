@@ -51,7 +51,7 @@ public:
     QueryCallbackData(std::function<void(QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { }
     QueryCallbackData(std::function<void(PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { }
     QueryCallbackData(QueryCallbackData&& right) { MoveFrom(*this, std::move(right)); }
-    QueryCallbackData& operator=(QueryCallbackData&& right) { MoveFrom(*this, std::move(right)); }
+    QueryCallbackData& operator=(QueryCallbackData&& right) { MoveFrom(*this, std::move(right)); return *this; }
     ~QueryCallbackData() { DestroyActiveMember(*this); }
 
 private:
