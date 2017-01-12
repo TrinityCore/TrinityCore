@@ -195,7 +195,7 @@ public:
             me->SetCanFly(true);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             uint32 summonedBySpell = me->GetUInt32Value(UNIT_CREATED_BY_SPELL);
 
