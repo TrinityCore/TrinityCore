@@ -133,14 +133,18 @@ public:
     }
 };
 
+/*######
+## npc_sharpbeak
+######*/
+
 enum Sharpbeak
 {
     SPELL_TAXI_CAMP_TO_JINTHAALOR = 80657,
     SPELL_TAXI_JINTHAALOR_TO_CAMP = 94120,
     SPELL_EJECT_ALL_PASSENGERS    = 50630
 };
- 
-G3D::Vector3 const firstPath[13] =
+
+G3D::Vector3 const firstPath[12] =
 {
     { -79.13181f, -4038.275f, 114.5022f },
     { -70.66745f, -4034.817f, 123.6146f },
@@ -153,13 +157,11 @@ G3D::Vector3 const firstPath[13] =
     { 74.8351f, -3768.84f, 279.839f },
     { -53.0104f, -3582.62f, 287.755f },
     { -169.123f, -3582.08f, 282.866f },
-    { -241.8403f, -3625.01f, 247.4203f },
     { -241.8403f, -3625.01f, 247.4203f }
 };
- 
-G3D::Vector3 const secondPath[21] =
+
+G3D::Vector3 const secondPath[19] =
 {
-    { -241.606f, -3627.713f, 236.61870f },
     { -241.606f, -3627.713f, 236.61870f },
     { -235.6163f, -3624.076f, 239.6081f },
     { -226.8698f, -3623.929f, 244.8882f },
@@ -178,50 +180,50 @@ G3D::Vector3 const secondPath[21] =
     { -35.45139f, -4047.543f, 133.2071f },
     { -59.21181f, -4051.257f, 128.0297f },
     { -76.90625f, -4040.207f, 126.0433f },
-    { -77.51563f, -4022.026f, 123.2135f },
     { -77.51563f, -4022.026f, 123.2135f }
 };
- 
+
 class npc_sharpbeak : public CreatureScript
 {
 public:
     npc_sharpbeak() : CreatureScript("npc_sharpbeak") { }
- 
-    struct npc_sharpbeak_AI : public VehicleAI
+
+    struct npc_sharpbeak_AI : public ScriptedAI
     {
-        npc_sharpbeak_AI(Creature* creature) : VehicleAI(creature) { }
- 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        npc_sharpbeak_AI(Creature* creature) : ScriptedAI(creature) 
+        {
+            me->SetCanFly(true);
+        }
+
+        void IsSummonedBy(Unit* summoner) override
         {
             uint32 summonedBySpell = me->GetUInt32Value(UNIT_CREATED_BY_SPELL);
- 
+
             // means we were not created by spell
             if (!summonedBySpell)
                 return;
- 
-            me->SetCanFly(true);
- 
+
             switch (summonedBySpell)
             {
                 case SPELL_TAXI_CAMP_TO_JINTHAALOR: // spellid one
-                    me->GetMotionMaster()->MoveSmoothPath(1, firstPath, 13, false);
+                    me->GetMotionMaster()->MoveSmoothPath(1, firstPath, 12, false);
                     break;
                 case SPELL_TAXI_JINTHAALOR_TO_CAMP: // spellid two
-                    me->GetMotionMaster()->MoveSmoothPath(1, secondPath, 21, false);
+                    me->GetMotionMaster()->MoveSmoothPath(1, secondPath, 19, false);
                     break;
             }
         }
- 
+
         void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type == EFFECT_MOTION_TYPE && pointId == 1)
             {
                 DoCast(SPELL_EJECT_ALL_PASSENGERS);
-                me->DespawnOrUnsummon(Seconds(2).count());
+                me->DespawnOrUnsummon();
             }
         }
     };
- 
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sharpbeak_AI(creature);
