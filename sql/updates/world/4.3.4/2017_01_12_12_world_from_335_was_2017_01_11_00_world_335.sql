@@ -1,3 +1,4 @@
+/*
 --
 DELETE FROM `pool_template` WHERE `entry`= 372;
 INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
@@ -1158,3 +1159,4 @@ INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUE
 ((@POOL_ARATHIGUID := @POOL_ARATHIGUID + 1), 372, 0, 'Arathi Highlands - Ghost Mushroom'),
 ((@POOL_ARATHIGUID := @POOL_ARATHIGUID + 1), 372, 0, 'Arathi Highlands - Ghost Mushroom'),
 ((@POOL_ARATHIGUID := @POOL_ARATHIGUID + 1), 372, 0, 'Arathi Highlands - Ghost Mushroom');
+*/

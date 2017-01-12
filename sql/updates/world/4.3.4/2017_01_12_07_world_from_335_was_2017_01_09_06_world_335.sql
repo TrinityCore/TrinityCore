@@ -1,3 +1,4 @@
+/*
 -- ====================
 -- NPC Loot Issue Fixes (White Junk `item`s) - Drop Rates WAY Too High (Totally Screwed Very High Drop % For No Good Reason - Bad Query messed things up long time ago)
 -- ====================
@@ -15,3 +16,4 @@ UPDATE `creature_loot_template` SET `Chance`=0.03 WHERE `item`=4689 AND `entry` 
 UPDATE `creature_loot_template` SET `Chance`=0.03 WHERE `item`=6514 AND `entry` IN (2957,3100,3123,3196,3244,3268);
 -- Soldier's Cloak
 UPDATE `creature_loot_template` SET `Chance`=0.03 WHERE `item`=6549 AND `entry` IN (2324,3632);
+*/

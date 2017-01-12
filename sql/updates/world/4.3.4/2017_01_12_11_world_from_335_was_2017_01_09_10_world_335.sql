@@ -1,3 +1,4 @@
+/*
 -- =================
 -- Alterac Mountains
 -- =================
@@ -746,3 +747,4 @@ INSERT INTO `pool_gameobject` (`guid`, `pool_entry`, `chance`, `description`) VA
 ((@POOL_ALTERACGUID := @POOL_ALTERACGUID + 1), 371, 0, 'Alterac Mountains - Goldthorn'),
 ((@POOL_ALTERACGUID := @POOL_ALTERACGUID + 1), 371, 0, 'Alterac Mountains - Goldthorn'),
 ((@POOL_ALTERACGUID := @POOL_ALTERACGUID + 1), 371, 0, 'Alterac Mountains - Goldthorn');
+*/

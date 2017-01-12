@@ -1,3 +1,4 @@
+/*
 -- Golorn Frostbeard - Path rework
 SET @NPC := 219;
 UPDATE `creature` SET `position_x`=-5633.440, `position_y`=-496.4770, `position_z`=396.8753, `orientation`=2.539195, `MovementType`=2 WHERE `guid`=@NPC;
@@ -83,3 +84,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, (@POINT := @POINT + 1), -4654.313, -1281.536, 503.3816, 75000, 0, 0.959392);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` IN (@SCRIPTID+0, @SCRIPTID+1, @SCRIPTID+2);
+*/

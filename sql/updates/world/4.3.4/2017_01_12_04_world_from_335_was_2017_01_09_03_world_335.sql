@@ -1,3 +1,4 @@
+/*
 -- =============================
 -- Cleanup Wendigo in Dun Morogh
 -- =============================
@@ -20,3 +21,4 @@ DELETE FROM `creature_addon` WHERE `guid` IN (47011, 47013, 47014, 47015, 47059,
 
 -- some inhabittypefixes for flying creatures
 UPDATE `creature_template` SET `InhabitType`=4 WHERE  `entry` IN (6141,4015,2830);
+*/

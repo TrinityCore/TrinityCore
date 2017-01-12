@@ -1,3 +1,4 @@
+/*
 -- Teacher and Kids in Stormwind - add Formation
 DELETE FROM `creature_formations` WHERE `leaderGUID`=84028;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
@@ -13,3 +14,4 @@ DELETE FROM `creature_addon` WHERE `guid` IN (87091,87092,87088,87090,87089,8708
 DELETE FROM `waypoint_data` WHERE `id` IN (870910,870920,870880,870900,870890,870820);
 UPDATE `creature` SET `MovementType`=0, `SpawnDist`=0 WHERE `id` IN (3507,3510,3505,3511,3508,3512);
 UPDATE `creature_template` SET `MovementType`=0 WHERE `entry` IN (3507,3510,3505,3511,3508,3512);
+*/

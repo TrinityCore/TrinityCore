@@ -1,3 +1,4 @@
+/*
 -- John Turner
 SET @MAXGUID := 907; 
 SET @SCRIPTID := 10800;
@@ -43,3 +44,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, (@POINT := @POINT + 1), -4895.609, -898.0984, 501.6593, 0, 0, 0);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` IN (@SCRIPTID+0, @SCRIPTID+1, @SCRIPTID+2, @SCRIPTID+3);
+*/
