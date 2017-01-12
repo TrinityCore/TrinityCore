@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,163 +15,77 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Mulgore
-SD%Complete: 100
-SDComment: Support for quest: 11129, 861
-SDCategory: Mulgore
-EndScriptData */
+/* Script Info
+Name: Mulgore
+Comment: Support for quest: 24215
+*/
 
-/* ContentData
-npc_kyle_frenzied
-EndContentData */
+/* Included Scripts
+npc_eagle_spirit: Used by Creature Eagle Spirit, Entry 36790
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
-/*#####
-# npc_kyle_frenzied
+/*######
+## npc_eagle_spirit
 ######*/
 
-enum KyleFrenzied
+enum EagleSpirit
 {
-    EMOTE_SEE_LUNCH         = 0,
-    EMOTE_EAT_LUNCH         = 1,
-    EMOTE_DANCE             = 2,
-
-    SPELL_LUNCH             = 42222,
-    NPC_KYLE_FRENZIED       = 23616,
-    NPC_KYLE_FRIENDLY       = 23622,
-    POINT_ID                = 1
+    SPELL_EJECT_ALL_PASSENGERS = 50630
 };
 
-class npc_kyle_frenzied : public CreatureScript
+G3D::Vector3 const Flightpath[7] =
+{
+    { -2884.155f, -71.08681f, 242.0678f },
+    { -2720.592f, -111.0035f, 242.5955f },
+    { -2683.951f, -382.9010f, 231.1792f },
+    { -2619.148f, -484.9288f, 231.1792f },
+    { -2543.868f, -525.3333f, 231.1792f },
+    { -2465.321f, -502.4896f, 190.7347f },
+    { -2343.872f, -401.8281f, -8.320873f }
+};
+
+class npc_eagle_spirit : public CreatureScript
 {
 public:
-    npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
+    npc_eagle_spirit() : CreatureScript("npc_eagle_spirit") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct npc_eagle_spirit_AI : public ScriptedAI
     {
-        return new npc_kyle_frenziedAI (creature);
-    }
-
-    struct npc_kyle_frenziedAI : public ScriptedAI
-    {
-        npc_kyle_frenziedAI(Creature* creature) : ScriptedAI(creature)
+        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
+            me->SetCanFly(true);
         }
 
-        void Initialize()
+        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
         {
-            EventActive = false;
-            IsMovingToLunch = false;
-            PlayerGUID.Clear();
-            EventTimer = 5000;
-            EventPhase = 0;
-        }
+            if (!apply)
+                return;
 
-        bool EventActive;
-        bool IsMovingToLunch;
-        ObjectGuid PlayerGUID;
-        uint32 EventTimer;
-        uint8 EventPhase;
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (me->GetEntry() == NPC_KYLE_FRIENDLY)
-                me->UpdateEntry(NPC_KYLE_FRENZIED);
-        }
-
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
-        {
-            if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
-            {
-                if (Caster->GetTypeId() == TYPEID_PLAYER)
-                    PlayerGUID = Caster->GetGUID();
-
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                {
-                    me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MoveIdle();
-                    me->StopMoving();
-                }
-
-                EventActive = true;
-                Talk(EMOTE_SEE_LUNCH);
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
-            }
+            me->GetMotionMaster()->MoveSmoothPath(1, Flightpath, 7, false);
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            if (type != POINT_MOTION_TYPE || !EventActive)
-                return;
-
-            if (pointId == POINT_ID)
-                IsMovingToLunch = false;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (EventActive)
+            if (type == EFFECT_MOTION_TYPE && pointId == 1)
             {
-                if (IsMovingToLunch)
-                    return;
-
-                if (EventTimer <= diff)
-                {
-                    EventTimer = 5000;
-                    ++EventPhase;
-
-                    switch (EventPhase)
-                    {
-                        case 1:
-                            if (Unit* unit = ObjectAccessor::GetUnit(*me, PlayerGUID))
-                            {
-                                if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
-                                {
-                                    IsMovingToLunch = true;
-                                    me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
-                                }
-                            }
-                            break;
-                        case 2:
-                            Talk(EMOTE_EAT_LUNCH);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
-                            break;
-                        case 3:
-                            if (Player* unit = ObjectAccessor::GetPlayer(*me, PlayerGUID))
-                                unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
-
-                            me->UpdateEntry(NPC_KYLE_FRIENDLY);
-                            break;
-                        case 4:
-                            EventTimer = 30000;
-                            Talk(EMOTE_DANCE);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
-                            break;
-                        case 5:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                            Reset();
-                            me->GetMotionMaster()->Clear();
-                            break;
-                    }
-                }
-                else
-                    EventTimer -= diff;
+                DoCast(SPELL_EJECT_ALL_PASSENGERS);
+                me->DespawnOrUnsummon();
             }
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_eagle_spirit_AI(creature);
+    }
 };
 
 void AddSC_mulgore()
 {
-    new npc_kyle_frenzied();
+    new npc_eagle_spirit();
 }

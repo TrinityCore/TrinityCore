@@ -106,13 +106,14 @@ void AddSC_desolace();
 void AddSC_durotar();
 void AddSC_felwood();
 void AddSC_moonglade();
+void AddSC_mulgore();
 void AddSC_silithus();
 void AddSC_tanaris();
 void AddSC_the_barrens();
 void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
-
+void AddSC_mulgore();
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKalimdorScripts()
@@ -207,6 +208,7 @@ void AddKalimdorScripts()
     AddSC_durotar();
     AddSC_felwood();
     AddSC_moonglade();
+    AddSC_mulgore();
     AddSC_silithus();
     AddSC_tanaris();
     AddSC_the_barrens();
