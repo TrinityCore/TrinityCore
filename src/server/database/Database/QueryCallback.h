@@ -30,28 +30,6 @@ typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
 class TC_DATABASE_API QueryCallbackNew
 {
-    struct String
-    {
-        explicit String(std::future<QueryResult>&& result) : Result(std::move(result)) { }
-        String(String&&) = default;
-        String& operator=(String&&) = default;
-        ~String() { }
-
-        std::future<QueryResult> Result;
-        std::function<void(QueryResult)> Callback;
-    };
-
-    struct Prepared
-    {
-        explicit Prepared(std::future<PreparedQueryResult>&& result) : Result(std::move(result)) { }
-        Prepared(Prepared&&) = default;
-        Prepared& operator=(Prepared&&) = default;
-        ~Prepared() { }
-
-        std::future<PreparedQueryResult> Result;
-        std::function<void(PreparedQueryResult)> Callback;
-    };
-
 public:
     explicit QueryCallbackNew(std::future<QueryResult>&& result);
     explicit QueryCallbackNew(std::future<PreparedQueryResult>&& result);
@@ -72,15 +50,21 @@ public:
     Status InvokeIfReady();
 
 private:
-    void MoveFrom(QueryCallbackNew&& other);
-    void DestroyCurrentMember();
+    QueryCallbackNew(QueryCallbackNew const& right) = delete;
+    QueryCallbackNew& operator=(QueryCallbackNew const& right) = delete;
+
+    template<typename T> friend void MoveFrom(T& to, T&& from);
+    template<typename T> friend void DestroyActiveMember(T& obj);
 
     union
     {
-        String _string;
-        Prepared _prepared;
+        std::future<QueryResult> _string;
+        std::future<PreparedQueryResult> _prepared;
     };
     bool _isPrepared;
+
+    struct QueryCallbackData;
+    std::queue<QueryCallbackData, std::list<QueryCallbackData>> _callbacks;
 };
 
 template <typename Result, typename ParamType, bool chain = false>
