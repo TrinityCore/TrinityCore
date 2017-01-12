@@ -33,6 +33,9 @@ public:
     void ProcessReadyQueries();
 
 private:
+    QueryCallbackProcessor(QueryCallbackProcessor const&) = delete;
+    QueryCallbackProcessor& operator=(QueryCallbackProcessor const&) = delete;
+
     std::vector<QueryCallbackNew> _callbacks;
 };
 
