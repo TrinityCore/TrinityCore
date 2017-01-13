@@ -565,6 +565,7 @@ class TC_GAME_API Spell
         int32 m_castItemLevel;
         ObjectGuid m_castId;
         ObjectGuid m_originalCastId;
+        bool m_fromClient;
         uint32 m_castFlagsEx;
         union
         {

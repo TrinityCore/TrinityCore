@@ -7863,6 +7863,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spellPrepare.ServerCastID = spell->m_castId;
             SendDirectMessage(spellPrepare.Write());
 
+            spell->m_fromClient = true;
             spell->m_CastItem = item;
             spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
             spell->prepare(&targets);
@@ -7893,6 +7894,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         spellPrepare.ServerCastID = spell->m_castId;
         SendDirectMessage(spellPrepare.Write());
 
+        spell->m_fromClient = true;
         spell->m_CastItem = item;
         spell->m_misc.Raw.Data[0] = misc[0];
         spell->m_misc.Raw.Data[1] = misc[1];
@@ -7926,6 +7928,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spellPrepare.ServerCastID = spell->m_castId;
             SendDirectMessage(spellPrepare.Write());
 
+            spell->m_fromClient = true;
             spell->m_CastItem = item;
             spell->m_misc.Raw.Data[0] = misc[0];
             spell->m_misc.Raw.Data[1] = misc[1];
