@@ -134,20 +134,23 @@ public:
 };
 
 /*######
-## npc_sharpbeak
+## npc_sharpbeak used by Entrys 43161 & 51125
 ######*/
 
 enum Sharpbeak
 {
-    SPELL_TAXI_CAMP_TO_JINTHAALOR = 80657,
-    SPELL_TAXI_JINTHAALOR_TO_CAMP = 94120,
-    SPELL_EJECT_ALL_PASSENGERS    = 50630
+    NPC_SHARPBEAK_CAMP            = 43161,
+    NPC_SHARPBEAK_JINTHAALOR      = 51125,
+    SPELL_EJECT_ALL_PASSENGERS    = 50630,
+    COUNT_CAMP_PATH               = 13,
+    COUNT_JINTHAALOR_PATH         = 21,
+    END_POINT                     = 1
 };
 
-G3D::Vector3 const firstPath[12] =
+G3D::Vector3 const campPath[COUNT_CAMP_PATH] =
 {
-    { -79.13181f, -4038.275f, 114.5022f },
-    { -70.66745f, -4034.817f, 123.6146f },
+    { -75.40077f, -4037.111f, 114.6418f },
+    { -68.80193f, -4034.235f, 123.6844f },
     { -62.2031f, -4031.36f, 132.727f },
     { -48.5851f, -4008.04f, 156.977f },
     { -26.2691f, -3987.88f, 176.755f },
@@ -157,11 +160,13 @@ G3D::Vector3 const firstPath[12] =
     { 74.8351f, -3768.84f, 279.839f },
     { -53.0104f, -3582.62f, 287.755f },
     { -169.123f, -3582.08f, 282.866f },
+    { -241.8403f, -3625.01f, 247.4203f },
     { -241.8403f, -3625.01f, 247.4203f }
 };
 
-G3D::Vector3 const secondPath[19] =
+G3D::Vector3 const jinthaalorPath[COUNT_JINTHAALOR_PATH] =
 {
+    { -249.4681f, -3632.487f, 232.6947f },
     { -241.606f, -3627.713f, 236.61870f },
     { -235.6163f, -3624.076f, 239.6081f },
     { -226.8698f, -3623.929f, 244.8882f },
@@ -180,6 +185,7 @@ G3D::Vector3 const secondPath[19] =
     { -35.45139f, -4047.543f, 133.2071f },
     { -59.21181f, -4051.257f, 128.0297f },
     { -76.90625f, -4040.207f, 126.0433f },
+    { -77.51563f, -4022.026f, 123.2135f },
     { -77.51563f, -4022.026f, 123.2135f }
 };
 
@@ -190,33 +196,27 @@ public:
 
     struct npc_sharpbeak_AI : public ScriptedAI
     {
-        npc_sharpbeak_AI(Creature* creature) : ScriptedAI(creature) 
-        {
-            me->SetCanFly(true);
-        }
+        npc_sharpbeak_AI(Creature* creature) : ScriptedAI(creature) { }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
         {
-            uint32 summonedBySpell = me->GetUInt32Value(UNIT_CREATED_BY_SPELL);
-
-            // means we were not created by spell
-            if (!summonedBySpell)
+            if (!apply)
                 return;
 
-            switch (summonedBySpell)
+            switch (me->GetEntry())
             {
-                case SPELL_TAXI_CAMP_TO_JINTHAALOR: // spellid one
-                    me->GetMotionMaster()->MoveSmoothPath(1, firstPath, 12, false);
-                    break;
-                case SPELL_TAXI_JINTHAALOR_TO_CAMP: // spellid two
-                    me->GetMotionMaster()->MoveSmoothPath(1, secondPath, 19, false);
-                    break;
+            case NPC_SHARPBEAK_CAMP:
+                me->GetMotionMaster()->MoveSmoothPath(END_POINT, campPath, COUNT_CAMP_PATH, false);
+                break;
+            case NPC_SHARPBEAK_JINTHAALOR:
+                me->GetMotionMaster()->MoveSmoothPath(END_POINT, jinthaalorPath, COUNT_JINTHAALOR_PATH, false);
+                break;
             }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == 1)
+            if (type == EFFECT_MOTION_TYPE && pointId == END_POINT)
             {
                 DoCast(SPELL_EJECT_ALL_PASSENGERS);
                 me->DespawnOrUnsummon();
