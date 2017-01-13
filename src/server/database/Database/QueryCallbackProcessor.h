@@ -21,7 +21,7 @@
 #include "Define.h"
 #include <vector>
 
-class QueryCallbackNew;
+class QueryCallback;
 
 class TC_DATABASE_API QueryCallbackProcessor
 {
@@ -29,14 +29,14 @@ public:
     QueryCallbackProcessor();
     ~QueryCallbackProcessor();
 
-    void AddQuery(QueryCallbackNew&& query);
+    void AddQuery(QueryCallback&& query);
     void ProcessReadyQueries();
 
 private:
     QueryCallbackProcessor(QueryCallbackProcessor const&) = delete;
     QueryCallbackProcessor& operator=(QueryCallbackProcessor const&) = delete;
 
-    std::vector<QueryCallbackNew> _callbacks;
+    std::vector<QueryCallback> _callbacks;
 };
 
 #endif // QueryCallbackProcessor_h__
