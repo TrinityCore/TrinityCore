@@ -102,8 +102,7 @@ private:
     uint16 _build;
     uint8 _expversion;
 
-    PreparedQueryResultFuture _queryFuture;
-    std::function<void(PreparedQueryResult)> _queryCallback;
+    Optional<QueryCallback> _queryCallback;
 };
 
 #pragma pack(push, 1)

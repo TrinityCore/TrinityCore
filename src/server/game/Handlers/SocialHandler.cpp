@@ -18,6 +18,7 @@
 
 #include "WorldSession.h"
 #include "Player.h"
+#include "QueryCallback.h"
 #include "SocialMgr.h"
 #include "ObjectMgr.h"
 
@@ -42,11 +43,11 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
     stmt->setString(0, friendName);
 
-    _addFriendCallback.SetParam(friendNote);
-    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback(std::bind(&WorldSession::HandleAddFriendOpcodeCallback, this, std::move(friendNote), std::placeholders::_1)));
 }
 
-void WorldSession::HandleAddFriendOpcodeCallback(PreparedQueryResult result, std::string const& friendNote)
+void WorldSession::HandleAddFriendOpcodeCallback(std::string const& friendNote, PreparedQueryResult result)
 {
     if (!GetPlayer())
         return;
@@ -116,7 +117,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
     stmt->setString(0, ignoreName);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleAddIgnoreOpcodeCallback, this, std::placeholders::_1)));
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallback(PreparedQueryResult result)
