@@ -126,7 +126,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             if (type >= AREATRIGGER_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` have areatrigger (Id: %u) with invalid type %u.", areaTriggerTemplate.Id, type);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` has listed areatrigger (Id: %u) with invalid type %u.", areaTriggerTemplate.Id, type);
                 continue;
             }
 
@@ -164,10 +164,22 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            miscTemplate.MoveCurveId        = areatriggerSpellMiscFields[2].GetUInt32();
-            miscTemplate.ScaleCurveId       = areatriggerSpellMiscFields[3].GetUInt32();
-            miscTemplate.MorphCurveId       = areatriggerSpellMiscFields[4].GetUInt32();
-            miscTemplate.FacingCurveId      = areatriggerSpellMiscFields[5].GetUInt32();
+#define VALIDATE_AND_SET_CURVE(Curve, Value) \
+            miscTemplate.##Curve = Value; \
+            if (miscTemplate.##Curve && !sCurveStore.LookupEntry(miscTemplate.##Curve)) \
+            { \
+                TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` has listed areatrigger (MiscId: %u, Id: %u) with invalid " #Curve " (%u), set to 0!", \
+                    miscTemplate.MiscId, areatriggerId, miscTemplate.##Curve); \
+                miscTemplate.##Curve = 0; \
+            }
+
+            VALIDATE_AND_SET_CURVE(MoveCurveId,   areatriggerSpellMiscFields[2].GetUInt32());
+            VALIDATE_AND_SET_CURVE(ScaleCurveId,  areatriggerSpellMiscFields[3].GetUInt32());
+            VALIDATE_AND_SET_CURVE(MorphCurveId,  areatriggerSpellMiscFields[4].GetUInt32());
+            VALIDATE_AND_SET_CURVE(FacingCurveId, areatriggerSpellMiscFields[5].GetUInt32());
+
+#undef VALIDATE_AND_SET_CURVE
+
             miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[6].GetUInt32();
             miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetUInt32();
 
