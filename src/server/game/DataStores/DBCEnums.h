@@ -147,7 +147,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 1986
+#define BATTLE_PET_SPECIES_MAX_ID 2023
 
 enum ChrSpecializationFlag
 {
