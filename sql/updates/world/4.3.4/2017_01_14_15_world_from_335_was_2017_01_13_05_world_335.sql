@@ -1,3 +1,4 @@
+/*
 -- Lizzarik -- http://wowhead.com/npc=3658
 DELETE FROM `creature_formations` WHERE `leaderGUID`=14056;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
@@ -87,3 +88,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 74, -972.594, -3639.53, 18.4471, 0),
 (@PATH, 75, -977.058, -3633.07, 19.1832, 0),
 (@PATH, 76, -974.034, -3634.92, 19.0109, 1800000);
+*/

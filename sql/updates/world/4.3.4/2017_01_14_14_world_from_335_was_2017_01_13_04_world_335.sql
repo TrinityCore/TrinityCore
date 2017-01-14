@@ -1,3 +1,4 @@
+/*
 -- The Demon Seed -- http://wotlk.openwow.com/quest=924
 -- Ak'Zeloth SAI
 SET @ENTRY := 3521;
@@ -18,3 +19,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `creature_text` WHERE `entry`=3521;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
 (3521, 0, 0, 'Take a stone from the table, $n.  You will need it for your quest.', 12, 1, 100, 25, 0, 0, 1115, 'Ak''Zeloth');
+*/

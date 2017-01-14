@@ -1,3 +1,4 @@
+/*
 -- Swiftmane -- http://wotlk.openwow.com/npc=5831
 SET @NPC := 20433;
 SET @PATH := @NPC * 10;
@@ -44,3 +45,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 36, -714.682, -3548.67, 93.914, 1),
 (@PATH, 37, -718.461, -3563.25, 92.414, 1),
 (@PATH, 38, -715.575, -3582.03, 92.3202, 1);
+*/

@@ -1,3 +1,4 @@
+/*
 -- =========================
 -- NPC Spawn Fixes - Fix All - UDB 4.3.4 Port (Every Single Spawns Was Sniff Data and Verified on Official) - Most Detailed Review of NPC Spawns Ever
 -- =========================
@@ -639,3 +640,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,2,-9626.04,502.132,41.6338,0,2.38042,1),
 (@PATH,3,-9608.88,485.914,41.4421,4000,5.57542,1),
 (@PATH,4,-9626.04,502.132,41.6338,0,2.38042,1);
+*/
