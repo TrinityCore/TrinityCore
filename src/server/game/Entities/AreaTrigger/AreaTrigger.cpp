@@ -34,7 +34,7 @@
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _isRemoved(false), _reachedDestination(false), _lastSplineIndex(0), _movementTime(0), _totalMovementTime(0),
+    _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0), _totalMovementTime(0),
     _areaTriggerMiscTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
@@ -211,7 +211,7 @@ void AreaTrigger::_UpdateDuration(int32 newDuration)
 
     // don't broadcast update
     // should be sent in object create packets only
-    // needs more search
+    // needs more research
     //UpdateUInt32Value(AREATRIGGER_DURATION, _duration);
     m_uint32Values[AREATRIGGER_DURATION] = _duration;
 }
@@ -564,21 +564,29 @@ void AreaTrigger::InitSplines(::Movement::PointsArray const& splinePoints, uint3
 
     // temporary until we have a better solution
     // should be sent in object create packets only
-    // needs more search
+    // needs more research
     //UpdateUInt32Value(AREATRIGGER_TIME_TO_TARGET, timeToTarget);
     m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
 
     if (IsInWorld())
     {
+        if (_reachedDestination)
+        {
+            WorldPackets::AreaTrigger::AreaTriggerReShape reshape;
+            reshape.TriggerGUID = GetGUID();
+            SendMessageToSet(reshape.Write(), true);
+        }
+
         WorldPackets::AreaTrigger::AreaTriggerReShape reshape;
         reshape.TriggerGUID = GetGUID();
         reshape.AreaTriggerSpline = boost::in_place();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
         reshape.AreaTriggerSpline->Points = splinePoints;
-
         SendMessageToSet(reshape.Write(), true);
     }
+
+    _reachedDestination = false;
 }
 
 void AreaTrigger::UpdateSplinePosition(uint32 diff)
