@@ -523,6 +523,10 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targ
 
             return false;
         }
+        case AREATRIGGER_AURA_USER_CASTER:
+        {
+            return unit->GetGUID() == GetCasterGuid();
+        }
         case AREATRIGGER_AURA_USER_ANY:
         default:
             break;
