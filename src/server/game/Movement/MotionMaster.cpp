@@ -445,6 +445,8 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints
     Movement::PointsArray path(pathPoints, pathPoints + pathSize);
 
     Movement::MoveSplineInit init(_owner);
+    if (_owner->CanFly())
+        init.SetUncompressed();
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
