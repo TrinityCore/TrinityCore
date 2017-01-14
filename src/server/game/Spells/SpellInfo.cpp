@@ -490,7 +490,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
                     if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
                         if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                            value *= ratingMult->RatingMultiplier;
+                            value *= ratingMult->ArmorMultiplier;
                 }
             }
             else
