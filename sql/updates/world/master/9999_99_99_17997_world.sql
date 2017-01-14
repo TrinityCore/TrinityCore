@@ -20,8 +20,8 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   `Idx` int(10) unsigned NOT NULL,
   `VerticeX` float NOT NULL DEFAULT '0',
   `VerticeY` float NOT NULL DEFAULT '0',
-  `VerticeTargetX` float NOT NULL DEFAULT '0',
-  `VerticeTargetY` float NOT NULL DEFAULT '0',
+  `VerticeTargetX` float NOT,
+  `VerticeTargetY` float NOT,
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`areatriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

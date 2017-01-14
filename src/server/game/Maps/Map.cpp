@@ -1125,6 +1125,7 @@ void Map::AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, floa
     else
     {
         at->Relocate(x, y, z, orientation);
+        at->UpdateShape();
         at->UpdateObjectVisibility(false);
         RemoveAreaTriggerFromMoveList(at);
     }

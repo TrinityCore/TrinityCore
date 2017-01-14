@@ -32,7 +32,8 @@ namespace
 void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    std::unordered_map<uint32, std::vector<AreaTriggerPolygonVertice>> verticeByAreatrigger;
+    std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesByAreatrigger;
+    std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesTargetByAreatrigger;
     std::unordered_map<uint32, Movement::PointsArray> splineByMoveCurve;
     std::unordered_map<uint32, std::vector<AreaTriggerAuras>> aurasByAreatrigger;
 
@@ -72,20 +73,19 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates auras. DB table `areatrigger_template_auras` is empty.");
     }
 
-    if (QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`"))
+    if (QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`"))
     {
         do
         {
             Field* verticeFields = vertices->Fetch();
             uint32 areatriggerId = verticeFields[0].GetUInt32();
 
-            AreaTriggerPolygonVertice vertice;
-            vertice.VerticeX        = verticeFields[1].GetFloat();
-            vertice.VerticeY        = verticeFields[2].GetFloat();
-            vertice.VerticeTargetX  = verticeFields[3].GetFloat();
-            vertice.VerticeTargetY  = verticeFields[4].GetFloat();
+            verticesByAreatrigger[areatriggerId].emplace_back(verticeFields[2].GetFloat(), verticeFields[3].GetFloat());
 
-            verticeByAreatrigger[areatriggerId].push_back(vertice);
+            if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
+                verticesByAreatrigger[areatriggerId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
+            else if (verticeFields[4].IsNull() != !verticeFields[5].IsNull())
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_polygon_vertices` has listed invalid target vertices (AreaTrigger: %u, Index: %u).", areatriggerId, verticeFields[1].GetUInt32());
         }
         while (vertices->NextRow());
     }
@@ -137,7 +137,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 areaTriggerTemplate.DefaultDatas.Data[i] = fields[3 + i].GetFloat();
 
             areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[9].GetString());
-            areaTriggerTemplate.PolygonVertices = std::move(verticeByAreatrigger[areaTriggerTemplate.Id]);
+            areaTriggerTemplate.PolygonVertices = std::move(verticesByAreatrigger[areaTriggerTemplate.Id]);
+            areaTriggerTemplate.PolygonVerticesTarget = std::move(verticesTargetByAreatrigger[areaTriggerTemplate.Id]);
             areaTriggerTemplate.Auras = std::move(aurasByAreatrigger[areaTriggerTemplate.Id]);
 
             areaTriggerTemplate.InitMaxSearchRadius();

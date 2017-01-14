@@ -45,6 +45,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
+        uint32 GetTimeToTargetScale() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE); }
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
@@ -73,13 +74,15 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         uint32 GetElapsedTimeForMovement() const { return _totalMovementTime; }
 
         bool CheckIsInPolygon2D(Position* pos) const;
+        void UpdateShape();
 
     protected:
         void _UpdateDuration(int32 newDuration);
+        float GetProgress() const;
 
         void AddAuras(Unit* unit);
         void RemoveAuras(Unit* unit);
-        bool UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const;
+        bool UnitFitToAuraRequirement(Unit* unit, Unit* caster, AreaTriggerAuraTypes targetType) const;
 
         void UpdatePolygonOrientation();
         void UpdateSplinePosition(uint32 diff);
@@ -92,7 +95,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float _previousCheckOrientation;
         bool _isRemoved;
 
-        std::vector<AreaTriggerPolygonVertice> _polygonVertices;
+        std::vector<G3D::Vector2> _polygonVertices;
         ::Movement::Spline<int32> _spline;
 
         bool _reachedDestination;

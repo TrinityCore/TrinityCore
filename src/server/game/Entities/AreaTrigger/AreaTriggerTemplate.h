@@ -53,14 +53,6 @@ enum AreaTriggerTypes
     AREATRIGGER_TYPE_MAX        = 5
 };
 
-struct AreaTriggerPolygonVertice
-{
-    float VerticeX;
-    float VerticeY;
-    float VerticeTargetX;
-    float VerticeTargetY;
-};
-
 struct AreaTriggerAuras
 {
     uint32 AuraId;
@@ -95,7 +87,8 @@ public:
     uint32 Flags;
     uint32 ScriptId;
     float MaxSearchRadius;
-    std::vector<AreaTriggerPolygonVertice> PolygonVertices;
+    std::vector<G3D::Vector2> PolygonVertices;
+    std::vector<G3D::Vector2> PolygonVerticesTarget;
     std::vector<AreaTriggerAuras> Auras;
 
     union

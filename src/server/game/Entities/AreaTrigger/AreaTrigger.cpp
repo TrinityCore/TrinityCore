@@ -114,8 +114,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         m_movementInfo.transport.guid = target->GetGUID();
     }
 
-    if (GetTemplate()->IsPolygon())
-        UpdatePolygonOrientation();
+    UpdateShape();
 
     if (GetMiscTemplate()->HasSplines())
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
@@ -216,11 +215,27 @@ void AreaTrigger::_UpdateDuration(int32 newDuration)
     m_uint32Values[AREATRIGGER_DURATION] = _duration;
 }
 
+float AreaTrigger::GetProgress() const
+{
+    return GetTimeSinceCreated() < GetTimeToTargetScale() ? float(GetTimeSinceCreated()) / float(GetTimeToTargetScale()) : 1.0f;
+}
+
 void AreaTrigger::SearchUnitInSphere()
 {
     std::list<Unit*> targetList;
 
-    Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius);
+    float radius = GetTemplate()->SphereDatas.Radius;
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE))
+    {
+        if (GetMiscTemplate()->MorphCurveId)
+        {
+            radius = G3D::lerp(GetTemplate()->SphereDatas.Radius,
+                GetTemplate()->SphereDatas.RadiusTarget,
+                sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MorphCurveId, GetProgress()));
+        }
+    }
+
+    Trinity::AnyUnitInObjectRangeCheck check(this, radius);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
@@ -271,8 +286,6 @@ void AreaTrigger::SearchUnitInPolygon()
     VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
 
     float height = GetTemplate()->PolygonDatas.Height;
-
-    UpdatePolygonOrientation();
 
     targetList.remove_if([this, height](Unit* unit) -> bool
     {
@@ -381,14 +394,14 @@ void AreaTrigger::UpdatePolygonOrientation()
     float angleSin = std::sin(newOrientation);
     float angleCos = std::cos(newOrientation);
 
-    // This is needed to rotate the vertices, following caster orientation
-    for (AreaTriggerPolygonVertice& vertice : _polygonVertices)
+    // This is needed to rotate the vertices, following orientation
+    for (G3D::Vector2& vertice : _polygonVertices)
     {
-        float tempX = vertice.VerticeX;
-        float tempY = vertice.VerticeY;
+        float tempX = vertice.x;
+        float tempY = vertice.y;
 
-        vertice.VerticeX = tempX * angleCos - tempY * angleSin;
-        vertice.VerticeY = tempX * angleSin + tempY * angleCos;
+        vertice.x = tempX * angleCos - tempY * angleSin;
+        vertice.y = tempX * angleSin + tempY * angleCos;
     }
 
     _previousCheckOrientation = newOrientation;
@@ -419,10 +432,10 @@ bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
             j = i + 1;
         }
 
-        float vertY_i = GetPositionY() + _polygonVertices[i].VerticeY;
-        float vertX_i = GetPositionX() + _polygonVertices[i].VerticeX;
-        float vertY_j = GetPositionY() + _polygonVertices[j].VerticeY;
-        float vertX_j = GetPositionX() + _polygonVertices[j].VerticeX;
+        float vertX_i = GetPositionX() + _polygonVertices[i].x;
+        float vertY_i = GetPositionY() + _polygonVertices[i].y;
+        float vertX_j = GetPositionX() + _polygonVertices[j].x;
+        float vertY_j = GetPositionY() + _polygonVertices[j].y;
 
         // following statement checks if testPoint.Y is below Y-coord of i-th vertex
         bool belowLowY = vertY_i > testY;
@@ -464,13 +477,19 @@ bool AreaTrigger::CheckIsInPolygon2D(Position* pos) const
     return locatedInPolygon;
 }
 
+void AreaTrigger::UpdateShape()
+{
+    if (GetTemplate()->IsPolygon())
+        UpdatePolygonOrientation();
+}
+
 void AreaTrigger::AddAuras(Unit* unit)
 {
-    for (AreaTriggerAuras const& aura : GetTemplate()->Auras)
+    if (Unit* caster = GetCaster())
     {
-        if (UnitFitToAuraRequirement(unit, aura.TargetType))
+        for (AreaTriggerAuras const& aura : GetTemplate()->Auras)
         {
-            if (Unit* caster = GetCaster())
+            if (UnitFitToAuraRequirement(unit, caster, aura.TargetType))
             {
                 if (aura.CastType == AREATRIGGER_AURA_CASTTYPE_CAST)
                     caster->CastSpell(unit, aura.AuraId, true);
@@ -487,41 +506,25 @@ void AreaTrigger::RemoveAuras(Unit* unit)
         unit->RemoveAurasDueToSpell(aura.AuraId, GetCasterGuid());
 }
 
-bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, AreaTriggerAuraTypes targetType) const
+bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, Unit* caster, AreaTriggerAuraTypes targetType) const
 {
     switch (targetType)
     {
         case AREATRIGGER_AURA_USER_FRIEND:
         {
-            if (Unit* caster = GetCaster())
-                return caster->IsFriendlyTo(unit);
-
-            return false;
+            return caster->IsFriendlyTo(unit);
         }
         case AREATRIGGER_AURA_USER_ENEMY:
         {
-            if (Unit* caster = GetCaster())
-                return !caster->IsFriendlyTo(unit);
-
-            return false;
+            return !caster->IsFriendlyTo(unit);
         }
         case AREATRIGGER_AURA_USER_RAID:
         {
-            if (Unit* caster = GetCaster())
-                if (Player* casterPlayer = caster->ToPlayer())
-                    if (Player* targetPlayer = unit->ToPlayer())
-                        return casterPlayer->IsInSameRaidWith(targetPlayer);
-
-            return false;
+            return caster->IsInRaidWith(unit);
         }
         case AREATRIGGER_AURA_USER_PARTY:
         {
-            if (Unit* caster = GetCaster())
-                if (Player* casterPlayer = caster->ToPlayer())
-                    if (Player* targetPlayer = unit->ToPlayer())
-                        return casterPlayer->IsInSameGroupWith(targetPlayer);
-
-            return false;
+            return caster->IsInPartyWith(unit);
         }
         case AREATRIGGER_AURA_USER_CASTER:
         {

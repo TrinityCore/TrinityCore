@@ -619,24 +619,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerPolygon)
         {
-            int32 verticeCount = areaTriggerTemplate->PolygonVertices.size();
-
-            *data << int32(verticeCount);
-            *data << int32(verticeCount);
+            *data << int32(areaTriggerTemplate->PolygonVertices.size());
+            *data << int32(areaTriggerTemplate->PolygonVerticesTarget.size());
             *data << float(areaTriggerTemplate->PolygonDatas.Height);
             *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
 
-            for (int32 i = 0; i < verticeCount; ++i)
-            {
-                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeX);
-                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeY);
-            }
+            for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVertices)
+                *data << vertice;
 
-            for (int32 i = 0; i <verticeCount; ++i)
-            {
-                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeTargetX);
-                *data << float(areaTriggerTemplate->PolygonVertices[i].VerticeTargetY);
-            }
+            for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVerticesTarget)
+                *data << vertice;
         }
 
         if (hasAreaTriggerCylinder)

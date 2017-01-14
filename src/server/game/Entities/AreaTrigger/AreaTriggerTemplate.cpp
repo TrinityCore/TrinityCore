@@ -23,9 +23,8 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
     switch (Type)
     {
         case AREATRIGGER_TYPE_SPHERE:
-        case AREATRIGGER_TYPE_CYLINDER:
         {
-            MaxSearchRadius = SphereDatas.Radius;
+            MaxSearchRadius = std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
             break;
         }
         case AREATRIGGER_TYPE_BOX:
@@ -38,14 +37,19 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
             if (PolygonDatas.Height <= 0.0f)
                 PolygonDatas.Height = 1.0f;
 
-            for (AreaTriggerPolygonVertice vertice : PolygonVertices)
+            for (G3D::Vector2 const& vertice : PolygonVertices)
             {
-                float pointDist = std::sqrt((vertice.VerticeX * vertice.VerticeX) + (vertice.VerticeY * vertice.VerticeY));
+                float pointDist = vertice.length();
 
                 if (pointDist > MaxSearchRadius)
                     MaxSearchRadius = pointDist;
             }
 
+            break;
+        }
+        case AREATRIGGER_TYPE_CYLINDER:
+        {
+            MaxSearchRadius = SphereDatas.Radius;
             break;
         }
         default:
