@@ -15,19 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Info
-Name: Mulgore
-Comment: Support for quest: 24215
-*/
-
-/* Included Scripts
-npc_eagle_spirit: Used by Creature Eagle Spirit, Entry 36790
- */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
-#include "SpellInfo.h"
 
 /*######
 ## npc_eagle_spirit
@@ -35,10 +24,12 @@ npc_eagle_spirit: Used by Creature Eagle Spirit, Entry 36790
 
 enum EagleSpirit
 {
-    SPELL_EJECT_ALL_PASSENGERS = 50630
+    SPELL_EJECT_ALL_PASSENGERS = 50630,
+    SPELL_SPIRIT_FORM          = 69324
 };
 
-G3D::Vector3 const Flightpath[7] =
+uint32 const EagleSpiritflightPathSize = 7;
+G3D::Vector3 const EagleSpiritflightPath[EagleSpiritflightPathSize] =
 {
     { -2884.155f, -71.08681f, 242.0678f },
     { -2720.592f, -111.0035f, 242.5955f },
@@ -56,25 +47,22 @@ public:
 
     struct npc_eagle_spirit_AI : public ScriptedAI
     {
-        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetCanFly(true);
-        }
+        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature) { }
 
         void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
         {
             if (!apply)
                 return;
 
-            me->GetMotionMaster()->MoveSmoothPath(1, Flightpath, 7, false);
+            me->GetMotionMaster()->MoveSmoothPath(EagleSpiritflightPathSize, EagleSpiritflightPath, EagleSpiritflightPathSize, false);
+            me->CastSpell(me, SPELL_SPIRIT_FORM);
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == 1)
+            if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
             {
                 DoCast(SPELL_EJECT_ALL_PASSENGERS);
-                me->DespawnOrUnsummon();
             }
         }
     };
