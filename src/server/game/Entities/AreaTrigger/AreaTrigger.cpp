@@ -541,10 +541,12 @@ void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints, uint32
     {
         float tempX = spline.x;
         float tempY = spline.y;
+        float tempZ = GetPositionZ();
 
         spline.x = (tempX * angleCos - tempY * angleSin) + GetPositionX();
         spline.y = (tempX * angleSin + tempY * angleCos) + GetPositionY();
-        spline.z += GetPositionZ();
+        UpdateAllowedPositionZ(spline.x, spline.y, tempZ);
+        spline.z += tempZ;
     }
 
     InitSplines(splinePoints, timeToTarget);
