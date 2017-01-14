@@ -141,13 +141,11 @@ enum Sharpbeak
 {
     NPC_SHARPBEAK_CAMP            = 43161,
     NPC_SHARPBEAK_JINTHAALOR      = 51125,
-    SPELL_EJECT_ALL_PASSENGERS    = 50630,
-    COUNT_CAMP_PATH               = 13,
-    COUNT_JINTHAALOR_PATH         = 21,
-    END_POINT                     = 1
+    SPELL_EJECT_ALL_PASSENGERS    = 50630
 };
 
-G3D::Vector3 const campPath[COUNT_CAMP_PATH] =
+uint32 const campPathSize = 12;
+G3D::Vector3 const campPath[campPathSize] =
 {
     { -75.40077f, -4037.111f, 114.6418f },
     { -68.80193f, -4034.235f, 123.6844f },
@@ -160,11 +158,11 @@ G3D::Vector3 const campPath[COUNT_CAMP_PATH] =
     { 74.8351f, -3768.84f, 279.839f },
     { -53.0104f, -3582.62f, 287.755f },
     { -169.123f, -3582.08f, 282.866f },
-    { -241.8403f, -3625.01f, 247.4203f },
     { -241.8403f, -3625.01f, 247.4203f }
 };
 
-G3D::Vector3 const jinthaalorPath[COUNT_JINTHAALOR_PATH] =
+uint32 const jinthaalorPathSize = 20;
+G3D::Vector3 const jinthaalorPath[jinthaalorPathSize] =
 {
     { -249.4681f, -3632.487f, 232.6947f },
     { -241.606f, -3627.713f, 236.61870f },
@@ -185,7 +183,6 @@ G3D::Vector3 const jinthaalorPath[COUNT_JINTHAALOR_PATH] =
     { -35.45139f, -4047.543f, 133.2071f },
     { -59.21181f, -4051.257f, 128.0297f },
     { -76.90625f, -4040.207f, 126.0433f },
-    { -77.51563f, -4022.026f, 123.2135f },
     { -77.51563f, -4022.026f, 123.2135f }
 };
 
@@ -196,7 +193,15 @@ public:
 
     struct npc_sharpbeak_AI : public ScriptedAI
     {
-        npc_sharpbeak_AI(Creature* creature) : ScriptedAI(creature) { }
+        npc_sharpbeak_AI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            endPoint = 0;
+        }
 
         void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
         {
@@ -205,23 +210,26 @@ public:
 
             switch (me->GetEntry())
             {
-            case NPC_SHARPBEAK_CAMP:
-                me->GetMotionMaster()->MoveSmoothPath(END_POINT, campPath, COUNT_CAMP_PATH, false);
-                break;
-            case NPC_SHARPBEAK_JINTHAALOR:
-                me->GetMotionMaster()->MoveSmoothPath(END_POINT, jinthaalorPath, COUNT_JINTHAALOR_PATH, false);
-                break;
+                case NPC_SHARPBEAK_CAMP:
+                    me->GetMotionMaster()->MoveSmoothPath(campPathSize, campPath, campPathSize, false);
+                    endPoint = campPathSize;
+                    break;
+                case NPC_SHARPBEAK_JINTHAALOR:
+                    me->GetMotionMaster()->MoveSmoothPath(jinthaalorPathSize, jinthaalorPath, jinthaalorPathSize, false);
+                    endPoint = jinthaalorPathSize;
+                    break;
             }
         }
 
         void MovementInform(uint32 type, uint32 pointId) override
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == END_POINT)
+            if (type == EFFECT_MOTION_TYPE && pointId == endPoint)
             {
                 DoCast(SPELL_EJECT_ALL_PASSENGERS);
-                me->DespawnOrUnsummon();
             }
         }
+        private:
+            uint8 endPoint;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
