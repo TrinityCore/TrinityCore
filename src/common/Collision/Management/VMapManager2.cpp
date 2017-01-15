@@ -332,7 +332,6 @@ namespace VMAP
 		if (basePath.length() > 0 && basePath[basePath.length() - 1] != '/' && basePath[basePath.length() - 1] != '\\')
 			basePath.push_back('/');
 		std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
-		bool success = true;
 		FILE* rf = fopen(fullname.c_str(), "rb");
 		if (!rf)
 			return false;
