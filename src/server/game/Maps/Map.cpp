@@ -104,31 +104,31 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
 
 bool Map::ExistVMap(uint32 mapid, int gx, int gy) //TODO Should be renamed ExistVMap -> CheckVMap or something else that implies that it not only checks if file exist but also if it can be loaded!
 {
-	if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
-	{
-		if (vmgr->isMapLoadingEnabled())
-		{
-			bool exists = vmgr->isPathAccessibleForMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid);
-			if (!exists)
-			{
-				std::string name = vmgr->getDirFileName(mapid, gx, gy);
-				TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
-				TC_LOG_ERROR("maps", "Please place VMAP-files (*.vmtree and *.vmtile) in the vmap-directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
-				return false;
-			}
-
-
-			bool couldLoad = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid, gx, gy); //TODO: This method should be renamed to 'canLoadMap' because, it is not clear when it couldn't load because didn't exist or couldn't load because of file mismatch!
-			if (!couldLoad)
-			{
-				std::string name = vmgr->getDirFileName(mapid, gx, gy);
-				TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
-				TC_LOG_ERROR("maps", "This may be due a mismatch version, lack of permissions or a corrupted file. Try re-extracting the maps again.");
-				return false;
-			}
-		}
-	}
-	return true;
+    if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+    {
+        if (vmgr->isMapLoadingEnabled())
+        {
+            bool exists = vmgr->isPathAccessibleForMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid);
+            if (!exists)
+            {
+                std::string name = vmgr->getDirFileName(mapid, gx, gy);
+                TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                TC_LOG_ERROR("maps", "Please place VMAP-files (*.vmtree and *.vmtile) in the vmap-directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
+                return false;
+            }
+            
+            
+            bool couldLoad = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid, gx, gy); //TODO: This method should be renamed to 'canLoadMap' because, it is not clear when it couldn't load because didn't exist or couldn't load because of file mismatch!
+            if (!couldLoad)
+            {
+                std::string name = vmgr->getDirFileName(mapid, gx, gy);
+                TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                TC_LOG_ERROR("maps", "This may be due a mismatch version, lack of permissions or a corrupted file. Try re-extracting the maps again.");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void Map::LoadMMap(int gx, int gy)
