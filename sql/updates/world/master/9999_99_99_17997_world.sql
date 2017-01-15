@@ -54,6 +54,7 @@ CREATE TABLE `spell_areatrigger` (
   `ScaleCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `MorphCurveId` int(10) unsigned NOT NULL DEFAULT '0',
   `FacingCurveId` int(10) unsigned NOT NULL DEFAULT '0',
+  `DecalPropertiesId` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeToTarget` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeToTargetScale` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',

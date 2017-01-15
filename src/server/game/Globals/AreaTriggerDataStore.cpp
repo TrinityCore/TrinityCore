@@ -147,7 +147,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         } while (templates->NextRow());
     }
 
-    if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
+    if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreatriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, DecalPropertiesId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
     {
         do
         {
@@ -166,12 +166,12 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             }
 
 #define VALIDATE_AND_SET_CURVE(Curve, Value) \
-            miscTemplate.##Curve = Value; \
-            if (miscTemplate.##Curve && !sCurveStore.LookupEntry(miscTemplate.##Curve)) \
+            miscTemplate.Curve = Value; \
+            if (miscTemplate.Curve && !sCurveStore.LookupEntry(miscTemplate.Curve)) \
             { \
                 TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger` has listed areatrigger (MiscId: %u, Id: %u) with invalid " #Curve " (%u), set to 0!", \
-                    miscTemplate.MiscId, areatriggerId, miscTemplate.##Curve); \
-                miscTemplate.##Curve = 0; \
+                    miscTemplate.MiscId, areatriggerId, miscTemplate.Curve); \
+                miscTemplate.Curve = 0; \
             }
 
             VALIDATE_AND_SET_CURVE(MoveCurveId,   areatriggerSpellMiscFields[2].GetUInt32());
@@ -181,8 +181,10 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_CURVE
 
-            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[6].GetUInt32();
-            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[7].GetUInt32();
+            miscTemplate.DecalPropertiesId = areatriggerSpellMiscFields[6].GetUInt32();
+
+            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[7].GetUInt32();
+            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[8].GetUInt32();
 
             if (miscTemplate.MoveCurveId)
                 miscTemplate.SplinePoints = splineByMoveCurve[miscTemplate.MoveCurveId];

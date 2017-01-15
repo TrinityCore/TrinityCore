@@ -145,6 +145,8 @@ public:
         MorphCurveId        = 0;
         FacingCurveId       = 0;
 
+        DecalPropertiesId   = 0;
+
         TimeToTarget        = 0;
         TimeToTargetScale   = 0;
 
@@ -160,6 +162,8 @@ public:
     uint32 ScaleCurveId;
     uint32 MorphCurveId;
     uint32 FacingCurveId;
+
+    uint32 DecalPropertiesId;
 
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
