@@ -56,6 +56,7 @@ namespace VMAP
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+			virtual bool isPathAccessibleForMap(const char* pBasePath, unsigned int pMapId) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;

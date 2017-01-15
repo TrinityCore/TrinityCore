@@ -129,6 +129,8 @@ namespace VMAP
             }
             virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
 
+			virtual bool isPathAccessibleForMap(const char * _basePath, unsigned int mapID);
+
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 
             typedef uint32(*GetLiquidFlagsFn)(uint32 liquidType);
