@@ -63,8 +63,8 @@ struct QueryCallback::QueryCallbackData
 public:
     friend class QueryCallback;
 
-    QueryCallbackData(std::function<void(QueryCallback&, QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { TC_LOG_ERROR(LOGGER_ROOT, "QueryCallbackData [%p]: Constructing from string query", (void*)this); }
-    QueryCallbackData(std::function<void(QueryCallback&, PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { TC_LOG_ERROR(LOGGER_ROOT, "QueryCallbackData [%p]: Constructing from prepared query", (void*)this); }
+    QueryCallbackData(std::function<void(QueryCallback&, QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { }
+    QueryCallbackData(std::function<void(QueryCallback&, PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { }
     QueryCallbackData(QueryCallbackData&& right)
     {
         _isPrepared = right._isPrepared;
