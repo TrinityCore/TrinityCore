@@ -21,7 +21,6 @@
 #include "Object.h"
 #include "Spline.h"
 #include <G3D/Vector3.h>
-#include "MoveSplineInitArgs.h"
 
 class Unit;
 class SpellInfo;
@@ -30,13 +29,13 @@ class SpellInfo;
 
 enum AreaTriggerFlags
 {
-    AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION   = 0x00001,
-    AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE          = 0x00002,
+    AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION   = 0x00001, // NYI
+    AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE          = 0x00002, // Implemented for Spheres
     AREATRIGGER_FLAG_HAS_ATTACHED               = 0x00004,
     AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR      = 0x00008,
-    AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN        = 0x00010,
+    AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN        = 0x00010, // NYI
     AREATRIGGER_FLAG_UNK1                       = 0x00020,
-    AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW  = 0x00040,
+    AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW  = 0x00040, // NYI
     AREATRIGGER_FLAG_UNK2                       = 0x00080,
     AREATRIGGER_FLAG_UNK3                       = 0x00100,
     AREATRIGGER_FLAG_UNK4                       = 0x00200,
@@ -115,8 +114,8 @@ public:
         // AREATRIGGER_TYPE_POLYGON
         struct
         {
-            float  Height;
-            float  HeightTarget;
+            float Height;
+            float HeightTarget;
         } PolygonDatas;
 
         // AREATRIGGER_TYPE_CYLINDER
@@ -169,7 +168,7 @@ public:
     uint32 TimeToTargetScale;
 
     AreaTriggerTemplate const* Template;
-    Movement::PointsArray SplinePoints;
+    std::vector<G3D::Vector3> SplinePoints;
 };
 
 #endif

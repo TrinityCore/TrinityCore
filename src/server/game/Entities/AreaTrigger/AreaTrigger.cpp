@@ -645,7 +645,14 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     G3D::Vector3 currentPosition;
     _spline.evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
 
-    GetMap()->AreaTriggerRelocation(this, currentPosition.x, currentPosition.y, currentPosition.z, GetOrientation());
+    float orientation = GetOrientation();
+    if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR))
+    {
+        G3D::Vector3 const& nextPoint = _spline.getPoint(lastPositionIndex + 1);
+        orientation = GetAngle(nextPoint.x, nextPoint.y);
+    }
+
+    GetMap()->AreaTriggerRelocation(this, currentPosition.x, currentPosition.y, currentPosition.z, orientation);
 
     if (_lastSplineIndex != lastPositionIndex)
     {
