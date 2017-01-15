@@ -6,7 +6,7 @@ INSERT INTO `quest_template_addon` (`ID`,`PrevQuestID`) VALUES
 -- Missing Silvermane Wolf Spawns
 SET @CGUID := 250981;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0, 2924, 0, 0, 0, 1, 169, 0, 0, 0, -233.8715, -2569.186, 119.0644, 0.8901179, 120, 0, 0, 1, 0, 0, 0, 0, 0, 23222),
 (@CGUID+1, 2924, 0, 0, 0, 1, 169, 0, 0, 0, -248.5712, -2559.398, 117.1755, 1.745329, 120, 0, 0, 1, 0, 0, 0, 0, 0, 23222);
 
