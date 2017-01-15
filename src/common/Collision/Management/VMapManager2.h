@@ -129,7 +129,7 @@ namespace VMAP
             }
             virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
 
-			virtual bool isPathAccessibleForMap(const char * _basePath, unsigned int mapID) override;
+            virtual bool isPathAccessibleForMap(const char * _basePath, unsigned int mapID) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 
