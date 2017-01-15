@@ -11,7 +11,7 @@ CREATE TABLE `areatrigger_template` (
   `Data5` float NOT NULL DEFAULT '0',
   `ScriptName` char(64) NOT NULL DEFAULT '',
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `areatrigger_template_polygon_vertices`;
@@ -20,10 +20,10 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   `Idx` int(10) unsigned NOT NULL,
   `VerticeX` float NOT NULL DEFAULT '0',
   `VerticeY` float NOT NULL DEFAULT '0',
-  `VerticeTargetX` float NOT,
-  `VerticeTargetY` float NOT,
+  `VerticeTargetX` float NULL,
+  `VerticeTargetY` float NULL,
   `VerifiedBuild` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`areatriggerId`,`Idx`)
+  PRIMARY KEY (`AreaTriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `areatrigger_template_splines`;
@@ -42,7 +42,8 @@ CREATE TABLE `areatrigger_template_auras` (
   `AreaTriggerId` int(10) unsigned NOT NULL,
   `AuraId` int(10) unsigned NOT NULL,
   `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
-  `CastType` int(10) unsigned NOT NULL DEFAULT '0'
+  `CastType` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`AreaTriggerId`, `AuraId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `spell_areatrigger`;

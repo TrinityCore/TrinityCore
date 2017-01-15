@@ -622,8 +622,20 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
 
     float currentTimePercent = float(_movementTime) / float(GetTimeToTarget());
 
-    if (currentTimePercent <= 0)
+    if (currentTimePercent <= 0.f)
         return;
+
+    if (GetMiscTemplate()->MorphCurveId)
+    {
+        float progress = sDB2Manager.GetCurveValueAt(GetMiscTemplate()->MorphCurveId, currentTimePercent);
+        if (progress < 0.f || progress > 1.f)
+        {
+            TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
+                GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
+        }
+        else
+            currentTimePercent = progress;
+    }
 
     int lastPositionIndex = 0;
     float percentFromLastPoint = 0;
