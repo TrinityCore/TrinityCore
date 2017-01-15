@@ -518,7 +518,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         *data << uint32(areaTrigger->GetTimeSinceCreated());
 
-        *data << G3D::Vector3::zero(); // RollPitchYaw
+        *data << areaTrigger->GetRollPitchYaw();
 
         bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
         bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
@@ -581,7 +581,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
 
         if (hasTargetRollPitchYaw)
-            *data << G3D::Vector3::zero();
+            *data << areaTrigger->GetTargetRollPitchYaw();
 
         if (hasScaleCurveID)
             *data << uint32(areaTriggerMiscTemplate->ScaleCurveId);

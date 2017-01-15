@@ -67,6 +67,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
+        G3D::Vector3 const& GetRollPitchYaw() const { return _rollPitchYaw; }
+        G3D::Vector3 const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
         void InitSplineOffsets(::Movement::PointsArray splinePoints, uint32 timeToTarget);
         void InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
@@ -95,6 +97,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float _previousCheckOrientation;
         bool _isRemoved;
 
+        G3D::Vector3 _rollPitchYaw;
+        G3D::Vector3 _targetRollPitchYaw;
         std::vector<G3D::Vector2> _polygonVertices;
         ::Movement::Spline<int32> _spline;
 
