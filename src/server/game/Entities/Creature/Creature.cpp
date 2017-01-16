@@ -494,6 +494,10 @@ void Creature::Update(uint32 diff)
 {
     if (IsAIEnabled && m_TriggerJustRespawned)
     {
+        float x, y, z, o;
+        GetRespawnPosition(x, y, z, &o);
+        NearTeleportTo(x, y, z, o, false);
+
         m_TriggerJustRespawned = false;
         AI()->JustRespawned();
         if (m_vehicleKit)
