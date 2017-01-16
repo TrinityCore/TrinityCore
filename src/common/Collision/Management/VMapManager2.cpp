@@ -321,25 +321,16 @@ namespace VMAP
         }
     }
 
-    bool VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
+	/* return 0 = All Good
+	*  return 1 = File not found
+	*  return 2 = Version Mismatch
+	*  return 3 = File corruption or something else
+	*/
+    int VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
     {
+		
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
     }
-
-	bool VMapManager2::isPathAccessibleForMap(const char* _basePath, unsigned int mapID)
-	{
-		std::string basePath = std::string(_basePath);
-		if (basePath.length() > 0 && basePath[basePath.length() - 1] != '/' && basePath[basePath.length() - 1] != '\\')
-			basePath.push_back('/');
-		std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
-		bool success = true;
-		FILE* rf = fopen(fullname.c_str(), "rb");
-		if (!rf)
-			return false;
-
-		fclose(rf);
-		return true;
-	}
 
     void VMapManager2::getInstanceMapTree(InstanceTreeMap &instanceMapTree)
     {

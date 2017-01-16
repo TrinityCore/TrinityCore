@@ -238,35 +238,41 @@ namespace VMAP
     }
 
     //=========================================================
-
-    bool StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY)
+	/* return 0 = All Good
+	*  return 1 = File not found
+	*  return 2 = Version Mismatch 
+	*  return 3 = File corruption or something else
+	*/
+    int StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY)
     {
         std::string basePath = vmapPath;
         if (basePath.length() > 0 && basePath[basePath.length()-1] != '/' && basePath[basePath.length()-1] != '\\')
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
-        bool success = true;
+
+        int success = 0; //All Good
+
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
-            return false;
-        /// @todo check magic number when implemented...
+            return 1; //File not found
+
         char tiled;
         char chunk[8];
         if (!readChunk(rf, chunk, VMAP_MAGIC, 8) || fread(&tiled, sizeof(char), 1, rf) != 1)
         {
             fclose(rf);
-            return false;
+            return 2; //Version Mismatch 
         }
         if (tiled)
         {
             std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
             FILE* tf = fopen(tilefile.c_str(), "rb");
             if (!tf)
-                success = false;
+                success = 3; //File corruption or something else
             else
             {
                 if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
-                    success = false;
+                    success = 3; //File corruption or something else
                 fclose(tf);
             }
         }
