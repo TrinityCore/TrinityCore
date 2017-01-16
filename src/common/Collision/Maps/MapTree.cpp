@@ -238,11 +238,11 @@ namespace VMAP
     }
 
     //=========================================================
-	/* return 0 = All Good
-	*  return 1 = File not found
-	*  return 2 = Version Mismatch 
-	*  return 3 = File corruption or something else
-	*/
+    /* return 0 = All Good
+    *  return 1 = File not found
+    *  return 2 = Version Mismatch 
+    *  return 3 = File corruption or something else
+    */
     int StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY)
     {
         std::string basePath = vmapPath;

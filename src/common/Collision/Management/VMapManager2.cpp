@@ -321,13 +321,13 @@ namespace VMAP
         }
     }
 
-	/* return 0 = All Good
-	*  return 1 = File not found
-	*  return 2 = Version Mismatch
-	*  return 3 = File corruption or something else
-	*/
+    /* return 0 = All Good
+    *  return 1 = File not found
+    *  return 2 = Version Mismatch
+    *  return 3 = File corruption or something else
+    */
     int VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
-    {	
+    {
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
     }
     void VMapManager2::getInstanceMapTree(InstanceTreeMap &instanceMapTree)

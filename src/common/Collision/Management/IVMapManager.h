@@ -55,8 +55,8 @@ namespace VMAP
 
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-			///Changed from Bool to Int, in order to be able to use the same method with a little bit more of error descriptor.
-            virtual int existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;	
+            ///Changed from Bool to Int, in order to be able to use the same method with a little bit more of error descriptor.
+            virtual int existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;
