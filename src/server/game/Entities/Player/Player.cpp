@@ -21242,9 +21242,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
         WorldPackets::Spells::SetSpellModifier packet(opcode);
 
-        int i = 0;
-        flag128 _mask;
-
         /// @todo Implement sending of bulk modifiers instead of single
         packet.Modifiers.resize(1);
         WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
@@ -21253,18 +21250,16 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
         for (int eff = 0; eff < 128; ++eff)
         {
-            if (eff != 0 && (eff % 32) == 0)
-                _mask[i++] = 0;
-
-            _mask[i] = uint32(1) << (eff - (32 * i));
-            if (mod->mask & _mask)
+            flag128 mask;
+            mask[eff / 32] = 1u << (eff % 32);
+            if (mod->mask & mask)
             {
                 WorldPackets::Spells::SpellModifierData modData;
 
                 if (mod->type == SPELLMOD_FLAT)
                 {
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_FLAT].begin(); itr != m_spellMods[mod->op][SPELLMOD_FLAT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & _mask)
+                        if (*itr != mod && (*itr)->mask & mask)
                             modData.ModifierValue += (*itr)->value;
 
                     if (apply)
@@ -21274,7 +21269,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                 {
                     modData.ModifierValue = 1.0f;
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_PCT].begin(); itr != m_spellMods[mod->op][SPELLMOD_PCT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & _mask)
+                        if (*itr != mod && (*itr)->mask & mask)
                             modData.ModifierValue *= CalculatePct(1.0f, (*itr)->value);
 
                     if (apply)
