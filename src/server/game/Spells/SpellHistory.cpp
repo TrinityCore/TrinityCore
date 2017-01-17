@@ -136,7 +136,6 @@ void SpellHistory::SaveToDB(SQLTransaction& trans)
 
 void SpellHistory::Update()
 {
-    SQLTransaction t;
     Clock::time_point now = Clock::now();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
