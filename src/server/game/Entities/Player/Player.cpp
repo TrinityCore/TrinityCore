@@ -21236,6 +21236,13 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod: Player '%s' (%s), SpellID: %d", GetName().c_str(), GetGUID().ToString().c_str(), mod->spellId);
 
+    /// First, manipulate our spellmodifier container
+    if (apply)
+        m_spellMods[mod->op][mod->type].push_back(mod);
+    else
+        m_spellMods[mod->op][mod->type].remove(mod);
+
+    /// Now, send spellmodifier packet
     if (!IsLoading())
     {
         OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
@@ -21258,22 +21265,17 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
                 if (mod->type == SPELLMOD_FLAT)
                 {
+                    modData.ModifierValue = 0.0f;
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_FLAT].begin(); itr != m_spellMods[mod->op][SPELLMOD_FLAT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & mask)
+                        if ((*itr)->mask & mask)
                             modData.ModifierValue += (*itr)->value;
-
-                    if (apply)
-                        modData.ModifierValue += mod->value;
                 }
                 else
                 {
                     modData.ModifierValue = 1.0f;
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_PCT].begin(); itr != m_spellMods[mod->op][SPELLMOD_PCT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & mask)
-                            modData.ModifierValue *= CalculatePct(1.0f, (*itr)->value);
-
-                    if (apply)
-                        modData.ModifierValue *= CalculatePct(1.0f, mod->value);
+                        if ((*itr)->mask & mask)
+                            modData.ModifierValue *= 1.0f + CalculatePct(1.0f, (*itr)->value);
                 }
 
                 modData.ClassIndex = eff;
@@ -21285,11 +21287,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         SendDirectMessage(packet.Write());
     }
 
-    if (apply)
-        m_spellMods[mod->op][mod->type].push_back(mod);
-    else
+    /// Finally, delete spellmodifier on remove
+    if (!apply)
     {
-        m_spellMods[mod->op][mod->type].remove(mod);
         // mods bound to aura will be removed in AuraEffect::~AuraEffect
         if (!mod->ownerAura)
             delete mod;
