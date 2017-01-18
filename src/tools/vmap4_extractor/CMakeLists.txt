@@ -23,7 +23,8 @@ target_link_libraries(vmap4extractor
   PUBLIC
     common
     casc
-    bzip2)
+    bzip2
+    extractor_common)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

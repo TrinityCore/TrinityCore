@@ -8,9 +8,14 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-add_subdirectory(connection_patcher)
-add_subdirectory(extractor_common)
-add_subdirectory(map_extractor)
-add_subdirectory(vmap4_assembler)
-add_subdirectory(vmap4_extractor)
-add_subdirectory(mmaps_generator)
+CollectSourceFiles(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE_SOURCES)
+
+add_library(extractor_common STATIC ${PRIVATE_SOURCES})
+
+target_link_libraries(extractor_common boost casc)
+
+target_include_directories(extractor_common
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR})

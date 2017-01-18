@@ -26,7 +26,7 @@
 #include <fstream>
 #undef min
 #undef max
-#include "mpqfile.h"
+#include "cascfile.h"
 
 using namespace std;
 extern std::vector<uint16> LiqType;
@@ -39,11 +39,11 @@ WMORoot::WMORoot(std::string &filename)
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 bool WMORoot::open()
 {
-    MPQFile f(CascStorage, filename.c_str());
+    CASCFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -177,7 +177,7 @@ WMOGroup::WMOGroup(const std::string &filename) :
 
 bool WMOGroup::open()
 {
-    MPQFile f(CascStorage, filename.c_str());
+    CASCFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -511,7 +511,7 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
+WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
     : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0), d2(0), d3(0)
 {
     float ff[3];
