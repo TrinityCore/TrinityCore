@@ -5489,7 +5489,7 @@ bool Movement::PrintInvalidSequenceElement(MovementStatusElements const element,
 Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
     : _extraElements(extras), _unit(unit)
 {
-    if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_unitMovedByMe->GetTypeId() == TYPEID_PLAYER)
     {
         _selfOpcode = playerControl;
         _broadcast = broadcast;
@@ -5506,7 +5506,7 @@ void Movement::PacketSender::Send() const
     bool isPlayerMovement = false;
     if (Player* player = _unit->ToPlayer())
     {
-        isPlayerMovement = player->m_mover->GetTypeId() == TYPEID_PLAYER;
+        isPlayerMovement = player->m_unitMovedByMe->GetTypeId() == TYPEID_PLAYER;
         if (isPlayerMovement && _selfOpcode != NULL_OPCODE)
         {
             WorldPacket data(_selfOpcode);
