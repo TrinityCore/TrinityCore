@@ -27696,8 +27696,8 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && ToPlayer()->GetSession()->GetSecurity() == SEC_PLAYER &&
-        !ToPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
-        !ToPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        !ToPlayer()->m_unitMovedByMe ->HasAuraType(SPELL_AURA_FLY) &&
+        !ToPlayer()->m_unitMovedByMe ->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
