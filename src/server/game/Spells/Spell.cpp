@@ -2959,7 +2959,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
 
     // Set combo point requirement
-    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->m_movedPlayer)
+    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->m_playerMovingMe)
         m_needComboPoints = false;
 
     uint32 param1 = 0, param2 = 0;
@@ -3529,18 +3529,18 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    if (m_caster->m_movedPlayer)
+    if (m_caster->m_playerMovingMe)
     {
         // Take for real after all targets are processed
         if (m_needComboPoints)
-            m_caster->m_movedPlayer->ClearComboPoints();
+            m_caster->m_playerMovingMe->ClearComboPoints();
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
+            m_caster->m_playerMovingMe->GainSpellComboPoints(m_comboPointGain);
 
-        if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_movedPlayer->getClass() == CLASS_PALADIN)
-           HandleHolyPower(m_caster->m_movedPlayer);
+        if (m_spellInfo->PowerType == POWER_HOLY_POWER && m_caster->m_playerMovingMe->getClass() == CLASS_PALADIN)
+           HandleHolyPower(m_caster->m_playerMovingMe);
     }
 
     if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))

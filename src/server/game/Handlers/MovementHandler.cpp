@@ -233,7 +233,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "Guid " UI64FMTD, uint64(guid));
     TC_LOG_DEBUG("network", "Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
-    Player* plMover = _player->m_mover->ToPlayer();
+    Player* plMover = _player->m_unitMovedByMe->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
@@ -280,7 +280,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 {
     uint16 opcode = recvPacket.GetOpcode();
 
-    Unit* mover = _player->m_mover;
+    Unit* mover = _player->m_unitMovedByMe;
 
     ASSERT(mover != NULL);                      // there must always be a mover
 
@@ -536,8 +536,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     recvPacket.ReadByteSeq(guid[7]);
 
     if (GetPlayer()->IsInWorld())
-        if (_player->m_mover->GetGUID() != guid)
-            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+        if (_player->m_unitMovedByMe->GetGUID() != guid)
+            TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , guid.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -564,7 +564,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
 
-    if (_player->m_mover->GetGUID() != movementInfo.guid)
+    if (_player->m_unitMovedByMe->GetGUID() != movementInfo.guid)
         return;
 
     _player->m_movementInfo = movementInfo;
@@ -578,8 +578,8 @@ void WorldSession::HandleGravityAckMessage(WorldPacket& recvData)
 {
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-    if (movementInfo.guid != _player->m_mover->GetGUID())
-        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is %s and should be %s.", movementInfo.guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+    if (movementInfo.guid != _player->m_unitMovedByMe->GetGUID())
+        TC_LOG_ERROR("network", "HandleGravityAckMessage: incorrect mover guid: mover is %s and should be %s.", movementInfo.guid.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 
 }
 

@@ -181,7 +181,7 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 }
 
 Unit::Unit(bool isWorldObject) :
-    WorldObject(isWorldObject), m_movedPlayer(NULL), m_lastSanctuaryTime(0),
+    WorldObject(isWorldObject), m_playerMovingMe(NULL), m_lastSanctuaryTime(0),
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(NULL), i_disabledAI(NULL), m_AutoRepeatFirstCast(false), m_procDeep(0),
@@ -11369,7 +11369,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
 {
-    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    uint8 comboPoints = m_playerMovingMe ? m_playerMovingMe->GetComboPoints() : 0;
 
     int32 minduration = spellProto->GetDuration();
     int32 maxduration = spellProto->GetMaxDuration();
@@ -12575,6 +12575,20 @@ void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
             break;
         }
     }
+}
+
+Unit* Unit::GetUnitBeingMoved() const
+{
+    if (Player const* player = ToPlayer())
+        return player->m_unitMovedByMe;
+    return nullptr;
+}
+
+Player* Unit::GetPlayerBeingMoved() const
+{
+    if (Unit* mover = GetUnitBeingMoved())
+        return mover->ToPlayer();
+    return nullptr;
 }
 
 bool Unit::isFrozen() const
@@ -15154,7 +15168,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         if (Unit* charmer = GetCharmer())
         {
             player = charmer->ToPlayer();
-            if (player && player->m_mover != this)
+            if (player && player->m_unitMovedByMe != this)
                 player = NULL;
         }
     }
