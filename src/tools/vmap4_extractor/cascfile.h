@@ -12,6 +12,7 @@
 #include <iostream>
 #include <deque>
 #include <cstdint>
+#include "CascHandles.h"
 #include "CascLib.h"
 
 typedef int64_t            int64;
@@ -29,7 +30,7 @@ typedef uint8_t            uint8;
 int GetLastError();
 #endif
 
-class MPQFile
+class CASCFile
 {
     //MPQHANDLE handle;
     bool eof;
@@ -37,12 +38,12 @@ class MPQFile
     size_t pointer,size;
 
     // disable copying
-    MPQFile(const MPQFile &f);
-    void operator=(const MPQFile &f);
+    CASCFile(const CASCFile &f) = delete;
+    CASCFile& operator=(const CASCFile &f) = delete;
 
 public:
-    MPQFile(HANDLE mpq, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
-    ~MPQFile() { close(); }
+    CASCFile(CASC::StorageHandle const& casc, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
+    ~CASCFile() { close(); }
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }
     size_t getPos() { return pointer; }
