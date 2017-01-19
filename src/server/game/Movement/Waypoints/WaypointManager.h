@@ -33,8 +33,6 @@ enum WaypointMoveType
 
 struct WaypointData
 {
-    WaypointData() : id(0), x(0.0f), y(0.0f), z(0.0f), orientation(0.0f), delay(0), event_id(0), move_type(WAYPOINT_MOVE_TYPE_RUN), event_chance(0) { }
-
     uint32 id;
     float x, y, z, orientation;
     uint32 delay;
@@ -43,7 +41,7 @@ struct WaypointData
     uint8 event_chance;
 };
 
-typedef std::vector<WaypointData> WaypointPath;
+typedef std::vector<WaypointData*> WaypointPath;
 typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
 
 class TC_GAME_API WaypointMgr
@@ -64,12 +62,12 @@ class TC_GAME_API WaypointMgr
             if (itr != _waypointStore.end())
                 return &itr->second;
 
-            return nullptr;
+            return NULL;
         }
 
     private:
         WaypointMgr();
-        ~WaypointMgr() { }
+        ~WaypointMgr();
 
         WaypointPathContainer _waypointStore;
 };
