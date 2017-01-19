@@ -174,7 +174,7 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
         printer->Print("#include <type_traits>\n");
     }
     else
-        printer->Print("#include \"Define.h\" // for TC_SHARED_API\n");
+        printer->Print("#include \"Define.h\" // for TC_PROTO_API\n");
 
 
     printer->Print("// @@protoc_insertion_point(includes)\n");
