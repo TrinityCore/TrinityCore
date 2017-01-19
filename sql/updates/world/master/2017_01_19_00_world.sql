@@ -55,4 +55,4 @@ INSERT INTO `npc_trainer` (`ID`,`SpellID`,`MoneyCost`,`ReqSkillLine`,`ReqSkillRa
 (202001,  54084, 100000, 356, 275, 10), -- Master Fishing
 (202001,  51293, 150000, 356, 350, 10), -- Grand Master Fishing
 (202001,  88869, 250000, 356, 425, 10), -- Illustrious Grand Master Fishing
-(202001, 119412, 300000, 356, 500, 10); -- Zen Master Fishing
+(202001, 110412, 300000, 356, 500, 10); -- Zen Master Fishing
