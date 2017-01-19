@@ -7212,11 +7212,13 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const
     SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
     for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
     {
+        if (!(itr->first & spellInfo->GetSchoolMask()))
+            continue;
+
         SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second);
-        if ((itr->first & spellInfo->GetSchoolMask())
-            && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive() && IsFriendlyTo(caster))
-            && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
-            return true;
+        if (!(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive() && caster && IsFriendlyTo(caster)))
+            if (!spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+                return true;
     }
 
     return false;
