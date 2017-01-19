@@ -3350,6 +3350,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 69030: // Val'kyr Target Search
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
             case 69198: // Raging Spirit Visual
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
