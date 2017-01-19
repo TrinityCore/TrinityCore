@@ -2850,7 +2850,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         50661, // Weakened Resolve
-        68979  // Unleashed Souls
+        68979, // Unleashed Souls
+        48714, // Compelled
+        7853,  // The Art of Being a Water Terror: Force Cast on Player
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
