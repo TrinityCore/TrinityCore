@@ -2914,6 +2914,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 43446: // Explosive Trap Effect (Hexlord Malacrass)
             case 50661: // Weakened Resolve
             case 68979: // Unleashed Souls
+            case 48714: // Compelled
+            case 7853:  // The Art of Being a Water Terror: Force Cast on Player
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
