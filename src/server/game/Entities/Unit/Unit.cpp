@@ -3089,7 +3089,14 @@ void Unit::_UpdateAutoRepeatSpell()
         // Check if able to cast
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckCast(true) != SPELL_CAST_OK)
         {
-            InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
+                InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            // else if its Auto Shot dont interrupt whole process but let the player know he cant shoot in his currently pos
+            else
+            {
+                m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->SendInterrupted(0);
+                m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->SendCastResult(SPELL_FAILED_INTERRUPTED);
+            }
             return;
         }
 
