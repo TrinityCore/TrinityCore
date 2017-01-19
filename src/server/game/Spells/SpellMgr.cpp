@@ -3334,6 +3334,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         16177, // Ancestral Fortitude (Rank 1)
         16236, // Ancestral Fortitude (Rank 2)
         47930, // Grace
+		48714, // Compelled
+        7853,  // The Art of Being a Water Terror: Force Cast on Player
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
