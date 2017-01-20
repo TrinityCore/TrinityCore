@@ -126,7 +126,7 @@ class TC_GAME_API MotionMaster
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
         {
-            if (pos.GetOrientation() > 0.0f)
+            if (pos.GetOrientation())
                 MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.GetOrientation(), generatePath);
             else
                 MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
