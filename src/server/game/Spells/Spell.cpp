@@ -2537,15 +2537,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             if (unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber, m_caster))
                 effectMask &= ~(1 << effectNumber);
-            else if (m_spellInfo->Effects[effectNumber].IsAura() && !m_spellInfo->IsPositiveEffect(effectNumber))
-            {
-                int32 debuff_resist_chance = unit->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, static_cast<int32>(m_spellInfo->Dispel));
-                if (debuff_resist_chance > 0 && roll_chance_i(debuff_resist_chance))
-                {
-                    effectMask &= ~(1 << effectNumber);
-                    returnVal = SPELL_MISS_RESIST;
-                }
-            }
         }
     }
 
