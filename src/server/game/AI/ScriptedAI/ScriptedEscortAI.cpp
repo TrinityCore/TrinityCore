@@ -510,6 +510,7 @@ void npc_escortAI::SetEscortPaused(bool on)
     else
     {
         RemoveEscortState(STATE_ESCORT_PAUSED);
+    }
 }
 
 bool npc_escortAI::SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation)
