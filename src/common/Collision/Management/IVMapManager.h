@@ -38,6 +38,14 @@ namespace VMAP
         VMAP_LOAD_RESULT_IGNORED
     };
 
+    enum VMAP_CHECK_RESULT
+    {
+        VMAP_CHECK_RESULT_SUCCESS,
+        VMAP_CHECK_RESULT_FILENOTFOUND,
+        VMAP_CHECK_RESULT_VERSIONMISMATCH,
+        VMAP_CHECK_RESULT_UNKNOWN
+    };
+
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
     #define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
 

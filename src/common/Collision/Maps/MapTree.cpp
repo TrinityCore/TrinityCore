@@ -250,34 +250,34 @@ namespace VMAP
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
 
-        int success = 0; //All Good
+        VMAP_CHECK_RESULT result = VMAP_CHECK_RESULT::VMAP_CHECK_RESULT_SUCCESS;
 
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
-            return 1; //File not found
+            return VMAP_CHECK_RESULT::VMAP_CHECK_RESULT_FILENOTFOUND;
 
         char tiled;
         char chunk[8];
         if (!readChunk(rf, chunk, VMAP_MAGIC, 8) || fread(&tiled, sizeof(char), 1, rf) != 1)
         {
             fclose(rf);
-            return 2; //Version Mismatch 
+            return VMAP_CHECK_RESULT::VMAP_CHECK_RESULT_VERSIONMISMATCH;
         }
         if (tiled)
         {
             std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
             FILE* tf = fopen(tilefile.c_str(), "rb");
             if (!tf)
-                success = 3; //File corruption or something else
+                result = VMAP_CHECK_RESULT::VMAP_CHECK_RESULT_UNKNOWN;
             else
             {
                 if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
-                    success = 3; //File corruption or something else
+                    result = VMAP_CHECK_RESULT::VMAP_CHECK_RESULT_UNKNOWN;
                 fclose(tf);
             }
         }
         fclose(rf);
-        return success;
+        return result;
     }
 
     //=========================================================
