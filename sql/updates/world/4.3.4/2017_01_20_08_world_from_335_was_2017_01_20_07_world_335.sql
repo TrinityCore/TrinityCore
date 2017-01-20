@@ -1,3 +1,4 @@
+/*
 -- Sentinell Hill - Westfall
 -- Lumberjack
 
@@ -116,3 +117,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 20, -10583.1, 1143.39, 40.0436, 2.16391, 0, 0);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` BETWEEN @SCRIPTID+0 AND @SCRIPTID+3;
+*/

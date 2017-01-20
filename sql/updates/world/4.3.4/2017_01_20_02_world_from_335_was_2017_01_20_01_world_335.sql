@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature_onkill_reputation` WHERE `RewOnKillRepFaction1`=749;
 INSERT INTO `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`, `RewOnKillRepFaction2`, `MaxStanding1`, `IsTeamAward1`, `RewOnKillRepValue1`, `MaxStanding2`, `IsTeamAward2`, `RewOnKillRepValue2`, `TeamDependent`) VALUES
@@ -35,3 +36,4 @@ INSERT INTO `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`,
 (12259,749,0,6,0,100,0,0,0,0),
 (12264,749,0,6,0,100,0,0,0,0),
 (14478,749,0,5,0,25,0,0,0,0);
+*/

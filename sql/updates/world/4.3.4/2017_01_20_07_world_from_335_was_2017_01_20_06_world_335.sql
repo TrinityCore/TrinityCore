@@ -1,3 +1,4 @@
+/*
 -- SCRIPT 1
 SET @MAXGUID := 919; 
 SET @SCRIPTID := 8014900; 
@@ -146,3 +147,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 11, -8878.29, -410.994, 65.6802, 4.63836, 25000, 1, @SCRIPTID);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` IN (@SCRIPTID);
+*/
