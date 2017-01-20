@@ -336,6 +336,21 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
     }
 }
 
+void MotionMaster::MovePoint(uint32 id, float x, float y, float z, float o, bool generatePath)
+{
+    if (_owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        TC_LOG_DEBUG("misc", "Player (GUID: %u) targeted point (Id: %u X: %f Y: %f Z: %f).", _owner->GetGUID().GetCounter(), id, x, y, z);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, o, generatePath), MOTION_SLOT_ACTIVE);
+    }
+    else
+    {
+        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) targeted point (ID: %u X: %f Y: %f Z: %f).",
+            _owner->GetEntry(), _owner->GetGUID().GetCounter(), id, x, y, z);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, o, generatePath), MOTION_SLOT_ACTIVE);
+    }
+}
+
 void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
 {
     float distanceToTravel = _owner->GetExactDist2d(target) - distance;
