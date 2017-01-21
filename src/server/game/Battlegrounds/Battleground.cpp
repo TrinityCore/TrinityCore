@@ -885,7 +885,7 @@ void Battleground::EndBattleground(uint32 winner)
                 if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
                 {
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, nullptr, player);
+                        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, player->GetMapId(), 0, 0, nullptr, player);
                 }
             }
         }
@@ -906,7 +906,7 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
         player->SendDirectMessage(&data);
 
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, player->GetMapId());
     }
 }
 

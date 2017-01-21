@@ -484,7 +484,7 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes type, 
     if (GetOwner()->IsGameMaster())
         return;
 
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
+    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, 0/*get all*/);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const* achievementCriteria = (*i);
@@ -1155,7 +1155,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
     if (IsGuild<T>() && !sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         return;
 
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, IsGuild<T>());
+    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, miscValue1, IsGuild<T>());
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const* achievementCriteria = (*i);
@@ -1201,7 +1201,9 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
         case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
         case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
@@ -1247,8 +1249,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
         case ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
         case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
@@ -1926,7 +1926,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
 
     _achievementPoints += achievement->Points;
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, 0, nullptr, referencePlayer);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, nullptr, referencePlayer);
 
     // reward items and titles if any
@@ -2019,7 +2019,7 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
     _achievementPoints += achievement->Points;
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, 0, nullptr, referencePlayer);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID, 0, 0, nullptr, referencePlayer);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, nullptr, referencePlayer);
 }
 
@@ -2495,7 +2495,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-            if (m_completedAchievements.find(achievementCriteria->Asset.AchievementID) == m_completedAchievements.end())
+            if ((miscValue1 && achievementCriteria->Asset.AchievementID != miscValue1) || (!miscValue1 && m_completedAchievements.find(achievementCriteria->Asset.AchievementID) == m_completedAchievements.end()))
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
@@ -2703,8 +2703,8 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscValue1 = itemid miscValue2 = itemSlot
-            if (!miscValue1 || miscValue2 != achievementCriteria->Asset.ItemSlot)
+            // miscValue1 = itemSlot miscValue2 = itemid
+            if (!miscValue2 || miscValue1 != achievementCriteria->Asset.ItemSlot)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
@@ -3246,6 +3246,74 @@ AchievementGlobalMgr* AchievementGlobalMgr::instance()
     return &instance;
 }
 
+inline bool IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes type)
+{
+    switch (type)
+    {
+    case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+    case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+    case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+    case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+    case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+    case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+    case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+    case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+    case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+    case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+    case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+    case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+    case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+    case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+    case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+    case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+    case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+    case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+    case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+    case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+    case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+    case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+    case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+    case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+    case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+AchievementCriteriaEntryList const& AchievementGlobalMgr::GetAchievementCriteriaByType(AchievementCriteriaTypes type, uint32 miscValue, bool guild) const
+{
+    if (guild)
+    {
+        if (miscValue && IsAchievementCriteriaTypeStoredByMiscValue(type))
+        {
+            auto itr = m_GuildAchievementCriteriasByMiscValue[type].find(miscValue);
+            if (itr != m_GuildAchievementCriteriasByMiscValue[type].end())
+                return itr->second;
+        }
+
+        return m_GuildAchievementCriteriasByType[type];
+    }
+    else
+    {
+        if (miscValue && IsAchievementCriteriaTypeStoredByMiscValue(type))
+        {
+            auto itr = m_AchievementCriteriasByMiscValue[type].find(miscValue);
+            if (itr != m_AchievementCriteriasByMiscValue[type].end())
+                return itr->second;
+        }
+
+        return m_AchievementCriteriasByType[type];
+    }
+}
+
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
@@ -3265,17 +3333,53 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         if (!criteria)
             continue;
 
+        ASSERT(criteria->Type < ACHIEVEMENT_CRITERIA_TYPE_TOTAL, "ACHIEVEMENT_CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteria->Type + 1, ACHIEVEMENT_CRITERIA_TYPE_TOTAL);
+
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(criteria->ReferredAchievement);
 
         m_AchievementCriteriaListByAchievement[criteria->ReferredAchievement].push_back(criteria);
 
+        bool guild = false;
         if (achievement && achievement->Flags & ACHIEVEMENT_FLAG_GUILD)
+        {
             ++guildCriterias, m_GuildAchievementCriteriasByType[criteria->Type].push_back(criteria);
+            guild = true;
+        }
         else
             ++criterias, m_AchievementCriteriasByType[criteria->Type].push_back(criteria);
 
+        if (IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes(criteria->Type)))
+        {
+            if (criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA)
+                guild ? m_GuildAchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ID].push_back(criteria) : m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ID].push_back(criteria);
+            else
+            {
+                WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteria->Asset.WorldMapOverlayID);
+                if (!worldOverlayEntry)
+                    break;
+
+                for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                {
+                    if (worldOverlayEntry->AreaID[j])
+                    {
+                        bool valid = true;
+                        for (uint8 i = 0; i < j; ++i)
+                            if (worldOverlayEntry->AreaID[j] == worldOverlayEntry->AreaID[i])
+                                valid = false;
+                        if (valid)
+                            guild ? m_GuildAchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->AreaID[j]].push_back(criteria) : m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->AreaID[j]].push_back(criteria);
+                    }
+                }
+            }
+        }
+
         if (criteria->StartTimer)
+        {
+            ASSERT(criteria->StartEvent < ACHIEVEMENT_TIMED_TYPE_MAX, "ACHIEVEMENT_TIMED_TYPE_MAX must be greater than or equal to %u but is currently equal to %u",
+                criteria->StartEvent + 1, ACHIEVEMENT_TIMED_TYPE_MAX);
             m_AchievementCriteriasByTimedType[criteria->StartEvent].push_back(criteria);
+        }
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement criteria and %u guild achievement crieteria in %u ms.", criterias, guildCriterias, GetMSTimeDiffToNow(oldMSTime));
