@@ -1895,7 +1895,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
                 if (Unit* unit = (*itr)->ToUnit())
                 {
                     uint32 deficit = unit->GetMaxHealth() - unit->GetHealth();
-                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit))
+                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, ObjectIgnoreFlags::IGNORE_M2))
                     {
                         foundItr = itr;
                         maxHPDeficit = deficit;
@@ -1910,10 +1910,10 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             {
                 if (foundItr == tempTargets.end())
                 {
-                    if ((!isBouncingFar || target->IsWithinDist(*itr, jumpRadius)) && target->IsWithinLOSInMap(*itr))
+                    if ((!isBouncingFar || target->IsWithinDist(*itr, jumpRadius)) && target->IsWithinLOSInMap(*itr, ObjectIgnoreFlags::IGNORE_M2))
                         foundItr = itr;
                 }
-                else if (target->GetDistanceOrder(*itr, *foundItr) && target->IsWithinLOSInMap(*itr))
+                else if (target->GetDistanceOrder(*itr, *foundItr) && target->IsWithinLOSInMap(*itr, ObjectIgnoreFlags::IGNORE_M2))
                     foundItr = itr;
             }
         }
@@ -5004,7 +5004,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (DynamicObject* dynObj = m_caster->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
 
-                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget))
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, ObjectIgnoreFlags::IGNORE_M2))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
         }
@@ -5016,9 +5016,15 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, ObjectIgnoreFlags::IGNORE_M2))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
+
+    // Check for line of sight for Grip spells
+    if (m_spellInfo->HasAttribute(SPELL_ATTR6_UNK28))
+        if (Unit* target = m_targets.GetUnitTarget())
+            if (!target->IsWithinLOSInMap(m_caster)) //If we have a target check full LoS
+                return SPELL_FAILED_LINE_OF_SIGHT;
 
     // check pet presence
     for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
@@ -5258,6 +5264,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!target)
                         return SPELL_FAILED_DONT_REPORT;
 
+                    // first we must check to see if the target is in LoS. A path can usually be built but LoS matters for charge spells
+                    if (!target->IsWithinLOSInMap(m_caster)) //Do full LoS/Path check. Don't exclude m2
+                        return SPELL_FAILED_LINE_OF_SIGHT;
+
                     float objSize = target->GetObjectSize();
                     float range = m_spellInfo->GetMaxRange(true, m_caster, this) * 1.5f + objSize; // can't be overly strict
 
@@ -5276,6 +5286,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                             return SPELL_FAILED_NOPATH;
                         else if (m_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
                             return SPELL_FAILED_NOPATH;
+
                     }
                     else if (m_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if in a straight line
                             return SPELL_FAILED_NOPATH;
@@ -6786,7 +6797,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
         default:                                            // normal case
         {
             if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ());
+                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ(), ObjectIgnoreFlags::IGNORE_M2);
             else
             {
                 // Get GO cast coordinates if original caster -> GO
@@ -6795,7 +6806,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
                     caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
                 if (!caster)
                     caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster))
+                if (target != m_caster && !target->IsWithinLOSInMap(caster, ObjectIgnoreFlags::IGNORE_M2))
                     return false;
             }
             break;

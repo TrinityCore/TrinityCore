@@ -489,8 +489,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;
-        bool IsWithinLOS(float x, float y, float z) const;
-        bool IsWithinLOSInMap(WorldObject const* obj) const;
+        bool IsWithinLOS(float x, float y, float z, ObjectIgnoreFlags ignoreFlags = ObjectIgnoreFlags::IGNORE_NONE) const;
+        bool IsWithinLOSInMap(WorldObject const* obj, ObjectIgnoreFlags ignoreFlags = ObjectIgnoreFlags::IGNORE_NONE) const;
         Position GetHitSpherePointFor(Position const& dest) const;
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;

@@ -33,14 +33,13 @@ using G3D::Vector3;
 
 namespace VMAP
 {
-
     class MapRayCallback
     {
         public:
-            MapRayCallback(ModelInstance* val): prims(val), hit(false) { }
+            MapRayCallback(ModelInstance* val, ObjectIgnoreFlags ignoreFlags): prims(val), hit(false), flags(ignoreFlags) { }
             bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit=true)
             {
-                bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit);
+                bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit, flags);
                 if (result)
                     hit = true;
                 return result;
@@ -49,6 +48,7 @@ namespace VMAP
     protected:
         ModelInstance* prims;
         bool hit;
+        ObjectIgnoreFlags flags;
     };
 
     class AreaInfoCallback
@@ -142,19 +142,18 @@ namespace VMAP
     If intersection is found within pMaxDist, sets pMaxDist to intersection distance and returns true.
     Else, pMaxDist is not modified and returns false;
     */
-
-    bool StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit) const
+    bool StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit, ObjectIgnoreFlags ignoreFlags) const
     {
         float distance = pMaxDist;
-        MapRayCallback intersectionCallBack(iTreeValues);
+        MapRayCallback intersectionCallBack(iTreeValues, ignoreFlags);
         iTree.intersectRay(pRay, intersectionCallBack, distance, pStopAtFirstHit);
         if (intersectionCallBack.didHit())
             pMaxDist = distance;
         return intersectionCallBack.didHit();
     }
-    //=========================================================
 
-    bool StaticMapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2) const
+    //=========================================================
+    bool StaticMapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2, ObjectIgnoreFlags ignoreFlag) const
     {
         float maxDist = (pos2 - pos1).magnitude();
         // return false if distance is over max float, in case of cheater teleporting to the end of the universe
@@ -168,7 +167,7 @@ namespace VMAP
             return true;
         // direction with length of 1
         G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1)/maxDist);
-        if (getIntersectionTime(ray, maxDist, true))
+        if (getIntersectionTime(ray, maxDist, true, ignoreFlag))
             return false;
 
         return true;
@@ -194,7 +193,7 @@ namespace VMAP
         Vector3 dir = (pPos2 - pPos1)/maxDist;              // direction with length of 1
         G3D::Ray ray(pPos1, dir);
         float dist = maxDist;
-        if (getIntersectionTime(ray, dist, false))
+        if (getIntersectionTime(ray, dist, false, ObjectIgnoreFlags::IGNORE_NONE))
         {
             pResultHitPos = pPos1 + dir * dist;
             if (pModifyDist < 0)
@@ -230,7 +229,7 @@ namespace VMAP
         Vector3 dir = Vector3(0, 0, -1);
         G3D::Ray ray(pPos, dir);   // direction with length of 1
         float maxDist = maxSearchDist;
-        if (getIntersectionTime(ray, maxDist, false))
+        if (getIntersectionTime(ray, maxDist, false, ObjectIgnoreFlags::IGNORE_NONE))
         {
             height = pPos.z - maxDist;
         }
@@ -306,7 +305,7 @@ namespace VMAP
 #endif
         if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
         {
-            WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
+            WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name, spawn.flags);
             VMAP_DEBUG_LOG("maps", "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
             if (model)
             {
@@ -376,7 +375,7 @@ namespace VMAP
                 if (result)
                 {
                     // acquire model instance
-                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
+                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name, spawn.flags);
                     if (!model)
                         VMAP_ERROR_LOG("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
