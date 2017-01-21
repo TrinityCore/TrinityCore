@@ -513,7 +513,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_ORIENTATION                    = 66,     //
     SMART_ACTION_CREATE_TIMED_EVENT                 = 67,     // id, InitialMin, InitialMax, RepeatMin(only if it repeats), RepeatMax(only if it repeats), chance
     SMART_ACTION_PLAYMOVIE                          = 68,     // entry
-    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding
+    SMART_ACTION_MOVE_TO_POS                        = 69,     // PointId, transport, disablePathfinding, ContactDistance
     SMART_ACTION_RESPAWN_TARGET                     = 70,     //
     SMART_ACTION_EQUIP                              = 71,     // entry, slotmask slot1, slot2, slot3   , only slots with mask set will be sent to client, bits are 1, 2, 4, leaving mask 0 is defaulted to mask 7 (send all), slots1-3 are only used if no entry is set
     SMART_ACTION_CLOSE_GOSSIP                       = 72,     // none
@@ -997,6 +997,7 @@ struct SmartAction
             uint32 pointId;
             uint32 transport;
             uint32 disablePathfinding;
+            uint32 ContactDistance;
         } MoveToPos;
 
         struct
