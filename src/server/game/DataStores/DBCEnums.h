@@ -100,7 +100,9 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13,   // unk
+
+    ACHIEVEMENT_CRITERIA_CONDITION_MAX
 };
 
 enum AchievementCriteriaFlags
