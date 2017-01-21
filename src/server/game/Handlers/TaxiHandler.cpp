@@ -162,6 +162,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", activateTaxi.Vendor.ToString().c_str());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
 
