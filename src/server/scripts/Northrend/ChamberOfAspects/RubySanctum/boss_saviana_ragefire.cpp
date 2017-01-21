@@ -20,6 +20,7 @@
 #include "MotionMaster.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Texts

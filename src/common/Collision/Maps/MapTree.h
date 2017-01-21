@@ -28,6 +28,7 @@ namespace VMAP
     class ModelInstance;
     class GroupModel;
     class VMapManager2;
+    enum class ModelIgnoreFlags : uint32;
 
     struct TC_COMMON_API LocationInfo
     {
@@ -65,7 +66,7 @@ namespace VMAP
 
         private:
             static TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm);
-            bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit) const;
+            bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
             //bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
         public:
             static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY);
@@ -76,7 +77,7 @@ namespace VMAP
             StaticMapTree(uint32 mapID, const std::string &basePath);
             ~StaticMapTree();
 
-            bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2) const;
+            bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2, ModelIgnoreFlags ignoreFlags) const;
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
