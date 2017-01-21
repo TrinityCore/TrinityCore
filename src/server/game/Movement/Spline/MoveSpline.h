@@ -72,7 +72,7 @@ namespace Movement
         void init_spline(const MoveSplineInitArgs& args);
 
     protected:
-        MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
+        MySpline::ControlArray const& getPath(bool visual) const { return spline.getPoints(visual); }
         void computeParabolicElevation(float& el) const;
         void computeFallElevation(float& el) const;
 
@@ -117,8 +117,8 @@ namespace Movement
         bool Finalized() const { return splineflags.done; }
         bool isCyclic() const { return splineflags.cyclic; }
         bool isFalling() const { return splineflags.falling; }
-        Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
-        Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
+        Vector3 FinalDestination(bool visual = false) const { return Initialized() ? spline.getPoint(spline.last(), visual) : Vector3(); }
+        Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1, false) : Vector3(); }
         int32 currentPathIdx() const;
 
         bool onTransport;

@@ -81,7 +81,7 @@ void MoveSpline::computeParabolicElevation(float& el) const
 
 void MoveSpline::computeFallElevation(float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed), false);
+    float z_now = spline.getPoint(spline.first(), false).z - Movement::computeFallElevation(MSToSec(time_passed), false);
     float final_z = FinalDestination().z;
     el = std::max(z_now, final_z);
 }
@@ -97,7 +97,7 @@ struct FallInitializer
     float start_elevation;
     inline int32 operator()(Spline<int32>& s, int32 i)
     {
-        return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z, false) * 1000.f;
+        return Movement::computeFallTime(start_elevation - s.getPoint(i+1, false).z, false) * 1000.f;
     }
 };
 
@@ -136,7 +136,7 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     // init spline timestamps
     if (splineflags.falling)
     {
-        FallInitializer init(spline.getPoint(spline.first()).z);
+        FallInitializer init(spline.getPoint(spline.first(), false).z);
         spline.initLengths(init);
     }
     else

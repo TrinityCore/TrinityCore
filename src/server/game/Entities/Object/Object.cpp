@@ -361,10 +361,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << object->GetPositionX();
             *data << object->GetPositionY();
-            if (isType(TYPEMASK_UNIT))
-                *data << unit->GetPositionZMinusOffset();
-            else
-                *data << object->GetPositionZ();
+            *data << object->GetPositionZ() + (unit ? unit->GetHoverHeight() : 0.0f);
 
             if (transport)
             {
@@ -376,10 +373,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << object->GetPositionX();
                 *data << object->GetPositionY();
-                if (isType(TYPEMASK_UNIT))
-                    *data << unit->GetPositionZMinusOffset();
-                else
-                    *data << object->GetPositionZ();
+                *data << object->GetPositionZ() + (unit ? unit->GetHoverHeight() : 0.0f);
             }
 
             *data << object->GetOrientation();
@@ -397,7 +391,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
                 ASSERT(object);
                 *data << object->GetStationaryX();
                 *data << object->GetStationaryY();
-                *data << object->GetStationaryZ();
+                *data << object->GetStationaryZ() + (unit ? unit->GetHoverHeight() : 0.0f);
                 *data << object->GetStationaryO();
             }
         }
