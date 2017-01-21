@@ -135,6 +135,7 @@ enum ICCSpells
     SPELL_IMPALING_SPEAR            = 71443,
     SPELL_AETHER_SHIELD             = 71463,
     SPELL_HURL_SPEAR                = 71466,
+    SPELL_DIVINE_SURGE              = 71465,
 
     // Captain Arnath
     SPELL_DOMINATE_MIND             = 14515,
@@ -781,6 +782,7 @@ class boss_sister_svalna : public CreatureScript
                 _EnterCombat();
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
+                DoCastSelf(SPELL_DIVINE_SURGE, true);
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
@@ -1034,6 +1036,7 @@ class npc_crok_scourgebane : public CreatureScript
                 {
                     // pause pathing until trash pack is cleared
                     case 0:
+                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                         Talk(SAY_CROK_COMBAT_WP_0);
                         if (!_aliveTrash.empty())
                             SetEscortPaused(true);
