@@ -313,7 +313,7 @@ std::string QuestObjectiveCriteriaMgr::GetOwnerInfo() const
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());
 }
 
-CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type) const
+CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
 }

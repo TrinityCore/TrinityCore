@@ -61,6 +61,7 @@ struct Criteria
 };
 
 typedef std::vector<Criteria const*> CriteriaList;
+typedef std::unordered_map<uint32, CriteriaList> CriteriaListByAsset;
 
 struct CriteriaTree
 {
@@ -303,7 +304,7 @@ protected:
     bool ModifierSatisfied(ModifierTreeEntry const* modifier, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
 
     virtual std::string GetOwnerInfo() const = 0;
-    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type) const = 0;
+    virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;
 
     CriteriaProgressMap _criteriaProgress;
     std::map<uint32, uint32 /*ms time left*/> _timeCriteriaTrees;
@@ -320,10 +321,7 @@ public:
 
     static CriteriaMgr* Instance();
 
-    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type) const
-    {
-        return _criteriasByType[type];
-    }
+    CriteriaList const& GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const;
 
     CriteriaList const& GetGuildCriteriaByType(CriteriaTypes type) const
     {
@@ -408,6 +406,7 @@ private:
 
     // store criterias by type to speed up lookup
     CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
+    CriteriaListByAsset _criteriasByAsset[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];

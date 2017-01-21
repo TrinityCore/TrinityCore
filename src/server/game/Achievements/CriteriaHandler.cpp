@@ -457,7 +457,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
     TC_LOG_DEBUG("criteria", "CriteriaHandler::UpdateCriteria(%s, %u, " UI64FMTD ", " UI64FMTD ", " UI64FMTD ") %s",
         CriteriaMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2, miscValue3, GetOwnerInfo().c_str());
 
-    CriteriaList const& criteriaList = GetCriteriaByType(type);
+    CriteriaList const& criteriaList = GetCriteriaByType(type, uint32(miscValue1));
     for (Criteria const* criteria : criteriaList)
     {
         CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID);
@@ -472,6 +472,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
         switch (type)
         {
             // std. case: increment at 1
+            case CRITERIA_TYPE_WIN_BG:
             case CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
             case CRITERIA_TYPE_LOSE_DUEL:
             case CRITERIA_TYPE_CREATE_AUCTION:
@@ -485,6 +486,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             case CRITERIA_TYPE_DEATH:
             case CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+            case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case CRITERIA_TYPE_DEATH_AT_MAP:
             case CRITERIA_TYPE_DEATH_IN_DUNGEON:
             case CRITERIA_TYPE_KILLED_BY_CREATURE:
@@ -531,8 +533,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED:
             case CRITERIA_TYPE_TOTAL_HEALING_RECEIVED:
             case CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-            case CRITERIA_TYPE_WIN_BG:
-            case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case CRITERIA_TYPE_DAMAGE_DONE:
             case CRITERIA_TYPE_HEALING_DONE:
             case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
@@ -1492,8 +1492,8 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscValue1 = itemid miscValue2 = itemSlot
-            if (!miscValue1 || miscValue2 != uint32(criteria->Entry->Asset.ItemSlot))
+            // miscValue1 = itemSlot miscValue2 = itemid
+            if (!miscValue2 || miscValue1 != uint32(criteria->Entry->Asset.ItemSlot))
                 return false;
             break;
         case CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
@@ -3111,6 +3111,63 @@ CriteriaMgr* CriteriaMgr::Instance()
     return &instance;
 }
 
+namespace
+{
+inline bool IsCriteriaTypeStoredByAsset(CriteriaTypes type)
+{
+    switch (type)
+    {
+        case CRITERIA_TYPE_KILL_CREATURE:
+        case CRITERIA_TYPE_WIN_BG:
+        case CRITERIA_TYPE_REACH_SKILL_LEVEL:
+        case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case CRITERIA_TYPE_KILLED_BY_CREATURE:
+        case CRITERIA_TYPE_COMPLETE_QUEST:
+        case CRITERIA_TYPE_BE_SPELL_TARGET:
+        case CRITERIA_TYPE_CAST_SPELL:
+        case CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+        case CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case CRITERIA_TYPE_LEARN_SPELL:
+        case CRITERIA_TYPE_OWN_ITEM:
+        case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+        case CRITERIA_TYPE_USE_ITEM:
+        case CRITERIA_TYPE_LOOT_ITEM:
+        case CRITERIA_TYPE_EXPLORE_AREA:
+        case CRITERIA_TYPE_GAIN_REPUTATION:
+        case CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case CRITERIA_TYPE_HK_CLASS:
+        case CRITERIA_TYPE_HK_RACE:
+        case CRITERIA_TYPE_DO_EMOTE:
+        case CRITERIA_TYPE_EQUIP_ITEM:
+        case CRITERIA_TYPE_USE_GAMEOBJECT:
+        case CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+        case CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+        case CRITERIA_TYPE_LOOT_TYPE:
+        case CRITERIA_TYPE_CAST_SPELL2:
+        case CRITERIA_TYPE_LEARN_SKILL_LINE:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+}
+
+CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaTypes type, uint32 asset) const
+{
+    if (asset && IsCriteriaTypeStoredByAsset(type))
+    {
+        auto itr = _criteriasByAsset[type].find(asset);
+        if (itr != _criteriasByAsset[type].end())
+            return itr->second;
+    }
+
+    return _criteriasByType[type];
+}
+
 //==========================================================
 CriteriaMgr::~CriteriaMgr()
 {
@@ -3309,6 +3366,30 @@ void CriteriaMgr::LoadCriteriaList()
         {
             ++criterias;
             _criteriasByType[criteriaEntry->Type].push_back(criteria);
+            if (IsCriteriaTypeStoredByAsset(CriteriaTypes(criteriaEntry->Type)))
+            {
+                if (criteriaEntry->Type != CRITERIA_TYPE_EXPLORE_AREA)
+                    _criteriasByAsset[criteriaEntry->Type][criteriaEntry->Asset.ID].push_back(criteria);
+                else
+                {
+                    WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteriaEntry->Asset.WorldMapOverlayID);
+                    if (!worldOverlayEntry)
+                        break;
+
+                    for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                    {
+                        if (worldOverlayEntry->AreaID[j])
+                        {
+                            bool valid = true;
+                            for (uint8 i = 0; i < j; ++i)
+                                if (worldOverlayEntry->AreaID[j] == worldOverlayEntry->AreaID[i])
+                                    valid = false;
+                            if (valid)
+                                _criteriasByAsset[criteriaEntry->Type][worldOverlayEntry->AreaID[j]].push_back(criteria);
+                        }
+                    }
+                }
+            }
         }
 
         if (criteria->FlagsCu & CRITERIA_FLAG_CU_GUILD)

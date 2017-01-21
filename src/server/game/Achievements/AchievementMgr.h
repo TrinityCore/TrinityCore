@@ -102,7 +102,7 @@ protected:
     void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
-    CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
+    CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
 
 private:
     Player* _owner;
@@ -135,7 +135,7 @@ protected:
     void SendPacket(WorldPacket const* data) const override;
 
     std::string GetOwnerInfo() const override;
-    CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
+    CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
 
 private:
     Guild* _owner;

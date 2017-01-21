@@ -824,14 +824,14 @@ void Battleground::EndBattleground(uint32 winner)
                 // TODO: loss honor xp
             }
 
-            player->UpdateCriteria(CRITERIA_TYPE_WIN_BG, 1);
+            player->UpdateCriteria(CRITERIA_TYPE_WIN_BG, player->GetMapId());
             if (!guildAwarded)
             {
                 guildAwarded = true;
                 if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetBGTeam()))
                 {
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                        guild->UpdateCriteria(CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
+                        guild->UpdateCriteria(CRITERIA_TYPE_WIN_BG, player->GetMapId(), 0, 0, NULL, player);
                 }
             }
         }
@@ -852,7 +852,7 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), player->GetBattlegroundQueueJoinTime(bgQueueTypeId), GetArenaType());
         player->SendDirectMessage(battlefieldStatus.Write());
 
-        player->UpdateCriteria(CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+        player->UpdateCriteria(CRITERIA_TYPE_COMPLETE_BATTLEGROUND, player->GetMapId());
     }
 }
 
