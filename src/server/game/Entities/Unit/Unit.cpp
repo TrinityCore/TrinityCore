@@ -7547,6 +7547,11 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 player->UnsummonPetTemporaryIfAny();
         }
 
+        // if we have charmed npc, stun him also (everywhere)
+        if (Unit* charm = player->GetCharm())
+            if (charm->GetTypeId() == TYPEID_UNIT)
+                charm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
     }
 
@@ -7589,6 +7594,11 @@ void Unit::Dismount()
         }
         else
             player->ResummonPetTemporaryUnSummonedIfAny();
+
+        // if we have charmed npc, remove stun also
+        if (Unit* charm = player->GetCharm())
+            if (charm->GetTypeId() == TYPEID_UNIT && charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !charm->HasUnitState(UNIT_STATE_STUNNED))
+                charm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 }
 
