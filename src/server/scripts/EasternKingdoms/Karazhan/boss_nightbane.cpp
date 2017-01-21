@@ -54,6 +54,14 @@ enum NightbanePoints
     POINT_PHASE_TWO_END         = 6
 };
 
+enum NightbaneSplineChain
+{
+    SPLINE_CHAIN_INTRO_START    = 1,
+    SPLINE_CHAIN_INTRO_END      = 2,
+    SPLINE_CHAIN_INTRO_LANDING  = 3,
+    SPLINE_CHAIN_SECOND_LANDING = 4
+};
+
 enum NightbaneEvents
 {
     EVENT_BELLOWING_ROAR = 1,
@@ -126,7 +134,7 @@ public:
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, 1, false);
+                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }
         }
@@ -253,10 +261,10 @@ public:
                     events.ScheduleEvent(EVENT_RAIN_OF_BONES, Seconds(3), GROUP_FLY);
                     break;
                 case EVENT_END_INTRO:
-                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_LANDING, 3, false);
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_LANDING, SPLINE_CHAIN_INTRO_LANDING, false);
                     break;
                 case EVENT_END_PHASE_TWO:
-                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, 5, false);
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
                 case EVENT_FACE_TARGET:
                     me->SetFacingToObject(me->GetVictim(), true);
@@ -283,7 +291,7 @@ public:
                     events.ScheduleEvent(EVENT_LAND, Seconds(2), GROUP_GROUND);
                     break;
                 case EVENT_START_INTRO_PATH:
-                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_END, 2, false);
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_END, SPLINE_CHAIN_INTRO_END, false);
                     break;
                 case EVENT_RAIN_OF_BONES:
                     DoResetThreat();
