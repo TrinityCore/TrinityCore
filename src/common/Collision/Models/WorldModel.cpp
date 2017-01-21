@@ -19,6 +19,7 @@
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
 #include "MapTree.h"
+#include "ModelInstance.h"
 #include "ModelIgnoreFlags.h"
 
 using G3D::Vector3;
