@@ -165,7 +165,7 @@ public:
                 return;
             }
 
-            if (_flyCount == 0 && HealthBelowPct(75) || _flyCount == 1 && HealthBelowPct(50) || _flyCount == 2 && HealthBelowPct(25))
+            if ((_flyCount == 0 && HealthBelowPct(75)) || (_flyCount == 1 && HealthBelowPct(50)) || (_flyCount == 2 && HealthBelowPct(25)))
             {
                 events.SetPhase(PHASE_FLY);
                 StartPhaseFly();
