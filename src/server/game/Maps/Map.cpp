@@ -2878,9 +2878,9 @@ float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2) const
+bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, this, x1, y1), x1, y1, z1, x2, y2, z2)
+    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, this, x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags)
         && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phaseShift);
 }
 
