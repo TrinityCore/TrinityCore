@@ -352,3 +352,47 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
 
     bf->AskToLeaveQueue(_player);
 }
+
+/**
+ * @fn void WorldSession::HandleBfQueueRequest(WorldPacket & recvData)
+ *
+ * @brief Send by client when queued battlefield
+ */
+void WorldSession::HandleBfQueueRequest(WorldPacket & recvData)
+{
+    ObjectGuid guid;
+
+    guid[0] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[0]);
+
+    Battlefield *pBf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
+    if(pBf)
+    {
+        BattlefieldQueue *pQueue = sBattlefieldMgr->GetQueueForBattlefield(guid);
+        if(pQueue)
+        {
+            bool canJoin = true;
+
+            //check if player is queued in BG/LFG, if so - set canJoin to false
+            if(pQueue->HasEnoughSpace(GetPlayer()) && canJoin)
+                pQueue->AddPlayerToQueue(GetPlayer());
+
+            SendBfQueueInviteResponse(guid,pQueue->GetId(),pBf->GetZoneId(),canJoin,!pQueue->HasEnoughSpace(GetPlayer()),pBf->IsWarTime());
+        }
+    }
+}

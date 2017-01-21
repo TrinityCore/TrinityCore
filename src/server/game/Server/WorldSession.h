@@ -848,6 +848,7 @@ class TC_GAME_API WorldSession
 
         //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
+        void HandleBfQueueRequest(WorldPacket & recvData);
         void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
         void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
         void HandlePVPLogDataOpcode(WorldPacket& recvData);
