@@ -93,8 +93,7 @@ World::World()
     m_allowMovement = true;
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;
-    m_gameTime = time(NULL);
-    m_startTime = m_gameTime;
+
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
@@ -123,6 +122,9 @@ World::World()
     memset(m_int_configs, 0, sizeof(m_int_configs));
     memset(m_bool_configs, 0, sizeof(m_bool_configs));
     memset(m_float_configs, 0, sizeof(m_float_configs));
+
+    _UpdateGameTimers();
+    m_startTime = m_gameTime;
 }
 
 /// World destructor
@@ -1859,7 +1861,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
-    m_gameTime = time(NULL);
+    _UpdateGameTimers();
     m_startTime = m_gameTime;
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
@@ -2037,7 +2039,7 @@ void World::ResetTimeDiffRecord()
     if (m_updateTimeCount != 1)
         return;
 
-    m_currentTime = getMSTime();
+    m_currentTime = sWorld->GetGameTimeMS();
 }
 
 void World::RecordTimeDiff(std::string const& text)
@@ -2045,7 +2047,7 @@ void World::RecordTimeDiff(std::string const& text)
     if (m_updateTimeCount != 1)
         return;
 
-    uint32 thisTime = getMSTime();
+    uint32 thisTime = sWorld->GetGameTimeMS();
     uint32 diff = getMSTimeDiff(m_currentTime, thisTime);
 
     if (diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
@@ -2700,7 +2702,7 @@ void World::_UpdateGameTime()
     ///- update the time
     time_t thisTime = time(NULL);
     uint32 elapsed = uint32(thisTime - m_gameTime);
-    m_gameTime = thisTime;
+    _UpdateGameTimers();
 
     ///- if there is a shutdown timer
     if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0)
@@ -2721,6 +2723,14 @@ void World::_UpdateGameTime()
             ShutdownMsg();
         }
     }
+}
+
+void World::_UpdateGameTimers()
+{
+    m_gameTime = time(NULL);
+    m_gameMSTime = getMSTime();
+    m_gameTimeSystemPoint = std::chrono::system_clock::now();
+    m_gameTimeSteadyPoint = std::chrono::steady_clock::now();
 }
 
 /// Shutdown the server

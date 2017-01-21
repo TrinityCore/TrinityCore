@@ -860,7 +860,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     LoginDatabase.Execute(stmt);
 
-    pCurrChar->SetInGameTime(getMSTime());
+    pCurrChar->SetInGameTime(sWorld->GetGameTimeMS());
 
     // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())

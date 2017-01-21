@@ -636,6 +636,12 @@ class TC_GAME_API World
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
+        /// What time is it? in ms
+        uint32 GetGameTimeMS() const { return m_gameMSTime; }
+        /// What time is it? Chrono system_clock time point
+        std::chrono::system_clock::time_point const& GetGameTimeSystemPoint() const { return m_gameTimeSystemPoint; }
+        /// What time is it? Chrono steady_clock time point
+        std::chrono::steady_clock::time_point const& GetGameTimeSteadyPoint() const { return m_gameTimeSteadyPoint; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
@@ -778,6 +784,7 @@ class TC_GAME_API World
 
     protected:
         void _UpdateGameTime();
+        void _UpdateGameTimers();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
 
@@ -806,6 +813,9 @@ class TC_GAME_API World
 
         time_t m_startTime;
         time_t m_gameTime;
+        uint32 m_gameMSTime;
+        std::chrono::system_clock::time_point m_gameTimeSystemPoint;
+        std::chrono::steady_clock::time_point m_gameTimeSteadyPoint;
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;
         time_t mail_timer_expires;
