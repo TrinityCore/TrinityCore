@@ -39,6 +39,14 @@ namespace VMAP
         VMAP_LOAD_RESULT_IGNORED
     };
 
+    enum VMAP_CHECK_RESULT
+    {
+        VMAP_CHECK_RESULT_SUCCESS,
+        VMAP_CHECK_RESULT_FILENOTFOUND,
+        VMAP_CHECK_RESULT_VERSIONMISMATCH,
+        VMAP_CHECK_RESULT_UNKNOWN
+    };
+
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
     #define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
 
@@ -56,7 +64,8 @@ namespace VMAP
 
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-            virtual bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            ///Changed from Bool to Int, in order to be able to use the same method with a little bit more of error descriptor.
+            virtual int existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;
