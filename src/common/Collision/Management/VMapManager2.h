@@ -131,7 +131,7 @@ namespace VMAP
             {
                 return getMapFileName(mapId);
             }
-            virtual bool existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 

@@ -39,6 +39,13 @@ namespace VMAP
         VMAP_LOAD_RESULT_IGNORED
     };
 
+    enum class LoadResult : uint8
+    {
+        Success,
+        FileNotFound,
+        VersionMismatch
+    };
+
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
     #define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
 
@@ -56,7 +63,7 @@ namespace VMAP
 
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-            virtual bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual LoadResult existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;
