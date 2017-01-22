@@ -1,3 +1,4 @@
+/*
 -- ==================================================================
 -- Hammerfall - Arathi Highland
 -- Hammerfall Guardian SAI
@@ -50,7 +51,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 SET @MAXGUID := 933; 
 SET @SCRIPTID := 1377500; 
 DELETE FROM `waypoint_scripts` WHERE `id` IN (@SCRIPTID+0);
-INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES 
+INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (@SCRIPTID+0, 3, 1, 69, 1, 0, 0, 0, 0, 0, (@MAXGUID := @MAXGUID + 1)),
 (@SCRIPTID+0, 235, 1, 0, 1, 0, 0, 0, 0, 0, (@MAXGUID := @MAXGUID + 1));
 
@@ -61,11 +62,11 @@ DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `orientation`, `delay`, `move_type`, `action`) VALUES
-(@PATH, 1, -629.313, -3161, 92.3242, 3.79019, 0, 0, 0),                                                               
-(@PATH, 2, -624.911, -3156.44, 91.7832, 0.483361, 0, 0, 0),                                                               
-(@PATH, 3, -617.56, -3155.6, 91.7512, 0.161653, 0, 0, 0),                                                               
-(@PATH, 4, -617.56, -3155.6, 91.7512, 0.161653, 240000, 0, @SCRIPTID),                                                               
-(@PATH, 5, -625.854, -3158.22, 91.9782, 3.5153, 0, 0, 0),                                                               
+(@PATH, 1, -629.313, -3161, 92.3242, 3.79019, 0, 0, 0),     
+(@PATH, 2, -624.911, -3156.44, 91.7832, 0.483361, 0, 0, 0),     
+(@PATH, 3, -617.56, -3155.6, 91.7512, 0.161653, 0, 0, 0),     
+(@PATH, 4, -617.56, -3155.6, 91.7512, 0.161653, 240000, 0, @SCRIPTID),     
+(@PATH, 5, -625.854, -3158.22, 91.9782, 3.5153, 0, 0, 0),     
 (@PATH, 6, -629.313, -3161, 92.3242, 3.79019, 20000, 0, 0);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` IN (@SCRIPTID);
@@ -76,7 +77,7 @@ DELETE FROM `creature_addon` WHERE guid IN (44303,45472,45521,89860);
 SET @SCTIPT_ID = 4430300;
 SET @MAXGUID := 930; 
 DELETE FROM `waypoint_scripts` WHERE id BETWEEN @SCTIPT_ID+0 AND @SCTIPT_ID+1;
-INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES 
+INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (@SCTIPT_ID+0, 3, 1, 69, 1, 0, 0, 0, 0, 0, (@MAXGUID := @MAXGUID + 1)),
 (@SCTIPT_ID+0, 87, 1, 0, 1, 0, 0, 0, 0, 0, (@MAXGUID := @MAXGUID + 1)),
 (@SCTIPT_ID+1, 3, 1, 16, 0, 0, 0, 0, 0, 0, (@MAXGUID := @MAXGUID + 1));
@@ -85,10 +86,10 @@ SET @NPC := 44303;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES 
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES
 (@PATH, 1, -10662.1, 1130.83, 34.1967, 15000, 0) ,
 (@PATH, 2, -10662.1, 1130.83, 34.1967, 90000, @SCTIPT_ID+0),
 (@PATH, 3, -10661.3, 1113.16, 34.1967, 90000, @SCTIPT_ID+0);
@@ -99,7 +100,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES 
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES
 (@PATH, 1, -10650.8, 1128.61, 34.1978, 90000, @SCTIPT_ID+0),
 (@PATH, 2, -10650.8, 1128.61, 34.1978, 10000, 0),
 (@PATH, 3, -10658.8, 1134.62, 34.1967, 90000, @SCTIPT_ID+0);
@@ -110,7 +111,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES 
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES
 (@PATH, 1, -10650.1, 1115.028, 35.611, 6000, @SCTIPT_ID+1),
 (@PATH, 2, -10646.4, 1113.332, 35.6268, 90000, @SCTIPT_ID+0);
 
@@ -120,8 +121,9 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES 
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`, `delay`, `action`) VALUES
 (@PATH, 1, -10656.2, 1126.87, 34.1967, 90000, @SCTIPT_ID+0),
 (@PATH, 2, -10667.4, 1121.39, 34.1967, 90000, @SCTIPT_ID+0);
 
 UPDATE `waypoint_data` SET `action_chance`=100 WHERE `action` BETWEEN @SCTIPT_ID+0 AND @SCTIPT_ID+1;
+*/

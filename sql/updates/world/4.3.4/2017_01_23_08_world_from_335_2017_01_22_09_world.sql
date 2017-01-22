@@ -1,7 +1,7 @@
 -- Bailey + Bellinger Event
 UPDATE `creature` SET `spawndist`=0, `MovementType`=0 WHERE  `guid` IN (114937, 114958);
 DELETE FROM `creature_formations` WHERE `leaderGUID`=114937;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES 
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (114937, 114937, 0, 0, 4, 0, 0),
 (114937, 114958, 2, 270, 4, 0, 0);
 
@@ -113,19 +113,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (29644, 11, 0, 'Uh... that''s okay. It still kind of hurts from last time.', 12, 0, 100, 1, 0, 0, 30305, 'Bellinger');
 
 DELETE FROM `waypoints` WHERE `entry`=29643;
-INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
-(29643, 1, 6043.27, -752.358, 371.289, 'Bailey'),                                                          
-(29643, 2, 6057.13, -750.684, 374.297, 'Bailey'),                                                          
-(29643, 3, 6075.11, -746.512, 378.785, 'Bailey'),                                                          
-(29643, 4, 6074.88, -746.098, 378.744, 'Bailey'),                                                          
-(29643, 5, 6082.66, -744.527, 380.612, 'Bailey'),                                                          
-(29643, 6, 6094.52, -739.821, 383.156, 'Bailey'),                                                          
-(29643, 7, 6108.06, -728.91, 385.165, 'Bailey'),                                                          
-(29643, 8, 6106.12, -727.415, 384.716, 'Bailey'),                                                          
-(29643, 9, 6103.38, -731.758, 384.439, 'Bailey'),                                                          
-(29643, 10, 6094.78, -740.08, 383.232, 'Bailey'),                                                          
-(29643, 11, 6081.35, -743.988, 380.304, 'Bailey'),                                                          
-(29643, 12, 6064.46, -748.543, 376.139, 'Bailey'),                                                          
-(29643, 13, 6047.42, -752.5, 372.131, 'Bailey'),                                                          
-(29643, 14, 6036.15, -753.071, 369.981, 'Bailey'),                                                          
-(29643, 15, 6036.69, -751.232, 370.083, 'Bailey'); 
+INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
+(29643, 1, 6043.27, -752.358, 371.289, 'Bailey'),
+(29643, 2, 6057.13, -750.684, 374.297, 'Bailey'),
+(29643, 3, 6075.11, -746.512, 378.785, 'Bailey'),
+(29643, 4, 6074.88, -746.098, 378.744, 'Bailey'),
+(29643, 5, 6082.66, -744.527, 380.612, 'Bailey'),
+(29643, 6, 6094.52, -739.821, 383.156, 'Bailey'),
+(29643, 7, 6108.06, -728.91, 385.165, 'Bailey'),
+(29643, 8, 6106.12, -727.415, 384.716, 'Bailey'),
+(29643, 9, 6103.38, -731.758, 384.439, 'Bailey'),
+(29643, 10, 6094.78, -740.08, 383.232, 'Bailey'),
+(29643, 11, 6081.35, -743.988, 380.304, 'Bailey'),
+(29643, 12, 6064.46, -748.543, 376.139, 'Bailey'),
+(29643, 13, 6047.42, -752.5, 372.131, 'Bailey'),
+(29643, 14, 6036.15, -753.071, 369.981, 'Bailey'),
+(29643, 15, 6036.69, -751.232, 370.083, 'Bailey');

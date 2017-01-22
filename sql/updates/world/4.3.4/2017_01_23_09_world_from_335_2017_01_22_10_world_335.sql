@@ -1,3 +1,4 @@
+/*
 -- Durotar - Burning Blade Coven
 -- waypoints
 UPDATE `creature` SET  `position_x` = -160.8142, `position_y` = -4359.207, `position_z` = 67.14682, `orientation` = 0.3144676 WHERE `guid` = 13062;
@@ -99,3 +100,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH, 18, -150.7756, -4251.957, 59.79196),
 (@PATH, 19, -152.7972, -4264.302, 61.48151),
 (@PATH, 20, -145.7213, -4275.718, 63.28702);
+*/

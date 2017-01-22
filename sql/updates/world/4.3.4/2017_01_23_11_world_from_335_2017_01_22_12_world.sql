@@ -127,7 +127,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (@PATH, 1, 2277.23, 5177.21, 11.34, 0, 0, 0, 0, 100, 0),
 (@PATH, 2, 2268.97, 5175.55, 11.1665, 0, 0, 0, 0, 100, 0),
 (@PATH, 3, 2254.59, 5188.89, 11.384, 0, 0, 0, 0, 100, 0),

@@ -4,7 +4,7 @@ UPDATE `gameobject` SET `spawntimesecs`=10 WHERE  `id`=191502;
 -- add fake death emote for Savage Hill Scavengers
 UPDATE `creature` SET `spawndist`=0, `MovementType`=0, `unit_flags`=`unit_flags`|536870912|33554432|32770, `dynamicflags`=32 WHERE  `guid` IN (116957, 116956, 116958, 116959);
 DELETE FROM `creature_addon` WHERE `guid` IN (116957, 116956, 116958, 116959);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (116957,0,0,7,1,0, '29266'),
 (116956,0,0,7,1,0, '29266'),
 (116958,0,0,7,1,0, '29266'),
@@ -33,7 +33,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,9,7,0,0,0,100,0,0,0,0,0,48,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Janks - On Script - Set Active Off");
 
 DELETE FROM `creature_text` WHERE `entry`=29429;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
 (29429, 0, 0, 'Is it true?! Has someone finally come to get me out of this place?', 12, 0, 100, 0, 0, 0, 30198, 'Janks'),
 (29429, 1, 0, 'No... no... that''s not it, is it? That heartless lout probably sent you after the tools, didn''t he?', 12, 0, 100, 0, 0, 0, 30199, 'Janks'),
 (29429, 2, 0, 'Well... I guess I''ll just keep an eye on the turrets... or something.', 12, 0, 100, 0, 0, 0, 30200, 'Janks'),
