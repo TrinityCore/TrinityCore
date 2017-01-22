@@ -4769,10 +4769,14 @@ enum BattlegroundTypeId
     BATTLEGROUND_DG             = 754, // Deepwind Gorge
     BATTLEGROUND_TTP            = 757, // The Tiger's Peak
     BATTLEGROUND_SS_VS_TM       = 789, // Southshore vs. Tarren Mill
-    // 844 = "Blade's Edge Arena"
+    BATTLEGROUND_SMALL_D        = 803, // Small Battleground D
+    BATTLEGROUND_BRH            = 808, // Black Rook Hold Arena
+    // 809 = "New Nagrand Arena (Legion)"
+    BATTLEGROUND_AF             = 816, // Ashamane's Fall
+    // 844 = "New Blade's Edge Arena (Legion)"
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 758
+#define MAX_BATTLEGROUND_TYPE_ID 845
 
 enum MailResponseType
 {
