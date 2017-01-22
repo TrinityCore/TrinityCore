@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -759,6 +759,24 @@ namespace WorldPackets
 
             ObjectGuid Source;
             int32 SpellVisualID = 0;
+        };
+
+        class PlaySpellVisual final : public ServerPacket
+        {
+        public:
+            PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 16 + 16 + 2 + 4 + 1 + 2 + 4 + 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            ObjectGuid Target;
+            uint16 MissReason = 0;
+            uint32 SpellVisualID = 0;
+            bool SpeedAsTime = false;
+            uint16 ReflectStatus = 0;
+            float TravelSpeed = 0.0f;
+            G3D::Vector3 TargetPostion;
+            float Orientation = 0.0f;
         };
 
         class PlaySpellVisualKit final : public ServerPacket

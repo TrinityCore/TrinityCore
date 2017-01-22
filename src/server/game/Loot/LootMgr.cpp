@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -447,6 +447,18 @@ void Loot::AddItem(LootStoreItem const& item)
     }
 }
 
+LootItem const* Loot::GetItemInSlot(uint32 lootSlot) const
+{
+    if (lootSlot < items.size())
+        return &items[lootSlot];
+
+    lootSlot -= uint32(items.size());
+    if (lootSlot < quest_items.size())
+        return &quest_items[lootSlot];
+
+    return nullptr;
+}
+
 // Calls processor of corresponding LootTemplate (which handles everything including references)
 bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
 {
@@ -637,7 +649,7 @@ void Loot::NotifyItemRemoved(uint8 lootIndex)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootItemRemoved(player->GetLootGUID(), GetGUID(), lootIndex);
+            player->SendNotifyLootItemRemoved(GetGUID(), lootIndex);
         else
             PlayersLooting.erase(i);
     }
@@ -684,7 +696,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(player->GetLootGUID(), GetGUID(), items.size()+j);
+                    player->SendNotifyLootItemRemoved(GetGUID(), items.size()+j);
             }
         }
         else
@@ -719,7 +731,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
         if (_itr->itemid != itemID)
             continue;
 
-        _itr->canSave = true;
+        _itr->canSave = false;
         break;
     }
 }
@@ -913,7 +925,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         continue;
 
                     WorldPackets::Loot::LootItemData lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i + 1;
                     lootItem.UIType = slot_type;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
@@ -930,7 +942,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 if (!items[i].is_looted && !items[i].freeforall && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
                     WorldPackets::Loot::LootItemData lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i + 1;
                     lootItem.UIType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(items[i]);
@@ -955,7 +967,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!qi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + qi->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
@@ -999,7 +1011,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + fi->index + 1;
                 lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
@@ -1019,7 +1031,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = items.size() + ci->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
@@ -1871,4 +1883,30 @@ void LoadLootTables()
     LoadLootTemplates_Spell();
 
     LoadLootTemplates_Reference();
+}
+
+void AELootResult::Add(Item* item, uint8 count, LootType lootType)
+{
+    auto itr = _byItem.find(item);
+    if (itr != _byItem.end())
+        _byOrder[itr->second].count += count;
+    else
+    {
+        _byItem[item] = _byOrder.size();
+        ResultValue value;
+        value.item = item;
+        value.count = count;
+        value.lootType = lootType;
+        _byOrder.push_back(value);
+    }
+}
+
+AELootResult::OrderedStorage::const_iterator AELootResult::begin() const
+{
+    return _byOrder.begin();
+}
+
+AELootResult::OrderedStorage::const_iterator AELootResult::end() const
+{
+    return _byOrder.end();
 }

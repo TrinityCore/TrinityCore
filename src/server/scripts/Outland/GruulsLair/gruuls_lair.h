@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,14 +23,14 @@
 
 uint32 const EncounterCount = 2;
 
-enum DataTypes
+enum GLDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_MAULGAR                = 0,
     DATA_GRUUL                  = 1
 };
 
-enum CreatureIds
+enum GLCreatureIds
 {
     NPC_MAULGAR                 = 18831,
     NPC_KROSH_FIREHAND          = 18832,
@@ -39,7 +39,7 @@ enum CreatureIds
     NPC_BLINDEYE_THE_SEER       = 18836
 };
 
-enum GameObjectIds
+enum GLGameObjectIds
 {
     GO_MAULGAR_DOOR             = 184468,
     GO_GRUUL_DOOR               = 184662

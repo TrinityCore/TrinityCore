@@ -249,7 +249,7 @@ static int ParseWowRootFileInternal(
         if((RootBlock.pLocaleBlockHdr->Flags & 0x80) && bOverrideArchive == 0)
             continue;
 
-        // WoW.exe (build 19116): Entries with (flags >> 0x1F) not equal to arg_8 are skipped
+        // WoW.exe (build 19116): Entries with (flags >> 0x1F) not equal to bAudioLocale are skipped
         if((RootBlock.pLocaleBlockHdr->Flags >> 0x1F) != bAudioLocale)
             continue;
 
@@ -265,8 +265,29 @@ static int ParseWowRootFileInternal(
 }
 
 /*
-    // Code from WoW.exe
-    if(dwRegion == CASC_REGION_EU)
+// known dwRegion values returned from sub_661316 (7.0.3.22210 x86 win), also referred by lua GetCurrentRegion
+#define WOW_REGION_US              0x01
+#define WOW_REGION_KR              0x02
+#define WOW_REGION_EU              0x03
+#define WOW_REGION_TW              0x04
+#define WOW_REGION_CN              0x05
+
+#define WOW_LOCALE_ENUS            0x00
+#define WOW_LOCALE_KOKR            0x01
+#define WOW_LOCALE_FRFR            0x02
+#define WOW_LOCALE_DEDE            0x03
+#define WOW_LOCALE_ZHCN            0x04
+#define WOW_LOCALE_ZHTW            0x05
+#define WOW_LOCALE_ESES            0x06
+#define WOW_LOCALE_ESMX            0x07
+#define WOW_LOCALE_RURU            0x08
+#define WOW_LOCALE_PTBR            0x0A
+#define WOW_LOCALE_ITIT            0x0B
+
+    // dwLocale is obtained from a WOW_LOCALE_* to CASC_LOCALE_BIT_* mapping (sub_6615D0 in 7.0.3.22210 x86 win)
+    // because (ENUS, ENGB) and (PTBR, PTPT) pairs share the same value on WOW_LOCALE_* enum
+    // dwRegion is used to distinguish them
+    if(dwRegion == WOW_REGION_EU)
     {
         // Is this english version of WoW?
         if(dwLocale == CASC_LOCALE_BIT_ENUS)
@@ -284,7 +305,7 @@ static int ParseWowRootFileInternal(
         }
     }
     else
-        LoadWowRootFileLocales(hs, pbRootFile, cbRootFile, (1 << dwLocale), false, bAudioLocale);
+        LoadWowRootFileLocales(hs, pbRootFile, cbRootFile, (1 << dwLocale), bOverrideArchive, bAudioLocale);
 */
 
 static int ParseWowRootFile2(
