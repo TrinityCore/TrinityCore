@@ -2893,7 +2893,7 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
         }
     }
 
-    bool const canTurnDuringCast = !spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) && !(spellInfo->ChannelInterruptFlags & AURA_INTERRUPT_FLAG_TURNING);
+    bool const canTurnDuringCast = !spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
         SetFacingToObject(target);
