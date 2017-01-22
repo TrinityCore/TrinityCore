@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,6 +71,16 @@ void WorldPackets::Auth::AuthSession::Read()
         RealmJoinTicket.resize(std::min(realmJoinTicketSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
         _worldPacket.read(reinterpret_cast<uint8*>(&RealmJoinTicket[0]), RealmJoinTicket.size());
     }
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+{
+    data << uint32(waitInfo.WaitCount);
+    data << uint32(waitInfo.WaitTime);
+    data.WriteBit(waitInfo.HasFCM);
+    data.FlushBits();
+
+    return data;
 }
 
 WorldPackets::Auth::AuthResponse::AuthResponse()
@@ -166,12 +176,14 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     }
 
     if (WaitInfo)
-    {
-        _worldPacket << uint32(WaitInfo->WaitCount);
-        _worldPacket << uint32(WaitInfo->WaitTime);
-        _worldPacket.WriteBit(WaitInfo->HasFCM);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << *WaitInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitInfo;
 
     return &_worldPacket;
 }

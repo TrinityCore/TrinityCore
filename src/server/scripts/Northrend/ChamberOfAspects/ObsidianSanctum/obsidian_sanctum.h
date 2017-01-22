@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum OSDataTypes
 {
     DATA_SARTHARION             = 0,
     DATA_TENEBRON               = 1,
@@ -33,7 +33,7 @@ enum DataTypes
     TWILIGHT_ACHIEVEMENTS       = 5
 };
 
-enum CreaturesIds
+enum OSCreaturesIds
 {
     NPC_SARTHARION              = 28860,
     NPC_TENEBRON                = 30452,
@@ -41,7 +41,7 @@ enum CreaturesIds
     NPC_VESPERON                = 30449
 };
 
-enum GameObjectIds
+enum OSGameObjectIds
 {
     GO_TWILIGHT_PORTAL          = 193988
 };

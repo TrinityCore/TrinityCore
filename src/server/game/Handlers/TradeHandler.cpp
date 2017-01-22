@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,17 +79,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
                 tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
 
-                uint8 i = 0;
+                uint8 g = 0;
                 for (ItemDynamicFieldGems const& gemData : item->GetGems())
                 {
                     if (gemData.ItemId)
                     {
                         WorldPackets::Item::ItemGemData gem;
-                        gem.Slot = i;
+                        gem.Slot = g;
                         gem.Item.Initialize(&gemData);
                         tradeItem.Unwrapped->Gems.push_back(gem);
                     }
-                    ++i;
+                    ++g;
                 }
             }
 

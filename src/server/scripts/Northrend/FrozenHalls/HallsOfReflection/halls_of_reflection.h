@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ uint32 const EncounterCount = 3;
  2 - The Lich King
 */
 
-enum DataTypes
+enum HORDataTypes
 {
     DATA_FALRIC                                 = 0,
     DATA_MARWYN                                 = 1,
@@ -55,7 +55,7 @@ enum DataTypes
     DATA_QUEL_DELAR_INVOKER                     = 17
 };
 
-enum CreatureIds
+enum HORCreatureIds
 {
     NPC_JAINA_INTRO                             = 37221,
     NPC_SYLVANAS_INTRO                          = 37223,
@@ -92,7 +92,7 @@ enum CreatureIds
     NPC_WORLD_TRIGGER                           = 22515
 };
 
-enum GameObjectIds
+enum HORGameObjectIds
 {
     GO_FROSTMOURNE                              = 202302,
     GO_ENTRANCE_DOOR                            = 201976,
@@ -115,14 +115,14 @@ enum GameObjectIds
     GO_THE_CAPTAIN_CHEST_HORDE_HEROIC           = 202337
 };
 
-enum Achievements
+enum HORAchievements
 {
     ACHIEV_NOT_RETREATING_EVENT                 = 22615,
     SPELL_ACHIEV_CHECK                          = 72830
 };
 
 // Common actions from Instance Script to Boss Script
-enum Actions
+enum HORActions
 {
     ACTION_ENTER_COMBAT                         = -668001,
     ACTION_START_PREFIGHT                       = -668002,
@@ -131,7 +131,7 @@ enum Actions
     ACTION_GUNSHIP_ARRIVAL_2                    = -668005
 };
 
-enum InstanceEvents
+enum HORInstanceEvents
 {
     EVENT_SPAWN_WAVES                           = 1,
     EVENT_NEXT_WAVE                             = 2,
@@ -141,14 +141,14 @@ enum InstanceEvents
     EVENT_QUEL_DELAR_SUMMON_UTHER               = 6
 };
 
-enum InstanceEventIds
+enum HORInstanceEventIds
 {
     EVENT_GUNSHIP_ARRIVAL                       = 22709,
     EVENT_GUNSHIP_ARRIVAL_2                     = 22714,
     EVENT_ICE_WALL_SUMMONED                     = 22795
 };
 
-enum InstanceSpells
+enum HORInstanceSpells
 {
     // Trash
     SPELL_WELL_OF_SOULS                         = 72630, // cast when spawn (become visible)
@@ -174,19 +174,19 @@ enum InstanceSpells
     SPELL_ESSENCE_OF_CAPTURED                   = 70720
 };
 
-enum InstanceQuests
+enum HORInstanceQuests
 {
     QUEST_HALLS_OF_REFLECTION_ALLIANCE          = 24480,
     QUEST_HALLS_OF_REFLECTION_HORDE             = 24561
 };
 
-enum InstanceWorldStates
+enum HORInstanceWorldStates
 {
     WORLD_STATE_HOR_WAVES_ENABLED               = 4884,
     WORLD_STATE_HOR_WAVE_COUNT                  = 4882
 };
 
-enum InstanceYells
+enum HORInstanceYells
 {
     SAY_CAPTAIN_FIRE                            = 0,
     SAY_CAPTAIN_FINAL                           = 1

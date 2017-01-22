@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,19 +23,11 @@
 
 uint32 const EncounterCount = 2;
 
-enum DataTypes
+enum ACDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_SHIRRAK_THE_DEAD_WATCHER   = 0,
     DATA_EXARCH_MALADAAR            = 1
-};
-
-enum CreatureIds
-{
-};
-
-enum GameObjectIds
-{
 };
 
 template<class AI>

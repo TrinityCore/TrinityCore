@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -599,6 +599,19 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
         };
 
+        class PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetObjectGUID;
+            ObjectGuid SourceObjectGUID;
+            int32 SoundKitID = 0;
+            G3D::Vector3 Position;
+        };
+
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
@@ -608,6 +621,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGuid;
+            int32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
+        {
+        public:
+            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20) { }
+            PlaySpeakerbotSound(ObjectGuid const& sourceObjectGUID, int32 soundKitID)
+                : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
         };
 
@@ -623,6 +649,14 @@ namespace WorldPackets
         {
         public:
             NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
 
             void Read() override { }
         };
