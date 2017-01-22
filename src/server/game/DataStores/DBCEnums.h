@@ -437,7 +437,8 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERAROR_SUM_CHILDREN             = 5,
     CRITERIA_TREE_OPERATOR_MAX_CHILD                = 6,
     CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN    = 7,
-    CRITERIA_TREE_OPERATOR_ANY                      = 8
+    CRITERIA_TREE_OPERATOR_ANY                      = 8,
+    CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
 };
 
 enum CharSectionFlags
