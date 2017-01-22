@@ -24,6 +24,7 @@
 #include "Group.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Object.h"
 #include "Player.h"
 #include "WorldPacket.h"
@@ -285,7 +286,16 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     go->SetLootState(GO_READY);
             }
             else
+            {
                 go->SetLootState(GO_JUST_DEACTIVATED);
+
+                // moved event execution to loot release (after everything is looted)
+                if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.eventId)
+                {
+                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO %u", go->GetGOInfo()->chest.eventId, go->GetSpawnId());
+                    player->GetMap()->ScriptsStart(sEventScripts, go->GetGOInfo()->chest.eventId, player, go);
+                }
+            }
 
             loot->clear();
         }

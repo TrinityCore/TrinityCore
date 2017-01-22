@@ -933,6 +933,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_linkedTrap;
 
     private:
+        void CheckRitualList();
+        void ClearRitualList();
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
         void UpdatePackedRotation();

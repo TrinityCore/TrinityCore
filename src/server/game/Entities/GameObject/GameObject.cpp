@@ -140,7 +140,6 @@ void GameObject::AddToWorld()
             GetMap()->GetGameObjectBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
 
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
         if (m_model)
         {
             if (Transport* trans = ToTransport())
@@ -149,7 +148,7 @@ void GameObject::AddToWorld()
                 GetMap()->InsertGameObjectModel(*m_model);
         }
 
-        EnableCollision(toggledState);
+        EnableCollision(GetGoState() == GO_STATE_READY || IsTransport()); // collision depends entirely on GOState
         WorldObject::AddToWorld();
     }
 }
@@ -173,6 +172,51 @@ void GameObject::RemoveFromWorld()
             Trinity::Containers::MultimapErasePair(GetMap()->GetGameObjectBySpawnIdStore(), m_spawnId, this);
         GetMap()->GetObjectsStore().Remove<GameObject>(GetGUID());
     }
+}
+
+void GameObject::CheckRitualList()
+{
+    if (m_unique_users.empty())
+        return;
+
+    for (GuidSet::iterator itr = m_unique_users.begin(); itr != m_unique_users.end();)
+    {
+        if (*itr == GetOwnerGUID())
+        {
+            ++itr;
+            continue;
+        }
+
+        if (Player* channeler = ObjectAccessor::GetPlayer(*this, *itr))
+            if (Spell* spell = channeler->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                if (spell->m_spellInfo->Id == GetGOInfo()->summoningRitual.animSpell)
+                {
+                    ++itr;
+                    continue;
+                }
+
+        m_unique_users.erase(itr++);
+    }
+}
+
+void GameObject::ClearRitualList()
+{
+    uint32 animSpell = GetGOInfo()->summoningRitual.animSpell;
+    if (!animSpell || m_unique_users.empty())
+        return;
+
+    for (GuidSet::const_iterator itr = m_unique_users.begin(); itr != m_unique_users.end(); ++itr)
+    {
+        if (Player* channeler = ObjectAccessor::GetPlayer(*this, *itr))
+            if (Spell* spell = channeler->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                if (spell->m_spellInfo->Id == animSpell)
+                {
+                    spell->SendChannelUpdate(0);
+                    spell->finish();
+                }
+    }
+
+    m_unique_users.clear();
 }
 
 bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
@@ -620,6 +664,72 @@ void GameObject::Update(uint32 diff)
                     }
                     break;
                 }
+                case GAMEOBJECT_TYPE_SUMMONING_RITUAL:
+                {
+                    if (time(NULL) < m_cooldownTime)
+                        return;
+
+                    GameObjectTemplate const* info = GetGOInfo();
+                    if (info->summoningRitual.animSpell)
+                    {
+                        // if ritual requires animation, ensure that all users performs channel
+                        CheckRitualList();
+                    }
+
+                    if (GetUniqueUseCount() < info->summoningRitual.reqParticipants)
+                    {
+                        SetLootState(GO_READY);
+                        return;
+                    }
+
+                    bool triggered = info->summoningRitual.animSpell != 0;
+                    Unit* owner = GetOwner();
+                    Unit* spellCaster = owner ? owner : ObjectAccessor::GetPlayer(*this, m_ritualOwnerGUID);
+                    if (!spellCaster)
+                    {
+                        SetLootState(GO_JUST_DEACTIVATED);
+                        return;
+                    }
+
+                    uint32 spellId = info->summoningRitual.spellId;
+                    if (spellId == 62330)                       // GO store nonexistent spell, replace by expected
+                    {
+                        // spell have reagent and mana cost but it not expected use its
+                        // it triggered spell in fact casted at currently channeled GO
+                        spellId = 61993;
+                        triggered = true;
+                    }
+
+                    // Cast casterTargetSpell at a random GO user
+                    // on the current DB there is only one gameobject that uses this (Ritual of Doom)
+                    // and its required target number is 1 (outter for loop will run once)
+                    if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
+                        for (uint32 i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
+                            // m_unique_users can contain only player GUIDs
+                            if (Player* target = ObjectAccessor::GetPlayer(*this, Trinity::Containers::SelectRandomContainerElement(m_unique_users)))
+                                spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
+
+                    // finish owners spell
+                    // properly process event cooldowns
+                    if (owner)
+                    {
+                        if (Spell* spell = owner->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                        {
+                            spell->SendChannelUpdate(0);
+                            spell->finish(false);
+                        }
+                    }
+
+                    // can be deleted now
+                    if (!info->summoningRitual.ritualPersistent)
+                        SetLootState(GO_JUST_DEACTIVATED);
+                    else
+                        SetLootState(GO_READY);
+
+                    ClearRitualList();
+                    spellCaster->CastSpell(spellCaster, spellId, triggered);
+                    return;
+                }
                 default:
                     break;
             }
@@ -728,6 +838,10 @@ void GameObject::Delete()
 
     if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
         SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
+
+    // if ritual gameobject is removed, clear anim spells
+    if (GetGOInfo()->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
+        ClearRitualList();
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)
@@ -1219,9 +1333,16 @@ void GameObject::Use(Unit* user)
     switch (GetGoType())
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
+            //doors/buttons never really despawn, only reset to default state/flags
+            UseDoorOrButton(0, false, user);
+            return;
         case GAMEOBJECT_TYPE_BUTTON:                        //1
             //doors/buttons never really despawn, only reset to default state/flags
             UseDoorOrButton(0, false, user);
+
+            // properly link possible traps
+            if (uint32 trapEntry = GetGOInfo()->button.linkedTrap)
+                TriggeringLinkedGameObject(trapEntry, user);
             return;
         case GAMEOBJECT_TYPE_QUESTGIVER:                    //2
         {
@@ -1291,7 +1412,7 @@ void GameObject::Use(Unit* user)
 
                 if (itr->second)
                 {
-                    if (Player* ChairUser = ObjectAccessor::FindPlayer(itr->second))
+                    if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
                     {
                         if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->GetStandState() != UNIT_STAND_STATE_SIT check is required.
@@ -1507,20 +1628,18 @@ void GameObject::Use(Unit* user)
                 return;
 
             Player* player = user->ToPlayer();
-
             Unit* owner = GetOwner();
-
             GameObjectTemplate const* info = GetGOInfo();
 
-            Player* m_ritualOwner = nullptr;
+            Player* ritualOwner = nullptr;
             if (m_ritualOwnerGUID)
-                m_ritualOwner = ObjectAccessor::FindPlayer(m_ritualOwnerGUID);
+                ritualOwner = ObjectAccessor::GetPlayer(*this, m_ritualOwnerGUID);
 
             // ritual owner is set for GO's without owner (not summoned)
-            if (!m_ritualOwner && !owner)
+            if (!ritualOwner && !owner)
             {
                 m_ritualOwnerGUID = player->GetGUID();
-                m_ritualOwner = player;
+                ritualOwner = player;
             }
 
             if (owner)
@@ -1535,73 +1654,42 @@ void GameObject::Use(Unit* user)
                 // expect owner to already be channeling, so if not...
                 if (!owner->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                     return;
-
-                // in case summoning ritual caster is GO creator
-                spellCaster = owner;
             }
             else
             {
-                if (player != m_ritualOwner && (info->summoningRitual.castersGrouped && !player->IsInSameRaidWith(m_ritualOwner)))
+                if (!ritualOwner)
                     return;
 
-                spellCaster = player;
+                if (player != ritualOwner && (info->summoningRitual.castersGrouped && !player->IsInSameRaidWith(ritualOwner)))
+                    return;
+            }
+
+            if (info->summoningRitual.animSpell)
+            {
+                // if ritual requires animation, ensure that all users performs channel
+                CheckRitualList();
+
+                // all participants found
+                if (GetUniqueUseCount() == info->summoningRitual.reqParticipants)
+                    return;
+
+                player->CastSpell(player, info->summoningRitual.animSpell, true);
             }
 
             AddUniqueUse(player);
 
-            if (info->summoningRitual.animSpell)
-            {
-                player->CastSpell(player, info->summoningRitual.animSpell, true);
-
-                // for this case, summoningRitual.spellId is always triggered
-                triggered = true;
-            }
-
             // full amount unique participants including original summoner
             if (GetUniqueUseCount() == info->summoningRitual.reqParticipants)
             {
-                if (m_ritualOwner)
-                    spellCaster = m_ritualOwner;
-
-                spellId = info->summoningRitual.spellId;
-
-                if (spellId == 62330)                       // GO store nonexistent spell, replace by expected
-                {
-                    // spell have reagent and mana cost but it not expected use its
-                    // it triggered spell in fact cast at currently channeled GO
-                    spellId = 61993;
-                    triggered = true;
-                }
-
-                // Cast casterTargetSpell at a random GO user
-                // on the current DB there is only one gameobject that uses this (Ritual of Doom)
-                // and its required target number is 1 (outter for loop will run once)
-                if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
-                    for (uint32 i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
-                        // m_unique_users can contain only player GUIDs
-                        if (Player* target = ObjectAccessor::GetPlayer(*this, Trinity::Containers::SelectRandomContainerElement(m_unique_users)))
-                            spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
-
-                // finish owners spell
-                if (owner)
-                    owner->FinishSpell(CURRENT_CHANNELED_SPELL);
-
+                SetLootState(GO_ACTIVATED);
                 // can be deleted now, if
-                if (!info->summoningRitual.ritualPersistent)
-                    SetLootState(GO_JUST_DEACTIVATED);
-                else
-                {
-                    // reset ritual for this GO
-                    m_ritualOwnerGUID.Clear();
-                    m_unique_users.clear();
-                    m_usetimes = 0;
-                }
+                if (!info->summoningRitual.animSpell)
+                    m_cooldownTime = 0;
+                else // channel ready, maintain this
+                    m_cooldownTime = time(NULL) + 5;
             }
-            else
-                return;
 
-            // go to end function to spell casting
-            break;
+            return;
         }
         case GAMEOBJECT_TYPE_SPELLCASTER:                   //22
         {
@@ -1877,13 +1965,14 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     if (G3D::fuzzyEq(dist, 0.0f))
         return true;
 
+    float scale = GetFloatValue(OBJECT_FIELD_SCALE_X);
     float sinB = dx / dist;
     float cosB = dy / dist;
     dx = dist * (cosA * cosB + sinA * sinB);
     dy = dist * (cosA * sinB - sinA * cosB);
-    return dx < info->maxX + radius && dx > info->minX - radius
-        && dy < info->maxY + radius && dy > info->minY - radius
-        && dz < info->maxZ + radius && dz > info->minZ - radius;
+    return dx < (info->maxX*scale) + radius && dx > (info->minX*scale) - radius
+        && dy < (info->maxY*scale) + radius && dy > (info->minY*scale) - radius
+        && dz < (info->maxZ*scale) + radius && dz > (info->minZ*scale) - radius;
 }
 
 void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
@@ -2101,7 +2190,8 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     AI()->OnStateChanged(state, unit);
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
 
-    if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
+    // lootState has nothing to do with collision, it depends entirely on GOState
+    /*if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
 
     if (m_model)
@@ -2112,7 +2202,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
             collision = !collision;
 
         EnableCollision(collision);
-    }
+    }*/
 }
 
 void GameObject::SetGoState(GOState state)
@@ -2124,12 +2214,8 @@ void GameObject::SetGoState(GOState state)
         if (!IsInWorld())
             return;
 
-        // startOpen determines whether we are going to add or remove the LoS on activation
-        bool collision = false;
-        if (state == GO_STATE_READY)
-            collision = !collision;
-
-        EnableCollision(collision);
+        // collision depends entirely on current GOState
+        EnableCollision(state == GO_STATE_READY);
     }
 }
 
