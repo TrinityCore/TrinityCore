@@ -255,35 +255,43 @@ namespace VMAP
     }
 
     //=========================================================
-
-    bool StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    LoadResult StaticMapTree::CanLoadMap(const std::string &vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
     {
         std::string basePath = vmapPath;
         if (basePath.length() > 0 && basePath[basePath.length()-1] != '/' && basePath[basePath.length()-1] != '\\')
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
-        bool success = true;
+
+        LoadResult result = LoadResult::Success;
+
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
-            return false;
+            return LoadResult::FileNotFound;
 
         char chunk[8];
         if (!readChunk(rf, chunk, VMAP_MAGIC, 8))
         {
             fclose(rf);
-            return false;
+            return LoadResult::VersionMismatch;
         }
         FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
         if (!tf)
-            success = false;
+            return LoadResult::FileNotFound;
         else
         {
-            if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
-                success = false;
-            fclose(tf);
+            std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
+            FILE* tf = fopen(tilefile.c_str(), "rb");
+            if (!tf)
+                result = LoadResult::FileNotFound;
+            else
+            {
+                if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
+                    result = LoadResult::VersionMismatch;
+                fclose(tf);
+            }
         }
         fclose(rf);
-        return success;
+        return result;
     }
 
     //=========================================================
