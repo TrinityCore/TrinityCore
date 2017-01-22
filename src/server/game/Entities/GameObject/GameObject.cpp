@@ -1739,7 +1739,7 @@ void GameObject::Use(Unit* user)
             if (info->entry == 194097)
                 spellId = 61994;                            // Ritual of Summoning
             else
-                spellId = 59782;                            // Summoning Stone Effect
+                spellId = 23598;                            // Summoning Stone Effect
 
             break;
         }

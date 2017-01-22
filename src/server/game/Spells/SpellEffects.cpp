@@ -1009,7 +1009,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 
     finish();
 
-    m_caster->CastSpell((Unit*)NULL, spellInfo, false);
+    m_caster->CastSpell((Unit*)NULL, spellInfo, true);
 }
 
 void Spell::EffectJump(SpellEffIndex effIndex)
