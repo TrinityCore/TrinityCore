@@ -336,6 +336,7 @@ enum CriteriaTypes
     CRITERIA_TYPE_KNOWN_FACTIONS                        = 89,
     CRITERIA_TYPE_LOOT_EPIC_ITEM                        = 90,
     CRITERIA_TYPE_RECEIVE_EPIC_ITEM                     = 91,
+    CRITERIA_TYPE_SEND_EVENT                            = 92,
     CRITERIA_TYPE_ROLL_NEED                             = 93,
     CRITERIA_TYPE_ROLL_GREED                            = 94,
     CRITERIA_TYPE_HIGHEST_HIT_DEALT                     = 101,

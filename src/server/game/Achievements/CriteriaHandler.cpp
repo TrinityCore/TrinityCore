@@ -480,6 +480,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case CRITERIA_TYPE_WIN_ARENA: // This also behaves like CRITERIA_TYPE_WIN_RATED_ARENA
             case CRITERIA_TYPE_ON_LOGIN:
+            case CRITERIA_TYPE_SEND_EVENT:
             case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
@@ -1074,6 +1075,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_CURRENCY:
         case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
         case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+        case CRITERIA_TYPE_SEND_EVENT:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:
@@ -1232,6 +1234,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CRITERIA_TYPE_WIN_DUEL:
         case CRITERIA_TYPE_WIN_RATED_ARENA:
         case CRITERIA_TYPE_WON_AUCTIONS:
+        case CRITERIA_TYPE_SEND_EVENT:
             if (!miscValue1)
                 return false;
             break;
@@ -1845,6 +1848,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "LOOT_EPIC_ITEM";
         case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             return "RECEIVE_EPIC_ITEM";
+        case CRITERIA_TYPE_SEND_EVENT:
+            return "SEND_EVENT";
         case CRITERIA_TYPE_ROLL_NEED:
             return "ROLL_NEED";
         case CRITERIA_TYPE_ROLL_GREED:
