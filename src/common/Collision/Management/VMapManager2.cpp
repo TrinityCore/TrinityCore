@@ -329,6 +329,21 @@ namespace VMAP
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
     }
 
+	bool VMapManager2::isPathAccessibleForMap(const char* _basePath, unsigned int mapID)
+	{
+		std::string basePath = std::string(_basePath);
+		if (basePath.length() > 0 && basePath[basePath.length() - 1] != '/' && basePath[basePath.length() - 1] != '\\')
+			basePath.push_back('/');
+		std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
+		bool success = true;
+		FILE* rf = fopen(fullname.c_str(), "rb");
+		if (!rf)
+			return false;
+
+		fclose(rf);
+		return true;
+	}
+
     void VMapManager2::getInstanceMapTree(InstanceTreeMap &instanceMapTree)
     {
         instanceMapTree = iInstanceMapTrees;
