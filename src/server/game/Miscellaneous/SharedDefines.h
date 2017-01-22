@@ -4739,7 +4739,7 @@ enum BattlegroundTeamId : uint8
 
 #define BG_TEAMS_COUNT  2
 
-// indexes of BattlemasterList.dbc (6.0)
+// indexes of BattlemasterList.dbc (7.1.5.23360)
 enum BattlegroundTypeId
 {
     BATTLEGROUND_TYPE_NONE      = 0,   // None
@@ -4753,16 +4753,14 @@ enum BattlegroundTypeId
     BATTLEGROUND_RL             = 8,   // Ruins of Lordaernon
     BATTLEGROUND_SA             = 9,   // Strand of the Ancients
     BATTLEGROUND_DS             = 10,  // Dalaran Sewers
-    BATTLEGROUND_RV             = 11,  // Ring of Valor
+    BATTLEGROUND_RV             = 11,  // The Ring of Valor
     BATTLEGROUND_IC             = 30,  // Isle of Conquest
     BATTLEGROUND_RB             = 32,  // Random Battleground
-    BATTLEGROUND_RATED_10_VS_10 = 100, // Rated BG 10 vs 10
-    BATTLEGROUND_RATED_15_VS_15 = 101, // Rated BG 15 vs 15
-    BATTLEGROUND_RATED_25_VS_25 = 102, // Rated BG 25 vs 25
+    BATTLEGROUND_RATED_10_VS_10 = 100, // Rated Battleground 10 vs 10
+    BATTLEGROUND_RATED_15_VS_15 = 101, // Rated Battleground 15 vs 15
+    BATTLEGROUND_RATED_25_VS_25 = 102, // Rated Battleground 25 vs 25
     BATTLEGROUND_TP             = 108, // Twin Peaks
     BATTLEGROUND_BFG            = 120, // Battle For Gilneas
-    // 441 = "Icecrown Citadel"
-    // 443 = "The Ruby Sanctum"
     // 656 = "Rated Eye of the Storm"
     BATTLEGROUND_TK             = 699, // Temple of Kotmogu
     // 706 = "CTF3"
@@ -4770,7 +4768,8 @@ enum BattlegroundTypeId
     BATTLEGROUND_TVA            = 719, // Tol'Viron Arena
     BATTLEGROUND_DG             = 754, // Deepwind Gorge
     BATTLEGROUND_TTP            = 757, // The Tiger's Peak
-    BATTLEGROUND_SS_VS_TM       = 789  // Southshore vs. Tarren Mill
+    BATTLEGROUND_SS_VS_TM       = 789, // Southshore vs. Tarren Mill
+    // 844 = "Blade's Edge Arena"
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 758
