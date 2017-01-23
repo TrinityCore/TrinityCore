@@ -1093,6 +1093,11 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
         GetPlayer()->addActionButton(button, ACTION_BUTTON_ACTION(packetData), ACTION_BUTTON_TYPE(packetData));
 }
 
+void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_MOVIE");
+}
+
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
 {
     // If player has sight bound to visual waypoint NPC we should remove it
