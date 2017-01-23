@@ -145,7 +145,6 @@ public:
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
-    uint16 GetArenaCooldownsSize();
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 

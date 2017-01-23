@@ -187,6 +187,12 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
         }
 
+        void IsSummonedBy(Unit* /*summoner*/) override
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            DoZoneInCombat();
+        }
+
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();

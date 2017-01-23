@@ -440,10 +440,8 @@ class boss_fjola : public CreatureScript
                 // Allocate an unique random stage to each position in the array.
                 for (int i = 0; i < MAX_STAGES - 1; ++i)
                 {
-                    int random = i + (rand32() % (MAX_STAGES - i));
-                    int temp = Stage[i];
-                    Stage[i] = Stage[random];
-                    Stage[random] = temp;
+                    int random = i + urand(0, MAX_STAGES - i);
+                    std::swap(Stage[i], Stage[random]);
                 }
             }
             private:

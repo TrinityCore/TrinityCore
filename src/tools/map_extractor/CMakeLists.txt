@@ -29,7 +29,7 @@ target_include_directories(mapextractor
 target_link_libraries(mapextractor
   PUBLIC
     common
-    casc)
+    extractor_common)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

@@ -90,7 +90,10 @@ struct GtCombatRatingsEntry
 
 struct GtCombatRatingsMultByILvl
 {
-    float RatingMultiplier = 0.0f;
+    float ArmorMultiplier = 0.0f;
+    float WeaponMultiplier = 0.0f;
+    float TrinketMultiplier = 0.0f;
+    float JewelryMultiplier = 0.0f;
 };
 
 struct GtHpPerStaEntry

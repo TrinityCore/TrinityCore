@@ -23,6 +23,7 @@
 #ifdef PLATFORM_WINDOWS
 #undef PLATFORM_WINDOWS
 #endif
+#include "CascHandles.h"
 #include "CascLib.h"
 #include <map>
 #include <string>
@@ -89,7 +90,7 @@ public:
     ChunkedFile();
     virtual ~ChunkedFile();
     bool prepareLoadedData();
-    bool loadFile(HANDLE mpq, std::string const& fileName, bool log = true);
+    bool loadFile(CASC::StorageHandle const& mpq, std::string const& fileName, bool log = true);
     void free();
 
     void parseChunks();

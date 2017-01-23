@@ -53,7 +53,7 @@ bool ExtractSingleModel(std::string& fname)
     return mdl.ConvertToVMAPModel(output.c_str());
 }
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 struct GameObjectDisplayInfoMeta
 {
@@ -82,13 +82,12 @@ enum ModelTypes : uint32
 bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 {
     *magic = 0;
-    HANDLE file;
-    if (!CascOpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
+    CASC::FileHandle file = CASC::OpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL);
+    if (!!file)
         return false;
 
-    std::unique_ptr<HANDLE, CascFileHandleDeleter> modelFile(file);
     DWORD bytesRead = 0;
-    if (!CascReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
+    if (!CASC::ReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
         return false;
 
     return true;
@@ -97,10 +96,9 @@ bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...");
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2", CASC_LOCALE_NONE, 0, &dbcFile))
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
     {
-        printf("Fatal error: Cannot find GameObjectDisplayInfo.db2 in archive!\n");
         exit(1);
     }
 

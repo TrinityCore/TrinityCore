@@ -565,6 +565,7 @@ class TC_GAME_API Spell
         int32 m_castItemLevel;
         ObjectGuid m_castId;
         ObjectGuid m_originalCastId;
+        bool m_fromClient;
         uint32 m_castFlagsEx;
         union
         {
@@ -856,14 +857,6 @@ class TC_GAME_API Spell
         std::vector<SpellLogEffectGenericVictimParams> _genericVictimTargets[MAX_SPELL_EFFECTS];
         std::vector<SpellLogEffectTradeSkillItemParams> _tradeSkillTargets[MAX_SPELL_EFFECTS];
         std::vector<SpellLogEffectFeedPetParams> _feedPetTargets[MAX_SPELL_EFFECTS];
-
-#ifdef MAP_BASED_RAND_GEN
-        int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }
-        int32 rand32()                          { return m_caster->GetMap()->mtRand.randInt(); }
-        double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
-        double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
-#endif
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
