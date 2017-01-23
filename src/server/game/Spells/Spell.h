@@ -551,6 +551,7 @@ class TC_GAME_API Spell
         bool CheckSpellCancelsPacify(uint32* param1) const;
         bool CheckSpellCancelsFear(uint32* param1) const;
         bool CheckSpellCancelsConfuse(uint32* param1) const;
+        bool CheckSpellCancelsNoActions(uint32* param1) const;
 
         int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const;
 
