@@ -1572,14 +1572,30 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
-        // Reflect auras should only proc off reflects
         for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
         {
-            if (effect && (effect->IsAura(SPELL_AURA_REFLECT_SPELLS) || effect->IsAura(SPELL_AURA_REFLECT_SPELLS_SCHOOL)))
+            if (!effect || !effect->IsAura())
+                continue;
+
+            switch (effect->ApplyAuraName)
             {
-                procEntry.HitMask = PROC_HIT_REFLECT;
-                break;
+                // Reflect auras should only proc off reflects
+                case SPELL_AURA_REFLECT_SPELLS:
+                case SPELL_AURA_REFLECT_SPELLS_SCHOOL:
+                    procEntry.HitMask = PROC_HIT_REFLECT;
+                    break;
+                // Only drop charge on crit
+                case SPELL_AURA_MOD_WEAPON_CRIT_PERCENT:
+                    procEntry.HitMask = PROC_HIT_CRITICAL;
+                    break;
+                // Only drop charge on block
+                case SPELL_AURA_MOD_BLOCK_PERCENT:
+                    procEntry.HitMask = PROC_HIT_BLOCK;
+                    break;
+                default:
+                    continue;
             }
+            break;
         }
 
         procEntry.AttributesMask  = 0;
