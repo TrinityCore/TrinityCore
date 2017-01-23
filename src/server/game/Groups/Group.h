@@ -207,6 +207,18 @@ class TC_GAME_API Group
         void   Disband(bool hideDestroy = false);
         void   SetLfgRoles(ObjectGuid guid, uint8 roles);
 
+        void   SetGroupMarkerMask(uint32 mask) { m_markerMask = mask; }
+        void   AddGroupMarkerMask(uint32 mask) { m_markerMask |= mask; }
+        void   RemoveGroupMarkerMask(uint32 mask) { if (mask == 0x20) m_markerMask = 0x20; m_markerMask &= ~mask; }
+        bool   HasMarker(uint32 mask) { return m_markerMask & mask; }
+        uint32 GetMarkerMask() { return m_markerMask; }
+
+        DynamicObject* GetMarkerGuidBySpell(uint32 spell);
+        void   AddMarkerToList(uint64 guid) { m_dynObj.push_back(guid); }
+        void   RemoveMarkerFromList(uint64 guid) { m_dynObj.remove(guid); }
+        void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
+        void   RemoveMarker();		
+
         // properties accessories
         bool IsFull() const;
         bool isLFGGroup()  const;
