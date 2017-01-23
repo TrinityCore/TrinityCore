@@ -16479,7 +16479,7 @@ void Player::KilledPlayerCredit()
         if (q_status.Status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid(GetMap()->GetDifficulty())))
         {
             // PvP Killing quest require player to be in same zone as quest zone (only 2 quests so no doubt)
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL) && GetZoneId() == qInfo->GetZoneOrSort())
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL) && GetZoneId() == static_cast<uint32>(qInfo->GetZoneOrSort()))
             {
                 uint32 reqkill = qInfo->GetPlayersSlain();
                 uint16 curkill = q_status.PlayerCount;
