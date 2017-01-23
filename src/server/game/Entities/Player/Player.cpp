@@ -15105,10 +15105,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
-
-    // area auras may change on quest accept
-    UpdateZoneDependentAuras(GetZoneId());
-    UpdateAreaDependentAuras(GetAreaId());
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15124,10 +15120,6 @@ void Player::CompleteQuest(uint32 quest_id)
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
-
-        // area auras may change on quest completion
-        UpdateZoneDependentAuras(GetZoneId());
-        UpdateAreaDependentAuras(GetAreaId());
     }
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
@@ -15151,10 +15143,6 @@ void Player::IncompleteQuest(uint32 quest_id)
         uint16 log_slot = FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
             RemoveQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
-
-        // area auras may change on quest completion
-        UpdateZoneDependentAuras(GetZoneId());
-        UpdateAreaDependentAuras(GetAreaId());
     }
 }
 
@@ -15353,10 +15341,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(false);
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
-
-    // area auras may change on quest reward
-    UpdateZoneDependentAuras(GetZoneId());
-    UpdateAreaDependentAuras(GetAreaId());
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -16008,10 +15992,6 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
 
     if (update)
         SendQuestUpdate(questId);
-
-    // area auras may change on quest remove
-    UpdateZoneDependentAuras(GetZoneId());
-    UpdateAreaDependentAuras(GetAreaId());
 }
 
 void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
