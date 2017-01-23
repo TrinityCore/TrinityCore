@@ -15199,8 +15199,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                 Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                 SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false);
             }
-            else // send by mail
-                SendItemRetrievalMail(itemId, quest->RewardChoiceItemCount[reward]);
         }
     }
 
@@ -15216,7 +15214,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
                     SendNewItem(item, quest->RewardItemIdCount[i], true, false);
                 }
-                else // send by mail
+                else if (quest->IsDFQuest())
                     SendItemRetrievalMail(itemId, quest->RewardItemIdCount[i]);
             }
         }
