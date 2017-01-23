@@ -515,6 +515,7 @@ class TC_GAME_API WorldSession
         void HandleRepopRequestOpcode(WorldPacket& recvPacket);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
+        void HandleLootCurrencyOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPacket& recvPacket);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
@@ -646,7 +647,6 @@ class TC_GAME_API WorldSession
         void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestPartyState(WorldPacket& recvPacket);
-        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
         void HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket);
         void HandleGuildAchievementMembers(WorldPacket& recvPacket);
         void HandleGuildSwitchRank(WorldPacket& recvPacket);

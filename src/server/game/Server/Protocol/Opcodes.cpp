@@ -302,8 +302,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_LFG_GET_STATUS,                                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleLfgGetStatus              );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_JOIN,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgJoinOpcode             );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_LEAVE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgLeaveOpcode            );
-    DEFINE_OPCODE_HANDLER(CMSG_LFG_LFR_JOIN,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(CMSG_LFG_LFR_LEAVE,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_LFG_LFR_JOIN,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfrJoinOpcode             );
+    DEFINE_OPCODE_HANDLER(CMSG_LFG_LFR_LEAVE,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfrLeaveOpcode            );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_LOCK_INFO_REQUEST,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleLfgGetLockInfoOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_PROPOSAL_RESULT,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgProposalResultOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_LFG_SET_BOOT_VOTE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetBootVoteOpcode      );
@@ -324,7 +324,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_LOGOUT_REQUEST,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLogoutRequestOpcode       );
     DEFINE_OPCODE_HANDLER(CMSG_LOG_DISCONNECT,                                   STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER(CMSG_LOOT,                                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootOpcode                );
-    DEFINE_OPCODE_HANDLER(CMSG_LOOT_CURRENCY,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_LOOT_CURRENCY,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootCurrencyOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_LOOT_MASTER_GIVE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterGiveOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_LOOT_METHOD,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMethodOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_LOOT_MONEY,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMoneyOpcode           );
