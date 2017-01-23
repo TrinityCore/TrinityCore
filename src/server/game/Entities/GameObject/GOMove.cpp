@@ -53,9 +53,7 @@ void GOMove::SendAddonMessage(Player * player, const char * msg)
 
 GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
 {
-    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-        return ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
-    return nullptr;
+    return ChatHandler(player->GetSession()).GetObjectFromPlayerMapByDbGuid(lowguid);
 }
 
 void GOMove::SendAdd(Player * player, ObjectGuid::LowType lowguid)
@@ -155,9 +153,7 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
 {
     if (!player)
         return nullptr;
-    GameObject* object = nullptr;
-    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-        object = ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
+    GameObject* object = ChatHandler(player->GetSession()).GetObjectFromPlayerMapByDbGuid(lowguid);
     if (!object)
     {
         SendRemove(player, lowguid);
