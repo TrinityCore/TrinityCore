@@ -380,19 +380,6 @@ void WorldSession::HandleBfQueueRequest(WorldPacket & recvData)
     recvData.ReadByteSeq(guid[5]);
     recvData.ReadByteSeq(guid[0]);
 
-    Battlefield *pBf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
-    if(pBf)
-    {
-        BattlefieldQueue *pQueue = sBattlefieldMgr->GetQueueForBattlefield(guid);
-        if(pQueue)
-        {
-            bool canJoin = true;
-
-            //check if player is queued in BG/LFG, if so - set canJoin to false
-            if(pQueue->HasEnoughSpace(GetPlayer()) && canJoin)
-                pQueue->AddPlayerToQueue(GetPlayer());
-
-            SendBfQueueInviteResponse(guid,pQueue->GetId(),pBf->GetZoneId(),canJoin,!pQueue->HasEnoughSpace(GetPlayer()),pBf->IsWarTime());
-        }
-    }
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
+        SendBfQueueInviteResponse(guid, bf->GetZoneId(), true, false);
 }
