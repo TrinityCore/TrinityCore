@@ -55,7 +55,8 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
                                                                                 mypos.m_positionX,
                                                                                 mypos.m_positionY,
                                                                                 mypos.m_positionZ + 2.0f,
-                                                                                x, y, z + 2.0f);
+                                                                                x, y, z + 2.0f,
+                                                                                VMAP::ModelIgnoreFlags::Nothing);
     if (!isInLOS)
     {
         i_nextCheckTime.Reset(200);
