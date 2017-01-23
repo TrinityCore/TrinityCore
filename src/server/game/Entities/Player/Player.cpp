@@ -381,6 +381,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
     m_isInWater = false;
+    m_hostileReferenceCheckTimer = 0;
     m_drunkTimer = 0;
     m_deathTimer = 0;
     m_deathExpireTime = 0;
@@ -1551,6 +1552,18 @@ void Player::Update(uint32 p_time)
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
+
+    if (IsAlive())
+    {
+        if (m_hostileReferenceCheckTimer <= p_time)
+        {
+            m_hostileReferenceCheckTimer = 15 * IN_MILLISECONDS;
+            if (!GetMap()->IsDungeon())
+                getHostileRefManager().deleteReferencesOutOfRange(GetVisibilityRange());
+        }
+        else
+            m_hostileReferenceCheckTimer -= p_time;
+    }
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
@@ -6500,7 +6513,7 @@ void Player::CheckAreaExploreAndOutdoor()
     {
         SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, (uint32)(currFields | val));
 
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA, GetAreaId());
 
         if (areaEntry->area_level > 0)
         {
@@ -12096,7 +12109,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot, pItem->GetEntry());
 
     return pItem;
 }
@@ -12121,7 +12134,7 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
             CheckTitanGripPenalty();
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot, pItem->GetEntry());
     }
 }
 
@@ -21115,22 +21128,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     if (!node)
     {
         GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
-        return false;
-    }
-
-    // check node starting pos data set case if provided
-    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
-    {
-        if (node->map_id != GetMapId() || !IsInDist(node->x, node->y, node->z, 2 * INTERACTION_DISTANCE))
-        {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
-            return false;
-        }
-    }
-    // node must have pos if taxi master case (npc != NULL)
-    else if (npc)
-    {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         return false;
     }
 

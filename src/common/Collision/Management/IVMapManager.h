@@ -21,6 +21,7 @@
 
 #include <string>
 #include "Define.h"
+#include "ModelIgnoreFlags.h"
 
 //===========================================================
 
@@ -36,6 +37,13 @@ namespace VMAP
         VMAP_LOAD_RESULT_ERROR,
         VMAP_LOAD_RESULT_OK,
         VMAP_LOAD_RESULT_IGNORED
+    };
+
+    enum class LoadResult : uint8
+    {
+        Success,
+        FileNotFound,
+        VersionMismatch
     };
 
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
@@ -55,12 +63,12 @@ namespace VMAP
 
             virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-            virtual bool existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual LoadResult existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;
 
-            virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) = 0;
+            virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) = 0;
             virtual float getHeight(unsigned int pMapId, float x, float y, float z, float maxSearchDist) = 0;
             /**
             test if we hit an object. return true if we hit one. rx, ry, rz will hold the hit position or the dest position, if no intersection was found
