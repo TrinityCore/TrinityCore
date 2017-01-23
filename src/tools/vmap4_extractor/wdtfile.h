@@ -19,7 +19,7 @@
 #ifndef WDTFILE_H
 #define WDTFILE_H
 
-#include "mpqfile.h"
+#include "cascfile.h"
 #include "wmo.h"
 #include <string>
 #include <vector>
@@ -30,7 +30,7 @@ class ADTFile;
 class WDTFile
 {
 private:
-    MPQFile WDT;
+    CASCFile WDT;
     std::string filename;
 public:
     WDTFile(char* file_name, char* file_name1);

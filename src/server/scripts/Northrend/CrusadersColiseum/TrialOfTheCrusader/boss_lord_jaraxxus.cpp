@@ -67,10 +67,12 @@ enum BossSpells
     SPELL_SHIVAN_SLASH                  = 67098,
     SPELL_SPINNING_STRIKE               = 66283,
     SPELL_MISTRESS_KISS                 = 66336,
-    SPELL_FEL_INFERNO                   = 67047,
-    SPELL_FEL_STREAK                    = 66494,
     SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
-    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
+    SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359,
+
+    // Felflame Infernal
+    SPELL_FEL_STREAK_VISUAL             = 66493,
+    SPELL_FEL_STREAK                    = 66494,
 };
 
 enum Events
@@ -116,7 +118,7 @@ class boss_jaraxxus : public CreatureScript
                 _JustReachedHome();
                 instance->SetBossState(BOSS_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void KilledUnit(Unit* who) override
@@ -305,18 +307,17 @@ class npc_fel_infernal : public CreatureScript
         {
             npc_fel_infernalAI(Creature* creature) : ScriptedAI(creature)
             {
-                Initialize();
                 _instance = creature->GetInstanceScript();
-            }
-
-            void Initialize()
-            {
-                _felStreakTimer = 30 * IN_MILLISECONDS;
             }
 
             void Reset() override
             {
-                Initialize();
+                _scheduler.Schedule(Seconds(2), [this](TaskContext context)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SPELL_FEL_STREAK_VISUAL);
+                    context.Repeat(Seconds(15));
+                });
                 me->SetInCombatWithZone();
             }
 
@@ -328,23 +329,20 @@ class npc_fel_infernal : public CreatureScript
                     return;
                 }
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 if (!UpdateVictim())
                     return;
 
-                if (_felStreakTimer <= diff)
+                _scheduler.Update(diff, [this]
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        DoCast(target, SPELL_FEL_STREAK);
-                    _felStreakTimer = 30*IN_MILLISECONDS;
-                }
-                else
-                    _felStreakTimer -= diff;
-
-                DoMeleeAttackIfReady();
+                    DoMeleeAttackIfReady();
+                });
             }
             private:
-                uint32 _felStreakTimer;
                 InstanceScript* _instance;
+                TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -579,6 +577,39 @@ class spell_mistress_kiss_area : public SpellScriptLoader
         }
 };
 
+class spell_fel_streak_visual : public SpellScriptLoader
+{
+public:
+    spell_fel_streak_visual() : SpellScriptLoader("spell_fel_streak_visual") { }
+
+    class spell_fel_streak_visual_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_fel_streak_visual_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_FEL_STREAK))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_fel_streak_visual_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_fel_streak_visual_SpellScript();
+    }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -590,4 +621,5 @@ void AddSC_boss_jaraxxus()
 
     new spell_mistress_kiss();
     new spell_mistress_kiss_area();
+    new spell_fel_streak_visual();
 }

@@ -433,7 +433,6 @@ struct ChrSpecializationEntry
     LocalizedString* Name;
     LocalizedString* Name2;
     LocalizedString* Description;
-    char* BackgroundFile;
     uint16 SpellIconID;
     uint8 ClassID;
     uint8 OrderIndex;

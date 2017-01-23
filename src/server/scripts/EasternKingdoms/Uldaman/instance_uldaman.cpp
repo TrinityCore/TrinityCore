@@ -147,7 +147,7 @@ class instance_uldaman : public InstanceMapScript
                 creature->setFaction(35);
                 creature->RemoveAllAuras();
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                 creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
 
@@ -178,7 +178,7 @@ class instance_uldaman : public InstanceMapScript
                         Creature* target = instance->GetCreature(*i);
                         if (!target || !target->IsAlive())
                             continue;
-                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                         target->setFaction(14);
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
@@ -202,7 +202,7 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || !target->IsAlive() || target->getFaction() == 14)
                         continue;
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     target->setFaction(14);
                     target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
@@ -268,7 +268,7 @@ class instance_uldaman : public InstanceMapScript
                     return;
 
                 ironaya->setFaction(415);
-                ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                 ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 ironaya->GetMotionMaster()->Clear();

@@ -77,7 +77,7 @@ char* GetExtension(char* FileName)
     return NULL;
 }
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 ADTFile::ADTFile(char* filename) : ADT(CascStorage, filename, false), nWMO(0), nMDX(0)
 {

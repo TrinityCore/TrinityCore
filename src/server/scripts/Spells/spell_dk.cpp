@@ -77,6 +77,45 @@ enum DeathKnightSpells
     SPELL_DK_WILL_OF_THE_NECROPOLIS             = 157335
 };
 
+// 70656 - Advantage (T10 4P Melee Bonus)
+class spell_dk_advantage_t10_4p : public SpellScriptLoader
+{
+public:
+    spell_dk_advantage_t10_4p() : SpellScriptLoader("spell_dk_advantage_t10_4p") { }
+
+    class spell_dk_advantage_t10_4p_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_advantage_t10_4p_AuraScript);
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (Unit* caster = eventInfo.GetActor())
+            {
+                if (caster->GetTypeId() != TYPEID_PLAYER || caster->getClass() != CLASS_DEATH_KNIGHT)
+                    return false;
+
+                for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    if (caster->ToPlayer()->GetRuneCooldown(i) == 0)
+                        return false;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_dk_advantage_t10_4p_AuraScript::CheckProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_advantage_t10_4p_AuraScript();
+    }
+};
+
 // 48707 - Anti-Magic Shell
 /// 6.x
 class spell_dk_anti_magic_shell : public SpellScriptLoader
@@ -1167,6 +1206,7 @@ public:
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_advantage_t10_4p();
     new spell_dk_anti_magic_shell();
     new spell_dk_army_periodic_taunt();
     new spell_dk_army_transform();

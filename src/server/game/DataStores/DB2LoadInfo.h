@@ -713,7 +713,6 @@ struct ChrSpecializationLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_STRING, "Name2" },
             { false, FT_STRING, "Description" },
-            { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
             { false, FT_SHORT, "SpellIconID" },
             { false, FT_BYTE, "ClassID" },
             { false, FT_BYTE, "OrderIndex" },

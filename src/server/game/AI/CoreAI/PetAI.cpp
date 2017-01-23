@@ -589,6 +589,12 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
     }
 }
 
+void PetAI::OnCharmed(bool /*apply*/)
+{
+    me->NeedChangeAI = true;
+    me->IsAIEnabled = false;
+}
+
 void PetAI::ClearCharmInfoFlags()
 {
     // Quick access to set all flags to FALSE

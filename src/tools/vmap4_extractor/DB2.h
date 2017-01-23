@@ -22,6 +22,7 @@
 #ifdef PLATFORM_WINDOWS
 #undef PLATFORM_WINDOWS
 #endif
+#include "CascHandles.h"
 #include "CascLib.h"
 #include "Utilities/ByteConverter.h"
 #include "Errors.h"
@@ -32,7 +33,7 @@ class DB2FileLoader
     DB2FileLoader();
     ~DB2FileLoader();
 
-    bool Load(HANDLE db2Handle, DB2Meta const* meta);
+    bool Load(CASC::FileHandle const& db2Handle, DB2Meta const* meta);
 
     class Record
     {

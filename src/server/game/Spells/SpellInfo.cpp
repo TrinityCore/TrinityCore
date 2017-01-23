@@ -490,7 +490,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
                     if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
                         if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                            value *= ratingMult->RatingMultiplier;
+                            value *= ratingMult->ArmorMultiplier;
                 }
             }
             else
@@ -2598,17 +2598,20 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
             if (power->HealthCostPercentage)
                 healthCost += int32(CalculatePct(caster->GetMaxHealth(), power->HealthCostPercentage));
 
-            // Flat mod from caster auras by spell school and power type
-            Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
-            for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            if (power->PowerType != POWER_HEALTH)
             {
-                if (!((*i)->GetMiscValue() & schoolMask))
-                    continue;
+                // Flat mod from caster auras by spell school and power type
+                Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                {
+                    if (!((*i)->GetMiscValue() & schoolMask))
+                        continue;
 
-                if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
-                    continue;
+                    if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
+                        continue;
 
-                powerCost += (*i)->GetAmount();
+                    powerCost += (*i)->GetAmount();
+                }
             }
 
             // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)

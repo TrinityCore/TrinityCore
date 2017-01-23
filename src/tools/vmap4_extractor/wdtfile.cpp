@@ -30,7 +30,7 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 WDTFile::WDTFile(char* file_name, char* file_name1):WDT(CascStorage, file_name), gnWMO(0)
 {
