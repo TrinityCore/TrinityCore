@@ -889,6 +889,13 @@ class TC_GAME_API WorldSession
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
+        // Cemetery
+        void HandleSetPreferedCemetery(WorldPacket& recvData);
+        void HandleCemeteryListRequest(WorldPacket& recvData);
+
+        // Currency
+        void HandleSetCurrencyFlags(WorldPacket& recvData);
+
         // Looking for Dungeon/Raid
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
         void HandleLfgGetLockInfoOpcode(WorldPacket& recvData);
