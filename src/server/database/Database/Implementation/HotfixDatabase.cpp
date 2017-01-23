@@ -166,8 +166,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_RACES, "SELECT ID, Name_lang, NameFemale_lang, NameMale_lang FROM chr_races_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ChrSpecialization.db2
-    PrepareStatement(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT MasterySpellID1, MasterySpellID2, Name, Name2, Description, BackgroundFile, SpellIconID, "
-        "ClassID, OrderIndex, PetTalentType, Role, PrimaryStatOrder, ID, Flags, AnimReplacementSetID FROM chr_specialization ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT MasterySpellID1, MasterySpellID2, Name, Name2, Description, SpellIconID, ClassID, "
+        "OrderIndex, PetTalentType, Role, PrimaryStatOrder, ID, Flags, AnimReplacementSetID FROM chr_specialization ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT ID, Name_lang, Name2_lang, Description_lang FROM chr_specialization_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 

@@ -925,7 +925,7 @@ class TC_GAME_API RBACData
 
         /// Loads all permissions assigned to current account
         void LoadFromDB();
-        PreparedQueryResultFuture LoadFromDBAsync();
+        QueryCallback LoadFromDBAsync();
         void LoadFromDBCallback(PreparedQueryResult result);
 
         /// Sets security level

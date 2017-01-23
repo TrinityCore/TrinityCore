@@ -114,7 +114,7 @@ public:
         }
     }
 
-    void DoZoneInCombat(uint32 entry = 0);
+    void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
 
@@ -364,7 +364,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
-        void _DespawnAtEvade(uint32 delayToRespawn = 30);
+        void _DespawnAtEvade(uint32 delayToRespawn = 30,  Creature* who = nullptr);
 
         void TeleportCheaters();
 

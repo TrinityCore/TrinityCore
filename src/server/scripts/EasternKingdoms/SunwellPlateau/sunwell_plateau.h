@@ -97,7 +97,8 @@ enum SWPCreatureIds
     NPC_FURY_MAGE                            = 25799,
     NPC_VOID_SENTINEL                        = 25772,
     NPC_VOID_SPAWN                           = 25824,
-    NPC_BLACK_HOLE                           = 25855
+    NPC_BLACK_HOLE                           = 25855,
+    NPC_MURU_PORTAL_TARGET                   = 25770
 };
 
 enum SWPGameObjectIds

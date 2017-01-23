@@ -46,7 +46,7 @@
 #include "wdtfile.h"
 #include "DB2.h"
 #include "wmo.h"
-#include "mpqfile.h"
+#include "cascfile.h"
 
 #include "vmapexport.h"
 #include "Banner.h"
@@ -60,7 +60,7 @@
 
 //-----------------------------------------------------------------------------
 
-HANDLE CascStorage = NULL;
+CASC::StorageHandle CascStorage;
 
 typedef struct
 {
@@ -165,8 +165,8 @@ uint32 ReadBuild(int locale)
     std::string filename = std::string("component.wow-") + localeNames[locale] + ".txt";
     //printf("Read %s file... ", filename.c_str());
 
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL, 0, &dbcFile))
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL);
+    if (!dbcFile)
     {
         printf("Locale %s not installed.\n", localeNames[locale]);
         return 0;
@@ -174,7 +174,7 @@ uint32 ReadBuild(int locale)
 
     char buff[512];
     DWORD readBytes = 0;
-    CascReadFile(dbcFile, buff, 512, &readBytes);
+    CASC::ReadFile(dbcFile, buff, 512, &readBytes);
     if (!readBytes)
     {
         printf("Fatal error: Not found %s file!\n", filename.c_str());
@@ -182,7 +182,6 @@ uint32 ReadBuild(int locale)
     }
 
     std::string text = std::string(buff, readBytes);
-    CascCloseFile(dbcFile);
 
     size_t pos = text.find("version=\"");
     size_t pos1 = pos + strlen("version=\"");
@@ -210,12 +209,13 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        if (!CascOpenStorage(storage_dir.string().c_str(), WowLocaleToCascLocaleFlags[locale], &CascStorage))
+        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale]);
+        if (!CascStorage)
         {
-            printf("error opening casc storage '%s' locale %s: %s\n", storage_dir.string().c_str(), localeNames[locale], HumanReadableCASCError(GetLastError()));
+            printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
             return false;
         }
-        printf("opened casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
+
         return true;
     }
     catch (boost::filesystem::filesystem_error& error)
@@ -224,7 +224,6 @@ bool OpenCascStorage(int locale)
         return false;
     }
 }
-
 
 // Local testing functions
 bool FileExists(const char* file)
@@ -250,10 +249,9 @@ void strToLower(char* str)
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, 0, &dbcFile))
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
     {
-        printf("Fatal error: Cannot find LiquidType.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -280,7 +278,6 @@ void ReadLiquidTypeTableDBC()
     for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
         LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
 
-    CascCloseFile(dbcFile);
     printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
 }
 
@@ -538,7 +535,7 @@ int main(int argc, char ** argv)
         uint32 build = ReadBuild(i);
         if (!build)
         {
-            CascCloseStorage(CascStorage);
+            CascStorage.reset();
             continue;
         }
 
@@ -574,10 +571,9 @@ int main(int argc, char ** argv)
     {
         printf("Read Map.dbc file... ");
 
-        HANDLE dbcFile;
-        if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, 0, &dbcFile))
+        CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, true);
+        if (!dbcFile)
         {
-            printf("Fatal error: Cannot find Map.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
             exit(1);
         }
 
@@ -624,12 +620,11 @@ int main(int argc, char ** argv)
             }
         }
 
-        CascCloseFile(dbcFile);
         printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
         ParsMapFiles();
     }
 
-    CascCloseStorage(CascStorage);
+    CascStorage.reset();
 
     printf("\n");
     if (!success)

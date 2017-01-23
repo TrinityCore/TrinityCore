@@ -991,6 +991,17 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
 
             return false;
         }
+        case CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter * criteriaTree->Entry->Amount;
+            });
+            return progress >= requiredCount;
+        }
         default:
             break;
     }

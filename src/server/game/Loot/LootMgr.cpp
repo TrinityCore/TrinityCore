@@ -731,7 +731,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
         if (_itr->itemid != itemID)
             continue;
 
-        _itr->canSave = true;
+        _itr->canSave = false;
         break;
     }
 }

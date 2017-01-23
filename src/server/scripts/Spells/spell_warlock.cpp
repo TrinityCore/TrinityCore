@@ -431,6 +431,8 @@ class spell_warl_demon_soul : public SpellScriptLoader
                             case CREATURE_FAMILY_IMP:
                                 caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_IMP);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -493,6 +495,8 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                                 break;
                             case CREATURE_FAMILY_IMP:
                                 targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
+                                break;
+                            default:
                                 break;
                         }
                     }
