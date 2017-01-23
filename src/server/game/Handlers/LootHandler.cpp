@@ -102,16 +102,16 @@ void WorldSession::HandleLootCurrencyOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: CMSG_LOOT_CURRENCY");
 
     Player* player = GetPlayer();
-    uint64 lguid = player->GetLootGUID();
+    ObjectGuid lguid = player->GetLootGUID();
     Loot* loot = nullptr;
     uint8 lootSlot = 0;
 
     recvData >> lootSlot;
 
-    switch (GUID_HIPART(lguid))
+    switch (lguid.GetHigh())
     {
-        case HIGHGUID_UNIT:
-        case HIGHGUID_VEHICLE:
+        case HighGuid::Unit:
+        case HighGuid::Vehicle:
         {
             Creature* creature = player->GetMap()->GetCreature(lguid);
             bool lootAllowed = creature && !creature->IsAlive();
@@ -121,7 +121,7 @@ void WorldSession::HandleLootCurrencyOpcode(WorldPacket& recvData)
 
             break;
         }
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::GameObject:
         {
             GameObject* go = GetPlayer()->GetMap()->GetGameObject(lguid);
 

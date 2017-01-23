@@ -92,7 +92,7 @@ void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
 
     if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
     {
-        if (Channel* channel = cMgr->GetChannel(channelId, channelName, GetPlayer(), true, zone))
+        if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(channelName, GetPlayer()))
             channel->LeaveChannel(GetPlayer(), true);
 
         if (channelId)
@@ -369,10 +369,10 @@ void WorldSession::HandleUnsetChannelWatch(WorldPacket& recvPacket)
     std::string channelName;
     recvPacket >> channelName;
 
-     TC_LOG_DEBUG("chat.system", "CMSG_UNSET_CHANNEL_WATCH %s Channel: %s",
+    TC_LOG_DEBUG("chat.system", "CMSG_UNSET_CHANNEL_WATCH %s Channel: %s",
         GetPlayerInfo().c_str(), channelName.c_str());
 
-    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
-        if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
-            channel->LeaveNotify(GetPlayer()->GetGUID());
+
+    if (Channel* channel = ChannelMgr::GetChannelForPlayerByNamePart(channelName, GetPlayer()))
+        channel->LeaveNotify(GetPlayer()->GetGUID());
 }
