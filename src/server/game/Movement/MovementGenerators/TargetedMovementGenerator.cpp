@@ -59,6 +59,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
+
+            if (owner->IsHovering())
+                z += owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT); // very crude implementation!! do not keep!!
         }
         else
         {
