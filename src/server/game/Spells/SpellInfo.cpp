@@ -1108,6 +1108,14 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
     return false;
 }
 
+bool SpellInfo::IsSelfCast() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].Effect && Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
+            return false;
+    return true;
+}
+
 bool SpellInfo::IsPassive() const
 {
     return HasAttribute(SPELL_ATTR0_PASSIVE);
