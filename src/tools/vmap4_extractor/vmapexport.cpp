@@ -71,8 +71,7 @@ typedef struct
 std::vector<map_id> map_ids;
 std::vector<uint16> LiqType;
 uint32 map_count;
-char output_path[128] = ".";
-char input_path[1024] = ".";
+boost::filesystem::path input_path;
 bool preciseVectorData = false;
 
 struct LiquidTypeMeta
@@ -427,21 +426,17 @@ bool processArgv(int argc, char ** argv, const char *versionString)
     bool result = true;
     preciseVectorData = false;
 
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(strcmp("-s",argv[i]) == 0)
+        if (strcmp("-s", argv[i]) == 0)
         {
             preciseVectorData = false;
         }
-        else if(strcmp("-d",argv[i]) == 0)
+        else if (strcmp("-d", argv[i]) == 0)
         {
-            if((i+1)<argc)
+            if ((i + 1) < argc)
             {
-                strncpy(input_path, argv[i + 1], sizeof(input_path));
-                input_path[sizeof(input_path) - 1] = '\0';
-
-                if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
-                    strcat(input_path, "/");
+                input_path = boost::filesystem::path(argv[i + 1]);
                 ++i;
             }
             else
@@ -449,7 +444,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
                 result = false;
             }
         }
-        else if(strcmp("-?",argv[1]) == 0)
+        else if (strcmp("-?", argv[1]) == 0)
         {
             result = false;
         }
