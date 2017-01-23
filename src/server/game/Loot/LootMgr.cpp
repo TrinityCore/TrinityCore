@@ -657,7 +657,7 @@ void Loot::NotifyCurrencyRemoved(uint8 lootIndex)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyCurrencyLootRemoved();
+            player->SendNotifyCurrencyLootRemoved(lootIndex);
         else
             PlayersLooting.erase(i);
     }
