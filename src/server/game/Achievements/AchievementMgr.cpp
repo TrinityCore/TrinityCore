@@ -2335,6 +2335,20 @@ bool AchievementMgr<T>::HasAchieved(uint32 achievementId) const
 }
 
 template<class T>
+CompletedAchievementData* AchievementMgr<T>::GetCompletedDataForAchievement(uint32 achievementId)
+{
+    CompletedAchievementMap::iterator itr = m_completedAchievements.find(achievementId);
+    if(itr != m_completedAchievements.end())
+    {
+        return &(itr->second);
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+template<class T>
 bool AchievementMgr<T>::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, nullptr))

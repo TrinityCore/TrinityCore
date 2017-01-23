@@ -273,6 +273,7 @@ class TC_GAME_API AchievementMgr
         void SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const;
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
         bool HasAchieved(uint32 achievementId) const;
+        CompletedAchievementData* GetCompletedDataForAchievement(uint32 achievementId);
         T* GetOwner() const { return _owner; }
 
         void UpdateTimedAchievements(uint32 timeDiff);
