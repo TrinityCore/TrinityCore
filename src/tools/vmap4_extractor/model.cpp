@@ -19,12 +19,12 @@
 #include "vmapexport.h"
 #include "model.h"
 #include "wmo.h"
-#include "mpqfile.h"
+#include "cascfile.h"
 #include <cassert>
 #include <algorithm>
 #include <cstdio>
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {
@@ -33,7 +33,7 @@ Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0
 
 bool Model::open()
 {
-    MPQFile f(CascStorage, filename.c_str());
+    CASCFile f(CascStorage, filename.c_str());
 
     if (f.isEof())
     {
@@ -154,7 +154,7 @@ Vec3D fixCoordSystem2(Vec3D v)
     return Vec3D(v.x, v.z, v.y);
 }
 
-ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
+ModelInstance::ModelInstance(CASCFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
     : id(0), scale(0), flags(0)
 {
     float ff[3];

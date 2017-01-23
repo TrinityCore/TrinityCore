@@ -23,7 +23,8 @@
 #include "SslSocket.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "QueryCallback.h"
+#include "QueryResult.h"
+#include "QueryCallbackProcessor.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
 #include <google/protobuf/message.h>
@@ -188,8 +189,7 @@ namespace Battlenet
 
         bool _authed;
 
-        PreparedQueryResultFuture _queryFuture;
-        std::function<void(PreparedQueryResult)> _queryCallback;
+        QueryCallbackProcessor _queryProcessor;
 
         std::unordered_map<uint32, std::function<void(MessageBuffer)>> _responseCallbacks;
         uint32 _requestToken;

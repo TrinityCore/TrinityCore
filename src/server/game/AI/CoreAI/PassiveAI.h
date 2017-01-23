@@ -46,6 +46,8 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void JustDied(Unit*) override;
         void KilledUnit(Unit* victim) override;
 
+        void OnCharmed(bool /*apply*/) override;
+
         static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 

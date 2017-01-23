@@ -2077,11 +2077,11 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint64 npcflag
         return nullptr;
 
     // Deathstate checks
-    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_GHOST))
+    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
         return nullptr;
 
     // alive or spirit healer
-    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_DEAD_INTERACT))
+    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
         return nullptr;
 
     // appropriate npc type
@@ -2643,7 +2643,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     // cleanup unit flags (will be re-applied if need at aura load).
     RemoveFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_ATTACKABLE_1 |
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_ATTACKABLE_1 |
         UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC  | UNIT_FLAG_LOOTING          |
         UNIT_FLAG_PET_IN_COMBAT  | UNIT_FLAG_SILENCED     | UNIT_FLAG_PACIFIED         |
         UNIT_FLAG_STUNNED        | UNIT_FLAG_IN_COMBAT    | UNIT_FLAG_DISARMED         |
@@ -2774,15 +2774,9 @@ void Player::AddNewMailDeliverTime(time_t deliver_time)
 
 void DeleteSpellFromAllPlayers(uint32 spellId)
 {
-    CharacterDatabaseStatements stmts[2] = {CHAR_DEL_INVALID_SPELL_SPELLS, CHAR_DEL_INVALID_SPELL_TALENTS};
-    for (uint8 i = 0; i < 2; i++)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(stmts[i]);
-
-        stmt->setUInt32(0, spellId);
-
-        CharacterDatabase.Execute(stmt);
-    }
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL_SPELLS);
+    stmt->setUInt32(0, spellId);
+    CharacterDatabase.Execute(stmt);
 }
 
 bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
@@ -2790,31 +2784,13 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
     if (!spellInfo)
     {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) does not exist. Deleting for all characters in `character_spell` and `character_talent`.", talent->SpellID);
-
-            DeleteSpellFromAllPlayers(talent->SpellID);
-        }
-        else
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) does not exist", talent->SpellID);
-
+        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) does not exist.", talent->SpellID);
         return false;
     }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
     {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) is invalid. Deleting for all characters in `character_spell` and `character_talent`.", talent->SpellID);
-
-            DeleteSpellFromAllPlayers(talent->SpellID);
-        }
-        else
-            TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) is invalid", talent->SpellID);
-
+        TC_LOG_ERROR("spells", "Player::AddTalent: Spell (ID: %u) is invalid", talent->SpellID);
         return false;
     }
 
@@ -2860,7 +2836,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // do character spell book cleanup (all characters)
         if (!IsInWorld() && !learning)                       // spell load case
         {
-            TC_LOG_ERROR("spells", "Player::AddSpell: Spell (ID: %u) does not exist. deleting for all characters in `character_spell` and `character_talent`.", spellId);
+            TC_LOG_ERROR("spells", "Player::AddSpell: Spell (ID: %u) does not exist. deleting for all characters in `character_spell`.", spellId);
 
             DeleteSpellFromAllPlayers(spellId);
         }
@@ -2875,7 +2851,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
         // do character spell book cleanup (all characters)
         if (!IsInWorld() && !learning)                       // spell load case
         {
-            TC_LOG_ERROR("spells", "Player::AddSpell: Spell (ID: %u) is invalid. deleting for all characters in `character_spell` and `character_talent`.", spellId);
+            TC_LOG_ERROR("spells", "Player::AddSpell: Spell (ID: %u) is invalid. deleting for all characters in `character_spell`.", spellId);
 
             DeleteSpellFromAllPlayers(spellId);
         }
@@ -7018,6 +6994,13 @@ void Player::DuelComplete(DuelCompleteType type)
     if (!duel)
         return;
 
+    // Check if DuelComplete() has been called already up in the stack and in that case don't do anything else here
+    if (duel->isCompleted || ASSERT_NOTNULL(duel->opponent->duel)->isCompleted)
+        return;
+
+    duel->isCompleted = true;
+    duel->opponent->duel->isCompleted = true;
+
     TC_LOG_DEBUG("entities.unit", "Player::DuelComplete: Player '%s' (%s), Opponent: '%s' (%s)",
         GetName().c_str(), GetGUID().ToString().c_str(), duel->opponent->GetName().c_str(), duel->opponent->GetGUID().ToString().c_str());
 
@@ -7163,7 +7146,31 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     uint32 itemLevel = item->GetItemLevel(this);
     float combatRatingMultiplier = 1.0f;
     if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
-        combatRatingMultiplier = ratingMult->RatingMultiplier;
+    {
+        switch (proto->GetInventoryType())
+        {
+            case INVTYPE_WEAPON:
+            case INVTYPE_SHIELD:
+            case INVTYPE_RANGED:
+            case INVTYPE_2HWEAPON:
+            case INVTYPE_WEAPONMAINHAND:
+            case INVTYPE_WEAPONOFFHAND:
+            case INVTYPE_HOLDABLE:
+            case INVTYPE_RANGEDRIGHT:
+                combatRatingMultiplier = ratingMult->WeaponMultiplier;
+                break;
+            case INVTYPE_TRINKET:
+                combatRatingMultiplier = ratingMult->TrinketMultiplier;
+                break;
+            case INVTYPE_NECK:
+            case INVTYPE_FINGER:
+                combatRatingMultiplier = ratingMult->JewelryMultiplier;
+                break;
+            default:
+                combatRatingMultiplier = ratingMult->ArmorMultiplier;
+                break;
+        }
+    }
 
     // req. check at equip, but allow use for extended range if range limit max level, set proper level
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -7856,6 +7863,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spellPrepare.ServerCastID = spell->m_castId;
             SendDirectMessage(spellPrepare.Write());
 
+            spell->m_fromClient = true;
             spell->m_CastItem = item;
             spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
             spell->prepare(&targets);
@@ -7886,6 +7894,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         spellPrepare.ServerCastID = spell->m_castId;
         SendDirectMessage(spellPrepare.Write());
 
+        spell->m_fromClient = true;
         spell->m_CastItem = item;
         spell->m_misc.Raw.Data[0] = misc[0];
         spell->m_misc.Raw.Data[1] = misc[1];
@@ -7919,6 +7928,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spellPrepare.ServerCastID = spell->m_castId;
             SendDirectMessage(spellPrepare.Write());
 
+            spell->m_fromClient = true;
             spell->m_CastItem = item;
             spell->m_misc.Raw.Data[0] = misc[0];
             spell->m_misc.Raw.Data[1] = misc[1];
@@ -14838,12 +14848,8 @@ void Player::CompleteQuest(uint32 quest_id)
             SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
-        {
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
-            else
-                SendQuestComplete(qInfo);
-        }
     }
 
     if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
@@ -15157,6 +15163,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     SendQuestUpdate(quest_id);
+
+    SendQuestGiverStatusMultiple();
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -16814,6 +16822,36 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
     questUpdateAddPvpCredit.QuestID = quest->GetQuestId();
     questUpdateAddPvpCredit.Count = newCount;
     GetSession()->SendPacket(questUpdateAddPvpCredit.Write());
+}
+
+void Player::SendQuestGiverStatusMultiple()
+{
+    WorldPackets::Quest::QuestGiverStatusMultiple response;
+
+    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    {
+        if (itr->IsAnyTypeCreature())
+        {
+            // need also pet quests case support
+            Creature* questgiver = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
+            if (!questgiver || questgiver->IsHostileTo(this))
+                continue;
+            if (!questgiver->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+                continue;
+
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
+        }
+        else if (itr->IsGameObject())
+        {
+            GameObject* questgiver = GetMap()->GetGameObject(*itr);
+            if (!questgiver || questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
+                continue;
+
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
+        }
+    }
+
+    GetSession()->SendPacket(response.Write());
 }
 
 bool Player::HasPvPForcingQuest() const
@@ -21082,7 +21120,7 @@ void Player::VehicleSpellInitialize()
     for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
         petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(0, i + 8);
 
-    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; ++i)
     {
         uint32 spellId = vehicle->m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -21174,14 +21212,18 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     TC_LOG_DEBUG("spells", "Player::AddSpellMod: Player '%s' (%s), SpellID: %d", GetName().c_str(), GetGUID().ToString().c_str(), mod->spellId);
 
+    /// First, manipulate our spellmodifier container
+    if (apply)
+        m_spellMods[mod->op][mod->type].push_back(mod);
+    else
+        m_spellMods[mod->op][mod->type].remove(mod);
+
+    /// Now, send spellmodifier packet
     if (!IsLoading())
     {
         OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
         WorldPackets::Spells::SetSpellModifier packet(opcode);
-
-        int i = 0;
-        flag128 _mask;
 
         /// @todo Implement sending of bulk modifiers instead of single
         packet.Modifiers.resize(1);
@@ -21191,32 +21233,25 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
         for (int eff = 0; eff < 128; ++eff)
         {
-            if (eff != 0 && (eff % 32) == 0)
-                _mask[i++] = 0;
-
-            _mask[i] = uint32(1) << (eff - (32 * i));
-            if (mod->mask & _mask)
+            flag128 mask;
+            mask[eff / 32] = 1u << (eff % 32);
+            if (mod->mask & mask)
             {
                 WorldPackets::Spells::SpellModifierData modData;
 
                 if (mod->type == SPELLMOD_FLAT)
                 {
+                    modData.ModifierValue = 0.0f;
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_FLAT].begin(); itr != m_spellMods[mod->op][SPELLMOD_FLAT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & _mask)
+                        if ((*itr)->mask & mask)
                             modData.ModifierValue += (*itr)->value;
-
-                    if (apply)
-                        modData.ModifierValue += mod->value;
                 }
                 else
                 {
                     modData.ModifierValue = 1.0f;
                     for (SpellModList::iterator itr = m_spellMods[mod->op][SPELLMOD_PCT].begin(); itr != m_spellMods[mod->op][SPELLMOD_PCT].end(); ++itr)
-                        if (*itr != mod && (*itr)->mask & _mask)
-                            modData.ModifierValue *= CalculatePct(1.0f, (*itr)->value);
-
-                    if (apply)
-                        modData.ModifierValue *= CalculatePct(1.0f, mod->value);
+                        if ((*itr)->mask & mask)
+                            modData.ModifierValue *= 1.0f + CalculatePct(1.0f, (*itr)->value);
                 }
 
                 modData.ClassIndex = eff;
@@ -21228,11 +21263,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         SendDirectMessage(packet.Write());
     }
 
-    if (apply)
-        m_spellMods[mod->op][mod->type].push_back(mod);
-    else
+    /// Finally, delete spellmodifier on remove
+    if (!apply)
     {
-        m_spellMods[mod->op][mod->type].remove(mod);
         // mods bound to aura will be removed in AuraEffect::~AuraEffect
         if (!mod->ownerAura)
             delete mod;
@@ -21545,7 +21578,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
-    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL))
         return false;
 
     // taximaster case
@@ -21743,7 +21776,7 @@ void Player::CleanupAfterTaxiFlight()
 {
     m_taxi.ClearTaxiDestinations();        // not destinations, clear source node
     Dismount();
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
     getHostileRefManager().setOnlineOfflineState(true);
 }
 
@@ -26042,7 +26075,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans) const
 
 void Player::_LoadTalents(PreparedQueryResult result)
 {
-    // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
+    // "SELECT talentId, talentGroup FROM character_talent WHERE guid = ?"
     if (result)
     {
         do

@@ -229,41 +229,6 @@ class spell_mage_blast_wave : public SpellScriptLoader
         }
 };
 
-// -31641 - Blazing Speed
-class spell_mage_blazing_speed : public SpellScriptLoader
-{
-    public:
-        spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
-
-        class spell_mage_blazing_speed_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_blazing_speed_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BLAZING_SPEED))
-                    return false;
-                return true;
-            }
-
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, true, NULL, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_mage_blazing_speed_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_blazing_speed_AuraScript();
-        }
-};
-
 // 11958 - Cold Snap
 class spell_mage_cold_snap : public SpellScriptLoader
 {
@@ -1482,7 +1447,6 @@ void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
     new spell_mage_blast_wave();
-    new spell_mage_blazing_speed();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
