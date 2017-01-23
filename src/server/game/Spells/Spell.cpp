@@ -5254,7 +5254,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 {
                     // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
-                        m_caster->RemoveMovementImpairingAuras();
+                        m_caster->RemoveMovementImpairingAuras(true);
                 }
 
                 if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURAS) && m_caster->HasUnitState(UNIT_STATE_ROOT))

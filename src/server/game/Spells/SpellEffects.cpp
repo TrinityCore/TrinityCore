@@ -766,7 +766,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             // Vanish (not exist)
             case 18461:
             {
-                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveMovementImpairingAuras(true);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
                 // If this spell is given to an NPC, it must handle the rest using its own AI
@@ -787,7 +787,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             // Demonic Empowerment -- succubus
             case 54437:
             {
-                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveMovementImpairingAuras(true);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
 
@@ -3624,7 +3624,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 30918: // Improved Sprint
                 {
                     // Removes snares and roots.
-                    unitTarget->RemoveMovementImpairingAuras();
+                    unitTarget->RemoveMovementImpairingAuras(true);
                     break;
                 }
                 // Plant Warmaul Ogre Banner
