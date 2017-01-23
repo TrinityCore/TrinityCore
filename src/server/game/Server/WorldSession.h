@@ -1066,6 +1066,7 @@ class TC_GAME_API WorldSession
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
+        void SendStreamingMovie();
         int32 HandleEnableNagleAlgorithm();
 
         // Compact Unit Frames (4.x)
