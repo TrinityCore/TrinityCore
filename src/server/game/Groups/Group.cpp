@@ -429,6 +429,7 @@ bool Group::AddMember(Player* player)
     }
 
     SendUpdate();
+    SendRaidMarkerUpdateToPlayer(player->GetGUID());
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
     if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
@@ -632,6 +633,8 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
         SendUpdate();
 
+        SendRaidMarkerUpdateToPlayer(guid, true);
+
         if (isLFGGroup() && GetMembersCount() == 1)
         {
             Player* leader = ObjectAccessor::FindConnectedPlayer(GetLeaderGUID());
@@ -813,7 +816,14 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
 
         _homebindIfInstance(player);
+
     }
+
+    SetGroupMarkerMask(0x20);
+    SendRaidMarkerUpdate();
+    RemoveMarker();
+    RemoveAllMarkerFromList();
+
     RollId.clear();
     m_memberSlots.clear();
 

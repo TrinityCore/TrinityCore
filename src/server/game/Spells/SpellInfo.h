@@ -471,6 +471,7 @@ public:
     bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
 
     bool IsPassive() const;
+    bool IsRaidMarker() const;
     bool IsAutocastable() const;
     bool IsStackableWithRanks() const;
     bool IsPassiveStackableWithRanks() const;

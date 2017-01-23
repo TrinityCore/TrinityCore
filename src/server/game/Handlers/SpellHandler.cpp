@@ -366,7 +366,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         caster = _player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id))
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker())
     {
         // not have spell in spellbook
         recvPacket.rfinish(); // prevent spam at ignore packet

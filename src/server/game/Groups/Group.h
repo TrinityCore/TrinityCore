@@ -284,6 +284,7 @@ class TC_GAME_API Group
         // -no description-
         //void SendInit(WorldSession* session);
         void SendTargetIconList(WorldSession* session);
+        void SendRaidMarkerUpdateToPlayer(uint64 playerGUID, bool remove = false);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);
@@ -360,6 +361,7 @@ class TC_GAME_API Group
         ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
         GroupType           m_groupType;
+        uint32              m_markerMask;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
@@ -376,5 +378,8 @@ class TC_GAME_API Group
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
+
+        typedef std::list<uint64> DynObjectList;
+        DynObjectList m_dynObj;
 };
 #endif

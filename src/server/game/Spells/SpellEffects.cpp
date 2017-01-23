@@ -166,7 +166,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectReputation,                               //103 SPELL_EFFECT_REPUTATION
     &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
     &Spell::EffectSummonObject,                             //105 SPELL_EFFECT_SUMMON_OBJECT_SLOT2
-    &Spell::EffectSummonObject,                             //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
+    &Spell::EffectSummonRaidMarker,                         //106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
     &Spell::EffectSummonObject,                             //107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
     &Spell::EffectResurrectPet,                             //109 SPELL_EFFECT_RESURRECT_PET
@@ -4176,6 +4176,58 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     map->AddToMap(go);
 
     m_caster->m_ObjectSlot[slot] = go->GetGUID();
+}
+
+void Spell::EffectSummonDynObj(SpellEffIndex effIndex)
+{
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+		return;
+
+	Player* player = m_caster->ToPlayer();
+	if (!player)
+		return;
+
+	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+	DynamicObject* dynObj = new DynamicObject(false);
+	if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
+	{
+		delete dynObj;
+		return;
+	}
+
+	int32 duration = m_spellInfo->GetDuration();
+	dynObj->SetDuration(duration);
+}
+
+void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
+{
+	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+		return;
+
+	Player* player = m_caster->ToPlayer();
+	if (!player)
+		return;
+
+	Group* group = player->GetGroup();
+	if (!group)
+		return;
+
+	uint32 slotMask = 1 << m_spellInfo->Effects[effIndex].BasePoints;
+
+	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+	DynamicObject* dynObj = new DynamicObject(false);
+	if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
+	{
+		delete dynObj;
+		return;
+	}
+
+	group->AddMarkerToList(dynObj->GetGUID());
+	group->AddGroupMarkerMask(slotMask);
+	group->SendRaidMarkerUpdate();
+
+	int32 duration = m_spellInfo->GetDuration();
+	dynObj->SetDuration(duration);
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)

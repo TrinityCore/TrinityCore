@@ -1225,6 +1225,11 @@ bool SpellInfo::IsPassive() const
     return HasAttribute(SPELL_ATTR0_PASSIVE);
 }
 
+bool SpellInfo::IsRaidMarker() const
+{
+    return AttributesEx8 & SPELL_ATTR8_RAID_MARKER;
+}
+
 bool SpellInfo::IsAutocastable() const
 {
     if (IsPassive())

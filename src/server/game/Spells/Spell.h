@@ -281,6 +281,8 @@ class TC_GAME_API Spell
         void EffectHealMaxHealth(SpellEffIndex effIndex);
         void EffectInterruptCast(SpellEffIndex effIndex);
         void EffectSummonObjectWild(SpellEffIndex effIndex);
+        void EffectSummonRaidMarker(SpellEffIndex effIndex);
+        void EffectSummonDynObj(SpellEffIndex effIndex);
         void EffectScriptEffect(SpellEffIndex effIndex);
         void EffectSanctuary(SpellEffIndex effIndex);
         void EffectAddComboPoints(SpellEffIndex effIndex);
