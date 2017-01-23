@@ -5786,27 +5786,28 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
                     if (!*param1)
                         *param1 = aurEff->GetSpellInfo()->Mechanic;
                 }
+
                 break;
             }
-
-            if (foundNotMechanic)
-            {
-                switch (type)
-                {
-                    case SPELL_AURA_MOD_STUN:
-                        return SPELL_FAILED_STUNNED;
-                    case SPELL_AURA_MOD_FEAR:
-                        return SPELL_FAILED_FLEEING;
-                    case SPELL_AURA_MOD_CONFUSE:
-                        return SPELL_FAILED_CONFUSED;
-                    default:
-                        ABORT();
-                        return SPELL_FAILED_NOT_KNOWN;
-                }
-            }
-
-            return SPELL_CAST_OK;
         }
+
+        if (foundNotMechanic)
+        {
+            switch (type)
+            {
+                case SPELL_AURA_MOD_STUN:
+                    return SPELL_FAILED_STUNNED;
+                case SPELL_AURA_MOD_FEAR:
+                    return SPELL_FAILED_FLEEING;
+                case SPELL_AURA_MOD_CONFUSE:
+                    return SPELL_FAILED_CONFUSED;
+                default:
+                    ABORT();
+                    return SPELL_FAILED_NOT_KNOWN;
+            }
+        }
+
+        return SPELL_CAST_OK;
     };
 
     if (unitflag & UNIT_FLAG_STUNNED)
