@@ -813,7 +813,9 @@ class TC_GAME_API WorldSession
         void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
         void HandleGetChannelMemberCount(WorldPacket& recvPacket);
         void HandleSetChannelWatch(WorldPacket& recvPacket);
+        void HandleUnsetChannelWatch(WorldPacket& recvPacket);
 
+        void HandleCompleteMovie(WorldPacket& recvPacket);
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
 
@@ -880,6 +882,7 @@ class TC_GAME_API WorldSession
         void HandleFarSightOpcode(WorldPacket& recvData);
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recvData);
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
+        void HandleChangePlayerDifficulty(WorldPacket& recvData);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
         void HandleRealmSplitOpcode(WorldPacket& recvData);

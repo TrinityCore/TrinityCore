@@ -363,3 +363,16 @@ void WorldSession::HandleSetChannelWatch(WorldPacket& recvPacket)
         channel->JoinNotify(GetPlayer());
     */
 }
+
+void WorldSession::HandleUnsetChannelWatch(WorldPacket& recvPacket)
+{
+    std::string channelName;
+    recvPacket >> channelName;
+
+     TC_LOG_DEBUG("chat.system", "CMSG_UNSET_CHANNEL_WATCH %s Channel: %s",
+        GetPlayerInfo().c_str(), channelName.c_str());
+
+    if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetPlayer()->GetTeam()))
+        if (Channel* channel = cMgr->GetChannel(channelName, GetPlayer()))
+            channel->LeaveNotify(GetPlayer()->GetGUID());
+}

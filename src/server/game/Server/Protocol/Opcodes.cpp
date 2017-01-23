@@ -109,7 +109,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_HELLO,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterHelloOpcode   );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN_ARENA,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinArena     );
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN_RATED,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLEMASTER_JOIN_RATED,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterJoinOpcode    );
     DEFINE_OPCODE_HANDLER(CMSG_BEGIN_TRADE,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBeginTradeOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_BINDER_ACTIVATE,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBinderActivateOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_BUG,                                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBugOpcode                 );
@@ -143,7 +143,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTempEnchantmentOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_CANCEL_TRADE,                                     STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_CAST_SPELL,                                       STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode           );
-    DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHANGEPLAYER_DIFFICULTY,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleChangePlayerDifficulty    );
     DEFINE_OPCODE_HANDLER(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChangeSeatsOnControlledVehicle);
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_ANNOUNCEMENTS,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements      );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_BAN,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelBan                );
@@ -151,7 +151,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_INVITE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelInvite             );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_KICK,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelKick               );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_LIST,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelList               );
-    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MODERATE,                                 STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MODERATE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator          );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MODERATOR,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator          );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_MUTE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelMute               );
     DEFINE_OPCODE_HANDLER(CMSG_CHANNEL_OWNER,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner              );
@@ -176,8 +176,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_RENAME,                                      STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharRenameOpcode          );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_FILTERED,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_IGNORED,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChatIgnoredOpcode         );
-    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_CHANNEL_WATCH,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_RAID_MARKER,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_CHANNEL_WATCH,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnsetChannelWatch         );
+    DEFINE_OPCODE_HANDLER(CMSG_CLEAR_RAID_MARKER,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupClearMarker          );
     DEFINE_OPCODE_HANDLER(CMSG_CLEAR_TRADE_ITEM,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleClearTradeItemOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_COMMENTATOR_ENABLE,                               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(CMSG_COMMENTATOR_ENTER_INSTANCE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

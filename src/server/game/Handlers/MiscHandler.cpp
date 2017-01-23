@@ -2200,3 +2200,74 @@ void WorldSession::SendLoadCUFProfiles()
     data.append(byteBuffer);
     SendPacket(&data);
 }
+
+void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "Received CMSG_CHANGEPLAYER_DIFFICULTY");
+
+    uint32 difficulty;
+
+    recvData >> difficulty;
+
+    uint32 result = 0;
+
+    switch(result)
+    {
+        case ERR_DIFFICULTY_CHANGE_COOLDOWN_S:
+        case ERR_DIFFICULTY_CHANGE_UPDATE_TIME:
+        case ERR_DIFFICULTY_CHANGE_UPDATE_MAP_DIFFICULTY_ENTRY:
+        {
+            uint32 time = 0;
+            uint32 difficultyMapId = 0;
+            uint32 cooldownTime = 0;
+            WorldPacket data(SMSG_PLAYER_DIFFICULTY_CHANGE, 8);
+
+            data << result;
+
+            if(result == ERR_DIFFICULTY_CHANGE_UPDATE_TIME)
+                data << time;
+            else if(result == ERR_DIFFICULTY_CHANGE_COOLDOWN_S)
+                data << cooldownTime;
+            else
+                data << difficultyMapId;
+
+            SendPacket(&data);
+            break;
+        }
+        case ERR_DIFFICULTY_CHANGE_OTHER_HEROIC_S:
+        {
+            uint64 guid = 0;
+            WorldPacket data(SMSG_PLAYER_DIFFICULTY_CHANGE);
+
+            data << result;
+            data.appendPackGUID(guid); //guid of the player which is locked
+
+            SendPacket(&data);
+            break;
+        }
+        default:
+        {
+            WorldPacket data(SMSG_PLAYER_DIFFICULTY_CHANGE, 4);
+
+            data << result;
+
+            SendPacket(&data);
+            break;
+        }
+    }
+}
+
+void WorldSession::SendStreamingMovie()
+{
+    uint8 count = 0;
+    WorldPacket data(SMSG_STREAMING_MOVIE, 4+(2*count));
+
+    data.WriteBits(count, 25);
+
+    for(int8 i = 0; i < 0; ++i)
+    {
+        data << uint16(0);          //File Data ID
+    }
+
+    SendPacket(&data);
+}
