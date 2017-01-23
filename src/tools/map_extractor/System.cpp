@@ -78,9 +78,8 @@ typedef struct
 
 std::vector<map_id> map_ids;
 std::vector<uint16> LiqType;
-#define MAX_PATH_LENGTH 128
-char output_path[MAX_PATH_LENGTH];
-char input_path[MAX_PATH_LENGTH];
+boost::filesystem::path input_path;
+boost::filesystem::path output_path;
 
 struct LiquidTypeMeta
 {
@@ -176,12 +175,12 @@ void Usage(char const* prg)
     printf(
         "Usage:\n"\
         "%s -[var] [value]\n"\
-        "-i set input path (max %d characters)\n"\
-        "-o set output path (max %d characters)\n"\
+        "-i set input path\n"\
+        "-o set output path\n"\
         "-e extract only MAP(1)/DBC(2)/gt(8) - standard: all(11)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
     exit(1);
 }
 
@@ -201,20 +200,14 @@ void HandleArgs(int argc, char* arg[])
         switch (arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    input_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
+                if (c + 1 < argc && strlen(arg[c + 1])) // all ok
+                    input_path = boost::filesystem::path(arg[c++ + 1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    output_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
+                if (c + 1 < argc && strlen(arg[c + 1])) // all ok
+                    output_path = boost::filesystem::path(arg[c++ + 1]);
                 else
                     Usage(arg[0]);
                 break;
@@ -1082,9 +1075,7 @@ void ExtractMaps(uint32 build)
 
     ReadLiquidTypeTableDBC();
 
-    std::string path = output_path;
-    path += "/maps/";
-    CreateDir(path);
+    CreateDir(output_path / "maps");
 
     std::set<std::string> wmoList;
 
@@ -1109,7 +1100,7 @@ void ExtractMaps(uint32 build)
                     continue;
 
                 storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
+                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].id, y, x);
                 ConvertADT(storagePath, outputFileName, y, x, build);
 
                 storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
@@ -1137,7 +1128,7 @@ void ExtractMaps(uint32 build)
     printf("\n");
 }
 
-bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string filename)
+bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
     FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
@@ -1164,28 +1155,24 @@ void ExtractDBFilesClient(int l)
 {
     printf("Extracting dbc/db2 files...\n");
 
-    std::string outputPath = output_path;
-    outputPath += "/dbc/";
+    boost::filesystem::path localePath = output_path / "dbc" / localeNames[l];
 
-    CreateDir(outputPath);
-    outputPath += localeNames[l];
-    outputPath += "/";
-    CreateDir(outputPath);
+    CreateDir(output_path / "dbc");
+    CreateDir(localePath);
 
-    printf("locale %s output path %s\n", localeNames[l], outputPath.c_str());
+    printf("locale %s output path %s\n", localeNames[l], localePath.string().c_str());
 
     uint32 index = 0;
     uint32 count = 0;
     char const* fileName = DBFilesClientList[index];
     while (fileName)
     {
-        std::string filename = fileName;
-        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_NONE))
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
 
-            if (!boost::filesystem::exists(filename))
-                if (ExtractFile(dbcFile, filename))
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
                     ++count;
         }
         else
@@ -1201,12 +1188,11 @@ void ExtractGameTables()
 {
     printf("Extracting game tables...\n");
 
-    std::string outputPath = output_path;
-    outputPath += "/gt/";
+    boost::filesystem::path outputPath = output_path / "gt";
 
     CreateDir(outputPath);
 
-    printf("output path %s\n", outputPath.c_str());
+    printf("output path %s\n", outputPath.string().c_str());
 
     char const* GameTables[] =
     {
@@ -1249,13 +1235,12 @@ void ExtractGameTables()
     char const* fileName = GameTables[index];
     while (fileName)
     {
-        std::string filename = fileName;
-        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_NONE))
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+            boost::filesystem::path filePath = outputPath / boost::filesystem::path(fileName).filename();
 
-            if (!boost::filesystem::exists(filename))
-                if (ExtractFile(dbcFile, filename))
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
                     ++count;
         }
         else
@@ -1292,9 +1277,8 @@ int main(int argc, char * arg[])
 {
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
-    boost::filesystem::path current(boost::filesystem::current_path());
-    strcpy(input_path, current.string().c_str());
-    strcpy(output_path, current.string().c_str());
+    input_path = boost::filesystem::current_path();
+    output_path = boost::filesystem::current_path();
 
     HandleArgs(argc, arg);
 
