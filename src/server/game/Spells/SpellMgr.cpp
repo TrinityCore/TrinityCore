@@ -3512,6 +3512,115 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
         }
 
+        switch (spellInfo->Id)
+        {
+            // Proc attribute correction
+            // Remove procflags from test/debug/deprecated spells to avoid DB Errors
+            case 2479:  // Honorless Target
+            case 3232:  // Gouge Stun Test
+            case 3409:  // Crippling Poison
+            case 4312:  // Strider Presence
+            case 5707:  // Lifestone Regeneration
+            case 5760:  // Mind-numbing Poison
+            case 6727:  // Poison Mushroom
+            case 6984:  // Frost Shot (Rank 2)
+            case 7164:  // Defensive Stance
+            case 7288:  // Immolate Cumulative (TEST) (Rank 1)
+            case 7291:  // Food (TEST)
+            case 7331:  // Healing Aura (TEST) (Rank 1)
+            case 7824:  // Blacksmithing Skill +10
+            case 12551: // Frost Shot
+            case 13218: // Wound Poison (Rank 1)
+            case 13222: // Wound Poison II (Rank 2)
+            case 13223: // Wound Poison III (Rank 3)
+            case 13224: // Wound Poison IV (Rank 4)
+            case 14795: // Venomhide Poison
+            case 16610: // Razorhide
+            case 18099: // Chill Nova
+            case 18802: // Frost Shot
+            case 20000: // Alexander's Test Periodic Aura
+            case 21163: // Polished Armor (Rank 1)
+            case 22818: // Mol'dar's Moxie
+            case 22820: // Slip'kik's Savvy
+            case 23333: // Warsong Flag
+            case 23335: // Silverwing Flag
+            case 25160: // Sand Storm
+            case 27189: // Wound Poison V (Rank 5)
+            case 28726: // Nightmare Seed
+            case 28754: // Fury of the Ashbringer
+            case 30802: // Unleashed Rage (Rank 1)
+            case 31481: // Lung Burst
+            case 32430: // Battle Standard
+            case 32431: // Battle Standard
+            case 32447: // Travel Form
+            case 33370: // Spell Haste
+            case 33807: // Abacus of Violent Odds
+            case 34132: // Gladiator's Totem of the Third Wind
+            case 34135: // Libram of Justice
+            case 34666: // Tamed Pet Passive 08 (DND)
+            case 34667: // Tamed Pet Passive 09 (DND)
+            case 34775: // Dragonspine Flurry
+            case 34889: // Fire Breath (Rank 1)
+            case 34976: // Netherstorm Flag
+            case 35131: // Bladestorm
+            case 35323: // Fire Breath (Rank 2)
+            case 35336: // Energizing Spores
+            case 36148: // Chill Nova
+            case 36613: // Aspect of the Spirit Hunter
+            case 36786: // Soul Chill
+            case 37174: // Perceived Weakness
+            case 37482: // Exploited Weakness
+            case 37526: // Battle Rush
+            case 37588: // Dive
+            case 37985: // Fire Breath
+            case 38317: // Forgotten Knowledge
+            case 38843: // Soul Chill
+            case 39015: // Atrophic Blow
+            case 40396: // Fel Infusion
+            case 40603: // Taunt Gurtogg
+            case 40803: // Ron's Test Buff
+            case 41435: // The Twin Blades of Azzinoth
+            case 42369: // Merciless Libram of Justice
+            case 42371: // Merciless Gladiator's Totem of the Third Wind
+            case 42636: // Birmingham Tools Test 3
+            case 43727: // Vengeful Libram of Justice
+            case 43729: // Vengeful Gladiator's Totem of the Third Wind
+            case 43817: // Focused Assault
+            case 44305: // You're a ...! (Effects2)
+            case 45384: // Birmingham Tools Test 4
+            case 45433: // Birmingham Tools Test 5
+            case 46093: // Brutal Libram of Justice
+            case 46099: // Brutal Gladiator's Totem of the Third Wind
+            case 46705: // Honorless Target
+            case 49883: // Flames
+            case 50655: // Frost Cut
+            case 50995: // Empowered Blood Presence (Rank 1)
+            case 55482: // Fire Breath (Rank 3)
+            case 55483: // Fire Breath (Rank 4)
+            case 55484: // Fire Breath (Rank 5)
+            case 55485: // Fire Breath (Rank 6)
+            case 57974: // Wound Poison VI (Rank 6)
+            case 57975: // Wound Poison VII (Rank 7)
+            case 60062: // Essence of Life
+            case 60302: // Meteorite Whetstone
+            case 60437: // Grim Toll
+            case 60492: // Embrace of the Spider
+            case 63024: // Gravity Bomb
+            case 64772: // Comet's Trail
+            case 65004: // Alacrity of the Elements
+            case 65019: // Mjolnir Runestone
+            case 65024: // Implosion
+            case 71003: // Vegard's Touch
+            case 72559: // Birmingham Tools Test 3
+            case 72560: // Birmingham Tools Test 3
+            case 72561: // Birmingham Tools Test 5
+            case 72980: // Shadow Resonance
+                spellInfo->ProcFlags = 0;
+                break;
+            default:
+                break;
+        }
+
         switch (spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_PALADIN:
