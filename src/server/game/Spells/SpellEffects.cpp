@@ -4189,7 +4189,7 @@ void Spell::EffectSummonDynObj(SpellEffIndex effIndex)
 
 	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
 	DynamicObject* dynObj = new DynamicObject(false);
-	if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
+    if (!dynObj->CreateDynamicObject(m_caster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
 	{
 		delete dynObj;
 		return;
@@ -4216,7 +4216,7 @@ void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
 
 	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
 	DynamicObject* dynObj = new DynamicObject(false);
-	if (!dynObj->CreateDynamicObject(sObjectMgr->GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
+    if (!dynObj->CreateDynamicObject(m_caster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
 	{
 		delete dynObj;
 		return;

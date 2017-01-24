@@ -217,7 +217,7 @@ class TC_GAME_API Group
         void   AddMarkerToList(uint64 guid) { m_dynObj.push_back(guid); }
         void   RemoveMarkerFromList(uint64 guid) { m_dynObj.remove(guid); }
         void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
-        void   RemoveMarker();		
+        void   RemoveMarker();
 
         // properties accessories
         bool IsFull() const;
