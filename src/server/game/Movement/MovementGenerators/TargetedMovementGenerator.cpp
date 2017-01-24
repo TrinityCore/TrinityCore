@@ -185,10 +185,13 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
         float allowed_dist = 0.0f;
 
+        // the chase distance is at chaser->CombatReach + target->CombatReach + 4/3. The melee range max is chaser->CombatReach + target->CombatReach + CONTACT_DISTANCE
+        // so here is the maximum allowed distance that the target can move without the need for the chase to move closer
+        float maxAllowedDistance = 4.0f / 3.0f - CONTACT_DISTANCE;  
         if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
             allowed_dist = 1.0f; // pet following owner
         else
-            allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+            allowed_dist = std::min(maxAllowedDistance, sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE));
 
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
