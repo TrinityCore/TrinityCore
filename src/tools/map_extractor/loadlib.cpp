@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,29 +33,21 @@ ChunkedFile::~ChunkedFile()
     free();
 }
 
-bool ChunkedFile::loadFile(HANDLE mpq, std::string const& fileName, bool log)
+bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fileName, bool log)
 {
     free();
-    HANDLE file;
-    if (!CascOpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL, 0, &file))
-    {
-        if (log)
-            printf("No such file %s\n", fileName.c_str());
+    CASC::FileHandle file = CASC::OpenFile(mpq, fileName.c_str(), CASC_LOCALE_ALL, log);
+    if (!file)
         return false;
-    }
 
-    data_size = CascGetFileSize(file, nullptr);
+    data_size = CASC::GetFileSize(file, nullptr);
     data = new uint8[data_size];
-    CascReadFile(file, data, data_size, nullptr/*bytesRead*/);
+    CASC::ReadFile(file, data, data_size, nullptr/*bytesRead*/);
     parseChunks();
     if (prepareLoadedData())
-    {
-        CascCloseFile(file);
         return true;
-    }
 
     printf("Error loading %s\n", fileName.c_str());
-    CascCloseFile(file);
     free();
 
     return false;

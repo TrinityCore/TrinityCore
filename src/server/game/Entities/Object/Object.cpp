@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,6 @@
 #include "OutdoorPvPMgr.h"
 #include "Unit.h"
 #include "BattlefieldMgr.h"
-#include "GameObjectPackets.h"
 #include "MiscPackets.h"
 #include "InstanceScenario.h"
 
@@ -1609,9 +1608,13 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
-    float ox, oy, oz;
-    obj->GetPosition(ox, oy, oz);
-    return IsWithinLOS(ox, oy, oz);
+    float x, y, z;
+    if (obj->GetTypeId() == TYPEID_PLAYER)
+        obj->GetPosition(x, y, z);
+    else
+        obj->GetHitSpherePointFor(GetPosition(), x, y, z);
+
+    return IsWithinLOS(x, y, z);
 }
 
 float WorldObject::GetDistance(const WorldObject* obj) const
@@ -1695,9 +1698,34 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
-        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.f, ox, oy, oz+2.f, GetPhaseMask());
+    {
+        float x, y, z;
+        if (GetTypeId() == TYPEID_PLAYER)
+            GetPosition(x, y, z);
+        else
+            GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
+
+        return GetMap()->isInLineOfSight(x, y, z + 2.0f, ox, oy, oz + 2.0f, GetPhaseMask());
+    }
 
     return true;
+}
+
+Position WorldObject::GetHitSpherePointFor(Position const& dest) const
+{
+    G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ());
+    G3D::Vector3 vObj(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
+    G3D::Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * GetObjectSize();
+
+    return Position(contactPoint.x, contactPoint.y, contactPoint.z, GetAngle(contactPoint.x, contactPoint.y));
+}
+
+void WorldObject::GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const
+{
+    Position pos = GetHitSpherePointFor(dest);
+    x = pos.GetPositionX();
+    y = pos.GetPositionY();
+    z = pos.GetPositionZ();
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
@@ -1871,7 +1899,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
                 float max_z = canSwim
-                    ? GetMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
+                    ? GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
                     : ((ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true)));
                 if (max_z > INVALID_HEIGHT)
                 {
@@ -1895,7 +1923,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             if (!ToPlayer()->CanFly())
             {
                 float ground_z = z;
-                float max_z = GetMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
+                float max_z = GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
@@ -2182,13 +2210,6 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
-{
-    WorldPackets::GameObject::GameObjectDespawn packet;
-    packet.ObjectGUID = guid;
-    SendMessageToSet(packet.Write(), true);
-}
-
 void WorldObject::SetMap(Map* map)
 {
     ASSERT(map);
@@ -2466,7 +2487,10 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)
+    {
+        TC_LOG_WARN("scripts", "%s (%s) tried to summon non-existing summon group %u.", GetName().c_str(), GetGUID().ToString().c_str(), group);
         return;
+    }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
         if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))
@@ -2986,23 +3010,20 @@ bool WorldObject::IsInPhase(WorldObject const* obj) const
     return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
 }
 
-void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDistanceSound(uint32 soundId, Player* target /*= nullptr*/)
 {
-    WorldPacket data(SMSG_PLAY_SPEAKERBOT_SOUND, 4 + 8);
-    data << uint32(sound_id);
-    data << GetGUID();
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(WorldPackets::Misc::PlaySpeakerbotSound(GetGUID(), soundId).Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(WorldPackets::Misc::PlaySpeakerbotSound(GetGUID(), soundId).Write(), true);
 }
 
-void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDirectSound(uint32 soundId, Player* target /*= nullptr*/)
 {
     if (target)
-        target->SendDirectMessage(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write());
+        target->SendDirectMessage(WorldPackets::Misc::PlaySound(GetGUID(), soundId).Write());
     else
-        SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write(), true);
+        SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), soundId).Write(), true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()

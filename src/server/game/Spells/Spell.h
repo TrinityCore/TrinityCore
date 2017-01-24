@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -565,6 +565,7 @@ class TC_GAME_API Spell
         int32 m_castItemLevel;
         ObjectGuid m_castId;
         ObjectGuid m_originalCastId;
+        bool m_fromClient;
         uint32 m_castFlagsEx;
         union
         {
@@ -703,8 +704,8 @@ class TC_GAME_API Spell
         bool m_referencedFromCurrentSpell;                  // mark as references to prevent deleted and access by dead pointers
         bool m_executedCurrently;                           // mark as executed to prevent deleted and access by dead pointers
         bool m_needComboPoints;
-        uint8 m_applyMultiplierMask;
-        float m_damageMultipliers[3];
+        uint32 m_applyMultiplierMask;
+        float m_damageMultipliers[MAX_SPELL_EFFECTS];
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
         Unit* unitTarget;
@@ -784,7 +785,7 @@ class TC_GAME_API Spell
 
         void DoAllEffectOnTarget(TargetInfo* target);
         SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura);
-        void DoTriggersOnSpellHit(Unit* unit, uint8 effMask);
+        void DoTriggersOnSpellHit(Unit* unit, uint32 effMask);
         void DoAllEffectOnTarget(GOTargetInfo* target);
         void DoAllEffectOnTarget(ItemTargetInfo* target);
         bool UpdateChanneledTargetList();
@@ -811,7 +812,7 @@ class TC_GAME_API Spell
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
-        std::list<SpellScript*> m_loadedScripts;
+        std::vector<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
         {
@@ -821,7 +822,7 @@ class TC_GAME_API Spell
             int32 chance;
         };
 
-        bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura = NULL) const;
+        bool CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura = nullptr) const;
         void PrepareTriggersExecutedOnHit();
         typedef std::list<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;
@@ -856,14 +857,6 @@ class TC_GAME_API Spell
         std::vector<SpellLogEffectGenericVictimParams> _genericVictimTargets[MAX_SPELL_EFFECTS];
         std::vector<SpellLogEffectTradeSkillItemParams> _tradeSkillTargets[MAX_SPELL_EFFECTS];
         std::vector<SpellLogEffectFeedPetParams> _feedPetTargets[MAX_SPELL_EFFECTS];
-
-#ifdef MAP_BASED_RAND_GEN
-        int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max)    { return m_caster->GetMap()->mtRand.randInt(max - min) + min; }
-        int32 rand32()                          { return m_caster->GetMap()->mtRand.randInt(); }
-        double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
-        double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
-#endif
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;

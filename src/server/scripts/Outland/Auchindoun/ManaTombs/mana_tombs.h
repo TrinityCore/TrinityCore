@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,21 +23,13 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum MTDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_PANDEMONIUS            = 0,
     DATA_TAVAROK                = 1,
     DATA_NEXUSPRINCE_SHAFFAR    = 2,
     DATA_YOR                    = 3
-};
-
-enum CreatureIds
-{
-};
-
-enum GameObjectIds
-{
 };
 
 template<class AI>

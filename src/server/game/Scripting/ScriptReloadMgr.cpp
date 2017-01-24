@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -308,12 +308,12 @@ Optional<std::shared_ptr<ScriptModule>>
 static bool HasValidScriptModuleName(std::string const& name)
 {
     // Detects scripts_NAME.dll's / .so's
-    static std::regex const regex(
+    static Trinity::regex const regex(
         Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9_]+\\.%s$",
             GetSharedLibraryPrefix(),
             GetSharedLibraryExtension()));
 
-    return std::regex_match(name, regex);
+    return Trinity::regex_match(name, regex);
 }
 
 /// File watcher responsible for watching shared libraries
@@ -1529,8 +1529,8 @@ void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string 
 /// Returns true when the given path has a known C++ file extension
 static bool HasCXXSourceFileExtension(fs::path const& path)
 {
-    static std::regex const regex("^\\.(h|hpp|c|cc|cpp)$");
-    return std::regex_match(path.extension().generic_string(), regex);
+    static Trinity::regex const regex("^\\.(h|hpp|c|cc|cpp)$");
+    return Trinity::regex_match(path.extension().generic_string(), regex);
 }
 
 SourceUpdateListener::SourceUpdateListener(fs::path path, std::string script_module_name)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -990,6 +990,17 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
                         return true;
 
             return false;
+        }
+        case CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter * criteriaTree->Entry->Amount;
+            });
+            return progress >= requiredCount;
         }
         default:
             break;

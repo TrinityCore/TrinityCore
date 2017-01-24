@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,7 +74,7 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_HORSEMEN_IS_TIMED_KILL = NAXData::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
     DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };

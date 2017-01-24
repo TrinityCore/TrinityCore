@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -469,7 +469,7 @@ class spell_warr_rend : public SpellScriptLoader
 
                     // $0.25 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
                     float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 mws = caster->GetAttackTime(BASE_ATTACK);
+                    int32 mws = caster->GetBaseAttackTime(BASE_ATTACK);
                     float mwbMin = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
                     float mwbMax = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
                     float mwb = ((mwbMin + mwbMax) / 2 + ap * mws / 14000) * 0.25f;

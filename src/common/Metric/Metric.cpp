@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 void Metric::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
 {
-    _realmName = realmName;
+    _realmName = FormatInfluxDBTagValue(realmName);
     _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
     _overallStatusLogger = overallStatusLogger;

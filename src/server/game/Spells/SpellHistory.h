@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -145,7 +145,6 @@ public:
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
-    uint16 GetArenaCooldownsSize();
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,8 @@
 #include <map>
 #include <vector>
 #include <list>
+
+class Item;
 
 namespace WorldPackets
 {
@@ -112,7 +114,8 @@ enum LootError
     LOOT_ERROR_MASTER_UNIQUE_ITEM       = 13,   // Player has too many of that item already
     LOOT_ERROR_MASTER_OTHER             = 14,   // Can't assign item to that player
     LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
-    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16    // You can't do that while shapeshifted.
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16,   // You can't do that while shapeshifted.
+    LOOT_ERROR_NO_LOOT                  = 17    // There is no loot.
 };
 
 // type of Loot Item in Loot View
@@ -155,7 +158,7 @@ struct TC_GAME_API LootItem
 {
     uint32  itemid;
     uint32  randomSuffix;
-    int32   randomPropertyId;
+    ItemRandomEnchantmentId randomPropertyId;
     int32   upgradeId;
     std::vector<int32> BonusListIDs;
     ConditionContainer conditions;                               // additional loot condition
@@ -175,7 +178,7 @@ struct TC_GAME_API LootItem
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(0), upgradeId(0), count(0), is_looted(false), is_blocked(false),
+    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(), upgradeId(0), count(0), is_looted(false), is_blocked(false),
                  freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false),
                  canSave(true){ };
 
@@ -384,6 +387,7 @@ struct TC_GAME_API Loot
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
 
+    LootItem const* GetItemInSlot(uint32 lootSlot) const;
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, QuestItem** qitem = NULL, QuestItem** ffaitem = NULL, QuestItem** conditem = NULL);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemFor(Player* player) const;
@@ -410,6 +414,27 @@ private:
     // Loot GUID
     ObjectGuid _GUID;
     uint32 _difficultyBonusTreeMod;
+};
+
+class TC_GAME_API AELootResult
+{
+public:
+    struct ResultValue
+    {
+        Item* item;
+        uint8 count;
+        LootType lootType;
+    };
+
+    typedef std::vector<ResultValue> OrderedStorage;
+
+    void Add(Item* item, uint8 count, LootType lootType);
+
+    OrderedStorage::const_iterator begin() const;
+    OrderedStorage::const_iterator end() const;
+
+    OrderedStorage _byOrder;
+    std::unordered_map<Item*, OrderedStorage::size_type> _byItem;
 };
 
 TC_GAME_API extern LootStore LootTemplates_Creature;
