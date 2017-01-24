@@ -15127,7 +15127,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SetWeeklyQuestStatus(quest_id);
     else if (quest->IsMonthly())
         SetMonthlyQuestStatus(quest_id);
-    else if (quest->IsSeasonal())
+    else if (quest->IsSeasonal() && quest->IsRepeatable())
         SetSeasonalQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id, false);
@@ -15802,7 +15802,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo)
     {
-        if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+        if (qInfo->IsSeasonal() && qInfo->IsRepeatable())
         {
             uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
             auto seasonalQuestItr = m_seasonalquests.find(eventId);
@@ -15832,7 +15832,7 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
-            if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
+            if (qInfo->IsSeasonal() && qInfo->IsRepeatable())
             {
                 uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
                 auto seasonalQuestItr = m_seasonalquests.find(eventId);
