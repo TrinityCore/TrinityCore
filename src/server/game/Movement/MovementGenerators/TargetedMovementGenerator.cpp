@@ -186,7 +186,8 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         float allowed_dist = 0.0f;
 
         // the chase distance is at chaser->CombatReach + target->CombatReach + 4/3. The melee range max is chaser->CombatReach + target->CombatReach + CONTACT_DISTANCE
-        // so here is the maximum allowed distance that the target can move without the need for the chase to move closer
+        // so here is the maximum allowed distance that the target can move without the need for the chase to move closer.
+        // todo: this value is only correct for an offset equal to zero. an zero offset should be also supported.
         float maxAllowedDistance = 4.0f / 3.0f - CONTACT_DISTANCE;  
         if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
             allowed_dist = 1.0f; // pet following owner
