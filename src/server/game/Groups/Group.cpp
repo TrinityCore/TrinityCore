@@ -1609,7 +1609,7 @@ void Group::SendRaidMarkerUpdate()
     }
 }
 
-void Group::SendRaidMarkerUpdateToPlayer(uint64 playerGUID, bool remove)
+void Group::SendRaidMarkerUpdateToPlayer(ObjectGuid playerGUID, bool remove)
 {
     Player* player = ObjectAccessor::FindPlayer(playerGUID);
     if (!player || !player->GetSession())
