@@ -60,6 +60,14 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
 
             if (owner->IsHovering())
             {
+                //           CHASER
+                //             |\
+                //             | \
+                // hoverHeight |  \ A
+                //             |   \
+                //             |    \
+                //              -----TARGET
+                //                B
                 float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
                 float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint 
                 float B = std::sqrt(A*A - hoverHeight * hoverHeight);
@@ -91,15 +99,36 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             }
             else
             {
-                dist = i_offset + 1.0f;
+                dist = i_offset + 1.0f; // todo: what the heck is this
                 size = owner->GetObjectSize();
             }
 
             if (i_target->IsWithinDistInMap(owner, dist))
                 return;
 
-            // to at i_offset distance from target and i_angle from target facing
-            i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            
+            if (owner->IsHovering())
+            {
+                //           CHASER
+                //             |\
+                //             | \
+                // hoverHeight |  \ A
+                //             |   \
+                //             |    \
+                //              -----TARGET
+                //                B
+                float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                float A = i_target->GetObjectSize() + size + i_offset; // the 2D distance search used by GetClosePoint(x, y, z, size, i_offset, i_angle) 
+                float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                float searchDistance = B - A;
+                i_target->GetClosePoint(x, y, z, searchDistance, 0, i_angle);
+                z += hoverHeight;
+            }
+            else
+            {
+                // to at i_offset distance from target and i_angle from target facing
+                i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            }
         }
     }
     else
