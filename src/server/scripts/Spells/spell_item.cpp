@@ -1100,6 +1100,46 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
         }
 };
 
+// Item 10721: Gnomish Harm Prevention Belt 
+// 13234 - Harm Prevention Belt
+enum HarmPreventionBelt
+{
+    SPELL_FORCEFIELD_COLLAPSE = 13235
+};
+
+class spell_item_harm_prevention_belt : public SpellScriptLoader
+{
+public:
+    spell_item_harm_prevention_belt() : SpellScriptLoader("spell_item_harm_prevention_belt") { }
+
+    class spell_item_harm_prevention_belt_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_harm_prevention_belt_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_FORCEFIELD_COLLAPSE))
+                return false;
+            return true;
+        }
+
+        void HandleProc(ProcEventInfo& /*eventInfo*/)
+        {
+            GetTarget()->CastSpell((Unit*)nullptr, SPELL_FORCEFIELD_COLLAPSE, true);
+        }
+
+        void Register() override
+        {
+            OnProc += AuraProcFn(spell_item_harm_prevention_belt_AuraScript::HandleProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_harm_prevention_belt_AuraScript();
+    }
+};
+
 enum Heartpierce
 {
     SPELL_INVIGORATION_MANA         = 71881,
@@ -4839,6 +4879,7 @@ void AddSC_item_spell_scripts()
     new spell_item_flask_of_the_north();
     new spell_item_frozen_shadoweave();
     new spell_item_gnomish_death_ray();
+    new spell_item_harm_prevention_belt();
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
     new spell_item_crystal_spire_of_karabor();
