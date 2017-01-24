@@ -970,7 +970,7 @@ class npc_fountain_of_light : public CreatureScript
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetControlled(true, UNIT_STATE_ROOT);
                 SetCombatMovement(false);
                 instance = creature->GetInstanceScript();
             }

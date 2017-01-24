@@ -364,9 +364,9 @@ struct boss_grand_championAI : BossAI
         _JustReachedHome();
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0 && !me->IsImmunedToSpell(spell))
+        if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0 && !me->IsImmunedToSpell(spell, caster))
         {
             uiPhase = 3;
             me->GetMotionMaster()->MovementExpired();

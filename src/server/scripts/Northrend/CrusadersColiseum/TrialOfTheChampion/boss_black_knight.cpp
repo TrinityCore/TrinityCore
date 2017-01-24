@@ -321,7 +321,7 @@ public:
 
                     // Army of the Dead
                     // disabling movement temporarily so the spell wont get interrupted
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->SetControlled(true, UNIT_STATE_ROOT);
                     DoCast(SPELL_ARMY_DEAD);
                 }
             }
@@ -686,7 +686,7 @@ class spell_black_knight_army_of_the_dead : public SpellScriptLoader
                 // that is wrong, movement disabled by spell (channel)
                 // On aura remove we must remove disable movement flag
                 if (Unit* caster = GetCaster())
-                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    caster->SetControlled(false, UNIT_STATE_ROOT);
             }
 
             void Register() override

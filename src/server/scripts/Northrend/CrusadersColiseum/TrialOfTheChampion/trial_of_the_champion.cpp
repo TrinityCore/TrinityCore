@@ -1300,47 +1300,47 @@ public:
                     (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED) &&
                     (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED))
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
                 if ((instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED) &&
                     (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED))
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                 }
                 if (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                SendGossipMenuFor(player, 1, creature->GetGUID());
             }
             else if ((instance->GetBossState(DATA_GRAND_CHAMPIONS) == NOT_STARTED || instance->GetBossState(DATA_GRAND_CHAMPIONS) == TO_BE_DECIDED) && player->GetVehicleBase())
             {
                 // If Grand Champions encounter hasn't been started and the player is mounted
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 // Patch 3.2.2: "There is now an option in the herald's dialogue to skip the introductory scripted scene if everyone in the party has already seen it."
                 if (HasAllSeenEvent(player))
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT_SKIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_FIRST_BOSS, creature->GetGUID());
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT_SKIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, GOSSIP_TEXT_FIRST_BOSS, creature->GetGUID());
             }
             else if ((instance->GetBossState(DATA_GRAND_CHAMPIONS) == NOT_STARTED || instance->GetBossState(DATA_GRAND_CHAMPIONS) == TO_BE_DECIDED) && !player->GetVehicleBase())
             {
                 // If Grand Champions encounter hasn't been started and the player is not mounted
                 if (player->GetTeam() == HORDE)
-                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_UNMOUNTED_H, creature->GetGUID());
+                    SendGossipMenuFor(player, GOSSIP_TEXT_UNMOUNTED_H, creature->GetGUID());
                 else
-                    player->SEND_GOSSIP_MENU(GOSSIP_TEXT_UNMOUNTED_A, creature->GetGUID());
+                    SendGossipMenuFor(player, GOSSIP_TEXT_UNMOUNTED_A, creature->GetGUID());
             }
             else if (instance->GetBossState(DATA_GRAND_CHAMPIONS) == DONE && (instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED) && (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED))
             {
                 // If Grand Champions encounter is done and Eadric the Pure nor Argent Confessor Paletress encounters have been started
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_SECOND_BOSS, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, GOSSIP_TEXT_SECOND_BOSS, creature->GetGUID());
             }
             else if ((instance->GetBossState(DATA_EADRIC_THE_PURE) == DONE || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == DONE) && (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED))
             {
                 // If Grand Champions, Eadric the Pure and Argent Confessor Paletress encounters are all done but Black Knight encounter has not been started
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXT_THIRD_BOSS, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, GOSSIP_TEXT_THIRD_BOSS, creature->GetGUID());
             }
         }
         return true;
@@ -1349,7 +1349,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         ClearGossipMenuFor(player);
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:

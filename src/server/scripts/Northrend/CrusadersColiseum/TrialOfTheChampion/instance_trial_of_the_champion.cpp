@@ -249,7 +249,7 @@ public:
                                     if (!plr->IsGameMaster())
                                     {
                                         if (instance->ToInstanceMap())
-                                            instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                            instance->ToInstanceMap()->PermBindAllPlayers();
                                         break;
                                     }
                                 }
@@ -295,7 +295,7 @@ public:
                                     if (!plr->IsGameMaster())
                                     {
                                         if (instance->ToInstanceMap())
-                                            instance->ToInstanceMap()->PermBindAllPlayers(plr);
+                                            instance->ToInstanceMap()->PermBindAllPlayers();
                                         break;
                                     }
                                 }
