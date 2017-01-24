@@ -924,7 +924,7 @@ void WorldSession::HandleGuildAchievementMembers(WorldPacket& recvPacket)
 
             data.WriteBits(achievement->guids.size(),26);
 
-            for(std::set<uint64>::iterator itr = achievement->guids.begin(); itr != achievement->guids.end(); ++itr)
+            for(std::set<ObjectGuid>::iterator itr = achievement->guids.begin(); itr != achievement->guids.end(); ++itr)
             {
                 ObjectGuid pguid = (*itr);
 
@@ -947,7 +947,7 @@ void WorldSession::HandleGuildAchievementMembers(WorldPacket& recvPacket)
 
             data.WriteByteSeq(gguid[5]);
 
-            for(std::set<uint64>::iterator itr = achievement->guids.begin(); itr != achievement->guids.end(); ++itr)
+            for(std::set<ObjectGuid>::iterator itr = achievement->guids.begin(); itr != achievement->guids.end(); ++itr)
             {
                 ObjectGuid pguid = (*itr);
 

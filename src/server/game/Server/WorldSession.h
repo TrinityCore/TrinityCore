@@ -1087,6 +1087,7 @@ class TC_GAME_API WorldSession
         QueryCallback<PreparedQueryResult, uint32> _stableSwapCallback;
         QueryCallback<PreparedQueryResult, ObjectGuid> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
+        QueryCallback<PreparedQueryResult, std::string> _guildRenameCallback;
         QueryResultHolderFuture _charLoginCallback;
 
     friend class World;
