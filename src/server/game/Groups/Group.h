@@ -214,8 +214,8 @@ class TC_GAME_API Group
         uint32 GetMarkerMask() { return m_markerMask; }
 
         DynamicObject* GetMarkerGuidBySpell(uint32 spell);
-        void   AddMarkerToList(uint64 guid) { m_dynObj.push_back(guid); }
-        void   RemoveMarkerFromList(uint64 guid) { m_dynObj.remove(guid); }
+        void   AddMarkerToList(ObjectGuid guid) { m_dynObj.push_back(guid); }
+        void   RemoveMarkerFromList(ObjectGuid guid) { m_dynObj.remove(guid); }
         void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
         void   RemoveMarker();
 
