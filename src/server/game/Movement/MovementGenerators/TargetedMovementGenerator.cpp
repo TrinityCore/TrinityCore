@@ -57,11 +57,21 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             if (i_target->IsWithinDistInMap(owner, CONTACT_DISTANCE))
                 return;
 
-            // to nearest contact position
-            i_target->GetContactPoint(owner, x, y, z);
 
             if (owner->IsHovering())
-                z += owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT); // very crude implementation!! do not keep!!
+            {
+                float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint 
+                float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                float searchDistance = B - A;
+                i_target->GetContactPoint(owner, x, y, z, searchDistance);
+                z += hoverHeight;
+            }
+            else
+            {
+                // to nearest contact position
+                i_target->GetContactPoint(owner, x, y, z);
+            }
         }
         else
         {
