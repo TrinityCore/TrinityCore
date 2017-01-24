@@ -214,7 +214,7 @@ class TC_GAME_API Group
         uint32 GetMarkerMask() { return m_markerMask; }
 
         DynamicObject* GetMarkerGuidBySpell(uint32 spell);
-        void   AddMarkerToList(ObjectGuid playerGUID) { m_dynObj.push_back(guid); }
+        void   AddMarkerToList(uint64 guid) { m_dynObj.push_back(guid); }
         void   RemoveMarkerFromList(uint64 guid) { m_dynObj.remove(guid); }
         void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
         void   RemoveMarker();
@@ -285,7 +285,7 @@ class TC_GAME_API Group
         //void SendInit(WorldSession* session);
         void SendTargetIconList(WorldSession* session);
         void SendRaidMarkerUpdate();
-        void SendRaidMarkerUpdateToPlayer(uint64 playerGUID, bool remove = false);
+        void SendRaidMarkerUpdateToPlayer(ObjectGuid playerGUID, bool remove = false);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
         void UpdatePlayerOutOfRange(Player* player);
