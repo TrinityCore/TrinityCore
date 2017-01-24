@@ -284,6 +284,7 @@ class TC_GAME_API Group
         // -no description-
         //void SendInit(WorldSession* session);
         void SendTargetIconList(WorldSession* session);
+        void SendRaidMarkerUpdate();
         void SendRaidMarkerUpdateToPlayer(uint64 playerGUID, bool remove = false);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
