@@ -2465,13 +2465,13 @@ class spell_illidan_caged : public SpellScriptLoader
                 Remove();
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_caged_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_illidan_caged_AuraScript();
         }
