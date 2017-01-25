@@ -8925,6 +8925,13 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot) const
     GetSession()->SendPacket(&data);
 }
 
+void Player::SendNotifyCurrencyLootRemoved(uint8 lootSlot)
+{
+	WorldPacket data(SMSG_CURRENCY_LOOT_REMOVED, 1);
+	data << uint8(lootSlot);
+	GetSession()->SendPacket(&data);
+}
+
 void Player::SendUpdateWorldState(uint32 Field, uint32 Value) const
 {
     WorldPacket data(SMSG_UPDATE_WORLD_STATE, 4+4+1);
