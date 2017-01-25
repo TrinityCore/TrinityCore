@@ -70,10 +70,20 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
                 //                B
                 float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
                 float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint 
-                float B = std::sqrt(A*A - hoverHeight * hoverHeight);
-                float searchDistance = B - A;
-                i_target->GetContactPoint(owner, x, y, z, searchDistance);
-                z += hoverHeight;
+                if (A > hoverHeight)
+                {
+                    float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                    float searchDistance = B - A;
+                    i_target->GetContactPoint(owner, x, y, z, searchDistance);
+                    z += hoverHeight;
+                }
+                else
+                {
+                    // the target is not reachable. owner is too high compared to the melee range. Get as close as possible: on top of it.
+                    x = i_target->GetPositionX();
+                    y = i_target->GetPositionY();
+                    z = i_target->GetPositionZ() + hoverHeight;
+                }
             }
             else
             {
@@ -119,10 +129,20 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
                 //                B
                 float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
                 float A = i_target->GetObjectSize() + size + i_offset; // the 2D distance search used by GetClosePoint(x, y, z, size, i_offset, i_angle) 
-                float B = std::sqrt(A*A - hoverHeight * hoverHeight);
-                float searchDistance = B - A;
-                i_target->GetClosePoint(x, y, z, searchDistance, 0, i_angle);
-                z += hoverHeight;
+                if (A > hoverHeight)
+                {
+                    float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                    float searchDistance = B - A;
+                    i_target->GetClosePoint(x, y, z, searchDistance, 0, i_angle);
+                    z += hoverHeight;
+                }
+                else
+                {
+                    // the target is not reachable. owner is too high compared to the melee range. Get as close as possible: on top of it.
+                    x = i_target->GetPositionX();
+                    y = i_target->GetPositionY();
+                    z = i_target->GetPositionZ() + hoverHeight;
+                }
             }
             else
             {
