@@ -32,6 +32,7 @@
 #include "DynamicObject.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "Group.h"
 #include "SharedDefines.h"
 #include "Pet.h"
 #include "GameObject.h"
