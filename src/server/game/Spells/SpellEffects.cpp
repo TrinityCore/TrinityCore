@@ -1632,7 +1632,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
+        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 /*Soul Shard*/&& newitemid != 6948 /*Hearthstone*/)
             pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
 
         // send info to the client
@@ -4179,16 +4179,32 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (player->IsInFlight())
         return;
 
-    player->TeleportTo(player->GetStartPosition(), TELE_TO_SPELL);
-    // homebind location is loaded always
-    // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
+    // if player is dead - teleport to graveyard
+    if (!player->IsAlive())
+    {
+        if (player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+            return;
 
-    // Stuck spell trigger Hearthstone cooldown
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
-    if (!spellInfo)
+        // player is in corpse
+        if (!player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            player->BuildPlayerRepop();
+        player->RepopAtGraveyard();
         return;
-    Spell spell(player, spellInfo, TRIGGERED_FULL_MASK);
-    spell.SendSpellCooldown();
+    }
+
+    // no hearthstone in bag or on cooldown
+    Item* hearthStone = player->GetItemByEntry(6948 /*Hearthstone*/);
+    if (!hearthStone || player->GetSpellHistory()->HasCooldown(8690 /*Spell Hearthstone*/))
+    {
+        float o = rand_norm() * 2 * M_PI;
+        Position pos = *player;
+        player->MovePositionToFirstCollision(pos, 5.0f, o);
+        player->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), player->GetOrientation());
+        return;
+    }
+
+    // we have hearthstone not on cooldown, just use it
+    player->CastSpell(player, 8690, TriggerCastFlags(TRIGGERED_FULL_MASK&~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
