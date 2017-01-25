@@ -69,7 +69,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
                 //              -----TARGET
                 //                B
                 float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-                float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint 
+                float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint
                 if (A > hoverHeight)
                 {
                     float B = std::sqrt(A*A - hoverHeight * hoverHeight);
@@ -128,7 +128,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
                 //              -----TARGET
                 //                B
                 float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-                float A = i_target->GetObjectSize() + size + i_offset; // the 2D distance search used by GetClosePoint(x, y, z, size, i_offset, i_angle) 
+                float A = i_target->GetObjectSize() + size + i_offset; // the 2D distance search used by GetClosePoint(x, y, z, size, i_offset, i_angle)
                 if (A > hoverHeight)
                 {
                     float B = std::sqrt(A*A - hoverHeight * hoverHeight);
@@ -237,7 +237,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         // the chase distance is at chaser->CombatReach + target->CombatReach + 4/3. The melee range max is chaser->CombatReach + target->CombatReach + CONTACT_DISTANCE
         // so here is the maximum allowed distance that the target can move without the need for the chase to move closer.
         // todo: this value is only correct for an offset equal to zero. an zero offset should be also supported.
-        float maxAllowedDistance = 4.0f / 3.0f - CONTACT_DISTANCE;  
+        float maxAllowedDistance = 4.0f / 3.0f - CONTACT_DISTANCE;
         if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
             allowed_dist = 1.0f; // pet following owner
         else
