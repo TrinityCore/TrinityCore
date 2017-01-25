@@ -149,7 +149,7 @@ public:
                 if (!target->ToPlayer())
                     return;
 
-                if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                     // If corpse explosion hits any player during encounter
                     // we cannot give achievement id 3804
                     knight->AI()->SetData(1, 0);
@@ -196,7 +196,7 @@ public:
         {
             if (who == me)
                 return;
-            if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+            if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
             {
                 if (!knight->HasAura(SPELL_BLACK_KNIGHT_DIE))
                     knight->AI()->KilledUnit(who);
@@ -256,7 +256,7 @@ public:
 
     struct boss_black_knightAI : public BossAI
     {
-        boss_black_knightAI(Creature* creature) : BossAI(creature, DATA_THE_BLACK_KNIGHT)
+        boss_black_knightAI(Creature* creature) : BossAI(creature, DATA_BLACK_KNIGHT)
         {
             Initialize();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

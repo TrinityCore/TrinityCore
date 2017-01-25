@@ -143,34 +143,34 @@ void DoCastPennant(Creature* me)
     switch (me->GetEntry())
     {
         case NPC_MOKRA:
-            me->CastSpell(me, SPELL_FLAG_ORGRIMMAR);
+            me->CastSpell(me, SPELL_PENNANT_ORGRIMMAR);
             break;
         case NPC_ERESSEA:
-            me->CastSpell(me, SPELL_FLAG_SILVERMOON);
+            me->CastSpell(me, SPELL_PENNANT_SILVERMOON);
             break;
         case NPC_RUNOK:
-            me->CastSpell(me, SPELL_FLAG_THUNDER_BLUFF);
+            me->CastSpell(me, SPELL_PENNANT_THUNDER_BLUFF);
             break;
         case NPC_ZULTORE:
-            me->CastSpell(me, SPELL_FLAG_SENJIN);
+            me->CastSpell(me, SPELL_PENNANT_SEN_JIN);
             break;
         case NPC_VISCERI:
-            me->CastSpell(me, SPELL_FLAG_UNDERCITY);
+            me->CastSpell(me, SPELL_PENNANT_UNDERCITY);
             break;
         case NPC_JACOB:
-            me->CastSpell(me, SPELL_FLAG_STORMWIND);
+            me->CastSpell(me, SPELL_PENNANT_STORMWIND);
             break;
         case NPC_AMBROSE:
-            me->CastSpell(me, SPELL_FLAG_GNOMEREGAN);
+            me->CastSpell(me, SPELL_PENNANT_GNOMEREGAN);
             break;
         case NPC_COLOSOS:
-            me->CastSpell(me, SPELL_FLAG_EXODAR);
+            me->CastSpell(me, SPELL_PENNANT_EXODAR);
             break;
         case NPC_JAELYNE:
-            me->CastSpell(me, SPELL_FLAG_DARNASSUS);
+            me->CastSpell(me, SPELL_PENNANT_DARNASSUS);
             break;
         case NPC_LANA:
-            me->CastSpell(me, SPELL_FLAG_IRONFORGE);
+            me->CastSpell(me, SPELL_PENNANT_IRONFORGE);
             break;
         default:
             break;
@@ -738,16 +738,16 @@ public:
         {
             switch (me->GetEntry())
             {
-                case VEHICLE_DARNASSUS_CHAMPION:
-                case VEHICLE_EXODAR_CHAMPION:
-                case VEHICLE_STORMWIND_CHAMPION:
-                case VEHICLE_GNOMEREGAN_CHAMPION:
-                case VEHICLE_IRONFORGE_CHAMPION:
-                case VEHICLE_UNDERCITY_CHAMPION:
-                case VEHICLE_THUNDER_BLUFF_CHAMPION:
-                case VEHICLE_ORGRIMMAR_CHAMPION:
-                case VEHICLE_SILVERMOON_CHAMPION:
-                case VEHICLE_SENJIN_CHAMPION:
+                case NPC_DARNASSUS_CHAMPION:
+                case NPC_EXODAR_CHAMPION:
+                case NPC_STORMWIND_CHAMPION:
+                case NPC_GNOMEREGAN_CHAMPION:
+                case NPC_IRONFORGE_CHAMPION:
+                case NPC_UNDERCITY_CHAMPION:
+                case NPC_THUNDER_BLUFF_CHAMPION:
+                case NPC_ORGRIMMAR_CHAMPION:
+                case NPC_SILVERMOON_CHAMPION:
+                case NPC_SEN_JIN_CHAMPION:
                     return true;
             }
             return false;

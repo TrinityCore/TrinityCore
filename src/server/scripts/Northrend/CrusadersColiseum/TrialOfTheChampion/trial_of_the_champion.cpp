@@ -231,36 +231,36 @@ struct GrandChampionInfo
 GrandChampionInfo const GrandChampionData[5] =
 {
     {
-        { VEHICLE_MOKRA_SKILLCRUSHER_MOUNT,     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
-        { VEHICLE_ORGRIMMAR_CHAMPION,           VEHICLE_STORMWIND_CHAMPION          },
+        { VEHICLE_MOKRA_SKULLCRUSHER_MOUNT,     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT },
+        { NPC_ORGRIMMAR_CHAMPION,               NPC_STORMWIND_CHAMPION              },
         { SAY_INTRO_WARR_H,                     SAY_INTRO_WARR_A                    },
         { NPC_MOKRA,                            NPC_JACOB                           },
         { SpectatorData[RACE_ORC],              SpectatorData[RACE_HUMAN]           },
     },
     {
         { VEHICLE_ERESSEA_DAWNSINGER_MOUNT,     VEHICLE_AMBROSE_BOLTSPARK_MOUNT     },
-        { VEHICLE_SILVERMOON_CHAMPION,          VEHICLE_GNOMEREGAN_CHAMPION         },
+        { NPC_SILVERMOON_CHAMPION,              NPC_GNOMEREGAN_CHAMPION             },
         { SAY_INTRO_MAGE_H,                     SAY_INTRO_MAGE_A                    },
         { NPC_ERESSEA,                          NPC_AMBROSE                         },
         { SpectatorData[RACE_BLOODELF],         SpectatorData[RACE_GNOME]           },
     },
     {
         { VEHICLE_RUNOK_WILDMANE_MOUNT,         VEHICLE_COLOSOS_MOUNT               },
-        { VEHICLE_THUNDER_BLUFF_CHAMPION,       VEHICLE_EXODAR_CHAMPION             },
+        { NPC_THUNDER_BLUFF_CHAMPION,           NPC_EXODAR_CHAMPION                 },
         { SAY_INTRO_SHAM_H,                     SAY_INTRO_SHAM_A                    },
         { NPC_RUNOK,                            NPC_COLOSOS                         },
         { SpectatorData[RACE_TAUREN],           SpectatorData[RACE_DRAENEI]         },
     },
     {
         { VEHICLE_ZUL_TORE_MOUNT,               VEHICLE_EVENSONG_MOUNT              },
-        { VEHICLE_SENJIN_CHAMPION,              VEHICLE_DARNASSUS_CHAMPION          },
+        { NPC_SEN_JIN_CHAMPION,                 NPC_DARNASSUS_CHAMPION              },
         { SAY_INTRO_HUN,                        SAY_INTRO_HUN                       },
         { NPC_ZULTORE,                          NPC_JAELYNE                         },
         { SpectatorData[RACE_TROLL],            SpectatorData[RACE_NIGHTELF]        },
     },
     {
         { VEHICLE_DEATHSTALKER_VESCERI_MOUNT,   VEHICLE_LANA_STOUTHAMMER_MOUNT      },
-        { VEHICLE_UNDERCITY_CHAMPION,           VEHICLE_IRONFORGE_CHAMPION          },
+        { NPC_UNDERCITY_CHAMPION,               NPC_IRONFORGE_CHAMPION              },
         { SAY_INTRO_ROG_H,                      SAY_INTRO_ROG_A                     },
         { NPC_VISCERI,                          NPC_LANA                            },
         { SpectatorData[RACE_UNDEAD_PLAYER],    SpectatorData[RACE_DWARF]           },
@@ -593,16 +593,11 @@ public:
             // Removing vehicles (if not already been removed)
             instance->SetData(DATA_REMOVE_VEHICLES, 0);
             // Cleaning chest from arena
-            if (instance->GetBossState(DATA_EADRIC_THE_PURE) == DONE)
-            {
-                if (GameObject* cache = instance->GetGameObject(DATA_EADRIC_S_CACHE))
-                    cache->Delete();
-            }
-            else if (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == DONE)
-            {
-                if (GameObject* cache = instance->GetGameObject(DATA_CONFESSOR_S_CACHE))
-                    cache->Delete();
-            }
+            if (GameObject* cache = instance->GetGameObject(DATA_EADRIC_S_CACHE))
+                cache->Delete();
+            else if (GameObject* cache = instance->GetGameObject(DATA_CONFESSOR_S_CACHE))
+                cache->Delete();
+
             NextStep(1000, 0, false, EVENT_STEP_FORWARD);
         }
 
@@ -635,10 +630,9 @@ public:
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             /// @todo: fix this ugly code
-            if (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED)
+            if (instance->GetBossState(DATA_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_BLACK_KNIGHT) == TO_BE_DECIDED)
             {
-                if ((instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED)
-                    && (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED))
+                if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CHALLENGE) == TO_BE_DECIDED)
                 {
                     // Starting Grand Champion event (with roleplaying)
                     if (startRp && (instance->GetBossState(DATA_GRAND_CHAMPIONS) == NOT_STARTED || instance->GetBossState(DATA_GRAND_CHAMPIONS) == TO_BE_DECIDED))
@@ -657,9 +651,7 @@ public:
                 }
 
                 // Starting Black Knight event
-                if (((instance->GetBossState(DATA_GRAND_CHAMPIONS) == DONE) &&
-                    ((instance->GetBossState(DATA_EADRIC_THE_PURE) == DONE) ||
-                    (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == DONE))))
+                if (instance->GetBossState(DATA_GRAND_CHAMPIONS) == DONE && instance->GetBossState(DATA_ARGENT_CHALLENGE) == DONE)
                     DoStartBlackKnight();
             }
         }
@@ -1120,13 +1112,13 @@ public:
                         break;
                     case EVENT_FACING_1:
                         // Announcer turns towards Black Knight
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             me->SetFacingToObject(knight);
                         NextStep(2000, eventId);
                         break;
                     case EVENT_CHAT_14:
                         // Announcer notifies everyone that something is near the rafters
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             Talk(SAY_INTRO_3, knight);
                         NextStep(1000, eventId);
                         break;
@@ -1144,7 +1136,7 @@ public:
                         break;
                     case EVENT_CHAT_15:
                         // Black Knight exits his vehicle and talks
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                         {
                             knight->AI()->Talk(SAY_KNIGHT_INTRO_1, me);
                             knight->ExitVehicle();
@@ -1155,7 +1147,7 @@ public:
                         break;
                     case EVENT_FACING_2:
                         // Black Knight corrects facing and we're stopping attacking
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             knight->SetFacingToObject(me);
                         me->AttackStop();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1163,7 +1155,7 @@ public:
                         break;
                     case EVENT_STUN_ANNOUNCER:
                         // Announcer gets strangulated
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             knight->CastSpell(me, SPELL_DEATHS_RESPITE);
                         NextStep(3000, eventId);
                         break;
@@ -1174,7 +1166,7 @@ public:
                         break;
                     case EVENT_KNOCK_ANNOUNCER:
                         // Announcer gets pushed to death and Black Knight's vehicle flies away
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             knight->CastSpell(me, SPELL_DEATHS_PUSH);
                         if (Creature* knightVehicle = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT_VEHICLE)))
                             knightVehicle->AI()->SetData(2, 0);
@@ -1183,7 +1175,7 @@ public:
                     case EVENT_CHAT_17:
                         // Black Knight moves to center
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                         {
                             knight->AI()->Talk(SAY_KNIGHT_INTRO_2, me);
                             knight->GetMotionMaster()->MovePoint(1, 747.21f, 622.75f, 411.42f);
@@ -1191,13 +1183,13 @@ public:
                         NextStep(14000, eventId);
                         break;
                     case EVENT_CHAT_18:
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                             knight->AI()->Talk(SAY_KNIGHT_INTRO_3, me);
                         NextStep(3000, eventId);
                         break;
                     case EVENT_AGGRO_2:
                         // Entering aggressive
-                        if (Creature* knight = instance->GetCreature(DATA_THE_BLACK_KNIGHT))
+                        if (Creature* knight = instance->GetCreature(DATA_BLACK_KNIGHT))
                         {
                             knight->SetWalk(false);
                             knight->SetHomePosition(knight->GetPosition());
@@ -1286,6 +1278,8 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
+        // @TODO: MOVE THIS HORRIBLE STUFF TO DB
+
         InstanceScript* instance = creature->GetInstanceScript();
         if (instance)
         {
@@ -1296,20 +1290,18 @@ public:
                 // you can't though do Grand Champions encounter more than once per instance ID
                 // other encounters you can do as many times as you like
                 if ((instance->GetBossState(DATA_GRAND_CHAMPIONS) == NOT_STARTED || instance->GetBossState(DATA_GRAND_CHAMPIONS) == TO_BE_DECIDED) &&
-                    (instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED) &&
-                    (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED) &&
-                    (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED))
+                    (instance->GetBossState(DATA_ARGENT_CHALLENGE) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CHALLENGE) == TO_BE_DECIDED) &&
+                    (instance->GetBossState(DATA_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_BLACK_KNIGHT) == TO_BE_DECIDED))
                 {
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, unskipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Grand Champions encounter, skipped roleplaying", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
-                if ((instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED) &&
-                    (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED))
+                if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CHALLENGE) == TO_BE_DECIDED)
                 {
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Eadric the Pure encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start Argent Confessor Paletress encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                 }
-                if (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED)
+                if (instance->GetBossState(DATA_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_BLACK_KNIGHT) == TO_BE_DECIDED)
                     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "[GM] Start The Black Knight encounter", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                 SendGossipMenuFor(player, 1, creature->GetGUID());
             }
@@ -1330,13 +1322,13 @@ public:
                 else
                     SendGossipMenuFor(player, GOSSIP_TEXT_UNMOUNTED_A, creature->GetGUID());
             }
-            else if (instance->GetBossState(DATA_GRAND_CHAMPIONS) == DONE && (instance->GetBossState(DATA_EADRIC_THE_PURE) == NOT_STARTED || instance->GetBossState(DATA_EADRIC_THE_PURE) == TO_BE_DECIDED) && (instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == TO_BE_DECIDED))
+            else if (instance->GetBossState(DATA_GRAND_CHAMPIONS) == DONE && (instance->GetBossState(DATA_ARGENT_CHALLENGE) == NOT_STARTED || instance->GetBossState(DATA_ARGENT_CHALLENGE) == TO_BE_DECIDED))
             {
                 // If Grand Champions encounter is done and Eadric the Pure nor Argent Confessor Paletress encounters have been started
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, GOSSIP_TEXT_SECOND_BOSS, creature->GetGUID());
             }
-            else if ((instance->GetBossState(DATA_EADRIC_THE_PURE) == DONE || instance->GetBossState(DATA_ARGENT_CONFESSOR_PALETRESS) == DONE) && (instance->GetBossState(DATA_THE_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_THE_BLACK_KNIGHT) == TO_BE_DECIDED))
+            else if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == DONE && (instance->GetBossState(DATA_BLACK_KNIGHT) == NOT_STARTED || instance->GetBossState(DATA_BLACK_KNIGHT) == TO_BE_DECIDED))
             {
                 // If Grand Champions, Eadric the Pure and Argent Confessor Paletress encounters are all done but Black Knight encounter has not been started
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
