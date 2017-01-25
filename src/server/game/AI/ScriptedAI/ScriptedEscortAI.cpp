@@ -339,7 +339,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
         CurrentWP = WaypointList.begin();
         m_uiWPWaitTimer = 1;
     }
-    else
+    else if (CurrentWP != WaypointList.end())
     {
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != pointId)
