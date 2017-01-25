@@ -1056,7 +1056,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
+        return GetBlackTempleAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1106,7 +1106,7 @@ public:
             return ScriptedAI::CanAIAttack(who);
         }
 
-        uint32 GetData(uint32 data) const override
+        uint32 GetData(uint32 /*data*/) const override
         {
             return _isTeleportToMinions ? 1 : 0;
         }
@@ -1380,7 +1380,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_akamaAI>(creature);
+        return GetBlackTempleAI<npc_akamaAI>(creature);
     }
 };
 
@@ -1434,7 +1434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
+        return GetBlackTempleAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 
@@ -1493,7 +1493,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_blade_of_azzinothAI>(creature);
+        return GetBlackTempleAI<npc_blade_of_azzinothAI>(creature);
     }
 };
 
@@ -1582,7 +1582,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_flame_of_azzinothAI>(creature);
+        return GetBlackTempleAI<npc_flame_of_azzinothAI>(creature);
     }
 };
 
@@ -1615,7 +1615,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_illidan_db_targetAI>(creature);
+        return GetBlackTempleAI<npc_illidan_db_targetAI>(creature);
     }
 };
 
@@ -1637,7 +1637,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_illidan_blazeAI>(creature);
+        return GetBlackTempleAI<npc_illidan_blazeAI>(creature);
     }
 };
 
@@ -1692,7 +1692,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_illidan_shadow_demonAI>(creature);
+        return GetBlackTempleAI<npc_illidan_shadow_demonAI>(creature);
     }
 };
 
@@ -1841,7 +1841,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_maievAI>(creature);
+        return GetBlackTempleAI<npc_maievAI>(creature);
     }
 };
 
@@ -1874,7 +1874,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_cage_trap_triggerAI>(creature);
+        return GetBlackTempleAI<npc_cage_trap_triggerAI>(creature);
     }
 };
 
@@ -2030,7 +2030,7 @@ class spell_illidan_throw_warglaive : public SpellScriptLoader
         {
             PrepareSpellScript(spell_illidan_throw_warglaive_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
                 target->m_Events.AddEvent(new SummonWarglaiveEvent(target), target->m_Events.CalculateTime(1000));
@@ -2376,29 +2376,29 @@ class spell_illidan_find_target : public SpellScriptLoader
 // 39908 - Eye Blast
 class spell_illidan_eye_blast : public SpellScriptLoader
 {
-public:
-    spell_illidan_eye_blast() : SpellScriptLoader("spell_illidan_eye_blast") { }
+    public:
+        spell_illidan_eye_blast() : SpellScriptLoader("spell_illidan_eye_blast") { }
 
-    class spell_illidan_eye_blast_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidan_eye_blast_AuraScript);
-
-        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        class spell_illidan_eye_blast_AuraScript : public AuraScript
         {
-            if (Creature* target = GetTarget()->ToCreature())
-                target->DespawnOrUnsummon();
-        }
+            PrepareAuraScript(spell_illidan_eye_blast_AuraScript);
 
-        void Register() override
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Creature* target = GetTarget()->ToCreature())
+                    target->DespawnOrUnsummon();
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_illidan_eye_blast_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_illidan_eye_blast_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            return new spell_illidan_eye_blast_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_illidan_eye_blast_AuraScript();
-    }
 };
 
 // 40761 - Cage Trap
@@ -2443,38 +2443,38 @@ class spell_illidan_cage_trap : public SpellScriptLoader
 // 40760 - Cage Trap
 class spell_illidan_caged : public SpellScriptLoader
 {
-public:
-    spell_illidan_caged() : SpellScriptLoader("spell_illidan_caged") { }
+    public:
+        spell_illidan_caged() : SpellScriptLoader("spell_illidan_caged") { }
 
-    class spell_illidan_caged_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_illidan_caged_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_illidan_caged_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CAGED_DEBUFF))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_illidan_caged_AuraScript);
 
-        void OnPeriodic(AuraEffect const* /*aurEff*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CAGED_DEBUFF))
+                    return false;
+                return true;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_CAGED_DEBUFF, true);
+                Remove();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_caged_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            PreventDefaultAction();
-            Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_CAGED_DEBUFF, true);
-            Remove();
+            return new spell_illidan_caged_AuraScript();
         }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_illidan_caged_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_illidan_caged_AuraScript();
-    }
 };
 
 // 40409 - Maiev Down
@@ -2546,29 +2546,29 @@ class spell_illidan_cage_teleport : public SpellScriptLoader
 // 41242 - Akama Despawn
 class spell_illidan_despawn_akama : public SpellScriptLoader
 {
-public:
-    spell_illidan_despawn_akama() : SpellScriptLoader("spell_illidan_despawn_akama") { }
+    public:
+        spell_illidan_despawn_akama() : SpellScriptLoader("spell_illidan_despawn_akama") { }
 
-    class spell_illidan_despawn_akama_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_illidan_despawn_akama_SpellScript);
-
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        class spell_illidan_despawn_akama_SpellScript : public SpellScript
         {
-            if (Creature* target = GetHitCreature())
-                target->DespawnOrUnsummon(Seconds(1));
-        }
+            PrepareSpellScript(spell_illidan_despawn_akama_SpellScript);
 
-        void Register() override
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* target = GetHitCreature())
+                    target->DespawnOrUnsummon(Seconds(1));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_illidan_despawn_akama_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_illidan_despawn_akama_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_illidan_despawn_akama_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_illidan_despawn_akama_SpellScript();
-    }
 };
 
 void AddSC_boss_illidan()
