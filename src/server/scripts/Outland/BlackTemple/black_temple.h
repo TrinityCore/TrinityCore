@@ -141,7 +141,7 @@ enum BlackTempleMisc
     AKAMA_INTRO                     = 1,
     AKAMA_FIGHT                     = 2,
     ACTION_ACTIVE_AKAMA_INTRO       = 3,
-    ACTION_OPEN_DOOR                = 4,
+    ACTION_OPEN_DOOR                = 4
 };
 
 template<class AI>

@@ -79,7 +79,6 @@ enum IllidanSay
 
 enum IllidanSpells
 {
-    SPELL_SUMMON_PARASITIC_SHADOWFIENDS = 41915,
     // Akama
     SPELL_AKAMA_DOOR_CHANNEL            = 41268,
     SPELL_AKAMA_DOOR_FAIL               = 41271,
