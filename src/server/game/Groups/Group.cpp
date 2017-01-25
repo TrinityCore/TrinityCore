@@ -1626,7 +1626,7 @@ DynamicObject* Group::GetMarkerGuidBySpell(uint32 spell)
     {
         for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end(); ++i)
         {
-            DynamicObject* dynObj = ObjectAccessor::GetObjectInWorld(*i, (DynamicObject*)NULL);
+            DynamicObject* dynObj = ObjectAccessor::GetDynamicObject((DynamicObject*)NULL, *i);
             if (!dynObj)
                 continue;
 
