@@ -53,6 +53,12 @@ INSERT INTO `spell_script_names` VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=67751 AND `ScriptName`='spell_black_knight_ghoul_explode';
 INSERT INTO `spell_script_names` VALUES (67751,'spell_black_knight_ghoul_explode');
 
+-- Adding difficulty entries
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (36176,34941);
+INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`, `spellid2`, `spellid3`) VALUES
+(36176,36176,67289,0,0),
+(34941,34941,34942,0,0);
+
 -- Eadric and Paletress should not drop item 47197 in heroic mode
 -- it drops only from Eadric in normal mode
 -- Also item 47947 was missing from Eadric and Paletress in heroic mode
@@ -260,6 +266,11 @@ SET @CRITERIA_MAGE_H := 12543;
 SET @CRITERIA_ROGUE_H := 12545;
 SET @CRITERIA_SHAMAN_H := 12547;
 
+-- The Faceroller achievement
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=11858 AND `type`=11;
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `ScriptName`) VALUES
+(11858, 11, 'achievement_eadric_faceroller');
+
 -- These criterias are missing creature checks
 DELETE FROM `achievement_criteria_data` WHERE `type`=1 AND `criteria_id` IN (@CRITERIA_JACOB,@CRITERIA_LANA,@CRITERIA_COLOSOS,@CRITERIA_AMBROSE,@CRITERIA_JAELYNE,@CRITERIA_MOKRA,@CRITERIA_VISCERI,@CRITERIA_RUNOK,@CRITERIA_ERESSEA,@CRITERIA_ZULTORE,@CRITERIA_JACOB_H,@CRITERIA_LANA_H,@CRITERIA_COLOSOS_H,@CRITERIA_AMBROSE_H,@CRITERIA_JAELYNE_H,@CRITERIA_MOKRA_H,@CRITERIA_VISCERI_H,@CRITERIA_RUNOK_H,@CRITERIA_ERESSEA_H,@CRITERIA_ZULTORE_H);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
@@ -331,6 +342,11 @@ INSERT INTO `creature_onkill_reputation` VALUES
 -- Scriptname for Argent Priestess' Fountain of Light
 UPDATE `creature_template` SET `ScriptName`='npc_fountain_of_light' WHERE `entry`=35311;
 
+-- Adding aura 'Light Rain' (no SPELL_CAST found in sniff)
+DELETE FROM `creature_template_addon` WHERE `entry`=35311;
+INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
+(35311, '67196');
+
 -- Achievement criteria data
 -- for achievement id 3802
 
@@ -362,32 +378,32 @@ SET @CRITERIA_VEZAX := 11926;
 SET @CRITERIA_ALGALON := 11927;
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (@CRITERIA_HOGGER,@CRITERIA_VANCLEEF,@CRITERIA_MUTANUS,@CRITERIA_HEROD,@CRITERIA_LUCIFRON,@CRITERIA_THUNDERAAN,@CRITERIA_CHROMAGGUS,@CRITERIA_HAKKAR,@CRITERIA_VEKNILASH,@CRITERIA_KALITHRESH,@CRITERIA_MALCHEZAAR,@CRITERIA_GRUUL,@CRITERIA_VASHJ,@CRITERIA_ARCHIMONDE,@CRITERIA_ILLIDAN,@CRITERIA_DELRISSA,@CRITERIA_MURU,@CRITERIA_INGVAR,@CRITERIA_CYANIGOSA,@CRITERIA_ECK,@CRITERIA_ONYXIA,@CRITERIA_HEIGAN,@CRITERIA_IGNIS,@CRITERIA_VEZAX,@CRITERIA_ALGALON);
-INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`) VALUES
-(@CRITERIA_HOGGER,1,34942),
-(@CRITERIA_VANCLEEF,1,35028),
-(@CRITERIA_MUTANUS,1,35029),
-(@CRITERIA_HEROD,1,35030),
-(@CRITERIA_LUCIFRON,1,35031),
-(@CRITERIA_THUNDERAAN,1,35032),
-(@CRITERIA_CHROMAGGUS,1,35033),
-(@CRITERIA_HAKKAR,1,35034),
-(@CRITERIA_VEKNILASH,1,35036),
-(@CRITERIA_KALITHRESH,1,35037),
-(@CRITERIA_MALCHEZAAR,1,35038),
-(@CRITERIA_GRUUL,1,35039),
-(@CRITERIA_VASHJ,1,35040),
-(@CRITERIA_ARCHIMONDE,1,35041),
-(@CRITERIA_ILLIDAN,1,35042),
-(@CRITERIA_DELRISSA,1,35043),
-(@CRITERIA_MURU,1,35044),
-(@CRITERIA_INGVAR,1,35045),
-(@CRITERIA_CYANIGOSA,1,35046),
-(@CRITERIA_ECK,1,35047),
-(@CRITERIA_ONYXIA,1,35048),
-(@CRITERIA_HEIGAN,1,35049),
-(@CRITERIA_IGNIS,1,35050),
-(@CRITERIA_VEZAX,1,35051),
-(@CRITERIA_ALGALON,1,35052);
+INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`ScriptName`) VALUES
+(@CRITERIA_HOGGER,11,'achievement_argent_confessor_hogger'),
+(@CRITERIA_VANCLEEF,11,'achievement_argent_confessor_vancleef'),
+(@CRITERIA_MUTANUS,11,'achievement_argent_confessor_mutanus'),
+(@CRITERIA_HEROD,11,'achievement_argent_confessor_herod'),
+(@CRITERIA_LUCIFRON,11,'achievement_argent_confessor_lucifron'),
+(@CRITERIA_THUNDERAAN,11,'achievement_argent_confessor_thunderaan'),
+(@CRITERIA_CHROMAGGUS,11,'achievement_argent_confessor_chromaggus'),
+(@CRITERIA_HAKKAR,11,'achievement_argent_confessor_hakkar'),
+(@CRITERIA_VEKNILASH,11,'achievement_argent_confessor_veknilash'),
+(@CRITERIA_KALITHRESH,11,'achievement_argent_confessor_kalithresh'),
+(@CRITERIA_MALCHEZAAR,11,'achievement_argent_confessor_malchezaar'),
+(@CRITERIA_GRUUL,11,'achievement_argent_confessor_gruul'),
+(@CRITERIA_VASHJ,11,'achievement_argent_confessor_vashj'),
+(@CRITERIA_ARCHIMONDE,11,'achievement_argent_confessor_archimonde'),
+(@CRITERIA_ILLIDAN,11,'achievement_argent_confessor_illidan'),
+(@CRITERIA_DELRISSA,11,'achievement_argent_confessor_delrissa'),
+(@CRITERIA_MURU,11,'achievement_argent_confessor_muru'),
+(@CRITERIA_INGVAR,11,'achievement_argent_confessor_ingvar'),
+(@CRITERIA_CYANIGOSA,11,'achievement_argent_confessor_cyanigosa'),
+(@CRITERIA_ECK,11,'achievement_argent_confessor_eck'),
+(@CRITERIA_ONYXIA,11,'achievement_argent_confessor_onyxia'),
+(@CRITERIA_HEIGAN,11,'achievement_argent_confessor_heigan'),
+(@CRITERIA_IGNIS,11,'achievement_argent_confessor_ignis'),
+(@CRITERIA_VEZAX,11,'achievement_argent_confessor_vezax'),
+(@CRITERIA_ALGALON,11,'achievement_argent_confessor_algalon');
 
 -- Correcting Paletress' speed values on heroic mode
 UPDATE `creature_template` SET `speed_walk`=2,`speed_run`=1.42857 WHERE `entry`=35517;
