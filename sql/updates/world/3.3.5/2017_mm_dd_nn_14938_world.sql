@@ -218,8 +218,8 @@ SET @LANA_H := 36087;
 UPDATE `creature_template` SET `unit_flags`=33024 WHERE `entry` IN (@MOKRA,@ERESSEA,@RUNOK,@ZULTORE,@VISCERI,@JACOB,@AMBROSE,@COLOSOS,@JAELYNE,@LANA,@MOKRA_H,@ERESSEA_H,@RUNOK_H,@ZULTORE_H,@VISCERI_H,@JACOB_H,@AMBROSE_H,@COLOSOS_H,@JAELYNE_H,@LANA_H);
 
 -- Rogue Champion's Deadly Poison should have 5 second internal cooldown
-DELETE FROM `spell_proc_event` WHERE `entry`=67711;
-INSERT INTO `spell_proc_event` (`entry`,`Cooldown`) VALUES (67711,5);
+DELETE FROM `spell_proc` WHERE `SpellId`=67711;
+INSERT INTO `spell_proc` (`SpellId`,`Cooldown`) VALUES (67711,5);
 -- Rogue Champion's Fan of Knives should also trigger Deadly Poison on each target
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=67706;
 INSERT INTO `spell_linked_spell` VALUES (67706,67710,1,'Rogue Champion - Trigger Deadly Poison on Fan of Knives');
@@ -404,8 +404,8 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=650854271 WHERE `entry` IN
 
 -- Eadric' Vengeance spell should have internal cooldown and procChance
 -- Proc spell should properly be removed on successful melee crit
-DELETE FROM `spell_proc_event` WHERE `entry` IN (66865,66889);
-INSERT INTO `spell_proc_event` (`entry`,`procFlags`,`procEx`,`CustomChance`,`Cooldown`) VALUES
+DELETE FROM `spell_proc` WHERE `SpellId` IN (66865,66889);
+INSERT INTO `spell_proc` (`SpellId`,`ProcFlags`,`HitMask`,`Chance`,`Cooldown`) VALUES 
 (66865,4,0,20,10),
 (66889,4,2,0,0);
 -- Also the proc spell of Vengeance should not remove original aura
