@@ -47,7 +47,8 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
-    SPELL_DK_DEATH_GRIP                         = 49560,
+    SPELL_DK_DEATH_GRIP_ALL_EFFECTS             = 49560,
+    SPELL_DK_DEATH_GRIP_TAUNT_ONLY              = 51399,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48263,
@@ -937,7 +938,7 @@ class spell_dk_death_gate : public SpellScriptLoader
         }
 };
 
-// 49560 - Death Grip
+// 49560 - Death Grip (second part)
 class spell_dk_death_grip : public SpellScriptLoader
 {
     public:
@@ -949,12 +950,12 @@ class spell_dk_death_grip : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
+                int32 spellId = GetEffectValue(); // should return 49575.
                 Position const* pos = GetExplTargetDest();
                 if (Unit* target = GetHitUnit())
                 {
                     if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
+                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), spellId, true, nullptr, nullptr, GetCaster()->GetGUID());
                 }
             }
 
@@ -2704,7 +2705,21 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP, true);
+            if (IsTargetPermaImmuneToPullComponent(GetHitUnit()))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP_TAUNT_ONLY, true, nullptr, nullptr, GetCaster()->GetGUID());
+            else
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_DEATH_GRIP_ALL_EFFECTS, true, nullptr, nullptr, GetCaster()->GetGUID());
+        }
+
+        bool IsTargetPermaImmuneToPullComponent(Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (target->ToCreature() && target->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PULL_BY_GRIP)
+                return true;
+            else
+                return false;
         }
 
         void Register() override
