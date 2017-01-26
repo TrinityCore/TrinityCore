@@ -4202,33 +4202,33 @@ void Spell::EffectSummonDynObj(SpellEffIndex effIndex)
 
 void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
 {
-	if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
-		return;
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
 
-	Player* player = m_caster->ToPlayer();
-	if (!player)
-		return;
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
 
-	Group* group = player->GetGroup();
-	if (!group)
-		return;
+    Group* group = player->GetGroup();
+    if (!group)
+        return;
 
-	uint32 slotMask = 1 << m_spellInfo->Effects[effIndex].BasePoints;
+    uint32 slotMask = 1 << m_spellInfo->Effects[effIndex].BasePoints;
 
-	float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-	DynamicObject* dynObj = new DynamicObject(false);
+    float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+    DynamicObject* dynObj = new DynamicObject(false);
     if (!dynObj->CreateDynamicObject(m_caster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), m_caster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_RAID_MARKER))
-	{
-		delete dynObj;
-		return;
-	}
+    {
+        delete dynObj;
+        return;
+    }
 
     group->AddMarkerToList(dynObj);
-	group->AddGroupMarkerMask(slotMask);
-	group->SendRaidMarkerUpdate();
+    group->AddGroupMarkerMask(slotMask);
+    group->SendRaidMarkerUpdate();
 
-	int32 duration = m_spellInfo->GetDuration();
-	dynObj->SetDuration(duration);
+    int32 duration = m_spellInfo->GetDuration();
+    dynObj->SetDuration(duration);
 }
 
 void Spell::EffectResurrect(SpellEffIndex effIndex)
