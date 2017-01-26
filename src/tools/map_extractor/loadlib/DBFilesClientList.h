@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -401,6 +401,7 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\QuestV2.db2",
     "DBFilesClient\\QuestV2CliTask.db2",
     "DBFilesClient\\QuestXP.db2",
+    "DBFilesClient\\QuestXGroupActivity.db2",
     "DBFilesClient\\RacialMounts.db2",
     "DBFilesClient\\RandPropPoints.db2",
     "DBFilesClient\\ResearchBranch.db2",
@@ -560,9 +561,7 @@ char const* DBFilesClientList[] =
     "DBFilesClient\\VocalUISounds.db2",
     "DBFilesClient\\WMOAreaTable.db2",
     "DBFilesClient\\WbAccessControlList.db2",
-    "DBFilesClient\\WbCertBlacklist.db2",
     "DBFilesClient\\WbCertWhitelist.db2",
-    "DBFilesClient\\WbPermissions.db2",
     "DBFilesClient\\WeaponImpactSounds.db2",
     "DBFilesClient\\WeaponSwingSounds2.db2",
     "DBFilesClient\\WeaponTrail.db2",

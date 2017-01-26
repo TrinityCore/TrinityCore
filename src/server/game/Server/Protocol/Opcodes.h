@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -154,6 +154,7 @@ enum OpcodeClient : uint32
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x34EA,
     CMSG_CANCEL_TRADE                                 = 0x315C,
     CMSG_CAN_DUEL                                     = 0x3665,
+    CMSG_CAN_REDEEM_WOW_TOKEN_FOR_BALANCE             = 0x3707,
     CMSG_CAST_SPELL                                   = 0x3278,
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0x308F,
     CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS             = 0x308E,
@@ -1470,6 +1471,7 @@ enum OpcodeServer : uint32
     SMSG_QUEST_POI_CHANGED                            = 0x2A9E,
     SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x2A9B,
     SMSG_QUEST_PUSH_RESULT                            = 0x2A8F,
+    SMSG_QUEST_SPAWN_TRACKING_UPDATE                  = 0x2A9D,
     SMSG_QUEST_UNIGNORED                              = 0x2AA0,
     SMSG_QUEST_UPDATE_ADD_CREDIT                      = 0x2A8B,
     SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE               = 0x2A8C,
@@ -1698,6 +1700,7 @@ enum OpcodeServer : uint32
     SMSG_WOW_TOKEN_AUCTION_SOLD                       = 0x2811,
     SMSG_WOW_TOKEN_BUY_REQUEST_CONFIRMATION           = 0x2813,
     SMSG_WOW_TOKEN_BUY_RESULT_CONFIRMATION            = 0x2814,
+    SMSG_WOW_TOKEN_CAN_REDEEM_FOR_BALANCE_RESULT      = 0x2848,
     SMSG_WOW_TOKEN_CAN_VETERAN_BUY_RESULT             = 0x2812,
     SMSG_WOW_TOKEN_DISTRIBUTION_GLUE_UPDATE           = 0x280C,
     SMSG_WOW_TOKEN_DISTRIBUTION_UPDATE                = 0x280D,

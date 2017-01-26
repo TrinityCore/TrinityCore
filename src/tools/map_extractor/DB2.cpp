@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,7 +41,7 @@ DB2FileLoader::DB2FileLoader()
     fields = nullptr;
 }
 
-bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
+bool DB2FileLoader::Load(CASC::FileHandle const& db2Handle, DB2Meta const* meta_)
 {
     if (data)
     {
@@ -50,9 +50,9 @@ bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
     }
 
     DWORD bytesRead = 0;
-    this->meta = meta;
+    meta = meta_;
     std::uint32_t header;
-    CascReadFile(db2Handle, &header, sizeof(header), &bytesRead);
+    CASC::ReadFile(db2Handle, &header, sizeof(header), &bytesRead);
     if (bytesRead != sizeof(header))                        // Signature
         return false;
 
@@ -61,37 +61,37 @@ bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
     if (header != 0x35424457)
         return false;                                       //'WDB5'
 
-    CascReadFile(db2Handle, &recordCount, sizeof(recordCount), &bytesRead);
+    CASC::ReadFile(db2Handle, &recordCount, sizeof(recordCount), &bytesRead);
     if (bytesRead != sizeof(recordCount))                   // Number of records
         return false;
 
     EndianConvert(recordCount);
 
-    CascReadFile(db2Handle, &fieldCount, sizeof(fieldCount), &bytesRead);
+    CASC::ReadFile(db2Handle, &fieldCount, sizeof(fieldCount), &bytesRead);
     if (bytesRead != sizeof(fieldCount))                    // Number of fields
         return false;
 
     EndianConvert(fieldCount);
 
-    CascReadFile(db2Handle, &recordSize, sizeof(recordSize), &bytesRead);
+    CASC::ReadFile(db2Handle, &recordSize, sizeof(recordSize), &bytesRead);
     if (bytesRead != sizeof(recordSize))                    // Size of a record
         return false;
 
     EndianConvert(recordSize);
 
-    CascReadFile(db2Handle, &stringSize, sizeof(stringSize), &bytesRead);
+    CASC::ReadFile(db2Handle, &stringSize, sizeof(stringSize), &bytesRead);
     if (bytesRead != sizeof(stringSize))                    // String size
         return false;
 
     EndianConvert(stringSize);
 
-    CascReadFile(db2Handle, &tableHash, sizeof(tableHash), &bytesRead);
+    CASC::ReadFile(db2Handle, &tableHash, sizeof(tableHash), &bytesRead);
     if (bytesRead != sizeof(tableHash))                     // Table hash
         return false;
 
     EndianConvert(tableHash);
 
-    CascReadFile(db2Handle, &layoutHash, sizeof(layoutHash), &bytesRead);
+    CASC::ReadFile(db2Handle, &layoutHash, sizeof(layoutHash), &bytesRead);
     if (bytesRead != sizeof(layoutHash))                    // Layout hash
         return false;
 
@@ -100,41 +100,41 @@ bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
 
     EndianConvert(layoutHash);
 
-    CascReadFile(db2Handle, &minIndex, sizeof(minIndex), &bytesRead);
+    CASC::ReadFile(db2Handle, &minIndex, sizeof(minIndex), &bytesRead);
     if (bytesRead != sizeof(minIndex))                      // MinIndex WDB2
         return false;
 
     EndianConvert(minIndex);
 
-    CascReadFile(db2Handle, &maxIndex, sizeof(maxIndex), &bytesRead);
+    CASC::ReadFile(db2Handle, &maxIndex, sizeof(maxIndex), &bytesRead);
     if (bytesRead != sizeof(maxIndex))                      // MaxIndex WDB2
         return false;
 
     EndianConvert(maxIndex);
 
-    CascReadFile(db2Handle, &localeMask, sizeof(localeMask), &bytesRead);
+    CASC::ReadFile(db2Handle, &localeMask, sizeof(localeMask), &bytesRead);
     if (bytesRead != sizeof(localeMask))                    // Locales
         return false;
 
     EndianConvert(localeMask);
 
-    CascReadFile(db2Handle, &copyIdSize, sizeof(copyIdSize), &bytesRead);
+    CASC::ReadFile(db2Handle, &copyIdSize, sizeof(copyIdSize), &bytesRead);
     if (bytesRead != sizeof(copyIdSize))
         return false;
 
     EndianConvert(copyIdSize);
 
-    CascReadFile(db2Handle, &metaFlags, sizeof(metaFlags), &bytesRead);
+    CASC::ReadFile(db2Handle, &metaFlags, sizeof(metaFlags), &bytesRead);
     if (bytesRead != sizeof(metaFlags))
         return false;
 
     EndianConvert(metaFlags);
 
     ASSERT((metaFlags & 0x1) == 0);
-    ASSERT((meta->IndexField == -1) || (meta->IndexField == (metaFlags >> 16)));
+    ASSERT((meta->IndexField == -1) || (meta->IndexField == int32((metaFlags >> 16))));
 
     fields = new FieldEntry[fieldCount];
-    CascReadFile(db2Handle, fields, fieldCount * sizeof(FieldEntry), &bytesRead);
+    CASC::ReadFile(db2Handle, fields, fieldCount * sizeof(FieldEntry), &bytesRead);
     if (bytesRead != fieldCount * sizeof(FieldEntry))
         return false;
 
@@ -144,14 +144,14 @@ bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
     data = new unsigned char[recordSize * recordCount + stringSize];
     stringTable = data + recordSize * recordCount;
 
-    CascReadFile(db2Handle, data, recordSize * recordCount + stringSize, &bytesRead);
+    CASC::ReadFile(db2Handle, data, recordSize * recordCount + stringSize, &bytesRead);
     if (bytesRead != recordSize * recordCount + stringSize)
         return false;
 
     if (idTableSize)
     {
         idTable = new unsigned char[idTableSize];
-        CascReadFile(db2Handle, idTable, idTableSize, &bytesRead);
+        CASC::ReadFile(db2Handle, idTable, idTableSize, &bytesRead);
         if (bytesRead != idTableSize)
             return false;
     }
@@ -159,7 +159,7 @@ bool DB2FileLoader::Load(HANDLE db2Handle, DB2Meta const* meta)
     if (copyIdSize)
     {
         copyTable = new unsigned char[copyIdSize];
-        CascReadFile(db2Handle, copyTable, copyIdSize, &bytesRead);
+        CASC::ReadFile(db2Handle, copyTable, copyIdSize, &bytesRead);
         if (bytesRead != copyIdSize)
             return false;
     }
