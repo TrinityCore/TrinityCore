@@ -214,8 +214,8 @@ class TC_GAME_API Group
         uint32 GetMarkerMask() { return m_markerMask; }
 
         DynamicObject* GetMarkerGuidBySpell(uint32 spell);
-        void   AddMarkerToList(ObjectGuid guid) { m_dynObj.push_back(guid); }
-        void   RemoveMarkerFromList(ObjectGuid guid) { m_dynObj.remove(guid); }
+        void   AddMarkerToList(DynamicObject* dynObj) { m_dynObj.push_back(dynObj); }
+        void   RemoveMarkerFromList(DynamicObject* dynObj) { m_dynObj.remove(dynObj); }
         void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
         void   RemoveMarker();
 
@@ -380,7 +380,7 @@ class TC_GAME_API Group
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
 
-        typedef std::list<uint64> DynObjectList;
+        typedef std::list<DynamicObject*> DynObjectList;
         DynObjectList m_dynObj;
 };
 #endif

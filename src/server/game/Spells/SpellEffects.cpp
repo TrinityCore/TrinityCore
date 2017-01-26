@@ -4223,7 +4223,7 @@ void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
 		return;
 	}
 
-	group->AddMarkerToList(dynObj->GetGUID());
+    group->AddMarkerToList(dynObj);
 	group->AddGroupMarkerMask(slotMask);
 	group->SendRaidMarkerUpdate();
 

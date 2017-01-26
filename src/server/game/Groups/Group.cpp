@@ -1626,11 +1626,8 @@ DynamicObject* Group::GetMarkerGuidBySpell(uint32 spell)
     {
         for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end(); ++i)
         {
-            DynamicObject* dynObj = ObjectAccessor::GetObjectInWorld(*i, (DynamicObject*)NULL);
-            if (!dynObj)
-                continue;
-
-            if (dynObj->GetEntry() == spell)
+            DynamicObject* dynObj = *i;
+            if (dynObj && dynObj->GetEntry() == spell)
                 return dynObj;
         }
     }
@@ -1652,7 +1649,7 @@ void Group::RemoveMarker()
         if (!dynObject)
             continue;
 
-        RemoveMarkerFromList(dynObject->GetGUID());
+        RemoveMarkerFromList(dynObject);
         dynObject->RemoveFromWorld();
     }
 }
