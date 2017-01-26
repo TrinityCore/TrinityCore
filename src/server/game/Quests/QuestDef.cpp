@@ -229,7 +229,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
     {
         uint32 questLevel = uint32(Level == -1 ? playerLevel : Level);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
-        if (!questXp || RewardXPDifficulty > 10)
+        if (!questXp || RewardXPDifficulty >= 10)
             return 0;
 
         float multiplier = 1.0f;
