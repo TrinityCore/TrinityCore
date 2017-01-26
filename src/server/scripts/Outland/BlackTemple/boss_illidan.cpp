@@ -309,7 +309,7 @@ enum IllidanEvents
     EVENT_PARASITIC_SHADOWFIEND,
     EVENT_MINIONS_WEAVE,
     EVENT_MOVE_TO_WARGLAIVE_POINT,
-    EVENT_FACE_GLAIVE_TARGET,
+    EVENT_FACE_MIDDLE,
     EVENT_FLY,
     EVENT_THROW_WARGLAIVE,
     EVENT_THROW_WARGLAIVE_2,
@@ -464,7 +464,7 @@ public:
             me->LoadEquipment(1, true);
             me->SetSheath(SHEATH_STATE_UNARMED);
             me->SetControlled(false, UNIT_STATE_ROOT);
-            me->SetHover(false);
+            me->SetDisableGravity(false);
             _dead = false;
             _minionsCount = 0;
             _flameCount = 0;
@@ -614,7 +614,7 @@ public:
                     me->AttackStop();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                    me->SetHover(true);
+                    me->SetDisableGravity(true);
                     DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
                     events.ScheduleEvent(EVENT_FLY, Seconds(1), GROUP_PHASE_ALL);
                     events.CancelEventGroup(GROUP_PHASE_1);
@@ -679,7 +679,7 @@ public:
                 case POINT_THROW_GLAIVE:
                     DoPlaySoundToSet(me, ILLIDAN_WARGLAIVE_SOUND_ID);
                     events.ScheduleEvent(EVENT_THROW_WARGLAIVE, Seconds(2), GROUP_PHASE_ALL);
-                    events.ScheduleEvent(EVENT_FACE_GLAIVE_TARGET, Milliseconds(1), GROUP_PHASE_ALL);
+                    events.ScheduleEvent(EVENT_FACE_MIDDLE, Milliseconds(1), GROUP_PHASE_ALL);
                     break;
                 case POINT_RANDOM_PILLAR:
                     ScheduleEvents(GROUP_PHASE_2, GROUP_PHASE_2);
@@ -901,10 +901,12 @@ public:
                         events.Repeat(Seconds(30));
                         break;
                     }
-                    case EVENT_FACE_GLAIVE_TARGET:
-                        if (Unit* target = me->FindNearestCreature(NPC_GLAIVE_TARGET, 100.0f))
-                            me->SetFacingToObject(target, true);
+                    case EVENT_FACE_MIDDLE:
+                    {
+                        float angle = me->GetAngle(IllidanMiddlePoint);
+                        me->SetFacingTo(angle, true);
                         break;
+                    }
                     case EVENT_EYE_BLAST:
                     {
                         events.CancelEvent(EVENT_DARK_BARRAGE);
@@ -933,7 +935,7 @@ public:
                         events.Repeat(Seconds(2), Seconds(4));
                         break;
                     case EVENT_GLAIVE_EMOTE:
-                        me->SetHover(false);
+                        me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         me->SetSheath(SHEATH_STATE_MELEE);
                         events.ScheduleEvent(EVENT_RESUME_COMBAT, Seconds(3), GROUP_PHASE_ALL);
