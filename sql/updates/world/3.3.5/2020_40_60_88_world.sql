@@ -29,7 +29,6 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 UPDATE `creature_template` SET `scale`=1 WHERE `entry`=23412; -- Door Trigger
 UPDATE `creature_template` SET `speed_walk`=1, `speed_run`=2, `unit_flags2`=2099200 WHERE `entry`=22917; -- Illidan Stormrage
 UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128 WHERE `entry`=23336; -- Flame Crash
-UPDATE `creature_template` SET `ScriptName`='npc_illidan_blaze' WHERE `entry`=23259;
 UPDATE `creature_template` SET `speed_walk`=0.35, `speed_run`=0.347222, `flags_extra`=128, `ScriptName`='npc_illidan_db_target' WHERE `entry`=23070;
 UPDATE `creature_template` SET `speed_walk`=1.6, `speed_run`=0.571429 WHERE `entry`=23375; -- Shadow Demon
 UPDATE `creature_template` SET `ScriptName`='npc_maiev' WHERE `entry`=23197;
@@ -37,6 +36,14 @@ UPDATE `creature_template` SET `ScriptName`='npc_maiev' WHERE `entry`=23197;
 UPDATE `gameobject_template_addon` SET `faction`=1375, `flags`=32 WHERE `entry`=185916;
 UPDATE `gameobject_template` SET `ScriptName`='' WHERE `entry`=185916;
 
+-- Blaze SAI
+SET @ENTRY := 23259;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(@ENTRY,0,0,0,25,0,100,1,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Blaze - On Reset - Set Reactstate Passive (No Repeat)"),
+(@ENTRY,0,1,0,25,0,100,0,0,0,0,0,11,40610,2,0,0,0,0,1,0,0,0,0,0,0,0,"Blaze - On Reset - Cast 'Blaze'"),
+(@ENTRY,0,3,0,25,0,100,0,0,0,0,0,11,40031,2,0,0,0,0,1,0,0,0,0,0,0,0,"Blaze - On Reset - Cast 'Birth - No Visual (Instant Spawn)'");
 
 DELETE FROM `creature_addon` WHERE `guid`=52484; -- Illidan
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES

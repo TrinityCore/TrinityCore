@@ -215,6 +215,7 @@ enum IllidanActions
     ACTION_START_PHASE_4,
     ACTION_ILLIDAN_CAGED,
     ACTION_START_OUTRO,
+    ACTION_MAIEV_DOWN_FADE
 };
 
 enum IllidanPhases
@@ -224,7 +225,7 @@ enum IllidanPhases
     PHASE_MINIONS,
     PHASE_2,
     PHASE_3,
-    PHASE_4,
+    PHASE_4
 };
 
 enum IllidanSplineMovement
@@ -261,7 +262,7 @@ enum IllidanEventGroup
     GROUP_PHASE_2,
     GROUP_PHASE_3,
     GROUP_PHASE_DEMON,
-    GROUP_PHASE_4,
+    GROUP_PHASE_4
 };
 
 enum IllidanEvents
@@ -741,19 +742,16 @@ public:
                         maiev->AI()->DoAction(ACTION_START_OUTRO);
                 }
             }
-
             else if (me->HealthBelowPct(90) && _phase < PHASE_MINIONS)
             {
                 _phase = PHASE_MINIONS;
                 DoAction(ACTION_START_MINIONS);
             }
-
             else if (me->HealthBelowPct(65) && _phase < PHASE_2)
             {
                 _phase = PHASE_2;
                 DoAction(ACTION_START_PHASE_2);
             }
-
             else if (me->HealthBelowPct(30) && _phase < PHASE_4)
             {
                 _phase = PHASE_4;
@@ -923,7 +921,6 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
                             DoCast(target, SPELL_DARK_BARRAGE);
-
                         events.RescheduleEvent(EVENT_EYE_BLAST, Seconds(5), GROUP_PHASE_2);
                         uint32 currentTime = events.GetNextEventTime(EVENT_FLY_TO_RANDOM_PILLAR);
                         events.RescheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(currentTime) + Seconds(30), GROUP_PHASE_2);
@@ -1104,7 +1101,6 @@ public:
         {
             if (_events.IsInPhase(PHASE_MINIONS) && who->GetEntry() == NPC_ILLIDAN_STORMRAGE)
                 return false;
-
             return ScriptedAI::CanAIAttack(who);
         }
 
@@ -1405,9 +1401,7 @@ public:
 
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 illidan->AI()->JustSummoned(me);
-
             me->SetReactState(REACT_DEFENSIVE);
-
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -1459,15 +1453,12 @@ public:
 
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 illidan->AI()->JustSummoned(me);
-
             _flameGuid.Clear();
             me->PlayDirectSound(WARGLAIVE_SPAWN_SOUND_ID);
             DoCastSelf(SPELL_BIRTH, true);
-
             _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
             {
                 DoCastSelf(SPELL_SUMMON_TEAR_OF_AZZINOTH);
-
                 _scheduler.Schedule(Milliseconds(500), [this](TaskContext /*context*/)
                 {
                     if (Creature* flame = ObjectAccessor::GetCreature(*me, _flameGuid))
@@ -1521,7 +1512,6 @@ public:
 
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 illidan->AI()->JustSummoned(me);
-
             DoCastSelf(SPELL_FLAME_TEAR_OF_AZZINOTH, true); // Idk what this spell should do
             me->SetReactState(REACT_PASSIVE);
             _events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
@@ -1621,28 +1611,6 @@ public:
     }
 };
 
-class npc_illidan_blaze : public CreatureScript
-{
-public:
-    npc_illidan_blaze() : CreatureScript("npc_illidan_blaze") { }
-
-    struct npc_illidan_blazeAI : public PassiveAI
-    {
-        npc_illidan_blazeAI(Creature* creature) : PassiveAI(creature) { }
-
-        void Reset() override
-        {
-            DoCastSelf(SPELL_BLAZE);
-            DoCastSelf(SPELL_BIRTH);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackTempleAI<npc_illidan_blazeAI>(creature);
-    }
-};
-
 class npc_illidan_shadow_demon : public CreatureScript
 {
 public:
@@ -1654,16 +1622,20 @@ public:
 
         void Reset() override
         {
+            if (_instance->GetBossState(DATA_ILLIDAN_STORMRAGE) != IN_PROGRESS)
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
+
             DoCastSelf(SPELL_SHADOW_DEMON_PASSIVE);
             DoCastSelf(SPELL_FIND_TARGET);
-
             _scheduler.Schedule(Seconds(1), [this](TaskContext checkTarget)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                 {
                     if (!target->IsAlive())
                         DoCastSelf(SPELL_FIND_TARGET);
-
                     else if (me->IsWithinMeleeRange(target))
                     {
                         me->InterruptNonMeleeSpells(false);
@@ -1705,7 +1677,7 @@ public:
 
     struct npc_maievAI : public ScriptedAI
     {
-        npc_maievAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+        npc_maievAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _canDown(true) { }
 
         void Reset() override
         {
@@ -1717,6 +1689,7 @@ public:
             _events.ScheduleEvent(EVENT_MAIEV_EXCLAMATION, Seconds(2));
             _events.ScheduleEvent(EVENT_MAIEV_JUSTICE_TEXT, Seconds(14));
             _events.ScheduleEvent(EVENT_TAUNT, Seconds(20), Seconds(60));
+            _canDown = true;
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -1739,13 +1712,16 @@ public:
                 Talk(SAY_MAIEV_SHADOWSONG_FINISHED);
                 _events.ScheduleEvent(EVENT_MAIEV_OUTRO_TEXT, Seconds(28));
             }
+            else if (actionId == ACTION_MAIEV_DOWN_FADE)
+                _canDown = true;
         }
 
         void DamageTaken(Unit* /*who*/, uint32 &damage) override
         {
-            if (damage >= me->GetHealth())
+            if (damage >= me->GetHealth() && _canDown)
             {
                 damage = me->GetHealth() - 1;
+                _canDown = false;
                 DoCastSelf(SPELL_MAIEV_DOWN, true);
                 Talk(SAY_MAIEV_SHADOWSONG_DOWN, me);
             }
@@ -1839,6 +1815,7 @@ public:
     private:
         EventMap _events;
         InstanceScript* _instance;
+        bool _canDown;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2502,6 +2479,7 @@ public:
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            GetTarget()->GetAI()->DoAction(ACTION_MAIEV_DOWN_FADE);
         }
 
         void Register() override
@@ -2555,7 +2533,7 @@ class spell_illidan_despawn_akama : public SpellScriptLoader
         {
             PrepareSpellScript(spell_illidan_despawn_akama_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* target = GetHitCreature())
                     target->DespawnOrUnsummon(Seconds(1));
@@ -2563,7 +2541,7 @@ class spell_illidan_despawn_akama : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_illidan_despawn_akama_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_illidan_despawn_akama_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2581,7 +2559,6 @@ void AddSC_boss_illidan()
     new npc_blade_of_azzinoth();
     new npc_flame_of_azzinoth();
     new npc_illidan_db_target();
-    new npc_illidan_blaze();
     new npc_maiev();
     new npc_illidan_shadow_demon();
     new npc_cage_trap_trigger();
