@@ -82,6 +82,56 @@
 #include "WorldSession.h"
 #include "GameObjectAI.h"
 
+#include "World.h"
+#include "AchievementMgr.h"
+#include "ArenaTeamMgr.h"
+#include "AuctionHouseBot.h"
+#include "AuctionHouseMgr.h"
+#include "BattlefieldMgr.h"
+#include "BattlegroundMgr.h"
+#include "CalendarMgr.h"
+#include "Channel.h"
+#include "CharacterDatabaseCleaner.h"
+#include "Chat.h"
+#include "Config.h"
+#include "CreatureAIRegistry.h"
+#include "CreatureGroups.h"
+#include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "GameObjectModel.h"
+#include "GitRevision.h"
+#include "GridNotifiersImpl.h"
+#include "GroupMgr.h"
+#include "GuildMgr.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
+#include "MapManager.h"
+#include "Memory.h"
+#include "MMapFactory.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "PoolMgr.h"
+#include "QueryCallback.h"
+#include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
+#include "SkillDiscovery.h"
+#include "SkillExtraItems.h"
+#include "SmartAI.h"
+#include "Metric.h"
+#include "TicketMgr.h"
+#include "TransportMgr.h"
+#include "Unit.h"
+#include "VMapFactory.h"
+#include "WardenCheckMgr.h"
+#include "WaypointMovementGenerator.h"
+#include "WeatherMgr.h"
+#include "WorldSession.h"
+#include "M2Stores.h"
+
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -392,6 +442,12 @@ Player::Player(WorldSession* session): Unit(true)
         m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
+	
+    // PlayedTimeReward
+    ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+    ptr_Money = sConfigMgr->GetIntDefault("PlayedTimeReward.Money", 0);
+    ptr_Honor = sConfigMgr->GetIntDefault("PlayedTimeReward.Honor", 0);
+    ptr_Arena = sConfigMgr->GetIntDefault("PlayedTimeReward.Arena", 0);
 
     m_logintime = time(nullptr);
     m_Last_tick = m_logintime;
@@ -1281,6 +1337,21 @@ void Player::Update(uint32 p_time)
         stmt->setString(2, "");
         stmt->setUInt32(3, GetSession()->GetAccountId());
         LoginDatabase.Execute(stmt);
+    }
+
+	// PlayedTimeReward
+    if (ptr_Interval > 0)
+    {
+        if (ptr_Interval <= p_time)
+        {
+            GetSession()->SendAreaTriggerMessage("Бонус за время в игре !");
+            ModifyMoney(ptr_Money);
+            ModifyHonorPoints(ptr_Honor);
+            ModifyArenaPoints(ptr_Arena);
+            ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+        }
+        else
+            ptr_Interval -= p_time;
     }
 
     if (!m_timedquests.empty())
