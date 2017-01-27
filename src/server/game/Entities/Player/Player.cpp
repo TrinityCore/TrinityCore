@@ -21130,7 +21130,7 @@ void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPackets::Combat::CancelAutoRepeat cancelAutoRepeat;
     cancelAutoRepeat.Guid = target->GetGUID();                     // may be it's target guid
-    SendMessageToSet(cancelAutoRepeat.Write(), false);
+    SendMessageToSet(cancelAutoRepeat.Write(), true);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience) const
