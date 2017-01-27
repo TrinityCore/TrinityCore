@@ -2800,7 +2800,7 @@ void Creature::UpdateMovementFlags()
         else
             SetDisableGravity(true);
     }
-    else
+    else if (!(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE))
     {
         SetCanFly(false);
         SetDisableGravity(false);
