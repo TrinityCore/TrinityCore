@@ -104,15 +104,7 @@ enum CreatureIds
     NPC_ILLIDARI_ELITE              = 23226,
     NPC_GLAIVE_TARGET               = 23448,
     NPC_GLAIVE_WORLD_TRIGGER        = 22515,
-    NPC_DEMON_FIRE                  = 23069,
-    NPC_CAGE_TRIGGER_1              = 23292,
-    NPC_CAGE_TRIGGER_2              = 23293,
-    NPC_CAGE_TRIGGER_3              = 23294,
-    NPC_CAGE_TRIGGER_4              = 23295,
-    NPC_CAGE_TRIGGER_5              = 23296,
-    NPC_CAGE_TRIGGER_6              = 23297,
-    NPC_CAGE_TRIGGER_7              = 23298,
-    NPC_CAGE_TRIGGER_8              = 23299
+    NPC_DEMON_FIRE                  = 23069
 };
 
 enum GameObjectIds

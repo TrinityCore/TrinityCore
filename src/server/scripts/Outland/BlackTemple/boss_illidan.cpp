@@ -128,16 +128,6 @@ enum IllidanSpells
     // Illidan DB Target
     SPELL_EYE_BLAST_TRIGGER             = 40017,
 
-    // Cage Trap Trigger
-    SPELL_CAGED_TRIGGER_1               = 40704,
-    SPELL_CAGED_TRIGGER_2               = 40707,
-    SPELL_CAGED_TRIGGER_3               = 40708,
-    SPELL_CAGED_TRIGGER_4               = 40709,
-    SPELL_CAGED_TRIGGER_5               = 40710,
-    SPELL_CAGED_TRIGGER_6               = 40711,
-    SPELL_CAGED_TRIGGER_7               = 40712,
-    SPELL_CAGED_TRIGGER_8               = 40713,
-
     // Cage Trap Summon Spells
     SPELL_SUMMON_CAGE_TRAP_1            = 40696,
     SPELL_SUMMON_CAGE_TRAP_2            = 40697,
@@ -535,42 +525,12 @@ public:
         void JustSummoned(Creature* summon) override
         {
             BossAI::JustSummoned(summon);
-            switch (summon->GetEntry())
-            {
-                case NPC_ILLIDARI_ELITE:
-                    if (Creature* akama = instance->GetCreature(DATA_AKAMA))
-                    {
-                        summon->CombatStart(akama);
-                        summon->AddThreat(akama, 1000.0f);
-                    }
-                    break;
-                case NPC_CAGE_TRIGGER_1:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_1, true);
-                    break;
-                case NPC_CAGE_TRIGGER_2:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_2, true);
-                    break;
-                case NPC_CAGE_TRIGGER_3:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_3, true);
-                    break;
-                case NPC_CAGE_TRIGGER_4:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_4, true);
-                    break;
-                case NPC_CAGE_TRIGGER_5:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_5, true);
-                    break;
-                case NPC_CAGE_TRIGGER_6:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_6, true);
-                    break;
-                case NPC_CAGE_TRIGGER_7:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_7, true);
-                    break;
-                case NPC_CAGE_TRIGGER_8:
-                    summon->CastSpell(summon, SPELL_CAGED_TRIGGER_8, true);
-                    break;
-                default:
-                    break;
-            }
+            if (summon->GetEntry() == NPC_ILLIDARI_ELITE)
+                if (Creature* akama = instance->GetCreature(DATA_AKAMA))
+                {
+                    summon->CombatStart(akama);
+                    summon->AddThreat(akama, 1000.0f);
+                }
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
