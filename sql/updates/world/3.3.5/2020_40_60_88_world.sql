@@ -27,7 +27,7 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 (23089,0,1,23411,751.6437,297.2233,312.2083,0,8,0); -- Spirit of Olum
 
 UPDATE `creature_template` SET `scale`=1 WHERE `entry`=23412; -- Door Trigger
-UPDATE `creature_template` SET `speed_walk`=1, `speed_run`=2, `unit_flags2`=2099200 WHERE `entry`=22917; -- Illidan Stormrage
+UPDATE `creature_template` SET `speed_walk`=1, `speed_run`=2, `unit_flags2`=2099200, `flags_extra`=`flags_extra` | 512 WHERE `entry`=22917; -- Illidan Stormrage
 UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128 WHERE `entry`=23336; -- Flame Crash
 UPDATE `creature_template` SET `speed_walk`=0.35, `speed_run`=0.347222, `flags_extra`=128, `ScriptName`='npc_illidan_db_target' WHERE `entry`=23070;
 UPDATE `creature_template` SET `speed_walk`=1.6, `speed_run`=0.571429 WHERE `entry`=23375; -- Shadow Demon
