@@ -1348,6 +1348,7 @@ class TC_GAME_API Unit : public WorldObject
             return m_attacking;
         }
 
+        void ValidateAttackersAndOwnTarget();
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);

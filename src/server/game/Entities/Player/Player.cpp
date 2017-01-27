@@ -7122,22 +7122,7 @@ void Player::UpdateArea(uint32 newArea)
 
     // check if we were in ffa arena and we left
     if (oldFFAPvPArea && !pvpInfo.IsInFFAPvPArea)
-    {
-        // iterate attackers
-        AttackerSet toRemove;
-        AttackerSet const& attackers = getAttackers();
-        for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
-            if (!(*itr)->IsValidAttackTarget(this))
-                toRemove.insert(*itr);
-
-        for (AttackerSet::const_iterator itr = toRemove.begin(); itr != toRemove.end(); ++itr)
-            (*itr)->AttackStop();
-
-        // remove our own victim
-        if (Unit* victim = GetVictim())
-            if (!IsValidAttackTarget(victim))
-                AttackStop();
-    }
+        ValidateAttackersAndOwnTarget();
 
     UpdateAreaDependentAuras(newArea);
 
