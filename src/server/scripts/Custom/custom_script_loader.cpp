@@ -16,10 +16,13 @@
  */
 
 // This is where scripts' loading functions should be declared:
-
+// Double XP Weekend
+void AddSC_XpWeekend();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+	// Double XP Weekend
+    AddSC_XpWeekend();
 }
