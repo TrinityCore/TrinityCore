@@ -793,7 +793,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
-            int32 LfgDungeonID;
+            int32 LfgDungeonID = 0;
         };
 
         class AccountHeirloomUpdate final : public ServerPacket
