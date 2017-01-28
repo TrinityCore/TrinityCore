@@ -2445,7 +2445,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     return range;
 }
 
-int32 SpellInfo::CalcDuration(Unit* caster = nullptr) const
+int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
 {
     int32 duration = GetDuration();
 
