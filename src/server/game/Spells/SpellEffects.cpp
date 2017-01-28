@@ -2021,9 +2021,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!m_originalCaster)
         return;
 
-    int32 duration = m_spellInfo->GetDuration();
-    if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+    int32 duration = m_spellInfo->CalcDuration(m_originalCaster);
 
     TempSummon* summon = NULL;
 
@@ -2377,7 +2375,7 @@ void Spell::EffectAddFarsight(SpellEffIndex /*effIndex*/)
         return;
 
     float radius = effectInfo->CalcRadius();
-    int32 duration = m_spellInfo->GetDuration();
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
     // Caster not in world, might be spell triggered from aura removal
     if (!m_caster->IsInWorld())
         return;
@@ -3168,7 +3166,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     pGameObj->CopyPhaseFrom(m_caster);
 
-    int32 duration = m_spellInfo->GetDuration();
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
 
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -3794,7 +3792,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction());
     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
-    int32 duration = m_spellInfo->GetDuration();
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
@@ -4128,7 +4126,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     go->CopyPhaseFrom(m_caster);
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
-    int32 duration = m_spellInfo->GetDuration();
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(go);
@@ -4785,7 +4783,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     pGameObj->CopyPhaseFrom(m_caster);
 
-    int32 duration = m_spellInfo->GetDuration();
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
 
     switch (goinfo->type)
     {
@@ -5296,10 +5294,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
                     level = skill202 / 5;
 
     float radius = 5.0f;
-    int32 duration = m_spellInfo->GetDuration();
-
-    if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+    int32 duration = m_spellInfo->CalcDuration(m_originalCaster);
 
     //TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map* map = caster->GetMap();
@@ -5615,8 +5610,9 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex /*effIndex*/)
     if (!m_targets.HasDst())
         return;
 
+    int32 duration = GetSpellInfo()->CalcDuration(GetCaster());
     AreaTrigger* areaTrigger = new AreaTrigger();
-    if (!areaTrigger->CreateAreaTrigger(effectInfo->MiscValue, GetCaster(), nullptr, GetSpellInfo(), destTarget->GetPosition(), GetSpellInfo()->GetDuration(), m_SpellVisual, m_castId))
+    if (!areaTrigger->CreateAreaTrigger(effectInfo->MiscValue, GetCaster(), nullptr, GetSpellInfo(), destTarget->GetPosition(), duration, m_SpellVisual, m_castId))
         delete areaTrigger;
 }
 
