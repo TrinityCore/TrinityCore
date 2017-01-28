@@ -328,136 +328,141 @@ void Quest::InitializeQueryData()
     WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
     {
-        std::string locQuestTitle = GetTitle();
-        std::string locQuestDetails = GetDetails();
-        std::string locQuestObjectives = GetObjectives();
-        std::string locQuestAreaDescription = GetAreaDescription();
-        std::string locQuestCompletedText = GetCompletedText();
-
-        std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-            locQuestObjectiveText[i] = ObjectiveText[i];
-
-
-        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(localeData->Title, loc, locQuestTitle);
-            ObjectMgr::GetLocaleString(localeData->Details, loc, locQuestDetails);
-            ObjectMgr::GetLocaleString(localeData->Objectives, loc, locQuestObjectives);
-            ObjectMgr::GetLocaleString(localeData->AreaDescription, loc, locQuestAreaDescription);
-            ObjectMgr::GetLocaleString(localeData->CompletedText, loc, locQuestCompletedText);
-
-            for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-                ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
-        }
-
-        queryTemp.Initialize(SMSG_QUEST_QUERY_RESPONSE, 2000);
-
-        queryTemp << uint32(GetQuestId());                         // quest id
-        queryTemp << uint32(GetQuestMethod());                     // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
-        queryTemp << uint32(GetQuestLevel());                      // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
-        queryTemp << uint32(GetMinLevel());                        // min level
-        queryTemp << uint32(GetZoneOrSort());                      // zone or sort to display in quest log
-
-        queryTemp << uint32(GetType());                            // quest type
-        queryTemp << uint32(GetSuggestedPlayers());                // suggested players count
-
-        queryTemp << uint32(GetRepObjectiveFaction());             // shown in quest log as part of quest objective
-        queryTemp << uint32(GetRepObjectiveValue());               // shown in quest log as part of quest objective
-
-        queryTemp << uint32(GetRepObjectiveFaction2());            // shown in quest log as part of quest objective OPPOSITE faction
-        queryTemp << uint32(GetRepObjectiveValue2());              // shown in quest log as part of quest objective OPPOSITE faction
-
-        queryTemp << uint32(GetNextQuestInChain());                // client will request this quest from NPC, if not 0
-        queryTemp << uint32(GetXPId());                            // used for calculating rewarded experience
-
-        if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-            queryTemp << uint32(0);                                // Hide money rewarded
-        else
-            queryTemp << uint32(GetRewOrReqMoney());               // reward money (below max lvl)
-
-        queryTemp << uint32(GetRewMoneyMaxLevel());                // used in XP calculation at client
-        queryTemp << uint32(GetRewSpell());                        // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
-        queryTemp << int32(GetRewSpellCast());                     // cast spell
-
-                                                                        // rewarded honor points
-        queryTemp << uint32(GetRewHonorAddition());
-        queryTemp << float(GetRewHonorMultiplier());
-        queryTemp << uint32(GetSrcItemId());                       // source item id
-        queryTemp << uint32(GetFlags() & 0xFFFF);                  // quest flags
-        queryTemp << uint32(GetCharTitleId());                     // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
-        queryTemp << uint32(GetPlayersSlain());                    // players slain
-        queryTemp << uint32(GetBonusTalents());                    // bonus talents
-        queryTemp << uint32(GetRewArenaPoints());                  // bonus arena points
-        queryTemp << uint32(0);                                    // review rep show mask
-
-        if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-        {
-            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-                queryTemp << uint32(0) << uint32(0);
-            for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-                queryTemp << uint32(0) << uint32(0);
-        }
-        else
-        {
-            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-            {
-                queryTemp << uint32(RewardItemId[i]);
-                queryTemp << uint32(RewardItemIdCount[i]);
-            }
-            for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-            {
-                queryTemp << uint32(RewardChoiceItemId[i]);
-                queryTemp << uint32(RewardChoiceItemCount[i]);
-            }
-        }
-
-        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
-            queryTemp << uint32(RewardFactionId[i]);
-
-        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
-            queryTemp << int32(RewardFactionValueId[i]);
-
-        for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
-            queryTemp << int32(RewardFactionValueIdOverride[i]);
-
-        queryTemp << uint32(GetPOIContinent());
-        queryTemp << float(GetPOIx());
-        queryTemp << float(GetPOIy());
-        queryTemp << uint32(GetPointOpt());
-
-        if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-            Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
-
-        queryTemp << locQuestTitle;
-        queryTemp << locQuestObjectives;
-        queryTemp << locQuestDetails;
-        queryTemp << locQuestAreaDescription;
-        queryTemp << locQuestCompletedText;                             // display in quest objectives window once all objectives are completed
-
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        {
-            if (RequiredNpcOrGo[i] < 0)
-                queryTemp << uint32((RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
-            else
-                queryTemp << uint32(RequiredNpcOrGo[i]);
-
-            queryTemp << uint32(RequiredNpcOrGoCount[i]);
-            queryTemp << uint32(ItemDrop[i]);
-            queryTemp << uint32(0);                                     // req source count?
-        }
-
-        for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-        {
-            queryTemp << uint32(RequiredItemId[i]);
-            queryTemp << uint32(RequiredItemCount[i]);
-        }
-
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-            queryTemp << locQuestObjectiveText[i];
-
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
         QueryData[loc] = queryTemp;
     }
+}
+
+WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPacket queryTemp(SMSG_QUEST_QUERY_RESPONSE, 2000);
+
+    std::string locQuestTitle = GetTitle();
+    std::string locQuestDetails = GetDetails();
+    std::string locQuestObjectives = GetObjectives();
+    std::string locQuestAreaDescription = GetAreaDescription();
+    std::string locQuestCompletedText = GetCompletedText();
+
+    std::string locQuestObjectiveText[QUEST_OBJECTIVES_COUNT];
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        locQuestObjectiveText[i] = ObjectiveText[i];
+
+    if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(GetQuestId()))
+    {
+        ObjectMgr::GetLocaleString(localeData->Title, loc, locQuestTitle);
+        ObjectMgr::GetLocaleString(localeData->Details, loc, locQuestDetails);
+        ObjectMgr::GetLocaleString(localeData->Objectives, loc, locQuestObjectives);
+        ObjectMgr::GetLocaleString(localeData->AreaDescription, loc, locQuestAreaDescription);
+        ObjectMgr::GetLocaleString(localeData->CompletedText, loc, locQuestCompletedText);
+
+        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+            ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
+    }
+
+    queryTemp << uint32(GetQuestId());                         // quest id
+    queryTemp << uint32(GetQuestMethod());                     // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
+    queryTemp << uint32(GetQuestLevel());                      // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+    queryTemp << uint32(GetMinLevel());                        // min level
+    queryTemp << uint32(GetZoneOrSort());                      // zone or sort to display in quest log
+
+    queryTemp << uint32(GetType());                            // quest type
+    queryTemp << uint32(GetSuggestedPlayers());                // suggested players count
+
+    queryTemp << uint32(GetRepObjectiveFaction());             // shown in quest log as part of quest objective
+    queryTemp << uint32(GetRepObjectiveValue());               // shown in quest log as part of quest objective
+
+    queryTemp << uint32(GetRepObjectiveFaction2());            // shown in quest log as part of quest objective OPPOSITE faction
+    queryTemp << uint32(GetRepObjectiveValue2());              // shown in quest log as part of quest objective OPPOSITE faction
+
+    queryTemp << uint32(GetNextQuestInChain());                // client will request this quest from NPC, if not 0
+    queryTemp << uint32(GetXPId());                            // used for calculating rewarded experience
+
+    if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        queryTemp << uint32(0);                                // Hide money rewarded
+    else
+        queryTemp << uint32(GetRewOrReqMoney());               // reward money (below max lvl)
+
+    queryTemp << uint32(GetRewMoneyMaxLevel());                // used in XP calculation at client
+    queryTemp << uint32(GetRewSpell());                        // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
+    queryTemp << int32(GetRewSpellCast());                     // cast spell
+
+                                                                    // rewarded honor points
+    queryTemp << uint32(GetRewHonorAddition());
+    queryTemp << float(GetRewHonorMultiplier());
+    queryTemp << uint32(GetSrcItemId());                       // source item id
+    queryTemp << uint32(GetFlags() & 0xFFFF);                  // quest flags
+    queryTemp << uint32(GetCharTitleId());                     // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
+    queryTemp << uint32(GetPlayersSlain());                    // players slain
+    queryTemp << uint32(GetBonusTalents());                    // bonus talents
+    queryTemp << uint32(GetRewArenaPoints());                  // bonus arena points
+    queryTemp << uint32(0);                                    // review rep show mask
+
+    if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    {
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            queryTemp << uint32(0) << uint32(0);
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            queryTemp << uint32(0) << uint32(0);
+    }
+    else
+    {
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            queryTemp << uint32(RewardItemId[i]);
+            queryTemp << uint32(RewardItemIdCount[i]);
+        }
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            queryTemp << uint32(RewardChoiceItemId[i]);
+            queryTemp << uint32(RewardChoiceItemCount[i]);
+        }
+    }
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
+        queryTemp << uint32(RewardFactionId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
+        queryTemp << int32(RewardFactionValueId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
+        queryTemp << int32(RewardFactionValueIdOverride[i]);
+
+    queryTemp << uint32(GetPOIContinent());
+    queryTemp << float(GetPOIx());
+    queryTemp << float(GetPOIy());
+    queryTemp << uint32(GetPointOpt());
+
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
+
+    queryTemp << locQuestTitle;
+    queryTemp << locQuestObjectives;
+    queryTemp << locQuestDetails;
+    queryTemp << locQuestAreaDescription;
+    queryTemp << locQuestCompletedText;                             // display in quest objectives window once all objectives are completed
+
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    {
+        if (RequiredNpcOrGo[i] < 0)
+            queryTemp << uint32((RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
+        else
+            queryTemp << uint32(RequiredNpcOrGo[i]);
+
+        queryTemp << uint32(RequiredNpcOrGoCount[i]);
+        queryTemp << uint32(ItemDrop[i]);
+        queryTemp << uint32(0);                                     // req source count?
+    }
+
+    for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    {
+        queryTemp << uint32(RequiredItemId[i]);
+        queryTemp << uint32(RequiredItemCount[i]);
+    }
+
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        queryTemp << locQuestObjectiveText[i];
+
+    return queryTemp;
 }
 
 void Quest::AddQuestLevelToTitle(std::string &title, int32 level)

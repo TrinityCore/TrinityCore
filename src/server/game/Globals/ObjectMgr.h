@@ -618,13 +618,13 @@ typedef std::vector<QuestPOI> QuestPOIVector;
 
 struct QuestPOIWrapper
 {
-    uint32 QuestId;
     QuestPOIVector DataVector;
     ByteBuffer QueryDataBuffer;
 
     void InitializeQueryData(uint32 questId);
-
-    QuestPOIWrapper() : QuestId(0), QueryDataBuffer(0) { }
+    ByteBuffer BuildQueryData(uint32 questId) const;
+    
+    QuestPOIWrapper() : QueryDataBuffer(0) { }
 };
 
 typedef std::unordered_map<uint32, QuestPOIWrapper> QuestPOIContainer;
@@ -689,6 +689,17 @@ struct DungeonEncounter
 
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
+
+enum QueryDataGroup
+{
+    QUERY_DATA_CREATURES        = 0x01,
+    QUERY_DATA_GAMEOBJECTS      = 0x02,
+    QUERY_DATA_ITEMS            = 0x04,
+    QUERY_DATA_QUESTS           = 0x08,
+    QUERY_DATA_POIS             = 0x10,
+
+    QUERY_DATA_ALL              = 0xFF
+};
 
 class PlayerDumpReader;
 
@@ -889,19 +900,11 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        QuestPOIVector const* GetQuestPOIVector(uint32 questId)
+        QuestPOIWrapper const* GetQuestPOIWrapper(uint32 questId)
         {
             QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
             if (itr != _questPOIStore.end())
-                return &itr->second.DataVector;
-            return nullptr;
-        }
-
-        ByteBuffer const* GetQuestPOIByteBuffer(uint32 questId)
-        {
-            QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
-            if (itr != _questPOIStore.end())
-                return &itr->second.QueryDataBuffer;
+                return &itr->second;
             return nullptr;
         }
 
@@ -1053,7 +1056,7 @@ class TC_GAME_API ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
-        void InitializeQueriesData();
+        void InitializeQueriesData(QueryDataGroup mask);
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);

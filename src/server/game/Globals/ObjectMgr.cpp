@@ -9330,30 +9330,44 @@ void ObjectMgr::LoadCreatureQuestItems()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::InitializeQueriesData()
+void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
 {
+    // cache disabled
+    if (!sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        return;
+
     // Initialize Query data for creatures
-    for (CreatureTemplateContainer::iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
-        itr->second.InitializeQueryData();
+    if (mask & QUERY_DATA_CREATURES)
+        for (auto& creaturePair : _creatureTemplateStore)
+            creaturePair.second.InitializeQueryData();
 
     // Initialize Query Data for gameobjects
-    for (GameObjectTemplateContainer::iterator itr = _gameObjectTemplateStore.begin(); itr != _gameObjectTemplateStore.end(); ++itr)
-        itr->second.InitializeQueryData();
+    if (mask & QUERY_DATA_GAMEOBJECTS)
+        for (auto& gameobjectPair : _gameObjectTemplateStore)
+            gameobjectPair.second.InitializeQueryData();
 
     // Initialize Query Data for items
-    for (ItemTemplateContainer::iterator itr = _itemTemplateStore.begin(); itr != _itemTemplateStore.end(); ++itr)
-        itr->second.InitializeQueryData();
+    if (mask & QUERY_DATA_ITEMS)
+        for (auto& itemPair : _itemTemplateStore)
+            itemPair.second.InitializeQueryData();
 
     // Initialize Query Data for quests
-    for (QuestMap::iterator itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
-        itr->second->InitializeQueryData();
+    if (mask & QUERY_DATA_QUESTS)
+        for (auto& questPair : _questTemplates)
+            questPair.second->InitializeQueryData();
 
     // Initialize Quest POI data
-    for (QuestPOIContainer::iterator itr = _questPOIStore.begin(); itr != _questPOIStore.end(); ++itr)
-        itr->second.InitializeQueryData(itr->first);
+    if (mask & QUERY_DATA_POIS)
+        for (auto& poiPair : _questPOIStore)
+            poiPair.second.InitializeQueryData(poiPair.first);
 }
 
 void QuestPOIWrapper::InitializeQueryData(uint32 questId)
+{
+    QueryDataBuffer = BuildQueryData(questId);
+}
+
+ByteBuffer QuestPOIWrapper::BuildQueryData(uint32 questId) const
 {
     ByteBuffer tempBuffer;
     tempBuffer << uint32(questId);                    // quest ID
@@ -9377,5 +9391,5 @@ void QuestPOIWrapper::InitializeQueryData(uint32 questId)
         }
     }
 
-    QueryDataBuffer = tempBuffer;
+    return tempBuffer;
 }

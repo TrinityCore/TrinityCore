@@ -153,140 +153,146 @@ void ItemTemplate::InitializeQueryData()
     WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
     {
-        std::string locName = Name1;
-        std::string locDescription = Description;
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
 
-        if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPacket queryTemp(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 500);
+
+    std::string locName = Name1;
+    std::string locDescription = Description;
+
+    if (ItemLocale const* il = sObjectMgr->GetItemLocale(ItemId))
+    {
+        ObjectMgr::GetLocaleString(il->Name, loc, locName);
+        ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
+    }
+
+    queryTemp << ItemId;
+    queryTemp << Class;
+    queryTemp << SubClass;
+    queryTemp << SoundOverrideSubclass;
+    queryTemp << locName;
+    queryTemp << uint8(0x00);                                //Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
+    queryTemp << uint8(0x00);                                //Name3; // blizz not send name there, just uint8(0x00);
+    queryTemp << uint8(0x00);                                //Name4; // blizz not send name there, just uint8(0x00);
+    queryTemp << DisplayInfoID;
+    queryTemp << Quality;
+    queryTemp << Flags;
+    queryTemp << Flags2;
+    queryTemp << BuyPrice;
+    queryTemp << SellPrice;
+    queryTemp << InventoryType;
+    queryTemp << AllowableClass;
+    queryTemp << AllowableRace;
+    queryTemp << ItemLevel;
+    queryTemp << RequiredLevel;
+    queryTemp << RequiredSkill;
+    queryTemp << RequiredSkillRank;
+    queryTemp << RequiredSpell;
+    queryTemp << RequiredHonorRank;
+    queryTemp << RequiredCityRank;
+    queryTemp << RequiredReputationFaction;
+    queryTemp << RequiredReputationRank;
+    queryTemp << int32(MaxCount);
+    queryTemp << int32(Stackable);
+    queryTemp << ContainerSlots;
+    queryTemp << StatsCount;                         // item stats count
+    for (uint32 i = 0; i < StatsCount; ++i)
+    {
+        queryTemp << ItemStat[i].ItemStatType;
+        queryTemp << ItemStat[i].ItemStatValue;
+    }
+    queryTemp << ScalingStatDistribution;            // scaling stats distribution
+    queryTemp << ScalingStatValue;                   // some kind of flags used to determine stat values column
+    for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+    {
+        queryTemp << Damage[i].DamageMin;
+        queryTemp << Damage[i].DamageMax;
+        queryTemp << Damage[i].DamageType;
+    }
+
+    // resistances (7)
+    queryTemp << Armor;
+    queryTemp << HolyRes;
+    queryTemp << FireRes;
+    queryTemp << NatureRes;
+    queryTemp << FrostRes;
+    queryTemp << ShadowRes;
+    queryTemp << ArcaneRes;
+
+    queryTemp << Delay;
+    queryTemp << AmmoType;
+    queryTemp << RangedModRange;
+
+    for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+    {
+        // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
+        // use `item_template` or if not set then only use spell cooldowns
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(Spells[s].SpellId);
+        if (spell)
         {
-            ObjectMgr::GetLocaleString(il->Name, loc, locName);
-            ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
-        }
+            bool db_data = Spells[s].SpellCooldown >= 0 || Spells[s].SpellCategoryCooldown >= 0;
 
-        queryTemp.Initialize(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 1000);
-        queryTemp << ItemId;
-        queryTemp << Class;
-        queryTemp << SubClass;
-        queryTemp << SoundOverrideSubclass;
-        queryTemp << locName;
-        queryTemp << uint8(0x00);                                //Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-        queryTemp << uint8(0x00);                                //Name3; // blizz not send name there, just uint8(0x00);
-        queryTemp << uint8(0x00);                                //Name4; // blizz not send name there, just uint8(0x00);
-        queryTemp << DisplayInfoID;
-        queryTemp << Quality;
-        queryTemp << Flags;
-        queryTemp << Flags2;
-        queryTemp << BuyPrice;
-        queryTemp << SellPrice;
-        queryTemp << InventoryType;
-        queryTemp << AllowableClass;
-        queryTemp << AllowableRace;
-        queryTemp << ItemLevel;
-        queryTemp << RequiredLevel;
-        queryTemp << RequiredSkill;
-        queryTemp << RequiredSkillRank;
-        queryTemp << RequiredSpell;
-        queryTemp << RequiredHonorRank;
-        queryTemp << RequiredCityRank;
-        queryTemp << RequiredReputationFaction;
-        queryTemp << RequiredReputationRank;
-        queryTemp << int32(MaxCount);
-        queryTemp << int32(Stackable);
-        queryTemp << ContainerSlots;
-        queryTemp << StatsCount;                         // item stats count
-        for (uint32 i = 0; i < StatsCount; ++i)
-        {
-            queryTemp << ItemStat[i].ItemStatType;
-            queryTemp << ItemStat[i].ItemStatValue;
-        }
-        queryTemp << ScalingStatDistribution;            // scaling stats distribution
-        queryTemp << ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-        {
-            queryTemp << Damage[i].DamageMin;
-            queryTemp << Damage[i].DamageMax;
-            queryTemp << Damage[i].DamageType;
-        }
+            queryTemp << Spells[s].SpellId;
+            queryTemp << Spells[s].SpellTrigger;
+            queryTemp << uint32(-abs(Spells[s].SpellCharges));
 
-        // resistances (7)
-        queryTemp << Armor;
-        queryTemp << HolyRes;
-        queryTemp << FireRes;
-        queryTemp << NatureRes;
-        queryTemp << FrostRes;
-        queryTemp << ShadowRes;
-        queryTemp << ArcaneRes;
-
-        queryTemp << Delay;
-        queryTemp << AmmoType;
-        queryTemp << RangedModRange;
-
-        for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
-        {
-            // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
-            // use `item_template` or if not set then only use spell cooldowns
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(Spells[s].SpellId);
-            if (spell)
+            if (db_data)
             {
-                bool db_data = Spells[s].SpellCooldown >= 0 || Spells[s].SpellCategoryCooldown >= 0;
-
-                queryTemp << Spells[s].SpellId;
-                queryTemp << Spells[s].SpellTrigger;
-                queryTemp << uint32(-abs(Spells[s].SpellCharges));
-
-                if (db_data)
-                {
-                    queryTemp << uint32(Spells[s].SpellCooldown);
-                    queryTemp << uint32(Spells[s].SpellCategory);
-                    queryTemp << uint32(Spells[s].SpellCategoryCooldown);
-                }
-                else
-                {
-                    queryTemp << uint32(spell->RecoveryTime);
-                    queryTemp << uint32(spell->GetCategory());
-                    queryTemp << uint32(spell->CategoryRecoveryTime);
-                }
+                queryTemp << uint32(Spells[s].SpellCooldown);
+                queryTemp << uint32(Spells[s].SpellCategory);
+                queryTemp << uint32(Spells[s].SpellCategoryCooldown);
             }
             else
             {
-                queryTemp << uint32(0);
-                queryTemp << uint32(0);
-                queryTemp << uint32(0);
-                queryTemp << uint32(-1);
-                queryTemp << uint32(0);
-                queryTemp << uint32(-1);
+                queryTemp << uint32(spell->RecoveryTime);
+                queryTemp << uint32(spell->GetCategory());
+                queryTemp << uint32(spell->CategoryRecoveryTime);
             }
         }
-        queryTemp << Bonding;
-        queryTemp << locDescription;
-        queryTemp << PageText;
-        queryTemp << LanguageID;
-        queryTemp << PageMaterial;
-        queryTemp << StartQuest;
-        queryTemp << LockID;
-        queryTemp << int32(Material);
-        queryTemp << Sheath;
-        queryTemp << RandomProperty;
-        queryTemp << RandomSuffix;
-        queryTemp << Block;
-        queryTemp << ItemSet;
-        queryTemp << MaxDurability;
-        queryTemp << Area;
-        queryTemp << Map;                                // Added in 1.12.x & 2.0.1 client branch
-        queryTemp << BagFamily;
-        queryTemp << TotemCategory;
-        for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
+        else
         {
-            queryTemp << Socket[s].Color;
-            queryTemp << Socket[s].Content;
+            queryTemp << uint32(0);
+            queryTemp << uint32(0);
+            queryTemp << uint32(0);
+            queryTemp << uint32(-1);
+            queryTemp << uint32(0);
+            queryTemp << uint32(-1);
         }
-        queryTemp << socketBonus;
-        queryTemp << GemProperties;
-        queryTemp << RequiredDisenchantSkill;
-        queryTemp << ArmorDamageModifier;
-        queryTemp << Duration;                           // added in 2.4.2.8209, duration (seconds)
-        queryTemp << ItemLimitCategory;                  // WotLK, ItemLimitCategory
-        queryTemp << HolidayId;                          // Holiday.dbc?
-
-        QueryData[loc] = queryTemp;
     }
+    queryTemp << Bonding;
+    queryTemp << locDescription;
+    queryTemp << PageText;
+    queryTemp << LanguageID;
+    queryTemp << PageMaterial;
+    queryTemp << StartQuest;
+    queryTemp << LockID;
+    queryTemp << int32(Material);
+    queryTemp << Sheath;
+    queryTemp << RandomProperty;
+    queryTemp << RandomSuffix;
+    queryTemp << Block;
+    queryTemp << ItemSet;
+    queryTemp << MaxDurability;
+    queryTemp << Area;
+    queryTemp << Map;                                // Added in 1.12.x & 2.0.1 client branch
+    queryTemp << BagFamily;
+    queryTemp << TotemCategory;
+    for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
+    {
+        queryTemp << Socket[s].Color;
+        queryTemp << Socket[s].Content;
+    }
+    queryTemp << socketBonus;
+    queryTemp << GemProperties;
+    queryTemp << RequiredDisenchantSkill;
+    queryTemp << ArmorDamageModifier;
+    queryTemp << Duration;                           // added in 2.4.2.8209, duration (seconds)
+    queryTemp << ItemLimitCategory;                  // WotLK, ItemLimitCategory
+    queryTemp << HolidayId;                          // Holiday.dbc?
+    return queryTemp;
 }

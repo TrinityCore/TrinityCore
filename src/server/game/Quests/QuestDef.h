@@ -310,6 +310,7 @@ class TC_GAME_API Quest
 
         static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
+        WorldPacket BuildQueryData(LocaleConstant loc) const;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;

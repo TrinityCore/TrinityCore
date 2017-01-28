@@ -489,7 +489,14 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
-    _session->SendPacket(&quest->QueryData[std::max<int32>(_session->GetSessionDbLocaleIndex(), 0)]);
+    if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        _session->SendPacket(&quest->QueryData[static_cast<uint32>(_session->GetSessionDbLocaleIndex())]);
+    else
+    {
+        WorldPacket queryPacket = quest->BuildQueryData(_session->GetSessionDbLocaleIndex());
+        _session->SendPacket(&queryPacket);
+    }
+
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 

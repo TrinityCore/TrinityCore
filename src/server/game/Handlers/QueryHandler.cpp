@@ -98,7 +98,13 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     if (ci)
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
-        SendPacket(&ci->QueryData[std::max<int32>(GetSessionDbLocaleIndex(), 0)]);
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
+        {
+            WorldPacket queryPacket = ci->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&queryPacket);
+        }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
     }
     else
@@ -123,7 +129,13 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
     {
-        SendPacket(&info->QueryData[std::max<int32>(GetSessionDbLocaleIndex(), 0)]);
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&info->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
+        {
+            WorldPacket queryPacket = info->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&queryPacket);
+        }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
     else
@@ -357,10 +369,16 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
         if (questOk)
         {
-            ByteBuffer const* POIByteBuffer = sObjectMgr->GetQuestPOIByteBuffer(questId);
-            if (POIByteBuffer)
+            if (QuestPOIWrapper const* poiWrapper = sObjectMgr->GetQuestPOIWrapper(questId))
             {
-                data.append(*POIByteBuffer);
+                
+                if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+                    data.append(poiWrapper->QueryDataBuffer);
+                else
+                {
+                    ByteBuffer POIByteBuffer = poiWrapper->BuildQueryData(questId);
+                    data.append(POIByteBuffer);
+                }
             }
             else
             {

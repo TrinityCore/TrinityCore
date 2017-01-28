@@ -175,6 +175,7 @@ struct TC_GAME_API CreatureTemplate
     }
 
     void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 typedef std::vector<uint32> CreatureQuestItemList;

@@ -1355,6 +1355,9 @@ void World::LoadConfigSettings(bool reload)
     // Allow 5-man parties to use raid warnings
     m_bool_configs[CONFIG_CHAT_PARTY_RAID_WARNINGS] = sConfigMgr->GetBoolDefault("PartyRaidWarnings", false);
 
+    // Allow to cache data queries
+    m_bool_configs[CONFIG_CACHE_DATA_QUERIES] = sConfigMgr->GetBoolDefault("CacheDataQueries", true);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1854,7 +1857,7 @@ void World::SetInitialWorldSettings()
     sCalendarMgr->LoadFromDB();
 
     TC_LOG_INFO("server.loading", "Initialize query data...");
-    sObjectMgr->InitializeQueriesData();
+    sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");

@@ -563,6 +563,7 @@ struct GameObjectTemplate
     }
 
     void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 // From `gameobject_template_addon`

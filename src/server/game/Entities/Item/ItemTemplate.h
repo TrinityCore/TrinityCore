@@ -713,6 +713,7 @@ struct ItemTemplate
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
 
     void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 
 private:
     // Cached info

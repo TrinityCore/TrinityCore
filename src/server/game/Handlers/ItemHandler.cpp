@@ -313,10 +313,16 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
 
     TC_LOG_INFO("network", "STORAGE: Item Query = %u", item);
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item);
+    if (itemTemplate)
     {
-        SendPacket(&pProto->QueryData[std::max<int32>(GetSessionDbLocaleIndex(), 0)]);
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&itemTemplate->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
+        {
+            WorldPacket queryPacket = itemTemplate->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&queryPacket);
+        }
     }
     else
     {
