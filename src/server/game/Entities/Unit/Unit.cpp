@@ -8457,12 +8457,12 @@ bool Unit::IsServiceProvider() const
         UNIT_NPC_FLAG_SPIRITGUIDE | UNIT_NPC_FLAG_TABARDDESIGNER | UNIT_NPC_FLAG_AUCTIONEER);
 }
 
-void Unit::SetInCombatWith(Unit* enemy)
+void Unit::SetInCombatWith(Unit* enemy, uint32 duration)
 {
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
     if (eOwner->IsPvP() || eOwner->IsFFAPvP())
     {
-        SetInCombatState(true, enemy);
+        SetInCombatState(true, enemy, duration);
         return;
     }
 
@@ -8472,11 +8472,11 @@ void Unit::SetInCombatWith(Unit* enemy)
         Unit const* myOwner = GetCharmerOrOwnerOrSelf();
         if (((Player const*)eOwner)->duel->opponent == myOwner)
         {
-            SetInCombatState(true, enemy);
+            SetInCombatState(true, enemy, duration);
             return;
         }
     }
-    SetInCombatState(false, enemy);
+    SetInCombatState(false, enemy, duration);
 }
 
 void Unit::CombatStart(Unit* target, bool initialAggro)
@@ -8497,29 +8497,52 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
 
         SetInCombatWith(target);
         target->SetInCombatWith(this);
+
+        // If pet started combat - put owner in combat
+        if (Unit* owner = GetOwner())
+        {
+            owner->SetInCombatWith(target);
+            target->SetInCombatWith(owner);
+        }
     }
+
     Unit* who = target->GetCharmerOrOwnerOrSelf();
     if (who->GetTypeId() == TYPEID_PLAYER)
       SetContestedPvP(who->ToPlayer());
 
     Player* me = GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (me && who->IsPvP()
-        && (who->GetTypeId() != TYPEID_PLAYER
-        || !me->duel || me->duel->opponent != who))
+    if (me && who->IsPvP() && (who->GetTypeId() != TYPEID_PLAYER || !me->duel || me->duel->opponent != who))
     {
         me->UpdatePvP(true);
         me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
     }
 }
 
-void Unit::SetInCombatState(bool PvP, Unit* enemy)
+void Unit::CombatStartOnCast(Unit* target, bool initialAggro, uint32 duration)
+{
+    if (initialAggro)
+    {
+        SetInCombatWith(target, duration);
+
+        // If pet started combat - put owner in combat
+        if (Unit* owner = GetOwner())
+            owner->SetInCombatWith(target, duration);
+    }
+
+    // perform rest of combat actions (pvp flag, aura interrupt), except for initialization
+    CombatStart(target, false);
+}
+
+void Unit::SetInCombatState(bool PvP, Unit* enemy, uint32 duration)
 {
     // only alive units can be in combat
     if (!IsAlive())
         return;
 
     if (PvP)
-        m_CombatTimer = 5000;
+        m_CombatTimer = std::max<uint32>(GetCombatTimer(), std::max<uint32>(5500, duration));
+    else if (duration)
+        m_CombatTimer = std::max<uint32>(GetCombatTimer(), duration);
 
     if (IsInCombat() || HasUnitState(UNIT_STATE_EVADE))
         return;
@@ -8552,12 +8575,21 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
             Dismount();
+
+        // already done in CombatStart(target, initialAggro) for the target, but when aggro'ing from MoveInLOS CombatStart is not called
+        if (!IsStandState()) 
+            SetStandState(UNIT_STAND_STATE_STAND);
     }
 
     for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
     {
-        (*itr)->SetInCombatState(PvP, enemy);
-        (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+        Unit* controlled = *itr;
+        // Dont set combat for passive units, they will evade in next update
+        if (controlled->GetTypeId() == TYPEID_UNIT && controlled->ToCreature()->HasReactState(REACT_PASSIVE))
+            continue;
+
+        controlled->SetInCombatState(PvP, enemy);
+        controlled->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     }
 }
 
