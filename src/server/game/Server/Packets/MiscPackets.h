@@ -247,18 +247,6 @@ namespace WorldPackets
             Optional<uint32> InstanceGroupSize;
         };
 
-        class AreaTrigger final : public ClientPacket
-        {
-        public:
-            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREA_TRIGGER, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 AreaTriggerID = 0;
-            bool Entered = false;
-            bool FromClient = false;
-        };
-
         class SetDungeonDifficulty final : public ClientPacket
         {
         public:
@@ -390,15 +378,7 @@ namespace WorldPackets
             uint32 Response = 0;
         };
 
-        class AreaTriggerNoCorpse final : public ServerPacket
-        {
-        public:
-            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
-
-            WorldPacket const* Write() override { return &_worldPacket; }
-        };
-
-        class TC_GAME_API  Weather final : public ServerPacket
+        class TC_GAME_API Weather final : public ServerPacket
         {
         public:
             Weather();
