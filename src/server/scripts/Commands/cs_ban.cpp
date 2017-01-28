@@ -300,17 +300,14 @@ public:
 
         if (!target)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-            stmt->setString(0, name);
-            PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
-
-            if (!resultCharacter)
+            ObjectGuid fullGuid = sWorld->GetCharacterGuidByName(name);
+            if (fullGuid.IsEmpty())
             {
                 handler->PSendSysMessage(LANG_BANINFO_NOCHARACTER);
                 return false;
             }
 
-            targetGuid = (*resultCharacter)[0].GetUInt32();
+            targetGuid = fullGuid.GetCounter();
         }
         else
             targetGuid = target->GetGUID().GetCounter();

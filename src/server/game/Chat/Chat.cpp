@@ -1030,7 +1030,7 @@ ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& gu
             if (Player* player = ObjectAccessor::FindPlayerByName(name))
                 return player->GetGUID().GetCounter();
 
-            if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
+            if (ObjectGuid guid = sWorld->GetCharacterGuidByName(name))
                 return guid.GetCounter();
 
             return 0;
@@ -1086,7 +1086,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        ObjectGuid guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : ObjectGuid::Empty;
+        ObjectGuid guid = !pl && (player_guid || player_name) ? sWorld->GetCharacterGuidByName(name) : ObjectGuid::Empty;
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
@@ -1245,7 +1245,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(char const* cname, Player*& player
 
             player = ObjectAccessor::FindPlayerByName(name);
             if (offline)
-                guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+                guid = sWorld->GetCharacterGuidByName(name);
         }
     }
 
