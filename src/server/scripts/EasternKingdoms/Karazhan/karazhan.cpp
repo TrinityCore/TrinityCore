@@ -479,8 +479,7 @@ public:
             }
             else
             {
-                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                me->RemoveCorpse();
+                me->DespawnOrUnsummon(0);
             }
         }
         void EnterCombat(Unit* /*who*/) override { }
