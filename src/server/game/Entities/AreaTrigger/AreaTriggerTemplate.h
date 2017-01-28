@@ -18,12 +18,7 @@
 #ifndef TRINITYCORE_AREATRIGGER_TEMPLATE_H
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
-#include "Object.h"
-#include "Spline.h"
 #include <G3D/Vector3.h>
-
-class Unit;
-class SpellInfo;
 
 #define MAX_AREATRIGGER_ENTITY_DATA 6
 
@@ -52,11 +47,29 @@ enum AreaTriggerTypes
     AREATRIGGER_TYPE_MAX        = 5
 };
 
-struct AreaTriggerAuras
+enum AreaTriggerActionTypes
 {
-    uint32 AuraId;
-    AreaTriggerAuraTypes TargetType;
-    AreaTriggerAuraCastTypes CastType;
+    AREATRIGGER_ACTION_CAST     = 0,
+    AREATRIGGER_ACTION_ADDAURA  = 1,
+    AREATRIGGER_ACTION_MAX      = 2
+};
+
+enum AreaTriggerActionUserTypes
+{
+    AREATRIGGER_ACTION_USER_ANY    = 0,
+    AREATRIGGER_ACTION_USER_FRIEND = 1,
+    AREATRIGGER_ACTION_USER_ENEMY  = 2,
+    AREATRIGGER_ACTION_USER_RAID   = 3,
+    AREATRIGGER_ACTION_USER_PARTY  = 4,
+    AREATRIGGER_ACTION_USER_CASTER = 5,
+    AREATRIGGER_ACTION_USER_MAX    = 6
+};
+
+struct AreaTriggerAction
+{
+    uint32 Param;
+    AreaTriggerActionTypes ActionType;
+    AreaTriggerActionUserTypes TargetType;
 };
 
 class AreaTriggerTemplate
@@ -88,7 +101,7 @@ public:
     float MaxSearchRadius;
     std::vector<G3D::Vector2> PolygonVertices;
     std::vector<G3D::Vector2> PolygonVerticesTarget;
-    std::vector<AreaTriggerAuras> Auras;
+    std::vector<AreaTriggerAction> Actions;
 
     union
     {

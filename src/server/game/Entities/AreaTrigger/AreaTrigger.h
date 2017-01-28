@@ -18,7 +18,6 @@
 #ifndef TRINITYCORE_AREATRIGGER_H
 #define TRINITYCORE_AREATRIGGER_H
 
-#include "MoveSplineInitArgs.h"
 #include "Object.h"
 #include "Position.h"
 #include "Spline.h"
@@ -63,8 +62,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         G3D::Vector3 const& GetRollPitchYaw() const { return _rollPitchYaw; }
         G3D::Vector3 const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
-        void InitSplineOffsets(::Movement::PointsArray splinePoints, uint32 timeToTarget);
-        void InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget);
+        void InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
@@ -83,9 +82,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::list<Unit*> const& targetList);
 
-        void AddAuras(Unit* unit);
-        void RemoveAuras(Unit* unit);
-        bool UnitFitToAuraRequirement(Unit* unit, Unit* caster, AreaTriggerAuraTypes targetType) const;
+        void DoActions(Unit* unit);
+        void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
         void UpdateSplinePosition(uint32 diff);

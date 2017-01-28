@@ -352,7 +352,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
             if (player->isDebugAreaTriggers)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id);
 
-        AddAuras(unit);
+        DoActions(unit);
         sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
     }
 
@@ -364,7 +364,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
                 if (player->isDebugAreaTriggers)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id);
 
-            RemoveAuras(leavingUnit);
+            UndoActions(leavingUnit);
             sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
         }
     }
@@ -492,54 +492,31 @@ void AreaTrigger::UpdateShape()
         UpdatePolygonOrientation();
 }
 
-void AreaTrigger::AddAuras(Unit* unit)
-{
-    if (Unit* caster = GetCaster())
-    {
-        for (AreaTriggerAuras const& aura : GetTemplate()->Auras)
-        {
-            if (UnitFitToAuraRequirement(unit, caster, aura.TargetType))
-            {
-                if (aura.CastType == AREATRIGGER_AURA_CASTTYPE_CAST)
-                    caster->CastSpell(unit, aura.AuraId, true);
-                else
-                    caster->AddAura(aura.AuraId, unit);
-            }
-        }
-    }
-}
-
-void AreaTrigger::RemoveAuras(Unit* unit)
-{
-    for (AreaTriggerAuras const& aura : GetTemplate()->Auras)
-        unit->RemoveAurasDueToSpell(aura.AuraId, GetCasterGuid());
-}
-
-bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, Unit* caster, AreaTriggerAuraTypes targetType) const
+bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerActionUserTypes targetType)
 {
     switch (targetType)
     {
-        case AREATRIGGER_AURA_USER_FRIEND:
+        case AREATRIGGER_ACTION_USER_FRIEND:
         {
             return caster->IsFriendlyTo(unit);
         }
-        case AREATRIGGER_AURA_USER_ENEMY:
+        case AREATRIGGER_ACTION_USER_ENEMY:
         {
             return !caster->IsFriendlyTo(unit);
         }
-        case AREATRIGGER_AURA_USER_RAID:
+        case AREATRIGGER_ACTION_USER_RAID:
         {
             return caster->IsInRaidWith(unit);
         }
-        case AREATRIGGER_AURA_USER_PARTY:
+        case AREATRIGGER_ACTION_USER_PARTY:
         {
             return caster->IsInPartyWith(unit);
         }
-        case AREATRIGGER_AURA_USER_CASTER:
+        case AREATRIGGER_ACTION_USER_CASTER:
         {
-            return unit->GetGUID() == GetCasterGuid();
+            return unit->GetGUID() == caster->GetGUID();
         }
-        case AREATRIGGER_AURA_USER_ANY:
+        case AREATRIGGER_ACTION_USER_ANY:
         default:
             break;
     }
@@ -547,7 +524,40 @@ bool AreaTrigger::UnitFitToAuraRequirement(Unit* unit, Unit* caster, AreaTrigger
     return true;
 }
 
-void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints, uint32 timeToTarget)
+void AreaTrigger::DoActions(Unit* unit)
+{
+    if (Unit* caster = GetCaster())
+    {
+        for (AreaTriggerAction const& action : GetTemplate()->Actions)
+        {
+            if (UnitFitToActionRequirement(unit, caster, action.TargetType))
+            {
+                switch (action.ActionType)
+                {
+                    case AREATRIGGER_ACTION_CAST:
+                        caster->CastSpell(unit, action.Param, true);
+                        break;
+                    case AREATRIGGER_ACTION_ADDAURA:
+                        caster->AddAura(action.Param, unit);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+void AreaTrigger::UndoActions(Unit* unit)
+{
+    for (AreaTriggerAction const& action : GetTemplate()->Actions)
+    {
+        if (action.ActionType == AREATRIGGER_ACTION_CAST || action.ActionType == AREATRIGGER_ACTION_ADDAURA)
+            unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+    }
+}
+
+void AreaTrigger::InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -568,7 +578,7 @@ void AreaTrigger::InitSplineOffsets(::Movement::PointsArray splinePoints, uint32
     InitSplines(splinePoints, timeToTarget);
 }
 
-void AreaTrigger::InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget)
 {
     if (splinePoints.size() < 2)
         return;

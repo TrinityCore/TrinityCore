@@ -34,44 +34,46 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesByAreaTrigger;
     std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesTargetByAreaTrigger;
     std::unordered_map<uint32, std::vector<G3D::Vector3>> splinesBySpellMisc;
-    std::unordered_map<uint32, std::vector<AreaTriggerAuras>> aurasByAreaTrigger;
+    std::unordered_map<uint32, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
-    if (QueryResult templateAuras = WorldDatabase.Query("SELECT AreaTriggerId, AuraId, TargetType, CastType FROM `areatrigger_template_auras`"))
+    //                                                            0              1           2            3
+    if (QueryResult templateActions = WorldDatabase.Query("SELECT AreaTriggerId, ActionType, ActionParam, TargetType FROM `areatrigger_template_actions`"))
     {
         do
         {
-            Field* templateAurasFields = templateAuras->Fetch();
-            uint32 areaTriggerId = templateAurasFields[0].GetUInt32();
+            Field* templateActionFields = templateActions->Fetch();
+            uint32 areaTriggerId = templateActionFields[0].GetUInt32();
 
-            AreaTriggerAuras aura;
-            aura.AuraId         = templateAurasFields[1].GetUInt32();
-            uint32 targetType   = templateAurasFields[2].GetUInt32();
-            uint32 castType     = templateAurasFields[3].GetUInt32();
+            AreaTriggerAction action;
+            action.Param       = templateActionFields[2].GetUInt32();
+            uint32 actionType  = templateActionFields[1].GetUInt32();
+            uint32 targetType  = templateActionFields[3].GetUInt32();
 
-            if (targetType >= AREATRIGGER_AURA_USER_MAX)
+            if (actionType >= AREATRIGGER_ACTION_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_auras` has invalid TargetType (%u) for AreaTriggerId %u and AuraId %u", targetType, areaTriggerId, aura.AuraId);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid ActionType (%u) for AreaTriggerId %u and Param %u", actionType, areaTriggerId, action.Param);
                 continue;
             }
 
-            if (castType >= AREATRIGGER_AURA_CASTTYPE_MAX)
+            if (targetType >= AREATRIGGER_ACTION_USER_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_auras` has invalid CastType (%u) for AreaTriggerId %u and AuraId %u", castType, areaTriggerId, aura.AuraId);
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid TargetType (%u) for AreaTriggerId %u and Param %u", targetType, areaTriggerId, action.Param);
                 continue;
             }
 
-            aura.TargetType = AreaTriggerAuraTypes(targetType);
-            aura.CastType   = AreaTriggerAuraCastTypes(castType);
+            action.TargetType = AreaTriggerActionUserTypes(targetType);
+            action.ActionType = AreaTriggerActionTypes(actionType);
 
-            aurasByAreaTrigger[areaTriggerId].push_back(aura);
+            actionsByAreaTrigger[areaTriggerId].push_back(action);
         }
-        while (templateAuras->NextRow());
+        while (templateActions->NextRow());
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates auras. DB table `areatrigger_template_auras` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates actions. DB table `areatrigger_template_actions` is empty.");
     }
 
+    //                                                     0              1    2         3         4               5
     if (QueryResult vertices = WorldDatabase.Query("SELECT AreaTriggerId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_template_polygon_vertices` ORDER BY `AreaTriggerId`, `Idx`"))
     {
         do
@@ -93,6 +95,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates polygon vertices. DB table `areatrigger_template_polygon_vertices` is empty.");
     }
 
+    //                                                    0            1  2  3
     if (QueryResult splines = WorldDatabase.Query("SELECT SpellMiscId, X, Y, Z FROM `spell_areatrigger_splines` ORDER BY `SpellMiscId`, `Idx`"))
     {
         do
@@ -106,13 +109,15 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             spline.z = splineFields[3].GetFloat();
 
             splinesBySpellMisc[spellMiscId].push_back(spline);
-        } while (splines->NextRow());
+        }
+        while (splines->NextRow());
     }
     else
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `spell_areatrigger_splines` is empty.");
     }
 
+    //                                                      0   1     2      3      4      5      6      7      8      9
     if (QueryResult templates = WorldDatabase.Query("SELECT Id, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`"))
     {
         do
@@ -138,14 +143,15 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[9].GetString());
             areaTriggerTemplate.PolygonVertices = std::move(verticesByAreaTrigger[areaTriggerTemplate.Id]);
             areaTriggerTemplate.PolygonVerticesTarget = std::move(verticesTargetByAreaTrigger[areaTriggerTemplate.Id]);
-            areaTriggerTemplate.Auras = std::move(aurasByAreaTrigger[areaTriggerTemplate.Id]);
+            areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
 
             areaTriggerTemplate.InitMaxSearchRadius();
             _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
-
-        } while (templates->NextRow());
+        }
+        while (templates->NextRow());
     }
 
+    //                                                                  0            1              2            3             4             5              6                  7             8
     if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, DecalPropertiesId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
     {
         do
@@ -188,7 +194,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             miscTemplate.SplinePoints = splinesBySpellMisc[miscTemplate.MiscId];
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
-        } while (areatriggerSpellMiscs->NextRow());
+        }
+        while (areatriggerSpellMiscs->NextRow());
     }
     else
     {

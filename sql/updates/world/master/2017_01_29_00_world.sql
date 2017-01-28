@@ -26,13 +26,13 @@ CREATE TABLE `areatrigger_template_polygon_vertices` (
   PRIMARY KEY (`AreaTriggerId`,`Idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `areatrigger_template_auras`;
-CREATE TABLE `areatrigger_template_auras` (
+DROP TABLE IF EXISTS `areatrigger_template_actions`;
+CREATE TABLE `areatrigger_template_actions` (
   `AreaTriggerId` int(10) unsigned NOT NULL,
-  `AuraId` int(10) unsigned NOT NULL,
+  `ActionType` int(10) unsigned NOT NULL,
+  `ActionParam` int(10) unsigned NOT NULL,
   `TargetType` int(10) unsigned NOT NULL DEFAULT '0',
-  `CastType` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AreaTriggerId`, `AuraId`)
+  PRIMARY KEY (`AreaTriggerId`, `ActionType`, `ActionParam`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `spell_areatrigger`;

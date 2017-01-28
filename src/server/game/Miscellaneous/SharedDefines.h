@@ -5100,24 +5100,6 @@ enum ResetFailedReason : uint8
     INSTANCE_RESET_FAILED_OFFLINE   = 2  // "Cannot reset %s.  There are players offline in your party."
 };
 
-enum AreaTriggerAuraTypes
-{
-    AREATRIGGER_AURA_USER_ANY    = 0,
-    AREATRIGGER_AURA_USER_FRIEND = 1,
-    AREATRIGGER_AURA_USER_ENEMY  = 2,
-    AREATRIGGER_AURA_USER_RAID   = 3,
-    AREATRIGGER_AURA_USER_PARTY  = 4,
-    AREATRIGGER_AURA_USER_CASTER = 5,
-    AREATRIGGER_AURA_USER_MAX    = 6
-};
-
-enum AreaTriggerAuraCastTypes
-{
-    AREATRIGGER_AURA_CASTTYPE_CAST      = 0,
-    AREATRIGGER_AURA_CASTTYPE_ADDAURA   = 1,
-    AREATRIGGER_AURA_CASTTYPE_MAX       = 2
-};
-
 enum class GameError : uint32
 {
     ERR_SYSTEM                                              = 0,
