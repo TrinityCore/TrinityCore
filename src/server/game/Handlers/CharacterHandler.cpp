@@ -430,7 +430,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
         stmt->setUInt32(0, GetAccountId());
-        queryCallback.SetNextQuery(LoginDatabase.AsyncQuery(stmt));
+        queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
     })
         .WithChainingPreparedCallback([this, createInfo](QueryCallback& queryCallback, PreparedQueryResult result)
     {
