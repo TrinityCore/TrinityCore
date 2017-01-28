@@ -249,9 +249,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     data << uint32(displayCount);                         // placeholder, count of players displayed
 
     WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
-    for (WhoListInfoVector::const_iterator itr = whoList.begin(); itr != whoList.end(); ++itr)
+    for (WhoListPlayerInfo const& target : whoList)
     {
-        WhoListPlayerInfo target = *itr;
         // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
         if (target.GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
             continue;
