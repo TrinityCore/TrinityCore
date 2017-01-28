@@ -1009,6 +1009,7 @@ void WorldSession::HandleGuildRenameRequest(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildRenameCallback(std::string newName)
 {
+/*
     Guild* pGuild = GetPlayer()->GetGuild();
 
     bool hasRenamed = ((PreparedQueryResult)_guildRenameCallback.GetFutureResult)->GetRowCount() > 0 ? true : false;
@@ -1076,4 +1077,5 @@ void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
         }
         return;
     }
+*/
 }
