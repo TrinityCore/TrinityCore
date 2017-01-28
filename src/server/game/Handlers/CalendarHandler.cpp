@@ -246,6 +246,9 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
     uint32 inviteeTeam = 0;
     ObjectGuid::LowType inviteeGuildId = UI64LIT(0);
 
+    if (!normalizePlayerName(calendarEventInvite.Name))
+        return;
+
     if (Player* player = ObjectAccessor::FindConnectedPlayerByName(calendarEventInvite.Name))
     {
         // Invitee is online

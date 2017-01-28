@@ -300,16 +300,24 @@ public:
         if (!*args)
             return false;
 
-        Player* target = ObjectAccessor::FindPlayerByName(args);
-        ObjectGuid targetGuid;
         std::string name(args);
+        if (!normalizePlayerName(name))
+        {
+            handler->SendSysMessage(LANG_BANINFO_NOCHARACTER);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = ObjectAccessor::FindPlayerByName(name);
+        ObjectGuid targetGuid;
 
         if (!target)
         {
             targetGuid = sWorld->GetCharacterGuidByName(name);
             if (targetGuid.IsEmpty())
             {
-                handler->PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+                handler->SendSysMessage(LANG_BANINFO_NOCHARACTER);
+                handler->SetSentErrorMessage(true);
                 return false;
             }
         }
