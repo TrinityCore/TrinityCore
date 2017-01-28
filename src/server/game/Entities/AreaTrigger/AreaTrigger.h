@@ -90,7 +90,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UpdatePolygonOrientation();
         void UpdateSplinePosition(uint32 diff);
 
-        void VisualizePosition(); // Debug purpose only
+        void DebugVisualizePosition(); // Debug purpose only
 
         ObjectGuid _targetGuid;
 

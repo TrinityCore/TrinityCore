@@ -28,10 +28,11 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "ScriptMgr.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
@@ -109,7 +110,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, GetMiscTemplate()->DecalPropertiesId);
 
     CopyPhaseFrom(caster);
-    SetTransport(caster->GetTransport());
 
     if (target && GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
     {
@@ -123,8 +123,26 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     sScriptMgr->OnAreaTriggerEntityInitialize(this);
 
+    // movement on transport of areatriggers on unit is handled by themself
+    Transport* transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(this);
+    }
+
     if (!GetMap()->AddToMap(this))
+    {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(this);
         return false;
+    }
 
     caster->_RegisterAreaTrigger(this);
 
@@ -602,7 +620,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         G3D::Vector3 lastSplinePosition = _spline.getPoint(_lastSplineIndex);
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
 #ifdef TRINITY_DEBUG
-        VisualizePosition();
+        DebugVisualizePosition();
 #endif
 
         sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, _lastSplineIndex);
@@ -643,7 +661,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
 
     GetMap()->AreaTriggerRelocation(this, currentPosition.x, currentPosition.y, currentPosition.z, orientation);
 #ifdef TRINITY_DEBUG
-    VisualizePosition();
+    DebugVisualizePosition();
 #endif
 
     if (_lastSplineIndex != lastPositionIndex)
@@ -653,7 +671,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     }
 }
 
-void AreaTrigger::VisualizePosition()
+void AreaTrigger::DebugVisualizePosition()
 {
     if (Unit* caster = GetCaster())
         if (Player* player = caster->ToPlayer())
