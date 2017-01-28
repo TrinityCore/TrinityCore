@@ -1094,8 +1094,14 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                 }
             }
 
-            void CountTargets(std::list<WorldObject*>& targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
+                targets.remove_if([](WorldObject* obj) -> bool
+                {
+                    // SPELL_ATTR3_ONLY_TARGET_PLAYERS present on the spell, we can safely cast to Player
+                    return obj->ToPlayer()->IsGameMaster();
+                });
+
                 _targetCount = targets.size();
             }
 
@@ -1127,7 +1133,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             void Register() override
             {
                 BeforeCast += SpellCastFn(spell_sindragosa_s_fury_SpellScript::SelectDest);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_s_fury_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
                 OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
 
