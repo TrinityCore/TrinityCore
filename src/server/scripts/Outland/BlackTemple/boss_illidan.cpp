@@ -142,9 +142,6 @@ enum IllidanSpells
     SPELL_RANGE_MARKER                  = 41997,
     SPELL_SUMMON_GLAIVE                 = 41466,
 
-    // Blaze
-    SPELL_BLAZE                         = 40610,
-
     // Illidan
     SPELL_FLAME_CRASH                   = 40832,
     SPELL_SHEAR                         = 41032,
