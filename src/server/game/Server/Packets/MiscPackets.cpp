@@ -178,13 +178,6 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Misc::AreaTrigger::Read()
-{
-    _worldPacket >> AreaTriggerID;
-    Entered = _worldPacket.ReadBit();
-    FromClient = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Misc::SetDungeonDifficulty::Read()
 {
     _worldPacket >> DifficultyID;
