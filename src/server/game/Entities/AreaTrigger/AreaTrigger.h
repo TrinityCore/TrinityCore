@@ -51,12 +51,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SetDuration(int32 newDuration);
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
 
-        void SearchUnitInSphere();
-        void SearchUnitInBox();
-        void SearchUnitInPolygon();
-        void SearchUnitInCylinder();
-        void HandleUnitEnterExit(std::list<Unit*> targetList);
-
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
         AreaTriggerMiscTemplate const* GetMiscTemplate() const { return _areaTriggerMiscTemplate; }
@@ -73,14 +67,21 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void InitSplines(::Movement::PointsArray const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
         ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
-        uint32 GetElapsedTimeForMovement() const { return _totalMovementTime; }
+        uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
-        bool CheckIsInPolygon2D(Position* pos) const;
         void UpdateShape();
 
     protected:
         void _UpdateDuration(int32 newDuration);
         float GetProgress() const;
+
+        void UpdateTargetList();
+        void SearchUnitInSphere(std::list<Unit*>& targetList);
+        void SearchUnitInBox(std::list<Unit*>& targetList);
+        void SearchUnitInPolygon(std::list<Unit*>& targetList);
+        void SearchUnitInCylinder(std::list<Unit*>& targetList);
+        bool CheckIsInPolygon2D(Position const* pos) const;
+        void HandleUnitEnterExit(std::list<Unit*> const& targetList);
 
         void AddAuras(Unit* unit);
         void RemoveAuras(Unit* unit);
@@ -88,6 +89,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         void UpdatePolygonOrientation();
         void UpdateSplinePosition(uint32 diff);
+
+        void VisualizePosition(); // Debug purpose only
 
         ObjectGuid _targetGuid;
 
@@ -105,7 +108,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool _reachedDestination;
         int32 _lastSplineIndex;
         uint32 _movementTime;
-        uint32 _totalMovementTime;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
