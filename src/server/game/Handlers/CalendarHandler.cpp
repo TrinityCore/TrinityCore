@@ -255,15 +255,16 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
     }
     else
     {
-        // Invitee offline, get data from database
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
-        stmt->setString(0, calendarEventInvite.Name);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        // Invitee offline, get data from storage
+        ObjectGuid guid = sWorld->GetCharacterGuidByName(calendarEventInvite.Name);
+        if (!guid.IsEmpty())
         {
-            Field* fields = result->Fetch();
-            inviteeGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-            inviteeTeam = Player::TeamForRace(fields[1].GetUInt8());
-            inviteeGuildId = Player::GetGuildIdFromDB(inviteeGuid);
+            if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+            {
+                inviteeGuid = guid;
+                inviteeTeam = Player::TeamForRace(characterInfo->Race);
+                inviteeGuildId = characterInfo->GuildId;
+            }
         }
     }
 

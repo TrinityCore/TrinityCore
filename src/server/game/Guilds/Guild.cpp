@@ -2364,7 +2364,8 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     ObjectGuid::LowType lowguid = fields[1].GetUInt64();
-    Member *member = new Member(m_id, ObjectGuid::Create<HighGuid::Player>(lowguid), fields[2].GetUInt8());
+    ObjectGuid playerGuid(ObjectGuid::Create<HighGuid::Player>(lowguid));
+    Member* member = new Member(m_id, playerGuid, fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
         SQLTransaction trans(nullptr);
@@ -2373,6 +2374,7 @@ bool Guild::LoadMemberFromDB(Field* fields)
         return false;
     }
 
+    sWorld->UpdateCharacterGuildId(playerGuid, GetId());
     m_members[member->GetGUID()] = member;
     return true;
 }
@@ -2621,7 +2623,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         }
 
         Member* member = itr->second;
-        uint32 level = Player::GetLevelFromDB(member->GetGUID());
+        uint32 level = Player::GetLevelFromCharacterInfo(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
             packet.Invites.emplace_back(member->GetGUID(), level);
@@ -2640,7 +2642,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
         if (player->GetGuildId())
             return false;
     }
-    else if (Player::GetGuildIdFromDB(guid))
+    else if (Player::GetGuildIdFromCharacterInfo(guid))
         return false;
 
     // Remove all player signs from another petitions
@@ -2695,6 +2697,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
             return false;
         }
         m_members[guid] = member;
+        sWorld->UpdateCharacterGuildId(guid, GetId());
     }
 
     member->SaveToDB(trans);
@@ -2767,6 +2770,8 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
         for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
             player->RemoveSpell(entry->SpellID, false, false);
     }
+    else
+        sWorld->UpdateCharacterGuildId(guid, 0);
 
     Guild::_DeleteMemberFromDB(trans, guid.GetCounter());
     if (!isDisbanding)
