@@ -1151,6 +1151,14 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     return true;
 }
 
+char const* GetCascFilenamePart(char const* cascPath)
+{
+    if (char const* lastSep = strrchr(cascPath, '\\'))
+        return lastSep + 1;
+
+    return cascPath;
+}
+
 void ExtractDBFilesClient(int l)
 {
     printf("Extracting dbc/db2 files...\n");
@@ -1169,7 +1177,7 @@ void ExtractDBFilesClient(int l)
     {
         if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            boost::filesystem::path filePath = localePath / boost::filesystem::path(fileName).filename();
+            boost::filesystem::path filePath = localePath / GetCascFilenamePart(fileName);
 
             if (!boost::filesystem::exists(filePath))
                 if (ExtractFile(dbcFile, filePath.string()))
@@ -1237,7 +1245,7 @@ void ExtractGameTables()
     {
         if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            boost::filesystem::path filePath = outputPath / boost::filesystem::path(fileName).filename();
+            boost::filesystem::path filePath = outputPath / GetCascFilenamePart(fileName);
 
             if (!boost::filesystem::exists(filePath))
                 if (ExtractFile(dbcFile, filePath.string()))
