@@ -280,10 +280,13 @@ class boss_sindragosa : public CreatureScript
                     return;
                 }
 
-                BossAI::EnterCombat(victim);
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
+                instance->SetBossState(DATA_SINDRAGOSA, IN_PROGRESS);
+                me->SetCombatPulseDelay(5);
+                me->setActive(true);
+                DoZoneInCombat();
             }
 
             void EnterEvadeMode(EvadeReason why) override
