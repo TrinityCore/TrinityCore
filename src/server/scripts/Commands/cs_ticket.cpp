@@ -125,7 +125,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
         return true;
     }
 
-    ObjectGuid targetGuid = ObjectMgr::GetPlayerGUIDByName(target);
+    ObjectGuid targetGuid = sWorld->GetCharacterGuidByName(target);
     uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(targetGuid);
     // Target must exist and have administrative rights
     if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))

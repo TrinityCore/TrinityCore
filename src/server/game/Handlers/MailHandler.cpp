@@ -85,7 +85,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 
     ObjectGuid receiverGuid;
     if (normalizePlayerName(packet.Info.Target))
-        receiverGuid = ObjectMgr::GetPlayerGUIDByName(packet.Info.Target);
+        receiverGuid = sWorld->GetCharacterGuidByName(packet.Info.Target);
 
     if (!receiverGuid)
     {
@@ -159,7 +159,12 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     }
     else
     {
-        receiverTeam = ObjectMgr::GetPlayerTeamByGUID(receiverGuid);
+        if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(receiverGuid))
+        {
+            receiverTeam = Player::TeamForRace(characterInfo->Race);
+            receiverLevel = characterInfo->Level;
+            receiverAccountId = characterInfo->AccountId;
+        }
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
         stmt->setUInt64(0, receiverGuid.GetCounter());
@@ -171,17 +176,6 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
             mailsCount = fields[0].GetUInt64();
         }
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt64(0, receiverGuid.GetCounter());
-
-        result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            receiverLevel = fields[0].GetUInt8();
-        }
-
-        receiverAccountId = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
         receiverBnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(receiverAccountId);
     }
 

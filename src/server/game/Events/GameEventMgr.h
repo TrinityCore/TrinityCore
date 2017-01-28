@@ -118,7 +118,6 @@ class TC_GAME_API GameEventMgr
         void HandleWorldEventGossip(Player* player, Creature* c);
         uint64 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
-        uint16 GetEventIdForQuest(Quest const* quest) const;
     private:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
@@ -170,7 +169,6 @@ class TC_GAME_API GameEventMgr
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
-        std::unordered_map<uint32, uint16> _questToEventLinks;
         bool isSystemInit;
     public:
         GameEventGuidMap  mGameEventCreatureGuids;
