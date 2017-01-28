@@ -5780,14 +5780,14 @@ bool Unit::AttackStop()
 void Unit::ValidateAttackersAndOwnTarget()
 {
     // iterate attackers
-    AttackerSet toRemove;
+    UnitVector toRemove;
     AttackerSet const& attackers = getAttackers();
-    for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
-        if (!(*itr)->IsValidAttackTarget(this))
-            toRemove.insert(*itr);
+    for (Unit* attacker : attackers)
+        if (!attacker->IsValidAttackTarget(this))
+            toRemove.push_back(attacker);
 
-    for (AttackerSet::const_iterator itr = toRemove.begin(); itr != toRemove.end(); ++itr)
-        (*itr)->AttackStop();
+    for (Unit* attacker : toRemove)
+        attacker->AttackStop();
 
     // remove our own victim
     if (Unit* victim = GetVictim())
