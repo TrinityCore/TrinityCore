@@ -1146,7 +1146,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player
         {
             if (!normalizePlayerName(name))
             {
-                PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+                SendSysMessage(LANG_PLAYER_NOT_FOUND);
                 SetSentErrorMessage(true);
                 return false;
             }
