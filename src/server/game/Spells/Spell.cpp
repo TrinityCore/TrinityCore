@@ -3318,7 +3318,7 @@ void Spell::cast(bool skipCheck)
     if (Unit* target = m_targets.GetUnitTarget())
         if (m_caster->GetTypeId() == TYPEID_PLAYER || (m_caster->IsPet() && m_caster->IsControlledByPlayer()))
             if (GetDelayMoment() > 0 && !m_caster->IsFriendlyTo(target) && !m_spellInfo->HasAura(SPELL_AURA_BIND_SIGHT) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
-                m_caster->CombatStartOnCast(target, !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO), GetDelayMoment() + 500); // increase this time so we dont leave and enter combat in a moment
+                m_caster->CombatStartOnCast(target, m_spellInfo->HasInitialAggro(), GetDelayMoment() + 500); // increase this time so we dont leave and enter combat in a moment
 
     SetExecutedCurrently(false);
 
