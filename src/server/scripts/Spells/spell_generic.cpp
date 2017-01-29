@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -489,6 +489,61 @@ class spell_gen_bandage : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_gen_bandage_SpellScript();
+        }
+};
+
+// Blood Reserve - 64568
+enum BloodReserve
+{
+    SPELL_GEN_BLOOD_RESERVE_AURA = 64568,
+    SPELL_GEN_BLOOD_RESERVE_HEAL = 64569
+};
+
+class spell_gen_blood_reserve : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_reserve() : SpellScriptLoader("spell_gen_blood_reserve") { }
+
+        class spell_gen_blood_reserve_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_reserve_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_BLOOD_RESERVE_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+                    if (Unit* caster = eventInfo.GetActionTarget())
+                        if (caster->HealthBelowPctDamaged(35, dmgInfo->GetDamage()))
+                            return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActionTarget();
+                caster->CastCustomSpell(SPELL_GEN_BLOOD_RESERVE_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->RemoveAura(SPELL_GEN_BLOOD_RESERVE_AURA);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_blood_reserve_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_blood_reserve_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_blood_reserve_AuraScript();
         }
 };
 
@@ -1925,7 +1980,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         }
 
                         // If target isn't a training dummy there's a chance of failing the charge
-                        if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && roll_chance_f(12.5f))
+                        if (!target->IsCharmedOwnedByPlayerOrPlayer() && roll_chance_f(12.5f))
                             spellId = SPELL_CHARGE_MISS_EFFECT;
 
                         if (Unit* vehicle = GetCaster()->GetVehicleBase())
@@ -2883,8 +2938,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
 enum RunningWildMountIds
 {
-    RUNNING_WILD_MODEL_MALE     = 29422,
-    RUNNING_WILD_MODEL_FEMALE   = 29423,
+    RUNNING_WILD_MODEL          = 73200,
     SPELL_ALTERED_FORM          = 97709
 };
 
@@ -2899,9 +2953,7 @@ class spell_gen_running_wild : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_MALE))
-                    return false;
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_FEMALE))
+                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL))
                     return false;
                 return true;
             }
@@ -2911,7 +2963,7 @@ class spell_gen_running_wild : public SpellScriptLoader
                 Unit* target = GetTarget();
                 PreventDefaultAction();
 
-                target->Mount(target->getGender() == GENDER_FEMALE ? RUNNING_WILD_MODEL_FEMALE : RUNNING_WILD_MODEL_MALE, 0, 0);
+                target->Mount(RUNNING_WILD_MODEL, 0, 0);
 
                 // cast speed aura
                 if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
@@ -3832,7 +3884,7 @@ public:
             if (!target)
                 return;
 
-            target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
+            target->SetStandState(UNIT_STAND_STATE_STAND);
             target->HandleEmoteCommand(EMOTE_STATE_NONE);
         }
 
@@ -4241,7 +4293,7 @@ public:
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
              if (Unit* target = GetHitUnit())
-                 target->SetHealth(target->CountPctFromMaxHealth(10));
+                 target->SetHealth(target->CountPctFromMaxHealth(25));
         }
 
         void Register() override
@@ -4471,6 +4523,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_service_uniform();
     new spell_gen_av_drekthar_presence();
     new spell_gen_bandage();
+    new spell_gen_blood_reserve();
     new spell_gen_bonked();
     new spell_gen_break_shield("spell_gen_break_shield");
     new spell_gen_break_shield("spell_gen_tournament_counterattack");

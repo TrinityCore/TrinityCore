@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -146,10 +146,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
 void WorldPackets::Mail::MailGetList::Read()
 {
     _worldPacket >> Mailbox;
-    LowGuids.resize(_worldPacket.read<int32>());
-
-    for (auto& l : LowGuids)
-        _worldPacket >> l;
 }
 
 WorldPacket const* WorldPackets::Mail::MailListResult::Write()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum BCDataTypes
 {
     DATA_COMMANDER_SARANNIS             = 0,
     DATA_HIGH_BOTANIST_FREYWINN         = 1,
@@ -32,7 +32,7 @@ enum DataTypes
     DATA_WARP_SPLINTER                  = 4
 };
 
-enum CreatureIds
+enum BCCreatureIds
 {
     NPC_COMMANDER_SARANNIS              = 17976,
     NPC_HIGH_BOTANIST_FREYWINN          = 17975,

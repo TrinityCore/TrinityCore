@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,6 +48,7 @@
 #include "WhoPackets.h"
 #include "InstancePackets.h"
 #include "InstanceScript.h"
+#include "AreaTriggerPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -247,9 +248,8 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
-    ObjectGuid lguid = GetPlayer()->GetLootGUID();
-    if (!lguid.IsEmpty())
-        DoLootRelease(lguid);
+    if (!GetPlayer()->GetLootGUID().IsEmpty())
+        GetPlayer()->SendLootReleaseAll();
 
     bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
                          GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT);
@@ -465,7 +465,7 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
     GetPlayer()->ResurrectUsingRequestData();
 }
 
-void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
+void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigger& packet)
 {
     Player* player = GetPlayer();
     if (player->IsInFlight())
@@ -527,7 +527,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
         player->SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            player->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
 
         return;
     }
@@ -568,7 +568,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
                     reviveAtTrigger = true;
                     break;
                 case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
-                    player->GetSession()->SendPacket(WorldPackets::Misc::AreaTriggerNoCorpse().Write());
+                    player->GetSession()->SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
                     break;
                 case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
@@ -724,6 +724,16 @@ void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic
 
 void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
+}
+
+void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
+{
+    uint32 movie = _player->GetMovie();
+    if (!movie)
+        return;
+
+    _player->SetMovie(0);
+    sScriptMgr->OnMovieComplete(_player, movie);
 }
 
 void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)

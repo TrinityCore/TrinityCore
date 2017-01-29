@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -754,6 +754,22 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
 {
     _worldPacket << Source;
     _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << Target;
+    _worldPacket << TargetPostion;
+    _worldPacket << SpellVisualID;
+    _worldPacket << TravelSpeed;
+    _worldPacket << MissReason;
+    _worldPacket << ReflectStatus;
+    _worldPacket << Orientation;
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

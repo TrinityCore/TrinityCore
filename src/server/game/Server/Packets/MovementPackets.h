@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -210,7 +210,7 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             uint8 Arg = 0;
-            int32 MapDifficultyXConditionID;
+            int32 MapDifficultyXConditionID = 0;
             uint32 TransfertAbort = 0;
         };
 

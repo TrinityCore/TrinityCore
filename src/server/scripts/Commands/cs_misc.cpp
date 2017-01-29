@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -235,11 +235,15 @@ public:
 
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
+        std::ostringstream phases;
+        for (uint32 phaseId : object->GetPhases())
+            phases << phaseId << ", ";
+
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->MapName->Str[handler->GetSessionDbcLocale()] : unknown),
             zoneId, (zoneEntry ? zoneEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
-            object->GetPhaseMask(),
+            object->GetPhaseMask(), phases.str().c_str(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1360,7 +1364,7 @@ public:
                 InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, 0, GuidSet(), bonusListIDs);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), bonusListIDs);
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)

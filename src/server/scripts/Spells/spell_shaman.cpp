@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@ enum ShamanSpells
 {
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
+    SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 204290,
     SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE           = 170374,
     SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC          = 170377,
@@ -47,6 +48,8 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
+    SPELL_SHAMAN_GATHERING_STORMS               = 198299,
+    SPELL_SHAMAN_GATHERING_STORMS_BUFF          = 198300,
     SPELL_SHAMAN_HIGH_TIDE                      = 157154,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
@@ -192,6 +195,51 @@ class spell_sha_bloodlust : public SpellScriptLoader
         {
             return new spell_sha_bloodlust_SpellScript();
         }
+};
+
+// 187874 - Crash Lightning
+class spell_sha_crash_lightning : public SpellScriptLoader
+{
+public:
+    spell_sha_crash_lightning() : SpellScriptLoader("spell_sha_crash_lightning") { }
+
+    class spell_sha_crash_lightning_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_crash_lightning_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE))
+                return false;
+            return true;
+        }
+
+        void CountTargets(std::list<WorldObject*>& targets)
+        {
+            _targetsHit = targets.size();
+        }
+
+        void TriggerCleaveBuff()
+        {
+            if (_targetsHit >= 2)
+                GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE, true);
+            if (AuraEffect const* gatheringStorms = GetCaster()->GetAuraEffect(SPELL_SHAMAN_GATHERING_STORMS, EFFECT_0))
+                GetCaster()->CastCustomSpell(SPELL_SHAMAN_GATHERING_STORMS_BUFF, SPELLVALUE_BASE_POINT0, int32(gatheringStorms->GetAmount() * _targetsHit), GetCaster(), true);
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_crash_lightning_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            AfterCast += SpellCastFn(spell_sha_crash_lightning_SpellScript::TriggerCleaveBuff);
+        }
+
+        size_t _targetsHit = 0;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sha_crash_lightning_SpellScript();
+    }
 };
 
 // 204288 - Earth Shield
@@ -413,7 +461,7 @@ public:
             PreventDefaultAction();
 
             Unit* attacker = eventInfo.GetActor();
-            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.125f / 2600 * attacker->GetAttackTime(BASE_ATTACK));
+            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.125f / 2600 * attacker->GetBaseAttackTime(BASE_ATTACK));
             attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
         }
 
@@ -511,7 +559,7 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
-// 23551 - Lightning Shield
+// 23551 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield : public SpellScriptLoader
 {
     public:
@@ -546,7 +594,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
         }
 };
 
-// 23552 - Lightning Shield
+// 23552 - Lightning Shield T2 Bonus
 class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 {
     public:
@@ -593,7 +641,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
                     return false;
                 return true;
             }
@@ -801,33 +849,6 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
         }
 };
 
-// 324 - Lightning Shield
-class spell_sha_lightning_shield : public SpellScriptLoader
-{
-public:
-    spell_sha_lightning_shield() : SpellScriptLoader("spell_sha_lightning_shield") { }
-
-    class spell_sha_lightning_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_sha_lightning_shield_AuraScript);
-
-        void UnsetUsingCharges(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetAura()->SetUsingCharges(false);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_sha_lightning_shield_AuraScript::UnsetUsingCharges, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_sha_lightning_shield_AuraScript();
-    }
-};
-
 // 210621 - Path of Flames Spread
 class spell_sha_path_of_flames_spread : public SpellScriptLoader
 {
@@ -962,6 +983,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_guidance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_bloodlust();
+    new spell_sha_crash_lightning();
     new spell_sha_earth_shield();
     new spell_sha_earthen_rage_passive();
     new spell_sha_earthen_rage_proc_aura();
@@ -978,7 +1000,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_burst();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
-    new spell_sha_lightning_shield();
     new spell_sha_path_of_flames_spread();
     new spell_sha_tidal_waves();
     new spell_sha_windfury();

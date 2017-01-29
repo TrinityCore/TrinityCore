@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -522,7 +522,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
-        !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||
+        !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
@@ -543,7 +543,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     pet->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
-    pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
+    pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
 
     if (declinedname)
     {
@@ -676,6 +676,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
+    spell->m_fromClient = true;
     spell->m_misc.Raw.Data[0] = petCastSpell.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = petCastSpell.Cast.Misc[1];
     spell->m_targets = targets;

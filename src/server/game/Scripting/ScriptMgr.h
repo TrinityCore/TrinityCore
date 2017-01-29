@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "Weather.h"
 
 class AccountMgr;
+class AreaTrigger;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -739,6 +740,9 @@ class TC_GAME_API PlayerScript : public UnitScript
 
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
+
+        // Called when a player completes a movie
+        virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -831,6 +835,38 @@ class TC_GAME_API GroupScript : public ScriptObject
 
         // Called when a group is disbanded.
         virtual void OnDisband(Group* /*group*/) { }
+};
+
+class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
+{
+    protected:
+
+        AreaTriggerEntityScript(const char* name);
+
+    public:
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        virtual void OnInitialize(AreaTrigger* /*areaTrigger*/) { }
+
+        // Called when the AreaTrigger has just been created
+        virtual void OnCreate(AreaTrigger* /*areaTrigger*/) { }
+
+        // Called on each AreaTrigger update
+        virtual void OnUpdate(AreaTrigger* /*areaTrigger*/, uint32 /*diff*/) { }
+
+        // Called when the AreaTrigger reach splineIndex
+        virtual void OnSplineIndexReached(AreaTrigger* /*areaTrigger*/, int /*splineIndex*/) { }
+
+        // Called when the AreaTrigger reach its destination
+        virtual void OnDestinationReached(AreaTrigger* /*areaTrigger*/) { }
+
+        // Called when an unit enter the AreaTrigger
+        virtual void OnUnitEnter(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
+
+        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
+        virtual void OnUnitExit(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
+
+        // Called when the AreaTrigger is removed
+        virtual void OnRemove(AreaTrigger* /*areaTrigger*/) { }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1088,6 +1124,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
+        void OnMovieComplete(Player* player, uint32 movieId);
 
     public: /* AccountScript */
 
@@ -1128,6 +1165,17 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+
+    public: /* AreaTriggerEntityScript */
+
+        void OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger);
+        void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
+        void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
+        void OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex);
+        void OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger);
+        void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
+        void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);
 
     public: /* SceneScript */
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);

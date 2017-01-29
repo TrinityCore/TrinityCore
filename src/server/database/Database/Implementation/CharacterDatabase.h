@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,8 +58,6 @@ enum CharacterDatabaseStatements
     CHAR_SEL_CHAR_ZONE,
     CHAR_SEL_CHAR_POSITION_XYZ,
     CHAR_SEL_CHAR_POSITION,
-    CHAR_SEL_CHARACTER_TEMPLATES,
-    CHAR_SEL_CHARACTER_TEMPLATE_CLASSES,
 
     CHAR_DEL_BATTLEGROUND_RANDOM_ALL,
     CHAR_DEL_BATTLEGROUND_RANDOM,
@@ -359,7 +357,6 @@ enum CharacterDatabaseStatements
     CHAR_UPD_GROUP_RAID_DIFFICULTY,
     CHAR_UPD_GROUP_LEGACY_RAID_DIFFICULTY,
     CHAR_DEL_INVALID_SPELL_SPELLS,
-    CHAR_DEL_INVALID_SPELL_TALENTS,
     CHAR_UPD_DELETE_INFO,
     CHAR_UPD_RESTORE_DELETE_INFO,
     CHAR_UPD_ZONE,
@@ -516,9 +513,7 @@ enum CharacterDatabaseStatements
     CHAR_DEL_PETITION_BY_OWNER,
     CHAR_DEL_PETITION_SIGNATURE_BY_OWNER,
     CHAR_INS_CHAR_GLYPHS,
-    CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC,
     CHAR_INS_CHAR_TALENT,
-    CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC,
     CHAR_UPD_CHAR_LIST_SLOT,
 
     CHAR_SEL_CHAR_VOID_STORAGE,

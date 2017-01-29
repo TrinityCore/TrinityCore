@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "AuthenticationPackets.h"
+#include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
 
 bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
@@ -73,6 +74,16 @@ void WorldPackets::Auth::AuthSession::Read()
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+{
+    data << uint32(waitInfo.WaitCount);
+    data << uint32(waitInfo.WaitTime);
+    data.WriteBit(waitInfo.HasFCM);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPackets::Auth::AuthResponse::AuthResponse()
     : ServerPacket(SMSG_AUTH_RESPONSE, 132)
 {
@@ -99,13 +110,13 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->CurrencyID);
         _worldPacket << int32(SuccessInfo->Time);
 
-        for (auto& race : *SuccessInfo->AvailableRaces)
+        for (auto const& race : *SuccessInfo->AvailableRaces)
         {
             _worldPacket << uint8(race.first); /// the current race
             _worldPacket << uint8(race.second); /// the required Expansion
         }
 
-        for (auto& klass : *SuccessInfo->AvailableClasses)
+        for (auto const& klass : *SuccessInfo->AvailableClasses)
         {
             _worldPacket << uint8(klass.first); /// the current class
             _worldPacket << uint8(klass.second); /// the required Expansion
@@ -133,7 +144,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
-        for (auto& virtualRealm : SuccessInfo->VirtualRealms)
+        for (auto const& virtualRealm : SuccessInfo->VirtualRealms)
         {
             _worldPacket << uint32(virtualRealm.RealmAddress);
             _worldPacket.WriteBit(virtualRealm.IsLocal);
@@ -146,32 +157,34 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
         }
 
-        for (auto& templat : SuccessInfo->Templates)
+        for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {
-            _worldPacket << uint32(templat.TemplateSetId);
-            _worldPacket << uint32(templat.Classes.size());
-            for (auto& templateClass : templat.Classes)
+            _worldPacket << uint32(templat->TemplateSetId);
+            _worldPacket << uint32(templat->Classes.size());
+            for (CharacterTemplateClass const& templateClass : templat->Classes)
             {
                 _worldPacket << uint8(templateClass.ClassID);
                 _worldPacket << uint8(templateClass.FactionGroup);
             }
 
-            _worldPacket.WriteBits(templat.Name.length(), 7);
-            _worldPacket.WriteBits(templat.Description.length(), 10);
+            _worldPacket.WriteBits(templat->Name.length(), 7);
+            _worldPacket.WriteBits(templat->Description.length(), 10);
             _worldPacket.FlushBits();
 
-            _worldPacket.WriteString(templat.Name);
-            _worldPacket.WriteString(templat.Description);
+            _worldPacket.WriteString(templat->Name);
+            _worldPacket.WriteString(templat->Description);
         }
     }
 
     if (WaitInfo)
-    {
-        _worldPacket << uint32(WaitInfo->WaitCount);
-        _worldPacket << uint32(WaitInfo->WaitTime);
-        _worldPacket.WriteBit(WaitInfo->HasFCM);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << *WaitInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitInfo;
 
     return &_worldPacket;
 }

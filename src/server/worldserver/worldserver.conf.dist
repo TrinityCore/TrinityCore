@@ -846,11 +846,11 @@ SkipCinematics = 0
 #
 #    MaxPlayerLevel
 #        Description: Maximum level that can be reached by players.
-#        Important:   Levels beyond 100 are not recommended at all.
+#        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     100
+#        Default:     110
 
-MaxPlayerLevel = 100
+MaxPlayerLevel = 110
 
 #
 #    MinDualSpecLevel
@@ -3778,6 +3778,7 @@ Logger.mmaps=3,Server
 #Logger.condition=3,Console Server
 #Logger.criteria=3,Console Server
 #Logger.criteria.achievement=3,Console Server
+#Logger.entities.areatrigger=3,Console Server
 #Logger.entities.pet=3,Console Server
 #Logger.entities.player.character=3,Console Server
 #Logger.entities.player.dump=3,Console Server

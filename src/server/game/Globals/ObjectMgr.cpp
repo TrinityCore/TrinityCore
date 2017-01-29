@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -461,7 +461,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
 
     creatureTemplate.Entry = entry;
 
-    for (uint8 i = 0; i < MAX_CREATURE_DIFFICULTIES; ++i)
+    for (uint32 i = 0; i < MAX_CREATURE_DIFFICULTIES; ++i)
         creatureTemplate.DifficultyEntry[i] = fields[1 + i].GetUInt32();
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
@@ -496,7 +496,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.unit_flags             = fields[32].GetUInt32();
     creatureTemplate.unit_flags2            = fields[33].GetUInt32();
     creatureTemplate.dynamicflags           = fields[34].GetUInt32();
-    creatureTemplate.family                 = uint32(fields[35].GetUInt8());
+    creatureTemplate.family                 = CreatureFamily(fields[35].GetUInt8());
     creatureTemplate.trainer_type           = uint32(fields[36].GetUInt8());
     creatureTemplate.trainer_class          = uint32(fields[37].GetUInt8());
     creatureTemplate.trainer_race           = uint32(fields[38].GetUInt8());
@@ -510,7 +510,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.resistance[i]      = fields[45 + i - 1].GetInt16();
 
-    for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         creatureTemplate.spells[i]          = fields[51 + i].GetUInt32();
 
     creatureTemplate.VehicleId              = fields[59].GetUInt32();
@@ -860,7 +860,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (!displayScaleEntry)
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) does not have any existing display id in Modelid1/Modelid2/Modelid3/Modelid4.", cInfo->Entry);
 
-    for (int k = 0; k < MAX_KILL_CREDIT; ++k)
+    for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
     {
         if (cInfo->KillCredit[k])
         {
@@ -915,7 +915,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family) && cInfo->family != CREATURE_FAMILY_HORSE_CUSTOM)
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid creature family (%u) in `family`.", cInfo->Entry, cInfo->family);
-        const_cast<CreatureTemplate*>(cInfo)->family = 0;
+        const_cast<CreatureTemplate*>(cInfo)->family = CREATURE_FAMILY_NONE;
     }
 
     if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ANYWHERE)
@@ -940,7 +940,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         }
     }
 
-    for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
+    for (uint8 j = 0; j < MAX_CREATURE_SPELLS; ++j)
     {
         if (cInfo->spells[j] && !sSpellMgr->GetSpellInfo(cInfo->spells[j]))
         {
@@ -2583,7 +2583,7 @@ struct ItemSpecStats
                     break;
             }
         }
-        else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
+        else if (item->Class == ITEM_CLASS_ARMOR)
         {
             switch (item->SubClass)
             {
@@ -2607,16 +2607,24 @@ struct ItemSpecStats
                     ItemType = 4;
                     break;
                 default:
-                    ItemType = 6;
                     if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                    {
+                        ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_SHIELD);
+                    }
                     else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                    {
+                        ItemType = 6;
                         AddStat(ITEM_SPEC_STAT_RELIC);
+                    }
+                    else
+                        ItemType = 0;
                     break;
             }
         }
         else if (item->Class == ITEM_CLASS_GEM)
         {
+            ItemType = 7;
             if (GemPropertiesEntry const* gem = sGemPropertiesStore.LookupEntry(sparse->GemProperties))
             {
                 if (gem->Type & SOCKET_COLOR_RELIC_IRON)
@@ -2747,47 +2755,49 @@ void ObjectMgr::LoadItemTemplates()
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
         {
             for (ItemSpecOverrideEntry const* itemSpecOverride : *itemSpecOverrides)
+            {
                 if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpecOverride->SpecID))
+                {
+                    itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
                     itemTemplate.Specializations[0].set(ItemTemplate::CalculateItemSpecBit(specialization));
-
-            itemTemplate.Specializations[1] |= itemTemplate.Specializations[0];
+                    itemTemplate.Specializations[1] |= itemTemplate.Specializations[0];
+                    itemTemplate.Specializations[2] |= itemTemplate.Specializations[0];
+                }
+            }
         }
         else
         {
             ItemSpecStats itemSpecStats(db2Data, sparse);
 
-            if (itemSpecStats.ItemSpecStatCount)
+            for (ItemSpecEntry const* itemSpec : sItemSpecStore)
             {
-                for (ItemSpecEntry const* itemSpec : sItemSpecStore)
+                if (itemSpecStats.ItemType != itemSpec->ItemType)
+                    continue;
+
+                bool hasPrimary = itemSpec->PrimaryStat == ITEM_SPEC_STAT_NONE;
+                bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+                for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
                 {
-                    if (itemSpecStats.ItemType != itemSpec->ItemType)
-                        continue;
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
+                        hasPrimary = true;
+                    if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
+                        hasSecondary = true;
+                }
 
-                    bool hasPrimary = false;
-                    bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
-                    for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
+                if (!hasPrimary || !hasSecondary)
+                    continue;
+
+                if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
+                {
+                    if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
                     {
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
-                            hasPrimary = true;
-                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
-                            hasSecondary = true;
-                    }
-
-                    if (!hasPrimary || !hasSecondary)
-                        continue;
-
-                    if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(itemSpec->SpecID))
-                    {
-                        if ((1 << (specialization->ClassID - 1)) & sparse->AllowableClass)
-                        {
-                            itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
-                            std::size_t specBit = ItemTemplate::CalculateItemSpecBit(specialization);
-                            itemTemplate.Specializations[0].set(specBit);
-                            if (itemSpec->MaxLevel > 40)
-                                itemTemplate.Specializations[1].set(specBit);
-                            if (itemSpec->MaxLevel >= 110)
-                                itemTemplate.Specializations[2].set(specBit);
-                        }
+                        itemTemplate.ItemSpecClassMask |= 1 << (specialization->ClassID - 1);
+                        std::size_t specBit = ItemTemplate::CalculateItemSpecBit(specialization);
+                        itemTemplate.Specializations[0].set(specBit);
+                        if (itemSpec->MaxLevel > 40)
+                            itemTemplate.Specializations[1].set(specBit);
+                        if (itemSpec->MaxLevel >= 110)
+                            itemTemplate.Specializations[2].set(specBit);
                     }
                 }
             }
@@ -8753,6 +8763,8 @@ void ObjectMgr::LoadScriptNames()
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM areatrigger_scripts WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM areatrigger_template WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(ScriptName) FROM spell_script_names WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM transports WHERE ScriptName <> '' "
@@ -9393,81 +9405,6 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
-}
-
-void ObjectMgr::LoadCharacterTemplates()
-{
-    uint32 oldMSTime = getMSTime();
-    _characterTemplateStore.clear();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TEMPLATES);
-    PreparedQueryResult templates = CharacterDatabase.Query(stmt);
-
-    if (!templates)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 character templates. DB table `character_template` is empty.");
-        return;
-    }
-
-    PreparedQueryResult classes;
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = templates->Fetch();
-
-        uint32 templateSetId = fields[0].GetUInt32();
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_TEMPLATE_CLASSES);
-        stmt->setUInt32(0, templateSetId);
-        classes = CharacterDatabase.Query(stmt);
-
-        if (classes)
-        {
-            CharacterTemplate templ;
-            templ.TemplateSetId = templateSetId;
-            templ.Name = fields[1].GetString();
-            templ.Description = fields[2].GetString();
-            templ.Level = fields[3].GetUInt8();
-
-            do
-            {
-                fields = classes->Fetch();
-
-                uint8 factionGroup = fields[0].GetUInt8();
-                uint8 classID = fields[1].GetUInt8();
-
-                if (!((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) == (FACTION_MASK_PLAYER | FACTION_MASK_ALLIANCE)) &&
-                    !((factionGroup & (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)) == (FACTION_MASK_PLAYER | FACTION_MASK_HORDE)))
-                {
-                    TC_LOG_ERROR("sql.sql", "Faction group %u defined for character template %u in `character_template_class` is invalid. Skipped.", factionGroup, templateSetId);
-                    continue;
-                }
-
-                ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
-                if (!classEntry)
-                {
-                    TC_LOG_ERROR("sql.sql", "Class %u defined for character template %u in `character_template_class` does not exists, skipped.", classID, templateSetId);
-                    continue;
-                }
-
-                templ.Classes.emplace_back(factionGroup, classID);
-
-            } while (classes->NextRow());
-
-            if (!templ.Classes.empty())
-            {
-                _characterTemplateStore[templateSetId] = templ;
-                ++count;
-            }
-        }
-        else
-        {
-            TC_LOG_ERROR("sql.sql", "Character template %u does not have any classes defined in `character_template_class`. Skipped.", templateSetId);
-            continue;
-        }
-    } while (templates->NextRow());
-    TC_LOG_INFO("server.loading", ">> Loaded %u character templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadRealmNames()
