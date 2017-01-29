@@ -67,6 +67,7 @@ enum IllidanSay
     SAY_AKAMA_TIME_HAS_COME         = 5,
     SAY_AKAMA_MINIONS               = 6,
     SAY_AKAMA_LIGHT                 = 7,
+    SAY_AKAMA_FINISH                = 8,
 
     // Spirits
     SAY_SPIRIT_ALONE                = 0,
@@ -1132,6 +1133,7 @@ public:
             switch (pointId)
             {
                 case POINT_ILLIDARI_COUNCIL:
+                    Talk(SAY_AKAMA_FINISH);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case POINT_STAIRS:
@@ -1540,9 +1542,9 @@ class npc_illidan_db_target : public CreatureScript
 public:
     npc_illidan_db_target() : CreatureScript("npc_illidan_db_target") { }
 
-    struct npc_illidan_db_targetAI : public ScriptedAI
+    struct npc_illidan_db_targetAI : public NullCreatureAI
     {
-        npc_illidan_db_targetAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_illidan_db_targetAI(Creature* creature) : NullCreatureAI(creature) { }
 
         void Reset() override
         {

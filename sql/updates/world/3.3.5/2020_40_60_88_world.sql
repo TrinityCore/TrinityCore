@@ -29,7 +29,7 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 UPDATE `creature_template` SET `scale`=1 WHERE `entry`=23412; -- Door Trigger
 UPDATE `creature_template` SET `speed_walk`=1, `speed_run`=2, `unit_flags2`=2099200, `flags_extra`=`flags_extra` | 512 WHERE `entry`=22917; -- Illidan Stormrage
 UPDATE `creature_template` SET `flags_extra`=`flags_extra`|128 WHERE `entry`=23336; -- Flame Crash
-UPDATE `creature_template` SET `speed_walk`=0.35, `speed_run`=0.534188, `flags_extra`=128, `ScriptName`='npc_illidan_db_target' WHERE `entry`=23070;
+UPDATE `creature_template` SET `speed_walk`=0.35, `speed_run`=0.992063, `flags_extra`=128, `ScriptName`='npc_illidan_db_target' WHERE `entry`=23070;
 UPDATE `creature_template` SET `speed_walk`=1.6, `speed_run`=0.571429 WHERE `entry`=23375; -- Shadow Demon
 UPDATE `creature_template` SET `ScriptName`='npc_maiev' WHERE `entry`=23197;
 
@@ -107,8 +107,8 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN(23069,23336,23498);
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(23069, 0, 0, 256, 0, 0, '40029 40031'),
-(23336, 0, 0, 256, 0, 0, '40836 40031'),
+(23069, 0, 0, 256, 0, 0, 40029),
+(23336, 0, 0, 256, 0, 0, 40836),
 (23498, 0, 0, 16908544, 0, 0, '34429 41913');
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN(-41914,-41917); -- Remove Parasitic hack
@@ -166,6 +166,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (23089, 5, 0, 'The time has come! The moment is at hand!', 14, 0, 100, 22, 0, 11380, 20894, 0, 'SAY_AKAMA_TIME_HAS_COME'),
 (23089, 6, 0, 'I will deal with these mongrels! Strike now, friends! Strike at the Betrayer!', 14, 0, 100, 22, 0, 11390, 21250, 0, 'SAY_AKAMA_MINIONS'),
 (23089, 7, 0, 'The Light will bless these dismal halls once again.... I swear it.', 14, 0, 100, 1, 0, 11387, 21514, 0, 'SAY_AKAMA_LIGHT'),
+(23089, 8, 0, 'Let us finish what we\'ve started.  I will lead you to Illidan\'s abode once you\'ve recovered your strength.', 12, 0, 100, 1, 0, 0, 21520, 0, 'SAY_AKAMA_FINISH'),
 --  AKAMA MINIONS
 (23410, 0, 0, 'You are not alone, Akama.', 12, 0, 100, 0, 0, 0, 21545, 0, 'SAY_SPIRIT_ALONE'), -- Spirit of Udalo
 (23411, 0, 0, 'Your people will always be with you!', 12, 0, 100, 0, 0, 0, 21546, 0, 'SAY_SPIRIT_ALONE'); -- Spirit of Olum
