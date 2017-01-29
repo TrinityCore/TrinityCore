@@ -34,6 +34,7 @@
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterTemplateDataStore.h"
 #include "Chat.h"
 #include "Config.h"
 #include "CreatureAIRegistry.h"
@@ -2117,7 +2118,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
 
     TC_LOG_INFO("server.loading", "Loading character templates...");
-    sObjectMgr->LoadCharacterTemplates();
+    sCharacterTemplateDataStore->LoadCharacterTemplates();
 
     TC_LOG_INFO("server.loading", "Loading realm names...");
     sObjectMgr->LoadRealmNames();
