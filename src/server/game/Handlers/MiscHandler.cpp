@@ -49,6 +49,7 @@
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellPackets.h"
+#include "WhoListStorage.h"
 #include "WhoPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -140,64 +141,46 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
     WorldPackets::Who::WhoResponsePkt response;
 
-    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
-
-    HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+    WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
+    for (WhoListPlayerInfo const& target : whoList)
     {
-        Player* target = itr->second;
         // player can see member of other team only if has RBAC_PERM_TWO_SIDE_WHO_LIST
-        if (target->GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
+        if (target.GetTeam() != team && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_WHO_LIST))
             continue;
 
         // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if has RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS
-        if (target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList) && !HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS))
-            continue;
-
-        // do not process players which are not in world
-        if (!target->IsInWorld())
+        if (target.GetSecurity() > AccountTypes(gmLevelInWhoList) && !HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS))
             continue;
 
         // check if target is globally visible for player
-        if (!target->IsVisibleGloballyFor(_player))
-            continue;
+        if (_player->GetGUID() != target.GetGuid() && !target.IsVisible())
+            if (AccountMgr::IsPlayerAccount(_player->GetSession()->GetSecurity()) || target.GetSecurity() > _player->GetSession()->GetSecurity())
+                continue;
 
         // check if target's level is in level range
-        uint8 lvl = target->getLevel();
+        uint8 lvl = target.GetLevel();
         if (lvl < request.MinLevel || lvl > request.MaxLevel)
             continue;
 
         // check if class matches classmask
-        if (request.ClassFilter >= 0 && !(request.ClassFilter & (1 << target->getClass())))
+        if (request.ClassFilter >= 0 && !(request.ClassFilter & (1 << target.GetClass())))
             continue;
 
         // check if race matches racemask
-        if (request.RaceFilter >= 0 && !(request.RaceFilter & (SI64LIT(1) << target->getRace())))
+        if (request.RaceFilter >= 0 && !(request.RaceFilter & (SI64LIT(1) << target.GetRace())))
             continue;
 
         if (!whoRequest.Areas.empty())
         {
-            if (std::find(whoRequest.Areas.begin(), whoRequest.Areas.end(), target->GetZoneId()) == whoRequest.Areas.end())
+            if (std::find(whoRequest.Areas.begin(), whoRequest.Areas.end(), target.GetZoneId()) == whoRequest.Areas.end())
                 continue;
         }
 
-        std::wstring wTargetName;
-
-        if (!Utf8toWStr(target->GetName(), wTargetName))
+        std::wstring const& wTargetName = target.GetWidePlayerName();
+        if (!(wPlayerName.empty() || wTargetName.find(wPlayerName) != std::wstring::npos))
             continue;
 
-        wstrToLower(wTargetName);
-
-        if (!wPlayerName.empty() && wTargetName.find(wPlayerName) == std::wstring::npos)
-            continue;
-
-        Guild* targetGuild = target->GetGuild();
-        std::wstring wTargetGuildName;
-
-        if (!Utf8toWStr(targetGuild ? targetGuild->GetName() : "", wTargetGuildName))
-            continue;
-
-        wstrToLower(wTargetGuildName);
+        std::wstring const& wTargetGuildName = target.GetWideGuildName();
 
         if (!wGuildName.empty() && wTargetGuildName.find(wGuildName) == std::wstring::npos)
             continue;
@@ -205,7 +188,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         if (!wWords.empty())
         {
             std::string aName;
-            if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(target->GetZoneId()))
+            if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(target.GetZoneId()))
                 aName = areaEntry->AreaName->Str[GetSessionDbcLocale()];
 
             bool show = false;
@@ -228,18 +211,18 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
         }
 
         WorldPackets::Who::WhoEntry whoEntry;
-        if (!whoEntry.PlayerData.Initialize(target->GetGUID(), target))
+        if (!whoEntry.PlayerData.Initialize(target.GetGuid(), nullptr))
             continue;
 
-        if (targetGuild)
+        if (!target.GetGuildGuid().IsEmpty())
         {
-            whoEntry.GuildGUID = targetGuild->GetGUID();
+            whoEntry.GuildGUID = target.GetGuildGuid();
             whoEntry.GuildVirtualRealmAddress = GetVirtualRealmAddress();
-            whoEntry.GuildName = targetGuild->GetName();
+            whoEntry.GuildName = target.GetGuildName();
         }
 
-        whoEntry.AreaID = target->GetZoneId();
-        whoEntry.IsGM = target->IsGameMaster();
+        whoEntry.AreaID = target.GetZoneId();
+        whoEntry.IsGM = target.IsGameMaster();
 
         response.Response.Entries.push_back(whoEntry);
 
