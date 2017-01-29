@@ -119,6 +119,23 @@ public:
             _Reset();
             _flyCount = 0;
             HandleTerraceDoors(true);
+            if (GameObject* urn = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_BLACKENED_URN)))
+                urn->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            float x, y, z, o;
+            me->GetRespawnPosition(x, y, z, &o);
+            me->SetHomePosition(x, y, z, o);
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
+            CreatureAI::EnterEvadeMode(why);
+        }
+
+        void JustReachedHome() override
+        {
+            _DespawnAtEvade();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -271,7 +288,6 @@ public:
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     break;
                 case EVENT_INTRO_LANDING:
-                    me->SetHomePosition(me->GetPosition());
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetInCombatWithZone();
                     break;
@@ -396,7 +412,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
-            return true;
+            return false;
 
         InstanceScript* instance = go->GetInstanceScript();
         if (!instance || instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
@@ -404,10 +420,10 @@ public:
 
         if (Creature* nightbane = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_NIGHTBANE)))
         {
-            nightbane->AI()->DoAction(ACTION_SUMMON);
             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            nightbane->AI()->DoAction(ACTION_SUMMON);
         }
-        return true;
+        return false;
     }
 };
 

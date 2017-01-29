@@ -229,6 +229,9 @@ public:
                 case GO_DUST_COVERED_CHEST:
                     DustCoveredChest = go->GetGUID();
                     break;
+                case GO_BLACKENED_URN:
+                    BlackenedUrnGUID = go->GetGUID();
+                    break;
             }
 
             switch (OperaEvent)
@@ -294,6 +297,8 @@ public:
                     return MastersTerraceDoor[1];
                 case DATA_IMAGE_OF_MEDIVH:
                     return ImageGUID;
+                case DATA_GO_BLACKENED_URN:
+                    return BlackenedUrnGUID;
             }
 
             return ObjectGuid::Empty;
@@ -319,6 +324,7 @@ public:
         ObjectGuid MastersTerraceDoor[2];
         ObjectGuid ImageGUID;
         ObjectGuid DustCoveredChest;
+        ObjectGuid BlackenedUrnGUID;
     };
 };
 

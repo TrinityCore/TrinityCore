@@ -53,7 +53,8 @@ enum DataTypes
     DATA_IMAGE_OF_MEDIVH            = 26,
     DATA_MASTERS_TERRACE_DOOR_1     = 27,
     DATA_MASTERS_TERRACE_DOOR_2     = 28,
-    DATA_GO_SIDE_ENTRANCE_DOOR      = 29
+    DATA_GO_SIDE_ENTRANCE_DOOR      = 29,
+    DATA_GO_BLACKENED_URN           = 30
 };
 
 enum OperaEvents
@@ -100,7 +101,8 @@ enum GameObjectIds
     GO_MASTERS_TERRACE_DOOR         = 184274,
     GO_MASTERS_TERRACE_DOOR2        = 184280,
     GO_SIDE_ENTRANCE_DOOR           = 184275,
-    GO_DUST_COVERED_CHEST           = 185119
+    GO_DUST_COVERED_CHEST           = 185119,
+    GO_BLACKENED_URN                = 194092
 };
 
 enum Misc
