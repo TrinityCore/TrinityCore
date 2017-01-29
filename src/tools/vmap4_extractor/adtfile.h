@@ -19,7 +19,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "mpqfile.h"
+#include "cascfile.h"
 #include "wmo.h"
 #include "model.h"
 
@@ -111,7 +111,7 @@ class ADTFile
 {
 private:
     //size_t mcnk_offsets[256], mcnk_sizes[256];
-    MPQFile ADT;
+    CASCFile ADT;
     //mcell Mcell;
     std::string Adtfilename;
 public:

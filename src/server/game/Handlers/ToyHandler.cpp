@@ -81,6 +81,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     spellPrepare.ServerCastID = spell->m_castId;
     SendPacket(spellPrepare.Write());
 
+    spell->m_fromClient = true;
     spell->m_castItemEntry = packet.ItemID;
     spell->m_misc.Raw.Data[0] = packet.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];

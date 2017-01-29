@@ -758,6 +758,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851,
     RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
 
+
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
@@ -925,7 +926,7 @@ class TC_GAME_API RBACData
 
         /// Loads all permissions assigned to current account
         void LoadFromDB();
-        PreparedQueryResultFuture LoadFromDBAsync();
+        QueryCallback LoadFromDBAsync();
         void LoadFromDBCallback(PreparedQueryResult result);
 
         /// Sets security level

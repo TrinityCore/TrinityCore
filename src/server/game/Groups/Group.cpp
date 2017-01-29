@@ -538,6 +538,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
         Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+        uint8 partyIndex = 0;
         if (player)
         {
             // Battleground group handling
@@ -549,7 +550,10 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
                 if (player->GetOriginalGroup() == this)
                     player->SetOriginalGroup(NULL);
                 else
+                {
                     player->SetGroup(NULL);
+                    partyIndex = 1;
+                }
 
                 // quest related GO state dependent from raid membership
                 player->UpdateForQuestWorldObjects();
@@ -607,9 +611,11 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         }
 
         // Update subgroups
+        int32 updateSequenceNumber = 1;
         member_witerator slot = _getMemberWSlot(guid);
         if (slot != m_memberSlots.end())
         {
+            updateSequenceNumber = slot->updateSequenceNumber;
             SubGroupCounterDecrease(slot->group);
             m_memberSlots.erase(slot);
         }
@@ -642,6 +648,11 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
         if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
             Disband();
+        else if (player)
+        {
+            // send update to removed player too so party frames are destroyed clientside
+            SendUpdateDestroyGroupToPlayer(player, partyIndex, updateSequenceNumber);
+        }
 
         return true;
     }
@@ -793,22 +804,16 @@ void Group::Disband(bool hideDestroy /* = false */)
         if (!hideDestroy)
             player->SendDirectMessage(WorldPackets::Party::GroupDestroyed().Write());
 
+        uint8 disbandedPartyIndex = 0;
+
         //we already removed player from group and in player->GetGroup() is his original group, send update
         if (Group* group = player->GetGroup())
         {
             group->SendUpdate();
+            disbandedPartyIndex = 1;
         }
-        else
-        {
-            WorldPackets::Party::PartyUpdate partyUpdate;
-            partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
-            partyUpdate.PartyIndex = 0; // this was the original group if player->GetGroup() returned nullptr
-            partyUpdate.PartyType = GROUP_TYPE_NONE;
-            partyUpdate.PartyGUID = m_guid;
-            partyUpdate.MyIndex = -1;
-            partyUpdate.SequenceNum = citr->updateSequenceNumber;
-            player->GetSession()->SendPacket(partyUpdate.Write());
-        }
+
+        SendUpdateDestroyGroupToPlayer(player, disbandedPartyIndex, citr->updateSequenceNumber);
 
         _homebindIfInstance(player);
     }
@@ -970,7 +975,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
         if (i->freeforall)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
 
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
@@ -1501,6 +1506,18 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         partyUpdate.LfgInfos->MyKickVoteCount = 0;
     }
 
+    player->GetSession()->SendPacket(partyUpdate.Write());
+}
+
+void Group::SendUpdateDestroyGroupToPlayer(Player* player, uint8 partyIndex, int32 sequenceNum) const
+{
+    WorldPackets::Party::PartyUpdate partyUpdate;
+    partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
+    partyUpdate.PartyIndex = partyIndex;
+    partyUpdate.PartyType = GROUP_TYPE_NONE;
+    partyUpdate.PartyGUID = m_guid;
+    partyUpdate.MyIndex = -1;
+    partyUpdate.SequenceNum = sequenceNum;
     player->GetSession()->SendPacket(partyUpdate.Write());
 }
 

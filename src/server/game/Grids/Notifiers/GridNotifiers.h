@@ -902,11 +902,11 @@ namespace Trinity
     class AnyUnitInObjectRangeCheck
     {
         public:
-            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) { }
+            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true) : i_obj(obj), i_range(range), i_check3D(check3D) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range))
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range, i_check3D))
                     return true;
 
                 return false;
@@ -915,6 +915,7 @@ namespace Trinity
         private:
             WorldObject const* i_obj;
             float i_range;
+            bool i_check3D;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1267,7 +1268,7 @@ namespace Trinity
 
             bool operator()(GameObject* go) const
             {
-                if (go->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(go, m_fRange, false))
+                if ((!m_uiEntry || go->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(go, m_fRange, false))
                     return true;
 
                 return false;
@@ -1286,7 +1287,7 @@ namespace Trinity
 
             bool operator()(Unit* unit) const
             {
-                if (unit->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(unit, m_fRange, false))
+                if ((!m_uiEntry || unit->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(unit, m_fRange, false))
                     return true;
 
                 return false;
