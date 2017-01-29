@@ -902,11 +902,13 @@ class TC_GAME_API World
         // used versions
         std::string m_DBVersion;
 
-        typedef std::map<uint8, std::string> AutobroadcastsMap;
-        AutobroadcastsMap m_Autobroadcasts;
-
-        typedef std::map<uint8, uint8> AutobroadcastsWeightMap;
-        AutobroadcastsWeightMap m_AutobroadcastsWeights;
+        struct Autobroadcast
+        {
+            std::string Message;
+            uint8 Weight;
+        };
+        typedef std::unordered_map<uint8, Autobroadcast> AutobroadcastContainer;
+        AutobroadcastContainer m_Autobroadcasts;
 
         typedef std::map<ObjectGuid, CharacterInfo> CharacterInfoContainer;
         CharacterInfoContainer _characterInfoStore;

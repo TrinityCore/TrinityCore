@@ -33,6 +33,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterTemplateDataStore.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "ChatPackets.h"
@@ -486,6 +487,20 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         start_level = sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
     else if (getClass() == CLASS_DEMON_HUNTER)
         start_level = sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL);
+
+    if (createInfo->TemplateSet)
+    {
+        if (m_session->HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
+        {
+            if (CharacterTemplate const* charTemplate = sCharacterTemplateDataStore->GetCharacterTemplate(*createInfo->TemplateSet))
+            {
+                if (charTemplate->Level > start_level)
+                    start_level = charTemplate->Level;
+            }
+        }
+        else
+            TC_LOG_WARN("cheat", "Account: %u (IP: %s) tried to use a character template without given permission. Possible cheating attempt.", m_session->GetAccountId(), m_session->GetRemoteAddress().c_str());
+    }
 
     if (m_session->HasPermission(rbac::RBAC_PERM_USE_START_GM_LEVEL))
     {
@@ -24866,6 +24881,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
         if (target->isType(TYPEMASK_UNIT) && target != GetVehicleBase())
             static_cast<Unit*>(target)->AddPlayerToVision(this);
+        SetSeer(target);
     }
     else
     {
@@ -24881,7 +24897,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             static_cast<Unit*>(target)->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash
-        m_seer = this;
+        SetSeer(this);
 
         //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0);
         //GetSession()->SendPacket(&data);
