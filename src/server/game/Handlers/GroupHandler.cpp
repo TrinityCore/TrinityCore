@@ -114,13 +114,13 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
+    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
         return;
     }
 
-    if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID().GetCounter()) && GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID()) && GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
         return;
@@ -588,6 +588,9 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     recvData >> name;
     recvData >> groupNr;
 
+    if (!normalizePlayerName(name))
+        return;
+
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
@@ -598,17 +601,14 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    Player* movedPlayer = ObjectAccessor::FindConnectedPlayerByName(name);
     ObjectGuid guid;
-    if (movedPlayer)
-    {
+    if (Player* movedPlayer = ObjectAccessor::FindConnectedPlayerByName(name))
         guid = movedPlayer->GetGUID();
-    }
     else
-    {
-        CharacterDatabase.EscapeString(name);
-        guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
-    }
+        guid = sWorld->GetCharacterGuidByName(name);
+
+    if (guid.IsEmpty())
+        return;
 
     group->ChangeMembersGroup(guid, groupNr);
 }

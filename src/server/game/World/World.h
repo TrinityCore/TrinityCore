@@ -28,7 +28,7 @@
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "QueryResult.h"
-#include "QueryCallback.h"
+#include "QueryCallbackProcessor.h"
 #include "Realm/Realm.h"
 
 #include <atomic>
@@ -83,6 +83,7 @@ enum WorldTimers
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
     WUPDATE_CHECK_FILECHANGES,
+    WUPDATE_WHO_LIST,
     WUPDATE_COUNT
 };
 
@@ -549,6 +550,8 @@ struct CharacterInfo
     uint8 Race;
     uint8 Sex;
     uint8 Level;
+    ObjectGuid::LowType GuildId;
+    uint32 ArenaTeamId[3];
 };
 
 /// The World
@@ -765,12 +768,16 @@ class TC_GAME_API World
         void UpdateAreaDependentAuras();
 
         CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
+        ObjectGuid GetCharacterGuidByName(std::string const& name) const;
         void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
-        void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
+        void DeleteCharacterInfo(ObjectGuid const& guid, std::string const& name);
         bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
         void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level);
         void UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId);
+        void UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId);
+        void UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 slot, uint32 arenaTeamId);
+        void UpdateCharacterGuidByName(ObjectGuid const& guid, std::string const& oldName, std::string const& newName);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -877,12 +884,14 @@ class TC_GAME_API World
         typedef std::map<uint8, uint8> AutobroadcastsWeightMap;
         AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
+        typedef std::unordered_map<std::string, ObjectGuid> CharacterGuidByNameContainer;
         typedef std::unordered_map<ObjectGuid, CharacterInfo> CharacterInfoContainer;
         CharacterInfoContainer _characterInfoStore;
+        CharacterGuidByNameContainer _characterGuidByNameStore;
         void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
-        std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+        QueryCallbackProcessor _queryProcessor;
 };
 
 TC_GAME_API extern Realm realm;

@@ -703,10 +703,37 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
                 }
             }
 
+            void InitializeAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Attacks done to you equal to 30% of your total health will cancel the effect
+                _remainingAmount = GetTarget()->CountPctFromMaxHealth(30);
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo)
+                    return;
+
+                uint32 damage = damageInfo->GetDamage();
+                if (_remainingAmount <= damage)
+                {
+                    DropCharge(AURA_REMOVE_BY_ENEMY_SPELL);
+                    return;
+                }
+
+                _remainingAmount -= damage;
+            }
+
             void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_lightwell_renew_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+
+                AfterEffectApply += AuraEffectApplyFn(spell_pri_lightwell_renew_AuraScript::InitializeAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectProc += AuraEffectProcFn(spell_pri_lightwell_renew_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
+
+            uint32 _remainingAmount = 0;
         };
 
         AuraScript* GetAuraScript() const override

@@ -213,6 +213,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Reset() override
             {
+                _Reset();
                 Initialize();
                 _phase = PHASE_ONE;
                 DoCastSelf(SPELL_SHADOW_CHANNELING);
