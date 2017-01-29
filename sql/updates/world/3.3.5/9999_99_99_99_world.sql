@@ -5,7 +5,7 @@ UPDATE `creature_template` SET `flags_extra` = `flags_extra` | 2 WHERE `entry` =
 -- NPC 15895, Lunar Festival Harbinger
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 6918 AND `SourceEntry` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(15, 6918, 0, 0, 0, 44, 0, 8867, 0, 0, 0, 0, 0, '', 'Show gossip option only if player finished seasonal quest 8867'),
+(15, 6918, 0, 0, 0, 48, 0, 8867, 0, 0, 0, 0, 0, '', 'Show gossip option only if player finished seasonal quest 8867'),
 (15, 6918, 0, 0, 0, 2, 0, 21711, 1, 1, 1, 0, 0, '', 'Show gossip option only if player does not have item 21711');
 
 UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 15895;
