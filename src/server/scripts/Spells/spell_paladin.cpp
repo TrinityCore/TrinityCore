@@ -1988,7 +1988,7 @@ class spell_pal_sacred_shield_dummy : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                std::chrono::steady_clock::time_point now = sWorld->GetGameTimeSteadyPoint();
+                std::chrono::steady_clock::time_point now = sGameTime->GetGameTimeSteadyPoint();
                 if (_cooldownEnd > now)
                     return;
 

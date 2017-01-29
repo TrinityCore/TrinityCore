@@ -194,7 +194,7 @@ class boss_ignis : public CreatureScript
 
                 me->RemoveAuraFromStack(SPELL_STRENGHT);
                 // Shattered Achievement
-                time_t secondKill = sWorld->GetGameTime();
+                time_t secondKill = sGameTime->GetGameTime();
                 if ((secondKill - _firstConstructKill) < 5)
                     _shattered = true;
                 _firstConstructKill = secondKill;

@@ -22,6 +22,7 @@
 #include "Common.h"
 #include <atomic>
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"

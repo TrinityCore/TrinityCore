@@ -327,7 +327,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = sWorld->GetGameTimeMS();
+            _timeDied = sGameTime->GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))

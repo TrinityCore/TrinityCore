@@ -43,6 +43,7 @@
 #include "MovementPacketBuilder.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "GameTime.h"
 
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
@@ -461,7 +462,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (go && go->ToTransport())
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(sWorld->GetGameTimeMS());
+            *data << uint32(sGameTime->GetGameTimeMS());
     }
 
     // 0x80

@@ -25,7 +25,7 @@
 #include "Opcodes.h"
 #include "ByteBuffer.h"
 #include "Database/DatabaseEnv.h"
-#include "World.h"
+#include "GameTime.h"
 #include "Player.h"
 #include "Util.h"
 #include "WardenWin.h"
@@ -166,7 +166,7 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
 
     _initialized = true;
 
-    _previousTimestamp = sWorld->GetGameTimeMS();
+    _previousTimestamp = sGameTime->GetGameTimeMS();
 }
 
 void WardenWin::RequestData()
@@ -180,7 +180,7 @@ void WardenWin::RequestData()
     if (_otherChecksTodo.empty())
         _otherChecksTodo.assign(sWardenCheckMgr->OtherChecksIdPool.begin(), sWardenCheckMgr->OtherChecksIdPool.end());
 
-    _serverTicks = sWorld->GetGameTimeMS();
+    _serverTicks = sGameTime->GetGameTimeMS();
 
     uint16 id;
     uint8 type;
@@ -354,7 +354,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         uint32 newClientTicks;
         buff >> newClientTicks;
 
-        uint32 ticksNow = sWorld->GetGameTimeMS();
+        uint32 ticksNow = sGameTime->GetGameTimeMS();
         uint32 ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
         TC_LOG_DEBUG("warden", "ServerTicks %u", ticksNow);         // Now
