@@ -806,7 +806,7 @@ public:
                 {
                     // remove
                     me->setFaction(35);
-                    me->DespawnOrUnsummon(0);
+                    me->DespawnOrUnsummon();
                     return;
                 }
 

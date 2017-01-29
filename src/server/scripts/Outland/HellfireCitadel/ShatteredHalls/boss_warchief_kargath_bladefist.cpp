@@ -176,7 +176,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
-                        creature->DespawnOrUnsummon(0);
+                        creature->DespawnOrUnsummon();
                 }
                 adds.clear();
 
@@ -184,7 +184,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
-                        creature->DespawnOrUnsummon(0);
+                        creature->DespawnOrUnsummon();
                 }
                 assassins.clear();
             }

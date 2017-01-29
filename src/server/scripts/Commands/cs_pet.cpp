@@ -93,7 +93,7 @@ public:
             return false;
         }
 
-        creatureTarget->DespawnOrUnsummon(0);
+        creatureTarget->DespawnOrUnsummon();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());

@@ -223,7 +223,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
 
-                    target->DespawnOrUnsummon(0);
+                    target->DespawnOrUnsummon();
                 }
 
                 // Vault Walkers
@@ -233,7 +233,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
 
-                    target->DespawnOrUnsummon(0);
+                    target->DespawnOrUnsummon();
                 }
 
                 // Earthen Guardians
@@ -243,7 +243,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
 
-                    target->DespawnOrUnsummon(0);
+                    target->DespawnOrUnsummon();
                 }
             }
 

@@ -1168,7 +1168,7 @@ public:
                         uiTimer = 5000;
                         break;
                     case 3:
-                        me->DespawnOrUnsummon(0);
+                        me->DespawnOrUnsummon();
                         break;
                 }
             } else uiTimer -=diff;

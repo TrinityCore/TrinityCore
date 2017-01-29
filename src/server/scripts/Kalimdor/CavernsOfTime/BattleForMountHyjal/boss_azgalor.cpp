@@ -248,7 +248,7 @@ public:
                     Creature* boss = ObjectAccessor::GetCreature(*me, AzgalorGUID);
                     if (!boss || boss->isDead())
                     {
-                        me->DespawnOrUnsummon(0);
+                        me->DespawnOrUnsummon();
                         return;
                     }
                 }

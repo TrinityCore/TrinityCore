@@ -479,7 +479,7 @@ public:
             }
             else
             {
-                me->DespawnOrUnsummon(0);
+                me->DespawnOrUnsummon();
             }
         }
         void EnterCombat(Unit* /*who*/) override { }

@@ -168,7 +168,7 @@ public:
             for (uint8 i = 0; i < 2; ++i)
             {
                 if (Creature* mob = ObjectAccessor::GetCreature(*me, beams[i]))
-                    mob->DespawnOrUnsummon(0);
+                    mob->DespawnOrUnsummon();
             }
         }
         void EnterCombat(Unit* /*who*/) override

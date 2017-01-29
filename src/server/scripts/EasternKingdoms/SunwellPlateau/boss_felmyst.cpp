@@ -502,7 +502,7 @@ public:
                     me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 }
                 (*i)->SetVisible(false);
-                (*i)->DespawnOrUnsummon(0);
+                (*i)->DespawnOrUnsummon();
             }
         }
     };

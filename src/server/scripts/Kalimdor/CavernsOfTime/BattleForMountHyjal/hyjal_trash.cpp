@@ -574,7 +574,7 @@ public:
             {
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
-                    me->DespawnOrUnsummon(0);
+                    me->DespawnOrUnsummon();
                 }
             }
         }
@@ -673,7 +673,7 @@ public:
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK_UNARMED);
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
-                    me->DespawnOrUnsummon(0);
+                    me->DespawnOrUnsummon();
                 }
             }
         }

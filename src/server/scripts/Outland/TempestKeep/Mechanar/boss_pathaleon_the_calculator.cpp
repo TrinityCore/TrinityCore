@@ -231,7 +231,7 @@ class npc_nether_wraith : public CreatureScript
                 {
                     if (Die_Timer <= diff)
                     {
-                        me->DespawnOrUnsummon(0);
+                        me->DespawnOrUnsummon();
                         return;
                     }
                     else

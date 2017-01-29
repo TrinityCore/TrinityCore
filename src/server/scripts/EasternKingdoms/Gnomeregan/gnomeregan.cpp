@@ -193,7 +193,7 @@ public:
                 {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                     {
-                        summon->DespawnOrUnsummon(0);
+                        summon->DespawnOrUnsummon();
                     }
                 }
         }

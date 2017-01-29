@@ -194,7 +194,7 @@ class npc_ragin_flames : public CreatureScript
                         if (instance->GetData(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
                         {
                             //remove
-                            me->DespawnOrUnsummon(0);
+                            me->DespawnOrUnsummon();
                             return;
                         }
                         Check_Timer = 1000;
