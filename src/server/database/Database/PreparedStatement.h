@@ -119,7 +119,7 @@ class TC_DATABASE_API MySQLPreparedStatement
     friend class PreparedStatement;
 
     public:
-        MySQLPreparedStatement(MYSQL_STMT* stmt);
+        MySQLPreparedStatement(MYSQL_STMT* stmt, std::string const& queryString);
         ~MySQLPreparedStatement();
 
         void setBool(const uint8 index, const bool value);
@@ -144,7 +144,7 @@ class TC_DATABASE_API MySQLPreparedStatement
         PreparedStatement* m_stmt;
         void ClearParameters();
         void AssertValidIndex(uint8 index);
-        std::string getQueryString(std::string const& sqlPattern) const;
+        std::string getQueryString() const;
 
     private:
         void setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned);
@@ -154,6 +154,7 @@ class TC_DATABASE_API MySQLPreparedStatement
         uint32 m_paramCount;
         std::vector<bool> m_paramsSet;
         MYSQL_BIND* m_bind;
+        std::string const m_queryString;
 
         MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
         MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;

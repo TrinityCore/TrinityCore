@@ -35,17 +35,6 @@ enum ConnectionFlags
     CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH
 };
 
-struct PreparedStatementInfo
-{
-    PreparedStatementInfo(std::string const& queryString, ConnectionFlags connFlags) :
-        Query(queryString), Flags(connFlags) { }
-
-    std::string const Query;
-    ConnectionFlags const Flags; // sync/async
-};
-
-typedef std::unordered_map<uint32 /*index*/, PreparedStatementInfo> PreparedStatementContainer;
-
 struct TC_DATABASE_API MySQLConnectionInfo
 {
     explicit MySQLConnectionInfo(std::string const& infoString)
@@ -125,8 +114,9 @@ class TC_DATABASE_API MySQLConnection
         virtual void DoPrepareStatements() = 0;
 
     protected:
-        std::vector<std::unique_ptr<MySQLPreparedStatement>> m_stmts; //! PreparedStatements storage
-        PreparedStatementContainer           m_queries;       //! Query storage
+        typedef std::vector<std::unique_ptr<MySQLPreparedStatement>> PreparedStatementContainer;
+
+        PreparedStatementContainer           m_stmts;         //! PreparedStatements storage
         bool                                 m_reconnecting;  //! Are we reconnecting?
         bool                                 m_prepareError;  //! Was there any error while preparing statements?
 
