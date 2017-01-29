@@ -2286,9 +2286,14 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         for (uint32 conditionField = 0; conditionField < MAX_CRITERIA_REQUIREMENTS; ++conditionField)
         {
-            if (criteria->AdditionalRequirements[0].Type != ACHIEVEMENT_CRITERIA_CONDITION_NONE)
+            if (criteria->AdditionalRequirements[conditionField].Type != ACHIEVEMENT_CRITERIA_CONDITION_NONE)
+            {
+                ASSERT(criteria->AdditionalRequirements[conditionField].Type < ACHIEVEMENT_CRITERIA_CONDITION_MAX, "ACHIEVEMENT_CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
+                    criteria->AdditionalRequirements[conditionField].Type + 1, ACHIEVEMENT_CRITERIA_CONDITION_MAX);
+
                 if (conditionField == 0 || criteria->AdditionalRequirements[conditionField].Type != criteria->AdditionalRequirements[conditionField-1].Type)
                     m_AchievementCriteriasByCondition[criteria->AdditionalRequirements[conditionField].Type][criteria->AdditionalRequirements[conditionField].Asset].push_back(criteria);
+            }
         }
 
         if (criteria->StartTimer)
