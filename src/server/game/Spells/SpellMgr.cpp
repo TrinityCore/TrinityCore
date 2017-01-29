@@ -3155,7 +3155,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59630: // Black Magic
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                 break;
-            case 17364: // Stormstrike
             case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
@@ -3167,6 +3166,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 85123: // Siege Cannon (Tol Barad)
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
+                break;
+            case 198300: // Gathering Storms
+                spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
                 break;
             // VIOLET HOLD SPELLS
             //
