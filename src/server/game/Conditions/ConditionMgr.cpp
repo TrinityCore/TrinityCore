@@ -62,54 +62,55 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
 {
-    { "None",                false, false, false },
-    { "Aura",                 true, true,  true  },
-    { "Item Stored",          true, true,  true  },
-    { "Item Equipped",        true, false, false },
-    { "Zone",                 true, false, false },
-    { "Reputation",           true, true,  false },
-    { "Team",                 true, false, false },
-    { "Skill",                true, true,  false },
-    { "Quest Rewarded",       true, false, false },
-    { "Quest Taken",          true, false, false },
-    { "Drunken",              true, false, false },
-    { "WorldState",           true, true,  false },
-    { "Active Event",         true, false, false },
-    { "Instance Info",        true, true,  true  },
-    { "Quest None",           true, false, false },
-    { "Class",                true, false, false },
-    { "Race",                 true, false, false },
-    { "Achievement",          true, false, false },
-    { "Title",                true, false, false },
-    { "SpawnMask",            true, false, false },
-    { "Gender",               true, false, false },
-    { "Unit State",           true, false, false },
-    { "Map",                  true, false, false },
-    { "Area",                 true, false, false },
-    { "CreatureType",         true, false, false },
-    { "Spell Known",          true, false, false },
-    { "PhaseMask",            true, false, false },
-    { "Level",                true, true,  false },
-    { "Quest Completed",      true, false, false },
-    { "Near Creature",        true, true,  true  },
-    { "Near GameObject",      true, true,  false },
-    { "Object Entry or Guid", true, true,  true  },
-    { "Object TypeMask",      true, false, false },
-    { "Relation",             true, true,  false },
-    { "Reaction",             true, true,  false },
-    { "Distance",             true, true,  true  },
-    { "Alive",               false, false, false },
-    { "Health Value",         true, true,  false },
-    { "Health Pct",           true, true, false  },
-    { "Realm Achievement",    true, false, false },
-    { "In Water",            false, false, false },
-    { "Terrain Swap",        false, false, false },
-    { "Sit/stand state",      true,  true, false },
-    { "Daily Quest Completed",true, false, false },
-    { "Charmed",             false, false, false },
-    { "Pet type",             true, false, false },
-    { "On Taxi",             false, false, false },
-    { "Quest state mask",     true,  true, false }
+    { "None",                      false, false, false },
+    { "Aura",                       true, true,  true  },
+    { "Item Stored",                true, true,  true  },
+    { "Item Equipped",              true, false, false },
+    { "Zone",                       true, false, false },
+    { "Reputation",                 true, true,  false },
+    { "Team",                       true, false, false },
+    { "Skill",                      true, true,  false },
+    { "Quest Rewarded",             true, false, false },
+    { "Quest Taken",                true, false, false },
+    { "Drunken",                    true, false, false },
+    { "WorldState",                 true, true,  false },
+    { "Active Event",               true, false, false },
+    { "Instance Info",              true, true,  true  },
+    { "Quest None",                 true, false, false },
+    { "Class",                      true, false, false },
+    { "Race",                       true, false, false },
+    { "Achievement",                true, false, false },
+    { "Title",                      true, false, false },
+    { "SpawnMask",                  true, false, false },
+    { "Gender",                     true, false, false },
+    { "Unit State",                 true, false, false },
+    { "Map",                        true, false, false },
+    { "Area",                       true, false, false },
+    { "CreatureType",               true, false, false },
+    { "Spell Known",                true, false, false },
+    { "PhaseMask",                  true, false, false },
+    { "Level",                      true, true,  false },
+    { "Quest Completed",            true, false, false },
+    { "Near Creature",              true, true,  true  },
+    { "Near GameObject",            true, true,  false },
+    { "Object Entry or Guid",       true, true,  true  },
+    { "Object TypeMask",            true, false, false },
+    { "Relation",                   true, true,  false },
+    { "Reaction",                   true, true,  false },
+    { "Distance",                   true, true,  true  },
+    { "Alive",                     false, false, false },
+    { "Health Value",               true, true,  false },
+    { "Health Pct",                 true, true, false  },
+    { "Realm Achievement",          true, false, false },
+    { "In Water",                  false, false, false },
+    { "Terrain Swap",              false, false, false },
+    { "Sit/stand state",            true,  true, false },
+    { "Daily Quest Completed"      ,true, false, false },
+    { "Charmed",                   false, false, false },
+    { "Pet type",                   true, false, false },
+    { "On Taxi",                   false, false, false },
+    { "Quest state mask",           true,  true, false },
+    { "Seasonal Quest Completed",   true, false, false }
 };
 
 // Checks if object meets the condition
@@ -494,6 +495,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_SEASONAL_QUEST_DONE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsSeasonalQuestDone(ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -680,6 +687,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_SEASONAL_QUEST_DONE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -1859,8 +1869,29 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_QUEST_NONE:
         case CONDITION_QUEST_COMPLETE:
         case CONDITION_DAILY_QUEST_DONE:
+        case CONDITION_SEASONAL_QUEST_DONE:
         {
-            if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
+            {
+                if (cond->ConditionType == CONDITION_DAILY_QUEST_DONE)
+                {
+                    if (!quest->IsDaily())
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s points to no daily quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                        return false;
+                    }
+                }
+
+                if (cond->ConditionType == CONDITION_SEASONAL_QUEST_DONE)
+                {
+                    if (!quest->IsSeasonal())
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s points to no seasonal quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                        return false;
+                    }
+                }
+            }
+            else
             {
                 TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;

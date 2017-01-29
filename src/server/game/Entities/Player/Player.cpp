@@ -22983,6 +22983,22 @@ void Player::SetSeasonalQuestStatus(uint32 quest_id)
     m_SeasonalQuestChanged = true;
 }
 
+bool Player::IsSeasonalQuestDone(uint32 quest_id)
+{
+    Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+    if (!quest)
+        return false;
+
+    if (!quest->IsSeasonal() || m_seasonalquests.empty())
+        return false;
+
+    uint16 eventId = sGameEventMgr->GetEventIdForQuest(quest);
+    if (m_seasonalquests.find(eventId) == m_seasonalquests.end() || m_seasonalquests[eventId].empty())
+        return false;
+
+    return m_seasonalquests[eventId].find(quest->GetQuestId()) != m_seasonalquests[eventId].end();
+}
+
 void Player::SetMonthlyQuestStatus(uint32 quest_id)
 {
     m_monthlyquests.insert(quest_id);

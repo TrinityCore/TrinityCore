@@ -1377,6 +1377,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetWeeklyQuestStatus(uint32 quest_id);
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
+        bool IsSeasonalQuestDone(uint32 quest_id);
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
