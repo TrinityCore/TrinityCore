@@ -1374,7 +1374,11 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                 {
                     if (skillIter->second->SkillLine == achievementCriteria->learn_skillline_spell.skillLine)
-                        spellCount++;
+                    {
+                        // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
+                        ++spellCount;
+                        break;
+                    }
                 }
             }
             SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
@@ -1397,7 +1401,11 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                 for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     if (skillIter->second->SkillLine == achievementCriteria->learn_skill_line.skillLine)
-                        spellCount++;
+                    {
+                        // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
+                        ++spellCount;
+                        break;
+                    }
             }
             SetCriteriaProgress(achievementCriteria, spellCount, referencePlayer);
             break;
