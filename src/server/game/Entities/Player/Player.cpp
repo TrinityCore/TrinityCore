@@ -17905,6 +17905,8 @@ bool Player::isAllowedToLoot(const Creature* creature)
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
         return false;
+    if (!loot->hasItemForAll() && !loot->hasItemFor(this)) // no loot in creature for this player
+        return false;
 
     if (loot->loot_type == LOOT_SKINNING)
         return creature->GetSkinner() == GetGUID();
@@ -26924,8 +26926,8 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
         It will freeze clients that receive this player's movement info.
     */
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-        MOVEMENTFLAG_ROOT);
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT) && mi->HasMovementFlag(MOVEMENTFLAG_MASK_MOVING),
+        MOVEMENTFLAG_MASK_MOVING);
 
     //! Cannot hover without SPELL_AURA_HOVER
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !HasAuraType(SPELL_AURA_HOVER),
@@ -26951,8 +26953,10 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
 
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !HasAuraType(SPELL_AURA_WATER_WALK),
+    //! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
+        !HasAuraType(SPELL_AURA_WATER_WALK) &&
+        !HasAuraType(SPELL_AURA_GHOST),
         MOVEMENTFLAG_WATERWALKING);
 
     //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
