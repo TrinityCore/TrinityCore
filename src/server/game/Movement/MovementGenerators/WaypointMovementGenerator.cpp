@@ -120,6 +120,9 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (!i_path || i_path->nodes.empty())
         return false;
 
+    if (Stopped())
+        return true;
+
     bool transportPath = creature->GetTransport() != nullptr;
 
     if (IsArrivalDone)
