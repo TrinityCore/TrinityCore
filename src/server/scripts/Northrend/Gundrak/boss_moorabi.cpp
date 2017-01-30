@@ -238,7 +238,7 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_moorabi_mojo_frenzy_AuraScript();
         }
