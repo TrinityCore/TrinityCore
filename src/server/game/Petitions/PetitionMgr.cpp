@@ -124,7 +124,7 @@ void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
 
 Petition* PetitionMgr::GetPetition(ObjectGuid petitionGuid)
 {
-    auto& itr = PetitionStore.find(petitionGuid);
+    auto itr = PetitionStore.find(petitionGuid);
     if (itr != PetitionStore.end())
         return &itr->second;
 
