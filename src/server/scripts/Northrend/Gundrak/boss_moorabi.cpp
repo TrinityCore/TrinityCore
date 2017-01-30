@@ -22,34 +22,34 @@
 
 enum Spells
 {
-    SPELL_SUMMON_PHANTOM = 55205,
+    SPELL_SUMMON_PHANTOM           = 55205,
     SPELL_SUMMON_PHANTOM_TRANSFORM = 55097,
-    SPELL_DETERMINED_GORE = 55102,
-    SPELL_DETERMINED_STAB = 55104,
-    SPELL_GROUND_TREMOR = 55142,
-    SPELL_NUMBING_SHOUT = 55106,
-    SPELL_QUAKE = 55101,
-    SPELL_NUMBING_ROAR = 55100,
-    SPELL_MOJO_FRENZY = 55163,
-    SPELL_MOJO_FRENZY_CAST_SPEED = 55096,
-    SPELL_TRANSFORMATION = 55098, // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+    SPELL_DETERMINED_GORE          = 55102,
+    SPELL_DETERMINED_STAB          = 55104,
+    SPELL_GROUND_TREMOR            = 55142,
+    SPELL_NUMBING_SHOUT            = 55106,
+    SPELL_QUAKE                    = 55101,
+    SPELL_NUMBING_ROAR             = 55100,
+    SPELL_MOJO_FRENZY              = 55163,
+    SPELL_MOJO_FRENZY_CAST_SPEED   = 55096,
+    SPELL_TRANSFORMATION           = 55098, // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
 enum Says
 {
-    SAY_AGGRO = 0,
-    SAY_SLAY = 1,
-    SAY_DEATH = 2,
-    SAY_TRANSFORM = 3,
-    SAY_QUAKE = 4,
-    EMOTE_BEGIN_TRANSFORM = 5,
-    EMOTE_TRANSFORMED = 6,
-    EMOTE_ACTIVATE_ALTAR = 7
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_DEATH                      = 2,
+    SAY_TRANSFORM                  = 3,
+    SAY_QUAKE                      = 4,
+    EMOTE_BEGIN_TRANSFORM          = 5,
+    EMOTE_TRANSFORMED              = 6,
+    EMOTE_ACTIVATE_ALTAR           = 7
 };
 
 enum Events
 {
-    EVENT_GROUND_TREMOR = 1,
+    EVENT_GROUND_TREMOR            = 1,
     EVENT_NUMBLING_SHOUT,
     EVENT_DETERMINED_STAB,
     EVENT_TRANFORMATION,
@@ -58,7 +58,7 @@ enum Events
 
 enum Misc
 {
-    DATA_LESS_RABI = 1
+    DATA_LESS_RABI                 = 1
 };
 
 class boss_moorabi : public CreatureScript
