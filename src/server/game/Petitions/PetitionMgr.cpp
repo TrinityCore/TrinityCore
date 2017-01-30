@@ -31,22 +31,22 @@ PetitionMgr* PetitionMgr::instance()
 void PetitionMgr::LoadPetitions()
 {
     uint32 oldMSTime = getMSTime();
-	PetitionStore.clear();
+    PetitionStore.clear();
 
-	QueryResult result = CharacterDatabase.Query("SELECT petitionguid, ownerguid, name, type FROM petition");
+    QueryResult result = CharacterDatabase.Query("SELECT petitionguid, ownerguid, name, type FROM petition");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 petitions.");
         return;
     }
 
-	uint32 count = 0;
+    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
-		AddPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()), ObjectGuid(HighGuid::Player, fields[1].GetUInt32()), fields[2].GetString(), static_cast<CharterTypes>(fields[3].GetUInt8()), true);
-		++count;
-	} while (result->NextRow());
+        AddPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()), ObjectGuid(HighGuid::Player, fields[1].GetUInt32()), fields[2].GetString(), static_cast<CharterTypes>(fields[3].GetUInt8()), true);
+        ++count;
+    } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u petitions in: %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -55,14 +55,14 @@ void PetitionMgr::LoadSignatures()
 {
     uint32 oldMSTime = getMSTime();
 
-	QueryResult result = CharacterDatabase.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
+    QueryResult result = CharacterDatabase.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 Petition signs!");
         return;
     }
 
-	uint32 count = 0;
+    uint32 count = 0;
     do
     {
         Field* fields = result->Fetch();
@@ -74,19 +74,19 @@ void PetitionMgr::LoadSignatures()
         }
 
         petition->AddSignature(petition->petitionGuid, fields[1].GetUInt32(), ObjectGuid(HighGuid::Player, fields[2].GetUInt32()), true);
-		++count;
-	} while (result->NextRow());
+        ++count;
+    } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Petition signs in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading)
 {
-	Petition& p = PetitionStore[petitionGuid];
+    Petition& p = PetitionStore[petitionGuid];
     p.petitionGuid = petitionGuid;
-	p.ownerGuid = ownerGuid;
-	p.petitionName = name;
-	p.petitionType = type;
+    p.ownerGuid = ownerGuid;
+    p.petitionName = name;
+    p.petitionType = type;
     p.signatures.clear();
 
     if (isLoading)
@@ -106,7 +106,7 @@ void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std
 
 void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
 {
-	PetitionStore.erase(petitionGuid);
+    PetitionStore.erase(petitionGuid);
 
     // Delete From DB
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -124,20 +124,20 @@ void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
 
 Petition* PetitionMgr::GetPetition(ObjectGuid petitionGuid)
 {
-	auto& itr = PetitionStore.find(petitionGuid);
-	if (itr != PetitionStore.end())
-		return &itr->second;
+    auto& itr = PetitionStore.find(petitionGuid);
+    if (itr != PetitionStore.end())
+        return &itr->second;
 
-	return nullptr;
+    return nullptr;
 }
 
 Petition* PetitionMgr::GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type)
 {
     for (auto& petitionPair : PetitionStore)
-		if (petitionPair.second.ownerGuid == ownerGuid && petitionPair.second.petitionType == type)
-			return &petitionPair.second;
+        if (petitionPair.second.ownerGuid == ownerGuid && petitionPair.second.petitionType == type)
+            return &petitionPair.second;
 
-	return nullptr;
+    return nullptr;
 }
 
 void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type)

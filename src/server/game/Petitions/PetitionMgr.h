@@ -48,7 +48,7 @@ struct Petition
     ObjectGuid       petitionGuid;
     ObjectGuid       ownerGuid;
     CharterTypes     petitionType;
-	std::string      petitionName;
+    std::string      petitionName;
     SignaturesVector signatures;
 
     bool IsPetitionSignedByAccount(uint32 accountId) const;
@@ -61,26 +61,26 @@ typedef std::unordered_map<ObjectGuid, Petition> PetitionContainer;
 
 class PetitionMgr
 {
-	public:
+    public:
         PetitionMgr() { }
         ~PetitionMgr() { }
 
         static PetitionMgr* instance();
 
         // Load from DB
-		void LoadPetitions();
-		void LoadSignatures();
-		
-		// Petitions
-		void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading);
-		void RemovePetition(ObjectGuid petitionGuid);
+        void LoadPetitions();
+        void LoadSignatures();
+
+        // Petitions
+        void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading);
+        void RemovePetition(ObjectGuid petitionGuid);
         Petition* GetPetition(ObjectGuid petitionGuid);
-		Petition* GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type);
+        Petition* GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type);
         void RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type);
         void RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, CharterTypes type);
 
-	private:
-		PetitionContainer PetitionStore;
+    private:
+        PetitionContainer PetitionStore;
 };
 
 #define sPetitionMgr PetitionMgr::instance()
