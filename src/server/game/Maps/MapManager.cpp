@@ -146,7 +146,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
         return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
 
     //Bypass checks for GMs
-    if (player->IsGameMaster())
+    if (player->CanBeGameMaster())
         return Map::CAN_ENTER;
 
     char const* mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
