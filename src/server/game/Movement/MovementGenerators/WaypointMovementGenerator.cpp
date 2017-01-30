@@ -98,6 +98,10 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (!i_path || i_path->empty())
         return false;
 
+    // Dont allow dead creatures to move
+    if (!creature->IsAlive())
+        return false;
+
     if (Stopped())
         return true;
 
