@@ -32,7 +32,7 @@ enum Spells
     SPELL_NUMBING_ROAR             = 55100,
     SPELL_MOJO_FRENZY              = 55163,
     SPELL_MOJO_FRENZY_CAST_SPEED   = 55096,
-    SPELL_TRANSFORMATION           = 55098, // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+    SPELL_TRANSFORMATION           = 55098 // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
 enum Says
@@ -52,8 +52,7 @@ enum Events
     EVENT_GROUND_TREMOR            = 1,
     EVENT_NUMBLING_SHOUT,
     EVENT_DETERMINED_STAB,
-    EVENT_TRANFORMATION,
-    EVENT_PHANTOM
+    EVENT_TRANFORMATION
 };
 
 enum Misc
@@ -227,7 +226,6 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
 
                 Unit* owner = GetUnitOwner();
                 uint32 healthPctDamaged = uint32(100.0f - owner->GetHealthPct());
-
                 int32 castSpeedBonus = healthPctDamaged * 4; // between 0% and 400% cast speed bonus
                 owner->CastCustomSpell(SPELL_MOJO_FRENZY_CAST_SPEED, SPELLVALUE_BASE_POINT0, castSpeedBonus, owner, true);
             }
