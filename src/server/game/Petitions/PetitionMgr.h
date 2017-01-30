@@ -18,11 +18,12 @@
 #ifndef _PETITIONMGR_H
 #define _PETITIONMGR_H
 
-#include <map>
-#include <unordered_map>
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
+
+#include <map>
+#include <unordered_map>
 
 enum PetitionTurns
 {
