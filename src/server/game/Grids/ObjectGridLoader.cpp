@@ -216,7 +216,7 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         iter->GetSource()->RemoveAllDynObjects();
-        if (iter->GetSource()->IsInCombat())
+        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->getThreatManager().areThreatListsEmpty())
         {
             iter->GetSource()->CombatStop();
             iter->GetSource()->DeleteThreatList();

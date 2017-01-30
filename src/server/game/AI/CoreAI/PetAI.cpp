@@ -282,7 +282,7 @@ void PetAI::UpdateAllies()
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->GetSource();
-            if (!Target || !group->SameSubGroup(owner->ToPlayer(), Target))
+            if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
                 continue;
 
             if (Target->GetGUID() == owner->GetGUID())
