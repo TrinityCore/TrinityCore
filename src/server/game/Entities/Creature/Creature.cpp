@@ -287,6 +287,10 @@ void Creature::RemoveCorpse(bool setSpawnTime)
     if (setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
 
+    // if corpse was removed during falling, the falling will continue and override relocation to respawn position
+    if (IsFalling())
+        StopMoving();
+
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
     SetHomePosition(x, y, z, o);
