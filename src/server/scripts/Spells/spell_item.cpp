@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -533,7 +533,7 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
                     return;
                 }
 
-                caster->CastSpell(caster, possibleSpells[urand(0, (possibleSpells.size() - 1))], true, NULL);
+                caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(possibleSpells), true);
             }
 
             void Register() override
@@ -1370,6 +1370,69 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_item_underbelly_elixir_SpellScript();
+        }
+};
+
+enum WormholeGeneratorPandariaSpell
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING   = 126756,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER   = 126757,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS            = 126758,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE    = 126759,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE        = 126760,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF       = 126761,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE        = 126762,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN       = 126763,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE     = 126764,
+};
+
+std::vector<uint32> const WormholeTargetLocations =
+{
+    SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING,
+    SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER,
+    SPELL_WORMHOLE_PANDARIA_SRA_VESS,
+    SPELL_WORMHOLE_PANDARIA_RIKKITUN_VILLAGE,
+    SPELL_WORMHOLE_PANDARIA_ZANVESS_TREE,
+    SPELL_WORMHOLE_PANDARIA_ANGLERS_WHARF,
+    SPELL_WORMHOLE_PANDARIA_CRANE_STATUE,
+    SPELL_WORMHOLE_PANDARIA_EMPERORS_OMEN,
+    SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE
+};
+
+// 126755 - Wormhole: Pandaria
+class spell_item_wormhole_pandaria : public SpellScriptLoader
+{
+    public:
+        spell_item_wormhole_pandaria() : SpellScriptLoader("spell_item_wormhole_pandaria") { }
+
+        class spell_item_wormhole_pandaria_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_wormhole_pandaria_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                for (uint32 spellId : WormholeTargetLocations)
+                    if (!sSpellMgr->GetSpellInfo(spellId))
+                        return false;
+                return true;
+            }
+
+            void HandleTeleport(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                uint32 spellId = Trinity::Containers::SelectRandomContainerElement(WormholeTargetLocations);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_wormhole_pandaria_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_wormhole_pandaria_SpellScript();
         }
 };
 
@@ -2691,6 +2754,70 @@ public:
     }
 };
 
+enum SoulPreserver
+{
+    SPELL_SOUL_PRESERVER_DRUID       = 60512,
+    SPELL_SOUL_PRESERVER_PALADIN     = 60513,
+    SPELL_SOUL_PRESERVER_PRIEST      = 60514,
+    SPELL_SOUL_PRESERVER_SHAMAN      = 60515,
+};
+
+class spell_item_soul_preserver : public SpellScriptLoader
+{
+public:
+    spell_item_soul_preserver() : SpellScriptLoader("spell_item_soul_preserver") { }
+
+    class spell_item_soul_preserver_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_soul_preserver_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_DRUID) ||
+                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PALADIN) ||
+                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PRIEST) ||
+                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_SHAMAN))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = eventInfo.GetActor();
+
+            switch (caster->getClass())
+            {
+                case CLASS_DRUID:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, true, nullptr, aurEff);
+                    break;
+                case CLASS_PALADIN:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, true, nullptr, aurEff);
+                    break;
+                case CLASS_PRIEST:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, true, nullptr, aurEff);
+                    break;
+                case CLASS_SHAMAN:
+                    caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, true, nullptr, aurEff);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_soul_preserver_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_soul_preserver_AuraScript();
+    }
+};
+
 class spell_item_toy_train_set_pulse : public SpellScriptLoader
 {
 public:
@@ -2725,6 +2852,288 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_item_toy_train_set_pulse_SpellScript();
+    }
+};
+
+enum DeathChoiceSpells
+{
+    SPELL_DEATH_CHOICE_NORMAL_AURA      = 67702,
+    SPELL_DEATH_CHOICE_NORMAL_AGILITY   = 67703,
+    SPELL_DEATH_CHOICE_NORMAL_STRENGTH  = 67708,
+    SPELL_DEATH_CHOICE_HEROIC_AURA      = 67771,
+    SPELL_DEATH_CHOICE_HEROIC_AGILITY   = 67772,
+    SPELL_DEATH_CHOICE_HEROIC_STRENGTH  = 67773
+};
+
+class spell_item_death_choice : public SpellScriptLoader
+{
+public:
+    spell_item_death_choice() : SpellScriptLoader("spell_item_death_choice") { }
+
+    class spell_item_death_choice_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_death_choice_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_STRENGTH) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_AGILITY) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_STRENGTH) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_AGILITY))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = eventInfo.GetActor();
+            float str = caster->GetStat(STAT_STRENGTH);
+            float agi = caster->GetStat(STAT_AGILITY);
+
+            switch (aurEff->GetId())
+            {
+                case SPELL_DEATH_CHOICE_NORMAL_AURA:
+                {
+                    if (str > agi)
+                        caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGTH, true, nullptr, aurEff);
+                    else
+                        caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_AGILITY, true, nullptr, aurEff);
+                    break;
+                }
+                case SPELL_DEATH_CHOICE_HEROIC_AURA:
+                {
+                    if (str > agi)
+                        caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGTH, true, nullptr, aurEff);
+                    else
+                        caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_AGILITY, true, nullptr, aurEff);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_death_choice_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_death_choice_AuraScript();
+    }
+};
+
+enum TrinketStackSpells
+{
+    SPELL_LIGHTNING_CAPACITOR_AURA              = 37657,  // Lightning Capacitor
+    SPELL_LIGHTNING_CAPACITOR_STACK             = 37658,
+    SPELL_LIGHTNING_CAPACITOR_TRIGGER           = 37661,
+    SPELL_THUNDER_CAPACITOR_AURA                = 54841,  // Thunder Capacitor
+    SPELL_THUNDER_CAPACITOR_STACK               = 54842,
+    SPELL_THUNDER_CAPACITOR_TRIGGER             = 54843,
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_AURA      = 67712,  // Item - Coliseum 25 Normal Caster Trinket
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_STACK     = 67713,
+    SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER   = 67714,
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_AURA      = 67758,  // Item - Coliseum 25 Heroic Caster Trinket
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK     = 67759,
+    SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER   = 67760,
+};
+
+class spell_item_trinket_stack : public SpellScriptLoader
+{
+public:
+    spell_item_trinket_stack(char const* scriptName, uint32 stackSpell, uint32 triggerSpell) : SpellScriptLoader(scriptName),
+        _stackSpell(stackSpell), _triggerSpell(triggerSpell)
+    {
+    }
+
+    class spell_item_trinket_stack_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_trinket_stack_AuraScript);
+
+    public:
+        spell_item_trinket_stack_AuraScript(uint32 stackSpell, uint32 triggerSpell) : _stackSpell(stackSpell), _triggerSpell(triggerSpell)
+        {
+        }
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(_stackSpell) || !sSpellMgr->GetSpellInfo(_triggerSpell))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = eventInfo.GetActor();
+
+            caster->CastSpell(caster, _stackSpell, true, nullptr, aurEff); // cast the stack
+
+            Aura* dummy = caster->GetAura(_stackSpell); // retrieve aura
+
+            //dont do anything if it's not the right amount of stacks;
+            if (!dummy || dummy->GetStackAmount() < aurEff->GetAmount())
+                return;
+
+            // if right amount, remove the aura and cast real trigger
+            caster->RemoveAurasDueToSpell(_stackSpell);
+            if (Unit* target = eventInfo.GetActionTarget())
+                caster->CastSpell(target, _triggerSpell, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_trinket_stack_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+
+    private:
+        uint32 _stackSpell;
+        uint32 _triggerSpell;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_trinket_stack_AuraScript(_stackSpell, _triggerSpell);
+    }
+
+private:
+    uint32 _stackSpell;
+    uint32 _triggerSpell;
+};
+
+// 57345 - Darkmoon Card: Greatness
+enum DarkmoonCardSpells
+{
+    SPELL_DARKMOON_CARD_STRENGHT        = 60229,
+    SPELL_DARKMOON_CARD_AGILITY         = 60233,
+    SPELL_DARKMOON_CARD_INTELLECT       = 60234,
+    SPELL_DARKMOON_CARD_VERSATILITY     = 60235,
+};
+
+class spell_item_darkmoon_card_greatness : public SpellScriptLoader
+{
+public:
+    spell_item_darkmoon_card_greatness() : SpellScriptLoader("spell_item_darkmoon_card_greatness") { }
+
+    class spell_item_darkmoon_card_greatness_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_darkmoon_card_greatness_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_STRENGHT) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_AGILITY) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_INTELLECT) ||
+                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_VERSATILITY))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = eventInfo.GetActor();
+            float str = caster->GetStat(STAT_STRENGTH);
+            float agi = caster->GetStat(STAT_AGILITY);
+            float intl = caster->GetStat(STAT_INTELLECT);
+            float vers = 0.0f; // caster->GetStat(STAT_VERSATILITY);
+            float stat = 0.0f;
+
+            uint32 spellTrigger = SPELL_DARKMOON_CARD_STRENGHT;
+
+           if (str > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_STRENGHT;
+               stat = str;
+           }
+
+           if (agi > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_AGILITY;
+               stat = agi;
+           }
+
+           if (intl > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_INTELLECT;
+               stat = intl;
+           }
+
+           if (vers > stat)
+           {
+               spellTrigger = SPELL_DARKMOON_CARD_VERSATILITY;
+               stat = vers;
+           }
+
+           caster->CastSpell(caster, spellTrigger, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_darkmoon_card_greatness_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_darkmoon_card_greatness_AuraScript();
+    }
+};
+
+// 27522, 40336 - Mana Drain
+enum ManaDrainSpells
+{
+    SPELL_MANA_DRAIN_ENERGIZE = 29471,
+    SPELL_MANA_DRAIN_LEECH    = 27526
+};
+
+class spell_item_mana_drain : public SpellScriptLoader
+{
+public:
+    spell_item_mana_drain() : SpellScriptLoader("spell_item_mana_drain") { }
+
+    class spell_item_mana_drain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_mana_drain_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_ENERGIZE)
+                || !sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_LEECH))
+                return false;
+            return true;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* caster = eventInfo.GetActor();
+            Unit* target = eventInfo.GetActionTarget();
+
+            if (caster->IsAlive())
+                caster->CastSpell(caster, SPELL_MANA_DRAIN_ENERGIZE, true, nullptr, aurEff);
+
+            if (target && target->IsAlive())
+                caster->CastSpell(target, SPELL_MANA_DRAIN_LEECH, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_item_mana_drain_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_item_mana_drain_AuraScript();
     }
 };
 
@@ -3075,6 +3484,7 @@ void AddSC_item_spell_scripts()
     new spell_item_six_demon_bag();
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
+    new spell_item_wormhole_pandaria();
     new spell_item_worn_troll_dice();
     new spell_item_red_rider_air_rifle();
 
@@ -3105,7 +3515,15 @@ void AddSC_item_spell_scripts()
     new spell_item_chicken_cover();
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
+    new spell_item_soul_preserver();
     new spell_item_toy_train_set_pulse();
+    new spell_item_death_choice();
+    new spell_item_trinket_stack("spell_item_lightning_capacitor", SPELL_LIGHTNING_CAPACITOR_STACK, SPELL_LIGHTNING_CAPACITOR_TRIGGER);
+    new spell_item_trinket_stack("spell_item_thunder_capacitor", SPELL_THUNDER_CAPACITOR_STACK, SPELL_THUNDER_CAPACITOR_TRIGGER);
+    new spell_item_trinket_stack("spell_item_toc25_normal_caster_trinket", SPELL_TOC25_CASTER_TRINKET_NORMAL_STACK, SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER);
+    new spell_item_trinket_stack("spell_item_toc25_heroic_caster_trinket", SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK, SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER);
+    new spell_item_darkmoon_card_greatness();
+    new spell_item_mana_drain();
     new spell_item_artifical_stamina();
     new spell_item_artifical_damage();
     new spell_item_talisman_of_ascendance();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,7 +90,10 @@ struct GtCombatRatingsEntry
 
 struct GtCombatRatingsMultByILvl
 {
-    float RatingMultiplier = 0.0f;
+    float ArmorMultiplier = 0.0f;
+    float WeaponMultiplier = 0.0f;
+    float TrinketMultiplier = 0.0f;
+    float JewelryMultiplier = 0.0f;
 };
 
 struct GtHpPerStaEntry

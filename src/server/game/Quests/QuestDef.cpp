@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -104,8 +104,8 @@ Quest::Quest(Field* questRecord)
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        RewardCurrencyId[i] = questRecord[91 + i * 2].GetUInt32();
-        RewardCurrencyCount[i] = questRecord[92 + i * 2].GetUInt32();
+        RewardCurrencyId[i] = questRecord[92 + i * 2].GetUInt32();
+        RewardCurrencyCount[i] = questRecord[93 + i * 2].GetUInt32();
 
         if (RewardCurrencyId[i])
             ++_rewCurrencyCount;
@@ -229,7 +229,7 @@ uint32 Quest::XPValue(uint32 playerLevel) const
     {
         uint32 questLevel = uint32(Level == -1 ? playerLevel : Level);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
-        if (!questXp || RewardXPDifficulty > 10)
+        if (!questXp || RewardXPDifficulty >= 10)
             return 0;
 
         float multiplier = 1.0f;

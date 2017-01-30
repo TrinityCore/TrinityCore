@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -31,10 +31,6 @@ if (WIN32)
 endif()
 
 add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
-
-if (MSVC)
-  set_target_properties(connection_patcher PROPERTIES LINK_FLAGS "/level='requireAdministrator' /uiAccess='false'")
-endif ()
 
 target_link_libraries(connection_patcher
   PUBLIC

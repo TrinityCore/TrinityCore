@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,7 +147,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 1986
+#define BATTLE_PET_SPECIES_MAX_ID 2023
 
 enum ChrSpecializationFlag
 {
@@ -336,6 +336,7 @@ enum CriteriaTypes
     CRITERIA_TYPE_KNOWN_FACTIONS                        = 89,
     CRITERIA_TYPE_LOOT_EPIC_ITEM                        = 90,
     CRITERIA_TYPE_RECEIVE_EPIC_ITEM                     = 91,
+    CRITERIA_TYPE_SEND_EVENT                            = 92,
     CRITERIA_TYPE_ROLL_NEED                             = 93,
     CRITERIA_TYPE_ROLL_GREED                            = 94,
     CRITERIA_TYPE_HIGHEST_HIT_DEALT                     = 101,
@@ -437,7 +438,8 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERAROR_SUM_CHILDREN             = 5,
     CRITERIA_TREE_OPERATOR_MAX_CHILD                = 6,
     CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN    = 7,
-    CRITERIA_TREE_OPERATOR_ANY                      = 8
+    CRITERIA_TREE_OPERATOR_ANY                      = 8,
+    CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
 };
 
 enum CharSectionFlags

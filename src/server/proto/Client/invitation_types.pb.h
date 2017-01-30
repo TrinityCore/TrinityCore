@@ -322,15 +322,6 @@ class TC_PROTO_API InvitationSuggestion : public ::google::protobuf::Message {
   inline ::std::string* release_suggestee_name();
   inline void set_allocated_suggestee_name(::std::string* suggestee_name);
 
-  // optional .bgs.protocol.EntityId suggester_account_id = 6;
-  inline bool has_suggester_account_id() const;
-  inline void clear_suggester_account_id();
-  static const int kSuggesterAccountIdFieldNumber = 6;
-  inline const ::bgs::protocol::EntityId& suggester_account_id() const;
-  inline ::bgs::protocol::EntityId* mutable_suggester_account_id();
-  inline ::bgs::protocol::EntityId* release_suggester_account_id();
-  inline void set_allocated_suggester_account_id(::bgs::protocol::EntityId* suggester_account_id);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.InvitationSuggestion)
  private:
   inline void set_has_channel_id();
@@ -343,8 +334,6 @@ class TC_PROTO_API InvitationSuggestion : public ::google::protobuf::Message {
   inline void clear_has_suggester_name();
   inline void set_has_suggestee_name();
   inline void clear_has_suggestee_name();
-  inline void set_has_suggester_account_id();
-  inline void clear_has_suggester_account_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -355,7 +344,6 @@ class TC_PROTO_API InvitationSuggestion : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* suggestee_id_;
   ::std::string* suggester_name_;
   ::std::string* suggestee_name_;
-  ::bgs::protocol::EntityId* suggester_account_id_;
   friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
@@ -758,25 +746,13 @@ class TC_PROTO_API SendInvitationResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.Invitation invitation = 2;
-  inline bool has_invitation() const;
-  inline void clear_invitation();
-  static const int kInvitationFieldNumber = 2;
-  inline const ::bgs::protocol::Invitation& invitation() const;
-  inline ::bgs::protocol::Invitation* mutable_invitation();
-  inline ::bgs::protocol::Invitation* release_invitation();
-  inline void set_allocated_invitation(::bgs::protocol::Invitation* invitation);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.SendInvitationResponse)
  private:
-  inline void set_has_invitation();
-  inline void clear_has_invitation();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::Invitation* invitation_;
   friend void TC_PROTO_API protobuf_AddDesc_invitation_5ftypes_2eproto();
   friend void protobuf_AssignDesc_invitation_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_invitation_5ftypes_2eproto();
@@ -1729,47 +1705,6 @@ inline void InvitationSuggestion::set_allocated_suggestee_name(::std::string* su
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.InvitationSuggestion.suggestee_name)
 }
 
-// optional .bgs.protocol.EntityId suggester_account_id = 6;
-inline bool InvitationSuggestion::has_suggester_account_id() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void InvitationSuggestion::set_has_suggester_account_id() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void InvitationSuggestion::clear_has_suggester_account_id() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void InvitationSuggestion::clear_suggester_account_id() {
-  if (suggester_account_id_ != NULL) suggester_account_id_->::bgs::protocol::EntityId::Clear();
-  clear_has_suggester_account_id();
-}
-inline const ::bgs::protocol::EntityId& InvitationSuggestion::suggester_account_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.InvitationSuggestion.suggester_account_id)
-  return suggester_account_id_ != NULL ? *suggester_account_id_ : *default_instance_->suggester_account_id_;
-}
-inline ::bgs::protocol::EntityId* InvitationSuggestion::mutable_suggester_account_id() {
-  set_has_suggester_account_id();
-  if (suggester_account_id_ == NULL) suggester_account_id_ = new ::bgs::protocol::EntityId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.InvitationSuggestion.suggester_account_id)
-  return suggester_account_id_;
-}
-inline ::bgs::protocol::EntityId* InvitationSuggestion::release_suggester_account_id() {
-  clear_has_suggester_account_id();
-  ::bgs::protocol::EntityId* temp = suggester_account_id_;
-  suggester_account_id_ = NULL;
-  return temp;
-}
-inline void InvitationSuggestion::set_allocated_suggester_account_id(::bgs::protocol::EntityId* suggester_account_id) {
-  delete suggester_account_id_;
-  suggester_account_id_ = suggester_account_id;
-  if (suggester_account_id) {
-    set_has_suggester_account_id();
-  } else {
-    clear_has_suggester_account_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.InvitationSuggestion.suggester_account_id)
-}
-
 // -------------------------------------------------------------------
 
 // InvitationTarget
@@ -2283,47 +2218,6 @@ inline void SendInvitationRequest::set_allocated_target(::bgs::protocol::Invitat
 // -------------------------------------------------------------------
 
 // SendInvitationResponse
-
-// optional .bgs.protocol.Invitation invitation = 2;
-inline bool SendInvitationResponse::has_invitation() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SendInvitationResponse::set_has_invitation() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SendInvitationResponse::clear_has_invitation() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SendInvitationResponse::clear_invitation() {
-  if (invitation_ != NULL) invitation_->::bgs::protocol::Invitation::Clear();
-  clear_has_invitation();
-}
-inline const ::bgs::protocol::Invitation& SendInvitationResponse::invitation() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.SendInvitationResponse.invitation)
-  return invitation_ != NULL ? *invitation_ : *default_instance_->invitation_;
-}
-inline ::bgs::protocol::Invitation* SendInvitationResponse::mutable_invitation() {
-  set_has_invitation();
-  if (invitation_ == NULL) invitation_ = new ::bgs::protocol::Invitation;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.SendInvitationResponse.invitation)
-  return invitation_;
-}
-inline ::bgs::protocol::Invitation* SendInvitationResponse::release_invitation() {
-  clear_has_invitation();
-  ::bgs::protocol::Invitation* temp = invitation_;
-  invitation_ = NULL;
-  return temp;
-}
-inline void SendInvitationResponse::set_allocated_invitation(::bgs::protocol::Invitation* invitation) {
-  delete invitation_;
-  invitation_ = invitation;
-  if (invitation) {
-    set_has_invitation();
-  } else {
-    clear_has_invitation();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.SendInvitationResponse.invitation)
-}
 
 // -------------------------------------------------------------------
 

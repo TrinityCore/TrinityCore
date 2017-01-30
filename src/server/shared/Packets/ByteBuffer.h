@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,17 +45,9 @@ private:
 class TC_SHARED_API ByteBufferPositionException : public ByteBufferException
 {
 public:
-    ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
+    ByteBufferPositionException(size_t pos, size_t size, size_t valueSize);
 
     ~ByteBufferPositionException() throw() { }
-};
-
-class TC_SHARED_API ByteBufferSourceException : public ByteBufferException
-{
-public:
-    ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
-
-    ~ByteBufferSourceException() throw() { }
 };
 
 class TC_SHARED_API ByteBuffer
@@ -234,13 +226,11 @@ class TC_SHARED_API ByteBuffer
           * @param  value Data to write.
           * @param  bitCount Number of bits to store the value on.
         */
-        template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
+        template <typename T>
+        void PutBits(size_t pos, T value, uint32 bitCount)
         {
-            if (!bitCount)
-                throw ByteBufferSourceException((pos + bitCount) / 8, size(), 0);
-
-            if (pos + bitCount > size() * 8)
-                throw ByteBufferPositionException(false, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
+            ASSERT(pos + bitCount <= size() * 8, "Attempted to put " SZFMTD " bits in ByteBuffer (bitpos: " SZFMTD " size: " SZFMTD ")", bitCount, pos, size());
+            ASSERT(bitCount, "Attempted to put a zero bits in ByteBuffer");
 
             for (uint32 i = 0; i < bitCount; ++i)
             {
@@ -418,14 +408,14 @@ class TC_SHARED_API ByteBuffer
         uint8& operator[](size_t const pos)
         {
             if (pos >= size())
-                throw ByteBufferPositionException(false, pos, 1, size());
+                throw ByteBufferPositionException(pos, 1, size());
             return _storage[pos];
         }
 
         uint8 const& operator[](size_t const pos) const
         {
             if (pos >= size())
-                throw ByteBufferPositionException(false, pos, 1, size());
+                throw ByteBufferPositionException(pos, 1, size());
             return _storage[pos];
         }
 
@@ -466,7 +456,7 @@ class TC_SHARED_API ByteBuffer
         void read_skip(size_t skip)
         {
             if (_rpos + skip > size())
-                throw ByteBufferPositionException(false, _rpos, skip, size());
+                throw ByteBufferPositionException(_rpos, skip, size());
 
             ResetBitPos();
             _rpos += skip;
@@ -483,7 +473,7 @@ class TC_SHARED_API ByteBuffer
         template <typename T> T read(size_t pos) const
         {
             if (pos + sizeof(T) > size())
-                throw ByteBufferPositionException(false, pos, sizeof(T), size());
+                throw ByteBufferPositionException(pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
             return val;
@@ -492,7 +482,7 @@ class TC_SHARED_API ByteBuffer
         void read(uint8 *dest, size_t len)
         {
             if (_rpos + len > size())
-               throw ByteBufferPositionException(false, _rpos, len, size());
+               throw ByteBufferPositionException(_rpos, len, size());
 
             ResetBitPos();
             std::memcpy(dest, &_storage[_rpos], len);
@@ -515,7 +505,7 @@ class TC_SHARED_API ByteBuffer
         std::string ReadString(uint32 length)
         {
             if (_rpos + length > size())
-                throw ByteBufferPositionException(false, _rpos, length, size());
+                throw ByteBufferPositionException(_rpos, length, size());
 
             ResetBitPos();
             if (!length)
@@ -603,19 +593,12 @@ class TC_SHARED_API ByteBuffer
 
         void append(const uint8 *src, size_t cnt)
         {
-            if (!cnt)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
-
-            if (!src)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
-
+            ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
+            ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
             ASSERT(size() < 10000000);
 
             FlushBits();
-
-            if (_storage.size() < _wpos + cnt)
-                _storage.resize(_wpos + cnt);
-            std::memcpy(&_storage[_wpos], src, cnt);
+            _storage.insert(_storage.begin() + _wpos, src, src + cnt);
             _wpos += cnt;
         }
 
@@ -677,11 +660,9 @@ class TC_SHARED_API ByteBuffer
 
         void put(size_t pos, const uint8 *src, size_t cnt)
         {
-            if (pos + cnt > size())
-                throw ByteBufferPositionException(true, pos, cnt, size());
-
-            if (!src)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
+            ASSERT(pos + cnt <= size(), "Attempted to put value with size: " SZFMTD " in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", cnt, pos, size());
+            ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
+            ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
 
             std::memcpy(&_storage[pos], src, cnt);
         }

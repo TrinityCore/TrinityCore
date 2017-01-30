@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,8 @@
 #include "BigNumber.h"
 #include "SHA1.h"
 #include <boost/asio/ip/tcp.hpp>
+
+struct CharacterTemplate;
 
 using boost::asio::ip::tcp;
 
@@ -142,7 +144,7 @@ namespace WorldPackets
                 BillingInfo Billing;
 
                 std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::vector<CharacterTemplate> Templates; ///< list of pre-made character templates.
+                std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
 
                 ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
                 ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races

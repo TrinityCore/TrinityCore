@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
 #include "ObjectMgr.h"
 #include "SystemPackets.h"
@@ -41,8 +42,8 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
             sObjectMgr->GetRealmName(realm.Id.Realm), sObjectMgr->GetNormalizedRealmName(realm.Id.Realm));
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
-            for (auto& templ : sObjectMgr->GetCharacterTemplates())
-                response.SuccessInfo->Templates.emplace_back(templ.second);
+            for (auto const& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
+                response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
         response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,8 @@
 #include "SslSocket.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "QueryCallback.h"
+#include "QueryResult.h"
+#include "QueryCallbackProcessor.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
 #include <google/protobuf/message.h>
@@ -188,8 +189,7 @@ namespace Battlenet
 
         bool _authed;
 
-        PreparedQueryResultFuture _queryFuture;
-        std::function<void(PreparedQueryResult)> _queryCallback;
+        QueryCallbackProcessor _queryProcessor;
 
         std::unordered_map<uint32, std::function<void(MessageBuffer)>> _responseCallbacks;
         uint32 _requestToken;

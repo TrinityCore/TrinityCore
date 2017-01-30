@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -483,20 +483,14 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
             if (!_spellInfo->Scaling.ScalesFromItemLevel)
             {
                 if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
-                {
-                    GtSpellScalingEntry const* gtScaling = sSpellScalingGameTable.GetRow(level);
-                    if (_spellInfo->Scaling.Class > 0)
-                        value = GetSpellScalingColumnForClass(gtScaling, _spellInfo->Scaling.Class);
-                    else
-                        value = gtScaling->Item;
-                }
+                    value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
                 else
                 {
                     uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
                     if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
                         if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                            value *= ratingMult->RatingMultiplier;
+                            value *= ratingMult->ArmorMultiplier;
                 }
             }
             else
@@ -2451,6 +2445,17 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     return range;
 }
 
+int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
+{
+    int32 duration = GetDuration();
+
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration);
+
+    return duration;
+}
+
 int32 SpellInfo::GetDuration() const
 {
     if (!DurationEntry)
@@ -2604,17 +2609,20 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
             if (power->HealthCostPercentage)
                 healthCost += int32(CalculatePct(caster->GetMaxHealth(), power->HealthCostPercentage));
 
-            // Flat mod from caster auras by spell school and power type
-            Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
-            for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            if (power->PowerType != POWER_HEALTH)
             {
-                if (!((*i)->GetMiscValue() & schoolMask))
-                    continue;
+                // Flat mod from caster auras by spell school and power type
+                Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                {
+                    if (!((*i)->GetMiscValue() & schoolMask))
+                        continue;
 
-                if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
-                    continue;
+                    if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
+                        continue;
 
-                powerCost += (*i)->GetAmount();
+                    powerCost += (*i)->GetAmount();
+                }
             }
 
             // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
