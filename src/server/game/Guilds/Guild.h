@@ -154,22 +154,6 @@ enum GuildEvents
     GE_BANK_TEXT_CHANGED                = 19,
 };
 
-enum PetitionTurns
-{
-    PETITION_TURN_OK                    = 0,
-    PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4
-};
-
-enum PetitionSigns
-{
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4
-};
-
 enum GuildBankRights
 {
     GUILD_BANK_RIGHT_VIEW_TAB           = 0x01,

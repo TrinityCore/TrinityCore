@@ -63,6 +63,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PoolMgr.h"
+#include "PetitionMgr.h"
 #include "QueryCallback.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
@@ -4272,7 +4273,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             RemoveFromGroup(group, playerguid);
 
     // Remove signs from petitions (also remove petitions if owner);
-    RemovePetitionsAndSigns(playerguid, 10);
+    RemovePetitionsAndSigns(playerguid, CHARTER_TYPE_ANY);
 
     switch (charDelete_method)
     {
@@ -21053,78 +21054,10 @@ void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const
     GetSession()->SendPacket(&data);
 }
 
-void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
+void Player::RemovePetitionsAndSigns(ObjectGuid guid, CharterTypes type)
 {
-    PreparedStatement* stmt;
-
-    if (type == 10)
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_GUID);
-    else
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_GUID_TYPE);
-        stmt->setUInt8(1, uint8(type));
-    }
-
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
-        {                                                   // and SendPetitionQueryOpcode reads data from the DB
-            Field* fields = result->Fetch();
-            ObjectGuid ownerguid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
-            ObjectGuid petitionguid = ObjectGuid(HighGuid::Item, fields[1].GetUInt32());
-
-            // send update if charter owner in game
-            Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
-            if (owner)
-                owner->GetSession()->SendPetitionQueryOpcode(petitionguid);
-        } while (result->NextRow());
-
-        if (type == 10)
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
-
-            stmt->setUInt32(0, guid.GetCounter());
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
-
-            stmt->setUInt32(0, guid.GetCounter());
-            stmt->setUInt8(1, uint8(type));
-
-            CharacterDatabase.Execute(stmt);
-        }
-    }
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (type == 10)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
-        stmt->setUInt32(0, guid.GetCounter());
-        trans->Append(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER);
-        stmt->setUInt32(0, guid.GetCounter());
-        trans->Append(stmt);
-    }
-    else
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER_AND_TYPE);
-        stmt->setUInt32(0, guid.GetCounter());
-        stmt->setUInt8(1, uint8(type));
-        trans->Append(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER_AND_TYPE);
-        stmt->setUInt32(0, guid.GetCounter());
-        stmt->setUInt8(1, uint8(type));
-        trans->Append(stmt);
-    }
-    CharacterDatabase.CommitTransaction(trans);
+    sPetitionMgr->RemoveSignaturesBySignerAndType(guid, type);
+    sPetitionMgr->RemovePetitionsByOwnerAndType(guid, type);
 }
 
 void Player::LeaveAllArenaTeams(ObjectGuid guid)
