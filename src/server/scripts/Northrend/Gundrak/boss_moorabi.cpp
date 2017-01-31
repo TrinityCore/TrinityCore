@@ -224,7 +224,14 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
         class spell_moorabi_mojo_frenzy_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_moorabi_mojo_frenzy_AuraScript);
-
+            
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOJO_FRENZY_CAST_SPEED))
+                    return false;
+                return true;
+            }
+            
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
