@@ -65,7 +65,7 @@ namespace Movement
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows CalculatePath spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.Finalized() && move_spline.onTransport == transport)
+        if (move_spline.Initialized() && !move_spline.Finalized() && move_spline.onTransport == transport)
             real_position = move_spline.ComputePosition();
         else
         {
@@ -135,12 +135,12 @@ namespace Movement
         MoveSpline& move_spline = *unit->movespline;
 
         // No need to stop if we are not moving
-        if (move_spline.Finalized())
+        if (!unit->isMoving())
             return;
 
         bool transport = unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit->GetTransGUID();
         Location loc;
-        if (move_spline.onTransport == transport)
+        if (move_spline.Initialized() && !move_spline.Finalized() && move_spline.onTransport == transport)
             loc = move_spline.ComputePosition();
         else
         {

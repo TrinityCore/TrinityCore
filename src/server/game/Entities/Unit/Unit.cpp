@@ -504,6 +504,10 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
 void Unit::UpdateSplinePosition()
 {
+    // this method could be called on players. players usually do not have a movespline initialized. the following condition is therefore needed.
+    if (!movespline->Initialized())
+        return;
+
     static uint32 const positionUpdateDelay = 400;
 
     m_movesplineTimer.Reset(positionUpdateDelay);
@@ -11056,13 +11060,15 @@ void Unit::StopMoving()
     ClearUnitState(UNIT_STATE_MOVING);
 
     // not need send any packets if not in world or not moving
-    if (!IsInWorld() || movespline->Finalized())
+    if (!IsInWorld() || !isMoving())
         return;
 
     // Update position now since Stop does not start a new movement that can be updated later
-    UpdateSplinePosition();
+    if(!movespline->Finalized())
+        UpdateSplinePosition();
     Movement::MoveSplineInit init(this);
     init.Stop();
+    RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
 }
 
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
