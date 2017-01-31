@@ -109,6 +109,8 @@ class boss_moorabi : public CreatureScript
             {
                 _DespawnAtEvade();
             }
+            
+            void JustSummoned(Creature* /*summon*/) override {}
 
             uint32 GetData(uint32 type) const override
             {
