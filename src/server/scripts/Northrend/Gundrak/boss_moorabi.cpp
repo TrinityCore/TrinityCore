@@ -82,7 +82,6 @@ class boss_moorabi : public CreatureScript
             void Initialize()
             {
                 _transformed = false;
-                events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
             void Reset() override
@@ -90,6 +89,7 @@ class boss_moorabi : public CreatureScript
                 _Reset();
                 Initialize();
                 events.SetPhase(PHASE_INTRO);
+                events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
             void EnterCombat(Unit* /*who*/) override
