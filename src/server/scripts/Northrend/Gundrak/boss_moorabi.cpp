@@ -52,12 +52,19 @@ enum Events
     EVENT_GROUND_TREMOR            = 1,
     EVENT_NUMBLING_SHOUT,
     EVENT_DETERMINED_STAB,
-    EVENT_TRANFORMATION
+    EVENT_TRANFORMATION,
+    EVENT_PHANTOM
 };
 
 enum Misc
 {
     DATA_LESS_RABI                 = 1
+};
+
+enum Phases
+{
+    PHASE_INTRO                    = 1,
+    PHASE_COMBAT
 };
 
 class boss_moorabi : public CreatureScript
@@ -75,18 +82,14 @@ class boss_moorabi : public CreatureScript
             void Initialize()
             {
                 _transformed = false;
-
-                scheduler.Schedule(Seconds(21), [this](TaskContext task)
-                {
-                    DoCastSelf(SPELL_SUMMON_PHANTOM, true);
-                    task.Repeat(Seconds(20), Seconds(25));
-                });
+                events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
             void Reset() override
             {
                 _Reset();
                 Initialize();
+                events.SetPhase(PHASE_INTRO);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -95,10 +98,11 @@ class boss_moorabi : public CreatureScript
                 Talk(SAY_AGGRO);
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18));
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10));
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20));
-                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12));
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18), 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10), 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20), 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12), 0, PHASE_COMBAT);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -139,10 +143,7 @@ class boss_moorabi : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat())
-                    scheduler.Update(diff);
-
-                if (!UpdateVictim())
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -173,6 +174,10 @@ class boss_moorabi : public CreatureScript
                             DoCastSelf(SPELL_TRANSFORMATION);
                             DoCastSelf(SPELL_SUMMON_PHANTOM_TRANSFORM, true);
                             events.Repeat(Seconds(10));
+                            break;
+                        case EVENT_PHANTOM:
+                            DoCastSelf(SPELL_SUMMON_PHANTOM, true);
+                            events.Repeat(Seconds(20), Seconds(25));
                             break;
                         default:
                             break;
