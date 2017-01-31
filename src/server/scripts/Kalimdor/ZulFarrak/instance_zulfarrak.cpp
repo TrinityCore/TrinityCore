@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,17 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "zulfarrak.h"
+#include "Player.h"
+#include "TemporarySummon.h"
 
-#define NPC_GAHZRILLA 7273
-#define PATH_ADDS 81553
+enum Misc
+{
+    // Creatures
+    NPC_GAHZRILLA       = 7273,
+
+    // Paths
+    PATH_ADDS           = 81553
+};
 
 int const pyramidSpawnTotal = 54;
 /* list of wave spawns: 0 = wave ID, 1 = creature id, 2 = x, 3 = y
@@ -93,39 +101,17 @@ class instance_zulfarrak : public InstanceMapScript
 public:
     instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_zulfarrak_InstanceMapScript(map);
     }
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 GahzRillaEncounter;
-        uint64 ZumrahGUID;
-        uint64 BlyGUID;
-        uint64 WeegliGUID;
-        uint64 OroGUID;
-        uint64 RavenGUID;
-        uint64 MurtaGUID;
-        uint64 EndDoorGUID;
-        uint32 PyramidPhase;
-        uint32 major_wave_Timer;
-        uint32 minor_wave_Timer;
-        uint32 addGroupSize;
-        uint32 waypoint;
-
-        void Initialize()
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             GahzRillaEncounter = NOT_STARTED;
-            ZumrahGUID = 0;
-            BlyGUID = 0;
-            WeegliGUID = 0;
-            OroGUID = 0;
-            RavenGUID = 0;
-            MurtaGUID = 0;
-            EndDoorGUID = 0;
             PyramidPhase = 0;
             major_wave_Timer = 0;
             minor_wave_Timer = 0;
@@ -133,11 +119,25 @@ public:
             waypoint = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        uint32 GahzRillaEncounter;
+        ObjectGuid ZumrahGUID;
+        ObjectGuid BlyGUID;
+        ObjectGuid WeegliGUID;
+        ObjectGuid OroGUID;
+        ObjectGuid RavenGUID;
+        ObjectGuid MurtaGUID;
+        ObjectGuid EndDoorGUID;
+        uint32 PyramidPhase;
+        uint32 major_wave_Timer;
+        uint32 minor_wave_Timer;
+        uint32 addGroupSize;
+        uint32 waypoint;
+
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
-                case ENTRY_ZUMRAH:
+                case ENTRY_ZUM_RAH:
                     ZumrahGUID = creature->GetGUID();
                     break;
                 case ENTRY_BLY:
@@ -169,7 +169,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -179,7 +179,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -189,11 +189,11 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
-                case ENTRY_ZUMRAH:
+                case ENTRY_ZUM_RAH:
                     return ZumrahGUID;
                 case ENTRY_BLY:
                     return BlyGUID;
@@ -208,10 +208,10 @@ public:
                 case GO_END_DOOR:
                     return EndDoorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -221,7 +221,7 @@ public:
             };
         }
 
-        virtual void Update(uint32 diff)
+        virtual void Update(uint32 diff) override
         {
             switch (PyramidPhase)
             {
@@ -306,13 +306,13 @@ public:
             };
         }
 
-        std::list<uint64> addsAtBase, movedadds;
+        GuidList addsAtBase, movedadds;
 
         void MoveNPCIfAlive(uint32 entry, float x, float y, float z, float o)
         {
-           if (Creature* npc = instance->GetCreature(GetData64(entry)))
+           if (Creature* npc = instance->GetCreature(GetGuidData(entry)))
            {
-               if (npc->isAlive())
+               if (npc->IsAlive())
                {
                     npc->SetWalk(true);
                     npc->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -337,19 +337,19 @@ public:
 
         bool IsWaveAllDead()
         {
-            for (std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
+            for (GuidList::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature((*itr)))
                 {
-                    if (add->isAlive())
+                    if (add->IsAlive())
                         return false;
                 }
             }
-            for (std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
+            for (GuidList::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature(((*itr))))
                 {
-                    if (add->isAlive())
+                    if (add->IsAlive())
                         return false;
                 }
             }

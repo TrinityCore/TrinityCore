@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,31 +15,88 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Opcodes.h"
 #include "WorldSession.h"
-#include "WorldPacket.h"
+#include "AuthenticationPackets.h"
+#include "BattlenetRpcErrorCodes.h"
+#include "CharacterTemplateDataStore.h"
+#include "ClientConfigPackets.h"
+#include "ObjectMgr.h"
+#include "SystemPackets.h"
 
-void WorldSession::SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos)
+void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1 + (shortForm ? 0 : (4 + 1)));
-    packet << uint8(code);
-    packet << uint32(0);                                   // BillingTimeRemaining
-    packet << uint8(0);                                    // BillingPlanFlags
-    packet << uint32(0);                                   // BillingTimeRested
-    packet << uint8(Expansion());                          // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
+    WorldPackets::Auth::AuthResponse response;
+    response.Result = code;
 
-    if (!shortForm)
+    if (code == ERROR_OK)
     {
-        packet << uint32(queuePos);                             // Queue position
-        packet << uint8(0);                                     // Realm has a free character migration - bool
+        response.SuccessInfo = boost::in_place();
+
+        response.SuccessInfo->AccountExpansionLevel = GetExpansion();
+        response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
+        response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo->Time = int32(time(nullptr));
+
+        // Send current home realm. Also there is no need to send it later in realm queries.
+        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false,
+            sObjectMgr->GetRealmName(realm.Id.Realm), sObjectMgr->GetNormalizedRealmName(realm.Id.Realm));
+
+        if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
+            for (auto const& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
+                response.SuccessInfo->Templates.push_back(&templ.second);
+
+        response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
-    SendPacket(&packet);
+    if (queued)
+    {
+        response.WaitInfo = boost::in_place();
+        response.WaitInfo->WaitCount = queuePos;
+    }
+
+    SendPacket(response.Write());
+}
+
+void WorldSession::SendAuthWaitQue(uint32 position)
+{
+    if (position)
+    {
+        WorldPackets::Auth::WaitQueueUpdate waitQueueUpdate;
+        waitQueueUpdate.WaitInfo.WaitCount = position;
+        waitQueueUpdate.WaitInfo.WaitTime = 0;
+        waitQueueUpdate.WaitInfo.HasFCM = false;
+        SendPacket(waitQueueUpdate.Write());
+    }
+    else
+        SendPacket(WorldPackets::Auth::WaitQueueFinish().Write());
 }
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
-    data << uint32(version);
-    SendPacket(&data);
+    WorldPackets::ClientConfig::ClientCacheVersion cache;
+    cache.CacheVersion = version;
+
+    SendPacket(cache.Write());
+}
+
+void WorldSession::SendSetTimeZoneInformation()
+{
+    /// @todo: replace dummy values
+    WorldPackets::System::SetTimeZoneInformation packet;
+    packet.ServerTimeTZ = "Europe/Paris";
+    packet.GameTimeTZ = "Europe/Paris";
+
+    SendPacket(packet.Write());
+}
+
+void WorldSession::SendFeatureSystemStatusGlueScreen()
+{
+    WorldPackets::System::FeatureSystemStatusGlueScreen features;
+    features.BpayStoreAvailable = false;
+    features.BpayStoreDisabledByParentalControls = false;
+    features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
+    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
+
+    SendPacket(features.Write());
 }

@@ -7,8 +7,8 @@ CREATE TABLE `creature_classlevelstats` (
   `level` tinyint(1) NOT NULL,
   `class` tinyint(1) NOT NULL,
   `basehp0` smallint(2) NOT NULL,
-  `basehp1` smallint(2) NOT NULL,  
-  `basehp2` smallint(2) NOT NULL,  
+  `basehp1` smallint(2) NOT NULL,
+  `basehp2` smallint(2) NOT NULL,
   `basemana` smallint(2) NOT NULL,
   `basearmor` smallint(2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

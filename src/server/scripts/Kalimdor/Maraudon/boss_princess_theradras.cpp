@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,21 +40,19 @@ class boss_princess_theradras : public CreatureScript
 public:
     boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_ptheradrasAI (creature);
+        return new boss_ptheradrasAI(creature);
     }
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 DustfieldTimer;
-        uint32 BoulderTimer;
-        uint32 ThrashTimer;
-        uint32 RepulsiveGazeTimer;
-
-        void Reset()
+        void Initialize()
         {
             DustfieldTimer = 8000;
             BoulderTimer = 2000;
@@ -62,14 +60,24 @@ public:
             RepulsiveGazeTimer = 23000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        uint32 DustfieldTimer;
+        uint32 BoulderTimer;
+        uint32 ThrashTimer;
+        uint32 RepulsiveGazeTimer;
 
-        void JustDied(Unit* /*killer*/)
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void JustDied(Unit* /*killer*/) override
         {
             me->SummonCreature(12238, 28.067f, 61.875f, -123.405f, 4.67f, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

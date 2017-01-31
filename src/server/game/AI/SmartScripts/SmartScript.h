@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,13 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 #include "GridNotifiers.h"
 
 #include "SmartScriptMgr.h"
 //#include "SmartAI.h"
 
-class SmartScript
+class TC_GAME_API SmartScript
 {
     public:
         SmartScript();
@@ -46,6 +45,7 @@ class SmartScript
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
         void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
@@ -89,6 +89,7 @@ class SmartScript
         Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
         void DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid);
+        Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly);
 
         void StoreTargetList(ObjectList* targets, uint32 id)
         {
@@ -98,13 +99,13 @@ class SmartScript
             if (mTargetStorage->find(id) != mTargetStorage->end())
             {
                 // check if already stored
-                if ((*mTargetStorage)[id] == targets)
+                if ((*mTargetStorage)[id]->Equals(targets))
                     return;
 
                 delete (*mTargetStorage)[id];
             }
 
-            (*mTargetStorage)[id] = targets;
+            (*mTargetStorage)[id] = new ObjectGuidList(targets, GetBaseObject());
         }
 
         bool IsSmart(Creature* c = NULL)
@@ -117,7 +118,7 @@ class SmartScript
                 smart = false;
 
             if (!smart)
-                sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target Creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c ? c->GetEntry() : (me ? me->GetEntry() : 0));
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: " UI64FMTD " Entry: %u) is not using SmartAI, action called by Creature (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(c ? c->GetSpawnId() : UI64LIT(0)), c ? c->GetEntry() : 0, uint64(me ? me->GetSpawnId() : UI64LIT(0)), me ? me->GetEntry() : 0);
 
             return smart;
         }
@@ -131,7 +132,7 @@ class SmartScript
             if (!go || go->GetAIName() != "SmartGameObjectAI")
                 smart = false;
             if (!smart)
-                sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target GameObject(entry: %u) is not using SmartGameObjectAI, action skipped to prevent crash.", g ? g->GetEntry() : (go ? go->GetEntry() : 0));
+                TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: " UI64FMTD " Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: " UI64FMTD " Entry: %u) skipped to prevent crash.", uint64(g ? g->GetSpawnId() : UI64LIT(0)), g ? g->GetEntry() : 0, uint64(go ? go->GetSpawnId() : UI64LIT(0)), go ? go->GetEntry() : 0);
 
             return smart;
         }
@@ -140,39 +141,61 @@ class SmartScript
         {
             ObjectListMap::iterator itr = mTargetStorage->find(id);
             if (itr != mTargetStorage->end())
-                return (*itr).second;
+                return (*itr).second->GetObjectList();
             return NULL;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        void StoreCounter(uint32 id, uint32 value, uint32 reset)
         {
-            GameObject* gameObject = NULL;
+            CounterMap::const_iterator itr = mCounterList.find(id);
+            if (itr != mCounterList.end())
+            {
+                if (reset == 0)
+                    value += GetCounterValue(id);
+                mCounterList.erase(id);
+            }
 
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
-
-            Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
-            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
-
-            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-            cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
-
-            return gameObject;
+            mCounterList.insert(std::make_pair(id, value));
+            ProcessEventsFor(SMART_EVENT_COUNTER_SET);
         }
 
-        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
+        uint32 GetCounterId(uint32 id)
         {
-            Creature* creature = NULL;
-            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
-            Cell cell(p);
+            CounterMap::iterator itr = mCounterList.find(id);
+            if (itr != mCounterList.end())
+                return itr->first;
+            return 0;
+        }
 
-            Trinity::CreatureWithDbGUIDCheck target_check(searchObject, guid);
-            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
+        uint32 GetCounterValue(uint32 id)
+        {
+            CounterMap::iterator itr = mCounterList.find(id);
+            if (itr != mCounterList.end())
+                return itr->second;
+            return 0;
+        }
 
-            TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-            cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
+        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
+        {
+            auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
 
-            return creature;
+            return bounds.first->second;
+        }
+
+        Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
+        {
+            auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
+            if (bounds.first == bounds.second)
+                return nullptr;
+
+            auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
+            {
+                return pair.second->IsAlive();
+            });
+
+            return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
         }
 
         ObjectListMap* mTargetStorage;
@@ -180,30 +203,39 @@ class SmartScript
         void OnReset();
         void ResetBaseObject()
         {
-            if (meOrigGUID)
+            WorldObject* lookupRoot = me;
+            if (!lookupRoot)
+                lookupRoot = go;
+
+            if (lookupRoot)
             {
-                if (Creature* m = HashMapHolder<Creature>::Find(meOrigGUID))
+                if (!meOrigGUID.IsEmpty())
                 {
-                    me = m;
-                    go = NULL;
+                    if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
+                    {
+                        me = m;
+                        go = NULL;
+                    }
+                }
+                if (!goOrigGUID.IsEmpty())
+                {
+                    if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
+                    {
+                        me = NULL;
+                        go = o;
+                    }
                 }
             }
-            if (goOrigGUID)
-            {
-                if (GameObject* o = HashMapHolder<GameObject>::Find(goOrigGUID))
-                {
-                    me = NULL;
-                    go = o;
-                }
-            }
-            goOrigGUID = 0;
-            meOrigGUID = 0;
+            goOrigGUID.Clear();
+            meOrigGUID.Clear();
         }
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
-        uint64 mLastInvoker;
+        ObjectGuid mLastInvoker;
+        typedef std::unordered_map<uint32, uint32> CounterMap;
+        CounterMap mCounterList;
 
     private:
         void IncPhase(int32 p = 1)
@@ -214,36 +246,42 @@ class SmartScript
                 DecPhase(abs(p));
         }
 
-        void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
-        bool IsInPhase(uint32 p) const { return (1 << (mEventPhase - 1)) & p; }
+        void DecPhase(int32 p = 1)
+        {
+            if (mEventPhase > (uint32)p)
+                mEventPhase -= (uint32)p;
+            else
+                mEventPhase = 0;
+        }
+
+        bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
+        bool isProcessingTimedActionList;
         Creature* me;
-        uint64 meOrigGUID;
+        ObjectGuid meOrigGUID;
         GameObject* go;
-        uint64 goOrigGUID;
+        ObjectGuid goOrigGUID;
         AreaTriggerEntry const* trigger;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        UNORDERED_MAP<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;
         std::list<uint32>mRemIDs;
 
         uint32 mTextTimer;
         uint32 mLastTextID;
-        uint64 mTextGUID;
         uint32 mTalkerEntry;
         bool mUseTextTimer;
 
         SMARTAI_TEMPLATE mTemplate;
         void InstallEvents();
 
-        void RemoveStoredEvent (uint32 id)
+        void RemoveStoredEvent(uint32 id)
         {
             if (!mStoredEvents.empty())
             {
@@ -256,21 +294,6 @@ class SmartScript
                     }
                 }
             }
-        }
-        SmartScriptHolder FindLinkedEvent (uint32 link)
-        {
-            if (!mEvents.empty())
-            {
-                for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
-                {
-                    if (i->event_id == link)
-                    {
-                        return (*i);
-                    }
-                }
-            }
-            SmartScriptHolder s;
-            return s;
         }
 };
 

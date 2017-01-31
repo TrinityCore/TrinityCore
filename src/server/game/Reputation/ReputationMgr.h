@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,9 +22,11 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Language.h"
-#include "DBCStructure.h"
 #include "QueryResult.h"
 #include <map>
+
+struct FactionEntry;
+struct FactionTemplateEntry;
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 {
@@ -61,19 +63,19 @@ typedef std::map<uint32, ReputationRank> ForcedReactions;
 
 class Player;
 
-class ReputationMgr
+class TC_GAME_API ReputationMgr
 {
     public:                                                 // constructors and global modifiers
         explicit ReputationMgr(Player* owner) : _player(owner),
-            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) {}
-        ~ReputationMgr() {}
+            _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) { }
+        ~ReputationMgr() { }
 
         void SaveToDB(SQLTransaction& trans);
         void LoadFromDB(PreparedQueryResult result);
     public:                                                 // statics
         static const int32 PointsInRank[MAX_REPUTATION_RANK];
-        static const int32 Reputation_Cap    =  42999;
-        static const int32 Reputation_Bottom = -42000;
+        static const int32 Reputation_Cap;
+        static const int32 Reputation_Bottom;
 
         static ReputationRank ReputationToRank(int32 standing);
     public:                                                 // accessors
@@ -84,10 +86,7 @@ class ReputationMgr
 
         FactionStateList const& GetStateList() const { return _factions; }
 
-        FactionState const* GetState(FactionEntry const* factionEntry) const
-        {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : NULL;
-        }
+        FactionState const* GetState(FactionEntry const* factionEntry) const;
 
         FactionState const* GetState(RepListID id) const
         {
@@ -109,20 +108,22 @@ class ReputationMgr
             return ReputationRankStrIndex[GetRank(factionEntry)];
         };
 
-        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
+        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
+
+        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
         {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->faction);
+            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionId);
             return forceItr != _forcedReactions.end() ? &forceItr->second : NULL;
         }
 
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
         {
-            return SetReputation(factionEntry, standing, false);
+            return SetReputation(factionEntry, standing, false, false);
         }
-        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing)
+        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool noSpillover = false)
         {
-            return SetReputation(factionEntry, standing, true);
+            return SetReputation(factionEntry, standing, true, noSpillover);
         }
 
         void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
@@ -144,11 +145,11 @@ class ReputationMgr
     private:                                                // internal helper functions
         void Initialize();
         uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
+        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool noSpillover);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;
-        void SendVisible(FactionState const* faction) const;
+        void SendVisible(FactionState const* faction, bool visible = true) const;
         void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank);
     private:
         Player* _player;

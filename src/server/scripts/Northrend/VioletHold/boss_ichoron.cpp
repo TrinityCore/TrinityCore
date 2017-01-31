@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,393 +17,450 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "violet_hold.h"
 
 enum Spells
 {
-    SPELL_DRAINED                               = 59820,
-    SPELL_FRENZY                                = 54312,
-    SPELL_FRENZY_H                              = 59522,
-    SPELL_PROTECTIVE_BUBBLE                     = 54306,
     SPELL_WATER_BLAST                           = 54237,
-    SPELL_WATER_BLAST_H                         = 59520,
     SPELL_WATER_BOLT_VOLLEY                     = 54241,
-    SPELL_WATER_BOLT_VOLLEY_H                   = 59521,
-    SPELL_SPLASH                                = 59516,
-    SPELL_WATER_GLOBULE                         = 54268
-};
+    SPELL_SPLATTER                              = 54259,
+    SPELL_PROTECTIVE_BUBBLE                     = 54306,
+    SPELL_FRENZY                                = 54312,
+    SPELL_BURST                                 = 54379,
+    SPELL_DRAINED                               = 59820,
+    SPELL_THREAT_PROC                           = 61732,
+    SPELL_SHRINK                                = 54297,
 
-enum IchoronCreatures
-{
-    NPC_ICHOR_GLOBULE                           = 29321,
+    SPELL_WATER_GLOBULE_SUMMON_1                = 54258,
+    SPELL_WATER_GLOBULE_SUMMON_2                = 54264,
+    SPELL_WATER_GLOBULE_SUMMON_3                = 54265,
+    SPELL_WATER_GLOBULE_SUMMON_4                = 54266,
+    SPELL_WATER_GLOBULE_SUMMON_5                = 54267,
+    SPELL_WATER_GLOBULE_TRANSFORM               = 54268,
+    SPELL_WATER_GLOBULE_VISUAL                  = 54260,
+
+    SPELL_MERGE                                 = 54269,
+    SPELL_SPLASH                                = 59516
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608018,
-    SAY_SLAY_1                                  = -1608019,
-    SAY_SLAY_2                                  = -1608020,
-    SAY_SLAY_3                                  = -1608021,
-    SAY_DEATH                                   = -1608022,
-    SAY_SPAWN                                   = -1608023,
-    SAY_ENRAGE                                  = -1608024,
-    SAY_SHATTER                                 = -1608025,
-    SAY_BUBBLE                                  = -1608026
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_ENRAGE                                  = 4,
+    SAY_SHATTER                                 = 5,
+    SAY_BUBBLE                                  = 6,
+    EMOTE_SHATTER                               = 7
 };
 
 enum Actions
 {
-    ACTION_WATER_ELEMENT_HIT                    = 1,
-    ACTION_WATER_ELEMENT_KILLED                 = 2,
+    ACTION_WATER_GLOBULE_HIT                    = 1,
+    ACTION_PROTECTIVE_BUBBLE_SHATTERED          = 2,
+    ACTION_DRAINED                              = 3
 };
 
-// TODO get those positions from spawn of creature 29326
-#define MAX_SPAWN_LOC 5
-static Position SpawnLoc[MAX_SPAWN_LOC]=
+enum Misc
 {
-    {1840.64f, 795.407f, 44.079f, 1.676f},
-    {1886.24f, 757.733f, 47.750f, 5.201f},
-    {1877.91f, 845.915f, 43.417f, 3.560f},
-    {1918.97f, 850.645f, 47.225f, 4.136f},
-    {1935.50f, 796.224f, 52.492f, 4.224f},
+    DATA_DEHYDRATION                            = 1
 };
-
-#define DATA_DEHYDRATION                        1
 
 class boss_ichoron : public CreatureScript
 {
-public:
-    boss_ichoron() : CreatureScript("boss_ichoron") { }
+    public:
+        boss_ichoron() : CreatureScript("boss_ichoron") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_ichoronAI (creature);
-    }
-
-    struct boss_ichoronAI : public ScriptedAI
-    {
-        boss_ichoronAI(Creature* creature) : ScriptedAI(creature), m_waterElements(creature)
+        struct boss_ichoronAI : public BossAI
         {
-            instance  = creature->GetInstanceScript();
-        }
-
-        bool bIsExploded;
-        bool bIsFrenzy;
-        bool dehydration;
-
-        uint32 uiBubbleCheckerTimer;
-        uint32 uiWaterBoltVolleyTimer;
-
-        InstanceScript* instance;
-
-        SummonList m_waterElements;
-
-        void Reset()
-        {
-            bIsExploded = false;
-            bIsFrenzy = false;
-            dehydration = true;
-            uiBubbleCheckerTimer = 1000;
-            uiWaterBoltVolleyTimer = urand(10000, 15000);
-
-            me->SetVisible(true);
-            DespawnWaterElements();
-
-            if (instance)
+            boss_ichoronAI(Creature* creature) : BossAI(creature, DATA_ICHORON)
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
-            }
-        }
+                Initialize();
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-
-            DoCast(me, SPELL_PROTECTIVE_BUBBLE);
-
-            if (instance)
-            {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ICHORON_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
-        }
-
-        void AttackStart(Unit* who)
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-        }
-
-        void DoAction(const int32 param)
-        {
-            if (!me->isAlive())
-                return;
-
-            switch (param)
-            {
-                case ACTION_WATER_ELEMENT_HIT:
-                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(1)));
-
-                    if (bIsExploded)
-                        DoExplodeCompleted();
-
-                    dehydration = false;
-                    break;
-                case ACTION_WATER_ELEMENT_KILLED:
-                    uint32 damage = me->CountPctFromMaxHealth(3);
-                    me->ModifyHealth(-int32(damage));
-                    me->LowerPlayerDamageReq(damage);
-                    break;
-            }
-        }
-
-        void DespawnWaterElements()
-        {
-            m_waterElements.DespawnAll();
-        }
-
-        // call when explode shall stop.
-        // either when "hit" by a bubble, or when there is no bubble left.
-        void DoExplodeCompleted()
-        {
-            bIsExploded = false;
-
-            if (!HealthBelowPct(25))
-            {
-                DoScriptText(SAY_BUBBLE, me);
-                DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
+                /// for some reason ichoron can't walk back to it's water basin on evade
+                me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
             }
 
-            me->SetVisible(true);
-            me->GetMotionMaster()->MoveChase(me->getVictim());
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            if (type == DATA_DEHYDRATION)
-                return dehydration ? 1 : 0;
-
-            return 0;
-        }
-
-        void MoveInLineOfSight(Unit* /*who*/) {}
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
+            void Initialize()
             {
-                DoScriptText(SAY_ENRAGE, me);
-                DoCast(me, SPELL_FRENZY, true);
-                bIsFrenzy = true;
+                _isFrenzy = false;
+                _dehydration = true;
             }
 
-            if (!bIsFrenzy)
+            void Reset() override
             {
-                if (uiBubbleCheckerTimer <= uiDiff)
+                Initialize();
+                BossAI::Reset();
+
+                DoCast(me, SPELL_THREAT_PROC, true);
+            }
+
+            void EnterCombat(Unit* who) override
+            {
+                BossAI::EnterCombat(who);
+                Talk(SAY_AGGRO);
+            }
+
+            void JustReachedHome() override
+            {
+                BossAI::JustReachedHome();
+                instance->SetData(DATA_HANDLE_CELLS, DATA_ICHORON);
+            }
+
+            void DoAction(int32 actionId) override
+            {
+                switch (actionId)
                 {
-                    if (!bIsExploded)
+                    case ACTION_WATER_GLOBULE_HIT:
+                        if (!me->IsAlive())
+                            break;
+
+                        me->ModifyHealth(int32(me->CountPctFromMaxHealth(3)));
+                        _dehydration = false;
+                        break;
+                    case ACTION_PROTECTIVE_BUBBLE_SHATTERED:
                     {
-                        if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
+                        Talk(SAY_SHATTER);
+                        Talk(EMOTE_SHATTER);
+
+                        DoCastAOE(SPELL_SPLATTER, true);
+                        DoCastAOE(SPELL_BURST, true);
+                        DoCast(me, SPELL_DRAINED, true);
+
+                        uint32 damage = me->CountPctFromMaxHealth(30);
+                        me->LowerPlayerDamageReq(damage);
+                        me->ModifyHealth(-std::min<int32>(damage, me->GetHealth() - 1));
+
+                        scheduler.DelayAll(Seconds(15));
+                        break;
+                    }
+                    case ACTION_DRAINED:
+                        if (HealthAbovePct(30))
                         {
-                            DoScriptText(SAY_SHATTER, me);
-                            DoCast(me, SPELL_WATER_BLAST);
-                            DoCast(me, SPELL_DRAINED);
-                            bIsExploded = true;
-                            me->AttackStop();
-                            me->SetVisible(false);
-                            for (uint8 i = 0; i < 10; i++)
-                            {
-                                int tmp = urand(0, MAX_SPAWN_LOC-1);
-                                me->SummonCreature(NPC_ICHOR_GLOBULE, SpawnLoc[tmp], TEMPSUMMON_CORPSE_DESPAWN);
-                            }
+                            Talk(SAY_BUBBLE);
+                            DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
                         }
-                    }
-                    else
-                    {
-                        bool bIsWaterElementsAlive = false;
-                        if (!m_waterElements.empty())
-                        {
-                            for (std::list<uint64>::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
-                                if (Creature* temp = Unit::GetCreature(*me, *itr))
-                                    if (temp->isAlive())
-                                    {
-                                        bIsWaterElementsAlive = true;
-                                        break;
-                                    }
-                        }
-
-                        if (!bIsWaterElementsAlive)
-                            DoExplodeCompleted();
-                    }
-                    uiBubbleCheckerTimer = 1000;
+                        break;
+                    default:
+                        break;
                 }
-                else uiBubbleCheckerTimer -= uiDiff;
             }
 
-            if (!bIsExploded)
+            uint32 GetData(uint32 type) const override
             {
-                if (uiWaterBoltVolleyTimer <= uiDiff)
+                if (type == DATA_DEHYDRATION)
+                    return _dehydration ? 1 : 0;
+                return 0;
+            }
+
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void JustDied(Unit* killer) override
+            {
+                BossAI::JustDied(killer);
+                Talk(SAY_DEATH);
+            }
+
+            void JustSummoned(Creature* summon) override
+            {
+                summons.Summon(summon);
+
+                if (summon->GetEntry() == NPC_ICHOR_GLOBULE)
+                    DoCast(summon, SPELL_WATER_GLOBULE_VISUAL);
+            }
+
+            void SummonedCreatureDespawn(Creature* summon) override
+            {
+                BossAI::SummonedCreatureDespawn(summon);
+
+                if (summons.empty())
+                    me->RemoveAurasDueToSpell(SPELL_DRAINED, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!_isFrenzy && HealthBelowPct(25) && !me->HasAura(SPELL_DRAINED))
                 {
-                    DoCast(me, SPELL_WATER_BOLT_VOLLEY);
-                    uiWaterBoltVolleyTimer = urand(10000, 15000);
+                    Talk(SAY_ENRAGE);
+                    DoCast(me, SPELL_FRENZY, true);
+                    _isFrenzy = true;
                 }
-                else uiWaterBoltVolleyTimer -= uiDiff;
 
-                DoMeleeAttackIfReady();
-            }
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (bIsExploded)
-            {
-                bIsExploded = false;
-                me->SetVisible(true);
+                scheduler.Update(diff,
+                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
             }
 
-            DespawnWaterElements();
-
-            if (instance)
+            void ScheduleTasks() override
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                scheduler.Async([this]
                 {
-                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    DoCast(me, SPELL_SHRINK);
+                    DoCast(me, SPELL_PROTECTIVE_BUBBLE);
+                });
+
+                scheduler.Schedule(Seconds(10), Seconds(15), [this](TaskContext task)
                 {
-                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 13);
-                }
+                    DoCastAOE(SPELL_WATER_BOLT_VOLLEY);
+                    task.Repeat(Seconds(10), Seconds(15));
+                });
+
+                scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                        DoCast(target, SPELL_WATER_BLAST);
+                    task.Repeat(Seconds(6), Seconds(9));
+                });
             }
-        }
 
-        void JustSummoned(Creature* summoned)
+        private:
+            bool _isFrenzy;
+            bool _dehydration;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            if (summoned)
-            {
-                summoned->SetSpeed(MOVE_RUN, 0.3f);
-                summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-                m_waterElements.push_back(summoned->GetGUID());
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
-            }
+            return GetVioletHoldAI<boss_ichoronAI>(creature);
         }
-
-        void SummonedCreatureDespawn(Creature* summoned)
-        {
-            if (summoned)
-            {
-                m_waterElements.remove(summoned->GetGUID());
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
-            }
-        }
-
-        void KilledUnit(Unit* victim)
-        {
-            if (victim == me)
-                return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
-        }
-    };
-
 };
 
-class mob_ichor_globule : public CreatureScript
+class npc_ichor_globule : public CreatureScript
 {
-public:
-    mob_ichor_globule() : CreatureScript("mob_ichor_globule") { }
+    public:
+        npc_ichor_globule() : CreatureScript("npc_ichor_globule") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_ichor_globuleAI (creature);
-    }
-
-    struct mob_ichor_globuleAI : public ScriptedAI
-    {
-        mob_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_ichor_globuleAI : public ScriptedAI
         {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 uiRangeCheck_Timer;
-
-        void Reset()
-        {
-            uiRangeCheck_Timer = 1000;
-            DoCast(me, SPELL_WATER_GLOBULE);
-        }
-
-        void AttackStart(Unit* /*who*/)
-        {
-            return;
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (uiRangeCheck_Timer < uiDiff)
+            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
             {
-                if (instance)
-                {
-                    if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
-                    {
-                        if (me->IsWithinDist(pIchoron, 2.0f, false))
-                        {
-                            if (pIchoron->AI())
-                                pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
-                            me->DespawnOrUnsummon();
-                        }
-                    }
-                }
-                uiRangeCheck_Timer = 1000;
+                _instance = creature->GetInstanceScript();
+                creature->SetReactState(REACT_PASSIVE);
             }
-            else uiRangeCheck_Timer -= uiDiff;
-        }
 
-        void JustDied(Unit* /*killer*/)
+            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            {
+                if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
+                {
+                    DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->GetMotionMaster()->MoveFollow(caster, 0.0f, 0.0f);
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 id) override
+            {
+                if (type != FOLLOW_MOTION_TYPE)
+                    return;
+
+                if (_instance->GetObjectGuid(DATA_ICHORON).GetCounter() != id)
+                    return;
+
+                me->CastSpell(me, SPELL_MERGE);
+                me->DespawnOrUnsummon(1);
+            }
+
+            // on retail spell casted on a creature's death are not casted after death but keeping mob at 1 health, casting it and then letting the mob die.
+            // this feature should be still implemented
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (damage >= me->GetHealth())
+                    DoCastAOE(SPELL_SPLASH);
+            }
+
+            void UpdateAI(uint32 /*diff*/) override { }
+
+        private:
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            DoCast(me, SPELL_SPLASH);
-            if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
-                if (pIchoron->AI())
-                    pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
+            return GetVioletHoldAI<npc_ichor_globuleAI>(creature);
         }
-    };
+};
 
+// 59820 - Drained
+class spell_ichoron_drained : public SpellScriptLoader
+{
+    public:
+        spell_ichoron_drained() : SpellScriptLoader("spell_ichoron_drained") { }
+
+        class spell_ichoron_drained_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ichoron_drained_AuraScript);
+
+            bool Load() override
+            {
+                return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
+            }
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31);
+                GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31);
+                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    if (GetTarget()->IsAIEnabled)
+                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_ichoron_drained_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ichoron_drained_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ichoron_drained_AuraScript();
+        }
+};
+
+// 54269 - Merge
+class spell_ichoron_merge : public SpellScriptLoader
+{
+    public:
+        spell_ichoron_merge() : SpellScriptLoader("spell_ichoron_merge") { }
+
+        class spell_ichoron_merge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ichoron_merge_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHRINK))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* target = GetHitCreature())
+                {
+                    if (Aura* aura = target->GetAura(SPELL_SHRINK))
+                        aura->ModStackAmount(-1);
+
+                    target->AI()->DoAction(ACTION_WATER_GLOBULE_HIT);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_ichoron_merge_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ichoron_merge_SpellScript();
+        }
+};
+
+// 54306 - Protective Bubble
+class spell_ichoron_protective_bubble : public SpellScriptLoader
+{
+    public:
+        spell_ichoron_protective_bubble() : SpellScriptLoader("spell_ichoron_protective_bubble") { }
+
+        class spell_ichoron_protective_bubble_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ichoron_protective_bubble_AuraScript);
+
+            bool Load() override
+            {
+                return GetOwner()->GetEntry() == NPC_ICHORON || GetOwner()->GetEntry() == NPC_DUMMY_ICHORON;
+            }
+
+            void HandleShatter(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+                if (GetAura()->GetCharges() <= 1)
+                    if (GetTarget()->IsAIEnabled)
+                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ichoron_protective_bubble_AuraScript::HandleShatter, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ichoron_protective_bubble_AuraScript();
+        }
+};
+
+// 54259 - Splatter
+class spell_ichoron_splatter : public SpellScriptLoader
+{
+    public:
+        spell_ichoron_splatter() : SpellScriptLoader("spell_ichoron_splatter") { }
+
+        class spell_ichoron_splatter_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ichoron_splatter_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_1)
+                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_2)
+                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_3)
+                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_4)
+                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_5)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SHRINK))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), RAND(SPELL_WATER_GLOBULE_SUMMON_1, SPELL_WATER_GLOBULE_SUMMON_2, SPELL_WATER_GLOBULE_SUMMON_3, SPELL_WATER_GLOBULE_SUMMON_4, SPELL_WATER_GLOBULE_SUMMON_5), true);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    if (Aura* aura = GetTarget()->GetAura(SPELL_SHRINK))
+                        aura->ModStackAmount(10);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ichoron_splatter_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ichoron_splatter_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ichoron_splatter_AuraScript();
+        }
 };
 
 class achievement_dehydration : public AchievementCriteriaScript
 {
     public:
-        achievement_dehydration() : AchievementCriteriaScript("achievement_dehydration")
-        {
-        }
+        achievement_dehydration() : AchievementCriteriaScript("achievement_dehydration") { }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
         {
             if (!target)
                 return false;
@@ -419,6 +476,10 @@ class achievement_dehydration : public AchievementCriteriaScript
 void AddSC_boss_ichoron()
 {
     new boss_ichoron();
-    new mob_ichor_globule();
+    new npc_ichor_globule();
+    new spell_ichoron_drained();
+    new spell_ichoron_merge();
+    new spell_ichoron_protective_bubble();
+    new spell_ichoron_splatter();
     new achievement_dehydration();
 }

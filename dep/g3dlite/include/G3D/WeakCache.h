@@ -1,16 +1,16 @@
 /** 
-  @file WeakCache.h
+  \file G3D/WeakCache.h
  
-  @maintainer Morgan McGuire, graphics3d.com
+  \maintainer Morgan McGuire, graphics3d.com
  
-  @created 2007-05-16
-  @edited  2007-05-16
+  \created 2007-05-16
+  \edited  2012-01-02
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
  */
-#ifndef G3D_WEAKCACHE_H
-#define G3D_WEAKCACHE_H
+#ifndef G3D_WeakCache_h
+#define G3D_WeakCache_h
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"
@@ -31,10 +31,10 @@ namespace G3D {
 
    Example:
    <pre>
-      WeakCache<std::string, TextureRef> textureCache;
+      WeakCache<std::string, shared_ptr<Texture>> textureCache;
 
-      TextureRef loadTexture(std::string s) {
-          TextureRef t = textureCache[s];
+      shared_ptr<Texture> loadTexture(std::string s) {
+          shared_ptr<Texture> t = textureCache[s];
 
           if (t.isNull()) {
               t = Texture::fromFile(s);
@@ -49,7 +49,7 @@ namespace G3D {
  */
 template<class Key, class ValueRef>
 class WeakCache {
-    typedef WeakReferenceCountedPointer<typename ValueRef::element_type> ValueWeakRef;
+    typedef weak_ptr<typename ValueRef::element_type> ValueWeakRef;
 
 private:
 
@@ -62,15 +62,32 @@ public:
     ValueRef operator[](const Key& k) {
         if (table.containsKey(k)) {
             ValueWeakRef w = table[k];
-            ValueRef s = w.createStrongPtr();
-            if (s.isNull()) {
+            ValueRef s = w.lock();
+            if (! s) {
                 // This object has been collected; clean out its key
                 table.remove(k);
             }
             return s;
         } else {
-            return NULL;
+            return ValueRef();
         }
+    }
+
+
+
+    void getValues(Array<ValueRef>& values) {
+        Array<Key> keys;
+        table.getKeys(keys);
+        for (int i = 0; i < keys.size(); ++i) {
+            ValueRef value = (*this)[keys[i]];
+            if(notNull(value)) {
+                values.append(value);
+            }
+        }
+    }
+
+    void clear() {
+        table.clear();
     }
 
     void set(const Key& k, ValueRef v) {
@@ -84,38 +101,6 @@ public:
         }
     }
 };
-
-#if 0 // To turn off all WeakCaching
-template<class Key, class ValueRef>
-class WeakCache {
-private:
-
-    Table<Key, ValueRef> table;
-
-public:
-    /**
-       Returns NULL if the object is not in the cache
-    */
-    ValueRef operator[](const Key& k) {
-        if (table.containsKey(k)) {
-            return table[k];
-        } else {
-            return NULL;
-        }
-    }
-
-    void set(const Key& k, ValueRef v) {
-        table.set(k, v);
-    }
-
-    /** Removes k from the cache or does nothing if it is not currently in the cache.*/
-    void remove(const Key& k) {
-        if (table.containsKey(k)) {
-            table.remove(k);
-        }
-    }
-};
-#endif
 
 }
 #endif

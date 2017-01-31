@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,40 +27,46 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 
-enum eEnums
+enum Yells
 {
     // Yell
-    SAY_AGGRO = -1548030,
-    SAY_SUMMON1 = -1548031,
-    SAY_SUMMON2 = -1548032,
-    SAY_SUMMON_BUBL1 = -1548033,
-    SAY_SUMMON_BUBL2 = -1548034,
-    SAY_SLAY1 = -1548035,
-    SAY_SLAY2 = -1548036,
-    SAY_SLAY3 = -1548037,
-    SAY_DEATH = -1548038,
+    SAY_AGGRO                       = 0,
+    SAY_SUMMON                      = 1,
+    SAY_SUMMON_BUBL                 = 2,
+    SAY_SLAY                        = 3,
+    SAY_DEATH                       = 4,
     // Emotes
-    EMOTE_WATERY_GRAVE = -1548039,
-    EMOTE_EARTHQUAKE = -1548040,
-    EMOTE_WATERY_GLOBULES = -1548041,
-    // Spells
-    SPELL_TIDAL_WAVE = 37730,
-    SPELL_WATERY_GRAVE = 38049,
-    SPELL_EARTHQUAKE = 37764,
-    SPELL_WATERY_GRAVE_EXPLOSION = 37852,
+    EMOTE_WATERY_GRAVE              = 5,
+    EMOTE_EARTHQUAKE                = 6,
+    EMOTE_WATERY_GLOBULES           = 7
+};
 
-    SPELL_WATERY_GRAVE_1 = 38023,
-    SPELL_WATERY_GRAVE_2 = 38024,
-    SPELL_WATERY_GRAVE_3 = 38025,
-    SPELL_WATERY_GRAVE_4 = 37850,
+enum Spells
+{
+    SPELL_TIDAL_WAVE                = 37730,
+    SPELL_WATERY_GRAVE              = 38049,
+    SPELL_EARTHQUAKE                = 37764,
+    SPELL_WATERY_GRAVE_EXPLOSION    = 37852,
 
-    SPELL_SUMMON_WATER_GLOBULE_1 = 37854,
-    SPELL_SUMMON_WATER_GLOBULE_2 = 37858,
-    SPELL_SUMMON_WATER_GLOBULE_3 = 37860,
-    SPELL_SUMMON_WATER_GLOBULE_4 = 37861,
+    SPELL_WATERY_GRAVE_1            = 38023,
+    SPELL_WATERY_GRAVE_2            = 38024,
+    SPELL_WATERY_GRAVE_3            = 38025,
+    SPELL_WATERY_GRAVE_4            = 37850,
+
+    SPELL_SUMMON_WATER_GLOBULE_1    = 37854,
+    SPELL_SUMMON_WATER_GLOBULE_2    = 37858,
+    SPELL_SUMMON_WATER_GLOBULE_3    = 37860,
+    SPELL_SUMMON_WATER_GLOBULE_4    = 37861,
+
+    // Water Globule
+    SPELL_GLOBULE_EXPLOSION         = 37871
+};
+
+enum Creatures
+{
     // Creatures
-    NPC_WATER_GLOBULE = 21913,
-    NPC_TIDEWALKER_LURKER = 21920,
+    NPC_WATER_GLOBULE               = 21913,
+    NPC_TIDEWALKER_LURKER           = 21920
 };
 
 float MurlocCords[10][4] =
@@ -83,34 +89,22 @@ class boss_morogrim_tidewalker : public CreatureScript
 public:
     boss_morogrim_tidewalker() : CreatureScript("boss_morogrim_tidewalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_morogrim_tidewalkerAI (creature);
+        return GetInstanceAI<boss_morogrim_tidewalkerAI>(creature);
     }
 
     struct boss_morogrim_tidewalkerAI : public ScriptedAI
     {
         boss_morogrim_tidewalkerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+            Playercount = 0;
+            counter = 0;
         }
 
-        InstanceScript* instance;
-
-        Map::PlayerList const* PlayerList;
-
-        uint32 TidalWave_Timer;
-        uint32 WateryGrave_Timer;
-        uint32 Earthquake_Timer;
-        uint32 WateryGlobules_Timer;
-        uint32 globulespell[4];
-        int8 Playercount;
-        int8 counter;
-
-        bool Earthquake;
-        bool Phase2;
-
-        void Reset()
+        void Initialize()
         {
             TidalWave_Timer = 10000;
             WateryGrave_Timer = 30000;
@@ -123,36 +117,50 @@ public:
 
             Earthquake = false;
             Phase2 = false;
+        }
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+        InstanceScript* instance;
+
+        uint32 TidalWave_Timer;
+        uint32 WateryGrave_Timer;
+        uint32 Earthquake_Timer;
+        uint32 WateryGlobules_Timer;
+        uint32 globulespell[4];
+        int8 Playercount;
+        int8 counter;
+
+        bool Earthquake;
+        bool Phase2;
+
+        void Reset() override
+        {
+            Initialize();
+
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
+            instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            PlayerList = &me->GetMap()->GetPlayers();
-            Playercount = PlayerList->getSize();
+            Playercount = me->GetMap()->GetPlayers().getSize();
             StartEvent();
         }
 
@@ -167,7 +175,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -178,31 +186,30 @@ public:
             {
                 if (!Earthquake)
                 {
-                    DoCast(me->getVictim(), SPELL_EARTHQUAKE);
+                    DoCastVictim(SPELL_EARTHQUAKE);
                     Earthquake = true;
                     Earthquake_Timer = 10000;
                 }
                 else
                 {
-                    DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
+                    Talk(SAY_SUMMON);
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                        if (target && Murloc)
-                            Murloc->AI()->AttackStart(target);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                                Murloc->AI()->AttackStart(target);
                     }
-                    DoScriptText(EMOTE_EARTHQUAKE, me);
+                    Talk(EMOTE_EARTHQUAKE);
                     Earthquake = false;
-                    Earthquake_Timer = 40000+rand()%5000;
+                    Earthquake_Timer = 40000 + rand32() % 5000;
                 }
             } else Earthquake_Timer -= diff;
 
             //TidalWave_Timer
             if (TidalWave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TIDAL_WAVE);
+                DoCastVictim(SPELL_TIDAL_WAVE);
                 TidalWave_Timer = 20000;
             } else TidalWave_Timer -= diff;
 
@@ -212,32 +219,32 @@ public:
                 if (WateryGrave_Timer <= diff)
                 {
                     //Teleport 4 players under the waterfalls
-                    Unit* target;
-                    std::set<uint64> list;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet targets;
+                    GuidSet::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
+                        Unit* target;
                         do
                         {
                             target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
                             if (counter < Playercount)
                                 break;
                             if (target)
-                                itr = list.find(target->GetGUID());
+                                itr = targets.find(target->GetGUID());
                             ++counter;
-                        } while (itr != list.end());
+                        } while (itr != targets.end());
 
                         if (target)
                         {
-                            list.insert(target->GetGUID());
+                            targets.insert(target->GetGUID());
                             ApplyWateryGrave(target, i);
                         }
                     }
 
-                    DoScriptText(RAND(SAY_SUMMON_BUBL1, SAY_SUMMON_BUBL2), me);
+                    Talk(SAY_SUMMON_BUBL);
 
-                    DoScriptText(EMOTE_WATERY_GRAVE, me);
+                    Talk(EMOTE_WATERY_GRAVE);
                     WateryGrave_Timer = 30000;
                 } else WateryGrave_Timer -= diff;
 
@@ -250,28 +257,28 @@ public:
                 //WateryGlobules_Timer
                 if (WateryGlobules_Timer <= diff)
                 {
-                    Unit* pGlobuleTarget;
-                    std::set<uint64> globulelist;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet globules;
+                    GuidSet::const_iterator itr;
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
+                        Unit* pGlobuleTarget;
                         do
                         {
                             pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
                             if (pGlobuleTarget)
-                                itr = globulelist.find(pGlobuleTarget->GetGUID());
+                                itr = globules.find(pGlobuleTarget->GetGUID());
                             if (counter > Playercount)
                                 break;
                             ++counter;
-                        } while (itr != globulelist.end());
+                        } while (itr != globules.end());
                         if (pGlobuleTarget)
                         {
-                            globulelist.insert(pGlobuleTarget->GetGUID());
+                            globules.insert(pGlobuleTarget->GetGUID());
                             pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
                         }
                     }
-                    DoScriptText(EMOTE_WATERY_GLOBULES, me);
+                    Talk(EMOTE_WATERY_GLOBULES);
                     WateryGlobules_Timer = 25000;
                 } else WateryGlobules_Timer -= diff;
             }
@@ -282,42 +289,48 @@ public:
 
 };
 
-//Water Globule AI
-#define SPELL_GLOBULE_EXPLOSION 37871
-
-class mob_water_globule : public CreatureScript
+class npc_water_globule : public CreatureScript
 {
 public:
-    mob_water_globule() : CreatureScript("mob_water_globule") { }
+    npc_water_globule() : CreatureScript("npc_water_globule") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_water_globuleAI (creature);
+        return new npc_water_globuleAI(creature);
     }
 
-    struct mob_water_globuleAI : public ScriptedAI
+    struct npc_water_globuleAI : public ScriptedAI
     {
-        mob_water_globuleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_water_globuleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            Check_Timer = 1000;
+        }
 
         uint32 Check_Timer;
 
-        void Reset()
+        void Reset() override
         {
-            Check_Timer = 1000;
+            Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(14);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
-            if (!who || me->getVictim())
+            if (!who || me->GetVictim())
                 return;
 
-            if (me->canCreatureAttack(who))
+            if (me->CanCreatureAttack(who))
             {
                 //no attack radius check - it attacks the first target that moves in his los
                 //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
@@ -325,7 +338,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -333,9 +346,9 @@ public:
 
             if (Check_Timer <= diff)
             {
-                if (me->IsWithinDistInMap(me->getVictim(), 5))
+                if (me->IsWithinDistInMap(me->GetVictim(), 5))
                 {
-                    DoCast(me->getVictim(), SPELL_GLOBULE_EXPLOSION);
+                    DoCastVictim(SPELL_GLOBULE_EXPLOSION);
 
                     //despawn
                     me->DespawnOrUnsummon();
@@ -353,5 +366,5 @@ public:
 void AddSC_boss_morogrim_tidewalker()
 {
     new boss_morogrim_tidewalker();
-    new mob_water_globule();
+    new npc_water_globule();
 }

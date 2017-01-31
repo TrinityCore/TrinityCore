@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,8 +33,8 @@ class LinkedListElement
         LinkedListElement* iNext;
         LinkedListElement* iPrev;
     public:
-        LinkedListElement(): iNext(NULL), iPrev(NULL) {}
-        ~LinkedListElement() { delink(); }
+        LinkedListElement() : iNext(NULL), iPrev(NULL) { }
+        virtual ~LinkedListElement() { delink(); }
 
         bool hasNext() const { return(iNext && iNext->iNext != NULL); }
         bool hasPrev() const { return(iPrev && iPrev->iPrev != NULL); }
@@ -73,6 +73,10 @@ class LinkedListElement
             iNext->iPrev = pElem;
             iNext = pElem;
         }
+
+    private:
+        LinkedListElement(LinkedListElement const&);
+        LinkedListElement& operator=(LinkedListElement const&);
 };
 
 //============================================
@@ -83,6 +87,7 @@ class LinkedListHead
         LinkedListElement iFirst;
         LinkedListElement iLast;
         uint32 iSize;
+
     public:
         LinkedListHead(): iSize(0)
         {
@@ -91,6 +96,8 @@ class LinkedListHead
             iFirst.iNext = &iLast;
             iLast.iPrev = &iFirst;
         }
+
+        virtual ~LinkedListHead() { }
 
         bool isEmpty() const { return(!iFirst.iNext->isInList()); }
 
@@ -143,7 +150,7 @@ class LinkedListHead
                 typedef _Ty&                                reference;
                 typedef _Ty const &                         const_reference;
 
-                Iterator() : _Ptr(0)
+                Iterator() : _Ptr(nullptr)
                 {                                           // construct with null node pointer
                 }
 
@@ -239,6 +246,10 @@ class LinkedListHead
         };
 
         typedef Iterator<LinkedListElement> iterator;
+
+    private:
+        LinkedListHead(LinkedListHead const&);
+        LinkedListHead& operator=(LinkedListHead const&);
 };
 
 //============================================

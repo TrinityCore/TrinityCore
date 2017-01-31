@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,18 +18,22 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
-enum Encounters
+#define DataHeader "AQR"
+
+enum AQRDataTypes
 {
-    BOSS_KURINNAXX          = 0,
-    BOSS_RAJAXX             = 1,
-    BOSS_MOAM               = 2,
-    BOSS_BURU               = 3,
-    BOSS_AYAMISS            = 4,
-    BOSS_OSSIRIAN           = 5,
-    MAX_ENCOUNTER,
+    DATA_KURINNAXX          = 0,
+    DATA_RAJAXX             = 1,
+    DATA_MOAM               = 2,
+    DATA_BURU               = 3,
+    DATA_AYAMISS            = 4,
+    DATA_OSSIRIAN           = 5,
+    NUM_ENCOUNTER           = 6,
+
+    DATA_PARALYZED          = 7
 };
 
-enum Creatures
+enum AQRCreatures
 {
     NPC_KURINAXX                = 15348,
     NPC_RAJAXX                  = 15341,
@@ -40,6 +44,17 @@ enum Creatures
     NPC_HIVEZARA_HORNET         = 15934,
     NPC_HIVEZARA_SWARMER        = 15546,
     NPC_HIVEZARA_LARVA          = 15555,
+    NPC_SAND_VORTEX             = 15428,
+    NPC_OSSIRIAN_TRIGGER        = 15590,
+    NPC_HATCHLING               = 15521,
+    NPC_LARVA                   = 15555,
+    NPC_SWARMER                 = 15546,
+    NPC_HORNET                  = 15934
+};
+
+enum AQRGameObjectIds
+{
+    GO_OSSIRIAN_CRYSTAL         = 180619
 };
 
 #endif

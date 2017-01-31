@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,8 +21,14 @@
 
 enum Spells
 {
-    SPELL_POISON_CLOUD                                     = 3815,
-    SPELL_FRENZIED_RAGE                                    = 3490
+    SPELL_POISON_CLOUD     = 3815,
+    SPELL_FRENZIED_RAGE    = 3490
+};
+
+enum Events
+{
+    EVENT_POISON_CLOUD     = 1,
+    EVENT_FRENZIED_RAGE
 };
 
 class boss_aku_mai : public CreatureScript
@@ -30,63 +36,60 @@ class boss_aku_mai : public CreatureScript
 public:
     boss_aku_mai() : CreatureScript("boss_aku_mai") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_aku_maiAI : public BossAI
     {
-        return new boss_aku_maiAI (creature);
-    }
-
-    struct boss_aku_maiAI : public ScriptedAI
-    {
-        boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
+        boss_aku_maiAI(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
         {
-            instance = creature->GetInstanceScript();
+            Initialize();
         }
 
-        uint32 poisonCloudTimer;
-        bool IsEnraged;
-
-        InstanceScript* instance;
-
-        void Reset()
+        void Initialize()
         {
-            poisonCloudTimer = urand(5000, 9000);
             IsEnraged = false;
-            if (instance)
-                instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void Reset() override
         {
-            if (instance)
-                instance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
+            Initialize();
+            _Reset();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-            if (instance)
-                instance->SetData(TYPE_AKU_MAI, DONE);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
         }
 
-        void UpdateAI(const uint32 diff)
+        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
         {
-            if (!UpdateVictim())
-                return;
-
-            if (poisonCloudTimer < diff)
-            {
-                DoCastVictim(SPELL_POISON_CLOUD);
-                poisonCloudTimer = urand(25000, 50000);
-            } else poisonCloudTimer -= diff;
-
-            if (!IsEnraged && HealthBelowPct(30))
+            if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
             {
                 DoCast(me, SPELL_FRENZIED_RAGE);
                 IsEnraged = true;
             }
-
-            DoMeleeAttackIfReady();
         }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_POISON_CLOUD:
+                    DoCastVictim(SPELL_POISON_CLOUD);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private:
+            bool IsEnraged;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_aku_maiAI>(creature);
+    }
 };
 
 void AddSC_boss_aku_mai()

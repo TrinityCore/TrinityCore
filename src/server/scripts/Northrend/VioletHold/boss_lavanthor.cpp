@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,141 +21,88 @@
 
 enum Spells
 {
-  SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
-  SPELL_FIREBOLT                                = 54235,
-  H_SPELL_FIREBOLT                              = 59468,
-  SPELL_FLAME_BREATH                            = 54282,
-  H_SPELL_FLAME_BREATH                          = 59469,
-  SPELL_LAVA_BURN                               = 54249,
-  H_SPELL_LAVA_BURN                             = 59594
+    SPELL_CAUTERIZING_FLAMES                    = 59466, // Only in heroic
+    SPELL_FIREBOLT                              = 54235,
+    SPELL_FLAME_BREATH                          = 54282,
+    SPELL_LAVA_BURN                             = 54249
 };
 
 class boss_lavanthor : public CreatureScript
 {
-public:
-    boss_lavanthor() : CreatureScript("boss_lavanthor") { }
+    public:
+        boss_lavanthor() : CreatureScript("boss_lavanthor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_lavanthorAI (creature);
-    }
-
-    struct boss_lavanthorAI : public ScriptedAI
-    {
-        boss_lavanthorAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_lavanthorAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_lavanthorAI(Creature* creature) : BossAI(creature, DATA_LAVANTHOR) { }
 
-        uint32 uiFireboltTimer;
-        uint32 uiFlameBreathTimer;
-        uint32 uiLavaBurnTimer;
-        uint32 uiCauterizingFlamesTimer;
-
-        InstanceScript* instance;
-
-        void Reset()
-        {
-            uiFireboltTimer = 1000;
-            uiFlameBreathTimer = 5000;
-            uiLavaBurnTimer = 10000;
-            uiCauterizingFlamesTimer = 3000;
-            if (instance)
+            void Reset() override
             {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                BossAI::Reset();
             }
-        }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            if (instance)
+            void EnterCombat(Unit* who) override
             {
-            if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_LAVANTHOR_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
+                BossAI::EnterCombat(who);
+            }
+
+            void JustReachedHome() override
+            {
+                BossAI::JustReachedHome();
+                instance->SetData(DATA_HANDLE_CELLS, DATA_LAVANTHOR);
+            }
+
+            void JustDied(Unit* killer) override
+            {
+                BossAI::JustDied(killer);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                scheduler.Update(diff,
+                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+            }
+
+            void ScheduleTasks() override
+            {
+                scheduler.Schedule(Seconds(1), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        DoCast(target, SPELL_FIREBOLT);
+                    task.Repeat(Seconds(5), Seconds(13));
+                });
+
+                scheduler.Schedule(Seconds(5), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_FLAME_BREATH);
+                    task.Repeat(Seconds(10), Seconds(15));
+                });
+
+                scheduler.Schedule(Seconds(10), [this](TaskContext task)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                        DoCast(target, SPELL_LAVA_BURN);
+                    task.Repeat(Seconds(15), Seconds(23));
+                });
+
+                if (IsHeroic())
+                {
+                    scheduler.Schedule(Seconds(3), [this](TaskContext task)
                     {
-                        EnterEvadeMode();
-                        return;
-                    }
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
-            }
-        }
-
-        void AttackStart(Unit* who)
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-        }
-
-        void MoveInLineOfSight(Unit* /*who*/) {}
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiFireboltTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FIREBOLT);
-                uiFireboltTimer = urand(5000, 13000);
-            } else uiFireboltTimer -= diff;
-
-            if (uiFlameBreathTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FLAME_BREATH);
-                uiFlameBreathTimer = urand(10000, 15000);
-            } else uiFlameBreathTimer -= diff;
-
-            if (uiLavaBurnTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_LAVA_BURN);
-                uiLavaBurnTimer = urand(15000, 23000);
-            }
-
-            if (IsHeroic())
-            {
-                if (uiCauterizingFlamesTimer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_CAUTERIZING_FLAMES);
-                    uiCauterizingFlamesTimer = urand(10000, 16000);
-                } else uiCauterizingFlamesTimer -= diff;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (instance)
-            {
-                if (instance->GetData(DATA_WAVE_COUNT) == 6)
-                {
-                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 7);
-                }
-                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
-                {
-                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    instance->SetData(DATA_WAVE_COUNT, 13);
+                        DoCastAOE(SPELL_CAUTERIZING_FLAMES);
+                        task.Repeat(Seconds(10), Seconds(16));
+                    });
                 }
             }
-        }
-    };
+        };
 
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetVioletHoldAI<boss_lavanthorAI>(creature);
+        }
 };
 
 void AddSC_boss_lavanthor()

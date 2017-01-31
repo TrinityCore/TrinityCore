@@ -1,0 +1,1 @@
+DELETE FROM `npc_vendor` WHERE `entry` IN (4217, 5052, 17598, 18251, 19932);

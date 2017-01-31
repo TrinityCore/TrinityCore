@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,34 +38,42 @@ class celebras_the_cursed : public CreatureScript
 public:
     celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new celebras_the_cursedAI (creature);
+        return new celebras_the_cursedAI(creature);
     }
 
     struct celebras_the_cursedAI : public ScriptedAI
     {
-        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature) {}
+        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 WrathTimer;
-        uint32 EntanglingRootsTimer;
-        uint32 CorruptForcesTimer;
-
-        void Reset()
+        void Initialize()
         {
             WrathTimer = 8000;
             EntanglingRootsTimer = 2000;
             CorruptForcesTimer = 30000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        uint32 WrathTimer;
+        uint32 EntanglingRootsTimer;
+        uint32 CorruptForcesTimer;
 
-        void JustDied(Unit* /*killer*/)
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void JustDied(Unit* /*killer*/) override
         {
             me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

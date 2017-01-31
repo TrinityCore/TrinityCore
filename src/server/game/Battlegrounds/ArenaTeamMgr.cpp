@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,8 +20,7 @@
 #include "World.h"
 #include "Log.h"
 #include "DatabaseEnv.h"
-#include "Language.h"
-#include "ObjectAccessor.h"
+#include "Player.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -32,6 +31,12 @@ ArenaTeamMgr::~ArenaTeamMgr()
 {
     for (ArenaTeamContainer::iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
         delete itr->second;
+}
+
+ArenaTeamMgr* ArenaTeamMgr::instance()
+{
+    static ArenaTeamMgr instance;
+    return &instance;
 }
 
 // Arena teams collection
@@ -58,7 +63,7 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) co
     return NULL;
 }
 
-ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(uint64 guid) const
+ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 {
     for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
         if (itr->second->GetCaptain() == guid)
@@ -81,7 +86,7 @@ uint32 ArenaTeamMgr::GenerateArenaTeamId()
 {
     if (NextArenaTeamId >= 0xFFFFFFFE)
     {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Arena team ids overflow!! Can't continue, shutting down server. ");
+        TC_LOG_ERROR("bg.battleground", "Arena team ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
     return NextArenaTeamId++;
@@ -101,7 +106,7 @@ void ArenaTeamMgr::LoadArenaTeams()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
         return;
     }
 
@@ -131,61 +136,5 @@ void ArenaTeamMgr::LoadArenaTeams()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ArenaTeamMgr::DistributeArenaPoints()
-{
-    // Used to distribute arena points based on last week's stats
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_START);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
-
-    // Temporary structure for storing maximum points to add values for all players
-    std::map<uint32, uint32> PlayerPoints;
-
-    // At first update all points for all team members
-    for (ArenaTeamContainer::iterator teamItr = GetArenaTeamMapBegin(); teamItr != GetArenaTeamMapEnd(); ++teamItr)
-        if (ArenaTeam* at = teamItr->second)
-            at->UpdateArenaPointsHelper(PlayerPoints);
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt;
-
-    // Cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
-    {
-        // Add points to player if online
-        if (Player* player = HashMapHolder<Player>::Find(playerItr->first))
-            player->ModifyArenaPoints(playerItr->second, &trans);
-        else    // Update database
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
-            stmt->setUInt32(0, playerItr->second);
-            stmt->setUInt32(1, playerItr->first);
-            trans->Append(stmt);
-        }
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
-
-    PlayerPoints.clear();
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
-    for (ArenaTeamContainer::iterator titr = GetArenaTeamMapBegin(); titr != GetArenaTeamMapEnd(); ++titr)
-    {
-        if (ArenaTeam* at = titr->second)
-        {
-            at->FinishWeek();
-            at->SaveToDB();
-            at->NotifyStatsChanged();
-        }
-    }
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_END);
+    TC_LOG_INFO("server.loading", ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

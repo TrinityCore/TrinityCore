@@ -34,7 +34,7 @@ private:
 
     friend class ConvexPolyhedron;
 
-    Array<Vector3>			_vertex;
+    Array<Vector3>            _vertex;
 
 public:
 

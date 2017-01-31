@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss meathook
-SDAuthor: Tartalo
-SD%Complete: 100
-SDComment: It may need timer adjustment
-SDCategory:
-Script Data End */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
@@ -30,110 +22,85 @@ Script Data End */
 enum Spells
 {
     SPELL_CONSTRICTING_CHAINS                   = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
-    H_SPELL_CONSTRICTING_CHAINS                 = 58823,
     SPELL_DISEASE_EXPULSION                     = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
-    H_SPELL_DISEASE_EXPULSION                   = 58824,
     SPELL_FRENZY                                = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1595026,
-    SAY_SLAY_1                                  = -1595027,
-    SAY_SLAY_2                                  = -1595028,
-    SAY_SLAY_3                                  = -1595029,
-    SAY_SPAWN                                   = -1595030,
-    SAY_DEATH                                   = -1595031
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_SPAWN                                   = 2,
+    SAY_DEATH                                   = 3
+};
+
+enum Events
+{
+    EVENT_CHAIN                                 = 1,
+    EVENT_DISEASE,
+    EVENT_FRENZY
 };
 
 class boss_meathook : public CreatureScript
 {
-public:
-    boss_meathook() : CreatureScript("boss_meathook") { }
+    public:
+        boss_meathook() : CreatureScript("boss_meathook") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_meathookAI (creature);
-    }
-
-    struct boss_meathookAI : public ScriptedAI
-    {
-        boss_meathookAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_meathookAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-            if (instance)
-                DoScriptText(SAY_SPAWN, me);
-        }
-
-        uint32 uiChainTimer;
-        uint32 uiDiseaseTimer;
-        uint32 uiFrenzyTimer;
-
-        InstanceScript* instance;
-
-        void Reset()
-        {
-            uiChainTimer = urand(12000, 17000);   //seen on video 13, 17, 15, 12, 16
-            uiDiseaseTimer = urand(2000, 4000);   //approx 3s
-            uiFrenzyTimer = urand(21000, 26000);  //made it up
-
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiDiseaseTimer <= diff)
+            boss_meathookAI(Creature* creature) : BossAI(creature, DATA_MEATHOOK)
             {
-                DoCastAOE(SPELL_DISEASE_EXPULSION);
-                uiDiseaseTimer = urand(1500, 4000);
-            } else uiDiseaseTimer -= diff;
+                Talk(SAY_SPAWN);
+            }
 
-            if (uiFrenzyTimer <= diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                DoCast(me, SPELL_FRENZY);
-                uiFrenzyTimer = urand(21000, 26000);
-            } else uiFrenzyTimer -= diff;
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
+                events.ScheduleEvent(EVENT_DISEASE, urand(2000, 4000));
+                events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+            }
 
-            if (uiChainTimer <= diff)
+            void ExecuteEvent(uint32 eventId) override
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
-                uiChainTimer = urand(2000, 4000);
-            } else uiChainTimer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_CHAIN:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            DoCast(target, SPELL_CONSTRICTING_CHAINS);
+                        events.ScheduleEvent(EVENT_CHAIN, urand(2000, 4000));
+                        break;
+                    case EVENT_DISEASE:
+                        DoCastAOE(SPELL_DISEASE_EXPULSION);
+                        events.ScheduleEvent(EVENT_DISEASE, urand(1500, 4000));
+                        break;
+                    case EVENT_FRENZY:
+                        DoCast(me, SPELL_FRENZY);
+                        events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            DoMeleeAttackIfReady();
-        }
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
 
-        void JustDied(Unit* /*killer*/)
+            void KilledUnit(Unit* victim) override
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            DoScriptText(SAY_DEATH, me);
-
-            if (instance)
-                instance->SetData(DATA_MEATHOOK_EVENT, DONE);
+            return GetInstanceAI<boss_meathookAI>(creature);
         }
-
-        void KilledUnit(Unit* victim)
-        {
-            if (victim == me)
-                return;
-
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
-        }
-    };
-
 };
 
 void AddSC_boss_meathook()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,25 +17,25 @@
  */
 
 #include "Common.h"
-#include "UpdateMask.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiers.h"
-#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "Transport.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
-    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
+    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _spellXSpellVisualId(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_POSITION);
+    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
     m_valuesCount = DYNAMICOBJECT_END;
+    _dynamicValuesCount = DYNAMICOBJECT_DYNAMIC_END;
 }
 
 DynamicObject::~DynamicObject()
@@ -52,7 +52,7 @@ void DynamicObject::AddToWorld()
     ///- Register the dynamicObject for guid lookup and for caster
     if (!IsInWorld())
     {
-        sObjectAccessor->AddObject(this);
+        GetMap()->GetObjectsStore().Insert<DynamicObject>(GetGUID(), this);
         WorldObject::AddToWorld();
         BindToCaster();
     }
@@ -75,41 +75,55 @@ void DynamicObject::RemoveFromWorld()
 
         UnbindFromCaster();
         WorldObject::RemoveFromWorld();
-        sObjectAccessor->RemoveObject(this);
+        GetMap()->GetObjectsStore().Remove<DynamicObject>(GetGUID());
     }
 }
 
-bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, uint32 spellXSpellVisualId)
 {
+    _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
+    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
 
-    SetEntry(spellId);
-    SetObjectScale(1);
-    SetUInt64Value(DYNAMICOBJECT_CASTER, caster->GetGUID());
-
-    // The lower word of DYNAMICOBJECT_BYTES must be 0x0001. This value means that the visual radius will be overriden
-    // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.
-    // If any other value is used, the client will _always_ use the radius provided in DYNAMICOBJECT_RADIUS, but
-    // precompensation is necessary (eg radius *= 2) for many spells. Anyway, blizz sends 0x0001 for all the spells
-    // I saw sniffed...
-    SetByteValue(DYNAMICOBJECT_BYTES, 0, type);
-    SetUInt32Value(DYNAMICOBJECT_SPELLID, spellId);
+    SetEntry(spell->Id);
+    SetObjectScale(1.0f);
+    SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
+    SetUInt32Value(DYNAMICOBJECT_TYPE, type);
+    SetUInt32Value(DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
+    SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
 
+    Transport* transport = caster->GetTransport();
+    if (transport)
+    {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(this);
+    }
+
     if (!GetMap()->AddToMap(this))
+    {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(this);
         return false;
+    }
 
     return true;
 }
@@ -149,7 +163,6 @@ void DynamicObject::Remove()
 {
     if (IsInWorld())
     {
-        SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
     }

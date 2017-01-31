@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "gnomeregan.h"
+#include "Player.h"
 
 #define    MAX_ENCOUNTER  1
 
@@ -26,7 +27,7 @@ class instance_gnomeregan : public InstanceMapScript
 public:
     instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_gnomeregan_InstanceMapScript(map);
     }
@@ -35,26 +36,18 @@ public:
     {
         instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 uiCaveInLeftGUID;
-        uint64 uiCaveInRightGUID;
+        ObjectGuid uiCaveInLeftGUID;
+        ObjectGuid uiCaveInRightGUID;
 
-        uint64 uiBastmasterEmiShortfuseGUID;
+        ObjectGuid uiBastmasterEmiShortfuseGUID;
 
-        void Initialize()
-        {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            uiCaveInLeftGUID                = 0;
-            uiCaveInRightGUID               = 0;
-
-            uiBastmasterEmiShortfuseGUID    = 0;
-        }
-
-        void Load(const char* in)
+        void Load(const char* in) override
         {
             if (!in)
             {
@@ -76,7 +69,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -84,24 +77,24 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
             }
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 uiData) override
         {
             switch (uiType)
             {
@@ -113,7 +106,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const override
         {
             switch (uiType)
             {
@@ -122,7 +115,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType) const override
         {
             switch (uiType)
             {
@@ -131,7 +124,7 @@ public:
                 case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBastmasterEmiShortfuseGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef WMO_H
@@ -23,8 +23,9 @@
 
 #include <string>
 #include <set>
+#include <vector>
 #include "vec3d.h"
-#include "loadlib/loadlib.h"
+#include "cascfile.h"
 
 // MOPY flags
 #define WMO_MATERIAL_NOCAMCOLLIDE    0x01
@@ -37,26 +38,28 @@
 
 class WMOInstance;
 class WMOManager;
-class MPQFile;
+class CASCFile;
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
 
 class WMORoot
 {
+private:
+    std::string filename;
 public:
-    uint32 nTextures, nGroups, nP, nLights, nModels, nDoodads, nDoodadSets, RootWMOID, liquidType;
-    unsigned int col;
+    unsigned int color;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID;
     float bbcorn1[3];
     float bbcorn2[3];
+    uint16 flags, numLod;
+
+    std::vector<uint32> groupFileDataIDs;
 
     WMORoot(std::string& filename);
-    ~WMORoot();
 
     bool open();
     bool ConvertToVMAPRootWmo(FILE* output);
-private:
-    std::string filename;
 };
 
 struct WMOLiquidHeader
@@ -68,6 +71,8 @@ struct WMOLiquidHeader
     short type;
 };
 
+#pragma pack(push, 1)
+
 struct WMOLiquidVert
 {
     uint16 unk1;
@@ -75,11 +80,26 @@ struct WMOLiquidVert
     float height;
 };
 
+#pragma pack(pop)
+
 class WMOGroup
 {
+private:
+    std::string filename;
 public:
     // MOGP
-    int groupName, descGroupName, mogpFlags;
+
+    char* MOPY;
+    uint16* MOVI;
+    uint16* MoviEx;
+    float* MOVT;
+    uint16* MOBA;
+    int* MobaEx;
+    WMOLiquidHeader* hlq;
+    WMOLiquidVert* LiquEx;
+    char* LiquBytes;
+    int groupName, descGroupName;
+    int mogpFlags;
     float bbcorn1[3];
     float bbcorn2[3];
     uint16 moprIdx;
@@ -92,15 +112,6 @@ public:
     int LiquEx_size;
     unsigned int nVertices; // number when loaded
     int nTriangles; // number when loaded
-    char* MOPY;
-    uint16* MOVI;
-    uint16* MoviEx;
-    float* MOVT;
-    uint16* MOBA;
-    int* MobaEx;
-    WMOLiquidHeader* hlq;
-    WMOLiquidVert* LiquEx;
-    char* LiquBytes;
     uint32 liquflags;
 
     WMOGroup(std::string const& filename);
@@ -108,9 +119,6 @@ public:
 
     bool open();
     int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
-
-private:
-    std::string filename;
 };
 
 class WMOInstance
@@ -121,12 +129,12 @@ public:
     int currx;
     int curry;
     WMOGroup* wmo;
+    int doodadset;
     Vec3D pos;
     Vec3D pos2, pos3, rot;
     uint32 indx, id, d2, d3;
-    int doodadset;
 
-    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
+    WMOInstance(CASCFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 
     static void reset();
 };

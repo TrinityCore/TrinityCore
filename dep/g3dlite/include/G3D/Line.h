@@ -38,11 +38,11 @@ public:
     /** Undefined (provided for creating Array<Line> only) */
     inline Line() {}
 
-	Line(class BinaryInput& b);
+    Line(class BinaryInput& b);
 
-	void serialize(class BinaryOutput& b) const;
+    void serialize(class BinaryOutput& b) const;
 
-	void deserialize(class BinaryInput& b);
+    void deserialize(class BinaryInput& b);
 
     virtual ~Line() {}
 

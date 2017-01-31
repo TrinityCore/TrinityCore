@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Spell.h"
-#include "DBCStores.h"
 #include "ConditionMgr.h"
+#include "GameTables.h"
+#include "Player.h"
+#include "Battleground.h"
+#include "Vehicle.h"
+#include "Pet.h"
+#include "InstanceScript.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -230,7 +236,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 23 TARGET_GAMEOBJECT_TARGET
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 24 TARGET_UNIT_CONE_ENEMY_24
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 25 TARGET_UNIT_TARGET_ANY
-    {TARGET_OBJECT_TYPE_GOBJ_ITEM, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT, TARGET_DIR_NONE},        // 26 TARGET_GAMEOBJECT_ITEM_TARGET
+    {TARGET_OBJECT_TYPE_GOBJ_ITEM, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT, TARGET_DIR_NONE},    // 26 TARGET_GAMEOBJECT_ITEM_TARGET
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 27 TARGET_UNIT_MASTER
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 28 TARGET_DEST_DYNOBJ_ENEMY
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 29 TARGET_DEST_DYNOBJ_ALLY
@@ -265,7 +271,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 58 TARGET_UNIT_NEARBY_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 59 TARGET_UNIT_CONE_ALLY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENTRY,    TARGET_DIR_FRONT},       // 60 TARGET_UNIT_CONE_ENTRY
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID_CLASS,TARGET_DIR_NONE},       // 61 TARGET_UNIT_TARGET_AREA_RAID_CLASS
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID_CLASS, TARGET_DIR_NONE},      // 61 TARGET_UNIT_TARGET_AREA_RAID_CLASS
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 62 TARGET_UNK_62
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 63 TARGET_DEST_TARGET_ANY
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 64 TARGET_DEST_TARGET_FRONT
@@ -297,9 +303,9 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 90 TARGET_UNIT_TARGET_MINIPET
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 91 TARGET_DEST_DEST_RADIUS
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 92 TARGET_UNIT_SUMMONER
-    {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_SRC,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 93 TARGET_CORPSE_SRC_AREA_ENEMY
+    {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_SRC,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},       // 93 TARGET_CORPSE_SRC_AREA_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 94 TARGET_UNIT_VEHICLE
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_PASSENGER, TARGET_DIR_NONE},        // 95 TARGET_UNIT_TARGET_PASSENGER
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_PASSENGER, TARGET_DIR_NONE},       // 95 TARGET_UNIT_TARGET_PASSENGER
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 96 TARGET_UNIT_PASSENGER_0
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 97 TARGET_UNIT_PASSENGER_1
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 98 TARGET_UNIT_PASSENGER_2
@@ -314,34 +320,79 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 107 TARGET_UNK_DEST_AREA_UNK_107
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 108 TARGET_GAMEOBJECT_CONE
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 109
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 110 TARGET_DEST_UNK_110
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 110 TARGET_DEST_UNK_110
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 111
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 112
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 113
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 114
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 115
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 116
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 117
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 118
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 120
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 121
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 122
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 123
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 124
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 125
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 126
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 127
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 128
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 129
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 130
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 131
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 132
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 133
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 134
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 135
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 136
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 137
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 138
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 139
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 140
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 141
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 142
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 143
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 144
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 145
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 146
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 147
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 148
 };
 
-SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex)
+SpellEffectInfo::SpellEffectInfo(SpellEffectScalingEntry const* spellEffectScaling, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
 {
     _spellInfo = spellInfo;
-    _effIndex = effIndex;
-    Effect = spellEntry->Effect[effIndex];
-    ApplyAuraName = spellEntry->EffectApplyAuraName[effIndex];
-    Amplitude = spellEntry->EffectAmplitude[effIndex];
-    DieSides = spellEntry->EffectDieSides[effIndex];
-    RealPointsPerLevel = spellEntry->EffectRealPointsPerLevel[effIndex];
-    BasePoints = spellEntry->EffectBasePoints[effIndex];
-    PointsPerComboPoint = spellEntry->EffectPointsPerComboPoint[effIndex];
-    ValueMultiplier = spellEntry->EffectValueMultiplier[effIndex];
-    DamageMultiplier = spellEntry->EffectDamageMultiplier[effIndex];
-    BonusMultiplier = spellEntry->EffectBonusMultiplier[effIndex];
-    MiscValue = spellEntry->EffectMiscValue[effIndex];
-    MiscValueB = spellEntry->EffectMiscValueB[effIndex];
-    Mechanic = Mechanics(spellEntry->EffectMechanic[effIndex]);
-    TargetA = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetA[effIndex]);
-    TargetB = SpellImplicitTargetInfo(spellEntry->EffectImplicitTargetB[effIndex]);
-    RadiusEntry = spellEntry->EffectRadiusIndex[effIndex] ? sSpellRadiusStore.LookupEntry(spellEntry->EffectRadiusIndex[effIndex]) : NULL;
-    ChainTarget = spellEntry->EffectChainTarget[effIndex];
-    ItemType = spellEntry->EffectItemType[effIndex];
-    TriggerSpell = spellEntry->EffectTriggerSpell[effIndex];
-    SpellClassMask = spellEntry->EffectSpellClassMask[effIndex];
+    EffectIndex = _effect ? _effect->EffectIndex : effIndex;
+    Effect = _effect ? _effect->Effect : 0;
+    ApplyAuraName = _effect ? _effect->EffectAura : 0;
+    ApplyAuraPeriod = _effect ? _effect->EffectAuraPeriod : 0;
+    DieSides = _effect ? _effect->EffectDieSides : 0;
+    RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
+    BasePoints = _effect ? _effect->EffectBasePoints : 0;
+    PointsPerResource = _effect ? _effect->EffectPointsPerResource : 0.0f;
+    Amplitude = _effect ? _effect->EffectAmplitude : 0.0f;
+    ChainAmplitude = _effect ? _effect->EffectChainAmplitude : 0.0f;
+    BonusCoefficient = _effect ? _effect->EffectBonusCoefficient : 0.0f;
+    MiscValue = _effect ? _effect->EffectMiscValue : 0;
+    MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
+    Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
+    PositionFacing = _effect ? _effect->EffectPosFacing : 0.0f;
+    TargetA = SpellImplicitTargetInfo(_effect ? _effect->ImplicitTarget[0] : 0);
+    TargetB = SpellImplicitTargetInfo(_effect ? _effect->ImplicitTarget[1] : 0);
+    RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
+    MaxRadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
+    ChainTargets = _effect ? _effect->EffectChainTargets : 0;
+    ItemType = _effect ? _effect->EffectItemType : 0;
+    TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
+    SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128();
+    BonusCoefficientFromAP = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
     ImplicitTargetConditions = NULL;
+
+    Scaling.Coefficient = spellEffectScaling ? spellEffectScaling->Coefficient : 0.0f;
+    Scaling.Variance = spellEffectScaling ? spellEffectScaling->Variance : 0.0f;
+    Scaling.ResourceCoefficient = spellEffectScaling ? spellEffectScaling->ResourceCoefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -349,7 +400,7 @@ bool SpellEffectInfo::IsEffect() const
     return Effect != 0;
 }
 
-bool SpellEffectInfo::IsEffect(SpellEffects effectName) const
+bool SpellEffectInfo::IsEffect(SpellEffectName effectName) const
 {
     return Effect == uint32(effectName);
 }
@@ -386,7 +437,6 @@ bool SpellEffectInfo::IsFarUnitTargetEffect() const
     return (Effect == SPELL_EFFECT_SUMMON_PLAYER)
         || (Effect == SPELL_EFFECT_SUMMON_RAF_FRIEND)
         || (Effect == SPELL_EFFECT_RESURRECT)
-        || (Effect == SPELL_EFFECT_RESURRECT_NEW)
         || (Effect == SPELL_EFFECT_SKIN_PLAYER_CORPSE);
 }
 
@@ -400,37 +450,103 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
-    int32 randomPoints = int32(DieSides);
+    float comboDamage = PointsPerResource;
 
     // base amount modification based on spell lvl vs caster lvl
-    if (caster)
+    if (Scaling.Coefficient != 0.0f)
     {
-        int32 level = int32(caster->getLevel());
-        if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
-            level = int32(_spellInfo->MaxLevel);
-        else if (level < int32(_spellInfo->BaseLevel))
-            level = int32(_spellInfo->BaseLevel);
-        level -= int32(_spellInfo->SpellLevel);
-        basePoints += int32(level * basePointsPerLevel);
+        uint32 level = _spellInfo->SpellLevel;
+        if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+            level = target->getLevel();
+        else if (caster)
+            level = caster->getLevel();
+
+        if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING))
+            level = _spellInfo->BaseLevel;
+
+        if (_spellInfo->Scaling.MinScalingLevel && _spellInfo->Scaling.MinScalingLevel > level)
+            level = _spellInfo->Scaling.MinScalingLevel;
+
+        if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel < level)
+            level = _spellInfo->Scaling.MaxScalingLevel;
+
+        float value = 0.0f;
+        if (level > 0)
+        {
+            if (!_spellInfo->Scaling.Class)
+                return 0;
+
+            if (!_spellInfo->Scaling.ScalesFromItemLevel)
+            {
+                if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
+                    value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
+                else
+                {
+                    uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
+                    value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                    if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
+                        if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
+                            value *= ratingMult->ArmorMultiplier;
+                }
+            }
+            else
+                value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+        }
+
+        value *= Scaling.Coefficient;
+        if (value != 0.0f && value < 1.0f)
+            value = 1.0f;
+
+        if (Scaling.Variance)
+        {
+            float delta = fabs(Scaling.Variance * 0.5f);
+            float valueVariance = frand(-delta, delta);
+            value += value * valueVariance;
+
+            if (variance)
+                *variance = valueVariance;
+        }
+
+        basePoints = int32(round(value));
+
+        if (Scaling.ResourceCoefficient)
+            comboDamage = Scaling.ResourceCoefficient * value;
     }
-
-    // roll in a range <1;EffectDieSides> as of patch 3.3.3
-    switch (randomPoints)
+    else
     {
-        case 0: break;
-        case 1: basePoints += 1; break;                     // range 1..1
-        default:
-            // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
-            int32 randvalue = (randomPoints >= 1)
-                ? irand(1, randomPoints)
-                : irand(randomPoints, 1);
+        if (caster)
+        {
+            int32 level = int32(caster->getLevel());
+            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
+                level = int32(_spellInfo->MaxLevel);
+            else if (level < int32(_spellInfo->BaseLevel))
+                level = int32(_spellInfo->BaseLevel);
+            if (!_spellInfo->IsPassive())
+                level -= int32(_spellInfo->SpellLevel);
+            basePoints += int32(level * basePointsPerLevel);
+        }
 
-            basePoints += randvalue;
-            break;
+        // roll in a range <1;EffectDieSides> as of patch 3.3.3
+        int32 randomPoints = int32(DieSides);
+        switch (randomPoints)
+        {
+            case 0: break;
+            case 1: basePoints += 1; break;                     // range 1..1
+            default:
+            {
+                // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
+                int32 randvalue = (randomPoints >= 1)
+                    ? irand(1, randomPoints)
+                    : irand(randomPoints, 1);
+
+                basePoints += randvalue;
+                break;
+            }
+        }
     }
 
     float value = float(basePoints);
@@ -439,25 +555,63 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     if (caster)
     {
         // bonus amount from combo points
-        if (caster->m_movedPlayer)
-            if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
-                if (float comboDamage = PointsPerComboPoint)
-                    value += comboDamage* comboPoints;
+        if (caster->m_movedPlayer && comboDamage)
+            if (uint32 comboPoints = caster->m_movedPlayer->GetComboPoints())
+                value += comboDamage * comboPoints;
 
-        value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
+        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
 
         // amount multiplication based on caster's level
-        if (!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
-                Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-                Effect != SPELL_EFFECT_KNOCK_BACK &&
-                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
-                ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
-                ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
-                //there are many more: slow speed, -healing pct
-            value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
-            //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
+        if (!caster->IsControlledByPlayer() &&
+            _spellInfo->SpellLevel && _spellInfo->SpellLevel != caster->getLevel() &&
+            !basePointsPerLevel && (_spellInfo->HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)))
+        {
+            bool canEffectScale = false;
+            switch (Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_DUMMY:
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_SCRIPT_EFFECT:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_FORCE_CAST_WITH_VALUE:
+                case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+                case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+                    canEffectScale = true;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_DUMMY:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_SCHOOL_ABSORB:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    canEffectScale = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (canEffectScale)
+            {
+                GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(_spellInfo->SpellLevel);
+                GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
+                if (spellScaler && casterScaler)
+                    value *= casterScaler->Scaler / spellScaler->Scaler;
+            }
+        }
     }
 
     return int32(value);
@@ -473,7 +627,7 @@ int32 SpellEffectInfo::CalcBaseValue(int32 value) const
 
 float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = ValueMultiplier;
+    float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
     return multiplier;
@@ -481,10 +635,10 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 
 float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = DamageMultiplier;
+    float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+    return multiplierPercent / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
@@ -492,14 +646,33 @@ bool SpellEffectInfo::HasRadius() const
     return RadiusEntry != NULL;
 }
 
+bool SpellEffectInfo::HasMaxRadius() const
+{
+    return MaxRadiusEntry != NULL;
+}
+
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
-    if (!HasRadius())
+    const SpellRadiusEntry* entry = RadiusEntry;
+    if (!HasRadius() && HasMaxRadius())
+        entry = MaxRadiusEntry;
+
+    if (!entry)
         return 0.0f;
 
-    float radius = RadiusEntry->radiusMax;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+    float radius = entry->RadiusMin;
+
+    // Client uses max if min is 0
+    if (radius == 0.0f)
+        radius = entry->RadiusMax;
+
+    if (caster)
+    {
+        radius += entry->RadiusPerLevel * caster->getLevel();
+        radius = std::min(radius, entry->RadiusMax);
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+    }
 
     return radius;
 }
@@ -543,7 +716,7 @@ SpellTargetObjectTypes SpellEffectInfo::GetUsedTargetObjectType() const
     return _data[Effect].UsedTargetObjectType;
 }
 
-SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
+SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
 {
     // implicit target type           used target object type
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 0
@@ -652,7 +825,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 103 SPELL_EFFECT_REPUTATION
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 105 SPELL_EFFECT_SUMMON_OBJECT_SLOT2
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 106 SPELL_EFFECT_SUMMON_OBJECT_SLOT3
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 106 SPELL_EFFECT_CHANGE_RAID_MARKER
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 107 SPELL_EFFECT_SUMMON_OBJECT_SLOT4
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 108 SPELL_EFFECT_DISPEL_MECHANIC
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_DEST}, // 109 SPELL_EFFECT_SUMMON_DEAD_PET
@@ -677,7 +850,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 128 SPELL_EFFECT_APPLY_AREA_AURA_FRIEND
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 129 SPELL_EFFECT_APPLY_AREA_AURA_ENEMY
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 130 SPELL_EFFECT_REDIRECT_THREAT
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 131 SPELL_EFFECT_131
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 131 SPELL_EFFECT_PLAY_SOUND
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 132 SPELL_EFFECT_PLAY_MUSIC
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 133 SPELL_EFFECT_UNLEARN_SPECIALIZATION
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 134 SPELL_EFFECT_KILL_CREDIT2
@@ -706,172 +879,380 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 157 SPELL_EFFECT_CREATE_ITEM_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 158 SPELL_EFFECT_MILLING
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 159 SPELL_EFFECT_ALLOW_RENAME_PET
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 160 SPELL_EFFECT_160
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 160 SPELL_EFFECT_FORCE_CAST_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 161 SPELL_EFFECT_TALENT_SPEC_COUNT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 162 SPELL_EFFECT_TALENT_SPEC_SELECT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 163 SPELL_EFFECT_163
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 164 SPELL_EFFECT_REMOVE_AURA
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 165 SPELL_EFFECT_165
+    {EFFECT_IMPLICIT_TARGET_CASTER,   TARGET_OBJECT_TYPE_UNIT}, // 166 SPELL_EFFECT_GIVE_CURRENCY
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 167 SPELL_EFFECT_167
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 168 SPELL_EFFECT_168
+    {EFFECT_IMPLICIT_TARGET_CASTER,   TARGET_OBJECT_TYPE_UNIT}, // 169 SPELL_EFFECT_DESTROY_ITEM
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 170 SPELL_EFFECT_170
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 171 SPELL_EFFECT_171
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 172 SPELL_EFFECT_172
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_174
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 175 SPELL_EFFECT_175
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 176 SPELL_EFFECT_176
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 177 SPELL_EFFECT_177
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 178 SPELL_EFFECT_178
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 179 SPELL_EFFECT_CREATE_AREATRIGGER
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 180 SPELL_EFFECT_UPDATE_AREATRIGGER
+    {EFFECT_IMPLICIT_TARGET_CASTER,   TARGET_OBJECT_TYPE_UNIT}, // 181 SPELL_EFFECT_REMOVE_TALENT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 182 SPELL_EFFECT_182
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 183 SPELL_EFFECT_183
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 184 SPELL_EFFECT_REPUTATION_2
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 185 SPELL_EFFECT_185
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 186 SPELL_EFFECT_186
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 188 SPELL_EFFECT_188
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 189 SPELL_EFFECT_LOOT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 190 SPELL_EFFECT_190
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 192 SPELL_EFFECT_192
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 193 SPELL_EFFECT_193
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 194 SPELL_EFFECT_194
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 195 SPELL_EFFECT_195
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 196 SPELL_EFFECT_196
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 197 SPELL_EFFECT_197
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 198 SPELL_EFFECT_PLAY_SCENE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 199 SPELL_EFFECT_199
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 201 SPELL_EFFECT_ENABLE_BATTLE_PETS
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 202 SPELL_EFFECT_202
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 203 SPELL_EFFECT_203
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 206 SPELL_EFFECT_ALTER_IETM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 207 SPELL_EFFECT_LAUNCH_QUEST_TASK
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 208 SPELL_EFFECT_208
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 209 SPELL_EFFECT_209
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 212 SPELL_EFFECT_212
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 213 SPELL_EFFECT_213
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 214 SPELL_EFFECT_CREATE_GARRISON
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 216 SPELL_EFFECT_CREATE_SHIPMENT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 217 SPELL_EFFECT_UPGRADE_GARRISON
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 218 SPELL_EFFECT_218
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 219 SPELL_EFFECT_219
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 221 SPELL_EFFECT_221
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 226 SPELL_EFFECT_226
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 227 SPELL_EFFECT_227
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 228 SPELL_EFFECT_228
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 232 SPELL_EFFECT_REMOVE_PHASE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 234 SPELL_EFFECT_234
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 235 SPELL_EFFECT_235
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 236 SPELL_EFFECT_GIVE_EXPERIENCE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 238 SPELL_EFFECT_INCREASE_SKILL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 240 SPELL_EFFECT_240
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 241 SPELL_EFFECT_241
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 242 SPELL_EFFECT_242
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 245 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 247 SPELL_EFFECT_ADD_GARRISON_MISSION
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 248 SPELL_EFFECT_FINISH_SHIPMENT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 249 SPELL_EFFECT_249
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 250 SPELL_EFFECT_TAKE_SCREENSHOT
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 252 SPELL_EFFECT_252
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 253 SPELL_EFFECT_253
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 254 SPELL_EFFECT_254
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 255 SPELL_EFFECT_255
 };
 
-SpellInfo::SpellInfo(SpellEntry const* spellEntry)
+SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals,
+    std::unordered_map<uint32, SpellEffectScalingEntry const*> const& effectScaling)
+    : _hasPowerDifficultyData(false)
 {
-    Id = spellEntry->Id;
-    Category = spellEntry->Category;
-    Dispel = spellEntry->Dispel;
-    Mechanic = spellEntry->Mechanic;
-    Attributes = spellEntry->Attributes;
-    AttributesEx = spellEntry->AttributesEx;
-    AttributesEx2 = spellEntry->AttributesEx2;
-    AttributesEx3 = spellEntry->AttributesEx3;
-    AttributesEx4 = spellEntry->AttributesEx4;
-    AttributesEx5 = spellEntry->AttributesEx5;
-    AttributesEx6 = spellEntry->AttributesEx6;
-    AttributesEx7 = spellEntry->AttributesEx7;
+    Id = data.Entry->ID;
+
+    // SpellDifficultyEntry
+    for (SpellEffectEntryMap::value_type const& itr : effectsMap)
+    {
+        SpellEffectEntryVector const& effects = itr.second;
+        _effects[itr.first].resize(effects.size());
+
+        for (size_t i = 0; i < effects.size(); ++i)
+        {
+            if (SpellEffectEntry const* effect = effects[i])
+            {
+                auto scalingItr = effectScaling.find(effect->ID);
+                _effects[itr.first][effect->EffectIndex] = new SpellEffectInfo(scalingItr != effectScaling.end() ? scalingItr->second : nullptr, this, effect->EffectIndex, effect);
+            }
+        }
+    }
+
+    SpellName = data.Entry->Name;
+
+    // SpellMiscEntry
+    SpellMiscEntry const* _misc = data.Misc;
+    Attributes = _misc ? _misc->Attributes : 0;
+    AttributesEx = _misc ? _misc->AttributesEx : 0;
+    AttributesEx2 = _misc ? _misc->AttributesExB : 0;
+    AttributesEx3 = _misc ? _misc->AttributesExC : 0;
+    AttributesEx4 = _misc ? _misc->AttributesExD : 0;
+    AttributesEx5 = _misc ? _misc->AttributesExE : 0;
+    AttributesEx6 = _misc ? _misc->AttributesExF : 0;
+    AttributesEx7 = _misc ? _misc->AttributesExG : 0;
+    AttributesEx8 = _misc ? _misc->AttributesExH : 0;
+    AttributesEx9 = _misc ? _misc->AttributesExI : 0;
+    AttributesEx10 = _misc ? _misc->AttributesExJ : 0;
+    AttributesEx11 = _misc ? _misc->AttributesExK : 0;
+    AttributesEx12 = _misc ? _misc->AttributesExL : 0;
+    AttributesEx13 = _misc ? _misc->AttributesExM : 0;
+    CastTimeEntry = _misc ? (_misc->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex) : NULL) : NULL;
+    DurationEntry = _misc ? (_misc->DurationIndex ? sSpellDurationStore.LookupEntry(_misc->DurationIndex) : NULL) : NULL;
+    RangeIndex = _misc ? _misc->RangeIndex : 0;
+    RangeEntry = _misc ? (_misc->RangeIndex ? sSpellRangeStore.LookupEntry(_misc->RangeIndex) : NULL) : NULL;
+    Speed = _misc ? _misc->Speed : 0;
+    SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
-    Stances = spellEntry->Stances;
-    StancesNot = spellEntry->StancesNot;
-    Targets = spellEntry->Targets;
-    TargetCreatureType = spellEntry->TargetCreatureType;
-    RequiresSpellFocus = spellEntry->RequiresSpellFocus;
-    FacingCasterFlags = spellEntry->FacingCasterFlags;
-    CasterAuraState = spellEntry->CasterAuraState;
-    TargetAuraState = spellEntry->TargetAuraState;
-    CasterAuraStateNot = spellEntry->CasterAuraStateNot;
-    TargetAuraStateNot = spellEntry->TargetAuraStateNot;
-    CasterAuraSpell = spellEntry->casterAuraSpell;
-    TargetAuraSpell = spellEntry->targetAuraSpell;
-    ExcludeCasterAuraSpell = spellEntry->excludeCasterAuraSpell;
-    ExcludeTargetAuraSpell = spellEntry->excludeTargetAuraSpell;
-    CastTimeEntry = spellEntry->CastingTimeIndex ? sSpellCastTimesStore.LookupEntry(spellEntry->CastingTimeIndex) : NULL;
-    RecoveryTime = spellEntry->RecoveryTime;
-    CategoryRecoveryTime = spellEntry->CategoryRecoveryTime;
-    StartRecoveryCategory = spellEntry->StartRecoveryCategory;
-    StartRecoveryTime = spellEntry->StartRecoveryTime;
-    InterruptFlags = spellEntry->InterruptFlags;
-    AuraInterruptFlags = spellEntry->AuraInterruptFlags;
-    ChannelInterruptFlags = spellEntry->ChannelInterruptFlags;
-    ProcFlags = spellEntry->procFlags;
-    ProcChance = spellEntry->procChance;
-    ProcCharges = spellEntry->procCharges;
-    MaxLevel = spellEntry->maxLevel;
-    BaseLevel = spellEntry->baseLevel;
-    SpellLevel = spellEntry->spellLevel;
-    DurationEntry = spellEntry->DurationIndex ? sSpellDurationStore.LookupEntry(spellEntry->DurationIndex) : NULL;
-    PowerType = spellEntry->powerType;
-    ManaCost = spellEntry->manaCost;
-    ManaCostPerlevel = spellEntry->manaCostPerlevel;
-    ManaPerSecond = spellEntry->manaPerSecond;
-    ManaPerSecondPerLevel = spellEntry->manaPerSecondPerLevel;
-    ManaCostPercentage = spellEntry->ManaCostPercentage;
-    RuneCostID = spellEntry->runeCostID;
-    RangeEntry = spellEntry->rangeIndex ? sSpellRangeStore.LookupEntry(spellEntry->rangeIndex) : NULL;
-    Speed = spellEntry->speed;
-    StackAmount = spellEntry->StackAmount;
-    for (uint8 i = 0; i < 2; ++i)
-        Totem[i] = spellEntry->Totem[i];
+    SpellIconID = _misc ? _misc->SpellIconID : 0;
+    ActiveIconID = _misc ? _misc->ActiveIconID : 0;
+
+    _visuals = std::move(visuals);
+    // sort all visuals so that the ones without a condition requirement are last on the list
+    for (auto& visualPair : _visuals)
+        std::sort(visualPair.second.begin(), visualPair.second.end(), [](SpellXSpellVisualEntry const* first, SpellXSpellVisualEntry const* second) { return first->PlayerConditionID > second->PlayerConditionID; });
+
+    // SpellScalingEntry
+    SpellScalingEntry const* _scaling = data.Scaling;
+    Scaling.Class = _scaling ? _scaling->ScalingClass : 0;
+    Scaling.MinScalingLevel = _scaling ? _scaling->MinScalingLevel : 0;
+    Scaling.MaxScalingLevel = _scaling ? _scaling->MaxScalingLevel : 0;
+    Scaling.ScalesFromItemLevel = _scaling ? _scaling->ScalesFromItemLevel : 0;
+
+    // SpellAuraOptionsEntry
+    SpellAuraOptionsEntry const* _options = data.AuraOptions;
+    SpellProcsPerMinuteEntry const* _ppm = _options ? sSpellProcsPerMinuteStore.LookupEntry(_options->SpellProcsPerMinuteID) : nullptr;
+    ProcFlags = _options ? _options->ProcTypeMask : 0;
+    ProcChance = _options ? _options->ProcChance : 0;
+    ProcCharges = _options ? _options->ProcCharges : 0;
+    ProcCooldown = _options ? _options->ProcCategoryRecovery : 0;
+    ProcBasePPM = _ppm ? _ppm->BaseProcRate : 0.0f;
+    if (_options)
+        ProcPPMMods = sDB2Manager.GetSpellProcsPerMinuteMods(_options->SpellProcsPerMinuteID);
+    StackAmount = _options ? _options->CumulativeAura : 0;
+
+    // SpellAuraRestrictionsEntry
+    SpellAuraRestrictionsEntry const* _aura = data.AuraRestrictions;
+    CasterAuraState = _aura ? _aura->CasterAuraState : 0;
+    TargetAuraState = _aura ? _aura->TargetAuraState : 0;
+    ExcludeCasterAuraState = _aura ? _aura->ExcludeCasterAuraState : 0;
+    ExcludeTargetAuraState = _aura ? _aura->ExcludeTargetAuraState : 0;
+    CasterAuraSpell = _aura ? _aura->CasterAuraSpell : 0;
+    TargetAuraSpell = _aura ? _aura->TargetAuraSpell : 0;
+    ExcludeCasterAuraSpell = _aura ? _aura->ExcludeCasterAuraSpell : 0;
+    ExcludeTargetAuraSpell = _aura ? _aura->ExcludeTargetAuraSpell : 0;
+
+    // SpellCastingRequirementsEntry
+    SpellCastingRequirementsEntry const* _castreq = data.CastingRequirements;
+    RequiresSpellFocus = _castreq ? _castreq->RequiresSpellFocus : 0;
+    FacingCasterFlags = _castreq ? _castreq->FacingCasterFlags : 0;
+    RequiredAreasID = _castreq ? _castreq->RequiredAreasID : -1;
+
+    // SpellCategoriesEntry
+    SpellCategoriesEntry const* _categorie = data.Categories;
+    CategoryId = _categorie ? _categorie->Category : 0;
+    Dispel = _categorie ? _categorie->DispelType : 0;
+    Mechanic = _categorie ? _categorie->Mechanic : 0;
+    StartRecoveryCategory = _categorie ? _categorie->StartRecoveryCategory : 0;
+    DmgClass = _categorie ? _categorie->DefenseType : 0;
+    PreventionType = _categorie ? _categorie->PreventionType : 0;
+    ChargeCategoryId = _categorie ? _categorie->ChargeCategory : 0;
+
+    // SpellClassOptionsEntry
+    SpellClassOptionsEntry const* _class = data.ClassOptions;
+    SpellFamilyName = _class ? _class->SpellClassSet : 0;
+    SpellFamilyFlags = _class ? _class->SpellClassMask : flag128();
+
+    // SpellCooldownsEntry
+    SpellCooldownsEntry const* _cooldowns = data.Cooldowns;
+    RecoveryTime = _cooldowns ? _cooldowns->RecoveryTime : 0;
+    CategoryRecoveryTime = _cooldowns ? _cooldowns->CategoryRecoveryTime : 0;
+    StartRecoveryTime = _cooldowns ? _cooldowns->StartRecoveryTime : 0;
+
+    // SpellEquippedItemsEntry
+    SpellEquippedItemsEntry const* _equipped = data.EquippedItems;
+    EquippedItemClass = _equipped ? _equipped->EquippedItemClass : -1;
+    EquippedItemSubClassMask = _equipped ?_equipped->EquippedItemSubClassMask : -1;
+    EquippedItemInventoryTypeMask = _equipped ? _equipped->EquippedItemInventoryTypeMask : -1;
+
+    // SpellInterruptsEntry
+    SpellInterruptsEntry const* _interrupt = data.Interrupts;
+    InterruptFlags = _interrupt ? _interrupt->InterruptFlags : 0;
+    // TODO: 6.x these flags have 2 parts
+    AuraInterruptFlags = _interrupt ? _interrupt->AuraInterruptFlags[0] : 0;
+    ChannelInterruptFlags = _interrupt ? _interrupt->ChannelInterruptFlags[0] : 0;
+
+    // SpellLevelsEntry
+    SpellLevelsEntry const* _levels = data.Levels;
+    MaxLevel = _levels ? _levels->MaxLevel : 0;
+    BaseLevel = _levels ? _levels->BaseLevel : 0;
+    SpellLevel = _levels ? _levels->SpellLevel : 0;
+
+    // SpellPowerEntry
+    PowerCosts = sDB2Manager.GetSpellPowers(Id, DIFFICULTY_NONE, &_hasPowerDifficultyData);
+
+    // SpellReagentsEntry
+    SpellReagentsEntry const* _reagents = data.Reagents;
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
-        Reagent[i] = spellEntry->Reagent[i];
+        Reagent[i] = _reagents ? _reagents->Reagent[i] : 0;
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
-        ReagentCount[i] = spellEntry->ReagentCount[i];
-    EquippedItemClass = spellEntry->EquippedItemClass;
-    EquippedItemSubClassMask = spellEntry->EquippedItemSubClassMask;
-    EquippedItemInventoryTypeMask = spellEntry->EquippedItemInventoryTypeMask;
+        ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
+
+    // SpellShapeshiftEntry
+    SpellShapeshiftEntry const* _shapeshift = data.Shapeshift;
+    Stances = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftMask[0], _shapeshift->ShapeshiftMask[1]) : 0;
+    StancesNot = _shapeshift ? MAKE_PAIR64(_shapeshift->ShapeshiftExclude[0], _shapeshift->ShapeshiftExclude[1]) : 0;
+
+    // SpellTargetRestrictionsEntry
+    SpellTargetRestrictionsEntry const* _target = data.TargetRestrictions;
+    Targets = _target ? _target->Targets : 0;
+    TargetCreatureType = _target ? _target->TargetCreatureType : 0;
+    MaxAffectedTargets = _target ? _target->MaxAffectedTargets : 0;
+    MaxTargetLevel = _target ? _target->MaxTargetLevel : 0;
+
+    // SpellTotemsEntry
+    SpellTotemsEntry const* _totem = data.Totems;
     for (uint8 i = 0; i < 2; ++i)
-        TotemCategory[i] = spellEntry->TotemCategory[i];
+        TotemCategory[i] = _totem ? _totem->RequiredTotemCategoryID[i] : 0;
     for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = spellEntry->SpellVisual[i];
-    SpellIconID = spellEntry->SpellIconID;
-    ActiveIconID = spellEntry->activeIconID;
-    for (uint8 i = 0; i < 16; ++i)
-        SpellName[i] = spellEntry->SpellName[i];
-    for (uint8 i = 0; i < 16; ++i)
-        Rank[i] = spellEntry->Rank[i];
-    MaxTargetLevel = spellEntry->MaxTargetLevel;
-    MaxAffectedTargets = spellEntry->MaxAffectedTargets;
-    SpellFamilyName = spellEntry->SpellFamilyName;
-    SpellFamilyFlags = spellEntry->SpellFamilyFlags;
-    DmgClass = spellEntry->DmgClass;
-    PreventionType = spellEntry->PreventionType;
-    AreaGroupId = spellEntry->AreaGroupId;
-    SchoolMask = spellEntry->SchoolMask;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        Effects[i] = SpellEffectInfo(spellEntry, this, i);
-    ExplicitTargetMask = _GetExplicitTargetMask();
+        Totem[i] = _totem ? _totem->Totem[i] : 0;
+
     ChainEntry = NULL;
+    ExplicitTargetMask = 0;
 }
 
 SpellInfo::~SpellInfo()
 {
     _UnloadImplicitTargetConditionLists();
+    _UnloadSpellEffects();
 }
 
-bool SpellInfo::HasEffect(SpellEffects effect) const
+void SpellInfo::_UnloadSpellEffects()
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect(effect))
-            return true;
-    return false;
+    for (SpellEffectInfoMap::value_type& i : _effects)
+        for (size_t j = 0; j < i.second.size(); ++j)
+            delete i.second[j];
+    _effects.clear();
 }
 
-bool SpellInfo::HasAura(AuraType aura) const
+uint32 SpellInfo::GetCategory() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAura(aura))
-            return true;
-    return false;
+    return CategoryId;
 }
 
-bool SpellInfo::HasAreaAuraEffect() const
+bool SpellInfo::HasEffect(uint32 difficulty, SpellEffectName effect) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAreaAuraEffect())
-            return true;
-    return false;
-}
-
-bool SpellInfo::IsExplicitDiscovery() const
-{
-    return ((Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM
-        || Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2)
-        && Effects[1].Effect == SPELL_EFFECT_SCRIPT_EFFECT)
-        || Id == 64323;
-}
-
-bool SpellInfo::IsLootCrafting() const
-{
-    return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
-}
-
-bool SpellInfo::IsQuestTame() const
-{
-    return Effects[0].Effect == SPELL_EFFECT_THREAT && Effects[1].Effect == SPELL_EFFECT_APPLY_AURA && Effects[1].ApplyAuraName == SPELL_AURA_DUMMY;
-}
-
-bool SpellInfo::IsProfessionOrRiding() const
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* eff : effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
-        {
-            uint32 skill = Effects[i].MiscValue;
+        if (eff && eff->IsEffect(effect))
+            return true;
+    }
+    return false;
+}
 
-            if (IsProfessionOrRidingSkill(skill))
+bool SpellInfo::HasEffect(SpellEffectName effect) const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* eff : itr->second)
+        {
+            if (eff && eff->IsEffect(effect))
                 return true;
         }
     }
     return false;
 }
 
-bool SpellInfo::IsProfession() const
+bool SpellInfo::HasAura(uint32 difficulty, AuraType aura) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if (effect && effect->IsAura(aura))
+            return true;
+    }
+    return false;
+}
+
+bool SpellInfo::HasAreaAuraEffect(uint32 difficulty) const
+{
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (effect && effect->IsAreaAuraEffect())
+            return true;
+    }
+    return false;
+}
+
+bool SpellInfo::HasAreaAuraEffect() const
+{
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
         {
-            uint32 skill = Effects[i].MiscValue;
+            if (effect && effect->IsAreaAuraEffect())
+                return true;
+        }
+    }
+    return false;
+}
+
+bool SpellInfo::IsExplicitDiscovery() const
+{
+    SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
+    SpellEffectInfo const* effect1 = GetEffect(DIFFICULTY_NONE, EFFECT_1);
+
+    return ((effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM || effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2))
+        && effect1 && effect1->Effect == SPELL_EFFECT_SCRIPT_EFFECT)
+        || Id == 64323;
+}
+
+bool SpellInfo::IsLootCrafting() const
+{
+    SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
+    return effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
+        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
+        (effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
+        ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || effect0->ItemType == 0)));
+}
+
+bool SpellInfo::IsQuestTame() const
+{
+    SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
+    SpellEffectInfo const* effect1 = GetEffect(DIFFICULTY_NONE, EFFECT_1);
+    return effect0 && effect1 && effect0->Effect == SPELL_EFFECT_THREAT && effect1->Effect == SPELL_EFFECT_APPLY_AURA && effect1->ApplyAuraName == SPELL_AURA_DUMMY;
+}
+
+bool SpellInfo::IsProfession(uint32 difficulty) const
+{
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (effect && effect->Effect == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = effect->MiscValue;
 
             if (IsProfessionSkill(skill))
                 return true;
@@ -880,13 +1261,14 @@ bool SpellInfo::IsProfession() const
     return false;
 }
 
-bool SpellInfo::IsPrimaryProfession() const
+bool SpellInfo::IsPrimaryProfession(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for(SpellEffectInfo const* effect : effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if (effect && effect->Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = effect->MiscValue;
 
             if (IsPrimaryProfessionSkill(skill))
                 return true;
@@ -895,26 +1277,9 @@ bool SpellInfo::IsPrimaryProfession() const
     return false;
 }
 
-bool SpellInfo::IsPrimaryProfessionFirstRank() const
+bool SpellInfo::IsPrimaryProfessionFirstRank(uint32 difficulty) const
 {
-    return IsPrimaryProfession() && GetRank() == 1;
-}
-
-bool SpellInfo::IsAbilityLearnedWithProfession() const
-{
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-    {
-        SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
-            continue;
-
-        if (pAbility->req_skill_value > 0)
-            return true;
-    }
-
-    return false;
+    return IsPrimaryProfession(difficulty) && GetRank() == 1;
 }
 
 bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
@@ -922,38 +1287,46 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->skillId == uint32(skillType))
+        if (_spell_idx->second->SkillLine == uint32(skillType))
             return true;
 
     return false;
 }
 
-bool SpellInfo::IsAffectingArea() const
+bool SpellInfo::IsAffectingArea(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && (Effects[i].IsTargetingArea() || Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effects[i].IsAreaAuraEffect()))
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (effect && effect->IsEffect() && (effect->IsTargetingArea() || effect->IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || effect->IsAreaAuraEffect()))
             return true;
+    }
     return false;
 }
 
 // checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
-bool SpellInfo::IsTargetingArea() const
+bool SpellInfo::IsTargetingArea(uint32 difficulty) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].IsTargetingArea())
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (effect && effect->IsEffect() && effect->IsTargetingArea())
             return true;
+    }
     return false;
 }
 
 bool SpellInfo::NeedsExplicitUnitTarget() const
 {
-    return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
+    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
 }
 
-bool SpellInfo::NeedsToBeTriggeredByCaster() const
+bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell, uint32 difficulty) const
 {
     if (NeedsExplicitUnitTarget())
         return true;
+
+    /*
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (Effects[i].IsEffect())
@@ -963,19 +1336,41 @@ bool SpellInfo::NeedsToBeTriggeredByCaster() const
                 return true;
         }
     }
+    */
+
+    if (triggeringSpell->IsChanneled())
+    {
+        uint32 mask = 0;
+        SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+        for (SpellEffectInfo const* effect : effects)
+        {
+            if (!effect)
+                continue;
+
+            if (effect->TargetA.GetTarget() != TARGET_UNIT_CASTER && effect->TargetA.GetTarget() != TARGET_DEST_CASTER
+                && effect->TargetB.GetTarget() != TARGET_UNIT_CASTER && effect->TargetB.GetTarget() != TARGET_DEST_CASTER)
+            {
+                mask |= effect->GetProvidedTargetMask();
+            }
+        }
+
+        if (mask & TARGET_FLAG_UNIT_MASK)
+            return true;
+    }
+
     return false;
 }
 
 bool SpellInfo::IsPassive() const
 {
-    return Attributes & SPELL_ATTR0_PASSIVE;
+    return HasAttribute(SPELL_ATTR0_PASSIVE);
 }
 
 bool SpellInfo::IsAutocastable() const
 {
-    if (Attributes & SPELL_ATTR0_PASSIVE)
+    if (IsPassive())
         return false;
-    if (AttributesEx & SPELL_ATTR1_UNAUTOCASTABLE_BY_PET)
+    if (HasAttribute(SPELL_ATTR1_UNAUTOCASTABLE_BY_PET))
         return false;
     return true;
 }
@@ -984,68 +1379,81 @@ bool SpellInfo::IsStackableWithRanks() const
 {
     if (IsPassive())
         return false;
-    if (PowerType != POWER_MANA && PowerType != POWER_HEALTH)
-        return false;
-    if (IsProfessionOrRiding())
-        return false;
-
-    if (IsAbilityLearnedWithProfession())
-        return false;
 
     // All stance spells. if any better way, change it.
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(DIFFICULTY_NONE);
+    for (SpellEffectInfo const* effect : effects)
     {
+        if (!effect)
+            continue;
+
         switch (SpellFamilyName)
         {
             case SPELLFAMILY_PALADIN:
                 // Paladin aura Spell
-                if (Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                if (effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
                     return false;
                 break;
             case SPELLFAMILY_DRUID:
                 // Druid form Spell
-                if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA &&
-                    Effects[i].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                if (effect->Effect == SPELL_EFFECT_APPLY_AURA &&
+                    effect->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
                     return false;
                 break;
         }
     }
+
     return true;
 }
 
-bool SpellInfo::IsPassiveStackableWithRanks() const
+bool SpellInfo::IsPassiveStackableWithRanks(uint32 difficulty) const
 {
-    return IsPassive() && !HasEffect(SPELL_EFFECT_APPLY_AURA);
+    return IsPassive() && !HasEffect(difficulty, SPELL_EFFECT_APPLY_AURA);
 }
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    return IsPassive() || Id == 40075 || Id == 44413; // No other way to make 40075 have more than 1 copy of aura
+    return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
+}
+
+bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
+{
+    /// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
+    return StackAmount > 1 && !IsChanneled() && !HasAttribute(SPELL_ATTR3_STACK_FOR_DIFF_CASTERS);
+}
+
+bool SpellInfo::IsCooldownStartedOnEvent() const
+{
+    if (HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
+        return true;
+
+    SpellCategoryEntry const* category = sSpellCategoryStore.LookupEntry(CategoryId);
+    return category && category->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT;
 }
 
 bool SpellInfo::IsDeathPersistent() const
 {
-    return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
+    return HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT);
 }
 
 bool SpellInfo::IsRequiringDeadTarget() const
 {
-    return AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS;
+    return HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS);
 }
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
+    return HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD) || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
 }
 
 bool SpellInfo::CanBeUsedInCombat() const
 {
-    return !(Attributes & SPELL_ATTR0_CANT_USED_IN_COMBAT);
+    return !HasAttribute(SPELL_ATTR0_CANT_USED_IN_COMBAT);
 }
 
 bool SpellInfo::IsPositive() const
 {
-    return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE);
+    return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE);
 }
 
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
@@ -1054,27 +1462,27 @@ bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
     {
         default:
         case 0:
-            return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE_EFF0);
+            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF0);
         case 1:
-            return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE_EFF1);
+            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF1);
         case 2:
-            return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE_EFF2);
+            return !HasAttribute(SPELL_ATTR0_CU_NEGATIVE_EFF2);
     }
 }
 
 bool SpellInfo::IsChanneled() const
 {
-    return (AttributesEx & (SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2));
+    return HasAttribute(SPELL_ATTR1_CHANNELED_1) || HasAttribute(SPELL_ATTR1_CHANNELED_2);
 }
 
 bool SpellInfo::NeedsComboPoints() const
 {
-    return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
+    return HasAttribute(SPELL_ATTR1_REQ_COMBO_POINTS1) || HasAttribute(SPELL_ATTR1_REQ_COMBO_POINTS2);
 }
 
 bool SpellInfo::IsBreakingStealth() const
 {
-    return !(AttributesEx & SPELL_ATTR1_NOT_BREAK_STEALTH);
+    return !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH);
 }
 
 bool SpellInfo::IsRangedWeaponSpell() const
@@ -1085,15 +1493,20 @@ bool SpellInfo::IsRangedWeaponSpell() const
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
 {
-    return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
+    return HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG);
+}
+
+bool SpellInfo::HasInitialAggro() const
+{
+    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 }
 
 bool SpellInfo::IsAffectedBySpellMods() const
 {
-    return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
+    return !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS);
 }
 
-bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
+bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 {
     if (!IsAffectedBySpellMods())
         return false;
@@ -1113,13 +1526,11 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
 {
     // these spells pierce all avalible spells (Resurrection Sickness for example)
-    if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    if (HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
         return true;
 
-    // these spells (Cyclone for example) can pierce all...
-    if ((AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
-        // ...but not these (Divine shield for example)
-        && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY)))
+    // these spells (Cyclone for example) can pierce all...         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
+    if (HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY || aura->Mechanic == MECHANIC_BANISH)))
         return true;
 
     return false;
@@ -1127,16 +1538,16 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
 
 bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 {
-    // These spells (like Mass Dispel) can dispell all auras
-    if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    // These spells (like Mass Dispel) can dispell all auras, except death persistent ones (like Dungeon and Battleground Deserter)
+    if (HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY) && !aura->IsDeathPersistent())
         return true;
 
     // These auras (like Divine Shield) can't be dispelled
-    if (aura->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    if (aura->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
         return false;
 
     // These auras (Cyclone for example) are not dispelable
-    if (aura->AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
+    if (aura->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE))
         return false;
 
     return true;
@@ -1145,7 +1556,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 bool SpellInfo::IsSingleTarget() const
 {
     // all other single target spells have if it has AttributesEx5
-    if (AttributesEx5 & SPELL_ATTR5_SINGLE_TARGET_SPELL)
+    if (HasAttribute(SPELL_ATTR5_SINGLE_TARGET_SPELL))
         return true;
 
     switch (GetSpellSpecific())
@@ -1159,37 +1570,12 @@ bool SpellInfo::IsSingleTarget() const
     return false;
 }
 
-bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
-{
-    // TODO - need better check
-    // Equal icon and spellfamily
-    if (SpellFamilyName == spellInfo->SpellFamilyName &&
-        SpellIconID == spellInfo->SpellIconID)
-        return true;
-
-    SpellSpecificType spec = GetSpellSpecific();
-    // spell with single target specific types
-    switch (spec)
-    {
-        case SPELL_SPECIFIC_JUDGEMENT:
-        case SPELL_SPECIFIC_MAGE_POLYMORPH:
-            if (spellInfo->GetSpellSpecific() == spec)
-                return true;
-            break;
-        default:
-            break;
-    }
-
-    return false;
-}
-
 bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
 {
     SpellSpecificType spellSpec1 = GetSpellSpecific();
     SpellSpecificType spellSpec2 = spellInfo->GetSpellSpecific();
     switch (spellSpec1)
     {
-        case SPELL_SPECIFIC_TRACKER:
         case SPELL_SPECIFIC_WARLOCK_ARMOR:
         case SPELL_SPECIFIC_MAGE_ARMOR:
         case SPELL_SPECIFIC_ELEMENTAL_SHIELD:
@@ -1226,6 +1612,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
         case SPELL_SPECIFIC_AURA:
         case SPELL_SPECIFIC_STING:
         case SPELL_SPECIFIC_CURSE:
+        case SPELL_SPECIFIC_BANE:
         case SPELL_SPECIFIC_ASPECT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
@@ -1239,34 +1626,38 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
+    /* TODO: 6.x fix this in proper way (probably spell flags/attributes?)
     if (GetTalentSpellCost(Id) > 0 &&
         (Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[1].Effect == SPELL_EFFECT_LEARN_SPELL || Effects[2].Effect == SPELL_EFFECT_LEARN_SPELL))
-        return SPELL_CAST_OK;
+        return SPELL_CAST_OK;*/
 
-    uint32 stanceMask = (form ? 1 << (form - 1) : 0);
+    //if (HasAttribute(SPELL_ATTR13_ACTIVATES_REQUIRED_SHAPESHIFT))
+    //    return SPELL_CAST_OK;
 
-    if (stanceMask & StancesNot)                 // can explicitly not be casted in this stance
+    uint64 stanceMask = (form ? UI64LIT(1) << (form - 1) : 0);
+
+    if (stanceMask & StancesNot)                 // can explicitly not be cast in this stance
         return SPELL_FAILED_NOT_SHAPESHIFT;
 
-    if (stanceMask & Stances)                    // can explicitly be casted in this stance
+    if (stanceMask & Stances)                    // can explicitly be cast in this stance
         return SPELL_CAST_OK;
 
     bool actAsShifted = false;
-    SpellShapeshiftEntry const* shapeInfo = NULL;
+    SpellShapeshiftFormEntry const* shapeInfo = NULL;
     if (form > 0)
     {
-        shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
             return SPELL_CAST_OK;
         }
-        actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
+        actAsShifted = !(shapeInfo->Flags & SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT);
     }
 
     if (actAsShifted)
     {
-        if (Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) // not while shapeshifted
+        if (HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT) || (shapeInfo && shapeInfo->Flags & SHAPESHIFT_FORM_PREVENT_USING_OWN_SKILLS)) // not while shapeshifted
             return SPELL_FAILED_NOT_SHAPESHIFT;
         else if (Stances != 0)                   // needs other shapeshift
             return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -1274,16 +1665,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
     else
     {
         // needs shapeshift
-        if (!(AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && Stances != 0)
-            return SPELL_FAILED_ONLY_SHAPESHIFT;
-    }
-
-    // Check if stance disables cast of not-stance spells
-    // Example: cannot cast any other spells in zombie or ghoul form
-    // TODO: Find a way to disable use of these spells clientside
-    if (shapeInfo && shapeInfo->flags1 & 0x400)
-    {
-        if (!(stanceMask & Stances))
+        if (!HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && Stances != 0)
             return SPELL_FAILED_ONLY_SHAPESHIFT;
     }
 
@@ -1293,19 +1675,17 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player) const
 {
     // normal case
-    if (AreaGroupId > 0)
+    if (RequiredAreasID > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
-        while (groupEntry)
+        std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(RequiredAreasID);
+        for (uint32 areaId : areaGroupMembers)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
-                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
-                    found = true;
-            if (found || !groupEntry->nextGroup)
+            if (areaId == zone_id || areaId == area_id)
+            {
+                found = true;
                 break;
-            // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
+            }
         }
 
         if (!found)
@@ -1313,16 +1693,16 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     }
 
     // continent limitation (virtual continent)
-    if (AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
+    if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+        uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-        if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
+        if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
     }
 
     // raid instance limitation
-    if (AttributesEx6 & SPELL_ATTR6_NOT_IN_RAID_INSTANCE)
+    if (HasAttribute(SPELL_ATTR6_NOT_IN_RAID_INSTANCE))
     {
         MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
         if (!mapEntry || mapEntry->IsRaid())
@@ -1407,17 +1787,35 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     }
 
     // aura limitations
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    if (player)
     {
-        if (!Effects[i].IsAura())
-            continue;
-        switch (Effects[i].ApplyAuraName)
+        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(player->GetMap()->GetDifficultyID()))
         {
-            case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
-            case SPELL_AURA_FLY:
+            if (!effect || !effect->IsAura())
+                continue;
+
+            switch (effect->ApplyAuraName)
             {
-                if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
-                    return SPELL_FAILED_INCORRECT_AREA;
+                case SPELL_AURA_FLY:
+                {
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(Id);
+                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    {
+                        if (skillIter->second->SkillLine == SKILL_MOUNTS)
+                            if (!player->CanFlyInZone(map_id, zone_id))
+                                return SPELL_FAILED_INCORRECT_AREA;
+                    }
+                    break;
+                }
+                case SPELL_AURA_MOUNTED:
+                {
+                    uint32 mountType = effect->MiscValueB;
+                    if (MountEntry const* mountEntry = sDB2Manager.GetMount(Id))
+                        mountType = mountEntry->MountTypeId;
+                    if (mountType && !player->GetMountCapability(mountType))
+                        return SPELL_FAILED_NOT_HERE;
+                    break;
+                }
             }
         }
     }
@@ -1427,11 +1825,11 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
 SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* target, bool implicit) const
 {
-    if (AttributesEx & SPELL_ATTR1_CANT_TARGET_SELF && caster == target)
+    if (HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && caster == target)
         return SPELL_FAILED_BAD_TARGETS;
 
     // check visibility - ignore stealth for implicit (area) targets
-    if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit))
+    if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->CanSeeOrDetect(target, implicit))
         return SPELL_FAILED_BAD_TARGETS;
 
     Unit const* unitTarget = target->ToUnit();
@@ -1439,13 +1837,21 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // creature/player specific target checks
     if (unitTarget)
     {
-        if (AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT && unitTarget->isInCombat())
-            return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT))
+        {
+            if (unitTarget->IsInCombat())
+                return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+            // player with active pet counts as a player in combat
+            else if (Player const* player = unitTarget->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    if (pet->GetVictim() && !pet->HasUnitState(UNIT_STATE_CONTROLLED))
+                        return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+        }
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
-        if (((AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) != 0) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
+        if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
         {
-            if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS)
+            if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
                 return SPELL_FAILED_TARGET_NOT_GHOST;
             else
                 return SPELL_FAILED_BAD_TARGETS;
@@ -1456,12 +1862,12 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {
                 // Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
-                if (AttributesEx2 & SPELL_ATTR2_CANT_TARGET_TAPPED)
+                if (HasAttribute(SPELL_ATTR2_CANT_TARGET_TAPPED))
                     if (Creature const* targetCreature = unitTarget->ToCreature())
                         if (targetCreature->hasLootRecipient() && !targetCreature->isTappedBy(caster->ToPlayer()))
                             return SPELL_FAILED_CANT_CAST_ON_TAPPED;
 
-                if (AttributesCu & SPELL_ATTR0_CU_PICKPOCKET)
+                if (HasAttribute(SPELL_ATTR0_CU_PICKPOCKET))
                 {
                      if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                          return SPELL_FAILED_BAD_TARGETS;
@@ -1478,7 +1884,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                         if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
-                    else if (!unitTarget->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
+                    else if (!unitTarget->GetVirtualItemId(0))
                         return SPELL_FAILED_TARGET_NO_WEAPONS;
                 }
             }
@@ -1501,21 +1907,21 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     else return SPELL_CAST_OK;
 
     // corpseOwner and unit specific target checks
-    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS && !unitTarget->ToPlayer())
+    if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && unitTarget->GetTypeId() != TYPEID_PLAYER)
        return SPELL_FAILED_TARGET_NOT_PLAYER;
 
-    if (!IsAllowingDeadTarget() && !unitTarget->isAlive())
+    if (!IsAllowingDeadTarget() && !unitTarget->IsAlive())
        return SPELL_FAILED_TARGETS_DEAD;
 
     // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
-    if (implicit && AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !unitTarget->CanFreeMove())
+    if (implicit && HasAttribute(SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !unitTarget->CanFreeMove())
        return SPELL_FAILED_BAD_TARGETS;
 
     // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
-    //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
     //    return SPELL_FAILED_BAD_TARGETS;
 
-    //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS)
+    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS))
 
     if (!CheckTargetCreatureType(unitTarget))
     {
@@ -1531,29 +1937,46 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         if (!unitTarget->ToPlayer()->IsVisible())
             return SPELL_FAILED_BM_OR_INVISGOD;
 
-        if (unitTarget->ToPlayer()->isGameMaster())
+        if (unitTarget->ToPlayer()->IsGameMaster())
             return SPELL_FAILED_BM_OR_INVISGOD;
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !HasAttribute(SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
-    if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, caster))
+    /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
+    not allow passengers to be implicitly hit by spells, however this target type should be an exception,
+    if this is left it kills spells that award kill credit from vehicle to master (few spells),
+    the use of these 2 covers passenger target check, logically, if vehicle cast this to master it should always hit
+    him, because it would be it's passenger, there's no such case where this gets to fail legitimacy, this problem
+    cannot be solved from within the check in other way since target type cannot be called for the spell currently
+    Spell examples: [ID - 52864 Devour Water, ID - 52862 Devour Wind, ID - 49370 Wyrmrest Defender: Destabilize Azure Dragonshrine Effect] */
+    if (!caster->IsVehicle() && !(caster->GetCharmerOrOwner() == target))
+    {
+        if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, caster))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        if (ExcludeTargetAuraState && unitTarget->HasAuraState(AuraStateType(ExcludeTargetAuraState), this, caster))
+            return SPELL_FAILED_TARGET_AURASTATE;
+    }
+
+    if (TargetAuraSpell && !unitTarget->HasAura(TargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
-    if (TargetAuraStateNot && unitTarget->HasAuraState(AuraStateType(TargetAuraStateNot), this, caster))
-        return SPELL_FAILED_TARGET_AURASTATE;
-
-    if (TargetAuraSpell && !unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(TargetAuraSpell, caster)))
-        return SPELL_FAILED_TARGET_AURASTATE;
-
-    if (ExcludeTargetAuraSpell && unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(ExcludeTargetAuraSpell, caster)))
+    if (ExcludeTargetAuraSpell && unitTarget->HasAura(ExcludeTargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
+        if (HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_SELF_RESURRECT) || HasEffect(caster->GetMap()->GetDifficultyID(), SPELL_EFFECT_RESURRECT))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
+    if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
+        if (Map* map = caster->GetMap())
+            if (InstanceMap* iMap = map->ToInstanceMap())
+                if (InstanceScript* instance = iMap->GetInstanceScript())
+                    if (instance->GetCombatResurrectionCharges() == 0 && instance->IsEncounterInProgress())
+                        return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
     return SPELL_CAST_OK;
 }
@@ -1593,10 +2016,60 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     return SPELL_CAST_OK;
 }
 
+SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
+{
+    // All creatures should be able to cast as passengers freely, restriction and attribute are only for players
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return SPELL_CAST_OK;
+
+    Vehicle* vehicle = caster->GetVehicle();
+    if (vehicle)
+    {
+        uint16 checkMask = 0;
+        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
+        {
+            if (effect && effect->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+            {
+                SpellShapeshiftFormEntry const* shapeShiftFromEntry = sSpellShapeshiftFormStore.LookupEntry(effect->MiscValue);
+                if (shapeShiftFromEntry && (shapeShiftFromEntry->Flags & 1) == 0)  // unk flag
+                    checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
+                break;
+            }
+        }
+
+        if (HasAura(caster->GetMap()->GetDifficultyID(), SPELL_AURA_MOUNTED))
+            checkMask |= VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL;
+
+        if (!checkMask)
+            checkMask = VEHICLE_SEAT_FLAG_CAN_ATTACK;
+
+        VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
+        if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
+            && (vehicleSeat->Flags[0] & checkMask) != checkMask)
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        // Can only summon uncontrolled minions/guardians when on controlled vehicle
+        if (vehicleSeat->Flags[0] & (VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_UNK2))
+        {
+            for (SpellEffectInfo const* effect : GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID()))
+            {
+                if (!effect || effect->Effect != SPELL_EFFECT_SUMMON)
+                    continue;
+
+                SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(effect->MiscValueB);
+                if (props && props->Category != SUMMON_CATEGORY_WILD)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
+        }
+    }
+
+    return SPELL_CAST_OK;
+}
+
 bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
 {
     // Curse of Doom & Exorcism: not find another way to fix spell target check :/
-    if (SpellFamilyName == SPELLFAMILY_WARLOCK && Category == 1179)
+    if (SpellFamilyName == SPELLFAMILY_WARLOCK && GetCategory() == 1179)
     {
         // not allow cast at player
         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -1604,6 +2077,11 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
         else
             return true;
     }
+
+    // if target is magnet (i.e Grounding Totem) the check is skipped
+    if (target->IsMagnet())
+        return true;
+
     uint32 creatureType = target->GetCreatureTypeMask();
     return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
 }
@@ -1618,19 +2096,30 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
     uint32 mask = 0;
     if (Mechanic)
         mask |= 1 << Mechanic;
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].Mechanic)
-            mask |= 1 << Effects[i].Mechanic;
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && effect->IsEffect() && effect->Mechanic)
+                mask |= 1 << effect->Mechanic;
+        }
+    }
     return mask;
 }
 
-uint32 SpellInfo::GetEffectMechanicMask(uint8 effIndex) const
+uint32 SpellInfo::GetEffectMechanicMask(uint32 effIndex) const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
-    if (Effects[effIndex].IsEffect() && Effects[effIndex].Mechanic)
-        mask |= 1<< Effects[effIndex].Mechanic;
+        mask |= 1 << Mechanic;
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && effect->EffectIndex == effIndex && effect->IsEffect() && effect->Mechanic)
+                mask |= 1 << effect->Mechanic;
+        }
+    }
     return mask;
 }
 
@@ -1638,29 +2127,35 @@ uint32 SpellInfo::GetSpellMechanicMaskByEffectMask(uint32 effectMask) const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if ((effectMask & (1 << i)) && Effects[i].Mechanic)
-            mask |= 1<< Effects[i].Mechanic;
+        mask |= 1 << Mechanic;
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && (effectMask & (1 << effect->EffectIndex)) && effect->Mechanic)
+                mask |= 1 << effect->Mechanic;
+        }
+    }
     return mask;
 }
 
-Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
+Mechanics SpellInfo::GetEffectMechanic(uint32 effIndex, uint32 difficulty) const
 {
-    if (Effects[effIndex].IsEffect() && Effects[effIndex].Mechanic)
-        return Mechanics(Effects[effIndex].Mechanic);
+    SpellEffectInfo const* effect = GetEffect(difficulty, effIndex);
+    if (effect && effect->IsEffect() && effect->Mechanic)
+        return Mechanics(effect->Mechanic);
     if (Mechanic)
         return Mechanics(Mechanic);
     return MECHANIC_NONE;
 }
 
-bool SpellInfo::HasAnyEffectMechanic() const
+/*bool SpellInfo::HasAnyEffectMechanic() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].Mechanic)
             return true;
     return false;
-}
+}*/
 
 uint32 SpellInfo::GetDispelMask() const
 {
@@ -1681,7 +2176,7 @@ uint32 SpellInfo::GetExplicitTargetMask() const
     return ExplicitTargetMask;
 }
 
-AuraStateType SpellInfo::GetAuraState() const
+AuraStateType SpellInfo::GetAuraState(uint32 difficulty) const
 {
     // Seals
     if (GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
@@ -1700,7 +2195,7 @@ AuraStateType SpellInfo::GetAuraState() const
         return AURA_STATE_FAERIE_FIRE;
 
     // Sting (hunter's pet ability)
-    if (Category == 1133)
+    if (GetCategory() == 1133)
         return AURA_STATE_FAERIE_FIRE;
 
     // Victorious
@@ -1724,10 +2219,10 @@ AuraStateType SpellInfo::GetAuraState() const
         return AURA_STATE_BLEEDING;
 
     if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (Effects[i].IsAura() && (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STUN
-                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT))
-                return AURA_STATE_FROZEN;
+        for (SpellEffectInfo const* effect : GetEffectsForDifficulty(difficulty))
+            if (effect && effect->IsAura() && (effect->ApplyAuraName == SPELL_AURA_MOD_STUN
+                || effect->ApplyAuraName == SPELL_AURA_MOD_ROOT))
+                    return AURA_STATE_FROZEN;
 
     switch (Id)
     {
@@ -1752,24 +2247,27 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             {
                 bool food = false;
                 bool drink = false;
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
                 {
-                    if (!Effects[i].IsAura())
-                        continue;
-                    switch (Effects[i].ApplyAuraName)
+                    for (SpellEffectInfo const* effect : itr->second)
                     {
-                        // Food
+                        if (!effect || !effect->IsAura())
+                            continue;
+                        switch (effect->ApplyAuraName)
+                        {
+                            // Food
                         case SPELL_AURA_MOD_REGEN:
                         case SPELL_AURA_OBS_MOD_HEALTH:
                             food = true;
                             break;
-                        // Drink
+                            // Drink
                         case SPELL_AURA_MOD_POWER_REGEN:
                         case SPELL_AURA_OBS_MOD_POWER:
                             drink = true;
                             break;
                         default:
                             break;
+                        }
                     }
                 }
 
@@ -1809,8 +2307,8 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             // Arcane brillance and Arcane intelect (normal check fails because of flags difference)
             if (SpellFamilyFlags[0] & 0x400)
                 return SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE;
-
-            if ((SpellFamilyFlags[0] & 0x1000000) && Effects[0].ApplyAuraName == SPELL_AURA_MOD_CONFUSE)
+            SpellEffectInfo const* effect = GetEffect(DIFFICULTY_NONE, EFFECT_0);
+            if (effect && (SpellFamilyFlags[0] & 0x1000000) && effect->ApplyAuraName == SPELL_AURA_MOD_CONFUSE)
                 return SPELL_SPECIFIC_MAGE_POLYMORPH;
 
             break;
@@ -1824,6 +2322,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         }
         case SPELLFAMILY_WARLOCK:
         {
+            // Warlock (Bane of Doom | Bane of Agony | Bane of Havoc)
+            if (Id == 603 || Id ==  980 || Id == 80240)
+                return SPELL_SPECIFIC_BANE;
+
             // only warlock curses have this
             if (Dispel == DISPEL_CURSE)
                 return SPELL_SPECIFIC_CURSE;
@@ -1852,7 +2354,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 return SPELL_SPECIFIC_STING;
 
             // only hunter aspects have this (but not all aspects in hunter family)
-            if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010))
+            if (SpellFamilyFlags & flag128(0x00200000, 0x00000000, 0x00001010, 0x00000000))
                 return SPELL_SPECIFIC_ASPECT;
 
             break;
@@ -1860,15 +2362,14 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         case SPELLFAMILY_PALADIN:
         {
             // Collection of all the seal family flags. No other paladin spell has any of those.
-            if (SpellFamilyFlags[1] & 0x26000C00
-                || SpellFamilyFlags[0] & 0x0A000000)
+            if (SpellFamilyFlags[1] & 0xA2000800)
                 return SPELL_SPECIFIC_SEAL;
 
             if (SpellFamilyFlags[0] & 0x00002190)
                 return SPELL_SPECIFIC_HAND;
 
-            // Judgement of Wisdom, Judgement of Light, Judgement of Justice
-            if (Id == 20184 || Id == 20185 || Id == 20186)
+            // Judgement
+            if (Id == 20271)
                 return SPELL_SPECIFIC_JUDGEMENT;
 
             // only paladin auras have this (for palaldin class family)
@@ -1893,25 +2394,30 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             break;
     }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+        for (SpellEffectInfo const* effect : itr->second)
         {
-            switch (Effects[i].ApplyAuraName)
+            if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
             {
+                switch (effect->ApplyAuraName)
+                {
                 case SPELL_AURA_MOD_CHARM:
                 case SPELL_AURA_MOD_POSSESS_PET:
                 case SPELL_AURA_MOD_POSSESS:
                 case SPELL_AURA_AOE_CHARM:
                     return SPELL_SPECIFIC_CHARM;
                 case SPELL_AURA_TRACK_CREATURES:
+                    /// @workaround For non-stacking tracking spells (We need generic solution)
+                    if (Id == 30645) // Gas Cloud Tracking
+                        return SPELL_SPECIFIC_NORMAL;
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
+                }
             }
         }
     }
-
     return SPELL_SPECIFIC_NORMAL;
 }
 
@@ -1920,8 +2426,8 @@ float SpellInfo::GetMinRange(bool positive) const
     if (!RangeEntry)
         return 0.0f;
     if (positive)
-        return RangeEntry->minRangeFriend;
-    return RangeEntry->minRangeHostile;
+        return RangeEntry->MinRangeFriend;
+    return RangeEntry->MinRangeHostile;
 }
 
 float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
@@ -1930,47 +2436,79 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
         return 0.0f;
     float range;
     if (positive)
-        range = RangeEntry->maxRangeFriend;
+        range = RangeEntry->MaxRangeFriend;
     else
-        range = RangeEntry->maxRangeHostile;
+        range = RangeEntry->MaxRangeHostile;
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(Id, SPELLMOD_RANGE, range, spell);
     return range;
 }
 
+int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
+{
+    int32 duration = GetDuration();
+
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration);
+
+    return duration;
+}
+
 int32 SpellInfo::GetDuration() const
 {
     if (!DurationEntry)
         return 0;
-    return (DurationEntry->Duration[0] == -1) ? -1 : abs(DurationEntry->Duration[0]);
+    return (DurationEntry->Duration == -1) ? -1 : abs(DurationEntry->Duration);
 }
 
 int32 SpellInfo::GetMaxDuration() const
 {
     if (!DurationEntry)
         return 0;
-    return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
+    return (DurationEntry->MaxDuration == -1) ? -1 : abs(DurationEntry->MaxDuration);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= NULL*/) const
 {
-    // not all spells have cast time index and this is all is pasiive abilities
-    if (!CastTimeEntry)
+    int32 castTime = 0;
+    if (CastTimeEntry)
+    {
+        int32 calcLevel = spell ? spell->GetCaster()->getLevel() : 0;
+        if (MaxLevel && uint32(calcLevel) > MaxLevel)
+            calcLevel = MaxLevel;
+
+        if (HasAttribute(SPELL_ATTR13_UNK17))
+            calcLevel *= 5;
+
+        if (MaxLevel && uint32(calcLevel) > MaxLevel)
+            calcLevel = MaxLevel;
+
+        if (BaseLevel)
+            calcLevel -= BaseLevel;
+
+        if (calcLevel < 0)
+            calcLevel = 0;
+
+        castTime = CastTimeEntry->CastTime + CastTimeEntry->CastTimePerLevel * level;
+        if (castTime < CastTimeEntry->MinCastTime)
+            castTime = CastTimeEntry->MinCastTime;
+    }
+
+    if (castTime <= 0)
         return 0;
 
-    int32 castTime = CastTimeEntry->CastTime;
+    if (spell)
+        spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
-
-    if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()))
+    if (HasAttribute(SPELL_ATTR0_REQ_AMMO) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
 }
 
-uint32 SpellInfo::GetMaxTicks() const
+uint32 SpellInfo::GetMaxTicks(uint32 difficulty) const
 {
     int32 DotDuration = GetDuration();
     if (DotDuration == 0)
@@ -1980,16 +2518,16 @@ uint32 SpellInfo::GetMaxTicks() const
     if (DotDuration > 30000)
         DotDuration = 30000;
 
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
+    for (SpellEffectInfo const* effect : GetEffectsForDifficulty(difficulty))
     {
-        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
-            switch (Effects[x].ApplyAuraName)
+        if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
+            switch (effect->ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_LEECH:
-                    if (Effects[x].Amplitude != 0)
-                        return DotDuration / Effects[x].Amplitude;
+                    if (effect->ApplyAuraPeriod != 0)
+                        return DotDuration / effect->ApplyAuraPeriod;
                     break;
             }
     }
@@ -2002,68 +2540,307 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
+std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
 {
-    // Spell drain all exist power on cast (Only paladin lay of Hands)
-    if (AttributesEx & SPELL_ATTR1_DRAIN_ALL_POWER)
+    std::vector<CostData> costs;
+    auto collector = [this, caster, schoolMask, &costs](std::vector<SpellPowerEntry const*> const& powers)
     {
-        // If power type - health drain all
-        if (PowerType == POWER_HEALTH)
-            return caster->GetHealth();
-        // Else drain all power
-        if (PowerType < MAX_POWERS)
-            return caster->GetPower(Powers(PowerType));
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
-        return 0;
+        costs.reserve(powers.size());
+        int32 healthCost = 0;
+
+
+        for (SpellPowerEntry const* power : powers)
+        {
+            if (power->RequiredAura && !caster->HasAura(power->RequiredAura))
+                continue;
+
+            // Spell drain all exist power on cast (Only paladin lay of Hands)
+            if (HasAttribute(SPELL_ATTR1_DRAIN_ALL_POWER))
+            {
+                // If power type - health drain all
+                if (power->PowerType == POWER_HEALTH)
+                {
+                    healthCost = caster->GetHealth();
+                    continue;
+                }
+                // Else drain all power
+                if (power->PowerType < MAX_POWERS)
+                {
+                    CostData cost;
+                    cost.Power = Powers(power->PowerType);
+                    cost.Amount = caster->GetPower(cost.Power);
+                    costs.push_back(cost);
+                    continue;
+                }
+
+                TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", power->PowerType, Id);
+                continue;
+            }
+
+            // Base powerCost
+            int32 powerCost = power->ManaCost;
+            // PCT cost from total amount
+            if (power->ManaCostPercentage)
+            {
+                switch (power->PowerType)
+                {
+                    // health as power used
+                    case POWER_HEALTH:
+                        powerCost += int32(CalculatePct(caster->GetMaxHealth(), power->ManaCostPercentage));
+                        break;
+                    case POWER_MANA:
+                        powerCost += int32(CalculatePct(caster->GetCreateMana(), power->ManaCostPercentage));
+                        break;
+                    case POWER_RAGE:
+                    case POWER_FOCUS:
+                    case POWER_ENERGY:
+                        powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(power->PowerType)), power->ManaCostPercentage));
+                        break;
+                    case POWER_RUNES:
+                    case POWER_RUNIC_POWER:
+                        TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
+                        break;
+                    default:
+                        TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", power->PowerType, Id);
+                        continue;
+                }
+            }
+
+            if (power->HealthCostPercentage)
+                healthCost += int32(CalculatePct(caster->GetMaxHealth(), power->HealthCostPercentage));
+
+            if (power->PowerType != POWER_HEALTH)
+            {
+                // Flat mod from caster auras by spell school and power type
+                Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                {
+                    if (!((*i)->GetMiscValue() & schoolMask))
+                        continue;
+
+                    if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
+                        continue;
+
+                    powerCost += (*i)->GetAmount();
+                }
+            }
+
+            // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
+            if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
+            {
+                uint32 speed = 0;
+                if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(caster->GetShapeshiftForm()))
+                    speed = ss->CombatRoundTime;
+                else
+                {
+                    WeaponAttackType slot = BASE_ATTACK;
+                    if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+                        slot = OFF_ATTACK;
+
+                    speed = caster->GetBaseAttackTime(slot);
+                }
+
+                powerCost += speed / 100;
+            }
+
+            // Apply cost mod by spell
+            if (Player* modOwner = caster->GetSpellModOwner())
+            {
+                if (power->PowerIndex == 0)
+                    modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
+                else if (power->PowerIndex == 1)
+                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost);
+            }
+
+            if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->ManaCostPercentage, 0.0f) && SpellLevel)
+            {
+                if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+                {
+                    GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(SpellLevel);
+                    GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
+                    if (spellScaler && casterScaler)
+                        powerCost *= casterScaler->Scaler / spellScaler->Scaler;
+                }
+            }
+
+            // PCT mod from user auras by spell school and power type
+            Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
+            for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
+            {
+                if (!((*i)->GetMiscValue() & schoolMask))
+                    continue;
+
+                if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
+                    continue;
+
+                powerCost += CalculatePct(powerCost, (*i)->GetAmount());
+            }
+
+            if (power->PowerType == POWER_HEALTH)
+            {
+                healthCost += powerCost;
+                continue;
+            }
+
+            bool found = false;
+            for (CostData& cost : costs)
+            {
+                if (cost.Power == Powers(power->PowerType))
+                {
+                    cost.Amount += powerCost;
+                    found = true;
+                }
+            }
+
+            if (!found)
+            {
+                CostData cost;
+                cost.Power = Powers(power->PowerType);
+                cost.Amount = powerCost;
+                costs.push_back(cost);
+            }
+        }
+
+        if (healthCost > 0)
+        {
+            CostData cost;
+            cost.Power = POWER_HEALTH;
+            cost.Amount = healthCost;
+            costs.push_back(cost);
+        }
+    };
+
+    if (!_hasPowerDifficultyData) // optimization - use static data for 99.5% cases (4753 of 4772 in build 6.1.0.19702)
+        collector(PowerCosts);
+    else
+        collector(sDB2Manager.GetSpellPowers(Id, caster->GetMap()->GetDifficultyID()));
+
+    // POWER_RUNES is handled by SpellRuneCost.db2, and cost.Amount is always 0 (see Spell::TakeRunePower)
+    costs.erase(std::remove_if(costs.begin(), costs.end(), [](CostData const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
+    return costs;
+}
+
+inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    float haste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+    float rangedHaste = caster->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
+    float spellHaste = caster->GetFloatValue(UNIT_MOD_CAST_HASTE);
+    float regenHaste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+
+    switch (mod->Param)
+    {
+        case 1:
+            return (1.0f / haste - 1.0f) * mod->Coeff;
+        case 2:
+            return (1.0f / rangedHaste - 1.0f) * mod->Coeff;
+        case 3:
+            return (1.0f / spellHaste - 1.0f) * mod->Coeff;
+        case 4:
+            return (1.0f / regenHaste - 1.0f) * mod->Coeff;
+        case 5:
+            return (1.0f / std::min(std::min(std::min(haste, rangedHaste), spellHaste), regenHaste) - 1.0f) * mod->Coeff;
+        default:
+            break;
     }
 
-    // Base powerCost
-    int32 powerCost = ManaCost;
-    // PCT cost from total amount
-    if (ManaCostPercentage)
+    return 0.0f;
+}
+
+inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
+{
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return 0.0f;
+
+    float crit = caster->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+
+    switch (mod->Param)
     {
-        switch (PowerType)
+        case 1:
+            return crit * mod->Coeff * 0.01f;
+        case 2:
+            return rangedCrit * mod->Coeff * 0.01f;
+        case 3:
+            return spellCrit * mod->Coeff * 0.01f;
+        case 4:
+            return std::min(std::min(crit, rangedCrit), spellCrit) * mod->Coeff * 0.01f;
+        default:
+            break;
+    }
+
+    return 0.0f;
+}
+
+inline float CalcPPMItemLevelMod(SpellProcsPerMinuteModEntry const* mod, int32 itemLevel)
+{
+    if (uint32(itemLevel) == mod->Param)
+        return 0.0f;
+
+    float itemLevelPoints = GetRandomPropertyPoints(itemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    float basePoints = GetRandomPropertyPoints(mod->Param, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+    if (itemLevelPoints == basePoints)
+        return 0.0f;
+
+    return ((itemLevelPoints / basePoints) - 1.0f) * mod->Coeff;
+}
+
+float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
+{
+    float ppm = ProcBasePPM;
+    if (!caster)
+        return ppm;
+
+    for (SpellProcsPerMinuteModEntry const* mod : ProcPPMMods)
+    {
+        switch (mod->Type)
         {
-            // health as power used
-            case POWER_HEALTH:
-                powerCost += int32(CalculatePct(caster->GetCreateHealth(), ManaCostPercentage));
+            case SPELL_PPM_MOD_HASTE:
+            {
+                ppm *= 1.0f + CalcPPMHasteMod(mod, caster);
                 break;
-            case POWER_MANA:
-                powerCost += int32(CalculatePct(caster->GetCreateMana(), ManaCostPercentage));
+            }
+            case SPELL_PPM_MOD_CRIT:
+            {
+                ppm *= 1.0f + CalcPPMCritMod(mod, caster);
                 break;
-            case POWER_RAGE:
-            case POWER_FOCUS:
-            case POWER_ENERGY:
-            case POWER_HAPPINESS:
-                powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(PowerType)), ManaCostPercentage));
+            }
+            case SPELL_PPM_MOD_CLASS:
+            {
+                if (caster->getClassMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
                 break;
-            case POWER_RUNE:
-            case POWER_RUNIC_POWER:
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
+            }
+            case SPELL_PPM_MOD_SPEC:
+            {
+                if (Player* plrCaster = caster->ToPlayer())
+                    if (plrCaster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == mod->Param)
+                        ppm *= 1.0f + mod->Coeff;
                 break;
+            }
+            case SPELL_PPM_MOD_RACE:
+            {
+                if (caster->getRaceMask() & mod->Param)
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
+            case SPELL_PPM_MOD_ITEM_LEVEL:
+            {
+                ppm *= 1.0f + CalcPPMItemLevelMod(mod, itemLevel);
+                break;
+            }
+            case SPELL_PPM_MOD_BATTLEGROUND:
+            {
+                if (caster->GetMap()->IsBattlegroundOrArena())
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
             default:
-                sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
-                return 0;
+                break;
         }
     }
-    SpellSchools school = GetFirstSchoolInMask(schoolMask);
-    // Flat mod from caster auras by spell school
-    powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
-    // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
-    if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
-        powerCost += caster->GetAttackTime(OFF_ATTACK) / 100;
-    // Apply cost mod by spell
-    if (Player* modOwner = caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
 
-    if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
-        powerCost = int32(powerCost / (1.117f * SpellLevel / caster->getLevel() -0.1327f));
-
-    // PCT mod from user auras by school
-    powerCost = int32(powerCost * (1.0f + caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + school)));
-    if (powerCost < 0)
-        powerCost = 0;
-    return powerCost;
+    return ppm;
 }
 
 bool SpellInfo::IsRanked() const
@@ -2084,18 +2861,21 @@ SpellInfo const* SpellInfo::GetFirstRankSpell() const
         return this;
     return ChainEntry->first;
 }
+
 SpellInfo const* SpellInfo::GetLastRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->last;
 }
+
 SpellInfo const* SpellInfo::GetNextRankSpell() const
 {
     if (!ChainEntry)
         return NULL;
     return ChainEntry->next;
 }
+
 SpellInfo const* SpellInfo::GetPrevRankSpell() const
 {
     if (!ChainEntry)
@@ -2110,12 +2890,13 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
         return this;
 
     bool needRankSelection = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfo const* effect : GetEffectsForDifficulty(DIFFICULTY_NONE))
     {
-        if (IsPositiveEffect(i) &&
-            (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA ||
-            Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
-            Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID))
+        if (effect && IsPositiveEffect(effect->Effect) &&
+            (effect->Effect == SPELL_EFFECT_APPLY_AURA ||
+            effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
+            effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+            !effect->Scaling.Coefficient)
         {
             needRankSelection = true;
             break;
@@ -2154,46 +2935,101 @@ bool SpellInfo::IsDifferentRankOf(SpellInfo const* spellInfo) const
 bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
 {
     if (ChainEntry && spellInfo->ChainEntry)
-    {
         if (ChainEntry->first == spellInfo->ChainEntry->first)
             if (ChainEntry->rank > spellInfo->ChainEntry->rank)
                 return true;
-    }
+
     return false;
 }
 
-uint32 SpellInfo::_GetExplicitTargetMask() const
+uint32 SpellInfo::GetSpellXSpellVisualId(Unit const* caster /*= nullptr*/) const
+{
+    if (caster)
+    {
+        Difficulty difficulty = caster->GetMap()->GetDifficultyID();
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+        while (difficultyEntry)
+        {
+            auto itr = _visuals.find(difficulty);
+            if (itr != _visuals.end())
+            {
+                for (SpellXSpellVisualEntry const* visual : itr->second)
+                {
+                    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->PlayerConditionID);
+                    if (!playerCondition || (caster->GetTypeId() == TYPEID_PLAYER && sConditionMgr->IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition)))
+                        return visual->ID;
+                }
+            }
+
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        }
+    }
+
+    auto itr = _visuals.find(DIFFICULTY_NONE);
+    if (itr != _visuals.end())
+    {
+        for (SpellXSpellVisualEntry const* visual : itr->second)
+        {
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(visual->PlayerConditionID);
+            if (!playerCondition || (caster && caster->GetTypeId() == TYPEID_PLAYER && sConditionMgr->IsPlayerMeetingCondition(caster->ToPlayer(), playerCondition)))
+                return visual->ID;
+        }
+    }
+
+    return 0;
+}
+
+uint32 SpellInfo::GetSpellVisual(Unit const* caster /*= nullptr*/) const
+{
+    if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(caster)))
+    {
+        //if (visual->SpellVisualID[1] && forPlayer->GetViolenceLevel() operator 2)
+        //    return visual->SpellVisualID[1];
+
+        return visual->SpellVisualID[0];
+    }
+
+    return 0;
+}
+
+void SpellInfo::_InitializeExplicitTargetMask()
 {
     bool srcSet = false;
     bool dstSet = false;
     uint32 targetMask = Targets;
     // prepare target mask using effect target entries
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        if (!Effects[i].IsEffect())
-            continue;
-        targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
-        targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (!effect || !effect->IsEffect())
+                continue;
 
-        // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
-        if (Effects[i].GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
-            continue;
+            targetMask |= effect->TargetA.GetExplicitTargetMask(srcSet, dstSet);
+            targetMask |= effect->TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
-        // extend explicit target mask only if valid targets for effect could not be provided by target types
-        uint32 effectTargetMask = Effects[i].GetMissingTargetMask(srcSet, dstSet, targetMask);
+            // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
+            if (effect->GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
+                continue;
 
-        // don't add explicit object/dest flags when spell has no max range
-        if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
-            effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
-        targetMask |= effectTargetMask;
+            // extend explicit target mask only if valid targets for effect could not be provided by target types
+            uint32 effectTargetMask = effect->GetMissingTargetMask(srcSet, dstSet, targetMask);
+
+            // don't add explicit object/dest flags when spell has no max range
+            if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)
+                effectTargetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_DEST_LOCATION);
+
+            targetMask |= effectTargetMask;
+        }
     }
-    return targetMask;
+
+    ExplicitTargetMask = targetMask;
 }
 
-bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
+bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
 {
     // not found a single positive spell with this attribute
-    if (Attributes & SPELL_ATTR0_NEGATIVE_1)
+    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1))
         return false;
 
     switch (SpellFamilyName)
@@ -2204,22 +3040,20 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case 29214: // Wrath of the Plaguebringer
                 case 34700: // Allergic Reaction
                 case 54836: // Wrath of the Plaguebringer
-                case 61987: // Avenging Wrath Marker
-                case 61988: // Divine Shield exclude aura
                     return false;
                 case 30877: // Tag Murloc
                 case 61716: // Rabbit Costume
                 case 61734: // Noblegarden Bunny
                 case 62344: // Fists of Stone
+                case 61819: // Manabonked! (item)
+                case 61834: // Manabonked! (minigob)
+                case 73523: // Rigor Mortis
                     return true;
                 default:
                     break;
             }
             break;
         case SPELLFAMILY_MAGE:
-            // Amplify Magic, Dampen Magic
-            if (SpellFamilyFlags[0] == 0x00002000)
-                return true;
             // Ignite
             if (SpellIconID == 45)
                 return true;
@@ -2235,23 +3069,11 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                     break;
             }
             break;
-        case SPELLFAMILY_HUNTER:
-            // Aspect of the Viper
-            if (Id == 34074)
-                return true;
-            break;
-        case SPELLFAMILY_SHAMAN:
-            if (Id == 30708)
-                return false;
-            break;
         case SPELLFAMILY_ROGUE:
             switch (Id)
             {
                 // Envenom must be considered as a positive effect even though it deals damage
-                case 32645:     // Envenom (Rank 1)
-                case 32684:     // Envenom (Rank 2)
-                case 57992:     // Envenom (Rank 3)
-                case 57993:     // Envenom (Rank 4)
+                case 32645: // Envenom
                     return true;
                 default:
                     break;
@@ -2270,57 +3092,68 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
     }
 
     // Special case: effects which determine positivity of whole spell
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        if (Effects[i].IsAura() && Effects[i].ApplyAuraName == SPELL_AURA_MOD_STEALTH)
-            return true;
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && effect->IsAura() && effect->ApplyAuraName == SPELL_AURA_MOD_STEALTH)
+                return true;
+        }
     }
 
-    switch (Effects[effIndex].Effect)
+    for (SpellEffectInfoMap::const_iterator itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        case SPELL_EFFECT_DUMMY:
-            // some explicitly required dummy effect sets
-            switch (Id)
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (!effect || effect->EffectIndex != effIndex)
+                continue;
+
+            switch (effect->Effect)
             {
+            case SPELL_EFFECT_DUMMY:
+                // some explicitly required dummy effect sets
+                switch (Id)
+                {
                 case 28441:
                     return false; // AB Effect 000
                 default:
                     break;
-            }
-            break;
-        // always positive effects (check before target checks that provided non-positive result in some case for positive effects)
-        case SPELL_EFFECT_HEAL:
-        case SPELL_EFFECT_LEARN_SPELL:
-        case SPELL_EFFECT_SKILL_STEP:
-        case SPELL_EFFECT_HEAL_PCT:
-        case SPELL_EFFECT_ENERGIZE_PCT:
-            return true;
-        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
-            return false;
+                }
+                break;
+                // always positive effects (check before target checks that provided non-positive result in some case for positive effects)
+            case SPELL_EFFECT_HEAL:
+            case SPELL_EFFECT_LEARN_SPELL:
+            case SPELL_EFFECT_SKILL_STEP:
+            case SPELL_EFFECT_HEAL_PCT:
+            case SPELL_EFFECT_ENERGIZE_PCT:
+                return true;
+            case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                return false;
 
-            // non-positive aura use
-        case SPELL_EFFECT_APPLY_AURA:
-        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
-        {
-            switch (Effects[effIndex].ApplyAuraName)
+                // non-positive aura use
+            case SPELL_EFFECT_APPLY_AURA:
+            case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
             {
+                switch (effect->ApplyAuraName)
+                {
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_SKILL:
+                case SPELL_AURA_MOD_SKILL_2:
                 case SPELL_AURA_MOD_DODGE_PERCENT:
                 case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                    if (Effects[effIndex].CalcValue() < 0)
+                    if (effect->CalcValue() < 0)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from bas point sign (positive -> negative)
-                    if (Effects[effIndex].CalcValue() > 0)
+                    if (effect->CalcValue() > 0)
                         return false;
                     break;
                 case SPELL_AURA_MOD_CRIT_PCT:
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
-                    if (Effects[effIndex].CalcValue() > 0)
+                    if (effect->CalcValue() > 0)
                         return true;                        // some expected positive spells have SPELL_ATTR1_NEGATIVE
                     break;
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
@@ -2329,17 +3162,20 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                     if (!deep)
                     {
-                        if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(Effects[effIndex].TriggerSpell))
+                        if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell))
                         {
                             // negative targets of main spell return early
-                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            for (SpellEffectInfoMap::const_iterator it = spellTriggeredProto->_effects.begin(); it != spellTriggeredProto->_effects.end(); ++it)
                             {
-                                if (!spellTriggeredProto->Effects[i].Effect)
-                                    continue;
-                                // if non-positive trigger cast targeted to positive target this main cast is non-positive
-                                // this will place this spell auras as debuffs
-                                if (_IsPositiveTarget(spellTriggeredProto->Effects[i].TargetA.GetTarget(), spellTriggeredProto->Effects[i].TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(i, true))
-                                    return false;
+                                for (SpellEffectInfo const* eff : itr->second)
+                                {
+                                    if (!eff || !eff->Effect)
+                                        continue;
+                                    // if non-positive trigger cast targeted to positive target this main cast is non-positive
+                                    // this will place this spell auras as debuffs
+                                    if (_IsPositiveTarget(eff->TargetA.GetTarget(), eff->TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(eff->EffectIndex, true))
+                                        return false;
+                                }
                             }
                         }
                     }
@@ -2347,14 +3183,29 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                     // many positive auras have negative triggered spells at damage for example and this not make it negative (it can be canceled for example)
                     break;
                 case SPELL_AURA_MOD_STUN:                   //have positive and negative spells, we can't sort its correctly at this moment.
-                    if (effIndex == 0 && Effects[1].Effect == 0 && Effects[2].Effect == 0)
+                {
+                    bool more = false;
+                    for (SpellEffectInfoMap::const_iterator i = _effects.begin(); i != _effects.end(); ++i)
+                    {
+                        for (SpellEffectInfo const* eff : i->second)
+                        {
+                            if (eff && eff->EffectIndex != 0)
+                            {
+                                more = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (effIndex == 0 && !more)
                         return false;                       // but all single stun aura spells is negative
                     break;
+                }
                 case SPELL_AURA_MOD_PACIFY_SILENCE:
                     if (Id == 24740)             // Wisp Costume
                         return true;
                     return false;
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_MOD_ROOT_2:
                 case SPELL_AURA_MOD_SILENCE:
                 case SPELL_AURA_GHOST:
                 case SPELL_AURA_PERIODIC_LEECH:
@@ -2363,22 +3214,22 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case SPELL_AURA_PREVENT_RESURRECTION:
                     return false;
                 case SPELL_AURA_PERIODIC_DAMAGE:            // used in positive spells also.
-                    // part of negative spell if casted at self (prevent cancel)
-                    if (Effects[effIndex].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+                    // part of negative spell if cast at self (prevent cancel)
+                    if (effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DECREASE_SPEED:         // used in positive spells also
-                    // part of positive spell if casted at self
-                    if (Effects[effIndex].TargetA.GetTarget() != TARGET_UNIT_CASTER)
+                    // part of positive spell if cast at self
+                    if (effect->TargetA.GetTarget() != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
-                    if (Attributes & SPELL_ATTR0_NEGATIVE_1 && effIndex == 0)
+                    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) && effIndex == 0)
                         return false;
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
                 {
                     // non-positive immunities
-                    switch (Effects[effIndex].MiscValue)
+                    switch (effect->MiscValue)
                     {
                         case MECHANIC_BANDAGE:
                         case MECHANIC_SHIELD:
@@ -2394,10 +3245,10 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case SPELL_AURA_ADD_PCT_MODIFIER:
                 {
                     // non-positive mods
-                    switch (Effects[effIndex].MiscValue)
+                    switch (effect->MiscValue)
                     {
                         case SPELLMOD_COST:                 // dependent from bas point sign (negative -> positive)
-                            if (Effects[effIndex].CalcValue() > 0)
+                            if (effect->CalcValue() > 0)
                             {
                                 if (!deep)
                                 {
@@ -2423,25 +3274,26 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 }
                 default:
                     break;
+                }
+                break;
             }
-            break;
-        }
-        default:
-            break;
-    }
+            default:
+                break;
+            }
 
-    // non-positive targets
-    if (!_IsPositiveTarget(Effects[effIndex].TargetA.GetTarget(), Effects[effIndex].TargetB.GetTarget()))
-        return false;
-
-    // negative spell if triggered spell is negative
-    if (!deep && !Effects[effIndex].ApplyAuraName && Effects[effIndex].TriggerSpell)
-    {
-        if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(Effects[effIndex].TriggerSpell))
-            if (!spellTriggeredProto->_IsPositiveSpell())
+            // non-positive targets
+            if (!_IsPositiveTarget(effect->TargetA.GetTarget(), effect->TargetB.GetTarget()))
                 return false;
-    }
 
+            // negative spell if triggered spell is negative
+            if (!deep && !effect->ApplyAuraName && effect->TriggerSpell)
+            {
+                if (SpellInfo const* spellTriggeredProto = sSpellMgr->GetSpellInfo(effect->TriggerSpell))
+                if (!spellTriggeredProto->_IsPositiveSpell())
+                    return false;
+            }
+        }
+    }
     // ok, positive
     return true;
 }
@@ -2481,16 +3333,93 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint32 d = 0; d < MAX_DIFFICULTY; ++d)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
-        if (!cur)
-            continue;
-        for (uint8 j = i; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint32 i = 0; i < _effects.size(); ++i)
         {
-            if (Effects[j].ImplicitTargetConditions == cur)
-                Effects[j].ImplicitTargetConditions = NULL;
+            if (SpellEffectInfo const* effect = GetEffect(d, i))
+            {
+                ConditionContainer* cur = effect->ImplicitTargetConditions;
+                if (!cur)
+                    continue;
+                for (uint8 j = i; j < _effects.size(); ++j)
+                {
+                    if (SpellEffectInfo const* eff = GetEffect(d, j))
+                    {
+                        if (eff->ImplicitTargetConditions == cur)
+                            const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = NULL;
+                    }
+                }
+                delete cur;
+            }
         }
-        delete cur;
     }
+}
+
+SpellEffectInfoVector SpellInfo::GetEffectsForDifficulty(uint32 difficulty) const
+{
+    SpellEffectInfoVector effList;
+
+    // downscale difficulty if original was not found
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
+    {
+        SpellEffectInfoMap::const_iterator effectItr = _effects.find(difficulty);
+        if (effectItr != _effects.end())
+        {
+            for (SpellEffectInfo const* effect : effectItr->second)
+            {
+                if (effect)
+                {
+                    if (effect->EffectIndex >= effList.size())
+                        effList.resize(effect->EffectIndex + 1);
+
+                    if (!effList[effect->EffectIndex])
+                        effList[effect->EffectIndex] = effect;
+                }
+            }
+        }
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    // DIFFICULTY_NONE effects are the default effects, always active if current difficulty's effects don't overwrite
+    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
+    if (itr != _effects.end())
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect)
+            {
+                if (effect->EffectIndex >= effList.size())
+                    effList.resize(effect->EffectIndex + 1);
+
+                if (!effList[effect->EffectIndex])
+                    effList[effect->EffectIndex] = effect;
+            }
+        }
+    }
+
+    return effList;
+}
+
+SpellEffectInfo const* SpellInfo::GetEffect(uint32 difficulty, uint32 index) const
+{
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    while (difficultyEntry)
+    {
+        SpellEffectInfoMap::const_iterator itr = _effects.find(difficulty);
+        if (itr != _effects.end())
+            if (itr->second.size() > index && itr->second[index])
+                return itr->second[index];
+
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+    }
+
+    SpellEffectInfoMap::const_iterator itr = _effects.find(DIFFICULTY_NONE);
+    if (itr != _effects.end())
+        if (itr->second.size() > index)
+            return itr->second[index];
+
+    return nullptr;
 }

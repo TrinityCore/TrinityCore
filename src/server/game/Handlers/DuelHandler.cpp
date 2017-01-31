@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,48 +17,70 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
+#include "DuelPackets.h"
 #include "WorldSession.h"
 #include "Log.h"
-#include "Opcodes.h"
-#include "UpdateData.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 
-void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
+#define SPELL_DUEL  7266
+#define SPELL_MOUNTED_DUEL  62875
+
+void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 {
-    uint64 guid;
-    Player* player;
-    Player* plTarget;
+    Player* player = ObjectAccessor::FindPlayer(packet.TargetGUID);
 
-    recvPacket >> guid;
+    if (!player)
+        return;
 
+    WorldPackets::Duel::CanDuelResult response;
+    response.TargetGUID = packet.TargetGUID;
+    response.Result = !player->duel;
+    SendPacket(response.Write());
+
+    if (response.Result)
+    {
+        if (_player->IsMounted())
+            _player->CastSpell(player, SPELL_MOUNTED_DUEL);
+        else
+            _player->CastSpell(player, SPELL_DUEL);
+    }
+}
+
+void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
+{
+    if (duelResponse.Accepted)
+        HandleDuelAccepted();
+    else
+        HandleDuelCancelled();
+}
+
+void WorldSession::HandleDuelAccepted()
+{
     if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
         return;
 
-    player       = GetPlayer();
-    plTarget = player->duel->opponent;
+    Player* player = GetPlayer();
+    Player* plTarget = player->duel->opponent;
 
     if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
         return;
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 
-    player->SendDuelCountdown(3000);
-    plTarget->SendDuelCountdown(3000);
+    WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
+    WorldPacket const* worldPacket = packet.Write();
+    player->GetSession()->SendPacket(worldPacket);
+    plTarget->GetSession()->SendPacket(worldPacket);
 }
 
-void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleDuelCancelled()
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DUEL_CANCELLED");
-    uint64 guid;
-    recvPacket >> guid;
-
     // no duel requested
     if (!GetPlayer()->duel)
         return;

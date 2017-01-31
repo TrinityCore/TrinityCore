@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,7 +60,7 @@ SplineBase::InitMethtod SplineBase::initializers[SplineBase::ModesEnd] =
 
 using G3D::Matrix4;
 static const Matrix4 s_catmullRomCoeffs(
-    -0.5f, 1.5f,-1.5f, 0.5f,
+    -0.5f, 1.5f, -1.5f, 0.5f,
     1.f, -2.5f, 2.f, -0.5f,
     -0.5f, 0.f,  0.5f, 0.f,
     0.f,  1.f,  0.f,  0.f);
@@ -156,7 +157,7 @@ float SplineBase::SegLengthLinear(index_type index) const
     return (points[index] - points[index+1]).length();
 }
 
-float SplineBase::SegLengthCatmullRom( index_type index ) const
+float SplineBase::SegLengthCatmullRom(index_type index) const
 {
     ASSERT(index >= index_lo && index < index_hi);
 
@@ -165,7 +166,7 @@ float SplineBase::SegLengthCatmullRom( index_type index ) const
     curPos = nextPos = p[1];
 
     index_type i = 1;
-    double length = 0;
+    float length = 0;
     while (i <= STEPS_PER_SEGMENT)
     {
         C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_catmullRomCoeffs, nextPos);
@@ -188,7 +189,7 @@ float SplineBase::SegLengthBezier3(index_type index) const
     curPos = nextPos;
 
     index_type i = 1;
-    double length = 0;
+    float length = 0;
     while (i <= STEPS_PER_SEGMENT)
     {
         C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_Bezier3Coeffs, nextPos);
@@ -204,7 +205,7 @@ void SplineBase::init_spline(const Vector3 * controls, index_type count, Evaluat
     m_mode = m;
     cyclic = false;
 
-    (this->*initializers[m_mode])(controls, count, cyclic, 0);
+    (this->*initializers[m_mode])(controls, count, 0);
 }
 
 void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point)
@@ -212,17 +213,17 @@ void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, 
     m_mode = m;
     cyclic = true;
 
-    (this->*initializers[m_mode])(controls, count, cyclic, cyclic_point);
+    (this->*initializers[m_mode])(controls, count, cyclic_point);
 }
 
-void SplineBase::InitLinear(const Vector3* controls, index_type count, bool cyclic, index_type cyclic_point)
+void SplineBase::InitLinear(const Vector3* controls, index_type count, index_type cyclic_point)
 {
     ASSERT(count >= 2);
     const int real_size = count + 1;
 
     points.resize(real_size);
 
-    memcpy(&points[0],controls, sizeof(Vector3) * count);
+    memcpy(&points[0], controls, sizeof(Vector3) * count);
 
     // first and last two indexes are space for special 'virtual points'
     // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
@@ -235,7 +236,7 @@ void SplineBase::InitLinear(const Vector3* controls, index_type count, bool cycl
     index_hi = cyclic ? count : (count - 1);
 }
 
-void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, bool cyclic, index_type cyclic_point)
+void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, index_type cyclic_point)
 {
     const int real_size = count + (cyclic ? (1+2) : (1+1));
 
@@ -244,7 +245,7 @@ void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, bool 
     int lo_index = 1;
     int high_index = lo_index + count - 1;
 
-    memcpy(&points[lo_index],controls, sizeof(Vector3) * count);
+    memcpy(&points[lo_index], controls, sizeof(Vector3) * count);
 
     // first and last two indexes are space for special 'virtual points'
     // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
@@ -268,13 +269,13 @@ void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, bool 
     index_hi = high_index + (cyclic ? 1 : 0);
 }
 
-void SplineBase::InitBezier3(const Vector3* controls, index_type count, bool /*cyclic*/, index_type /*cyclic_point*/)
+void SplineBase::InitBezier3(const Vector3* controls, index_type count, index_type /*cyclic_point*/)
 {
     index_type c = count / 3u * 3u;
     index_type t = c / 3u;
 
     points.resize(c);
-    memcpy(&points[0],controls, sizeof(Vector3) * c);
+    memcpy(&points[0], controls, sizeof(Vector3) * c);
 
     index_lo = 0;
     index_hi = t-1;

@@ -19,6 +19,6 @@ CREATE TABLE `guild_bank_eventlog` (
   KEY `guildid_key` (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- The reason i decided for such dramatic change is that old guild_bank_eventlog table used `TabId` = 0 for Money events and 
+-- The reason i decided for such dramatic change is that old guild_bank_eventlog table used `TabId` = 0 for Money events and
 -- used `LogGuid` from 0 to infinity
 -- New system uses `LogGuid` from 0 to number defined in config.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,33 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cryptography/WardenKeyGeneration.h"
+#include "Cryptography/SessionKeyGeneration.h"
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <openssl/md5.h>
 #include "World.h"
 #include "Player.h"
 #include "Util.h"
 #include "WardenMac.h"
 #include "WardenModuleMac.h"
+#include "SHA1.h"
 
-WardenMac::WardenMac() : Warden()
-{
-}
+#include <openssl/md5.h>
 
-WardenMac::~WardenMac()
-{
-}
+WardenMac::WardenMac() : Warden() { }
 
-void WardenMac::Init(WorldSession *pClient, BigNumber *K)
+WardenMac::~WardenMac() { }
+
+void WardenMac::Init(WorldSession* pClient, BigNumber* K)
 {
     _session = pClient;
     // Generate Warden Key
-    SHA1Randx WK(K->AsByteArray(), K->GetNumBytes());
+    SessionKeyGenerator<SHA1Hash> WK(K->AsByteArray().get(), K->GetNumBytes());
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
     /*
@@ -58,16 +56,16 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
 
     _inputCrypto.Init(_inputKey);
     _outputCrypto.Init(_outputKey);
-    sLog->outDebug(LOG_FILTER_WARDEN, "Server side warden for client %u initializing...", pClient->GetAccountId());
-    sLog->outDebug(LOG_FILTER_WARDEN, "C->S Key: %s", ByteArrayToHexStr(_inputKey, 16).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "S->C Key: %s", ByteArrayToHexStr(_outputKey, 16).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", ByteArrayToHexStr(_seed, 16).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "Loading Module...");
+    TC_LOG_DEBUG("warden", "Server side warden for client %u initializing...", pClient->GetAccountId());
+    TC_LOG_DEBUG("warden", "C->S Key: %s", ByteArrayToHexStr(_inputKey, 16).c_str());
+    TC_LOG_DEBUG("warden", "S->C Key: %s", ByteArrayToHexStr(_outputKey, 16).c_str());
+    TC_LOG_DEBUG("warden", "  Seed: %s", ByteArrayToHexStr(_seed, 16).c_str());
+    TC_LOG_DEBUG("warden", "Loading Module...");
 
     _module = GetModuleForClient();
 
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", ByteArrayToHexStr(_module->Key, 16).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", ByteArrayToHexStr(_module->Id, 16).c_str());
+    TC_LOG_DEBUG("warden", "Module Key: %s", ByteArrayToHexStr(_module->Key, 16).c_str());
+    TC_LOG_DEBUG("warden", "Module ID: %s", ByteArrayToHexStr(_module->Id, 16).c_str());
     RequestModule();
 }
 
@@ -94,12 +92,12 @@ ClientWardenModule* WardenMac::GetModuleForClient()
 
 void WardenMac::InitializeModule()
 {
-    sLog->outDebug(LOG_FILTER_WARDEN, "Initialize module");
+    TC_LOG_DEBUG("warden", "Initialize module");
 }
 
 void WardenMac::RequestHash()
 {
-    sLog->outDebug(LOG_FILTER_WARDEN, "Request hash");
+    TC_LOG_DEBUG("warden", "Request hash");
 
     // Create packet structure
     WardenHashRequest Request;
@@ -114,17 +112,32 @@ void WardenMac::RequestHash()
     _session->SendPacket(&pkt);
 }
 
+struct keyData {
+    union
+    {
+        struct
+        {
+            uint8 bytes[16];
+        } bytes;
+
+        struct
+        {
+            int ints[4];
+        } ints;
+    };
+};
+
 void WardenMac::HandleHashResult(ByteBuffer &buff)
 {
 
     // test
     int keyIn[4];
 
-    uint8 mod_seed[16] = { 0x4D, 0x80, 0x8D, 0x2C, 0x77, 0xD9, 0x05, 0xC4, 0x1A, 0x63, 0x80, 0xEC, 0x08, 0x58, 0x6A, 0xFE };
+    keyData mod_seed = { { { { 0x4D, 0x80, 0x8D, 0x2C, 0x77, 0xD9, 0x05, 0xC4, 0x1A, 0x63, 0x80, 0xEC, 0x08, 0x58, 0x6A, 0xFE } } } };
 
     for (int i = 0; i < 4; ++i)
     {
-        keyIn[i] = *(int*)(&mod_seed[0] + i * 4);
+        keyIn[i] = mod_seed.ints.ints[i];
     }
 
     int keyOut[4];
@@ -152,11 +165,11 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
     // Verify key
     if (memcmp(buff.contents() + 1, sha1.GetDigest(), 20) != 0)
     {
-        sLog->outWarn(LOG_FILTER_WARDEN, "%s failed hash reply. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
+        TC_LOG_WARN("warden", "%s failed hash reply. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: succeed");
+    TC_LOG_DEBUG("warden", "Request hash reply: succeed");
 
     // client 7F96EEFDA5B63D20A4DF8E00CBF48304
     //const uint8 client_key[16] = { 0x7F, 0x96, 0xEE, 0xFD, 0xA5, 0xB6, 0x3D, 0x20, 0xA4, 0xDF, 0x8E, 0x00, 0xCB, 0xF4, 0x83, 0x04 };
@@ -178,7 +191,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
 
 void WardenMac::RequestData()
 {
-    sLog->outDebug(LOG_FILTER_WARDEN, "Request data");
+    TC_LOG_DEBUG("warden", "Request data");
 
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
@@ -191,7 +204,7 @@ void WardenMac::RequestData()
     buff.hexlike();
 
     // Encrypt with warden RC4 key.
-    EncryptData(const_cast<uint8*>(buff.contents()), buff.size());
+    EncryptData(buff.contents(), buff.size());
 
     WorldPacket pkt(SMSG_WARDEN_DATA, buff.size());
     pkt.append(buff);
@@ -202,7 +215,7 @@ void WardenMac::RequestData()
 
 void WardenMac::HandleData(ByteBuffer &buff)
 {
-    sLog->outDebug(LOG_FILTER_WARDEN, "Handle data");
+    TC_LOG_DEBUG("warden", "Handle data");
 
     _dataSent = false;
     _clientResponseTimer = 0;
@@ -233,9 +246,9 @@ void WardenMac::HandleData(ByteBuffer &buff)
     uint8 sha1Hash[20];
     buff.read(sha1Hash, 20);
 
-    if (memcmp(sha1Hash, sha1.GetDigest(), 20))
+    if (memcmp(sha1Hash, sha1.GetDigest(), 20) != 0)
     {
-        sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: SHA1 hash is wrong!");
+        TC_LOG_DEBUG("warden", "Handle data failed: SHA1 hash is wrong!");
         //found = true;
     }
 
@@ -248,9 +261,9 @@ void WardenMac::HandleData(ByteBuffer &buff)
     uint8 theirsMD5Hash[16];
     buff.read(theirsMD5Hash, 16);
 
-    if (memcmp(ourMD5Hash, theirsMD5Hash, 16))
+    if (memcmp(ourMD5Hash, theirsMD5Hash, 16) != 0)
     {
-        sLog->outDebug(LOG_FILTER_WARDEN, "Handle data failed: MD5 hash is wrong!");
+        TC_LOG_DEBUG("warden", "Handle data failed: MD5 hash is wrong!");
         //found = true;
     }
 

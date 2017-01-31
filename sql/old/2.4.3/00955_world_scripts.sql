@@ -37,21 +37,21 @@ INSERT INTO `script_texts` (entry, content_default, type, language, comment) VAL
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000349 and -1000335;
 INSERT INTO `script_texts` (entry, content_default, type, comment) VALUES
-(-1000335, 'Let\'s get to the others, and keep an eye open for those wolves cutside...', 0, 'npc_deathstalker_erland 
+(-1000335, 'Let\'s get to the others, and keep an eye open for those wolves cutside...', 0, 'npc_deathstalker_erland
 - SAY_QUESTACCEPT'),
 (-1000336, 'Be careful, $N. Those wolves like to hide among the trees.', 0, 'npc_deathstalker_erland - SAY_START'),
 (-1000337, 'A $C attacks!', 0, 'npc_deathstalker_erland - SAY_AGGRO_1'),
 (-1000338, 'Beware! I am under attack!', 0, 'npc_deathstalker_erland - SAY_AGGRO_2'),
 (-1000339, 'We\'re almost there!', 0, 'npc_deathstalker_erland - SAY_LAST'),
-(-1000340, 'We made it! Thanks, $N. I couldn\'t have gotten without you.', 0, 'npc_deathstalker_erland - 
+(-1000340, 'We made it! Thanks, $N. I couldn\'t have gotten without you.', 0, 'npc_deathstalker_erland -
 SAY_THANKS'),
 (-1000341, 'It\'s good to see you again, Erland. What is your report?', 0, 'npc_deathstalker_erland - SAY_RANE'),
-(-1000342, 'Masses of wolves are to the east, and whoever lived at Malden\'s Orchard is gone.', 0, 
+(-1000342, 'Masses of wolves are to the east, and whoever lived at Malden\'s Orchard is gone.', 0,
 'npc_deathstalker_erland - SAY_ANSWER'),
 (-1000343, 'If I am excused, then I\'d like to check on Quinn...', 0, 'npc_deathstalker_erland - SAY_MOVE_QUINN'),
 (-1000344, 'Hello, Quinn. How are you faring?', 0, 'npc_deathstalker_erland - SAY_GREETINGS'),
 (-1000345, 'I\'ve been better. Ivar the Foul got the better of me...', 0, 'npc_deathstalker_erland - SAY_QUINN'),
-(-1000346, 'Try to take better care of yourself, Quinn. You were lucky this time.', 0, 'npc_deathstalker_erland - 
+(-1000346, 'Try to take better care of yourself, Quinn. You were lucky this time.', 0, 'npc_deathstalker_erland -
 SAY_ON_BYE'),
 
 (-1000347, 'Let\'s go before they find out I\'m free!', 0, 'npc_kaya_flathoof - SAY_START'),

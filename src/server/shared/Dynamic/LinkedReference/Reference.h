@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 #define _REFERENCE_H
 
 #include "Dynamic/LinkedList.h"
+#include "Errors.h" // for ASSERT
 
 //=====================================================
 
@@ -39,12 +40,12 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         virtual void sourceObjectDestroyLink() = 0;
     public:
         Reference() { iRefTo = NULL; iRefFrom = NULL; }
-        virtual ~Reference() {}
+        virtual ~Reference() { }
 
         // Create new link
         void link(TO* toObj, FROM* fromObj)
         {
-            assert(fromObj);                                // fromObj MUST not be NULL
+            ASSERT(fromObj);                                // fromObj MUST not be NULL
             if (isValid())
                 unlink();
             if (toObj != NULL)
@@ -92,7 +93,11 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         TO* operator ->() const { return iRefTo; }
         TO* getTarget() const { return iRefTo; }
 
-        FROM* getSource() const { return iRefFrom; }
+        FROM* GetSource() const { return iRefFrom; }
+
+    private:
+        Reference(Reference const&);
+        Reference& operator=(Reference const&);
 };
 
 //=====================================================

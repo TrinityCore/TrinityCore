@@ -1,5 +1,5 @@
 DELETE FROM `command` WHERE `name` LIKE "ahbotoption %";
-INSERT INTO `command`(`name`,`security`,`help`) VALUES 
+INSERT INTO `command`(`name`,`security`,`help`) VALUES
 ('ahbotoption ahexpire', '3', '.Syntax: .ahbotoption ahexpire $ahMapID Expire all auctions started by AHbot.'),
 ('ahbotoption minitems', '3', '.Syntax: .ahbotoption minitems $ahMapID $parameter Set minimum number of items to be sold in the auctionhouse. If value is 0 then minitems=maxitems. If minitems>maxitems then it will be set equal to maxitems.'),
 ('ahbotoption maxitems', '3', '.Syntax: .ahbotoption maxitems $ahMapID $parameter Set maximum number of items to be sold in the auctionhouse.'),

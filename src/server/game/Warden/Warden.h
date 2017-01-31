@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,7 @@ enum WardenOpcodes
     WARDEN_SMSG_MODULE_CACHE                    = 1,
     WARDEN_SMSG_CHEAT_CHECKS_REQUEST            = 2,
     WARDEN_SMSG_MODULE_INITIALIZE               = 3,
-    WARDEN_SMSG_MEM_CHECKS_REQUEST              = 4,        // byte len; while(!EOF) { byte unk(1); byte index(++); string module(can be 0); int offset; byte len; byte[] bytes_to_compare[len]; }
+    WARDEN_SMSG_MEM_CHECKS_REQUEST              = 4,        // byte len; while (!EOF) { byte unk(1); byte index(++); string module(can be 0); int offset; byte len; byte[] bytes_to_compare[len]; }
     WARDEN_SMSG_HASH_REQUEST                    = 5
 };
 
@@ -57,11 +57,7 @@ enum WardenCheckType
     MODULE_CHECK            = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
 };
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
-#pragma pack(push,1)
-#endif
+#pragma pack(push, 1)
 
 struct WardenModuleUse
 {
@@ -84,11 +80,7 @@ struct WardenHashRequest
     uint8 Seed[16];
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 struct ClientWardenModule
 {
@@ -100,7 +92,7 @@ struct ClientWardenModule
 
 class WorldSession;
 
-class Warden
+class TC_GAME_API Warden
 {
     friend class WardenWin;
     friend class WardenMac;

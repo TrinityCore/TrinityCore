@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,21 +25,21 @@
 class Creature;
 class Totem;
 
-class TotemAI : public CreatureAI
+class TC_GAME_API TotemAI : public CreatureAI
 {
     public:
 
         explicit TotemAI(Creature* c);
 
-        void MoveInLineOfSight(Unit* who);
-        void AttackStart(Unit* victim);
-        void EnterEvadeMode();
+        void MoveInLineOfSight(Unit* who) override;
+        void AttackStart(Unit* victim) override;
+        void EnterEvadeMode(EvadeReason /*why*/) override;
 
-        void UpdateAI(uint32 const diff);
+        void UpdateAI(uint32 diff) override;
         static int Permissible(Creature const* creature);
 
     private:
-        uint64 i_victimGuid;
+        ObjectGuid i_victimGuid;
 };
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "CreatureTextMgr.h"
 
 enum Spells
 {
@@ -38,6 +39,11 @@ enum Events
     EVENT_WIDE_SLASH        = 4
 };
 
+enum Texts
+{
+    SAY_KURINAXX_DEATH      = 5, // Yelled by Ossirian the Unscarred
+};
+
 class boss_kurinnaxx : public CreatureScript
 {
     public:
@@ -45,21 +51,27 @@ class boss_kurinnaxx : public CreatureScript
 
         struct boss_kurinnaxxAI : public BossAI
         {
-            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, BOSS_KURINNAXX)
+            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, DATA_KURINNAXX)
             {
+                Initialize();
             }
 
-            void Reset()
+            void Initialize()
+            {
+                _enraged = false;
+            }
+
+            void Reset() override
             {
                 _Reset();
-                _enraged = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
                 events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_TRASH, 1000);
                 events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
             {
                 if (!_enraged && HealthBelowPct(30))
                 {
@@ -68,7 +80,14 @@ class boss_kurinnaxx : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetGuidData(DATA_OSSIRIAN)))
+                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+            }
+
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -89,7 +108,7 @@ class boss_kurinnaxx : public CreatureScript
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
-                            else if (Unit* victim = me->getVictim())
+                            else if (Unit* victim = me->GetVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
                             events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                             break;
@@ -112,9 +131,9 @@ class boss_kurinnaxx : public CreatureScript
                 bool _enraged;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_kurinnaxxAI (creature);
+            return GetInstanceAI<boss_kurinnaxxAI>(creature);
         }
 };
 

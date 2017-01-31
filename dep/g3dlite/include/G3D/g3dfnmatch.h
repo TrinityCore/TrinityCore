@@ -42,7 +42,7 @@
 
 namespace G3D {
 
-#if defined(G3D_WIN32) 
+#if defined(G3D_WINDOWS) 
 
 #   if ! defined(FNM_NOMATCH)
 #       define FNM_NOMATCH        1      /* Match failed. */

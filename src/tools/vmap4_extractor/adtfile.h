@@ -1,25 +1,25 @@
 /*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ADT_H
 #define ADT_H
 
-#include "mpq_libmpq04.h"
+#include "cascfile.h"
 #include "wmo.h"
 #include "model.h"
 
@@ -109,13 +109,18 @@ struct MapChunkHeader
 
 class ADTFile
 {
+private:
+    //size_t mcnk_offsets[256], mcnk_sizes[256];
+    CASCFile ADT;
+    //mcell Mcell;
+    std::string Adtfilename;
 public:
     ADTFile(char* filename);
     ~ADTFile();
     int nWMO;
     int nMDX;
-    string* WmoInstansName;
-    string* ModelInstansName;
+    std::vector<std::string> WmoInstanceNames;
+    std::vector<std::string> ModelInstanceNames;
     bool init(uint32 map_num, uint32 tileX, uint32 tileY);
     //void LoadMapChunks();
 
@@ -126,18 +131,13 @@ public:
         return Mcell;
     }
 */
-private:
-    //size_t mcnk_offsets[256], mcnk_sizes[256];
-    MPQFile ADT;
-    //mcell Mcell;
-    string Adtfilename;
 };
 
-const char * GetPlainName(const char * FileName);
-char * GetPlainName(char * FileName);
-char * GetExtension(char * FileName);
-void fixnamen(char *name, size_t len);
-void fixname2(char *name, size_t len);
+char const* GetPlainName(char const* FileName);
+char* GetPlainName(char* FileName);
+char* GetExtension(char* FileName);
+void FixNameCase(char* name, size_t len);
+void FixNameSpaces(char* name, size_t len);
 //void fixMapNamen(char *name, size_t len);
 
 #endif

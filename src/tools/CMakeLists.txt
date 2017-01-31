@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,6 +8,9 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+add_subdirectory(connection_patcher)
+add_subdirectory(extractor_common)
 add_subdirectory(map_extractor)
 add_subdirectory(vmap4_assembler)
 add_subdirectory(vmap4_extractor)
+add_subdirectory(mmaps_generator)

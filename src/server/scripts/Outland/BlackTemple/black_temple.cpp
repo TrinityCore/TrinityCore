@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,59 +15,170 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Black_Temple
-SD%Complete: 95
-SDComment: Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus. TODO: Find proper gossip.
-SDCategory: Black Temple
-EndScriptData */
-
-/* ContentData
-npc_spirit_of_olum
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-    #include "ScriptedGossip.h"
 #include "black_temple.h"
 
-/*###
-# npc_spirit_of_olum
-####*/
+enum Spells
+{
+    // Wrathbone Flayer
+    SPELL_CLEAVE                     = 15496,
+    SPELL_IGNORED                    = 39544,
+    SPELL_SUMMON_CHANNEL             = 40094
+};
 
-#define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
-#define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
+enum Creatures
+{
+    NPC_BLOOD_MAGE                   = 22945,
+    NPC_DEATHSHAPER                  = 22882
+};
 
-class npc_spirit_of_olum : public CreatureScript
+enum Events
+{
+    // Wrathbone Flayer
+    EVENT_GET_CHANNELERS             = 1,
+    EVENT_SET_CHANNELERS             = 2,
+    EVENT_CLEAVE                     = 3,
+    EVENT_IGNORED                    = 4,
+};
+
+// ########################################################
+// Wrathbone Flayer
+// ########################################################
+
+class npc_wrathbone_flayer : public CreatureScript
 {
 public:
-    npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }
+    npc_wrathbone_flayer() : CreatureScript("npc_wrathbone_flayer") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    struct npc_wrathbone_flayerAI : public ScriptedAI
     {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            player->CLOSE_GOSSIP_MENU();
+        npc_wrathbone_flayerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+            _instance = creature->GetInstanceScript();
+        }
 
-        player->InterruptNonMeleeSpells(false);
-        player->CastSpell(player, SPELL_TELEPORT, false);
-        return true;
-    }
+        void Initialize()
+        {
+            _enteredCombat = false;
+        }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+        void Reset() override
+        {
+            _events.ScheduleEvent(EVENT_GET_CHANNELERS, 3000);
+            Initialize();
+            _bloodmageList.clear();
+            _deathshaperList.clear();
+        }
+
+        void JustDied(Unit* /*killer*/) override { }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(EVENT_CLEAVE, 5000);
+            _events.ScheduleEvent(EVENT_IGNORED, 7000);
+            _enteredCombat = true;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!_enteredCombat)
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_GET_CHANNELERS:
+                        {
+                            std::list<Creature*> BloodMageList;
+                            me->GetCreatureListWithEntryInGrid(BloodMageList, NPC_BLOOD_MAGE, 15.0f);
+
+                            if (!BloodMageList.empty())
+                                for (std::list<Creature*>::const_iterator itr = BloodMageList.begin(); itr != BloodMageList.end(); ++itr)
+                                {
+                                    _bloodmageList.push_back((*itr)->GetGUID());
+                                    if ((*itr)->isDead())
+                                        (*itr)->Respawn();
+                                }
+
+                            std::list<Creature*> DeathShaperList;
+                            me->GetCreatureListWithEntryInGrid(DeathShaperList, NPC_DEATHSHAPER, 15.0f);
+
+                            if (!DeathShaperList.empty())
+                                for (std::list<Creature*>::const_iterator itr = DeathShaperList.begin(); itr != DeathShaperList.end(); ++itr)
+                                {
+                                    _deathshaperList.push_back((*itr)->GetGUID());
+                                    if ((*itr)->isDead())
+                                        (*itr)->Respawn();
+                                }
+
+                            _events.ScheduleEvent(EVENT_SET_CHANNELERS, 3000);
+
+                            break;
+                        }
+                        case EVENT_SET_CHANNELERS:
+                        {
+                            for (ObjectGuid guid : _bloodmageList)
+                                if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
+                                    bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+
+                            for (ObjectGuid guid : _deathshaperList)
+                                if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
+                                    deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+
+                            _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
+
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        _events.ScheduleEvent(EVENT_CLEAVE, urand (1000, 2000));
+                        break;
+                    case EVENT_IGNORED:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_IGNORED);
+                        _events.ScheduleEvent(EVENT_IGNORED, 10000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+            GuidList _bloodmageList;
+            GuidList _deathshaperList;
+            bool _enteredCombat;
+        };
+
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance && (instance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (instance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
+        return GetBlackTempleAI<npc_wrathbone_flayerAI>(creature);
     }
-
 };
 
 void AddSC_black_temple()
 {
-    new npc_spirit_of_olum();
+    new npc_wrathbone_flayer();
 }

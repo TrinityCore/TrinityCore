@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,21 +17,41 @@
  */
 
 #include "BattlegroundAB.h"
-#include "World.h"
 #include "WorldPacket.h"
-#include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Language.h"
-#include "Object.h"
 #include "Player.h"
 #include "Util.h"
+#include "WorldSession.h"
 
 BattlegroundAB::BattlegroundAB()
 {
+    m_IsInformedNearVictory = false;
     m_BuffChange = true;
     BgObjects.resize(BG_AB_OBJECT_MAX);
     BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
+
+    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+    {
+        m_Nodes[i] = 0;
+        m_prevNodes[i] = 0;
+        m_NodeTimers[i] = 0;
+        m_BannerTimers[i].timer = 0;
+        m_BannerTimers[i].type = 0;
+        m_BannerTimers[i].teamIndex = 0;
+    }
+
+    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    {
+        m_lastTick[i] = 0;
+        m_HonorScoreTics[i] = 0;
+        m_ReputationScoreTics[i] = 0;
+        m_TeamScores500Disadvantage[i] = false;
+    }
+
+    m_HonorTics = 0;
+    m_ReputationTics = 0;
 
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
@@ -39,9 +59,7 @@ BattlegroundAB::BattlegroundAB()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
-BattlegroundAB::~BattlegroundAB()
-{
-}
+BattlegroundAB::~BattlegroundAB() { }
 
 void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {
@@ -109,23 +127,28 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
             int points = team_points[team];
             if (!points)
                 continue;
+
             m_lastTick[team] += diff;
+
             if (m_lastTick[team] > BG_AB_TickIntervals[points])
             {
                 m_lastTick[team] -= BG_AB_TickIntervals[points];
                 m_TeamScores[team] += BG_AB_TickPoints[points];
                 m_HonorScoreTics[team] += BG_AB_TickPoints[points];
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
+
                 if (m_ReputationScoreTics[team] >= m_ReputationTics)
                 {
                     (team == TEAM_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
                     m_ReputationScoreTics[team] -= m_ReputationTics;
                 }
+
                 if (m_HonorScoreTics[team] >= m_HonorTics)
                 {
                     RewardHonorToTeam(GetBonusHonorFromKill(1), (team == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
                     m_HonorScoreTics[team] -= m_HonorTics;
                 }
+
                 if (!m_IsInformedNearVictory && m_TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
                 {
                     if (team == TEAM_ALLIANCE)
@@ -138,9 +161,10 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 
                 if (m_TeamScores[team] > BG_AB_MAX_TEAM_SCORE)
                     m_TeamScores[team] = BG_AB_MAX_TEAM_SCORE;
+
                 if (team == TEAM_ALLIANCE)
                     UpdateWorldState(BG_AB_OP_RESOURCES_ALLY, m_TeamScores[team]);
-                if (team == TEAM_HORDE)
+                else if (team == TEAM_HORDE)
                     UpdateWorldState(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
                 // update achievement flags
                 // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
@@ -153,7 +177,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
         // Test win condition
         if (m_TeamScores[TEAM_ALLIANCE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(ALLIANCE);
-        if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
+        else if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(HORDE);
     }
 }
@@ -192,39 +216,37 @@ void BattlegroundAB::StartingEventOpenDoors()
     DoorOpen(BG_AB_OBJECT_GATE_H);
 
     // Achievement: Let's Get This Done
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
+    StartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, AB_EVENT_START_BATTLE);
 }
 
 void BattlegroundAB::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in the constructor
-    BattlegroundABScore* sc = new BattlegroundABScore;
-
-    PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeam());
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
-
 }
 
-void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
     switch (trigger)
     {
+        case 6635: // Horde Start
+        case 6634: // Alliance Start
+            if (GetStatus() == STATUS_WAIT_JOIN && !entered)
+                TeleportPlayerToExploitLocation(player);
+            break;
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeam() != ALLIANCE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
+                player->GetSession()->SendNotification("Only The Alliance can use that portal");
             else
                 player->LeaveBattleground();
             break;
         case 3949:                                          // Arathi Basin Horde Exit.
             if (player->GetTeam() != HORDE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
+                player->GetSession()->SendNotification("Only The Horde can use that portal");
             else
                 player->LeaveBattleground();
             break;
@@ -238,7 +260,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4674:                                          // Unk3
             //break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
@@ -289,23 +311,23 @@ int32 BattlegroundAB::_GetNodeNameId(uint8 node)
         case BG_AB_NODE_LUMBER_MILL:return LANG_BG_AB_NODE_LUMBER_MILL;
         case BG_AB_NODE_GOLD_MINE:  return LANG_BG_AB_NODE_GOLD_MINE;
         default:
-            ASSERT(false);
+            ABORT();
     }
     return 0;
 }
 
-void BattlegroundAB::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     const uint8 plusArray[] = {0, 2, 3, 0, 1};
 
     // Node icons
     for (uint8 node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
-        data << uint32(BG_AB_OP_NODEICONS[node]) << uint32((m_Nodes[node] == 0)?1:0);
+        packet.Worldstates.emplace_back(uint32(BG_AB_OP_NODEICONS[node]), int32((m_Nodes[node] == 0) ? 1 : 0));
 
     // Node occupied states
     for (uint8 node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
         for (uint8 i = 1; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-            data << uint32(BG_AB_OP_NODESTATES[node] + plusArray[i]) << uint32((m_Nodes[node] == i)?1:0);
+            packet.Worldstates.emplace_back(uint32(BG_AB_OP_NODESTATES[node] + plusArray[i]), int32((m_Nodes[node] == i) ? 1 : 0));
 
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
@@ -315,17 +337,17 @@ void BattlegroundAB::FillInitialWorldStates(WorldPacket& data)
         else if (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
 
-    data << uint32(BG_AB_OP_OCCUPIED_BASES_ALLY)  << uint32(ally);
-    data << uint32(BG_AB_OP_OCCUPIED_BASES_HORDE) << uint32(horde);
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_OCCUPIED_BASES_ALLY), int32(ally));
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_OCCUPIED_BASES_HORDE), int32(horde));
 
     // Team scores
-    data << uint32(BG_AB_OP_RESOURCES_MAX)      << uint32(BG_AB_MAX_TEAM_SCORE);
-    data << uint32(BG_AB_OP_RESOURCES_WARNING)  << uint32(BG_AB_WARNING_NEAR_VICTORY_SCORE);
-    data << uint32(BG_AB_OP_RESOURCES_ALLY)     << uint32(m_TeamScores[TEAM_ALLIANCE]);
-    data << uint32(BG_AB_OP_RESOURCES_HORDE)    << uint32(m_TeamScores[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_MAX), int32(BG_AB_MAX_TEAM_SCORE));
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_WARNING), int32(BG_AB_WARNING_NEAR_VICTORY_SCORE));
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_ALLY), int32(m_TeamScores[TEAM_ALLIANCE]));
+    packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_HORDE), int32(m_TeamScores[TEAM_HORDE]));
 
     // other unknown
-    data << uint32(0x745) << uint32(0x2);           // 37 1861 unk
+    packet.Worldstates.emplace_back(uint32(0x745), 0x2);
 }
 
 void BattlegroundAB::_SendNodeUpdate(uint8 node)
@@ -354,27 +376,25 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 
 void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 {
-    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
+        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+
+    if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+        return;
 
     uint8 capturedNodes = 0;
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (m_Nodes[node] == GetTeamIndexByTeamId(team) + BG_AB_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
+        if (m_Nodes[i] == GetTeamIndexByTeamId(team) + BG_AB_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
             ++capturedNodes;
-    }
 
     if (capturedNodes >= 5)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_5_BASES, team);
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
 
-    if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
-        return;
-
-    Creature* trigger = BgCreatures[node+7] ? GetBGCreature(node+7) : NULL;//0-6 spirit guides
+    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : NULL; // 0-6 spirit guides
     if (!trigger)
-        trigger = AddCreature(WORLD_TRIGGER, node+7, team, BG_AB_NodePositions[node][0], BG_AB_NodePositions[node][1], BG_AB_NodePositions[node][2], BG_AB_NodePositions[node][3]);
+        trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
 
     //add bonus honor aura trigger creature when node is accupied
     //cast bonus aura (+50% honor in 25yards)
@@ -395,27 +415,9 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
     if (node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
-    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
-    if (!ghost_list.empty())
-    {
-        WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
+    RelocateDeadPlayers(BgCreatures[node]);
 
-            if (!ClosestGrave)                              // cache
-                ClosestGrave = GetClosestGraveYard(player);
-
-            if (ClosestGrave)
-                player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
-        }
-    }
-
-    if (BgCreatures[node])
-        DelCreature(node);
+    DelCreature(node);
 
     // buff object isn't despawned
 }
@@ -548,39 +550,57 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     PlaySoundToAll(sound);
 }
 
+uint32 BattlegroundAB::GetPrematureWinner()
+{
+    // How many bases each team owns
+    uint8 ally = 0, horde = 0;
+    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+        if (m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED)
+            ++ally;
+        else if (m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
+            ++horde;
+
+    if (ally > horde)
+        return ALLIANCE;
+    else if (horde > ally)
+        return HORDE;
+
+    // If the values are equal, fall back to the original result (based on number of players on each team)
+    return Battleground::GetPrematureWinner();
+}
+
 bool BattlegroundAB::SetupBattleground()
 {
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
-        if (!AddObject(BG_AB_OBJECT_BANNER_NEUTRAL + 8*i, BG_AB_OBJECTID_NODE_BANNER_0 + i, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_A + 8*i, BG_AB_OBJECTID_BANNER_CONT_A, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_H + 8*i, BG_AB_OBJECTID_BANNER_CONT_H, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_ALLY + 8*i, BG_AB_OBJECTID_BANNER_A, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_HORDE + 8*i, BG_AB_OBJECTID_BANNER_H, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_ALLY + 8*i, BG_AB_OBJECTID_AURA_A, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_HORDE + 8*i, BG_AB_OBJECTID_AURA_H, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i, BG_AB_OBJECTID_AURA_C, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-)
+        if (!AddObject(BG_AB_OBJECT_BANNER_NEUTRAL + 8*i, BG_AB_OBJECTID_NODE_BANNER_0 + i, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_BANNER_CONT_A + 8*i, BG_AB_OBJECTID_BANNER_CONT_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_BANNER_CONT_H + 8*i, BG_AB_OBJECTID_BANNER_CONT_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_BANNER_ALLY + 8*i, BG_AB_OBJECTID_BANNER_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_BANNER_HORDE + 8*i, BG_AB_OBJECTID_BANNER_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_AURA_ALLY + 8*i, BG_AB_OBJECTID_AURA_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_AURA_HORDE + 8*i, BG_AB_OBJECTID_AURA_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
+            || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i, BG_AB_OBJECTID_AURA_C, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY))
         {
-            sLog->outError(LOG_FILTER_SQL, "BatteGroundAB: Failed to spawn some object Battleground not created!");
+            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
             return false;
         }
     }
+
     if (!AddObject(BG_AB_OBJECT_GATE_A, BG_AB_OBJECTID_GATE_A, BG_AB_DoorPositions[0][0], BG_AB_DoorPositions[0][1], BG_AB_DoorPositions[0][2], BG_AB_DoorPositions[0][3], BG_AB_DoorPositions[0][4], BG_AB_DoorPositions[0][5], BG_AB_DoorPositions[0][6], BG_AB_DoorPositions[0][7], RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_AB_OBJECT_GATE_H, BG_AB_OBJECTID_GATE_H, BG_AB_DoorPositions[1][0], BG_AB_DoorPositions[1][1], BG_AB_DoorPositions[1][2], BG_AB_DoorPositions[1][3], BG_AB_DoorPositions[1][4], BG_AB_DoorPositions[1][5], BG_AB_DoorPositions[1][6], BG_AB_DoorPositions[1][7], RESPAWN_IMMEDIATELY)
-)
+        || !AddObject(BG_AB_OBJECT_GATE_H, BG_AB_OBJECTID_GATE_H, BG_AB_DoorPositions[1][0], BG_AB_DoorPositions[1][1], BG_AB_DoorPositions[1][2], BG_AB_DoorPositions[1][3], BG_AB_DoorPositions[1][4], BG_AB_DoorPositions[1][5], BG_AB_DoorPositions[1][6], BG_AB_DoorPositions[1][7], RESPAWN_IMMEDIATELY))
     {
-        sLog->outError(LOG_FILTER_SQL, "BatteGroundAB: Failed to spawn door object Battleground not created!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn door object Battleground not created!");
         return false;
     }
+
     //buffs
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
         if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-)
-            sLog->outError(LOG_FILTER_SQL, "BatteGroundAB: Failed to spawn buff object!");
+            || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY))
+            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn buff object!");
     }
 
     return true;
@@ -615,7 +635,7 @@ void BattlegroundAB::Reset()
     }
 
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
-        if (BgCreatures[i])
+        if (!BgCreatures[i].IsEmpty())
             DelCreature(i);
 }
 
@@ -656,7 +676,7 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
             WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
-            float dist = (entry->x - plr_x)*(entry->x - plr_x)+(entry->y - plr_y)*(entry->y - plr_y);
+            float dist = (entry->Loc.X - plr_x)*(entry->Loc.X - plr_x)+(entry->Loc.Y - plr_y)*(entry->Loc.Y - plr_y);
             if (mindist > dist)
             {
                 mindist = dist;
@@ -672,29 +692,31 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-void BattlegroundAB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+WorldSafeLocsEntry const* BattlegroundAB::GetExploitTeleportLocation(Team team)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
+    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? AB_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : AB_EXPLOIT_TELEPORT_LOCATION_HORDE);
+}
+
+bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
+{
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
         case SCORE_BASES_ASSAULTED:
-            ((BattlegroundABScore*)itr->second)->BasesAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE);
             break;
         case SCORE_BASES_DEFENDED:
-            ((BattlegroundABScore*)itr->second)->BasesDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
-bool BattlegroundAB::IsAllNodesConrolledByTeam(uint32 team) const
+bool BattlegroundAB::IsAllNodesControlledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
@@ -703,4 +725,15 @@ bool BattlegroundAB::IsAllNodesConrolledByTeam(uint32 team) const
             ++count;
 
     return count == BG_AB_DYNAMIC_NODES_COUNT;
+}
+
+bool BattlegroundAB::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* target, uint32 miscvalue)
+{
+    switch (criteriaId)
+    {
+        case BG_CRITERIA_CHECK_RESILIENT_VICTORY:
+            return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(player->GetTeam())];
+    }
+
+    return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscvalue);
 }

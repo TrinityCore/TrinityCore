@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +17,49 @@
 
 #include "PacketLog.h"
 #include "Config.h"
-#include "ByteBuffer.h"
 #include "WorldPacket.h"
+#include "Timer.h"
+#include "World.h"
+
+#pragma pack(push, 1)
+
+// Packet logging structures in PKT 3.1 format
+struct LogHeader
+{
+    char Signature[3];
+    uint16 FormatVersion;
+    uint8 SnifferId;
+    uint32 Build;
+    char Locale[4];
+    uint8 SessionKey[40];
+    uint32 SniffStartUnixtime;
+    uint32 SniffStartTicks;
+    uint32 OptionalDataSize;
+};
+
+struct PacketHeader
+{
+    // used to uniquely identify a connection
+    struct OptionalData
+    {
+        uint8 SocketIPBytes[16];
+        uint32 SocketPort;
+    };
+
+    uint32 Direction;
+    uint32 ConnectionId;
+    uint32 ArrivalTicks;
+    uint32 OptionalDataSize;
+    uint32 Length;
+    OptionalData OptionalData;
+    uint32 Opcode;
+};
+
+#pragma pack(pop)
 
 PacketLog::PacketLog() : _file(NULL)
 {
-    Initialize();
+    std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
 
 PacketLog::~PacketLog()
@@ -33,30 +70,70 @@ PacketLog::~PacketLog()
     _file = NULL;
 }
 
-void PacketLog::Initialize()
+PacketLog* PacketLog::instance()
 {
-    std::string logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
-
-    if (!logsDir.empty())
-        if ((logsDir.at(logsDir.length()-1) != '/') && (logsDir.at(logsDir.length()-1) != '\\'))
-            logsDir.push_back('/');
-
-    std::string logname = ConfigMgr::GetStringDefault("PacketLogFile", "");
-    if (!logname.empty())
-        _file = fopen((logsDir + logname).c_str(), "wb");
+    static PacketLog instance;
+    return &instance;
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction)
+void PacketLog::Initialize()
 {
-    ByteBuffer data(4+4+4+1+packet.size());
-    data << int32(packet.GetOpcode());
-    data << int32(packet.size());
-    data << uint32(time(NULL));
-    data << uint8(direction);
+    std::string logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
 
-    for (uint32 i = 0; i < packet.size(); i++)
-        data << const_cast<WorldPacket&>(packet)[i];
+    if (!logsDir.empty())
+        if ((logsDir.at(logsDir.length() - 1) != '/') && (logsDir.at(logsDir.length() - 1) != '\\'))
+            logsDir.push_back('/');
 
-    fwrite(data.contents(), 1, data.size(), _file);
+    std::string logname = sConfigMgr->GetStringDefault("PacketLogFile", "");
+    if (!logname.empty())
+    {
+        _file = fopen((logsDir + logname).c_str(), "wb");
+
+        LogHeader header;
+        header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
+        header.FormatVersion = 0x0301;
+        header.SnifferId = 'T';
+        header.Build = realm.Build;
+        header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
+        std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
+        header.SniffStartUnixtime = time(NULL);
+        header.SniffStartTicks = getMSTime();
+        header.OptionalDataSize = 0;
+
+        if (CanLogPacket())
+            fwrite(&header, sizeof(header), 1, _file);
+    }
+}
+
+void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port, ConnectionType connectionType)
+{
+    std::lock_guard<std::mutex> lock(_logPacketLock);
+
+    PacketHeader header;
+    header.Direction = direction == CLIENT_TO_SERVER ? 0x47534d43 : 0x47534d53;
+    header.ConnectionId = connectionType;
+    header.ArrivalTicks = getMSTime();
+
+    header.OptionalDataSize = sizeof(header.OptionalData);
+    memset(header.OptionalData.SocketIPBytes, 0, sizeof(header.OptionalData.SocketIPBytes));
+    if (addr.is_v4())
+    {
+        auto bytes = addr.to_v4().to_bytes();
+        memcpy(header.OptionalData.SocketIPBytes, bytes.data(), bytes.size());
+    }
+    else if (addr.is_v6())
+    {
+        auto bytes = addr.to_v6().to_bytes();
+        memcpy(header.OptionalData.SocketIPBytes, bytes.data(), bytes.size());
+    }
+
+    header.OptionalData.SocketPort = port;
+    header.Length = packet.size() + sizeof(header.Opcode);
+    header.Opcode = packet.GetOpcode();
+
+    fwrite(&header, sizeof(header), 1, _file);
+    if (!packet.empty())
+        fwrite(packet.contents(), 1, packet.size(), _file);
+
     fflush(_file);
 }

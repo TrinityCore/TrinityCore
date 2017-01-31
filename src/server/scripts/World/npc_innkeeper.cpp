@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,10 +27,14 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "GameEventMgr.h"
+#include "Player.h"
+#include "WorldSession.h"
 
-#define HALLOWEEN_EVENTID       12
-#define SPELL_TRICK_OR_TREATED  24755
-#define SPELL_TREAT             24715
+enum Spells
+{
+    SPELL_TRICK_OR_TREATED      = 24755,
+    SPELL_TREAT                 = 24715
+};
 
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
@@ -45,9 +49,9 @@ class npc_innkeeper : public CreatureScript
 public:
     npc_innkeeper() : CreatureScript("npc_innkeeper") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (IsEventActive(HALLOWEEN_EVENTID) && !player->HasAura(SPELL_TRICK_OR_TREATED))
+        if (IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
         {
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
@@ -57,16 +61,16 @@ public:
                 case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
             }
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
 
-        if (creature->isQuestGiver())
+        if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (creature->isVendor())
+        if (creature->IsVendor())
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        if (creature->isInnkeeper())
+        if (creature->IsInnkeeper())
         {
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
@@ -82,10 +86,10 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && IsEventActive(HALLOWEEN_EVENTID) && !player->HasAura(SPELL_TRICK_OR_TREATED))
+        if (action == GOSSIP_ACTION_INFO_DEF + 1 && IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
         {
             player->CastSpell(player, SPELL_TRICK_OR_TREATED, true);
 
@@ -130,6 +134,6 @@ public:
 
 void AddSC_npc_innkeeper()
 {
-    new npc_innkeeper;
+    new npc_innkeeper();
 }
 

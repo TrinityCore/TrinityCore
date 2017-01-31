@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,83 +21,78 @@
 
 enum Yells
 {
-    SAY_AGGRO_1                                 = -1603270,
-    SAY_AGGRO_2                                 = -1603271,
-    SAY_SPECIAL_1                               = -1603272,
-    SAY_SPECIAL_2                               = -1603273,
-    SAY_SPECIAL_3                               = -1603274,
-    SAY_JUMPDOWN                                = -1603275,
-    SAY_SLAY_1                                  = -1603276,
-    SAY_SLAY_2                                  = -1603277,
-    SAY_BERSERK                                 = -1603278,
-    SAY_WIPE                                    = -1603279,
-    SAY_DEATH                                   = -1603280,
-    SAY_END_NORMAL_1                            = -1603281,
-    SAY_END_NORMAL_2                            = -1603282,
-    SAY_END_NORMAL_3                            = -1603283,
-    SAY_END_HARD_1                              = -1603284,
-    SAY_END_HARD_2                              = -1603285,
-    SAY_END_HARD_3                              = -1603286,
-    SAY_YS_HELP                                 = -1603287,
+    SAY_AGGRO                                   = 0,
+    SAY_SPECIAL_1                               = 1,
+    SAY_SPECIAL_2                               = 2,
+    SAY_SPECIAL_3                               = 3,
+    SAY_JUMPDOWN                                = 4,
+    SAY_SLAY                                    = 5,
+    SAY_BERSERK                                 = 6,
+    SAY_WIPE                                    = 7,
+    SAY_DEATH                                   = 8,
+    SAY_END_NORMAL_1                            = 9,
+    SAY_END_NORMAL_2                            = 10,
+    SAY_END_NORMAL_3                            = 11,
+    SAY_END_HARD_1                              = 12,
+    SAY_END_HARD_2                              = 13,
+    SAY_END_HARD_3                              = 14
 };
 
 class boss_thorim : public CreatureScript
 {
-public:
-    boss_thorim() : CreatureScript("boss_thorim") { }
+    public:
+        boss_thorim() : CreatureScript("boss_thorim") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return GetUlduarAI<boss_thorimAI>(creature);
-    }
-
-    struct boss_thorimAI : public BossAI
-    {
-        boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
+        struct boss_thorimAI : public BossAI
         {
-        }
+            boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
+            {
+            }
 
-        void Reset()
+            void Reset() override
+            {
+                _Reset();
+            }
+
+            void EnterEvadeMode(EvadeReason why) override
+            {
+                Talk(SAY_WIPE);
+                _EnterEvadeMode(why);
+            }
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                Talk(SAY_DEATH);
+                _JustDied();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+                _EnterCombat();
+            }
+
+            void UpdateAI(uint32 /*diff*/) override
+            {
+                if (!UpdateVictim())
+                    return;
+                //SPELLS @todo
+
+                //
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            _Reset();
+            return GetUlduarAI<boss_thorimAI>(creature);
         }
-
-        void EnterEvadeMode()
-        {
-            DoScriptText(SAY_WIPE, me);
-            _EnterEvadeMode();
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-            _JustDied();
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
-            _EnterCombat();
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-    //SPELLS TODO:
-
-    //
-            DoMeleeAttackIfReady();
-
-            EnterEvadeIfOutOfCombatArea(diff);
-        }
-    };
-
 };
 
 void AddSC_boss_thorim()

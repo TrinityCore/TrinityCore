@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,9 +25,10 @@
 #include "Player.h"
 #include "World.h"
 #include "Log.h"
-#include "ObjectMgr.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "WorldSession.h"
+#include "MiscPackets.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
@@ -37,7 +38,7 @@ Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -92,12 +93,13 @@ bool Weather::ReGenerate()
     //78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
     time_t gtime = sWorld->GetGameTime();
-    struct tm * ltime = localtime(&gtime);
-    uint32 season = ((ltime->tm_yday - 78 + 365)/91)%4;
+    struct tm ltime;
+    localtime_r(&gtime, &ltime);
+    uint32 season = ((ltime.tm_yday - 78 + 365) / 91) % 4;
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
     {
@@ -148,10 +150,10 @@ bool Weather::ReGenerate()
 
     // At this point, only weather that isn't doing anything remains but that have weather data
     uint32 chance1 = m_weatherChances->data[season].rainChance;
-    uint32 chance2 = chance1+ m_weatherChances->data[season].snowChance;
-    uint32 chance3 = chance2+ m_weatherChances->data[season].stormChance;
+    uint32 chance2 = chance1 + m_weatherChances->data[season].snowChance;
+    uint32 chance3 = chance2 + m_weatherChances->data[season].stormChance;
 
-    uint32 rnd = urand(0, 99);
+    uint32 rnd = urand(1, 100);
     if (rnd <= chance1)
         m_type = WEATHER_TYPE_RAIN;
     else if (rnd <= chance2)
@@ -191,19 +193,13 @@ bool Weather::ReGenerate()
 
 void Weather::SendWeatherUpdateToPlayer(Player* player)
 {
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-
-    data << uint32(GetWeatherState()) << (float)m_grade << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Misc::Weather weather(GetWeatherState(), m_grade);
+    player->GetSession()->SendPacket(weather.Write());
 }
 
 /// Send the new weather to all players in the zone
 bool Weather::UpdateWeather()
 {
-    Player* player = sWorld->FindPlayerInZone(m_zone);
-    if (!player)
-        return false;
-
     ///- Send the weather packet to all players in this zone
     if (m_grade >= 1)
         m_grade = 0.9999f;
@@ -212,14 +208,19 @@ bool Weather::UpdateWeather()
 
     WeatherState state = GetWeatherState();
 
-    WorldPacket data(SMSG_WEATHER, (4+4+4));
-    data << uint32(state) << (float)m_grade << uint8(0);
-    player->SendMessageToSet(&data, true);
+    WorldPackets::Misc::Weather weather(state, m_grade);
+
+    //- Returns false if there were no players found to update
+    if (!sWorld->SendZoneMessage(m_zone, weather.Write()))
+        return false;
 
     ///- Log the event
     char const* wthstr;
     switch (state)
     {
+        case WEATHER_STATE_FOG:
+            wthstr = "fog";
+            break;
         case WEATHER_STATE_LIGHT_RAIN:
             wthstr = "light rain";
             break;
@@ -258,8 +259,8 @@ bool Weather::UpdateWeather()
             wthstr = "fine";
             break;
     }
-    sLog->outInfo(LOG_FILTER_GENERAL, "Change the weather of zone %u to %s.", m_zone, wthstr);
 
+    TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
     sScriptMgr->OnWeatherChange(this, state, m_grade);
     return true;
 }
@@ -313,4 +314,3 @@ WeatherState Weather::GetWeatherState() const
             return WEATHER_STATE_FINE;
     }
 }
-

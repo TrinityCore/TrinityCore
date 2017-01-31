@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,13 +18,41 @@
 #ifndef DEF_STEAM_VAULT_H
 #define DEF_STEAM_VAULT_H
 
-#define TYPE_HYDROMANCER_THESPIA        1
-#define TYPE_MEKGINEER_STEAMRIGGER      2
-#define TYPE_WARLORD_KALITHRESH         3
-#define TYPE_DISTILLER                  4
+#define SteamVaultScriptName "instance_steam_vault"
+#define DataHeader "SV"
 
-#define DATA_MEKGINEERSTEAMRIGGER       5
-#define DATA_KALITRESH                  6
-#define DATA_THESPIA                    7
+uint32 const EncounterCount = 3;
+
+enum SVDataTypes
+{
+    DATA_HYDROMANCER_THESPIA        = 0,
+    DATA_MEKGINEER_STEAMRIGGER      = 1,
+    DATA_WARLORD_KALITHRESH         = 2,
+    DATA_DISTILLER                  = 3,
+
+    // Additional Data
+    DATA_ACCESS_PANEL_HYDRO         = 4,
+    DATA_ACCESS_PANEL_MEK           = 5
+};
+
+enum SVCreatureIds
+{
+    NPC_HYDROMANCER_THESPIA         = 17797,
+    NPC_MEKGINEER_STEAMRIGGER       = 17796,
+    NPC_WARLORD_KALITHRESH          = 17798
+};
+
+enum SVGameObjectIds
+{
+    GO_MAIN_CHAMBERS_DOOR           = 183049,
+    GO_ACCESS_PANEL_HYDRO           = 184125,
+    GO_ACCESS_PANEL_MEK             = 184126
+};
+
+template<class AI>
+AI* GetSteamVaultAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SteamVaultScriptName);
+}
+
 #endif
-

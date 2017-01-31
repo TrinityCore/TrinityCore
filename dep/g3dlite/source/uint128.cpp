@@ -17,8 +17,8 @@ static void addAndCarry(const uint64& _a, const uint64& _b, uint64& carry, uint6
         
     // Break each number into 4 32-bit chunks. Since we are using uints, right-shifting will fill with zeros.
     // This eliminates the need to and with 0xFFFFFFFF.
-    uint32 a [2] = {_a & 0xFFFFFFFF, _a >> 32};
-    uint32 b [2] = {_b & 0xFFFFFFFF, _b >> 32};
+    uint32 a [2] = {static_cast<uint32>(_a & 0xFFFFFFFF), static_cast<uint32>(_a >> 32)};
+    uint32 b [2] = {static_cast<uint32>(_b & 0xFFFFFFFF), static_cast<uint32>(_b >> 32)};
 
     uint64 tmp = uint64(a[0]) + b[0];
 
@@ -35,8 +35,8 @@ void multiplyAndCarry(const uint64& _a, const uint64& _b, uint64& carry, uint64&
 
     // Break each number into 4 32-bit chunks. Since we are using uints, right-shifting will fill with zeros.
     // This eliminates the need to and with 0xFFFFFFFF.
-    uint32 a [2] = {_a & 0xFFFFFFFF, _a >> 32};
-    uint32 b [2] = {_b & 0xFFFFFFFF, _b >> 32};
+    uint32 a [2] = {static_cast<uint32>(_a & 0xFFFFFFFF), static_cast<uint32>(_a >> 32)};
+    uint32 b [2] = {static_cast<uint32>(_b & 0xFFFFFFFF), static_cast<uint32>(_b >> 32)};
 
     uint64 prod [2][2];
     for(int i = 0; i < 2; ++i) {

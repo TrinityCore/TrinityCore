@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,48 +46,42 @@ enum CorpseFlags
     CORPSE_FLAG_LOOTABLE    = 0x20
 };
 
-class Corpse : public WorldObject, public GridObject<Corpse>
+class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
 {
     public:
         explicit Corpse(CorpseType type = CORPSE_BONES);
         ~Corpse();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-        bool Create(uint32 guidlow, Map* map);
-        bool Create(uint32 guidlow, Player* owner);
+        bool Create(ObjectGuid::LowType guidlow, Map* map);
+        bool Create(ObjectGuid::LowType guidlow, Player* owner);
 
         void SaveToDB();
-        bool LoadCorpseFromDB(uint32 guid, Field* fields);
+        bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 
-        void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
+        static void DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans);
 
-        uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(NULL); }
         CorpseType GetType() const { return m_type; }
 
-        GridCoord const& GetGridCoord() const { return _gridCoord; }
-        void SetGridCoord(GridCoord const& gridCoord) { _gridCoord = gridCoord; }
+        CellCoord const& GetCellCoord() const { return _cellCoord; }
+        void SetCellCoord(CellCoord const& cellCoord) { _cellCoord = cellCoord; }
 
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
         bool lootForBody;
-
-        void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
-        void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId, TargetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
 
         bool IsExpired(time_t t) const;
 
     private:
         CorpseType m_type;
         time_t m_time;
-        GridCoord _gridCoord;                                    // gride for corpse position for fast search
+        CellCoord _cellCoord;
 };
 #endif

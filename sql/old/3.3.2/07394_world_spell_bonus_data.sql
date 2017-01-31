@@ -1,6 +1,6 @@
 -- Some spell bonus data mostly for DK spells and trinket spells
 DELETE FROM `spell_bonus_data` WHERE `entry` IN (63544,54181,55078,55095,50536,52212,51460,48721,45477,54757,45055,60203,60488,45429);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (63544, 0, -1, -1, -1, 'Priest - Empowered Renew'),
 (54181, 0, -1, -1, -1, 'Warlock - Fel Synergy'),
 (55078, 0, 0, -1, 0.06325, 'Death Knight - Blood Plague'),

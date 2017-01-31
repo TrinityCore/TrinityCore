@@ -1,0 +1,2 @@
+--
+DELETE FROM creature WHERE id IN (31631,31634);

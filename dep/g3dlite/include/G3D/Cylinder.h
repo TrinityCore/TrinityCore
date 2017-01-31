@@ -26,22 +26,22 @@ class AABox;
  */
 class Cylinder {
 private:
-	Vector3			p1;
-	Vector3			p2;
+    Vector3            p1;
+    Vector3            p2;
 
-	float           mRadius;
+    float           mRadius;
 
 public:
 
     /** Uninitialized */
     Cylinder();
     Cylinder(class BinaryInput& b);
-	Cylinder(const Vector3& _p1, const Vector3& _p2, float _r);
-	void serialize(class BinaryOutput& b) const;
-	void deserialize(class BinaryInput& b);
-	
-	/** The line down the center of the Cylinder */
-	Line axis() const;
+    Cylinder(const Vector3& _p1, const Vector3& _p2, float _r);
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
+    
+    /** The line down the center of the Cylinder */
+    Line axis() const;
 
     /** 
       A reference frame in which the center of mass is at the origin and

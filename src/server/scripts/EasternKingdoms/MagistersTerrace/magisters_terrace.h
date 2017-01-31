@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,32 +19,59 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
-#define ERROR_INST_DATA      "TSCR Error: Instance Data not set properly for Magister's Terrace instance (map 585). Encounters will be buggy."
+#define DataHeader "MT"
 
-enum Data
+uint32 const EncounterCount = 4;
+
+enum MTDataTypes
 {
-    DATA_SELIN_EVENT            = 0,
-    DATA_VEXALLUS_EVENT         = 1,
-    DATA_DELRISSA_EVENT         = 2,
-    DATA_KAELTHAS_EVENT         = 3,
+    DATA_SELIN,
+    DATA_VEXALLUS,
+    DATA_DELRISSA,
+    DATA_KAELTHAS,
 
-    DATA_SELIN                  = 4,
-    DATA_FEL_CRYSTAL            = 5,
-    DATA_FEL_CRYSTAL_SIZE       = 6,
+    DATA_KAEL_STATUE_LEFT,
+    DATA_KAEL_STATUE_RIGHT,
 
-    DATA_VEXALLUS_DOOR          = 7,
-    DATA_SELIN_DOOR             = 8,
-    DATA_DELRISSA               = 9,
-    DATA_DELRISSA_DOOR          = 10,
-    DATA_SELIN_ENCOUNTER_DOOR   = 11,
+    DATA_DELRISSA_DEATH_COUNT,
+    DATA_KAELTHAS_STATUES,
+    DATA_ESCAPE_ORB
+};
 
-    DATA_KAEL_DOOR              = 12,
-    DATA_KAEL_STATUE_LEFT       = 13,
-    DATA_KAEL_STATUE_RIGHT      = 14,
+enum MTCreatureIds
+{
+    NPC_SELIN               = 24723,
+    NPC_DELRISSA            = 24560,
+    NPC_FEL_CRYSTAL         = 24722,
+    NPC_KALECGOS            = 24844,
+    NPC_HUMAN_KALECGOS      = 24848
+};
 
-    DATA_DELRISSA_DEATH_COUNT   = 15,
+enum MTGameObjectIds
+{
+    GO_VEXALLUS_DOOR        = 187896,
+    GO_SELIN_DOOR           = 187979,
+    GO_SELIN_ENCOUNTER_DOOR = 188065,
+    GO_DELRISSA_DOOR        = 187770,
+    GO_KAEL_DOOR            = 188064,
+    GO_KAEL_STATUE_1        = 188165,
+    GO_KAEL_STATUE_2        = 188166,
+    GO_ESCAPE_ORB           = 188173
+};
 
-    DATA_ESCAPE_ORB             = 16
+enum MTInstanceEventIds
+{
+    EVENT_SPAWN_KALECGOS    = 16547
+};
+
+enum MTInstanceText
+{
+    SAY_KALECGOS_SPAWN      = 0
+};
+
+enum MTMovementData
+{
+    PATH_KALECGOS_FLIGHT    = 248440
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,34 +20,44 @@
 
 #include "Guild.h"
 
-class GuildMgr
+class TC_GAME_API GuildMgr
 {
-    friend class ACE_Singleton<GuildMgr, ACE_Null_Mutex>;
-
 private:
     GuildMgr();
     ~GuildMgr();
 
 public:
-    Guild* GetGuildByLeader(uint64 guid) const;
-    Guild* GetGuildById(uint32 guildId) const;
+    static GuildMgr* instance();
+
+    Guild* GetGuildByLeader(ObjectGuid guid) const;
+    Guild* GetGuildById(ObjectGuid::LowType guildId) const;
+    Guild* GetGuildByGuid(ObjectGuid guid) const;
     Guild* GetGuildByName(std::string const& guildName) const;
-    std::string GetGuildNameById(uint32 guildId) const;
+    std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
+
+    void LoadGuildRewards();
 
     void LoadGuilds();
     void AddGuild(Guild* guild);
-    void RemoveGuild(uint32 guildId);
+    void RemoveGuild(ObjectGuid::LowType guildId);
 
-    uint32 GenerateGuildId();
-    void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
+    void SaveGuilds();
 
-    void ResetTimes();
+    void ResetReputationCaps();
+
+    ObjectGuid::LowType GenerateGuildId();
+    void SetNextGuildId(ObjectGuid::LowType Id) { NextGuildId = Id; }
+
+    std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
+
+    void ResetTimes(bool week);
 protected:
-    typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
-    uint32 NextGuildId;
+    typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
+    ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
+    std::vector<GuildReward> GuildRewards;
 };
 
-#define sGuildMgr ACE_Singleton<GuildMgr, ACE_Null_Mutex>::instance()
+#define sGuildMgr GuildMgr::instance()
 
 #endif

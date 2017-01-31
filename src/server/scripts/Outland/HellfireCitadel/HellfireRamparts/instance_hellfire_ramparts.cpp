@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,68 +30,51 @@ EndScriptData */
 class instance_ramparts : public InstanceMapScript
 {
     public:
-        instance_ramparts()
-            : InstanceMapScript("instance_ramparts", 543)
-        {
-        }
+        instance_ramparts() : InstanceMapScript("instance_ramparts", 543) { }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint64 m_uiChestNGUID;
-            uint64 m_uiChestHGUID;
-            bool spawned;
-
-            void Initialize()
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                m_uiChestNGUID = 0;
-                m_uiChestHGUID = 0;
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
-                    case 185168:
-                        m_uiChestNGUID = go->GetGUID();
-                        break;
-                    case 185169:
-                        m_uiChestHGUID = go->GetGUID();
+                    case GO_FEL_IRON_CHEST_NORMAL:
+                    case GO_FEL_IRON_CHEST_HEROIC:
+                        felIronChestGUID = go->GetGUID();
                         break;
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            bool SetBossState(uint32 type, EncounterState state) override
             {
-                sLog->outDebug(LOG_FILTER_TSCR, "Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
-                switch (uiType)
+                switch (type)
                 {
-                    case TYPE_VAZRUDEN:
-                        if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)
-                        {
-                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
-                            spawned = true;
-                        }
-                        m_auiEncounter[0] = uiData;
+                    case DATA_VAZRUDEN:
+                    case DATA_NAZAN:
+                        if (GetBossState(DATA_VAZRUDEN) == DONE && GetBossState(DATA_NAZAN) == DONE)
+                            if (GameObject* chest = instance->GetGameObject(felIronChestGUID))
+                                chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
-                    case TYPE_NAZAN:
-                        if (uiData == DONE && m_auiEncounter[0] == DONE && !spawned)
-                        {
-                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
-                            spawned = true;
-                        }
-                        m_auiEncounter[1] = uiData;
+                    default:
                         break;
                 }
+                return true;
             }
+
+        protected:
+            ObjectGuid felIronChestGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ramparts_InstanceMapScript(map);
         }

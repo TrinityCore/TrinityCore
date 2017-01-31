@@ -5,8 +5,8 @@
  
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
-  @created 2003-10-02
-  @edited  2009-10-20
+  \created 2003-10-02
+  \edited  2012-12-25
  */
 
 #ifndef G3D_Matrix4_h
@@ -26,11 +26,12 @@
 namespace G3D {
 
 class Any;
+class Matrix2;
 
 /**
-  A 4x4 matrix.
+  A 4x4 matrix.  Do not subclass.  Data is initialized to 0 when default constructed.
 
-  See also G3D::CoordinateFrame, G3D::Matrix3, G3D::Quat
+  \sa G3D::CoordinateFrame, G3D::Matrix3, G3D::Quat
  */
 class Matrix4 {
 private:
@@ -50,10 +51,20 @@ private:
     bool operator>=(const Matrix4&) const;
 
 public:
-    /** Must be of the form: <code>Matrix4(#, #, # .... #)</code>*/
-    Matrix4(const Any& any);
 
-    operator Any() const;
+    /** Must be in one of the following forms:
+        - Matrix4(#, #, # .... #)
+        - Matrix4::scale(#)
+        - Matrix4::scale(#, #, #)
+        - Matrix4::translation(#, #, #)
+        - Matrix4::identity()
+        - Matrix4::rollDegrees(#)
+        - Matrix4::pitchDegrees(#)
+        - Matrix4::yawDegrees(#)
+    */
+    explicit Matrix4(const Any& any);
+
+    Any toAny() const;
 
     Matrix4(
         float r1c1, float r1c2, float r1c3, float r1c4,
@@ -66,16 +77,24 @@ public:
      */
     Matrix4(const float* init);
     
-	/**
-		a is the upper left 3x3 submatrix and b is the upper right 3x1 submatrix. The last row of the created matrix is (0,0,0,1).
-	*/
+    /**
+        a is the upper left 3x3 submatrix and b is the upper right 3x1 submatrix. The last row of the created matrix is (0,0,0,1).
+    */
     Matrix4(const class Matrix3& upper3x3, const class Vector3& lastCol = Vector3::zero());
 
     Matrix4(const class CoordinateFrame& c);
 
     Matrix4(const double* init);
 
+    /** Matrix4::zero() */
     Matrix4();
+
+    static Matrix4 diagonal(float e00, float e11, float e22, float e33) {
+        return Matrix4(e00, 0, 0, 0,
+                       0, e11, 0, 0,
+                       0, 0, e22, 0,
+                       0, 0, 0, e33);
+    }
 
     /** Produces an RT transformation that nearly matches this Matrix4.
         Because a Matrix4 may not be precisely a rotation and translation,
@@ -88,14 +107,19 @@ public:
     static const Matrix4& zero();
 
     /** If this is a perspective projection matrix created by
-        Matrix4::perspectiveProjection, extract its parameters. */
+        Matrix4::perspectiveProjection, extract its parameters.
+        
+        Uses double precision because the operations involved in
+        projection involve divisions that can significantly impact
+        precision.
+     */
     void getPerspectiveProjectionParameters
-    (float& left,
-     float& right,
-     float& bottom,  
-     float& top,
-     float& nearval, 
-     float& farval,
+    (double& left,
+     double& right,
+     double& bottom,  
+     double& top,
+     double& nearval, 
+     double& farval,
      float updirection = -1.0f) const;
         
     inline float* operator[](int r) {
@@ -110,6 +134,7 @@ public:
         return (const float*)&elt[r];
     } 
 
+    /** Returns a row-major pointer. */
     inline operator float* () {
         return (float*)&elt[0][0];
     }
@@ -131,6 +156,8 @@ public:
 
     class Matrix3 upper3x3() const;
 
+    class Matrix2 upper2x2() const;
+
     /** Homogeneous multiplication. Let k = M * [v w]^T.  result = k.xyz() / k.w */
     class Vector3 homoMul(const class Vector3& v, float w) const;
 
@@ -151,7 +178,6 @@ public:
         float            farval,
         float            upDirection = -1.0f);
 
-
     /** \param upDirection Use -1.0 for 2D Y increasing downwards (the G3D 8.x default convention), 
     1.0 for 2D Y increasing upwards (the G3D 7.x default and OpenGL convention)
       */
@@ -163,15 +189,18 @@ public:
 
     /** \param upDirection Use -1.0 for 2D Y increasing downwards (the G3D 8.x default convention), 
     1.0 for 2D Y increasing upwards (the G3D 7.x default and OpenGL convention)
-      */
+
+        Uses double precision because the operations involved in
+        projection involve divisions that can significantly impact
+        precision.    */
     static Matrix4 perspectiveProjection(
-        float            left,
-        float            right,
-        float            bottom,
-        float            top,
-        float            nearval,
-        float            farval,
-        float            upDirection = -1.0f);
+        double            left,
+        double            right,
+        double            bottom,
+        double            top,
+        double            nearval,
+        double            farval,
+        float             upDirection = -1.0f);
 
     void setRow(int r, const class Vector4& v);
     void setColumn(int c, const Vector4& v);
@@ -247,6 +276,67 @@ public:
     }
 };
 
+
+/** Double-precision 4x4 matrix */
+class Matrix4float64 {
+private:
+
+    double elt[4][4];
+
+public:
+
+    explicit Matrix4float64(const Matrix4& m);
+
+    /** all zeros */
+    Matrix4float64();
+
+    Matrix4float64(
+        double r1c1, double r1c2, double r1c3, double r1c4,
+        double r2c1, double r2c2, double r2c3, double r2c4,
+        double r3c1, double r3c2, double r3c3, double r3c4,
+        double r4c1, double r4c2, double r4c3, double r4c4);
+        
+    // Special values.
+    // Intentionally not inlined: see Matrix3::identity() for details.
+    static const Matrix4float64& identity();
+    
+    static const Matrix4float64& zero();
+
+    bool operator!=(const Matrix4float64& other) const;
+    
+    bool operator==(const Matrix4float64& other) const;
+
+    Vector4 operator*(const Vector4& vector) const;
+
+    static Matrix4float64 perspectiveProjection(
+        double            left,
+        double            right,
+        double            bottom,
+        double            top,
+        double            nearval,
+        double            farval,
+        float             upDirection = -1.0f);
+
+    inline double* operator[](int r) {
+        debugAssert(r >= 0);
+        debugAssert(r < 4);
+        return (double*)&elt[r];
+    }
+
+    inline const double* operator[](int r) const {
+        debugAssert(r >= 0);
+        debugAssert(r < 4);
+        return (const double*)&elt[r];
+    } 
+
+    inline operator double* () {
+        return (double*)&elt[0][0];
+    }
+
+    inline operator const double* () const {
+        return (const double*)&elt[0][0];
+    }
+};
 
 
 } // namespace

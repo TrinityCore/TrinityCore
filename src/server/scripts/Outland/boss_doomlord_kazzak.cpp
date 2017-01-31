@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ class boss_doomlord_kazzak : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset() override
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(6000, 10000));
@@ -82,17 +82,17 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
 
-            void JustRespawned()
+            void JustRespawned() override
             {
                 Talk(SAY_INTRO);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 // When Kazzak kills a player (not pets/totems), he regens some health
                 if (victim->GetTypeId() != TYPEID_PLAYER)
@@ -103,12 +103,12 @@ class boss_doomlord_kazzak : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff) override
             {
                 // Return since we have no target
                 if (!UpdateVictim())
@@ -169,9 +169,9 @@ class boss_doomlord_kazzak : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_doomlordkazzakAI (creature);
+            return new boss_doomlordkazzakAI(creature);
         }
 };
 
@@ -184,7 +184,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mark_of_kazzak_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_KAZZAK_DAMAGE))
                     return false;
@@ -209,14 +209,14 @@ class spell_mark_of_kazzak : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mark_of_kazzak_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_kazzak_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_MANA_LEECH);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mark_of_kazzak_AuraScript();
         }

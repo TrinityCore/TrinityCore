@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,36 +24,37 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
+#include "Language.h"
+#include "Player.h"
+#include "ObjectMgr.h"
 
 class message_commandscript : public CommandScript
 {
 public:
     message_commandscript() : CommandScript("message_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand channelSetCommandTable[] =
+        static std::vector<ChatCommand> channelSetCommandTable =
         {
-            { "ownership",      SEC_ADMINISTRATOR,  false,  &HandleChannelSetOwnership,         "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "ownership", rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP, false, &HandleChannelSetOwnership, "" },
         };
-        static ChatCommand channelCommandTable[] =
+        static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set",            SEC_ADMINISTRATOR,  true,   NULL,                               "", channelSetCommandTable },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, NULL, "", channelSetCommandTable },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
-            { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
-            { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
-            { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
-            { "notify",         SEC_MODERATOR,      true,   &HandleNotifyCommand,               "", NULL },
-            { "gmnotify",       SEC_MODERATOR,      true,   &HandleGMNotifyCommand,             "", NULL },
-            { "whispers",       SEC_MODERATOR,      false,  &HandleWhispersCommand,             "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, NULL,                         "", channelCommandTable  },
+            { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "" },
+            { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "" },
+            { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "" },
+            { "gmannounce",     rbac::RBAC_PERM_COMMAND_GMANNOUNCE,     true, &HandleGMAnnounceCommand,     "" },
+            { "notify",         rbac::RBAC_PERM_COMMAND_NOTIFY,         true, &HandleNotifyCommand,         "" },
+            { "gmnotify",       rbac::RBAC_PERM_COMMAND_GMNOTIFY,       true, &HandleGMNotifyCommand,       "" },
+            { "whispers",       rbac::RBAC_PERM_COMMAND_WHISPERS,      false, &HandleWhispersCommand,       "" },
         };
         return commandTable;
     }
@@ -63,21 +64,50 @@ public:
         if (!*args)
             return false;
         char const* channelStr = strtok((char*)args, " ");
-        char const* argStr = strtok(NULL, "");
+        char const* argStr = strtok(nullptr, "");
 
         if (!channelStr || !argStr)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Channel* channcel = NULL;
+        uint32 channelId = 0;
+        for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+        {
+            ChatChannelsEntry const* channelEntry = sChatChannelsStore.LookupEntry(i);
+            if (!channelEntry)
+                continue;
 
-        if (ChannelMgr* cMgr = ChannelMgr::forTeam(player->GetTeam()))
-            channcel = cMgr->GetChannel(channelStr, player);
+            if (strstr(channelEntry->Name->Str[handler->GetSessionDbcLocale()], channelStr))
+            {
+                channelId = i;
+                break;
+            }
+        }
+
+        AreaTableEntry const* zoneEntry = nullptr;
+        for (uint32 i = 0; i < sAreaTableStore.GetNumRows(); ++i)
+        {
+            AreaTableEntry const* entry = sAreaTableStore.LookupEntry(i);
+            if (!entry)
+                continue;
+
+            if (strstr(entry->AreaName->Str[handler->GetSessionDbcLocale()], channelStr))
+            {
+                zoneEntry = entry;
+                break;
+            }
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Channel* channel = nullptr;
+
+        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(player->GetTeam()))
+            channel = cMgr->GetChannel(channelId, channelStr, player, false, zoneEntry);
 
         if (strcmp(argStr, "on") == 0)
         {
-            if (channcel)
-                channcel->SetOwnership(true);
+            if (channel)
+                channel->SetOwnership(true);
+
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 1);
             stmt->setString(1, channelStr);
@@ -86,8 +116,9 @@ public:
         }
         else if (strcmp(argStr, "off") == 0)
         {
-            if (channcel)
-                channcel->SetOwnership(false);
+            if (channel)
+                channel->SetOwnership(false);
+
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 0);
             stmt->setString(1, channelStr);
@@ -131,9 +162,9 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        std::string str = handler->PGetParseString(LANG_SYSTEMMESSAGE, args);
+
+        sWorld->SendServerMessage(SERVER_MSG_STRING, str);
         return true;
     }
     // announce to logged in GMs
@@ -154,9 +185,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-        data << str;
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
@@ -169,9 +198,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-        data << str;
-        sWorld->SendGlobalGMMessage(&data);
+        sWorld->SendGlobalGMMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
@@ -184,7 +211,7 @@ public:
             return true;
         }
 
-        std::string argStr = (char*)args;
+        std::string argStr = strtok((char*)args, " ");
         // whisper on
         if (argStr == "on")
         {
@@ -203,6 +230,25 @@ public:
             return true;
         }
 
+        if (argStr == "remove")
+        {
+            std::string name = strtok(NULL, " ");
+            if (normalizePlayerName(name))
+            {
+                if (Player* player = ObjectAccessor::FindPlayerByName(name))
+                {
+                    handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
+                    handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, name.c_str());
+                    return true;
+                }
+                else
+                {
+                    handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, name.c_str());
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+            }
+        }
         handler->SendSysMessage(LANG_USE_BOL);
         handler->SetSentErrorMessage(true);
         return false;

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,78 +15,76 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance - Sethekk Halls
-SD%Complete: 50
-SDComment: Instance Data for Sethekk Halls instance
-SDCategory: Auchindoun, Sethekk Halls
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "sethekk_halls.h"
 
-enum eEnums
+DoorData const doorData[] =
 {
-    NPC_ANZU   = 23035,
-    IKISS_DOOR = 177203,
+    { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, DOOR_TYPE_PASSAGE },
+    { 0,             0,                     DOOR_TYPE_ROOM } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_TALON_KING_COFFER, DATA_TALON_KING_COFFER },
+    { 0,                    0                      } // END
 };
 
 class instance_sethekk_halls : public InstanceMapScript
 {
-public:
-    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
+    public:
+        instance_sethekk_halls() : InstanceMapScript(SHScriptName, 556) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_sethekk_halls_InstanceMapScript(map);
-    }
-
-    struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
-    {
-        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 AnzuEncounter;
-        uint64 m_uiIkissDoorGUID;
-
-        void Initialize()
+        struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
         {
-            AnzuEncounter = NOT_STARTED;
-            m_uiIkissDoorGUID = 0;
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            if (creature->GetEntry() == NPC_ANZU)
+            instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                if (AnzuEncounter >= IN_PROGRESS)
-                    creature->DisappearAndDie();
-                else
-                    AnzuEncounter = IN_PROGRESS;
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+                LoadObjectData(nullptr, gameObjectData);
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go)
-        {
-             if (go->GetEntry() == IKISS_DOOR)
-                m_uiIkissDoorGUID = go->GetGUID();
-        }
-
-        void SetData(uint32 type, uint32 data)
-        {
-            switch (type)
+            void OnCreatureCreate(Creature* creature) override
             {
-                case DATA_IKISSDOOREVENT:
-                    if (data == DONE)
-                        DoUseDoorOrButton(m_uiIkissDoorGUID, DAY*IN_MILLISECONDS);
-                    break;
-                case TYPE_ANZU_ENCOUNTER:
-                    AnzuEncounter = data;
-                    break;
+                if (creature->GetEntry() == NPC_ANZU)
+                {
+                    if (GetBossState(DATA_ANZU) == DONE)
+                        creature->DisappearAndDie();
+                    else
+                        SetBossState(DATA_ANZU, IN_PROGRESS);
+                }
             }
-        }
-    };
 
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_TALON_KING_IKISS:
+                        if (state == DONE)
+                        {
+                            /// @workaround: GO_FLAG_INTERACT_COND remains on the gob, but it is not handled correctly in this case
+                            ///              gameobject should have GO_DYNFLAG_LO_ACTIVATE too, which makes gobs interactable with GO_FLAG_INTERACT_COND
+                            ///              so just removed GO_FLAG_INTERACT_COND
+                            if (GameObject* coffer = GetGameObject(DATA_TALON_KING_COFFER))
+                                coffer->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        {
+            return new instance_sethekk_halls_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_sethekk_halls()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,14 +17,17 @@
  */
 
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "WorldPacket.h"
 #include "ArenaTeam.h"
 #include "World.h"
 #include "Group.h"
 #include "ArenaTeamMgr.h"
+#include "WorldSession.h"
+#include "Opcodes.h"
 
 ArenaTeam::ArenaTeam()
-    : TeamId(0), Type(0), TeamName(), CaptainGuid(0), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
+    : TeamId(0), Type(0), TeamName(), CaptainGuid(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
     BorderStyle(0), BorderColor(0)
 {
     Stats.WeekGames   = 0;
@@ -38,14 +41,14 @@ ArenaTeam::ArenaTeam()
 ArenaTeam::~ArenaTeam()
 { }
 
-bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
+bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
     // Check if captain is present
     if (!ObjectAccessor::FindPlayer(captainGuid))
         return false;
 
     // Check if arena team name is already taken
-    if (sArenaTeamMgr->GetArenaTeamByName(TeamName))
+    if (sArenaTeamMgr->GetArenaTeamByName(teamName))
         return false;
 
     // Generate new arena team id
@@ -60,13 +63,13 @@ bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& teamNa
     EmblemColor = emblemColor;
     BorderStyle = borderStyle;
     BorderColor = borderColor;
-    uint32 captainLowGuid = GUID_LOPART(captainGuid);
+    ObjectGuid::LowType captainLowGuid = captainGuid.GetCounter();
 
     // Save arena team to db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM);
     stmt->setUInt32(0, TeamId);
     stmt->setString(1, TeamName);
-    stmt->setUInt32(2, captainLowGuid);
+    stmt->setUInt64(2, captainLowGuid);
     stmt->setUInt8(3, Type);
     stmt->setUInt16(4, Stats.Rating);
     stmt->setUInt32(5, BackgroundColor);
@@ -79,11 +82,11 @@ bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& teamNa
     // Add captain as member
     AddMember(CaptainGuid);
 
-    sLog->outInfo(LOG_FILTER_ARENAS, "New ArenaTeam created [Id: %u] [Type: %u] [Captain low GUID: %u]", GetId(), GetType(), captainLowGuid);
+    TC_LOG_DEBUG("bg.arena", "New ArenaTeam created [Id: %u, Name: %s] [Type: %u] [Captain low GUID: " UI64FMTD "]", GetId(), GetName().c_str(), GetType(), captainLowGuid);
     return true;
 }
 
-bool ArenaTeam::AddMember(uint64 playerGuid)
+bool ArenaTeam::AddMember(ObjectGuid playerGuid)
 {
     std::string playerName;
     uint8 playerClass;
@@ -99,25 +102,18 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
         playerClass = player->getClass();
         playerName = player->GetName();
     }
-    else
+    else if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerGuid))
     {
-        //          0     1
-        // SELECT name, class FROM characters WHERE guid = ?
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_CLASS);
-        stmt->setUInt32(0, GUID_LOPART(playerGuid));
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-            return false;
-
-        playerName = (*result)[0].GetString();
-        playerClass = (*result)[1].GetUInt8();
+        playerName = characterInfo->Name;
+        playerClass = characterInfo->Class;
     }
+    else
+        return false;
 
     // Check if player is already in a similar arena team
     if ((player && player->GetArenaTeamId(GetSlot())) || Player::GetArenaTeamIdFromDB(playerGuid, GetType()) != 0)
     {
-        sLog->outDebug(LOG_FILTER_ARENAS, "Arena: Player %s (guid: %u) already has an arena team of type %u", playerName.c_str(), GUID_LOPART(playerGuid), GetType());
+        TC_LOG_DEBUG("bg.arena", "Arena: %s %s already has an arena team of type %u", playerGuid.ToString().c_str(), playerName.c_str(), GetType());
         return false;
     }
 
@@ -131,7 +127,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
 
     // Try to get player's match maker rating from db and fall back to config setting if not found
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MATCH_MAKER_RATING);
-    stmt->setUInt32(0, GUID_LOPART(playerGuid));
+    stmt->setUInt64(0, playerGuid.GetCounter());
     stmt->setUInt8(1, GetSlot());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -143,7 +139,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
 
     // Remove all player signatures from other petitions
     // This will prevent player from joining too many arena teams and corrupt arena team data integrity
-    Player::RemovePetitionsAndSigns(playerGuid, GetType());
+    //Player::RemovePetitionsAndSigns(playerGuid, GetType()); /// @todo arena teams removed in 5.4
 
     // Feed data to the struct
     ArenaTeamMember newMember;
@@ -162,7 +158,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
     // Save player's arena team membership to db
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM_MEMBER);
     stmt->setUInt32(0, TeamId);
-    stmt->setUInt32(1, GUID_LOPART(playerGuid));
+    stmt->setUInt64(1, playerGuid.GetCounter());
     CharacterDatabase.Execute(stmt);
 
     // Inform player if online
@@ -176,7 +172,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
     }
 
-    sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", playerName.c_str(), GUID_LOPART(playerGuid), GetType(), GetId());
+    TC_LOG_DEBUG("bg.arena", "Player: %s [%s] joined arena team type: %u [Id: %u, Name: %s].", playerName.c_str(), playerGuid.ToString().c_str(), GetType(), GetId(), GetName().c_str());
 
     return true;
 }
@@ -190,7 +186,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
 
     TeamId            = fields[0].GetUInt32();
     TeamName          = fields[1].GetString();
-    CaptainGuid       = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    CaptainGuid       = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
     Type              = fields[3].GetUInt8();
     BackgroundColor   = fields[4].GetUInt32();
     EmblemStyle       = fields[5].GetUInt8();
@@ -229,7 +225,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
             break;
 
         ArenaTeamMember newMember;
-        newMember.Guid             = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
+        newMember.Guid             = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
         newMember.WeekGames        = fields[2].GetUInt16();
         newMember.WeekWins         = fields[3].GetUInt16();
         newMember.SeasonGames      = fields[4].GetUInt16();
@@ -237,12 +233,12 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         newMember.Name             = fields[6].GetString();
         newMember.Class            = fields[7].GetUInt8();
         newMember.PersonalRating   = fields[8].GetUInt16();
-        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : 1500;
+        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
 
         // Delete member if character information is missing
         if (newMember.Name.empty())
         {
-            sLog->outError(LOG_FILTER_SQL, "ArenaTeam %u has member with empty name - probably player %u doesn't exist, deleting him from memberlist!", arenaTeamId, GUID_LOPART(newMember.Guid));
+            TC_LOG_ERROR("sql.sql", "ArenaTeam %u has member with empty name - probably %s doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString().c_str());
             DelMember(newMember.Guid, true);
             continue;
         }
@@ -259,14 +255,27 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
     if (Empty() || !captainPresentInTeam)
     {
         // Arena team is empty or captain is not in team, delete from db
-        sLog->outDebug(LOG_FILTER_ARENAS, "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
+        TC_LOG_DEBUG("bg.arena", "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
         return false;
     }
 
     return true;
 }
 
-void ArenaTeam::SetCaptain(uint64 guid)
+bool ArenaTeam::SetName(std::string const& name)
+{
+    if (TeamName == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+        return false;
+
+    TeamName = name;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_NAME);
+    stmt->setString(0, TeamName);
+    stmt->setUInt32(1, GetId());
+    CharacterDatabase.Execute(stmt);
+    return true;
+}
+
+void ArenaTeam::SetCaptain(ObjectGuid guid)
 {
     // Disable remove/promote buttons
     Player* oldCaptain = ObjectAccessor::FindPlayer(GetCaptain());
@@ -278,7 +287,7 @@ void ArenaTeam::SetCaptain(uint64 guid)
 
     // Update database
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_CAPTAIN);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt64(0, guid.GetCounter());
     stmt->setUInt32(1, GetId());
     CharacterDatabase.Execute(stmt);
 
@@ -288,14 +297,14 @@ void ArenaTeam::SetCaptain(uint64 guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         if (oldCaptain)
         {
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
-                oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUIDLow(), GetId(), GetType());
+            TC_LOG_DEBUG("bg.arena", "Player: %s [%s] promoted player: %s [%s] to leader of arena team [Id: %u, Name: %s] [Type: %u].",
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().ToString().c_str(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUID().ToString().c_str(), GetId(), GetName().c_str(), GetType());
         }
     }
 }
 
-void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
+void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
@@ -305,14 +314,13 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
             break;
         }
 
-    // Inform player and remove arena team info from player data
+    // Remove arena team info from player data
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
+        TC_LOG_DEBUG("bg.arena", "Player: %s [%s] left arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -320,25 +328,23 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM_MEMBER);
         stmt->setUInt32(0, GetId());
-        stmt->setUInt32(1, GUID_LOPART(guid));
+        stmt->setUInt64(1, guid.GetCounter());
         CharacterDatabase.Execute(stmt);
     }
 }
 
 void ArenaTeam::Disband(WorldSession* session)
 {
-    // Remove all members from arena team
-    while (!Members.empty())
-        DelMember(Members.front().Guid, false);
-
     // Broadcast update
     if (session)
     {
-        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName().c_str(), GetName(), "");
-
         if (Player* player = session->GetPlayer())
-            sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
+            TC_LOG_DEBUG("bg.arena", "Player: %s [%s] disbanded arena team type: %u [Id: %u, Name: %s].", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetType(), GetId(), GetName().c_str());
     }
+
+    // Remove all members from arena team
+    while (!Members.empty())
+        DelMember(Members.front().Guid, false);
 
     // Update database
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -357,57 +363,27 @@ void ArenaTeam::Disband(WorldSession* session)
     sArenaTeamMgr->RemoveArenaTeam(TeamId);
 }
 
-void ArenaTeam::Roster(WorldSession* session)
+void ArenaTeam::Disband()
 {
-    Player* player = NULL;
+    // Remove all members from arena team
+    while (!Members.empty())
+        DelMember(Members.front().Guid, false);
 
-    uint8 unk308 = 0;
+    // Update database
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    WorldPacket data(SMSG_ARENA_TEAM_ROSTER, 100);
-    data << uint32(GetId());                                // team id
-    data << uint8(unk308);                                  // 308 unknown value but affect packet structure
-    data << uint32(GetMembersSize());                       // members count
-    data << uint32(GetType());                              // arena team type?
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM);
+    stmt->setUInt32(0, TeamId);
+    trans->Append(stmt);
 
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        player = ObjectAccessor::FindPlayer(itr->Guid);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM_MEMBERS);
+    stmt->setUInt32(0, TeamId);
+    trans->Append(stmt);
 
-        data << uint64(itr->Guid);                          // guid
-        data << uint8((player ? 1 : 0));                        // online flag
-        data << itr->Name;                                  // member name
-        data << uint32((itr->Guid == GetCaptain() ? 0 : 1));// captain flag 0 captain 1 member
-        data << uint8((player ? player->getLevel() : 0));           // unknown, level?
-        data << uint8(itr->Class);                          // class
-        data << uint32(itr->WeekGames);                    // played this week
-        data << uint32(itr->WeekWins);                     // wins this week
-        data << uint32(itr->SeasonGames);                  // played this season
-        data << uint32(itr->SeasonWins);                   // wins this season
-        data << uint32(itr->PersonalRating);               // personal rating
-        if (unk308)
-        {
-            data << float(0.0f);                           // 308 unk
-            data << float(0.0f);                           // 308 unk
-        }
-    }
+    CharacterDatabase.CommitTransaction(trans);
 
-    session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_ROSTER");
-}
-
-void ArenaTeam::Query(WorldSession* session)
-{
-    WorldPacket data(SMSG_ARENA_TEAM_QUERY_RESPONSE, 4*7+GetName().size()+1);
-    data << uint32(GetId());                                // team id
-    data << GetName();                                      // team name
-    data << uint32(GetType());                              // arena team type (2=2x2, 3=3x3 or 5=5x5)
-    data << uint32(BackgroundColor);                        // background color
-    data << uint32(EmblemStyle);                            // emblem style
-    data << uint32(EmblemColor);                            // emblem color
-    data << uint32(BorderStyle);                            // border style
-    data << uint32(BorderColor);                            // border color
-    session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_QUERY_RESPONSE");
+    // Remove arena team from ObjectMgr
+    sArenaTeamMgr->RemoveArenaTeam(TeamId);
 }
 
 void ArenaTeam::SendStats(WorldSession* session)
@@ -428,26 +404,26 @@ void ArenaTeam::NotifyStatsChanged()
     // This is called after a rated match ended
     // Updates arena team stats for every member of the team (not only the ones who participated!)
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             SendStats(player->GetSession());
 }
 
-void ArenaTeam::Inspect(WorldSession* session, uint64 guid)
+void ArenaTeam::Inspect(WorldSession* /*session*/, ObjectGuid guid)
 {
     ArenaTeamMember* member = GetMember(guid);
     if (!member)
         return;
 
-    WorldPacket data(MSG_INSPECT_ARENA_TEAMS, 8+1+4*6);
-    data << uint64(guid);                                   // player guid
-    data << uint8(GetSlot());                               // slot (0...2)
-    data << uint32(GetId());                                // arena team id
-    data << uint32(Stats.Rating);                           // rating
-    data << uint32(Stats.SeasonGames);                      // season played
-    data << uint32(Stats.SeasonWins);                       // season wins
-    data << uint32(member->SeasonGames);                    // played (count of all games, that the inspected member participated...)
-    data << uint32(member->PersonalRating);                 // personal rating
-    session->SendPacket(&data);
+    //WorldPacket data(MSG_INSPECT_ARENA_TEAMS, 8+1+4*6);
+    //data << guid;                                           // player guid
+    //data << uint8(GetSlot());                               // slot (0...2)
+    //data << uint32(GetId());                                // arena team id
+    //data << uint32(Stats.Rating);                           // rating
+    //data << uint32(Stats.SeasonGames);                      // season played
+    //data << uint32(Stats.SeasonWins);                       // season wins
+    //data << uint32(member->SeasonGames);                    // played (count of all games, that the inspected member participated...)
+    //data << uint32(member->PersonalRating);                 // personal rating
+    //session->SendPacket(&data);
 }
 
 void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 type)
@@ -460,7 +436,7 @@ void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 typ
     if (player)
     {
         player->SetArenaTeamInfoField(ArenaTeam::GetSlotByType(type), ARENA_TEAM_PERSONAL_RATING, PersonalRating);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, type);
+        player->UpdateCriteria(CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, type);
     }
 }
 
@@ -475,39 +451,8 @@ void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
 void ArenaTeam::BroadcastPacket(WorldPacket* packet)
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
             player->GetSession()->SendPacket(packet);
-}
-
-void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3)
-{
-    WorldPacket data(SMSG_ARENA_TEAM_EVENT, 1+1+1);
-    data << uint8(event);
-    data << uint8(strCount);
-    switch (strCount)
-    {
-        case 0:
-            break;
-        case 1:
-            data << str1;
-            break;
-        case 2:
-            data << str1 << str2;
-            break;
-        case 3:
-            data << str1 << str2 << str3;
-            break;
-        default:
-            sLog->outError(LOG_FILTER_ARENAS, "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
-            return;
-    }
-
-    if (guid)
-        data << uint64(guid);
-
-    BroadcastPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
 }
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)
@@ -520,43 +465,31 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
         default:
             break;
     }
-    sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team type %u for some arena team", type);
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team type %u for some arena team", type);
     return 0xFF;
 }
 
-bool ArenaTeam::IsMember(uint64 guid) const
+uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
+{
+    switch (slot)
+    {
+        case 0: return ARENA_TEAM_2v2;
+        case 1: return ARENA_TEAM_3v3;
+        case 2: return ARENA_TEAM_5v5;
+        default:
+            break;
+    }
+    TC_LOG_ERROR("bg.arena", "FATAL: Unknown arena team slot %u for some arena team", slot);
+    return 0xFF;
+}
+
+bool ArenaTeam::IsMember(ObjectGuid guid) const
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
         if (itr->Guid == guid)
             return true;
 
     return false;
-}
-
-uint32 ArenaTeam::GetPoints(uint32 memberRating)
-{
-    // Returns how many points would be awarded with this team type with this rating
-    float points;
-
-    uint32 rating = memberRating + 150 < Stats.Rating ? memberRating : Stats.Rating;
-
-    if (rating <= 1500)
-    {
-        if (sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
-            points = (float)rating * 0.22f + 14.0f;
-        else
-            points = 344;
-    }
-    else
-        points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
-
-    // Type penalties for teams < 5v5
-    if (Type == ARENA_TEAM_2v2)
-        points *= 0.76f;
-    else if (Type == ARENA_TEAM_3v3)
-        points *= 0.88f;
-
-    return (uint32) points;
 }
 
 uint32 ArenaTeam::GetAverageMMR(Group* group) const
@@ -569,10 +502,10 @@ uint32 ArenaTeam::GetAverageMMR(Group* group) const
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         // Skip if player is not online
-        if (!ObjectAccessor::FindPlayer(itr->Guid))
+        if (!ObjectAccessor::FindConnectedPlayer(itr->Guid))
             continue;
 
-        // Skip if player is not member of group
+        // Skip if player is not a member of group
         if (!group->IsMember(itr->Guid))
             continue;
 
@@ -593,10 +526,10 @@ float ArenaTeam::GetChanceAgainst(uint32 ownRating, uint32 opponentRating)
 {
     // Returns the chance to win against a team with the given rating, used in the rating adjustment calculation
     // ELO system
-    return 1.0f / (1.0f + exp(log(10.0f) * (float)((float)opponentRating - (float)ownRating) / 650.0f));
+    return 1.0f / (1.0f + std::exp(std::log(10.0f) * (float(opponentRating) - float(ownRating)) / 650.0f));
 }
 
-int32 ArenaTeam::GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won /*, float& confidence_factor*/)
+int32 ArenaTeam::GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won)
 {
     // 'Chance' calculation - to beat the opponent
     // This is a simulation. Not much info on how it really works
@@ -617,7 +550,7 @@ int32 ArenaTeam::GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating,
     */
 
     // Real rating modification
-    mod *= 24.0f;
+    mod *= sWorld->getFloatConfig(CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER);
 
     return (int32)ceil(mod);
 }
@@ -627,21 +560,27 @@ int32 ArenaTeam::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won 
     // 'Chance' calculation - to beat the opponent
     // This is a simulation. Not much info on how it really works
     float chance = GetChanceAgainst(ownRating, opponentRating);
-    float won_mod = (won) ? 1.0f : 0.0f;
 
     // Calculate the rating modification
     float mod;
 
-    // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
-    if (won && ownRating < 1300)
+    /// @todo Replace this hack with using the confidence factor (limiting the factor to 2.0f)
+    if (won)
     {
-        if (ownRating < 1000)
-            mod = 48.0f * (won_mod - chance);
+        if (ownRating < 1300)
+        {
+            float win_rating_modifier1 = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_1);
+
+            if (ownRating < 1000)
+                mod =  win_rating_modifier1 * (1.0f - chance);
+            else
+                mod = ((win_rating_modifier1 / 2.0f) + ((win_rating_modifier1 / 2.0f) * (1300.0f - float(ownRating)) / 300.0f)) * (1.0f - chance);
+        }
         else
-            mod = (24.0f + (24.0f * (1300.0f - float(ownRating)) / 300.0f)) * (won_mod - chance);
+            mod = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_2) * (1.0f - chance);
     }
     else
-        mod = 24.0f * (won_mod - chance);
+        mod = sWorld->getFloatConfig(CONFIG_ARENA_LOSE_RATING_MODIFIER) * (-chance);
 
     return (int32)ceil(mod);
 }
@@ -657,8 +596,8 @@ void ArenaTeam::FinishGame(int32 mod)
 
         // Check if rating related achivements are met
         for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-            if (Player* member = ObjectAccessor::FindPlayer(itr->Guid))
-                member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(itr->Guid))
+                member->UpdateCriteria(CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
     }
 
     // Update number of games played per season or week
@@ -675,17 +614,17 @@ void ArenaTeam::FinishGame(int32 mod)
     }
 }
 
-int32 ArenaTeam::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change)
+int32 ArenaTeam::WonAgainst(uint32 ownMMRating, uint32 opponentMMRating, int32& ratingChange)
 {
     // Called when the team has won
     // Change in Matchmaker rating
-    int32 mod = GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
+    int32 mod = GetMatchmakerRatingMod(ownMMRating, opponentMMRating, true);
 
     // Change in Team Rating
-    rating_change = GetRatingMod(Stats.Rating, Opponent_MMRating, true);
+    ratingChange = GetRatingMod(Stats.Rating, opponentMMRating, true);
 
     // Modify the team stats accordingly
-    FinishGame(rating_change);
+    FinishGame(ratingChange);
 
     // Update number of wins per season and week
     Stats.WeekWins += 1;
@@ -695,23 +634,23 @@ int32 ArenaTeam::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32
     return mod;
 }
 
-int32 ArenaTeam::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change)
+int32 ArenaTeam::LostAgainst(uint32 ownMMRating, uint32 opponentMMRating, int32& ratingChange)
 {
     // Called when the team has lost
     // Change in Matchmaker Rating
-    int32 mod = GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
+    int32 mod = GetMatchmakerRatingMod(ownMMRating, opponentMMRating, false);
 
     // Change in Team Rating
-    rating_change = GetRatingMod(Stats.Rating, Opponent_MMRating, false);
+    ratingChange = GetRatingMod(Stats.Rating, opponentMMRating, false);
 
     // Modify the team stats accordingly
-    FinishGame(rating_change);
+    FinishGame(ratingChange);
 
     // return the rating change, used to display it on the results screen
     return mod;
 }
 
-void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
+void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 matchmakerRatingChange)
 {
     // Called for each participant of a match after losing
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
@@ -723,7 +662,7 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
             itr->ModifyPersonalRating(player, mod, GetType());
 
             // Update matchmaker rating
-            itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
+            itr->ModifyMatchmakerRating(matchmakerRatingChange, GetSlot());
 
             // Update personal played stats
             itr->WeekGames +=1;
@@ -737,7 +676,7 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
     }
 }
 
-void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
+void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for offline player after ending rated arena match!
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
@@ -759,7 +698,7 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
     }
 }
 
-void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
+void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 matchmakerRatingChange)
 {
     // called for each participant after winning a match
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
@@ -771,7 +710,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             itr->ModifyPersonalRating(player, mod, GetType());
 
             // update matchmaker rating
-            itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
+            itr->ModifyMatchmakerRating(matchmakerRatingChange, GetSlot());
 
             // update personal stats
             itr->WeekGames +=1;
@@ -783,36 +722,6 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
             return;
         }
-    }
-}
-
-void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
-{
-    // Called after a match has ended and the stats are already modified
-    // Helper function for arena point distribution (this way, when distributing, no actual calculation is required, just a few comparisons)
-    // 10 played games per week is a minimum
-    if (Stats.WeekGames < 10)
-        return;
-
-    // To get points, a player has to participate in at least 30% of the matches
-    uint32 requiredGames = (uint32)ceil(Stats.WeekGames * 0.3f);
-
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        // The player participated in enough games, update his points
-        uint32 pointsToAdd = 0;
-        if (itr->WeekGames >= requiredGames)
-            pointsToAdd = GetPoints(itr->PersonalRating);
-
-        std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(GUID_LOPART(itr->Guid));
-        if (plr_itr != playerPoints.end())
-        {
-            // Check if there is already more points
-            if (plr_itr->second < pointsToAdd)
-                playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
-        }
-        else
-            playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
     }
 }
 
@@ -842,11 +751,11 @@ void ArenaTeam::SaveToDB()
         stmt->setUInt16(3, itr->SeasonGames);
         stmt->setUInt16(4, itr->SeasonWins);
         stmt->setUInt32(5, GetId());
-        stmt->setUInt32(6, GUID_LOPART(itr->Guid));
+        stmt->setUInt64(6, itr->Guid.GetCounter());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_ARENA_STATS);
-        stmt->setUInt32(0, GUID_LOPART(itr->Guid));
+        stmt->setUInt64(0, itr->Guid.GetCounter());
         stmt->setUInt8(1, GetSlot());
         stmt->setUInt16(2, itr->MatchMakerRating);
         trans->Append(stmt);
@@ -888,7 +797,7 @@ ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
     return NULL;
 }
 
-ArenaTeamMember* ArenaTeam::GetMember(uint64 guid)
+ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
 {
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
         if (itr->Guid == guid)

@@ -1,8 +1,8 @@
 /** 
-  @file GMutex.h
+  \file G3D/GMutex.h
    
-  @created 2005-09-22
-  @edited  2009-03-25
+  \created 2005-09-22
+  \edited  2013-04-03
  */
 
 #ifndef G3D_GMutex_h
@@ -13,10 +13,13 @@
 #include "G3D/debugAssert.h"
 #include <string>
 
-#ifndef G3D_WIN32
+#ifndef G3D_WINDOWS
 #   include <pthread.h>
 #   include <signal.h>
-#   include <unistd.h>
+#endif
+
+#if defined(G3D_LINUX) || defined(G3D_OSX)
+#   include <unistd.h> // For usleep
 #endif
 
 
@@ -26,7 +29,7 @@ namespace G3D {
    \brief A mutual exclusion lock that busy-waits when locking.
 
    On a machine with one (significant) thread per processor core,
-   a spinlock may be substantially faster than a mutex.
+   a Spinlock may be substantially faster than a mutex.
 
    \sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
  */
@@ -41,12 +44,16 @@ public:
 
     /** Busy waits until the lock is unlocked, then locks it
         exclusively.  Returns true if the lock succeeded on the first
-        try (indicating no contention). */
+        try (indicating no contention). 
+        
+        Unlike a G3D::GMutex, a single thread cannot re-enter
+        Spinlock::lock() that it already locked.
+     */
     inline bool lock() {
         bool first = true;
         while (x.compareAndSet(0, 1) == 1) {
             first = false;
-#           ifdef G3D_WIN32
+#           ifdef G3D_WINDOWS
                 Sleep(0);
 #           else
                 usleep(0);
@@ -68,7 +75,7 @@ public:
 */
 class GMutex {
 private:
-#   ifdef G3D_WIN32
+#   ifdef G3D_WINDOWS
     CRITICAL_SECTION                    m_handle;
 #   else
     pthread_mutex_t                     m_handle;

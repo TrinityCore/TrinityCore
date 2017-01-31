@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,49 +23,52 @@
 #include "InstanceSaveMgr.h"
 #include "DBCEnums.h"
 
-class MapInstanced : public Map
+class GarrisonMap;
+
+class TC_GAME_API MapInstanced : public Map
 {
     friend class MapManager;
     public:
-        typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
+        typedef std::unordered_map< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
-        ~MapInstanced() {}
+        ~MapInstanced() { }
 
         // functions overwrite Map versions
-        void Update(const uint32);
-        void DelayedUpdate(const uint32 diff);
+        void Update(const uint32) override;
+        void DelayedUpdate(const uint32 diff) override;
         //void RelocationNotify();
-        void UnloadAll();
-        bool CanEnter(Player* player);
+        void UnloadAll() override;
+        EnterState CannotEnter(Player* /*player*/) override;
 
-        Map* CreateInstanceForPlayer(const uint32 mapId, Player* player);
+        Map* CreateInstanceForPlayer(const uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindInstanceMap(uint32 instanceId) const
         {
             InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);
-            return(i == m_InstancedMaps.end() ? NULL : i->second);
+            return(i == m_InstancedMaps.end() ? nullptr : i->second);
         }
         bool DestroyInstance(InstancedMaps::iterator &itr);
 
         void AddGridMapReference(const GridCoord &p)
         {
             ++GridMapReference[p.x_coord][p.y_coord];
-            SetUnloadReferenceLock(GridCoord(63-p.x_coord, 63-p.y_coord), true);
+            SetUnloadReferenceLock(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - p.x_coord, (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord), true);
         }
 
         void RemoveGridMapReference(GridCoord const& p)
         {
             --GridMapReference[p.x_coord][p.y_coord];
             if (!GridMapReference[p.x_coord][p.y_coord])
-                SetUnloadReferenceLock(GridCoord(63-p.x_coord, 63-p.y_coord), false);
+                SetUnloadReferenceLock(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - p.x_coord, (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord), false);
         }
 
         InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
-        virtual void InitVisibilityDistance();
+        virtual void InitVisibilityDistance() override;
 
     private:
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
+        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty, TeamId team);
         BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
+        GarrisonMap* CreateGarrison(uint32 instanceId, Player* owner);
 
         InstancedMaps m_InstancedMaps;
 

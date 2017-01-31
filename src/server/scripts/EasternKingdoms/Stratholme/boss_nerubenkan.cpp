@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,26 +27,38 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_ENCASINGWEBS          4962
-#define SPELL_PIERCEARMOR           6016
-#define SPELL_CRYPT_SCARABS         31602
-#define SPELL_RAISEUNDEADSCARAB     17235
+enum Spells
+{
+    SPELL_ENCASINGWEBS          = 4962,
+    SPELL_PIERCEARMOR           = 6016,
+    SPELL_CRYPT_SCARABS         = 31602,
+    SPELL_RAISEUNDEADSCARAB     = 17235
+};
 
 class boss_nerubenkan : public CreatureScript
 {
 public:
     boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_nerubenkanAI (creature);
+        return GetInstanceAI<boss_nerubenkanAI>(creature);
     }
 
     struct boss_nerubenkanAI : public ScriptedAI
     {
         boss_nerubenkanAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            CryptScarabs_Timer = 3000;
+            EncasingWebs_Timer = 7000;
+            PierceArmor_Timer = 19000;
+            RaiseUndeadScarab_Timer = 3000;
         }
 
         InstanceScript* instance;
@@ -56,22 +68,18 @@ public:
         uint32 CryptScarabs_Timer;
         uint32 RaiseUndeadScarab_Timer;
 
-        void Reset()
+        void Reset() override
         {
-            CryptScarabs_Timer = 3000;
-            EncasingWebs_Timer = 7000;
-            PierceArmor_Timer = 19000;
-            RaiseUndeadScarab_Timer = 3000;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            if (instance)
-                instance->SetData(TYPE_NERUB, IN_PROGRESS);
+            instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)
@@ -81,7 +89,7 @@ public:
                     pUndeadScarab->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -89,7 +97,7 @@ public:
             //EncasingWebs
             if (EncasingWebs_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENCASINGWEBS);
+                DoCastVictim(SPELL_ENCASINGWEBS);
                 EncasingWebs_Timer = 30000;
             } else EncasingWebs_Timer -= diff;
 
@@ -97,21 +105,21 @@ public:
             if (PierceArmor_Timer <= diff)
             {
                 if (urand(0, 3) < 2)
-                    DoCast(me->getVictim(), SPELL_PIERCEARMOR);
+                    DoCastVictim(SPELL_PIERCEARMOR);
                 PierceArmor_Timer = 35000;
             } else PierceArmor_Timer -= diff;
 
             //CryptScarabs_Timer
             if (CryptScarabs_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CRYPT_SCARABS);
+                DoCastVictim(SPELL_CRYPT_SCARABS);
                 CryptScarabs_Timer = 20000;
             } else CryptScarabs_Timer -= diff;
 
             //RaiseUndeadScarab
             if (RaiseUndeadScarab_Timer <= diff)
             {
-                RaiseUndeadScarab(me->getVictim());
+                RaiseUndeadScarab(me->GetVictim());
                 RaiseUndeadScarab_Timer = 16000;
             } else RaiseUndeadScarab_Timer -= diff;
 

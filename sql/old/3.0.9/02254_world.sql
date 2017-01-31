@@ -5,7 +5,7 @@ INSERT INTO `command` VALUES
 UPDATE `command` SET `name`="ahbotoption" WHERE `name`="ahbotoptions";
 DELETE FROM `command` WHERE `name` LIKE "path%";
 DELETE FROM `command` WHERE `name` LIKE "wp%";
-INSERT INTO `command` VALUES 
+INSERT INTO `command` VALUES
 ('wp load',2,'Syntax: .wp load $pathid\nLoad pathid number for selected creature. Creature must have no waypoint data.'),
 ('wp event',2,'Syntax: .wp event $subcommand\nType .path event to see the list of possible subcommands or .help path event $subcommand to see info on subcommands.'),
 ('wp unload',2,'Syntax: .wp unload\nUnload path for selected creature.'),

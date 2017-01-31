@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,18 +20,20 @@
 
 #include "ArenaTeam.h"
 
-class ArenaTeamMgr
+class TC_GAME_API ArenaTeamMgr
 {
-    friend class ACE_Singleton<ArenaTeamMgr, ACE_Null_Mutex>;
+private:
     ArenaTeamMgr();
     ~ArenaTeamMgr();
 
 public:
-    typedef UNORDERED_MAP<uint32, ArenaTeam*> ArenaTeamContainer;
+    static ArenaTeamMgr* instance();
+
+    typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;
 
     ArenaTeam* GetArenaTeamById(uint32 arenaTeamId) const;
     ArenaTeam* GetArenaTeamByName(std::string const& arenaTeamName) const;
-    ArenaTeam* GetArenaTeamByCaptain(uint64 guid) const;
+    ArenaTeam* GetArenaTeamByCaptain(ObjectGuid guid) const;
 
     void LoadArenaTeams();
     void AddArenaTeam(ArenaTeam* arenaTeam);
@@ -39,8 +41,6 @@ public:
 
     ArenaTeamContainer::iterator GetArenaTeamMapBegin() { return ArenaTeamStore.begin(); }
     ArenaTeamContainer::iterator GetArenaTeamMapEnd()   { return ArenaTeamStore.end(); }
-
-    void DistributeArenaPoints();
 
     uint32 GenerateArenaTeamId();
     void SetNextArenaTeamId(uint32 Id) { NextArenaTeamId = Id; }
@@ -50,6 +50,6 @@ protected:
     ArenaTeamContainer ArenaTeamStore;
 };
 
-#define sArenaTeamMgr ACE_Singleton<ArenaTeamMgr, ACE_Null_Mutex>::instance()
+#define sArenaTeamMgr ArenaTeamMgr::instance()
 
 #endif

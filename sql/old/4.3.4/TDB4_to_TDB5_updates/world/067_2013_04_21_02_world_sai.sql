@@ -1,0 +1,10 @@
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=17210 AND `source_type`=0 AND `id`=2 AND `link`=3;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23619 AND `source_type`=0 AND `id`=1 AND `link`=2;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23623 AND `source_type`=0 AND `id`=1 AND `link`=2;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23624 AND `source_type`=0 AND `id`=1 AND `link`=2;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23625 AND `source_type`=0 AND `id`=1 AND `link`=2;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23626 AND `source_type`=0 AND `id`=1 AND `link`=2;
+UPDATE `smart_scripts` SET `link`=0, `event_type`=0 WHERE  `entryorguid`=83600 AND `source_type`=9 AND `id`=0 AND `link`=1;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=1173 AND `source_type`=0 AND `id`=8 AND `link`=9;
+UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=23339 AND `source_type`=0 AND `id`=8 AND `link`=9;
+UPDATE `creature_template` SET `ScriptName`='' WHERE  `entry` IN (10981,10982,10986,10987,10990,11602,11603,11605,11678,11839,12050,12051,12053,12127,13078,13080,13089,13097,13098,13179,13284,13316,13317,13326,13328,13396,13438,13442,13443,13447,13577,13797,13798,14283);

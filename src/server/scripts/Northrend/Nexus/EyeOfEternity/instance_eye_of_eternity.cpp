@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,13 +19,19 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "eye_of_eternity.h"
+#include "Player.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
+};
 
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) {}
+    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_eye_of_eternity_InstanceMapScript(map);
     }
@@ -34,18 +40,18 @@ public:
     {
         instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
+            LoadBossBoundaries(boundaries);
+        }
 
-            vortexTriggers.clear();
-            portalTriggers.clear();
+        void OnPlayerEnter(Player* player) override
+        {
+            if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
+                player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
+        }
 
-            malygosGUID = 0;
-            lastPortalGUID = 0;
-            platformGUID = 0;
-            exitPortalGUID = 0;
-        };
-
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -54,7 +60,7 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
                     {
                         if (Creature* trigger = instance->GetCreature(*itr_trigger))
                         {
@@ -64,68 +70,57 @@ public:
                         }
                     }
 
-                    SpawnGameObject(GO_FOCUSING_IRIS, focusingIrisPosition);
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
 
                     if (GameObject* platform = instance->GetGameObject(platformGUID))
                         platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
                 }
                 else if (state == DONE)
-                {
-                    if (Creature* malygos = instance->GetCreature(malygosGUID))
-                        malygos->SummonCreature(NPC_ALEXSTRASZA, 829.0679f, 1244.77f, 279.7453f, 2.32f);
-
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
-
-                    // we make the platform appear again because at the moment we don't support looting using a vehicle
-                    if (GameObject* platform = instance->GetGameObject(platformGUID))
-                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-
-                    if (GameObject* chest = instance->GetGameObject(chestGUID))
-                        chest->SetRespawnTime(7*DAY);
-                }
             }
             return true;
         }
 
-        //TODO: this should be handled in map, maybe add a summon function in map
+        /// @todo this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
-        void SpawnGameObject(uint32 entry, Position& pos)
+        void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            GameObject* go = new GameObject;
-            if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
-                PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
+            GameObject* go = new GameObject();
+            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
                 0, 0, 0, 0, 120, GO_STATE_READY))
             {
                 delete go;
                 return;
             }
-
             instance->AddToMap(go);
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
                 case GO_NEXUS_RAID_PLATFORM:
                     platformGUID = go->GetGUID();
                     break;
-                case GO_FOCUSING_IRIS:
-                    go->GetPosition(&focusingIrisPosition);
+                case GO_FOCUSING_IRIS_10:
+                case GO_FOCUSING_IRIS_25:
+                    irisGUID = go->GetGUID();
+                    focusingIrisPosition = go->GetPosition();
                     break;
                 case GO_EXIT_PORTAL:
                     exitPortalGUID = go->GetGUID();
-                    go->GetPosition(&exitPortalPosition);
+                    exitPortalPosition = go->GetPosition();
                     break;
-                case GO_ALEXSTRASZA_S_GIFT:
-                case GO_ALEXSTRASZA_S_GIFT_2:
-                    chestGUID = go->GetGUID();
+                case GO_HEART_OF_MAGIC_10:
+                case GO_HEART_OF_MAGIC_25:
+                    heartOfMagicGUID = go->GetGUID();
+                    break;
+                default:
                     break;
             }
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -138,18 +133,40 @@ public:
                 case NPC_PORTAL_TRIGGER:
                     portalTriggers.push_back(creature->GetGUID());
                     break;
+                case NPC_ALEXSTRASZA_BUNNY:
+                    alexstraszaBunnyGUID = creature->GetGUID();
+                    break;
+                case NPC_ALEXSTRASZAS_GIFT:
+                    giftBoxBunnyGUID = creature->GetGUID();
+                    break;
             }
         }
 
-        void ProcessEvent(WorldObject* obj, uint32 eventId)
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            // Player continues to be moving after death no matter if spline will be cleared along with all movements,
+            // so on next world tick was all about delay if box will pop or not (when new movement will be registered)
+            // since in EoE you never stop falling. However root at this precise* moment works,
+            // it will get cleared on release. If by any chance some lag happen "Reload()" and "RepopMe()" works,
+            // last test I made now gave me 50/0 of this bug so I can't do more about it.
+            unit->SetControlled(true, UNIT_STATE_ROOT);
+        }
+
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
-                if (GameObject* go = obj->ToGameObject())
-                    go->Delete(); // this is not the best way.
+                if (Creature* alexstraszaBunny = instance->GetCreature(alexstraszaBunnyGUID))
+                    alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
+
+                if (GameObject* iris = instance->GetGameObject(irisGUID))
+                    iris->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
-                    malygos->GetMotionMaster()->MovePoint(4, 770.10f, 1275.33f, 267.23f); // MOVE_INIT_PHASE_ONE
+                    malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START
 
                 if (GameObject* exitPortal = instance->GetGameObject(exitPortalGUID))
                     exitPortal->Delete();
@@ -160,17 +177,17 @@ public:
         {
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
-                std::list<HostileReference*> m_threatlist = malygos->getThreatManager().getThreatList();
-                for (std::list<uint64>::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
+                ThreatContainer::StorageType const& threatList = malygos->getThreatManager().getThreatList();
+                for (GuidList::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
                 {
-                    if (m_threatlist.empty())
+                    if (threatList.empty())
                         return;
 
                     uint8 counter = 0;
                     if (Creature* trigger = instance->GetCreature(*itr_vortex))
                     {
                         // each trigger have to cast the spell to 5 players.
-                        for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                        for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                         {
                             if (counter >= 5)
                                 break;
@@ -179,7 +196,7 @@ public:
                             {
                                 Player* player = target->ToPlayer();
 
-                                if (!player || player->isGameMaster() || player->HasAura(SPELL_VORTEX_4))
+                                if (!player || player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
                                     continue;
 
                                 player->CastSpell(trigger, SPELL_VORTEX_4, true);
@@ -193,9 +210,9 @@ public:
 
         void PowerSparksHandling()
         {
-            bool next =  (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
+            bool next = (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
 
-            for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+            for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
             {
                 if (next)
                 {
@@ -212,7 +229,7 @@ public:
             }
         }
 
-        void SetData(uint32 data, uint32 /*value*/)
+        void SetData(uint32 data, uint32 /*value*/) override
         {
             switch (data)
             {
@@ -222,10 +239,13 @@ public:
                 case DATA_POWER_SPARKS_HANDLING:
                     PowerSparksHandling();
                     break;
+                case DATA_RESPAWN_IRIS:
+                    SpawnGameObject(instance->GetDifficultyID() == DIFFICULTY_10_N ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
+                    break;
             }
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data) const override
         {
             switch (data)
             {
@@ -235,67 +255,36 @@ public:
                     return malygosGUID;
                 case DATA_PLATFORM:
                     return platformGUID;
+                case DATA_ALEXSTRASZA_BUNNY_GUID:
+                    return alexstraszaBunnyGUID;
+                case DATA_HEART_OF_MAGIC_GUID:
+                    return heartOfMagicGUID;
+                case DATA_FOCUSING_IRIS_GUID:
+                    return irisGUID;
+                case DATA_GIFT_BOX_BUNNY_GUID:
+                    return giftBoxBunnyGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "E E " << GetBossSaveData();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* str)
-        {
-            if (!str)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(str);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(str);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'E' && dataHead2 == 'E')
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
-                }
-
-            } else OUT_LOAD_INST_DATA_FAIL;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        private:
-            std::list<uint64> vortexTriggers;
-            std::list<uint64> portalTriggers;
-            uint64 malygosGUID;
-            uint64 lastPortalGUID;
-            uint64 platformGUID;
-            uint64 exitPortalGUID;
-            uint64 chestGUID;
-            Position focusingIrisPosition;
-            Position exitPortalPosition;
+    private:
+        GuidList vortexTriggers;
+        GuidList portalTriggers;
+        ObjectGuid malygosGUID;
+        ObjectGuid irisGUID;
+        ObjectGuid lastPortalGUID;
+        ObjectGuid platformGUID;
+        ObjectGuid exitPortalGUID;
+        ObjectGuid heartOfMagicGUID;
+        ObjectGuid alexstraszaBunnyGUID;
+        ObjectGuid giftBoxBunnyGUID;
+        Position focusingIrisPosition;
+        Position exitPortalPosition;
     };
 };
 
 void AddSC_instance_eye_of_eternity()
 {
-   new instance_eye_of_eternity();
+    new instance_eye_of_eternity();
 }

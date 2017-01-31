@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,26 +15,41 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_OBSIDIAN_SANCTUM_H
-#define DEF_OBSIDIAN_SANCTUM_H
+#ifndef OBSIDIAN_SANCTUM_H_
+#define OBSIDIAN_SANCTUM_H_
 
-enum eTypes
+#define OSScriptName "instance_obsidian_sanctum"
+#define DataHeader "OS"
+
+uint32 const EncounterCount = 5;
+
+enum OSDataTypes
 {
-    TYPE_SARTHARION_EVENT       = 1,
-    TYPE_TENEBRON_PREKILLED     = 2,
-    TYPE_SHADRON_PREKILLED      = 3,
-    TYPE_VESPERON_PREKILLED     = 4,
+    DATA_SARTHARION             = 0,
+    DATA_TENEBRON               = 1,
+    DATA_SHADRON                = 2,
+    DATA_VESPERON               = 3,
+    DATA_PORTAL_OPEN            = 4,
+    TWILIGHT_ACHIEVEMENTS       = 5
+};
 
-    DATA_SARTHARION             = 10,
-    DATA_TENEBRON               = 11,
-    DATA_SHADRON                = 12,
-    DATA_VESPERON               = 13,
-
+enum OSCreaturesIds
+{
     NPC_SARTHARION              = 28860,
     NPC_TENEBRON                = 30452,
     NPC_SHADRON                 = 30451,
-    NPC_VESPERON                = 30449,
+    NPC_VESPERON                = 30449
+};
+
+enum OSGameObjectIds
+{
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-#endif
+template<class AI>
+AI* GetObsidianSanctumAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, OSScriptName);
+}
+
+#endif // OBSIDIAN_SANCTUM_H_

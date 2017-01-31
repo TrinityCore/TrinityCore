@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,190 +15,239 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Zulaman
-SD%Complete: 90
-SDComment: Forest Frog will turn into different NPC's. Workaround to prevent new entry from running this script
-SDCategory: Zul'Aman
-EndScriptData */
-
-/* ContentData
-npc_forest_frog
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "CreatureTextMgr.h"
+#include "SpellScript.h"
 #include "zulaman.h"
 
-/*######
-## npc_forest_frog
-######*/
+enum Says
+{
+    // Vol'jin
+    SAY_INTRO_1                 = 0,
+    SAY_INTRO_2                 = 1,
+    SAY_INTRO_3                 = 2,
+    SAY_INTRO_4                 = 3,
+    SAY_INTRO_FAIL              = 4,
 
-#define SPELL_REMOVE_AMANI_CURSE    43732
-#define SPELL_PUSH_MOJO             43923
-#define ENTRY_FOREST_FROG           24396
+    // Hex Lord Malacrass
+    SAY_HEXLOR_INTRO            = 0
+};
 
-class npc_forest_frog : public CreatureScript
+enum Spells
+{
+    // Vol'jin
+    SPELL_BANGING_THE_GONG      = 45225
+};
+
+enum Events
+{
+    EVENT_INTRO_MOVEPOINT_1     = 1,
+    EVENT_INTRO_MOVEPOINT_2     = 2,
+    EVENT_INTRO_MOVEPOINT_3     = 3,
+    EVENT_BANGING_THE_GONG      = 4,
+    EVENT_START_DOOR_OPENING_1  = 5,
+    EVENT_START_DOOR_OPENING_2  = 6,
+    EVENT_START_DOOR_OPENING_3  = 7,
+    EVENT_START_DOOR_OPENING_4  = 8,
+    EVENT_START_DOOR_OPENING_5  = 9,
+    EVENT_START_DOOR_OPENING_6  = 10,
+    EVENT_START_DOOR_OPENING_7  = 11
+};
+
+enum Points
+{
+    POINT_INTRO                 = 1,
+    POINT_STRANGE_GONG          = 2,
+    POINT_START_DOOR_OPENING_1  = 3,
+    POINT_START_DOOR_OPENING_2  = 4
+};
+
+enum Misc
+{
+    ITEM_VIRTUAL_ITEM           = 5301
+};
+
+Position const VoljinIntroWaypoint[4] =
+{
+    { 117.7349f, 1662.77f, 42.02156f, 0.0f },
+    { 132.14f, 1645.143f, 42.02158f, 0.0f },
+    { 121.8901f, 1639.118f, 42.23253f, 0.0f },
+    { 122.618f, 1639.546f, 42.11659f, 0.0f },
+};
+
+class npc_voljin_zulaman : public CreatureScript
 {
     public:
+        npc_voljin_zulaman() : CreatureScript("npc_voljin_zulaman") { }
 
-        npc_forest_frog()
-            : CreatureScript("npc_forest_frog")
+        struct npc_voljin_zulamanAI : public ScriptedAI
         {
-        }
-
-        struct npc_forest_frogAI : public ScriptedAI
-        {
-            npc_forest_frogAI(Creature* creature) : ScriptedAI(creature)
+            npc_voljin_zulamanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                instance = creature->GetInstanceScript();
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
-            InstanceScript* instance;
-
-            void Reset() {}
-
-            void EnterCombat(Unit* /*who*/) {}
-
-            void DoSpawnRandom()
+            void Reset() override
             {
-                if (instance)
+                _gongCount = 0;
+            }
+
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            {
+                if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
+                    return;
+
+                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
-                    uint32 cEntry = 0;
-                    switch (rand()%10)
+                    _events.Reset();
+                    me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
+                    _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1000);
+                    Talk(SAY_INTRO_1, player);
+                    me->SetWalk(true);
+                }
+            }
+
+            void DoAction(int32 action) override
+            {
+                if (action == ACTION_START_ZULAMAN)
+                {
+                    if (++_gongCount == 10)
+                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_1, 500);
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _events.Update(diff);
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
                     {
-                        case 0: cEntry = 24397; break;          //Mannuth
-                        case 1: cEntry = 24403; break;          //Deez
-                        case 2: cEntry = 24404; break;          //Galathryn
-                        case 3: cEntry = 24405; break;          //Adarrah
-                        case 4: cEntry = 24406; break;          //Fudgerick
-                        case 5: cEntry = 24407; break;          //Darwen
-                        case 6: cEntry = 24445; break;          //Mitzi
-                        case 7: cEntry = 24448; break;          //Christian
-                        case 8: cEntry = 24453; break;          //Brennan
-                        case 9: cEntry = 24455; break;          //Hollee
+                        case EVENT_INTRO_MOVEPOINT_1:
+                            me->GetMotionMaster()->MovePoint(POINT_INTRO, VoljinIntroWaypoint[0]);
+                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_2, 1000);
+                            break;
+                        case EVENT_INTRO_MOVEPOINT_2:
+                            me->GetMotionMaster()->MovePoint(POINT_STRANGE_GONG, VoljinIntroWaypoint[1]);
+                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_3, 4000);
+                            break;
+                        case EVENT_INTRO_MOVEPOINT_3:
+                            Talk(SAY_INTRO_2);
+                            _events.ScheduleEvent(EVENT_BANGING_THE_GONG, 3000);
+                            break;
+                        case EVENT_BANGING_THE_GONG:
+                            DoCast(me, SPELL_BANGING_THE_GONG);
+                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                                strangeGong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
+                            break;
+                        case EVENT_START_DOOR_OPENING_1:
+                            me->RemoveAura(SPELL_BANGING_THE_GONG);
+                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_2, 500);
+                            break;
+                        case EVENT_START_DOOR_OPENING_2:
+                            me->SetVirtualItem(0, uint32(0));
+                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                                strangeGong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500);
+                            break;
+                        case EVENT_START_DOOR_OPENING_3:
+                            me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_1, VoljinIntroWaypoint[2]);
+                            break;
+                        case EVENT_START_DOOR_OPENING_4:
+                            _instance->SetData(DATA_ZULAMAN_STATE, IN_PROGRESS);
+                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_MASSIVE_GATE)))
+                                masiveGate->SetGoState(GO_STATE_ACTIVE);
+                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_5, 3000);
+                            break;
+                        case EVENT_START_DOOR_OPENING_5:
+                            Talk(SAY_INTRO_4);
+                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_6, 6000);
+                            break;
+                        case EVENT_START_DOOR_OPENING_6:
+                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_7, 6000);
+                            break;
+                        case EVENT_START_DOOR_OPENING_7:
+                            if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
+                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                            break;
+                        default:
+                            break;
                     }
-
-                    if (!instance->GetData(TYPE_RAND_VENDOR_1))
-                        if (rand()%10 == 1) cEntry = 24408;      //Gunter
-                    if (!instance->GetData(TYPE_RAND_VENDOR_2))
-                        if (rand()%10 == 1) cEntry = 24409;      //Kyren
-
-                    if (cEntry) me->UpdateEntry(cEntry);
-
-                    if (cEntry == 24408) instance->SetData(TYPE_RAND_VENDOR_1, DONE);
-                    if (cEntry == 24409) instance->SetData(TYPE_RAND_VENDOR_2, DONE);
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell)
+            void MovementInform(uint32 movementType, uint32 pointId) override
             {
-                if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == ENTRY_FOREST_FROG)
+                if (movementType != POINT_MOTION_TYPE)
+                    return;
+
+                switch (pointId)
                 {
-                    //increase or decrease chance of mojo?
-                    if (rand()%99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);
-                    else DoSpawnRandom();
+                    case POINT_STRANGE_GONG:
+                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
+                            me->SetFacingToObject(strangeGong); // setInFront
+                        break;
+                    case POINT_START_DOOR_OPENING_1:
+                        me->SetFacingTo(4.747295f);
+                        me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_2, VoljinIntroWaypoint[3]);
+                        Talk(SAY_INTRO_3);
+                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_4, 4500);
+                        break;
+                    default:
+                        break;
                 }
             }
+
+        private:
+            InstanceScript* _instance;
+            EventMap _events;
+            uint8 _gongCount = 0;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_forest_frogAI(creature);
+            return GetInstanceAI<npc_voljin_zulamanAI>(creature);
         }
 };
 
-/*######
-## npc_zulaman_hostage
-######*/
-
-#define GOSSIP_HOSTAGE1        "I am glad to help you."
-
-static uint32 HostageEntry[] = {23790, 23999, 24024, 24001};
-static uint32 ChestEntry[] = {186648, 187021, 186672, 186667};
-
-class npc_zulaman_hostage : public CreatureScript
+// 45226 - Banging the Gong
+class spell_banging_the_gong : public SpellScriptLoader
 {
     public:
-        npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
+        spell_banging_the_gong() : SpellScriptLoader("spell_banging_the_gong") { }
 
-        struct npc_zulaman_hostageAI : public ScriptedAI
+        class spell_banging_the_gong_SpellScript : public SpellScript
         {
-            npc_zulaman_hostageAI(Creature* creature) : ScriptedAI(creature)
+            PrepareSpellScript(spell_banging_the_gong_SpellScript);
+
+            void Activate(SpellEffIndex index)
             {
-                IsLoot = false;
+                PreventHitDefaultEffect(index);
+                GetHitGObj()->SendCustomAnim(0);
             }
 
-            bool IsLoot;
-            uint64 PlayerGUID;
-
-            void Reset() {}
-
-            void EnterCombat(Unit* /*who*/) {}
-
-            void JustDied(Unit* /*killer*/)
+            void Register() override
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player)
-                    player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            }
-
-            void UpdateAI(const uint32 /*diff*/)
-            {
-                if (IsLoot)
-                    DoCast(me, 7, false);
+                OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong_SpellScript::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        SpellScript* GetSpellScript() const override
         {
-            return new npc_zulaman_hostageAI(creature);
-        }
-
-        bool OnGossipHello(Player* player, Creature* creature)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-        {
-            player->PlayerTalkClass->ClearMenus();
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CLOSE_GOSSIP_MENU();
-
-            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                return true;
-
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (instance)
-            {
-                //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
-                instance->SetData(DATA_CHESTLOOTED, 0);
-                float x, y, z;
-                creature->GetPosition(x, y, z);
-                uint32 entry = creature->GetEntry();
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    if (HostageEntry[i] == entry)
-                    {
-                        creature->SummonGameObject(ChestEntry[i], x-2, y, z, 0, 0, 0, 0, 0, 0);
-                        break;
-                    }
-                }
-            }
-            return true;
+            return new spell_banging_the_gong_SpellScript();
         }
 };
 
 void AddSC_zulaman()
 {
-    new npc_forest_frog();
-    new npc_zulaman_hostage();
+    new npc_voljin_zulaman();
+    new spell_banging_the_gong();
 }
-

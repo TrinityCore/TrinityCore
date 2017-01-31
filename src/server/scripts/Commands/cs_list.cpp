@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,28 +25,31 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "SpellAuraEffects.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include <iostream>
 
 class list_commandscript : public CommandScript
 {
 public:
     list_commandscript() : CommandScript("list_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand listCommandTable[] =
+        static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleListCreatureCommand,          "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,              "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,            "", NULL },
-            { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "creature", rbac::RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "" },
+            { "item",     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "" },
+            { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "" },
+            { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
+            { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
+            { "scenes",   rbac::RBAC_PERM_COMMAND_LIST_SCENES,  false, &HandleListScenesCommand,   "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "list",          SEC_ADMINISTRATOR,   true, NULL,                                 "", listCommandTable },
-            { NULL,            0,                   false, NULL,                                "", NULL }
+            { "list", rbac::RBAC_PERM_COMMAND_LIST,true, NULL, "", listCommandTable },
         };
         return commandTable;
     }
@@ -61,7 +64,7 @@ public:
         if (!id)
             return false;
 
-        uint32 creatureId = atol(id);
+        uint32 creatureId = atoul(id);
         if (!creatureId)
         {
             handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, creatureId);
@@ -78,7 +81,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -105,7 +108,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -129,11 +132,11 @@ public:
         if (!*args)
             return false;
 
-        char* id = handler->extractKeyFromLink((char*)args, "Hitem");
+        char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!id)
             return false;
 
-        uint32 itemId = atol(id);
+        uint32 itemId = atoul(id);
         if (!itemId)
         {
             handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
@@ -150,7 +153,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -177,10 +180,10 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
+                ObjectGuid itemGuid     = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64());
                 uint32 itemBag          = fields[1].GetUInt32();
                 uint8 itemSlot          = fields[2].GetUInt8();
-                uint32 ownerGuid        = fields[3].GetUInt32();
+                ObjectGuid ownerGuid    = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
                 uint32 ownerAccountId   = fields[4].GetUInt32();
                 std::string ownerName   = fields[5].GetString();
 
@@ -194,7 +197,7 @@ public:
                 else
                     itemPos = "";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid, ownerName.c_str(), ownerGuid, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid.ToString().c_str(), ownerName.c_str(), ownerGuid.ToString().c_str(), ownerAccountId, itemPos);
             }
             while (result->NextRow());
 
@@ -231,9 +234,9 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                uint32 itemGuid                 = fields[0].GetUInt32();
-                uint32 itemSender               = fields[1].GetUInt32();
-                uint32 itemReceiver             = fields[2].GetUInt32();
+                ObjectGuid::LowType itemGuid    = fields[0].GetUInt64();
+                ObjectGuid::LowType itemSender  = fields[1].GetUInt64();
+                ObjectGuid::LowType itemReceiver = fields[2].GetUInt64();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
                 uint32 itemReceiverAccount      = fields[5].GetUInt32();
@@ -278,14 +281,14 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
-                uint32 owner            = fields[1].GetUInt32();
+                ObjectGuid itemGuid     = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64());
+                ObjectGuid owner        = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
                 uint32 ownerAccountId   = fields[2].GetUInt32();
                 std::string ownerName   = fields[3].GetString();
 
                 char const* itemPos = "[in auction]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid, ownerName.c_str(), owner, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid.ToString().c_str(), ownerName.c_str(), owner.ToString().c_str(), ownerAccountId, itemPos);
             }
             while (result->NextRow());
         }
@@ -310,13 +313,13 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 itemGuid = fields[0].GetUInt32();
-                uint32 guildGuid = fields[1].GetUInt32();
+                ObjectGuid itemGuid   = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64());
+                ObjectGuid guildGuid  = ObjectGuid::Create<HighGuid::Guild>(fields[1].GetUInt64());
                 std::string guildName = fields[2].GetString();
 
                 char const* itemPos = "[in guild bank]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_GUILD, itemGuid, guildName.c_str(), guildGuid, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_GUILD, itemGuid.ToString().c_str(), guildName.c_str(), guildGuid.ToString().c_str(), itemPos);
             }
             while (result->NextRow());
 
@@ -350,7 +353,7 @@ public:
         if (!id)
             return false;
 
-        uint32 gameObjectId = atol(id);
+        uint32 gameObjectId = atoul(id);
         if (!gameObjectId)
         {
             handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, gameObjectId);
@@ -367,7 +370,7 @@ public:
         }
 
         char* countStr = strtok(NULL, " ");
-        uint32 count = countStr ? atol(countStr) : 10;
+        uint32 count = countStr ? atoul(countStr) : 10;
 
         if (count == 0)
             return false;
@@ -394,7 +397,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -431,11 +434,11 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
         for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
+            char const* name = aura->GetSpellInfo()->SpellName->Str[handler->GetSessionDbcLocale()];
+            bool talent = aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
 
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
@@ -443,8 +446,8 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
-                (talent ? talentStr : ""), IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",
-                GUID_LOPART(aura->GetCasterGUID()));
+                (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
+                aura->GetCasterGUID().ToString().c_str());
         }
 
         for (uint16 i = 0; i < TOTAL_AURAS; ++i)
@@ -458,6 +461,143 @@ public:
             for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
         }
+
+        return true;
+    }
+    // handle list mail command
+    static bool HandleListMailCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        ObjectGuid targetGuid;
+        std::string targetName;
+        PreparedStatement* stmt = NULL;
+
+        if (!*args)
+            return false;
+
+        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
+
+        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
+        {
+            target = ObjectAccessor::FindPlayer(parseGUID);
+            targetGuid = parseGUID;
+        }
+        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+            return false;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
+        stmt->setUInt64(0, targetGuid.GetCounter());
+        PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
+        if (queryResult)
+        {
+            Field* fields       = queryResult->Fetch();
+            uint32 countMail    = fields[0].GetUInt64();
+
+            std::string nameLink = handler->playerLink(targetName);
+            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid.ToString().c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
+            stmt->setUInt64(0, targetGuid.GetCounter());
+            queryResult = CharacterDatabase.Query(stmt);
+
+            if (queryResult)
+            {
+                do
+                {
+                    Field* queryFields      = queryResult->Fetch();
+                    uint32 messageId        = queryFields[0].GetUInt32();
+                    ObjectGuid::LowType senderId = queryFields[1].GetUInt64();
+                    std::string sender      = queryFields[2].GetString();
+                    ObjectGuid::LowType receiverId = queryFields[3].GetUInt64();
+                    std::string receiver    = queryFields[4].GetString();
+                    std::string subject     = queryFields[5].GetString();
+                    uint64 deliverTime      = queryFields[6].GetUInt32();
+                    uint64 expireTime       = queryFields[7].GetUInt32();
+                    uint32 money            = queryFields[8].GetUInt32();
+                    uint8 hasItem           = queryFields[9].GetUInt8();
+                    uint32 gold = money / GOLD;
+                    uint32 silv = (money % GOLD) / SILVER;
+                    uint32 copp = (money % GOLD) % SILVER;
+                    std::string receiverStr = handler->playerLink(receiver);
+                    std::string senderStr = handler->playerLink(sender);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1, messageId, subject.c_str(), gold, silv, copp);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
+
+                    if (hasItem == 1)
+                    {
+                        QueryResult result2;
+                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '%u'", messageId);
+                        if (result2)
+                        {
+                            do
+                            {
+                                uint32 item_guid = (*result2)[0].GetUInt32();
+                                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
+                                stmt->setUInt64(0, item_guid);
+                                PreparedQueryResult result3 = CharacterDatabase.Query(stmt);
+                                if (result3)
+                                {
+                                    do
+                                    {
+                                        Field* fields3          = result3->Fetch();
+                                        uint32 item_entry       = fields3[0].GetUInt32();
+                                        uint32 item_count       = fields3[1].GetUInt32();
+                                        QueryResult result4;
+                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
+                                        Field* fields1          = result4->Fetch();
+                                        std::string item_name   = fields1[0].GetString();
+                                        int item_quality        = fields1[1].GetUInt8();
+                                        if (handler->GetSession())
+                                        {
+                                            uint32 color = ItemQualityColors[item_quality];
+                                            std::ostringstream itemStr;
+                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name << "]|h|r";
+                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
+                                        }
+                                        else
+                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, item_name.c_str(), item_entry, item_guid, item_count);
+                                    }
+                                    while (result3->NextRow());
+                                }
+                            }
+                            while (result2->NextRow());
+                        }
+                    }
+                    handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+                }
+                while (queryResult->NextRow());
+            }
+            else
+                handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
+            return true;
+        }
+        else
+            handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
+        return true;
+    }
+
+    static bool HandleListScenesCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* target = handler->getSelectedPlayer();
+
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneTemplateByInstanceMap();
+
+        handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr().GetActiveSceneCount());
+
+        for (auto instanceByPackage : instanceByPackageMap)
+            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->ScenePackageId, instanceByPackage.first);
 
         return true;
     }

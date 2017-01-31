@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,16 +19,11 @@
 #ifndef DEF_ULDAMAN_H
 #define DEF_ULDAMAN_H
 
-enum eObjects
-{
-    GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
-    GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
-    GO_ANCIENT_VAULT_DOOR               = 124369,
-    GO_IRONAYA_SEAL_DOOR                = 124372,
-    GO_KEYSTONE                         = 124371,
-};
+#define DataHeader "UD"
 
-enum eData
+#define MAX_ENCOUNTER                   3
+
+enum UDDataTypes
 {
     DATA_ALTAR_DOORS                    = 1,
     DATA_ANCIENT_DOOR                   = 2,
@@ -38,6 +33,13 @@ enum eData
     DATA_IRONAYA_SEAL                   = 6,
 };
 
-#define MAX_ENCOUNTER                   3
+enum UDGameObjectIds
+{
+    GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
+    GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
+    GO_ANCIENT_VAULT_DOOR               = 124369,
+    GO_IRONAYA_SEAL_DOOR                = 124372,
+    GO_KEYSTONE                         = 124371,
+};
 
 #endif

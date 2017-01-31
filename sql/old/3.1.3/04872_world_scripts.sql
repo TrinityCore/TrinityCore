@@ -1,5 +1,5 @@
 UPDATE `creature_template` SET `ScriptName` = 'npc_skywing' WHERE `entry` = 22424;
- 
+
 replace into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','0','-3605.719971','4175.580078','-0.031817','0','START_SKYWING');
 replace into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','1','-3602.311279','4253.213867','0.562436','0','');
 replace into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','2','-3529.151367','4263.524414','-7.871151','0','');

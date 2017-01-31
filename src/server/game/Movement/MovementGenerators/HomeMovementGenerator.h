@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,18 +31,17 @@ class HomeMovementGenerator<Creature> : public MovementGeneratorMedium< Creature
 {
     public:
 
-        HomeMovementGenerator() : arrived(false) {}
-        ~HomeMovementGenerator() {}
+        HomeMovementGenerator() : arrived(false) { }
+        ~HomeMovementGenerator() { }
 
-        void DoInitialize(Creature &);
-        void DoFinalize(Creature &);
-        void DoReset(Creature &);
-        bool DoUpdate(Creature &, const uint32);
-        MovementGeneratorType GetMovementGeneratorType() { return HOME_MOTION_TYPE; }
+        void DoInitialize(Creature*);
+        void DoFinalize(Creature*);
+        void DoReset(Creature*);
+        bool DoUpdate(Creature*, const uint32);
+        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
 
     private:
-        void _setTargetLocation(Creature &);
+        void _setTargetLocation(Creature*);
         bool arrived;
 };
 #endif
-

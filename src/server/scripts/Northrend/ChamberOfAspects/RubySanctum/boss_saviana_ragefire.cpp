@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,14 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "ruby_sanctum.h"
 
 enum Texts
 {
-    SAY_AGGRO                           = 0, // You will sssuffer for this intrusion! (17528)
-    SAY_CONFLAGRATION                   = 1, // Burn in the master's flame! (17532)
-    EMOTE_ENRAGED                       = 2, // %s becomes enraged!
-    SAY_KILL                            = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
+    SAY_AGGRO                   = 0, // You will sssuffer for this intrusion! (17528)
+    SAY_CONFLAGRATION           = 1, // Burn in the master's flame! (17532)
+    EMOTE_ENRAGED               = 2, // %s becomes enraged!
+    SAY_KILL                    = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
 };
 
 enum Spells
@@ -38,28 +39,28 @@ enum Spells
 
 enum Events
 {
-    EVENT_ENRAGE                    = 1,
-    EVENT_FLIGHT                    = 2,
-    EVENT_FLAME_BREATH              = 3,
-    EVENT_CONFLAGRATION             = 4,
-    EVENT_LAND_GROUND               = 5,
-    EVENT_AIR_MOVEMENT              = 6,
+    EVENT_ENRAGE                = 1,
+    EVENT_FLIGHT                = 2,
+    EVENT_FLAME_BREATH          = 3,
+    EVENT_CONFLAGRATION         = 4,
+    EVENT_LAND_GROUND           = 5,
+    EVENT_AIR_MOVEMENT          = 6,
 
     // Event group
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE      = 1,
 };
 
 enum MovementPoints
 {
-    POINT_FLIGHT            = 1,
-    POINT_LAND              = 2,
-    POINT_TAKEOFF           = 3,
-    POINT_LAND_GROUND       = 4
+    POINT_FLIGHT                = 1,
+    POINT_LAND                  = 2,
+    POINT_TAKEOFF               = 3,
+    POINT_LAND_GROUND           = 4
 };
 
 enum Misc
 {
-    SOUND_ID_DEATH          = 17531,
+    SOUND_ID_DEATH              = 17531,
 };
 
 Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};
@@ -77,13 +78,13 @@ class boss_saviana_ragefire : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -93,13 +94,13 @@ class boss_saviana_ragefire : public CreatureScript
                 events.ScheduleEvent(EVENT_FLIGHT, 60000);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 me->PlayDirectSound(SOUND_ID_DEATH);
             }
 
-            void MovementInform(uint32 type, uint32 point)
+            void MovementInform(uint32 type, uint32 point) override
             {
                 if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                     return;
@@ -116,9 +117,9 @@ class boss_saviana_ragefire : public CreatureScript
                     case POINT_LAND_GROUND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        DoStartMovement(me->getVictim());
+                        DoStartMovement(me->GetVictim());
                         break;
                     case POINT_TAKEOFF:
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
@@ -128,20 +129,20 @@ class boss_saviana_ragefire : public CreatureScript
                 }
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 _JustReachedHome();
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -159,7 +160,7 @@ class boss_saviana_ragefire : public CreatureScript
                         {
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             Position pos;
@@ -197,7 +198,7 @@ class boss_saviana_ragefire : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<boss_saviana_ragefireAI>(creature);
         }
@@ -238,14 +239,14 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), SPELL_CONFLAGRATION_2, false);
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_saviana_conflagration_init_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_saviana_conflagration_init_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_saviana_conflagration_init_SpellScript();
         }
@@ -267,13 +268,13 @@ class spell_saviana_conflagration_throwback : public SpellScriptLoader
                 GetHitUnit()->GetMotionMaster()->MovePoint(POINT_LAND, SavianaRagefireFlyInPos);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_saviana_conflagration_throwback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_saviana_conflagration_throwback_SpellScript();
         }

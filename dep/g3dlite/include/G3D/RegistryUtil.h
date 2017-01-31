@@ -15,7 +15,7 @@
 #include "G3D/g3dmath.h"
 
 // This file is only used on Windows
-#ifdef G3D_WIN32
+#ifdef G3D_WINDOWS
 
 #include <string>
 
@@ -92,6 +92,6 @@ public:
 
 } // namespace G3D
 
-#endif // G3D_WIN32
+#endif // G3D_WINDOWS
 
 #endif // G3D_REGISTRYTUIL_H

@@ -1,5 +1,5 @@
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (19574,34471);
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) 
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`)
 VALUES
 ( 19574, 24395, 2, 'Beast Within'),
 ( 19574, 24396, 2, 'Beast Within'),

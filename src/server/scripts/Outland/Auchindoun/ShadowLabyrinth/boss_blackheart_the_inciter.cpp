@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,157 +16,131 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Blackheart_the_Inciter
-SD%Complete: 75
-SDComment: Incite Chaos not functional since core lacks Mind Control support
-SDCategory: Auchindoun, Shadow Labyrinth
-EndScriptData */
+/*
+Name: Boss_Blackheart_the_Inciter
+%Complete: 75
+Comment: Incite Chaos not functional since core lacks Mind Control support
+Category: Auchindoun, Shadow Labyrinth
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
-#define SPELL_INCITE_CHAOS    33676
-#define SPELL_INCITE_CHAOS_B  33684                         //debuff applied to each member of party
-#define SPELL_CHARGE          33709
-#define SPELL_WAR_STOMP       33707
+enum BlackheartTheInciter
+{
+    SPELL_INCITE_CHAOS      = 33676,
+    SPELL_INCITE_CHAOS_B    = 33684,                         //debuff applied to each member of party
+    SPELL_CHARGE            = 33709,
+    SPELL_WAR_STOMP         = 33707,
 
-#define SAY_INTRO1          -1555008 //not used
-#define SAY_INTRO2          -1555009 //not used
-#define SAY_INTRO3          -1555010 //not used
-#define SAY_AGGRO1          -1555011
-#define SAY_AGGRO2          -1555012
-#define SAY_AGGRO3          -1555013
-#define SAY_SLAY1           -1555014
-#define SAY_SLAY2           -1555015
-#define SAY_HELP            -1555016 //not used
-#define SAY_DEATH           -1555017
+    SAY_INTRO               = 0,
+    SAY_AGGRO               = 1,
+    SAY_SLAY                = 2,
+    SAY_HELP                = 3,
+    SAY_DEATH               = 4,
 
-//below, not used
-#define SAY2_INTRO1         -1555018
-#define SAY2_INTRO2         -1555019
-#define SAY2_INTRO3         -1555020
-#define SAY2_AGGRO1         -1555021
-#define SAY2_AGGRO2         -1555022
-#define SAY2_AGGRO3         -1555023
-#define SAY2_SLAY1          -1555024
-#define SAY2_SLAY2          -1555025
-#define SAY2_HELP           -1555026
-#define SAY2_DEATH          -1555027
+    //below, not used
+    SAY2_INTRO              = 5,
+    SAY2_AGGRO              = 6,
+    SAY2_SLAY               = 7,
+    SAY2_HELP               = 8,
+    SAY2_DEATH              = 9
+};
+
+enum Events
+{
+    EVENT_INCITE_CHAOS          = 1,
+    EVENT_CHARGE_ATTACK         = 2,
+    EVENT_WAR_STOMP             = 3
+};
 
 class boss_blackheart_the_inciter : public CreatureScript
 {
-public:
-    boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
+    public:
+        boss_blackheart_the_inciter() : CreatureScript("boss_blackheart_the_inciter") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_blackheart_the_inciterAI (creature);
-    }
-
-    struct boss_blackheart_the_inciterAI : public ScriptedAI
-    {
-        boss_blackheart_the_inciterAI(Creature* creature) : ScriptedAI(creature)
+        struct boss_blackheart_the_inciterAI : public BossAI
         {
-            instance = creature->GetInstanceScript();
-        }
+            boss_blackheart_the_inciterAI(Creature* creature) : BossAI(creature, DATA_BLACKHEART_THE_INCITER) { }
 
-        InstanceScript* instance;
-
-        bool InciteChaos;
-        uint32 InciteChaos_Timer;
-        uint32 InciteChaosWait_Timer;
-        uint32 Charge_Timer;
-        uint32 Knockback_Timer;
-
-        void Reset()
-        {
-            InciteChaos = false;
-            InciteChaos_Timer = 20000;
-            InciteChaosWait_Timer = 15000;
-            Charge_Timer = 5000;
-            Knockback_Timer = 15000;
-
-            if (instance)
-                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (instance)
-                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
-
-            if (instance)
-                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (InciteChaos)
+            void Reset() override
             {
-                if (InciteChaosWait_Timer <= diff)
-                {
-                    InciteChaos = false;
-                    InciteChaosWait_Timer = 15000;
-                } else InciteChaosWait_Timer -= diff;
-
-                return;
+                _Reset();
             }
 
-            if (InciteChaos_Timer <= diff)
+            void EnterCombat(Unit* /*who*/) override
             {
-                DoCast(me, SPELL_INCITE_CHAOS);
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
+                events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
+                events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
 
-                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                Talk(SAY_AGGRO);
+            }
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
-                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                    switch (eventId)
+                    {
+                        case EVENT_INCITE_CHAOS:
+                        {
+                            DoCast(me, SPELL_INCITE_CHAOS);
+
+                            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                            {
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                                    if (target->GetTypeId() == TYPEID_PLAYER)
+                                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                            }
+
+                            DoResetThreat();
+                            events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
+                            break;
+                        }
+                        case EVENT_CHARGE_ATTACK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_CHARGE);
+                            events.ScheduleEvent(EVENT_CHARGE, urand(15000, 25000));
+                            break;
+                        case EVENT_WAR_STOMP:
+                            DoCast(me, SPELL_WAR_STOMP);
+                            events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
+                            break;
+                    }
                 }
 
-                DoResetThreat();
-                InciteChaos = true;
-                InciteChaos_Timer = 40000;
-                return;
-            } else InciteChaos_Timer -= diff;
+                DoMeleeAttackIfReady();
+            }
+        };
 
-            //Charge_Timer
-            if (Charge_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHARGE);
-                Charge_Timer = urand(15000, 25000);
-            } else Charge_Timer -= diff;
-
-            //Knockback_Timer
-            if (Knockback_Timer <= diff)
-            {
-                DoCast(me, SPELL_WAR_STOMP);
-                Knockback_Timer = urand(18000, 24000);
-            } else Knockback_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetShadowLabyrinthAI<boss_blackheart_the_inciterAI>(creature);
         }
-    };
-
 };
 
 void AddSC_boss_blackheart_the_inciter()

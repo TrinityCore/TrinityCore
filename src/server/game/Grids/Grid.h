@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,7 +52,7 @@ class Grid
         /** destructor to clean up its resources. This includes unloading the
         grid if it has not been unload.
         */
-        ~Grid() {}
+        ~Grid() { }
 
         /** an object of interested enters the grid
          */
@@ -104,7 +104,7 @@ class Grid
         template<class T>
         uint32 GetWorldObjectCountInGrid() const
         {
-            return i_objects.template Count<T>();
+            return uint32(i_objects.template Count<T>());
         }
 
         /** Inserts a container type object into the grid.
@@ -141,4 +141,3 @@ class Grid
         //ActiveGridObjects m_activeGridObjects;
 };
 #endif
-

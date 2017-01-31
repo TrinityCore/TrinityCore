@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,31 +38,39 @@ class boss_landslide : public CreatureScript
 public:
     boss_landslide() : CreatureScript("boss_landslide") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_landslideAI (creature);
+        return new boss_landslideAI(creature);
     }
 
     struct boss_landslideAI : public ScriptedAI
     {
-        boss_landslideAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_landslideAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        uint32 KnockAwayTimer;
-        uint32 TrampleTimer;
-        uint32 LandslideTimer;
-
-        void Reset()
+        void Initialize()
         {
             KnockAwayTimer = 8000;
             TrampleTimer = 2000;
             LandslideTimer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        uint32 KnockAwayTimer;
+        uint32 TrampleTimer;
+        uint32 LandslideTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

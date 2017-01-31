@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -24,30 +24,34 @@
 #include <errno.h>
 
 #ifdef WIN32
+    #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
     #include <sys/stat.h>
     #include <direct.h>
     #define mkdir _mkdir
 #else
     #include <sys/stat.h>
+    #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
-#undef min
-#undef max
-
-//#pragma warning(disable : 4505)
-//#pragma comment(lib, "Winmm.lib")
-
 #include <map>
+#include <fstream>
 
+#include "Common.h"
+#ifdef PLATFORM_WINDOWS
+#undef PLATFORM_WINDOWS
+#endif
 //From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"
-#include "dbcfile.h"
+#include "DB2.h"
 #include "wmo.h"
-#include "mpq_libmpq04.h"
+#include "cascfile.h"
 
 #include "vmapexport.h"
+#include "Banner.h"
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 //------------------------------------------------------------------------------
 // Defines
@@ -56,7 +60,7 @@
 
 //-----------------------------------------------------------------------------
 
-extern ArchiveSet gOpenArchives;
+CASC::StorageHandle CascStorage;
 
 typedef struct
 {
@@ -64,22 +68,163 @@ typedef struct
     unsigned int id;
 }map_id;
 
-map_id * map_ids;
-uint16 *LiqType = 0;
+std::vector<map_id> map_ids;
+std::vector<uint16> LiqType;
 uint32 map_count;
-char output_path[128]=".";
-char input_path[1024]=".";
-bool hasInputPathParam = false;
+boost::filesystem::path input_path;
 bool preciseVectorData = false;
+
+struct LiquidTypeMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "sifffffsifihhbbbbbi";
+        static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
+        static DB2Meta instance(-1, 19, 0x99FC34E5, types, arraySizes);
+        return &instance;
+    }
+};
+
+struct MapMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "siffssshhhhhhhbbbbb";
+        static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(-1, 19, 0xF7CF2DA2, types, arraySizes);
+        return &instance;
+    }
+};
 
 // Constants
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP041";
+const char* szRawVMAPMagic = "VMAP044";
+
+#define CASC_LOCALES_COUNT 17
+char const* CascLocaleNames[CASC_LOCALES_COUNT] =
+{
+    "none", "enUS",
+    "koKR", "unknown",
+    "frFR", "deDE",
+    "zhCN", "esES",
+    "zhTW", "enGB",
+    "enCN", "enTW",
+    "esMX", "ruRU",
+    "ptBR", "itIT",
+    "ptPT"
+};
+
+uint32 WowLocaleToCascLocaleFlags[12] =
+{
+    CASC_LOCALE_ENUS | CASC_LOCALE_ENGB,
+    CASC_LOCALE_KOKR,
+    CASC_LOCALE_FRFR,
+    CASC_LOCALE_DEDE,
+    CASC_LOCALE_ZHCN,
+    CASC_LOCALE_ZHTW,
+    CASC_LOCALE_ESES,
+    CASC_LOCALE_ESMX,
+    CASC_LOCALE_RURU,
+    0,
+    CASC_LOCALE_PTBR | CASC_LOCALE_PTPT,
+    CASC_LOCALE_ITIT,
+};
+
+namespace
+{
+    const char* HumanReadableCASCError(int error)
+    {
+        switch (error)
+        {
+        case ERROR_SUCCESS: return "SUCCESS";
+        case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
+        case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
+        case ERROR_HANDLE_EOF: return "HANDLE_EOF";
+        case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
+        case ERROR_BAD_FORMAT: return "BAD_FORMAT";
+        case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
+        case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
+        case ERROR_DISK_FULL: return "DISK_FULL";
+        case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
+        case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
+        case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
+        case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
+        case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
+        case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
+        default: return "UNKNOWN";
+        }
+    }
+}
+
+uint32 ReadBuild(int locale)
+{
+    // include build info file also
+    std::string filename = std::string("component.wow-") + localeNames[locale] + ".txt";
+    //printf("Read %s file... ", filename.c_str());
+
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL);
+    if (!dbcFile)
+    {
+        printf("Locale %s not installed.\n", localeNames[locale]);
+        return 0;
+    }
+
+    char buff[512];
+    DWORD readBytes = 0;
+    CASC::ReadFile(dbcFile, buff, 512, &readBytes);
+    if (!readBytes)
+    {
+        printf("Fatal error: Not found %s file!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string text = std::string(buff, readBytes);
+
+    size_t pos = text.find("version=\"");
+    size_t pos1 = pos + strlen("version=\"");
+    size_t pos2 = text.find("\"", pos1);
+    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string build_str = text.substr(pos1, pos2 - pos1);
+
+    int build = atoi(build_str.c_str());
+    if (build <= 0)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    return build;
+}
+
+bool OpenCascStorage(int locale)
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale]);
+        if (!CascStorage)
+        {
+            printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
+            return false;
+        }
+
+        return true;
+    }
+    catch (boost::filesystem::filesystem_error& error)
+    {
+        printf("error opening casc storage : %s\n", error.what());
+        return false;
+    }
+}
 
 // Local testing functions
-
 bool FileExists(const char* file)
 {
     if (FILE* n = fopen(file, "rb"))
@@ -99,45 +244,66 @@ void strToLower(char* str)
     }
 }
 
-// copied from contrib/extractor/System.cpp
+// copied from src\tools\map_extractor\System.cpp
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.dbc file...");
-    DBCFile dbc("DBFilesClient\\LiquidType.dbc");
-    if(!dbc.open())
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
     {
-        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
         exit(1);
     }
 
-    size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
-    LiqType = new uint16[LiqType_maxid + 1];
-    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, LiquidTypeMeta::Instance()))
+    {
+        printf("Fatal error: Invalid LiquidType.db2 file format!\n");
+        exit(1);
+    }
 
-    for(uint32 x = 0; x < LiqType_count; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
+    LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
 
-    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
+    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+    {
+        uint32 liquidTypeId;
+        if (LiquidTypeMeta::Instance()->HasIndexFieldInData())
+            liquidTypeId = db2.getRecord(x).getUInt(LiquidTypeMeta::Instance()->GetIndexField(), 0);
+        else
+            liquidTypeId = db2.getId(x);
+
+        LiqType[liquidTypeId] = db2.getRecord(x).getUInt8(13, 0);
+    }
+
+    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+        LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
+
+    printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
 }
 
 bool ExtractWmo()
 {
     bool success = true;
 
-    //const char* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
-
-    for (ArchiveSet::const_iterator ar_itr = gOpenArchives.begin(); ar_itr != gOpenArchives.end() && success; ++ar_itr)
+    std::ifstream wmoList("wmo_list.txt");
+    if (!wmoList)
     {
-        vector<string> filelist;
-
-        (*ar_itr)->GetFileListTo(filelist);
-        for (vector<string>::iterator fname = filelist.begin(); fname != filelist.end() && success; ++fname)
-        {
-            if (fname->find(".wmo") != string::npos)
-                success = ExtractSingleWmo(*fname);
-        }
+        printf("\nUnable to open wmo_list.txt! Nothing extracted.\n");
+        return false;
     }
+
+    std::set<std::string> wmos;
+    for (;;)
+    {
+        std::string str;
+        std::getline(wmoList, str);
+        if (str.empty())
+            break;
+
+        wmos.insert(std::move(str));
+    }
+
+    for (std::string str : wmos)
+        success &= ExtractSingleWmo(str);
 
     if (success)
         printf("\nExtract wmo complete (No (fatal) errors)\n");
@@ -152,22 +318,22 @@ bool ExtractSingleWmo(std::string& fname)
     char szLocalFile[1024];
     const char * plain_name = GetPlainName(fname.c_str());
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
-    fixnamen(szLocalFile,strlen(szLocalFile));
+    FixNameCase(szLocalFile,strlen(szLocalFile));
 
     if (FileExists(szLocalFile))
         return true;
 
     int p = 0;
-    //Select root wmo files
+    // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if(rchr != NULL)
+    if (rchr != NULL)
     {
         char cpy[4];
-        strncpy((char*)cpy, rchr, 4);
+        memcpy(cpy, rchr, 4);
         for (int i = 0; i < 4; ++i)
         {
             int m = cpy[i];
-            if(isdigit(m))
+            if (isdigit(m))
                 p++;
         }
     }
@@ -192,18 +358,15 @@ bool ExtractSingleWmo(std::string& fname)
     froot.ConvertToVMAPRootWmo(output);
     int Wmo_nVertices = 0;
     //printf("root has %d groups\n", froot->nGroups);
-    if (froot.nGroups !=0)
+    if (!froot.groupFileDataIDs.empty())
     {
-        for (uint32 i = 0; i < froot.nGroups; ++i)
+        for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
         {
-            char temp[1024];
-            strcpy(temp, fname.c_str());
-            temp[fname.length()-4] = 0;
             char groupFileName[1024];
-            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
+            sprintf(groupFileName, "FILE%08X", froot.groupFileDataIDs[i]);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
-            string s = groupFileName;
+            std::string s = groupFileName;
             WMOGroup fgroup(s);
             if(!fgroup.open())
             {
@@ -231,9 +394,9 @@ void ParsMapFiles()
     char fn[512];
     //char id_filename[64];
     char id[10];
-    for (unsigned int i=0; i<map_count; ++i)
+    for (unsigned int i = 0; i < map_ids.size(); ++i)
     {
-        sprintf(id,"%03u",map_ids[i].id);
+        sprintf(id, "%04u", map_ids[i].id);
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
         if(WDT.init(id, map_ids[i].id))
@@ -258,146 +421,22 @@ void ParsMapFiles()
     }
 }
 
-void getGamePath()
-{
-#ifdef _WIN32
-    strcpy(input_path,"Data\\");
-#else
-    strcpy(input_path,"Data/");
-#endif
-}
-
-bool scan_patches(char* scanmatch, std::vector<std::string>& pArchiveNames)
-{
-    int i;
-    char path[512];
-
-    for (i = 1; i <= 99; i++)
-    {
-        if (i != 1)
-        {
-            sprintf(path, "%s-%d.MPQ", scanmatch, i);
-        }
-        else
-        {
-            sprintf(path, "%s.MPQ", scanmatch);
-        }
-#ifdef __linux__
-        if(FILE* h = fopen64(path, "rb"))
-#else
-        if(FILE* h = fopen(path, "rb"))
-#endif
-        {
-            fclose(h);
-            //matches.push_back(path);
-            pArchiveNames.push_back(path);
-        }
-    }
-
-    return(true);
-}
-
-bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
-{
-    if(!hasInputPathParam)
-        getGamePath();
-
-    printf("\nGame path: %s\n", input_path);
-
-    char path[512];
-    string in_path(input_path);
-    std::vector<std::string> locales, searchLocales;
-
-    searchLocales.push_back("enGB");
-    searchLocales.push_back("enUS");
-    searchLocales.push_back("deDE");
-    searchLocales.push_back("esES");
-    searchLocales.push_back("frFR");
-    searchLocales.push_back("koKR");
-    searchLocales.push_back("zhCN");
-    searchLocales.push_back("zhTW");
-    searchLocales.push_back("enCN");
-    searchLocales.push_back("enTW");
-    searchLocales.push_back("esMX");
-    searchLocales.push_back("ruRU");
-
-    for (std::vector<std::string>::iterator i = searchLocales.begin(); i != searchLocales.end(); ++i)
-    {
-        std::string localePath = in_path + *i;
-        // check if locale exists:
-        struct stat status;
-        if (stat(localePath.c_str(), &status))
-            continue;
-        if ((status.st_mode & S_IFDIR) == 0)
-            continue;
-        printf("Found locale '%s'\n", i->c_str());
-        locales.push_back(*i);
-    }
-    printf("\n");
-
-    // open locale expansion and common files
-    printf("Adding data files from locale directories.\n");
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
-    {
-        pArchiveNames.push_back(in_path + *i + "/locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/expansion-locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/lichking-locale-" + *i + ".MPQ");
-    }
-
-    // open expansion and common files
-    pArchiveNames.push_back(input_path + string("common.MPQ"));
-    pArchiveNames.push_back(input_path + string("common-2.MPQ"));
-    pArchiveNames.push_back(input_path + string("expansion.MPQ"));
-    pArchiveNames.push_back(input_path + string("lichking.MPQ"));
-
-    // now, scan for the patch levels in the core dir
-    printf("Scanning patch levels from data directory.\n");
-    sprintf(path, "%spatch", input_path);
-    if (!scan_patches(path, pArchiveNames))
-        return(false);
-
-    // now, scan for the patch levels in locale dirs
-    printf("Scanning patch levels from locale directories.\n");
-    bool foundOne = false;
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
-    {
-        printf("Locale: %s\n", i->c_str());
-        sprintf(path, "%s%s/patch-%s", input_path, i->c_str(), i->c_str());
-        if(scan_patches(path, pArchiveNames))
-            foundOne = true;
-    }
-
-    printf("\n");
-
-    if(!foundOne)
-    {
-        printf("no locale found\n");
-        return false;
-    }
-
-    return true;
-}
-
 bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
-    hasInputPathParam = false;
     preciseVectorData = false;
 
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(strcmp("-s",argv[i]) == 0)
+        if (strcmp("-s", argv[i]) == 0)
         {
             preciseVectorData = false;
         }
-        else if(strcmp("-d",argv[i]) == 0)
+        else if (strcmp("-d", argv[i]) == 0)
         {
-            if((i+1)<argc)
+            if ((i + 1) < argc)
             {
-                hasInputPathParam = true;
-                strcpy(input_path, argv[i+1]);
-                if (input_path[strlen(input_path) - 1] != '\\' || input_path[strlen(input_path) - 1] != '/')
-                    strcat(input_path, "/");
+                input_path = boost::filesystem::path(argv[i + 1]);
                 ++i;
             }
             else
@@ -405,7 +444,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
                 result = false;
             }
         }
-        else if(strcmp("-?",argv[1]) == 0)
+        else if (strcmp("-?", argv[1]) == 0)
         {
             result = false;
         }
@@ -419,7 +458,8 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             break;
         }
     }
-    if(!result)
+
+    if (!result)
     {
         printf("Extract %s.\n",versionString);
         printf("%s [-?][-s][-l][-d <path>]\n", argv[0]);
@@ -428,9 +468,9 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         printf("   -d <path>: Path to the vector data source folder.\n");
         printf("   -? : This message.\n");
     }
+
     return result;
 }
-
 
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // Main
@@ -443,8 +483,10 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    bool success=true;
-    const char *versionString = "V4.00 2012_02";
+    Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
+
+    bool success = true;
+    const char *versionString = "V4.03 2015_05";
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))
@@ -461,36 +503,57 @@ int main(int argc, char ** argv)
             printf("Your output directory seems to be polluted, please use an empty directory!\n");
             printf("<press return to exit>");
             char garbage[2];
-            scanf("%c", garbage);
-            return 1;
+            return scanf("%c", garbage);
         }
     }
 
-    printf("Extract %s. Beginning work ....\n",versionString);
+    printf("Extract %s. Beginning work ....\n\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
                     , 0711
 #endif
                     ))
             success = (errno == EEXIST);
 
-    // prepare archive name list
-    std::vector<std::string> archiveNames;
-    fillArchiveNameVector(archiveNames);
-    for (size_t i=0; i < archiveNames.size(); ++i)
+    int FirstLocale = -1;
+    for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
-        MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
-        if (gOpenArchives.empty() || gOpenArchives.front() != archive)
-            delete archive;
+        if (i == LOCALE_none)
+            continue;
+
+        if (!OpenCascStorage(i))
+            continue;
+
+        FirstLocale = i;
+        uint32 build = ReadBuild(i);
+        if (!build)
+        {
+            CascStorage.reset();
+            continue;
+        }
+
+        printf("Detected client build: %u\n\n", build);
+        break;
     }
 
-    if (gOpenArchives.empty())
+    if (FirstLocale == -1)
     {
-        printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n",input_path);
+        printf("FATAL ERROR: No locales defined, unable to continue.\n");
         return 1;
     }
+
+    if (!OpenCascStorage(FirstLocale))
+    {
+        if (GetLastError() != ERROR_PATH_NOT_FOUND)
+            printf("Unable to open storage!\n");
+        return 1;
+    }
+
+    // Extract models, listed in GameObjectDisplayInfo.dbc
+    ExtractGameobjectModels();
+
     ReadLiquidTypeTableDBC();
 
     // extract data
@@ -501,39 +564,70 @@ int main(int argc, char ** argv)
     //map.dbc
     if (success)
     {
-        DBCFile * dbc = new DBCFile("DBFilesClient\\Map.dbc");
-        if (!dbc->open())
+        printf("Read Map.dbc file... ");
+
+        CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, true);
+        if (!dbcFile)
         {
-            delete dbc;
-            printf("FATAL ERROR: Map.dbc not found in data file.\n");
-            return 1;
-        }
-        map_count=dbc->getRecordCount ();
-        map_ids=new map_id[map_count];
-        for (unsigned int x=0;x<map_count;++x)
-        {
-            map_ids[x].id=dbc->getRecord (x).getUInt(0);
-            strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
-            printf("Map - %s\n",map_ids[x].name);
+            exit(1);
         }
 
+        DB2FileLoader db2;
+        if (!db2.Load(dbcFile, MapMeta::Instance()))
+        {
+            printf("Fatal error: Invalid Map.db2 file format! %s\n", HumanReadableCASCError(GetLastError()));
+            exit(1);
+        }
 
-        delete dbc;
+        map_ids.resize(db2.GetNumRows());
+        std::unordered_map<uint32, uint32> idToIndex;
+        for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+        {
+            if (MapMeta::Instance()->HasIndexFieldInData())
+                map_ids[x].id = db2.getRecord(x).getUInt(MapMeta::Instance()->GetIndexField(), 0);
+            else
+                map_ids[x].id = db2.getId(x);
+
+            const char* map_name = db2.getRecord(x).getString(0, 0);
+            size_t max_map_name_length = sizeof(map_ids[x].name);
+            if (strlen(map_name) >= max_map_name_length)
+            {
+                printf("Fatal error: Map name too long!\n");
+                exit(1);
+            }
+
+            strncpy(map_ids[x].name, map_name, max_map_name_length);
+            map_ids[x].name[max_map_name_length - 1] = '\0';
+            idToIndex[map_ids[x].id] = x;
+        }
+
+        for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+        {
+            uint32 from = db2.GetRowCopy(x).first;
+            uint32 to = db2.GetRowCopy(x).second;
+            auto itr = idToIndex.find(from);
+            if (itr != idToIndex.end())
+            {
+                map_id id;
+                id.id = to;
+                strcpy(id.name, map_ids[itr->second].name);
+                map_ids.push_back(id);
+            }
+        }
+
+        printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
         ParsMapFiles();
-        delete [] map_ids;
-        //nError = ERROR_SUCCESS;
-        // Extract models, listed in DameObjectDisplayInfo.dbc
-        ExtractGameobjectModels();
     }
+
+    CascStorage.reset();
 
     printf("\n");
     if (!success)
     {
-        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n",versionString, preciseVectorData);
+        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", versionString, preciseVectorData);
         getchar();
     }
 
-    printf("Extract %s. Work complete. No errors.\n",versionString);
-    delete [] LiqType;
+    printf("Extract %s. Work complete. No errors.\n", versionString);
     return 0;
 }

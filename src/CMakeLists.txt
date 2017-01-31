@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,8 +8,19 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+if(WIN32)
+  set(sources_windows
+    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
+  )
+endif(WIN32)
+
 add_subdirectory(genrev)
-add_subdirectory(server)
+add_subdirectory(common)
+
+if(SERVERS)
+  add_subdirectory(server)
+endif(SERVERS)
 
 if(TOOLS)
   add_subdirectory(tools)

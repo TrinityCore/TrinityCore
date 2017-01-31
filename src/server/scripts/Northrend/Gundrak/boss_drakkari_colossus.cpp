@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,14 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gundrak.h"
+#include "SpellInfo.h"
+
+enum Texts
+{
+    // Drakkari Elemental
+    EMOTE_MOJO                                    = 0,
+    EMOTE_ACTIVATE_ALTAR                          = 1
+};
 
 enum Spells
 {
@@ -79,19 +87,19 @@ class boss_drakkari_colossus : public CreatureScript
 
         struct boss_drakkari_colossusAI : public BossAI
         {
-            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS_EVENT)
+            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS)
             {
+                Initialize();
                 me->SetReactState(REACT_PASSIVE);
                 introDone = false;
             }
 
-            void InitializeAI()
+            void Initialize()
             {
-                if (!me->isDead())
-                    Reset();
+                phase = COLOSSUS_PHASE_NORMAL;
             }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
 
@@ -102,44 +110,23 @@ class boss_drakkari_colossus : public CreatureScript
                     me->RemoveAura(SPELL_FREEZE_ANIM);
                 }
 
-                //events.Reset(); -> done in _Reset();
                 events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
 
-                phase = COLOSSUS_PHASE_NORMAL;
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
+                Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
-
                 me->RemoveAura(SPELL_FREEZE_ANIM);
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
             }
 
-            void JustReachedHome()
-            {
-                // Note: This should not be called, but before use SetBossState function we should use BossAI
-                //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, FAIL);
-            }
-
-            void DoAction(const int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -147,6 +134,7 @@ class boss_drakkari_colossus : public CreatureScript
                         DoCast(SPELL_EMERGE);
                         break;
                     case ACTION_FREEZE_COLOSSUS:
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveIdle();
 
                         me->SetReactState(REACT_PASSIVE);
@@ -164,14 +152,14 @@ class boss_drakkari_colossus : public CreatureScript
 
                         me->SetInCombatWithZone();
 
-                        if (me->getVictim())
-                            me->GetMotionMaster()->MoveChase(me->getVictim(), 0, 0);
+                        if (me->GetVictim())
+                            me->GetMotionMaster()->MoveChase(me->GetVictim(), 0, 0);
 
                         break;
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                     damage = 0;
@@ -179,18 +167,17 @@ class boss_drakkari_colossus : public CreatureScript
                 if (phase == COLOSSUS_PHASE_NORMAL ||
                     phase == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                 {
-                    if (HealthBelowPct( phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
+                    if (HealthBelowPct(phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
                     {
                         damage = 0;
                         phase = (phase == COLOSSUS_PHASE_NORMAL ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON);
                         DoAction(ACTION_FREEZE_COLOSSUS);
                         DoAction(ACTION_SUMMON_ELEMENTAL);
-
                     }
                 }
             }
 
-            uint32 GetData(uint32 data)
+            uint32 GetData(uint32 data) const override
             {
                if (data == DATA_COLOSSUS_PHASE)
                    return phase;
@@ -200,13 +187,13 @@ class boss_drakkari_colossus : public CreatureScript
                return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 if (type == DATA_INTRO_DONE)
-                    introDone = data;
+                    introDone = data != 0;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -221,7 +208,7 @@ class boss_drakkari_colossus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MIGHTY_BLOW:
-                            DoCast(me->getVictim(), SPELL_MIGHTY_BLOW);
+                            DoCastVictim(SPELL_MIGHTY_BLOW);
                             events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(5000, 15000));
                             break;
                     }
@@ -231,7 +218,7 @@ class boss_drakkari_colossus : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                summon->SetInCombatWithZone();
 
@@ -244,9 +231,9 @@ class boss_drakkari_colossus : public CreatureScript
             bool introDone;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_drakkari_colossusAI(creature);
+            return GetGundrakAI<boss_drakkari_colossusAI>(creature);
         }
 };
 
@@ -263,7 +250,7 @@ class boss_drakkari_elemental : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_SURGE, urand(5000, 15000));
@@ -271,19 +258,15 @@ class boss_drakkari_elemental : public CreatureScript
                 me->AddAura(SPELL_MOJO_VOLLEY, me);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
-                if (killer == me)
-                    return;
+                Talk(EMOTE_ACTIVATE_ALTAR);
 
-                if (instance)
-                {
-                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-                        killer->Kill(colossus);
-                }
+                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+                    killer->Kill(colossus);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -309,29 +292,27 @@ class boss_drakkari_elemental : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-           void DoAction(const int32 action)
+           void DoAction(int32 action) override
             {
                 switch (action)
                 {
                     case ACTION_RETURN_TO_COLOSSUS:
+                        Talk(EMOTE_MOJO);
                         DoCast(SPELL_SURGE_VISUAL);
-                        if (instance)
-                        {
-                            if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-                                // what if the elemental is more than 80 yards from drakkari colossus ?
-                                DoCast(colossus, SPELL_MERGE, true);
-                        }
+                        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+                            // what if the elemental is more than 80 yards from drakkari colossus ?
+                            DoCast(colossus, SPELL_MERGE, true);
                         break;
                 }
            }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (HealthBelowPct(50) && instance)
+                if (HealthBelowPct(50))
                 {
-                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                     {
-                        if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) ==  COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
+                        if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                         {
                             damage = 0;
 
@@ -355,12 +336,12 @@ class boss_drakkari_elemental : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 me->DespawnOrUnsummon();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_MERGE)
                 {
@@ -377,9 +358,9 @@ class boss_drakkari_elemental : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_drakkari_elementalAI(creature);
+            return GetGundrakAI<boss_drakkari_elementalAI>(creature);
         }
 };
 
@@ -388,22 +369,28 @@ class npc_living_mojo : public CreatureScript
 public:
     npc_living_mojo() : CreatureScript("npc_living_mojo") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_living_mojoAI (creature);
+        return GetGundrakAI<npc_living_mojoAI>(creature);
     }
 
     struct npc_living_mojoAI : public ScriptedAI
     {
         npc_living_mojoAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
         }
 
-        void Reset()
+        void Initialize()
         {
-            mojoWaveTimer = 2*IN_MILLISECONDS;
-            mojoPuddleTimer = 7*IN_MILLISECONDS;
+            mojoWaveTimer = 2 * IN_MILLISECONDS;
+            mojoPuddleTimer = 7 * IN_MILLISECONDS;
+        }
+
+        void Reset() override
+        {
+            Initialize();
         }
 
         void MoveMojos(Creature* boss)
@@ -420,14 +407,14 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
 
             if (id == 1)
             {
-                if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                 {
                     colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                     if (!colossus->AI()->GetData(DATA_INTRO_DONE))
@@ -438,21 +425,17 @@ public:
             }
         }
 
-        void AttackStart(Unit* attacker)
+        void AttackStart(Unit* attacker) override
         {
             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                 return;
 
             // we do this checks to see if the creature is one of the creatures that sorround the boss
-            if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
-                Position homePosition;
-                me->GetHomePosition().GetPosition(&homePosition);
+                Position homePosition = me->GetHomePosition();
 
-                Position colossusHomePosition;
-                colossus->GetHomePosition().GetPosition(&colossusHomePosition);
-
-                float distance = homePosition.GetExactDist(colossusHomePosition.GetPositionX(), colossusHomePosition.GetPositionY(), colossusHomePosition.GetPositionZ());
+                float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
 
                 if (distance < 12.0f)
                 {
@@ -464,7 +447,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -472,18 +455,19 @@ public:
 
             if (mojoWaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MOJO_WAVE);
+                DoCastVictim(SPELL_MOJO_WAVE);
                 mojoWaveTimer = 15*IN_MILLISECONDS;
             } else mojoWaveTimer -= diff;
 
             if (mojoPuddleTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MOJO_PUDDLE);
+                DoCastVictim(SPELL_MOJO_PUDDLE);
                 mojoPuddleTimer = 18*IN_MILLISECONDS;
             } else mojoPuddleTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
+
     private:
         InstanceScript* instance;
         uint32 mojoWaveTimer;

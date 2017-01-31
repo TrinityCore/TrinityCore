@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,8 @@
 
 #ifndef DEF_RAZORFEN_KRAUL_H
 #define DEF_RAZORFEN_KRAUL_H
+
+#define DataHeader "RFK"
 
 #define EVENT_WARD_KEEPER 1
 #endif

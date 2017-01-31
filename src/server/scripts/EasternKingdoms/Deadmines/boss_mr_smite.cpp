@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "deadmines.h"
 
-enum eSpels
+enum Spels
 {
     SPELL_TRASH             = 3391,
     SPELL_SMITE_STOMP       = 6432,
@@ -35,7 +35,7 @@ enum eSpels
     EQUIP_SWORD             = 5191,
     EQUIP_MACE              = 7230,
 
-    SAY_AGGRO               = -1036001
+    SAY_AGGRO               = 0,
 };
 
 class boss_mr_smite : public CreatureScript
@@ -43,16 +43,29 @@ class boss_mr_smite : public CreatureScript
 public:
     boss_mr_smite() : CreatureScript("boss_mr_smite") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_mr_smiteAI (creature);
+        return GetInstanceAI<boss_mr_smiteAI>(creature);
     }
 
     struct boss_mr_smiteAI : public ScriptedAI
     {
         boss_mr_smiteAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiTrashTimer = urand(5000, 9000);
+            uiSlamTimer = 9000;
+            uiNimbleReflexesTimer = urand(15500, 31600);
+
+            uiHealth = 0;
+
+            uiPhase = 0;
+            uiTimer = 0;
         }
 
         InstanceScript* instance;
@@ -66,23 +79,16 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        void Reset()
+        void Reset() override
         {
-            uiTrashTimer = urand(5000, 9000);
-            uiSlamTimer = 9000;
-            uiNimbleReflexesTimer = urand(15500, 31600);
-
-            uiHealth = 0;
-
-            uiPhase = 0;
-            uiTimer = 0;
+            Initialize();
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
-           DoScriptText(SAY_AGGRO, me);
+           Talk(SAY_AGGRO);
         }
 
         bool bCheckChances()
@@ -94,7 +100,7 @@ public:
                 return true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -110,7 +116,7 @@ public:
             if (uiSlamTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me->getVictim(), SPELL_SMITE_SLAM);
+                    DoCastVictim(SPELL_SMITE_SLAM);
                 uiSlamTimer = 11000;
             } else uiSlamTimer -= uiDiff;
 
@@ -127,12 +133,11 @@ public:
                 ++uiHealth;
                 DoCastAOE(SPELL_SMITE_STOMP, false);
                 SetCombatMovement(false);
-                if (instance)
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_SMITE_CHEST)))
-                    {
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(1, go->GetPositionX() - 3.0f, go->GetPositionY(), go->GetPositionZ());
-                    }
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SMITE_CHEST)))
+                {
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(1, go->GetPositionX() - 3.0f, go->GetPositionY(), go->GetPositionZ());
+                }
             }
 
             if (uiPhase)
@@ -156,7 +161,7 @@ public:
                             break;
                         case 3:
                             SetCombatMovement(true);
-                            me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
+                            me->GetMotionMaster()->MoveChase(me->GetVictim(), me->m_CombatDistance);
                             uiPhase = 0;
                             break;
                     }
@@ -166,7 +171,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;

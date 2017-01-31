@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
 #include "ThreatManager.h"
 #include "Unit.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "Map.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
@@ -41,8 +40,8 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
                 threat *= threatEntry->pctMod;
 
         // Energize is not affected by Mods
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-            if (threatSpell->Effects[i].Effect == SPELL_EFFECT_ENERGIZE || threatSpell->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_ENERGIZE)
+            for (SpellEffectInfo const* effect : threatSpell->GetEffectsForDifficulty(hatedUnit->GetMap()->GetDifficultyID()))
+            if (effect && (effect->Effect == SPELL_EFFECT_ENERGIZE || effect->ApplyAuraName == SPELL_AURA_PERIODIC_ENERGIZE))
                 return threat;
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
@@ -67,19 +66,19 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
         return false;
 
     // not to GM
-    if (hatedUnit->GetTypeId() == TYPEID_PLAYER && hatedUnit->ToPlayer()->isGameMaster())
+    if (hatedUnit->GetTypeId() == TYPEID_PLAYER && hatedUnit->ToPlayer()->IsGameMaster())
         return false;
 
     // not to dead and not for dead
-    if (!hatedUnit->isAlive() || !hatingUnit->isAlive())
+    if (!hatedUnit->IsAlive() || !hatingUnit->IsAlive())
         return false;
 
     // not in same map or phase
-    if (!hatedUnit->IsInMap(hatingUnit) || !hatedUnit->InSamePhase(hatingUnit))
+    if (!hatedUnit->IsInMap(hatingUnit) || !hatedUnit->IsInPhase(hatingUnit))
         return false;
 
     // spell not causing threat
-    if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
+    if (threatSpell && threatSpell->HasAttribute(SPELL_ATTR1_NO_THREAT))
         return false;
 
     ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT);
@@ -128,8 +127,8 @@ void HostileReference::sourceObjectDestroyLink()
 
 void HostileReference::fireStatusChanged(ThreatRefStatusChangeEvent& threatRefStatusChangeEvent)
 {
-    if (getSource())
-        getSource()->processThreatEvent(&threatRefStatusChangeEvent);
+    if (GetSource())
+        GetSource()->processThreatEvent(&threatRefStatusChangeEvent);
 }
 
 //============================================================
@@ -150,8 +149,8 @@ void HostileReference::addThreat(float modThreat)
     if (isValid() && modThreat >= 0.0f)
     {
         Unit* victimOwner = getTarget()->GetCharmerOrOwner();
-        if (victimOwner && victimOwner->isAlive())
-            getSource()->addThreat(victimOwner, 0.0f);     // create a threat to the owner of a pet, if the pet attacks
+        if (victimOwner && victimOwner->IsAlive())
+            GetSource()->addThreat(victimOwner, 0.0f);     // create a threat to the owner of a pet, if the pet attacks
     }
 }
 
@@ -171,21 +170,21 @@ void HostileReference::updateOnlineStatus()
     bool accessible = false;
 
     if (!isValid())
-        if (Unit* target = ObjectAccessor::GetUnit(*getSourceUnit(), getUnitGuid()))
-            link(target, getSource());
+        if (Unit* target = ObjectAccessor::GetUnit(*GetSourceUnit(), getUnitGuid()))
+            link(target, GetSource());
 
     // only check for online status if
     // ref is valid
     // target is no player or not gamemaster
     // target is not in flight
     if (isValid()
-        && (getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->isGameMaster())
+        && (getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->IsGameMaster())
         && !getTarget()->HasUnitState(UNIT_STATE_IN_FLIGHT)
-        && getTarget()->IsInMap(getSourceUnit())
-        && getTarget()->InSamePhase(getSourceUnit())
+        && getTarget()->IsInMap(GetSourceUnit())
+        && getTarget()->IsInPhase(GetSourceUnit())
         )
     {
-        Creature* creature = getSourceUnit()->ToCreature();
+        Creature* creature = GetSourceUnit()->ToCreature();
         online = getTarget()->isInAccessiblePlaceFor(creature);
         if (!online)
         {
@@ -242,9 +241,9 @@ void HostileReference::removeReference()
 
 //============================================================
 
-Unit* HostileReference::getSourceUnit()
+Unit* HostileReference::GetSourceUnit()
 {
-    return (getSource()->getOwner());
+    return (GetSource()->GetOwner());
 }
 
 //============================================================
@@ -269,10 +268,10 @@ HostileReference* ThreatContainer::getReferenceByTarget(Unit* victim) const
     if (!victim)
         return NULL;
 
-    uint64 const guid = victim->GetGUID();
+    ObjectGuid guid = victim->GetGUID();
     for (ThreatContainer::StorageType::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
-        HostileReference *ref = (*i);
+        HostileReference* ref = (*i);
         if (ref && ref->getUnitGuid() == guid)
             return ref;
     }
@@ -337,7 +336,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
             {
                 // current victim is a second choice target, so don't compare threat with it below
                 if (currentRef == currentVictim)
-                    currentVictim = NULL;
+                    currentVictim = nullptr;
                 ++iter;
                 continue;
             }
@@ -350,14 +349,14 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
             }
         }
 
-        if (attacker->canCreatureAttack(target))           // skip non attackable currently targets
+        if (attacker->CanCreatureAttack(target))           // skip non attackable currently targets
         {
             if (currentVictim)                              // select 1.3/1.1 better target in comparison current target
             {
                 // list sorted and and we check current target, then this is best case
                 if (currentVictim == currentRef || currentRef->getThreat() <= 1.1f * currentVictim->getThreat())
                 {
-                    if (currentVictim != currentRef && attacker->canCreatureAttack(currentVictim->getTarget()))
+                    if (currentVictim != currentRef && attacker->CanCreatureAttack(currentVictim->getTarget()))
                         currentRef = currentVictim;            // for second case, if currentvictim is attackable
 
                     found = true;
@@ -390,9 +389,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
 //=================== ThreatManager ==========================
 //============================================================
 
-ThreatManager::ThreatManager(Unit* owner) : iCurrentVictim(NULL), iOwner(owner), iUpdateTimer(THREAT_UPDATE_INTERVAL)
-{
-}
+ThreatManager::ThreatManager(Unit* owner) : iCurrentVictim(NULL), iOwner(owner), iUpdateTimer(THREAT_UPDATE_INTERVAL) { }
 
 //============================================================
 
@@ -408,7 +405,7 @@ void ThreatManager::clearReferences()
 
 void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
 {
-    if (!ThreatCalcHelper::isValidProcess(victim, getOwner(), threatSpell))
+    if (!ThreatCalcHelper::isValidProcess(victim, GetOwner(), threatSpell))
         return;
 
     doAddThreat(victim, ThreatCalcHelper::calcThreat(victim, iOwner, threat, schoolMask, threatSpell));
@@ -416,20 +413,17 @@ void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask school
 
 void ThreatManager::doAddThreat(Unit* victim, float threat)
 {
-    uint32 reducedThreadPercent = victim->GetReducedThreatPercent();
+    uint32 redirectThreadPct = victim->GetRedirectThreatPercent();
 
     // must check > 0.0f, otherwise dead loop
-    if (threat > 0.0f && reducedThreadPercent)
+    if (threat > 0.0f && redirectThreadPct)
     {
-        Unit* redirectTarget = victim->GetMisdirectionTarget();
-        if (redirectTarget)
-            if (Aura* glyphAura = redirectTarget->GetAura(63326)) // Glyph of Vigilance
-                reducedThreadPercent += glyphAura->GetSpellInfo()->Effects[0].CalcValue();
-
-        float reducedThreat = threat * reducedThreadPercent / 100.0f;
-        threat -= reducedThreat;
-        if (redirectTarget)
-            _addThreat(redirectTarget, reducedThreat);
+        if (Unit* redirectTarget = victim->GetRedirectThreatTarget())
+        {
+            float redirectThreat = CalculatePct(threat, redirectThreadPct);
+            threat -= redirectThreat;
+            _addThreat(redirectTarget, redirectThreat);
+        }
     }
 
     _addThreat(victim, threat);
@@ -444,12 +438,15 @@ void ThreatManager::_addThreat(Unit* victim, float threat)
 
     if (!ref) // there was no ref => create a new one
     {
+        bool isFirst = iThreatContainer.empty();
                                                             // threat has to be 0 here
         HostileReference* hostileRef = new HostileReference(victim, this, 0);
         iThreatContainer.addReference(hostileRef);
         hostileRef->addThreat(threat); // now we add the real threat
-        if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->isGameMaster())
+        if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->IsGameMaster())
             hostileRef->setOnlineOfflineState(false); // GM is always offline
+        else if (isFirst)
+            setCurrentVictim(hostileRef);
     }
 }
 
@@ -465,7 +462,7 @@ void ThreatManager::modifyThreatPercent(Unit* victim, int32 percent)
 Unit* ThreatManager::getHostilTarget()
 {
     iThreatContainer.update();
-    HostileReference* nextVictim = iThreatContainer.selectNextVictim(getOwner()->ToCreature(), getCurrentVictim());
+    HostileReference* nextVictim = iThreatContainer.selectNextVictim(GetOwner()->ToCreature(), getCurrentVictim());
     setCurrentVictim(nextVictim);
     return getCurrentVictim() != NULL ? getCurrentVictim()->getTarget() : NULL;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,10 @@
 #define _LFG_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
+
+namespace lfg
+{
 
 enum LFGEnum
 {
@@ -41,17 +45,21 @@ enum LfgUpdateType
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_PROPOSAL                 = 5,
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,
-    LFG_UPDATETYPE_GROUP_FOUND                   = 10,
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 14,
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 6,
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 7,
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 9,
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 10,
+    LFG_UPDATETYPE_GROUP_FOUND                   = 11,
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 13,
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14,
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 15,
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16,
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17,     // FIXME: Sometimes at group disband
+    LFG_UPDATETYPE_JOIN_QUEUE_INITIAL            = 24,
+    LFG_UPDATETYPE_DUNGEON_FINISHED              = 25,
+    LFG_UPDATETYPE_PARTY_ROLE_NOT_AVAILABLE      = 43,
+    LFG_UPDATETYPE_JOIN_LFG_OBJECT_FAILED        = 45,
 };
 
 enum LfgState
@@ -60,8 +68,8 @@ enum LfgState
     LFG_STATE_ROLECHECK,                                   // Rolecheck active
     LFG_STATE_QUEUED,                                      // Queued
     LFG_STATE_PROPOSAL,                                    // Proposal active
-    LFG_STATE_BOOT,                                        // Vote kick active
-    LFG_STATE_DUNGEON,                                     // In LFG Group, in a Dungeon
+    //LFG_STATE_BOOT,                                      // Vote kick active
+    LFG_STATE_DUNGEON = 5,                                 // In LFG Group, in a Dungeon
     LFG_STATE_FINISHED_DUNGEON,                            // In LFG Group, in a finished Dungeon
     LFG_STATE_RAIDBROWSER                                  // Using Raid finder
 };
@@ -91,12 +99,26 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
+struct TC_GAME_API LfgLockInfoData
+{
+    LfgLockInfoData(uint32 _lockStatus = 0, uint16 _requiredItemLevel = 0, float _currentItemLevel = 0) :
+        lockStatus(_lockStatus), requiredItemLevel(_requiredItemLevel), currentItemLevel(_currentItemLevel) { }
+
+    uint32 lockStatus;
+    uint16 requiredItemLevel;
+    float currentItemLevel;
+};
+
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, uint32> LfgLockMap;
-typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
-typedef std::set<uint64> LfgGuidSet;
-typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint64, uint8> LfgRolesMap;
-typedef std::map<uint64, uint64> LfgGroupsMap;
+typedef std::map<uint32, LfgLockInfoData> LfgLockMap;
+typedef std::map<ObjectGuid, LfgLockMap> LfgLockPartyMap;
+typedef std::map<ObjectGuid, uint8> LfgRolesMap;
+typedef std::map<ObjectGuid, ObjectGuid> LfgGroupsMap;
+
+TC_GAME_API std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
+TC_GAME_API std::string GetRolesString(uint8 roles);
+TC_GAME_API std::string GetStateString(LfgState state);
+
+} // namespace lfg
 
 #endif

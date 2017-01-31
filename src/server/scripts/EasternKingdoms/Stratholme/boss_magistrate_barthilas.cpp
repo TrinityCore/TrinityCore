@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,27 +27,45 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_DRAININGBLOW    16793
-#define SPELL_CROWDPUMMEL    10887
-#define SPELL_MIGHTYBLOW    14099
-#define SPELL_FURIOUS_ANGER     16791
+enum Spells
+{
+    SPELL_DRAININGBLOW      = 16793,
+    SPELL_CROWDPUMMEL       = 10887,
+    SPELL_MIGHTYBLOW        = 14099,
+    SPELL_FURIOUS_ANGER     = 16791
+};
 
-#define MODEL_NORMAL            10433
-#define MODEL_HUMAN             3637
+enum Models
+{
+    MODEL_NORMAL            = 10433,
+    MODEL_HUMAN             = 3637
+};
 
 class boss_magistrate_barthilas : public CreatureScript
 {
 public:
     boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_magistrate_barthilasAI (creature);
+        return new boss_magistrate_barthilasAI(creature);
     }
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
     {
-        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            DrainingBlow_Timer = 20000;
+            CrowdPummel_Timer = 15000;
+            MightyBlow_Timer = 10000;
+            FuriousAnger_Timer = 5000;
+            AngerCount = 0;
+        }
 
         uint32 DrainingBlow_Timer;
         uint32 CrowdPummel_Timer;
@@ -55,37 +73,34 @@ public:
         uint32 FuriousAnger_Timer;
         uint32 AngerCount;
 
-        void Reset()
+        void Reset() override
         {
-            DrainingBlow_Timer = 20000;
-            CrowdPummel_Timer = 15000;
-            MightyBlow_Timer = 10000;
-            FuriousAnger_Timer = 5000;
-            AngerCount = 0;
+            Initialize();
 
-            if (me->isAlive())
+            if (me->IsAlive())
                 me->SetDisplayId(MODEL_NORMAL);
             else
                 me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
             //nothing to see here yet
 
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             me->SetDisplayId(MODEL_HUMAN);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -104,21 +119,21 @@ public:
             //DrainingBlow
             if (DrainingBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DRAININGBLOW);
+                DoCastVictim(SPELL_DRAININGBLOW);
                 DrainingBlow_Timer = 15000;
             } else DrainingBlow_Timer -= diff;
 
             //CrowdPummel
             if (CrowdPummel_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
+                DoCastVictim(SPELL_CROWDPUMMEL);
                 CrowdPummel_Timer = 15000;
             } else CrowdPummel_Timer -= diff;
 
             //MightyBlow
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCastVictim(SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 20000;
             } else MightyBlow_Timer -= diff;
 

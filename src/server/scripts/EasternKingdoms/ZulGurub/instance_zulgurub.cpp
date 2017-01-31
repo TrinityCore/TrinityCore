@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,145 +16,192 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_ZulGurub
-SD%Complete: 80
-SDComment: Missing reset function after killing a boss for Ohgan, Thekal.
-SDCategory: Zul'Gurub
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "zulgurub.h"
 
+DoorData const doorData[] =
+{
+    { GO_VENOXIS_COIL,                  DATA_VENOXIS,   DOOR_TYPE_ROOM },
+    { GO_ARENA_DOOR_1,                  DATA_MANDOKIR,  DOOR_TYPE_ROOM },
+    { GO_FORCEFIELD,                    DATA_KILNARA,   DOOR_TYPE_ROOM },
+    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    DOOR_TYPE_ROOM },
+    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM },
+    { 0,                                0,              DOOR_TYPE_ROOM }
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public:
-        instance_zulgurub()
-            : InstanceMapScript("instance_zulgurub", 309)
-        {
-        }
+        instance_zulgurub() : InstanceMapScript(ZGScriptName, 859) { }
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
-            uint32 m_auiEncounter[MAX_ENCOUNTERS];
-
-            //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
-            uint64 m_uiLorKhanGUID;
-            uint64 m_uiZathGUID;
-            uint64 m_uiThekalGUID;
-            uint64 m_uiJindoGUID;
-
-            void Initialize()
+            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                m_uiLorKhanGUID = 0;
-                m_uiZathGUID = 0;
-                m_uiThekalGUID = 0;
-                m_uiJindoGUID = 0;
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
             }
 
-            bool IsEncounterInProgress() const
-            {
-                //not active in Zul'Gurub
-                return false;
-            }
-
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
-                    case 11347: m_uiLorKhanGUID = creature->GetGUID(); break;
-                    case 11348: m_uiZathGUID = creature->GetGUID(); break;
-                    case 14509: m_uiThekalGUID = creature->GetGUID(); break;
-                    case 11380: m_uiJindoGUID = creature->GetGUID(); break;
+                    case NPC_VENOXIS:
+                        venoxisGUID = creature->GetGUID();
+                        break;
+                    case NPC_MANDOKIR:
+                        mandokirGUID = creature->GetGUID();
+                        break;
+                    case NPC_KILNARA:
+                        kilnaraGUID = creature->GetGUID();
+                        break;
+                    case NPC_ZANZIL:
+                        zanzilGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO:
+                        jindoGUID = creature->GetGUID();
+                        break;
+                    case NPC_HAZZARAH:
+                        hazzarahGUID = creature->GetGUID();
+                        break;
+                    case NPC_RENATAKI:
+                        renatakiGUID = creature->GetGUID();
+                        break;
+                    case NPC_WUSHOOLAY:
+                        wushoolayGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRILEK:
+                        grilekGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO_TRIGGER:
+                        jindoTiggerGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            void OnGameObjectCreate(GameObject* go) override
             {
-                switch (uiType)
+                switch (go->GetEntry())
                 {
-                    case DATA_ARLOKK:
-                        m_auiEncounter[0] = uiData;
+                    case GO_VENOXIS_COIL:
+                    case GO_ARENA_DOOR_1:
+                    case GO_FORCEFIELD:
+                    case GO_ZANZIL_DOOR:
+                    case GO_THE_CACHE_OF_MADNESS_DOOR:
+                        AddDoor(go, true);
                         break;
-
-                    case DATA_JEKLIK:
-                        m_auiEncounter[1] = uiData;
+                    default:
                         break;
+                }
+            }
 
+            void OnGameObjectRemove(GameObject* go) override
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_VENOXIS_COIL:
+                    case GO_ARENA_DOOR_1:
+                    case GO_FORCEFIELD:
+                    case GO_ZANZIL_DOOR:
+                    case GO_THE_CACHE_OF_MADNESS_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
                     case DATA_VENOXIS:
-                        m_auiEncounter[2] = uiData;
-                        break;
-
-                    case DATA_MARLI:
-                        m_auiEncounter[3] = uiData;
-                        break;
-
-                    case DATA_THEKAL:
-                        m_auiEncounter[4] = uiData;
-                        break;
-
-                    case DATA_LORKHAN:
-                        m_auiEncounter[5] = uiData;
-                        break;
-
-                    case DATA_ZATH:
-                        m_auiEncounter[6] = uiData;
-                        break;
-
-                    case DATA_OHGAN:
-                        m_auiEncounter[7] = uiData;
-                        break;
-                }
-            }
-
-            uint32 GetData(uint32 uiType)
-            {
-                switch (uiType)
-                {
-                    case DATA_ARLOKK:
-                        return m_auiEncounter[0];
-                    case DATA_JEKLIK:
-                        return m_auiEncounter[1];
-                    case DATA_VENOXIS:
-                        return m_auiEncounter[2];
-                    case DATA_MARLI:
-                        return m_auiEncounter[3];
-                    case DATA_THEKAL:
-                        return m_auiEncounter[4];
-                    case DATA_LORKHAN:
-                        return m_auiEncounter[5];
-                    case DATA_ZATH:
-                        return m_auiEncounter[6];
-                    case DATA_OHGAN:
-                        return m_auiEncounter[7];
-                }
-                return 0;
-            }
-
-            uint64 GetData64(uint32 uiData)
-            {
-                switch (uiData)
-                {
-                    case DATA_LORKHAN:
-                        return m_uiLorKhanGUID;
-                    case DATA_ZATH:
-                        return m_uiZathGUID;
-                    case DATA_THEKAL:
-                        return m_uiThekalGUID;
+                    case DATA_MANDOKIR:
+                    case DATA_KILNARA:
+                    case DATA_ZANZIL:
                     case DATA_JINDO:
-                        return m_uiJindoGUID;
+                    case DATA_HAZZARAH:
+                    case DATA_RENATAKI:
+                    case DATA_WUSHOOLAY:
+                    case DATA_GRILEK:
+                        break;
+                    default:
+                        break;
                 }
+
+                return true;
+            }
+
+            /*
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                }
+            }
+
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                }
+
                 return 0;
             }
+            */
+
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_VENOXIS:
+                        return venoxisGUID;
+                    case DATA_MANDOKIR:
+                        return mandokirGUID;
+                    case DATA_KILNARA:
+                        return kilnaraGUID;
+                    case DATA_ZANZIL:
+                        return zanzilGUID;
+                    case DATA_JINDO:
+                        return jindoGUID;
+                    case DATA_HAZZARAH:
+                        return hazzarahGUID;
+                    case DATA_RENATAKI:
+                        return renatakiGUID;
+                    case DATA_WUSHOOLAY:
+                        return wushoolayGUID;
+                    case DATA_GRILEK:
+                        return grilekGUID;
+                    case DATA_JINDOR_TRIGGER:
+                        return jindoTiggerGUID;
+                    default:
+                        break;
+                }
+
+                return ObjectGuid::Empty;
+            }
+
+        protected:
+            ObjectGuid venoxisGUID;
+            ObjectGuid mandokirGUID;
+            ObjectGuid kilnaraGUID;
+            ObjectGuid zanzilGUID;
+            ObjectGuid jindoGUID;
+            ObjectGuid hazzarahGUID;
+            ObjectGuid renatakiGUID;
+            ObjectGuid wushoolayGUID;
+            ObjectGuid grilekGUID;
+            ObjectGuid jindoTiggerGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_zulgurub_InstanceMapScript(map);
         }

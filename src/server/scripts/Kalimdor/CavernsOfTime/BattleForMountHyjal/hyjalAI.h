@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,34 +24,6 @@
 
 #define HYJAL_AI_MAX_SPELLS 3
 
-enum CreaturesIds
-{
-    // Trash Mobs summoned in waves
-    NECROMANCER         = 17899,
-    ABOMINATION         = 17898,
-    GHOUL               = 17895,
-    BANSHEE             = 17905,
-    CRYPT_FIEND         = 17897,
-    GARGOYLE            = 17906,
-    FROST_WYRM          = 17907,
-    GIANT_INFERNAL      = 17908,
-    FEL_STALKER         = 17916,
-
-    JAINA               = 17772,
-    THRALL              = 17852,
-    TYRANDE             = 17948,
-
-    ANCIENT_VEIN        = 185557,
-    FLAMEOBJECT         = 182592,
-
-    // Bosses summoned after every 8 waves
-    RAGE_WINTERCHILL    = 17767,
-    ANETHERON           = 17808,
-    KAZROGAL            = 17888,
-    AZGALOR             = 17842,
-    ARCHIMONDE          = 17968,
-};
-
 enum SpellIds
 {
     SPELL_TELEPORT_VISUAL     = 41232,
@@ -65,7 +37,7 @@ enum SpellIds
 
     //Thrall spells
     SPELL_CHAIN_LIGHTNING     = 31330,
-    SPELL_SUMMON_DIRE_WOLF    = 31331,
+    SPELL_SUMMON_DIRE_WOLF    = 31331
 };
 
 struct Wave
@@ -132,12 +104,6 @@ enum TargetType                                             // Used in the spell
     TARGETTYPE_VICTIM   = 2,
 };
 
-struct Yells
-{
-    uint32 id;                                              // Used to determine the type of yell (attack, rally, etc)
-    int32 textid;                                           // The text id to be yelled
-};
-
 enum YellId
 {
     ATTACKED     = 0,                                       // Used when attacked and set in combat
@@ -149,45 +115,21 @@ enum YellId
     DEATH        = 6,                                       // Used on death
 };
 
-const Yells JainaQuotes[]=
-{
-    {ATTACKED, -1534000},
-    {ATTACKED, -1534001},
-    {INCOMING, -1534002},
-    {BEGIN, -1534003},
-    {RALLY, -1534004},
-    {RALLY, -1534005},
-    {FAILURE, -1534006},
-    {SUCCESS, -1534007},
-    {DEATH, -1534008},
-};
-
-const Yells ThrallQuotes[]=
-{
-    {ATTACKED, -1534009},
-    {ATTACKED, -1534010},
-    {INCOMING, -1534011},
-    {BEGIN, -1534012},
-    {RALLY, -1534013},
-    {RALLY, -1534014},
-    {FAILURE, -1534015},
-    {SUCCESS, -1534016},
-    {DEATH, -1534017},
-};
-
 struct hyjalAI : public npc_escortAI
 {
     hyjalAI(Creature* creature);
 
-    void Reset();                                           // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
+    void Initialize();
 
-    void EnterEvadeMode();                                  // Send creature back to spawn location and evade.
+    void Reset() override;                                  // Generically used to reset our variables. Do *not* call in EnterEvadeMode as this may make problems if the raid is still in combat
 
-    void EnterCombat(Unit* /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
+    void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;    // Send creature back to spawn location and evade.
 
-    void UpdateAI(const uint32 diff);                       // Called to summon waves, check for boss deaths and to cast our spells.
+    void EnterCombat(Unit* /*who*/) override;               // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
-    void JustDied(Unit* /*killer*/);                             // Called on death, informs the raid that they have failed.
+    void UpdateAI(uint32 diff) override;                    // Called to summon waves, check for boss deaths and to cast our spells.
+
+    void JustDied(Unit* /*killer*/) override;               // Called on death, informs the raid that they have failed.
 
     void SetFaction(uint32 _faction)                        // Set the faction to either Alliance or Horde in Hyjal
     {
@@ -198,13 +140,13 @@ struct hyjalAI : public npc_escortAI
 
     void SpawnVeins();
     void DeSpawnVeins();
-    void JustSummoned(Creature* summoned);
-    void SummonedCreatureDespawn(Creature* summoned);
+    void JustSummoned(Creature* summoned) override;
+    void SummonedCreatureDespawn(Creature* summoned) override;
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 waypointId);
+    void WaypointReached(uint32 waypointId) override;
     void DoOverrun(uint32 faction, const uint32 diff);
-    void MoveInLineOfSight(Unit* who);
+    void MoveInLineOfSight(Unit* who) override;
 
     void SummonCreature(uint32 entry, float Base[4][3]);    // Summons a creature for that wave in that base
 
@@ -215,14 +157,12 @@ struct hyjalAI : public npc_escortAI
 
     uint32 GetInstanceData(uint32 Event);                   // Gets instance data for this instance, used to check if raid has gotten past a certain point and can access the next phase
 
-    void Talk(uint32 id);                                   // Searches for the appropriate yell and sound and uses it to inform the raid of various things
-
     public:
         InstanceScript* instance;
 
-        uint64 PlayerGUID;
-        uint64 BossGUID[2];
-        uint64 VeinGUID[14];
+        ObjectGuid PlayerGUID;
+        ObjectGuid BossGUID[2];
+        ObjectGuid VeinGUID[14];
 
         uint32 NextWaveTimer;
         uint32 WaveCount;
@@ -253,7 +193,7 @@ struct hyjalAI : public npc_escortAI
         bool IsDummy;
         uint32 MassTeleportTimer;
         bool DoMassTeleport;
-        uint64 DummyGuid;
+        ObjectGuid DummyGuid;
 
         struct Spell
         {

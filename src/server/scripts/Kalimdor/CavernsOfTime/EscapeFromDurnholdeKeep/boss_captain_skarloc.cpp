@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,35 +27,52 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER                   -1560000
-#define SAY_TAUNT1                  -1560001
-#define SAY_TAUNT2                  -1560002
-#define SAY_SLAY1                   -1560003
-#define SAY_SLAY2                   -1560004
-#define SAY_DEATH                   -1560005
+/*######################
+# boss_captain_skarloc #
+#######################*/
 
-#define SPELL_HOLY_LIGHT            29427
-#define SPELL_CLEANSE               29380
-#define SPELL_HAMMER_OF_JUSTICE     13005
-#define SPELL_HOLY_SHIELD           31904
-#define SPELL_DEVOTION_AURA         8258
-#define SPELL_CONSECRATION          38385
+enum CaptainSkarloc
+{
+    SAY_ENTER                   = 0,
+    SAY_TAUNT1                  = 1,
+    SAY_TAUNT2                  = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
+
+    SPELL_HOLY_LIGHT            = 29427,
+    SPELL_CLEANSE               = 29380,
+    SPELL_HAMMER_OF_JUSTICE     = 13005,
+    SPELL_HOLY_SHIELD           = 31904,
+    SPELL_DEVOTION_AURA         = 8258,
+    SPELL_CONSECRATION          = 38385
+};
 
 class boss_captain_skarloc : public CreatureScript
 {
 public:
     boss_captain_skarloc() : CreatureScript("boss_captain_skarloc") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_captain_skarlocAI (creature);
+        return GetInstanceAI<boss_captain_skarlocAI>(creature);
     }
 
     struct boss_captain_skarlocAI : public ScriptedAI
     {
         boss_captain_skarlocAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            Holy_Light_Timer = urand(20000, 30000);
+            Cleanse_Timer = 10000;
+            HammerOfJustice_Timer = urand(20000, 35000);
+            HolyShield_Timer = 240000;
+            DevotionAura_Timer = 3000;
+            Consecration_Timer = 8000;
         }
 
         InstanceScript* instance;
@@ -67,37 +84,32 @@ public:
         uint32 DevotionAura_Timer;
         uint32 Consecration_Timer;
 
-        void Reset()
+        void Reset() override
         {
-            Holy_Light_Timer = urand(20000, 30000);
-            Cleanse_Timer = 10000;
-            HammerOfJustice_Timer = urand(20000, 35000);
-            HolyShield_Timer = 240000;
-            DevotionAura_Timer = 3000;
-            Consecration_Timer = 8000;
+            Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             //This is not correct. Should taunt Thrall before engage in combat
-            DoScriptText(SAY_TAUNT1, me);
-            DoScriptText(SAY_TAUNT2, me);
+            Talk(SAY_TAUNT1);
+            Talk(SAY_TAUNT2);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
-            if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+            if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
                 instance->SetData(TYPE_THRALL_PART1, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -120,7 +132,7 @@ public:
             //Hammer of Justice
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMMER_OF_JUSTICE);
+                DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
                 HammerOfJustice_Timer = 60000;
             } else HammerOfJustice_Timer -= diff;
 
@@ -141,7 +153,7 @@ public:
             //Consecration
             if (Consecration_Timer <= diff)
             {
-                //DoCast(me->getVictim(), SPELL_CONSECRATION);
+                //DoCastVictim(SPELL_CONSECRATION);
                 Consecration_Timer = urand(5000, 10000);
             } else Consecration_Timer -= diff;
 

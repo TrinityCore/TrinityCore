@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,16 +21,21 @@
 
 enum Spells
 {
-    SPELL_MIND_BLAST                                       = 15587,
-    SPELL_SLEEP                                            = 8399,
+    SPELL_MIND_BLAST    = 15587,
+    SPELL_SLEEP         = 8399,
 };
 
-//Id's from ACID
-enum Yells
+enum Texts
 {
-    SAY_AGGRO                                              = -1048002,
-    SAY_SLEEP                                              = -1048001,
-    SAY_DEATH                                              = -1048000
+    SAY_AGGRO    = 0,
+    SAY_SLEEP    = 1,
+    SAY_DEATH    = 2
+};
+
+enum Events
+{
+    EVENT_MIND_BLAST = 1,
+    EVENT_SLEEP
 };
 
 class boss_kelris : public CreatureScript
@@ -38,69 +43,63 @@ class boss_kelris : public CreatureScript
 public:
     boss_kelris() : CreatureScript("boss_kelris") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_kelrisAI : public BossAI
     {
-        return new boss_kelrisAI (creature);
-    }
+        boss_kelrisAI(Creature* creature) : BossAI(creature, DATA_KELRIS) { }
 
-    struct boss_kelrisAI : public ScriptedAI
-    {
-        boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
+        void EnterCombat(Unit* /*who*/) override
         {
-            instance = creature->GetInstanceScript();
+            _EnterCombat();
+            Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_MIND_BLAST, urand(2000, 5000));
+            events.ScheduleEvent(EVENT_SLEEP, urand(9000, 12000));
         }
 
-        uint32 mindBlastTimer;
-        uint32 sleepTimer;
-
-        InstanceScript* instance;
-
-        void Reset()
+        void JustDied(Unit* /*killer*/) override
         {
-            mindBlastTimer = urand(2000, 5000);
-            sleepTimer = urand(9000, 12000);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, NOT_STARTED);
+            Talk(SAY_DEATH);
+            _JustDied();
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-            if (instance)
-                instance->SetData(TYPE_KELRIS, DONE);
-        }
-
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
 
-            if (mindBlastTimer < diff)
-            {
-                DoCastVictim(SPELL_MIND_BLAST);
-                mindBlastTimer = urand(7000, 9000);
-            } else mindBlastTimer -= diff;
+            events.Update(diff);
 
-            if (sleepTimer < diff)
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                switch (eventId)
                 {
-                    DoScriptText(SAY_SLEEP, me);
-                    DoCast(target, SPELL_SLEEP);
+                    case EVENT_MIND_BLAST:
+                        DoCastVictim(SPELL_MIND_BLAST);
+                        events.ScheduleEvent(EVENT_MIND_BLAST, urand(7000, 9000));
+                        break;
+                    case EVENT_SLEEP:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        {
+                            Talk(SAY_SLEEP);
+                            DoCast(target, SPELL_SLEEP);
+                        }
+                        events.ScheduleEvent(EVENT_SLEEP, urand(15000, 20000));
+                        break;
+                    default:
+                        break;
                 }
-                sleepTimer = urand(15000, 20000);
-            } else sleepTimer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_kelrisAI>(creature);
+    }
 };
 
 void AddSC_boss_kelris()

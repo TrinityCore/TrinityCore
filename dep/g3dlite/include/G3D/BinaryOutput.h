@@ -1,17 +1,17 @@
 /**
- @file BinaryOutput.h
+ \file G3D/BinaryOutput.h
  
- @maintainer Morgan McGuire, graphics3d.com
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2001-08-09
- @edited  2008-01-24
+ \created 2001-08-09
+ \edited  2011-08-24
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_BINARYOUTPUT_H
-#define G3D_BINARYOUTPUT_H
+#ifndef G3D_BinaryOutput_h
+#define G3D_BinaryOutput_h
 
 #include "G3D/platform.h"
 #include <assert.h>
@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include "G3D/unorm8.h"
 #include "G3D/Color4.h"
 #include "G3D/Color3.h"
 #include "G3D/Vector4.h"
@@ -73,19 +74,19 @@ private:
     uint8*          m_buffer;
     
     /** Size of the elements used */
-    int             m_bufferLen;
+    size_t          m_bufferLen;
 
     /** Underlying size of memory allocaded */
-    int             m_maxBufferLen;
+    size_t          m_maxBufferLen;
 
     /** Next byte in file */
-    int             m_pos;
+    int64           m_pos;
 
     /** is this initialized? */
     bool            m_init;
 
-    /** Number of bytes already written to the file.*/
-    size_t          m_alreadyWritten;             
+    /** Number of bytes already written to the file.  Even on 32-bit OS, this can be 64-bits*/
+    int64           m_alreadyWritten;             
 
     bool            m_ok;
 
@@ -97,11 +98,11 @@ private:
      Make sure at least bytes can be written, resizing if
      necessary.
      */
-    inline void reserveBytes(int bytes) {
+    inline void reserveBytes(size_t bytes) {
         debugAssert(bytes > 0);
-        size_t oldBufferLen = (size_t)m_bufferLen;
+        size_t oldBufferLen = m_bufferLen;
 
-        m_bufferLen = iMax(m_bufferLen, (m_pos + bytes));
+        m_bufferLen = max(m_bufferLen, (size_t)(m_pos + bytes));
         if (m_bufferLen > m_maxBufferLen) {
             reallocBuffer(bytes, oldBufferLen);
         }
@@ -138,8 +139,10 @@ public:
 
         Cannot be used for huge files (ones where the data
         was already written to disk)-- will throw char*.
+
+        \param level Compression level.  0 = fast, low compression; 9 = slow, high compression
      */
-    void compress();
+    void compress(int level = 9);
 
     /** True if no errors have been encountered.*/
     bool ok() const;
@@ -190,11 +193,11 @@ public:
     void reset();
 
 
-    inline int length() const {
-        return (int)m_bufferLen + (int)m_alreadyWritten;
+    inline int64 length() const {
+        return m_bufferLen + m_alreadyWritten;
     }
 
-    inline int size() const {
+    inline int64 size() const {
         return length();
     }
 
@@ -207,18 +210,18 @@ public:
      Throws char* when resetting a huge file to be shorter
      than its current length.
      */
-    inline void setLength(int n) {
-        n = n - (int)m_alreadyWritten;
+    inline void setLength(int64 n) {
+        n = n - m_alreadyWritten;
 
         if (n < 0) {
             throw "Cannot resize huge files to be shorter.";
         }
 
-        if (n < m_bufferLen) {
+        if (n < (int64)m_bufferLen) {
             m_pos = n;
         }
-        if (n > m_bufferLen) {
-            reserveBytes(n - m_bufferLen);
+        if (n > (int64)m_bufferLen) {
+            reserveBytes((size_t)(n - m_bufferLen));
         }
     }
 
@@ -227,7 +230,7 @@ public:
      where 0 is the beginning and getLength() - 1 is the end.
      */
     inline int64 position() const {
-        return (int64)m_pos + (int64)m_alreadyWritten;
+        return m_pos + m_alreadyWritten;
     }
 
 
@@ -239,9 +242,9 @@ public:
      May throw a char* exception when seeking backwards on a huge file.
      */
     inline void setPosition(int64 p) {
-        p = p - (int64)m_alreadyWritten;
+        p = p - m_alreadyWritten;
 
-        if (p > m_bufferLen) {
+        if (p > (int64)m_bufferLen) {
             setLength((int)(p + (int64)m_alreadyWritten));
         }
 
@@ -253,9 +256,9 @@ public:
     }
 
 
-    void writeBytes(
-        const void*         b,
-        int                 count) {
+    void writeBytes
+       (const void*         b,
+        size_t              count) {
 
         reserveBytes(count);
         debugAssert(m_pos >= 0);
@@ -270,7 +273,7 @@ public:
     inline void writeInt8(int8 i) {
         reserveBytes(1);
         m_buffer[m_pos] = *(uint8*)&i;
-        m_pos++;
+        ++m_pos;
     }
 
     inline void writeBool8(bool b) {
@@ -280,7 +283,11 @@ public:
     inline void writeUInt8(uint8 i) {
         reserveBytes(1);
         m_buffer[m_pos] = i;
-        m_pos++;
+        ++m_pos;
+    }
+
+    inline void writeUNorm8(unorm8 i) {
+        writeUInt8(i.bits());
     }
 
     void writeUInt16(uint16 u);
@@ -328,6 +335,20 @@ public:
         writeString(s.c_str());
     }
 
+    /** Write a string that always consumes len bytes, truncating or padding as necessary*/
+    inline void writeString(const std::string& s, int len) {
+        const int pad = len - ((int)s.length() + 1);
+        if (pad >= 0) {
+            writeString(s.c_str());
+            for (int i = 0; i < pad; ++i) {
+                writeUInt8(0);
+            }
+        } else {
+            // Truncate
+            writeBytes(s.c_str(), len);
+        }
+    }
+
     void writeString(const char* s);
 
     /**
@@ -340,12 +361,11 @@ public:
 
     void writeStringEven(const char* s);
 
-
     void writeString32(const char* s);
 
     /**
-     Write a string with a 32-bit length field in front
-     of it.
+     Write a NULL-terminated string with a 32-bit length field in front
+     of it.  The NULL character is included in the length count.
      */
     void writeString32(const std::string& s) {
         writeString32(s.c_str());
@@ -365,8 +385,8 @@ public:
      Skips ahead n bytes.
      */
     inline void skip(int n) {
-        if (m_pos + n > m_bufferLen) {
-            setLength((int)m_pos + (int)m_alreadyWritten + n);
+        if (m_pos + n > (int64)m_bufferLen) {
+            setLength(m_pos + m_alreadyWritten + n);
         }
         m_pos += n;
     }

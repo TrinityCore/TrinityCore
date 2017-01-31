@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,9 +25,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "Player.h"
 #include "hyjal.h"
-#include "SpellAuras.h"
-#include "hyjal_trash.h"
 
 enum Texts
 {
@@ -38,89 +38,111 @@ enum Texts
     SAY_ENRAGE      = 5,
     SAY_DEATH       = 6,
     SAY_SOUL_CHARGE = 7,
+    // YELL_ARCHIMONDE_INTRO = 8
 };
 
 enum Spells
 {
-    SPELL_DENOUEMENT_WISP       = 32124,
-    SPELL_ANCIENT_SPARK         = 39349,
-    SPELL_PROTECTION_OF_ELUNE   = 38528,
+    SPELL_DENOUEMENT_WISP            = 32124,
+    SPELL_ANCIENT_SPARK              = 39349,
+    SPELL_PROTECTION_OF_ELUNE        = 38528,
 
-    SPELL_DRAIN_WORLD_TREE      = 39140,
-    SPELL_DRAIN_WORLD_TREE_2    = 39141,
+    SPELL_DRAIN_WORLD_TREE           = 39140,
+    SPELL_DRAIN_WORLD_TREE_TRIGGERED = 39141,
 
-    SPELL_FINGER_OF_DEATH       = 31984,
-    SPELL_HAND_OF_DEATH         = 35354,
-    SPELL_AIR_BURST             = 32014,
-    SPELL_GRIP_OF_THE_LEGION    = 31972,
-    SPELL_DOOMFIRE_STRIKE       = 31903,    //summons two creatures
-    SPELL_DOOMFIRE_SPAWN        = 32074,
-    SPELL_DOOMFIRE              = 31945,
-    SPELL_SOUL_CHARGE_YELLOW    = 32045,
-    SPELL_SOUL_CHARGE_GREEN     = 32051,
-    SPELL_SOUL_CHARGE_RED       = 32052,
-    SPELL_UNLEASH_SOUL_YELLOW   = 32054,
-    SPELL_UNLEASH_SOUL_GREEN    = 32057,
-    SPELL_UNLEASH_SOUL_RED      = 32053,
-    SPELL_FEAR                  = 31970,
+    SPELL_FINGER_OF_DEATH            = 31984,
+    SPELL_HAND_OF_DEATH              = 35354,
+    SPELL_AIR_BURST                  = 32014,
+    SPELL_GRIP_OF_THE_LEGION         = 31972,
+    SPELL_DOOMFIRE_STRIKE            = 31903, // summons two creatures
+    SPELL_DOOMFIRE_SPAWN             = 32074,
+    SPELL_DOOMFIRE                   = 31945,
+    SPELL_SOUL_CHARGE_YELLOW         = 32045,
+    SPELL_SOUL_CHARGE_GREEN          = 32051,
+    SPELL_SOUL_CHARGE_RED            = 32052,
+    SPELL_UNLEASH_SOUL_YELLOW        = 32054,
+    SPELL_UNLEASH_SOUL_GREEN         = 32057,
+    SPELL_UNLEASH_SOUL_RED           = 32053,
+    SPELL_FEAR                       = 31970
+};
+
+enum Events
+{
+    EVENT_HAND_OF_DEATH = 1,        // Raid wiper
+    EVENT_UNLEASH_SOUL_CHARGE,
+    EVENT_FINGER_OF_DEATH,
+    EVENT_GRIP_OF_THE_LEGION,
+    EVENT_FEAR,
+    EVENT_AIR_BURST,
+    EVENT_DOOMFIRE,
+    EVENT_DISTANCE_CHECK,           // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
+    EVENT_SUMMON_WHISP
 };
 
 enum Summons
 {
-    CREATURE_DOOMFIRE               = 18095,
-    CREATURE_DOOMFIRE_SPIRIT        = 18104,
-    CREATURE_ANCIENT_WISP           = 17946,
-    CREATURE_CHANNEL_TARGET         = 22418,
+    NPC_DOOMFIRE               = 18095,
+    NPC_DOOMFIRE_SPIRIT        = 18104,
+    NPC_ANCIENT_WISP           = 17946
 };
 
-Position const NordrassilLoc = {5503.713f, -3523.436f, 1608.781f, 0.0f};
+enum Actions
+{
+    ACTION_ENRAGE,
+    ACTION_CHANNEL_WORLD_TREE
+};
 
-class mob_ancient_wisp : public CreatureScript
+class npc_ancient_wisp : public CreatureScript
 {
 public:
-    mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
+    npc_ancient_wisp() : CreatureScript("npc_ancient_wisp") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_ancient_wispAI(creature);
+        return GetInstanceAI<npc_ancient_wispAI>(creature);
     }
 
-    struct mob_ancient_wispAI : public ScriptedAI
+    struct npc_ancient_wispAI : public ScriptedAI
     {
-        mob_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
+        npc_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
-            ArchimondeGUID = 0;
+        }
+
+        void Initialize()
+        {
+            CheckTimer = 1000;
+            ArchimondeGUID.Clear();
         }
 
         InstanceScript* instance;
-        uint64 ArchimondeGUID;
+        ObjectGuid ArchimondeGUID;
         uint32 CheckTimer;
 
-        void Reset()
+        void Reset() override
         {
-            CheckTimer = 1000;
+            Initialize();
 
-            if (instance)
-                ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
+            ArchimondeGUID = instance->GetGuidData(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = Unit::GetUnit(*me, ArchimondeGUID))
+                if (Unit* Archimonde = ObjectAccessor::GetUnit(*me, ArchimondeGUID))
                 {
-                    if (Archimonde->HealthBelowPct(2) || !Archimonde->isAlive())
+                    if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
                     else
                         DoCast(Archimonde, SPELL_ANCIENT_SPARK);
@@ -133,26 +155,27 @@ public:
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
    MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
-class mob_doomfire : public CreatureScript
+class npc_doomfire : public CreatureScript
 {
 public:
-    mob_doomfire() : CreatureScript("mob_doomfire") { }
+    npc_doomfire() : CreatureScript("npc_doomfire") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_doomfireAI(creature);
+        return new npc_doomfireAI(creature);
     }
 
-    struct mob_doomfireAI : public ScriptedAI
+    struct npc_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_doomfireAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() { }
+        void Reset() override { }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
@@ -161,30 +184,38 @@ public:
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
    travels in random directions if target cannot be found. */
-class mob_doomfire_targetting : public CreatureScript
+class npc_doomfire_targetting : public CreatureScript
 {
 public:
-    mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
+    npc_doomfire_targetting() : CreatureScript("npc_doomfire_targetting") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_doomfire_targettingAI(creature);
+        return new npc_doomfire_targettingAI(creature);
     }
 
-    struct mob_doomfire_targettingAI : public ScriptedAI
+    struct npc_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint64 TargetGUID;
-        uint32 ChangeTargetTimer;
-
-        void Reset()
+        npc_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature)
         {
-            TargetGUID = 0;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            TargetGUID.Clear();
             ChangeTargetTimer = 5000;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        ObjectGuid TargetGUID;
+        uint32 ChangeTargetTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void MoveInLineOfSight(Unit* who) override
         {
             //will update once TargetGUID is 0. In case noone actually moves(not likely) and this is 0
             //when UpdateAI needs it, it will be forced to select randomPoint
@@ -192,26 +223,25 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
         {
             damage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (ChangeTargetTimer <= diff)
             {
-                if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
+                if (Unit* temp = ObjectAccessor::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                 }
                 else
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 40);
+                    Position pos = me->GetRandomNearPosition(40);
                     me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
 
@@ -234,415 +264,316 @@ class boss_archimonde : public CreatureScript
 public:
     boss_archimonde() : CreatureScript("boss_archimonde") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    struct boss_archimondeAI : public BossAI
     {
-        return new boss_archimondeAI (creature);
-    }
-
-    struct boss_archimondeAI : public hyjal_trashAI
-    {
-        boss_archimondeAI(Creature* creature) : hyjal_trashAI(creature)
+        boss_archimondeAI(Creature* creature) : BossAI(creature, DATA_ARCHIMONDE)
         {
-            instance = creature->GetInstanceScript();
+            Initialize();
         }
 
-        InstanceScript* instance;
-
-        uint64 DoomfireSpiritGUID;
-        uint64 WorldTreeGUID;
-
-        uint32 DrainNordrassilTimer;
-        uint32 FearTimer;
-        uint32 AirBurstTimer;
-        uint32 GripOfTheLegionTimer;
-        uint32 DoomfireTimer;
-        uint32 SoulChargeTimer;
-        uint8 SoulChargeCount;
-        uint32 MeleeRangeCheckTimer;
-        uint32 HandOfDeathTimer;
-        uint32 SummonWispTimer;
-        uint8 WispCount;
-        uint32 EnrageTimer;
-        uint32 CheckDistanceTimer;
-
-        bool Enraged;
-        bool BelowTenPercent;
-        bool HasProtected;
-        bool IsChanneling;
-
-        void Reset()
+        void Initialize()
         {
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
+            DoomfireSpiritGUID.Clear();
 
-            DoomfireSpiritGUID = 0;
-            damageTaken = 0;
-            WorldTreeGUID = 0;
-
-            DrainNordrassilTimer = 0;
-            FearTimer = 42000;
-            AirBurstTimer = 30000;
-            GripOfTheLegionTimer = urand(5000, 25000);
-            DoomfireTimer = 20000;
-            SoulChargeTimer = urand(2000, 30000);
             SoulChargeCount = 0;
-            MeleeRangeCheckTimer = 15000;
-            HandOfDeathTimer = 2000;
             WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
-            EnrageTimer = 600000;                               // 10 minutes
-            CheckDistanceTimer = 30000;                         // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
-            SummonWispTimer = 0;
+            _unleashSpell = 0;
+            _chargeSpell = 0;
 
             Enraged = false;
-            BelowTenPercent = false;
             HasProtected = false;
-            IsChanneling = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void InitializeAI() override
         {
-            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-            Talk(SAY_AGGRO);
-            DoZoneInCombat();
-
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
+            BossAI::InitializeAI();
+            DoAction(ACTION_CHANNEL_WORLD_TREE);
         }
 
-        void KilledUnit(Unit* victim)
+        void Reset() override
+        {
+            Initialize();
+            _Reset();
+            me->RemoveAllAuras();                              // Reset Soul Charge auras.
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            Talk(SAY_AGGRO);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_FEAR, 42000);
+            events.ScheduleEvent(EVENT_AIR_BURST, 30000);
+            events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));
+            events.ScheduleEvent(EVENT_DOOMFIRE, 20000);
+            events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+            events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 15000);
+            events.ScheduleEvent(EVENT_HAND_OF_DEATH, 600000);
+            events.ScheduleEvent(EVENT_DISTANCE_CHECK, 30000);
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_HAND_OF_DEATH:
+                    DoCastAOE(SPELL_HAND_OF_DEATH);
+                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2000);
+                    break;
+                case EVENT_UNLEASH_SOUL_CHARGE:
+                    _chargeSpell = 0;
+                    _unleashSpell = 0;
+                    me->InterruptNonMeleeSpells(false);
+                    switch (urand(0, 2))
+                    {
+                        case 0:
+                            _chargeSpell = SPELL_SOUL_CHARGE_RED;
+                            _unleashSpell = SPELL_UNLEASH_SOUL_RED;
+                            break;
+                        case 1:
+                            _chargeSpell = SPELL_SOUL_CHARGE_YELLOW;
+                            _unleashSpell = SPELL_UNLEASH_SOUL_YELLOW;
+                            break;
+                        case 2:
+                            _chargeSpell = SPELL_SOUL_CHARGE_GREEN;
+                            _unleashSpell = SPELL_UNLEASH_SOUL_GREEN;
+                            break;
+                    }
+
+                    if (me->HasAura(_chargeSpell))
+                    {
+                        me->RemoveAuraFromStack(_chargeSpell);
+                        DoCastVictim(_unleashSpell);
+                        SoulChargeCount--;
+                        events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+                    }
+                    break;
+                case EVENT_FINGER_OF_DEATH:
+                    if (!SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f)) // Checks if there are no targets in melee range
+                    {
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
+                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 1000);
+                    }
+                    else
+                        events.ScheduleEvent(EVENT_FINGER_OF_DEATH, 5000);
+                    break;
+                case EVENT_GRIP_OF_THE_LEGION:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_GRIP_OF_THE_LEGION);
+                    events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));
+                    break;
+                case EVENT_AIR_BURST:
+                    Talk(SAY_AIR_BURST);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        DoCast(target, SPELL_AIR_BURST); //not on tank
+                    events.ScheduleEvent(EVENT_AIR_BURST, urand(25000, 40000));
+                    break;
+                case EVENT_FEAR:
+                    DoCastAOE(SPELL_FEAR);
+                    events.ScheduleEvent(EVENT_FEAR, 42000);
+                    break;
+                case EVENT_DOOMFIRE:
+                    Talk(SAY_DOOMFIRE);
+                    if (Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        SummonDoomfire(temp);
+                    else
+                        SummonDoomfire(me->GetVictim());
+                    events.ScheduleEvent(EVENT_DOOMFIRE, 20000);
+                    break;
+                case EVENT_DISTANCE_CHECK:
+                    if (Creature* channelTrigger = instance->GetCreature(DATA_CHANNEL_TARGET))
+                        if (me->IsWithinDistInMap(channelTrigger, 75.0f))
+                            DoAction(ACTION_ENRAGE);
+                    events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5000);
+                    break;
+                case EVENT_SUMMON_WHISP:
+                    DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    ++WispCount;
+                    if (WispCount >= 30)
+                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        {
+            if (me->HealthBelowPctDamaged(10, damage))
+            {
+                if (!Enraged)
+                    DoAction(ACTION_ENRAGE);
+
+                if (!HasProtected)
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
+
+                    // All members of raid must get this buff
+                    DoCastAOE(SPELL_PROTECTION_OF_ELUNE, true);
+                    HasProtected = true;
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
+                }
+            }
+        }
+
+        void KilledUnit(Unit* victim) override
         {
             Talk(SAY_SLAY);
 
-            if (victim && victim->GetTypeId() == TYPEID_PLAYER)
-                GainSoulCharge(victim->ToPlayer());
-        }
-
-        void GainSoulCharge(Player* victim)
-        {
-            switch (victim->getClass())
+            if (victim->GetTypeId() == TYPEID_PLAYER)
             {
-                case CLASS_PRIEST:
-                case CLASS_PALADIN:
-                case CLASS_WARLOCK:
-                    victim->CastSpell(me, SPELL_SOUL_CHARGE_RED, true);
-                    break;
-                case CLASS_MAGE:
-                case CLASS_ROGUE:
-                case CLASS_WARRIOR:
-                    victim->CastSpell(me, SPELL_SOUL_CHARGE_YELLOW, true);
-                    break;
-                case CLASS_DRUID:
-                case CLASS_SHAMAN:
-                case CLASS_HUNTER:
-                    victim->CastSpell(me, SPELL_SOUL_CHARGE_GREEN, true);
-                    break;
-            }
-
-            SoulChargeTimer = urand(2000, 30000);
-            ++SoulChargeCount;
-        }
-
-        void JustDied(Unit* killer)
-        {
-            hyjal_trashAI::JustDied(killer);
-            Talk(SAY_DEATH);
-
-            if (instance)
-                instance->SetData(DATA_ARCHIMONDEEVENT, DONE);
-        }
-
-        bool CanUseFingerOfDeath()
-        {
-            // First we check if our current victim is in melee range or not.
-            Unit* victim = me->getVictim();
-            if (victim && me->IsWithinDistInMap(victim, me->GetAttackDistance(victim)))
-                return false;
-
-            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
-            if (threatlist.empty())
-                return false;
-
-            std::list<Unit*> targets;
-            ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
-            for (; itr != threatlist.end(); ++itr)
-            {
-                Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (unit && unit->isAlive())
-                    targets.push_back(unit);
-            }
-
-            if (targets.empty())
-                return false;
-
-            targets.sort(Trinity::ObjectDistanceOrderPred(me));
-            Unit* target = targets.front();
-            if (target)
-            {
-                if (!me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
-                    return true;                                // Cast Finger of Death
-                else                                            // This target is closest, he is our new tank
-                    me->AddThreat(target, me->getThreatManager().getThreat(me->getVictim()));
-            }
-
-            return false;
-        }
-
-        void JustSummoned(Creature* summoned)
-        {
-            if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
-                summoned->AI()->AttackStart(me);
-            else
-            {
-                summoned->setFaction(me->getFaction());
-                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            }
-
-            if (summoned->GetEntry() == CREATURE_DOOMFIRE_SPIRIT)
-            {
-                DoomfireSpiritGUID = summoned->GetGUID();
-            }
-
-            if (summoned->GetEntry() == CREATURE_DOOMFIRE)
-            {
-                summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
-                summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
-
-                if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
+                switch (victim->getClass())
                 {
-                    summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
-                    DoomfireSpiritGUID = 0;
+                    case CLASS_PRIEST:
+                    case CLASS_PALADIN:
+                    case CLASS_WARLOCK:
+                        victim->CastSpell(me, SPELL_SOUL_CHARGE_RED, true);
+                        break;
+                    case CLASS_MAGE:
+                    case CLASS_ROGUE:
+                    case CLASS_WARRIOR:
+                        victim->CastSpell(me, SPELL_SOUL_CHARGE_YELLOW, true);
+                        break;
+                    case CLASS_DRUID:
+                    case CLASS_SHAMAN:
+                    case CLASS_HUNTER:
+                        victim->CastSpell(me, SPELL_SOUL_CHARGE_GREEN, true);
+                        break;
                 }
+
+                events.ScheduleEvent(EVENT_UNLEASH_SOUL_CHARGE, urand(2000, 30000));
+                ++SoulChargeCount;
+            }
+        }
+
+        void JustReachedHome() override
+        {
+            DoAction(ACTION_CHANNEL_WORLD_TREE);
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            Talk(SAY_DEATH);
+            _JustDied();
+            // @todo: remove this when instance script gets updated, kept for compatibility only
+            instance->SetData(DATA_ARCHIMONDE, DONE);
+        }
+
+        void JustSummoned(Creature* summoned) override
+        {
+            switch (summoned->GetEntry())
+            {
+                case NPC_ANCIENT_WISP:
+                    summoned->AI()->AttackStart(me);
+                    break;
+                case NPC_DOOMFIRE_SPIRIT:
+                    DoomfireSpiritGUID = summoned->GetGUID();
+                    break;
+                case NPC_DOOMFIRE:
+                    summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
+                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
+
+                    if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
+                    {
+                        summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
+                        DoomfireSpiritGUID.Clear();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void DoAction(int32 actionId) override
+        {
+            switch (actionId)
+            {
+                case ACTION_ENRAGE:
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
+                    Enraged = true;
+                    Talk(SAY_ENRAGE);
+                    break;
+                case ACTION_CHANNEL_WORLD_TREE:
+                    DoCastAOE(SPELL_DRAIN_WORLD_TREE, true);
+                    break;
+                default:
+                    break;
             }
         }
 
         //this is code doing close to what the summoning spell would do (spell 31903)
         void SummonDoomfire(Unit* target)
         {
-            me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
+            if (!target)
+                return;
+
+            me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
 
-            me->SummonCreature(CREATURE_DOOMFIRE,
+            me->SummonCreature(NPC_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
-        void UnleashSoulCharge()
-        {
-            me->InterruptNonMeleeSpells(false);
-
-            bool HasCast = false;
-            uint32 chargeSpell = 0;
-            uint32 unleashSpell = 0;
-
-            switch (urand(0, 2))
-            {
-                case 0:
-                    chargeSpell = SPELL_SOUL_CHARGE_RED;
-                    unleashSpell = SPELL_UNLEASH_SOUL_RED;
-                    break;
-                case 1:
-                    chargeSpell = SPELL_SOUL_CHARGE_YELLOW;
-                    unleashSpell = SPELL_UNLEASH_SOUL_YELLOW;
-                    break;
-                case 2:
-                    chargeSpell = SPELL_SOUL_CHARGE_GREEN;
-                    unleashSpell = SPELL_UNLEASH_SOUL_GREEN;
-                    break;
-            }
-
-            if (me->HasAura(chargeSpell))
-            {
-                me->RemoveAuraFromStack(chargeSpell);
-                DoCast(me->getVictim(), unleashSpell);
-                HasCast = true;
-                SoulChargeCount--;
-            }
-
-            if (HasCast)
-                SoulChargeTimer = urand(2000, 30000);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!me->isInCombat())
-            {
-                if (instance)
-                {
-                    // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                    if ((instance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
-                    {
-                        me->SetVisible(false);
-                        me->setFaction(35);
-                    }
-                    else if ((instance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
-                    {
-                        me->setFaction(1720);
-                        me->SetVisible(true);
-                    }
-                }
-
-                if (DrainNordrassilTimer <= diff)
-                {
-                    if (!IsChanneling)
-                    {
-                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000);
-
-                        if (temp)
-                            WorldTreeGUID = temp->GetGUID();
-
-                        if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
-                        {
-                            Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            Nordrassil->SetDisplayId(11686);
-                            DoCast(Nordrassil, SPELL_DRAIN_WORLD_TREE);
-                            IsChanneling = true;
-                        }
-                    }
-
-                    if (Unit* Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
-                    {
-                        Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
-                        DrainNordrassilTimer = 1000;
-                    }
-                } else DrainNordrassilTimer -= diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HealthBelowPct(10) && !BelowTenPercent && !Enraged)
-                BelowTenPercent = true;
-
-            if (!Enraged)
-            {
-                if (EnrageTimer <= diff)
-                {
-                    if (HealthAbovePct(10))
-                    {
-                        me->GetMotionMaster()->Clear(false);
-                        me->GetMotionMaster()->MoveIdle();
-                        Enraged = true;
-                        Talk(SAY_ENRAGE);
-                    }
-                } else EnrageTimer -= diff;
-
-                if (CheckDistanceTimer <= diff)
-                {
-                    // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
-                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000);
-                    if (Check)
-                    {
-                        Check->SetVisible(false);
-
-                        if (me->IsWithinDistInMap(Check, 75))
-                        {
-                            me->GetMotionMaster()->Clear(false);
-                            me->GetMotionMaster()->MoveIdle();
-                            Enraged = true;
-                            Talk(SAY_ENRAGE);
-                        }
-                    }
-                    CheckDistanceTimer = 5000;
-                } else CheckDistanceTimer -= diff;
-            }
-
-            if (BelowTenPercent)
-            {
-                if (!HasProtected)
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveIdle();
-
-                    //all members of raid must get this buff
-                    DoCastVictim(SPELL_PROTECTION_OF_ELUNE, true);
-                    HasProtected = true;
-                    Enraged = true;
-                }
-
-                if (SummonWispTimer <= diff)
-                {
-                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    SummonWispTimer = 1500;
-                    ++WispCount;
-                } else SummonWispTimer -= diff;
-
-                if (WispCount >= 30)
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
-
-            if (Enraged)
-            {
-                if (HandOfDeathTimer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_HAND_OF_DEATH);
-                    HandOfDeathTimer = 2000;
-                } else HandOfDeathTimer -= diff;
-                return;                                         // Don't do anything after this point.
-            }
-
-            if (SoulChargeCount)
-            {
-                if (SoulChargeTimer <= diff)
-                    UnleashSoulCharge();
-                else SoulChargeTimer -= diff;
-            }
-
-            if (GripOfTheLegionTimer <= diff)
-            {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
-                GripOfTheLegionTimer = urand(5000, 25000);
-            } else GripOfTheLegionTimer -= diff;
-
-            if (AirBurstTimer <= diff)
-            {
-                Talk(SAY_AIR_BURST);
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
-                AirBurstTimer = urand(25000, 40000);
-            } else AirBurstTimer -= diff;
-
-            if (FearTimer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FEAR);
-                FearTimer = 42000;
-            } else FearTimer -= diff;
-
-            if (DoomfireTimer <= diff)
-            {
-                Talk(SAY_DOOMFIRE);
-                Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (!temp)
-                    temp = me->getVictim();
-
-                //replace with spell cast 31903 once implicitTarget 73 implemented
-                SummonDoomfire(temp);
-
-                //supposedly three doomfire can be up at the same time
-                DoomfireTimer = 20000;
-            } else DoomfireTimer -= diff;
-
-            if (MeleeRangeCheckTimer <= diff)
-            {
-                if (CanUseFingerOfDeath())
-                {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
-                    MeleeRangeCheckTimer = 1000;
-                }
-
-                MeleeRangeCheckTimer = 5000;
-            } else MeleeRangeCheckTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-        void WaypointReached(uint32 /*waypointId*/) { }
+    private:
+        ObjectGuid DoomfireSpiritGUID;
+        uint8 SoulChargeCount;
+        uint8 WispCount;
+        uint32 _chargeSpell;
+        uint32 _unleashSpell;
+        bool Enraged;
+        bool HasProtected;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetInstanceAI<boss_archimondeAI>(creature);
+    }
+};
+
+// 39142 - Drain World Tree Dummy
+class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
+{
+    public:
+        spell_archimonde_drain_world_tree_dummy() : SpellScriptLoader("spell_archimonde_drain_world_tree_dummy") { }
+
+        class spell_archimonde_drain_world_tree_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_archimonde_drain_world_tree_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRAIN_WORLD_TREE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(GetCaster(), SPELL_DRAIN_WORLD_TREE_TRIGGERED, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_archimonde_drain_world_tree_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_archimonde_drain_world_tree_dummy_SpellScript();
+        }
 };
 
 void AddSC_boss_archimonde()
 {
     new boss_archimonde();
-    new mob_doomfire();
-    new mob_doomfire_targetting();
-    new mob_ancient_wisp();
+    new npc_doomfire();
+    new npc_doomfire_targetting();
+    new npc_ancient_wisp();
+    new spell_archimonde_drain_world_tree_dummy();
 }
