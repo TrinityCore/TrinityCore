@@ -2087,7 +2087,7 @@ class TC_GAME_API Unit : public WorldObject
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
 
-        void StopMoving();
+        void StopMoving(bool force = false);
 
         void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
         void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }

@@ -11055,12 +11055,12 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
 
 ///----------End of Pet responses methods----------
 
-void Unit::StopMoving()
+void Unit::StopMoving(bool force /* = false */)
 {
     ClearUnitState(UNIT_STATE_MOVING);
 
     // not need send any packets if not in world or not moving
-    if (!IsInWorld() || !isMoving())
+    if ( !force && (!IsInWorld() || !isMoving()) )
         return;
 
     // Update position now since Stop does not start a new movement that can be updated later
