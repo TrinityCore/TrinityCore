@@ -1300,7 +1300,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
             _forceFacing = true;
         }
 
-        if (me->IsStopped() && !me->HasUnitState(UNIT_STATE_CANNOT_TURN))
+        if (!me->HasUnitState(UNIT_STATE_MOVING) && !me->HasUnitState(UNIT_STATE_CANNOT_TURN))
         {
             float targetAngle = me->GetAngle(target);
             if (_forceFacing || fabs(me->GetOrientation() - targetAngle) > 0.4f)

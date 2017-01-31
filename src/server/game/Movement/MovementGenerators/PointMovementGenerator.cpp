@@ -30,7 +30,7 @@
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* unit)
 {
-    if (!unit->IsStopped())
+    if (unit->isMoving())
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
@@ -95,7 +95,7 @@ void PointMovementGenerator<T>::DoFinalize(T* unit)
 template<class T>
 void PointMovementGenerator<T>::DoReset(T* unit)
 {
-    if (!unit->IsStopped())
+    if (unit->isMoving())
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);

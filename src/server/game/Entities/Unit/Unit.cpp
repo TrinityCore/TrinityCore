@@ -13851,7 +13851,7 @@ void Unit::SetInFront(WorldObject const* target)
 
 void Unit::SetFacingTo(float ori, bool force)
 {
-    if (!force && !IsStopped())
+    if (!force && isMoving())
         return;
 
     Movement::MoveSplineInit init(this);
@@ -13865,7 +13865,7 @@ void Unit::SetFacingTo(float ori, bool force)
 void Unit::SetFacingToObject(WorldObject const* object, bool force)
 {
     // do not face when already moving
-    if (!force && !IsStopped())
+    if (!force && isMoving())
         return;
 
     /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
