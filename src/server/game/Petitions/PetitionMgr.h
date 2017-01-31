@@ -81,7 +81,7 @@ class PetitionMgr
         void RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, CharterTypes type);
 
     private:
-        PetitionContainer PetitionStore;
+        PetitionContainer _petitionStore;
 };
 
 #define sPetitionMgr PetitionMgr::instance()

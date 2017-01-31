@@ -31,7 +31,7 @@ PetitionMgr* PetitionMgr::instance()
 void PetitionMgr::LoadPetitions()
 {
     uint32 oldMSTime = getMSTime();
-    PetitionStore.clear();
+    _petitionStore.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT petitionguid, ownerguid, name, type FROM petition");
     if (!result)
@@ -67,7 +67,7 @@ void PetitionMgr::LoadSignatures()
     {
         Field* fields = result->Fetch();
 
-        Petition* petition = sPetitionMgr->GetPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()));
+        Petition* petition = GetPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()));
         if (!petition)
         {
             continue;
@@ -82,7 +82,7 @@ void PetitionMgr::LoadSignatures()
 
 void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading)
 {
-    Petition& p = PetitionStore[petitionGuid];
+    Petition& p = _petitionStore[petitionGuid];
     p.petitionGuid = petitionGuid;
     p.ownerGuid = ownerGuid;
     p.petitionName = name;
@@ -106,7 +106,7 @@ void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std
 
 void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
 {
-    PetitionStore.erase(petitionGuid);
+    _petitionStore.erase(petitionGuid);
 
     // Delete From DB
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -124,8 +124,8 @@ void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
 
 Petition* PetitionMgr::GetPetition(ObjectGuid petitionGuid)
 {
-    auto itr = PetitionStore.find(petitionGuid);
-    if (itr != PetitionStore.end())
+    auto itr = _petitionStore.find(petitionGuid);
+    if (itr != _petitionStore.end())
         return &itr->second;
 
     return nullptr;
@@ -133,7 +133,7 @@ Petition* PetitionMgr::GetPetition(ObjectGuid petitionGuid)
 
 Petition* PetitionMgr::GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type)
 {
-    for (auto& petitionPair : PetitionStore)
+    for (auto& petitionPair : _petitionStore)
         if (petitionPair.second.ownerGuid == ownerGuid && petitionPair.second.petitionType == type)
             return &petitionPair.second;
 
@@ -142,15 +142,15 @@ Petition* PetitionMgr::GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterT
 
 void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type)
 {
-    for (PetitionContainer::iterator itr = PetitionStore.begin(); itr != PetitionStore.end();)
+    for (PetitionContainer::iterator itr = _petitionStore.begin(); itr != _petitionStore.end();)
     {
         if (itr->second.ownerGuid == ownerGuid)
         {
             if (type == CHARTER_TYPE_ANY)
-                PetitionStore.erase(itr++);
+                _petitionStore.erase(itr++);
             else if (type == itr->second.petitionType)
             {
-                PetitionStore.erase(itr++);
+                _petitionStore.erase(itr++);
                 break;
             }
         }
@@ -187,7 +187,7 @@ void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTyp
 
 void PetitionMgr::RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, CharterTypes type)
 {
-    for (auto& petitionPair : PetitionStore)
+    for (auto& petitionPair : _petitionStore)
     {
         if (petitionPair.second.petitionType == CHARTER_TYPE_ANY || petitionPair.second.petitionType == type)
             petitionPair.second.RemoveSignatureBySigner(signerGuid);
