@@ -2914,6 +2914,9 @@ void Player::GiveLevel(uint8 level)
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
 
+    //Update QuestGivers
+    SendQuestGiverStatusMultiple();
+
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
         /// @todo Poor design of mail system
@@ -15292,6 +15295,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     SendQuestUpdate(quest_id);
 
+    //Update QuestGivers
+    SendQuestGiverStatusMultiple();
+
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
@@ -16899,7 +16905,7 @@ void Player::SendQuestGiverStatusMultiple()
             questStatus = GetQuestDialogStatus(questgiver);
 
             data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
+            data << int32(questStatus);
             ++count;
         }
         else if (itr->IsGameObject())
@@ -16911,7 +16917,7 @@ void Player::SendQuestGiverStatusMultiple()
             questStatus = GetQuestDialogStatus(questgiver);
 
             data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
+            data << int32(questStatus);
             ++count;
         }
     }
