@@ -208,7 +208,7 @@ public:
             return;
         }
 
-        if (sObjectMgr->GetPlayerGUIDByName(delInfo.name))
+        if (sWorld->GetCharacterGuidByName(delInfo.name))
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
@@ -384,6 +384,7 @@ public:
             }
 
             sWorld->UpdateCharacterInfo(targetGuid, newName);
+            sWorld->UpdateCharacterGuidByName(targetGuid, playerOldName, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
@@ -446,7 +447,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(targetGuid);
+        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromCharacterInfo(targetGuid);
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
 
         if (newlevel < 1)
@@ -862,8 +863,8 @@ public:
         }
         else
         {
-            characterGuid = sObjectMgr->GetPlayerGUIDByName(characterName);
-            if (!characterGuid)
+            characterGuid = sWorld->GetCharacterGuidByName(characterName);
+            if (characterGuid.IsEmpty())
             {
                 handler->PSendSysMessage(LANG_NO_PLAYER, characterName.c_str());
                 handler->SetSentErrorMessage(true);
@@ -900,7 +901,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(targetGuid);
+        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromCharacterInfo(targetGuid);
         int32 addlevel = levelStr ? atoi(levelStr) : 1;
         int32 newlevel = oldlevel + addlevel;
 
@@ -1057,7 +1058,7 @@ public:
                 return false;
             }
 
-            guid = sObjectMgr->GetPlayerGUIDByName(name);
+            guid = sWorld->GetCharacterGuidByName(name);
         }
 
         if (!sObjectMgr->GetPlayerAccountIdByGUID(guid))

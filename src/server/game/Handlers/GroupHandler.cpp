@@ -847,7 +847,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     else
     {
         CharacterDatabase.EscapeString(name);
-        guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+        guid = sWorld->GetCharacterGuidByName(name);
     }
 
     group->ChangeMembersGroup(guid, groupNr);

@@ -2325,21 +2325,6 @@ Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
     return ObjectAccessor::FindPlayer(guid);
 }
 
-// name must be checked to correctness (if received) before call this function
-ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name) const
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-
-    stmt->setString(0, name);
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-        return ObjectGuid(HighGuid::Player, (*result)[0].GetUInt32());
-
-    return ObjectGuid::Empty;
-}
-
 bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
 {
     CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
@@ -2367,19 +2352,11 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
+uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name) const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
-
-    stmt->setString(0, name);
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
+    ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
+    if (!guid.IsEmpty())
+        return GetPlayerAccountIdByGUID(guid);
 
     return 0;
 }

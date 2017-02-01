@@ -2432,7 +2432,8 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     ObjectGuid::LowType lowguid = fields[1].GetUInt32();
-    Member* member = new Member(m_id, ObjectGuid(HighGuid::Player, lowguid), fields[2].GetUInt8());
+    ObjectGuid playerGuid(HighGuid::Player, lowguid);
+    Member* member = new Member(m_id, playerGuid, fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
         SQLTransaction trans(nullptr);
@@ -2440,6 +2441,8 @@ bool Guild::LoadMemberFromDB(Field* fields)
         delete member;
         return false;
     }
+
+    sWorld->UpdateCharacterGuildId(playerGuid, GetId());
     m_members[lowguid] = member;
     return true;
 }
@@ -2689,7 +2692,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         }
 
         Member* member = itr->second;
-        uint32 level = Player::GetLevelFromDB(member->GetGUID());
+        uint32 level = Player::GetLevelFromCharacterInfo(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
         {
@@ -2714,7 +2717,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
         if (player->GetGuildId() != 0)
             return false;
     }
-    else if (Player::GetGuildIdFromDB(guid) != 0)
+    else if (Player::GetGuildIdFromCharacterInfo(guid) != 0)
         return false;
 
     // Remove all player signs from another petitions
@@ -2768,6 +2771,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
             return false;
         }
         m_members[lowguid] = member;
+        sWorld->UpdateCharacterGuildId(guid, GetId());
     }
 
     member->SaveToDB(trans);
@@ -2842,6 +2846,8 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
                 if (entry->Level <= GetLevel())
                     player->RemoveSpell(entry->SpellId, false, false);
     }
+    else
+        sWorld->UpdateCharacterGuildId(guid, 0);
 
     _DeleteMemberFromDB(trans, lowguid);
     if (!isDisbanding)

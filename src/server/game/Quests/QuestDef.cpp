@@ -29,6 +29,7 @@ Quest::Quest(Field* questRecord)
     _reqNpcOrGoCount = 0;
     _rewItemsCount = 0;
     _rewChoiceItemsCount = 0;
+    _eventIdForQuest = 0;
     _rewCurrencyCount = 0;
     _reqCurrencyCount = 0;
 
