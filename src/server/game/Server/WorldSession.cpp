@@ -573,8 +573,8 @@ void WorldSession::LogoutPlayer(bool save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID().GetCounter(), true);
-        sSocialMgr->RemovePlayerSocial(_player->GetGUID().GetCounter());
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID(), true);
+        _player->RemoveSocial();
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
@@ -1066,7 +1066,7 @@ void WorldSession::ProcessQueryCallbacks()
     {
         std::string param = _addFriendCallback.GetParam();
         _addFriendCallback.GetResult(result);
-        HandleAddFriendOpcodeCallBack(result, param);
+        HandleAddFriendOpcodeCallback(result, param);
         _addFriendCallback.FreeResult();
     }
 
@@ -1084,7 +1084,7 @@ void WorldSession::ProcessQueryCallbacks()
     if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         result = _addIgnoreCallback.get();
-        HandleAddIgnoreOpcodeCallBack(result);
+        HandleAddIgnoreOpcodeCallback(result);
     }
 
     //- SendStabledPet

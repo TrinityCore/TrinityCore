@@ -797,7 +797,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
         return;
     }
 
-    if (!newp->GetSocial()->HasIgnore(guid.GetCounter()))
+    if (!newp->GetSocial()->HasIgnore(guid))
     {
         InviteAppend appender(guid);
         ChannelNameBuilder<InviteAppend> builder(this, appender);
@@ -900,7 +900,7 @@ void Channel::SendToAll(Builder& builder, ObjectGuid guid /*= ObjectGuid::Empty*
 
     for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
-            if (!guid || !player->GetSocial()->HasIgnore(guid.GetCounter()))
+            if (!guid || !player->GetSocial()->HasIgnore(guid))
                 localizer(player);
 }
 
