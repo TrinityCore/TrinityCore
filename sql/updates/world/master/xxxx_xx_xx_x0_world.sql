@@ -10,7 +10,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 
 DELETE FROM `command` WHERE `name` = "go";
 DELETE FROM `command` WHERE `name` = "go offset";
-INSERT INTO `command` (`name`, `permission`, `help`) VALUES ('go offset', 851, 'Syntax: .go offset [x[ y[ z[ o]]]]\nTeleports the player by given offset from his current coordinates.');
+INSERT INTO `command` (`name`, `permission`, `help`) VALUES ('go offset', 852, 'Syntax: .go offset [x[ y[ z[ o]]]]\nTeleports the player by given offset from his current coordinates.');
 
 UPDATE `command` SET `help`='Syntax: .gobject info [$entry|$link | guid [$guid|$link]\r \r Query Gameobject information for given gameobject entry, guid or link.\rFor example .gobject info 36\ror .gobject info guid 100' WHERE  `name`='gobject info';
 
