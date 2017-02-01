@@ -20,6 +20,7 @@
 #include "PacketManager.h"
 #include "SessionManager.h"
 #include "Database/DatabaseEnv.h"
+#include "QueryCallback.h"
 #include "HmacHash.h"
 #include "Log.h"
 #include "RealmList.h"
@@ -625,8 +626,7 @@ void Battlenet::Session::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
@@ -688,12 +688,7 @@ bool Battlenet::Session::Update()
     if (!BattlenetSocket::Update())
         return false;
 
-    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        auto callback = _queryCallback;
-        _queryCallback = nullptr;
-        callback(_queryFuture.get());
-    }
+    _queryProcessor.ProcessReadyQueries();
 
     return true;
 }

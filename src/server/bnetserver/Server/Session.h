@@ -22,7 +22,8 @@
 #include "BattlenetPacketCrypt.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "QueryCallback.h"
+#include "QueryResult.h"
+#include "QueryCallbackProcessor.h"
 #include "MPSCQueue.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
@@ -185,8 +186,7 @@ namespace Battlenet
         bool _authed;
         bool _subscribedToRealmListUpdates;
 
-        PreparedQueryResultFuture _queryFuture;
-        std::function<void(PreparedQueryResult)> _queryCallback;
+        QueryCallbackProcessor _queryProcessor;
     };
 
 }
