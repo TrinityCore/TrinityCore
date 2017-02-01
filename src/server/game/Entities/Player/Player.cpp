@@ -5243,12 +5243,24 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
+            int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->TrivialSkillLineRankHigh, (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow) / 2, _spell_idx->second->TrivialSkillLineRankLow);
 
-            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
-                _spell_idx->second->TrivialSkillLineRankHigh,
-                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
-                _spell_idx->second->TrivialSkillLineRankLow),
-                craft_skill_gain);
+            if (_spell_idx->second && _spell_idx->second->NumSkillUps > craft_skill_gain)
+                craft_skill_gain = _spell_idx->second->NumSkillUps;
+
+            auto skillId = _spell_idx->second->SkillLine;
+            if (UpdateSkillPro(skillId, skill_gain_chance, craft_skill_gain))
+            {
+                if (SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId))
+                {
+                    if (uint32 parentSkillId = skillEntry->ParentSkillLineID)
+                        return UpdateSkillPro(parentSkillId, skill_gain_chance, craft_skill_gain);
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
     return false;
