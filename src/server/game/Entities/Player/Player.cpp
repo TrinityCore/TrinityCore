@@ -20582,7 +20582,7 @@ void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
     data << target->GetPackGUID();                     // may be it's target guid
-    SendMessageToSet(&data, false);
+    SendMessageToSet(&data, true);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience) const
