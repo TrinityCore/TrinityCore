@@ -829,6 +829,9 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     recvData >> name;
     recvData >> groupNr;
 
+    if (!normalizePlayerName(name))
+        return;
+
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
@@ -839,16 +842,14 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    Player* movedPlayer = ObjectAccessor::FindConnectedPlayerByName(name);
     ObjectGuid guid;
-
-    if (movedPlayer)
+    if (Player* movedPlayer = ObjectAccessor::FindConnectedPlayerByName(name))
         guid = movedPlayer->GetGUID();
     else
-    {
-        CharacterDatabase.EscapeString(name);
         guid = sWorld->GetCharacterGuidByName(name);
-    }
+
+    if (guid.IsEmpty())
+        return;
 
     group->ChangeMembersGroup(guid, groupNr);
 }
