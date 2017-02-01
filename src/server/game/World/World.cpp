@@ -3447,6 +3447,9 @@ void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::stri
     data.GuildId = 0;                           // Will be set in guild loading or guild setting
     for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
         data.ArenaTeamId[i] = 0;                // Will be set in arena teams loading
+
+    // Fill Name to Guid Store
+    _characterGuidByNameStore[name] = guid;
 }
 
 void World::DeleteCharacterInfo(ObjectGuid const& guid, std::string const& name)
