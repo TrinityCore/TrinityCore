@@ -18,7 +18,6 @@
 #ifndef __UPDATETIME_H
 #define __UPDATETIME_H
 
-#include <chrono>
 #include "Common.h"
 #include "Timer.h"
 

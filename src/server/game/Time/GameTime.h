@@ -21,6 +21,8 @@
 #include "Common.h"
 #include "Timer.h"
 
+#include <chrono>
+
 class TC_GAME_API GameTime
 {
     public:
