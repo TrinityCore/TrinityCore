@@ -177,7 +177,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ConversationLine.db2
     PrepareStatement(HOTFIX_SEL_CONVERSATION_LINE, "SELECT ID, Unk1, Unk2, Unk3, NextLineID, Unk4, UnkBoolean, Unk5, Unk6"
-        " FROM conversation_template ORDER BY ID DESC", CONNECTION_SYNCH);
+        " FROM conversation_line ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CreatureDisplayInfo.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, ExtendedDisplayInfoID, CreatureModelScale, PlayerModelScale, TextureVariation1, "

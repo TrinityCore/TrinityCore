@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `conversation_template`;
+DROP TABLE IF EXISTS `conversation_line`;
 CREATE TABLE `conversation_template` (
   `Id` int (10) UNSIGNED NOT NULL,
   `Unk1` int (10) UNSIGNED NOT NULL,
