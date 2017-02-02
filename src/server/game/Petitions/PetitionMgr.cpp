@@ -22,6 +22,11 @@
 #include "WorldSession.h"
 #include "Timer.h"
 
+namespace
+{
+    PetitionContainer _petitionStore;
+}
+
 PetitionMgr* PetitionMgr::instance()
 {
     static PetitionMgr instance;

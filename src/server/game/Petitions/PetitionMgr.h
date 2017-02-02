@@ -79,9 +79,6 @@ class PetitionMgr
         Petition* GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type);
         void RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type);
         void RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, CharterTypes type);
-
-    private:
-        PetitionContainer _petitionStore;
 };
 
 #define sPetitionMgr PetitionMgr::instance()
