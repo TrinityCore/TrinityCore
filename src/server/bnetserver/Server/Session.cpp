@@ -335,7 +335,7 @@ void Battlenet::Session::HandleResumeRequest(Authentication::ResumeRequest const
     stmt->setString(0, login);
     stmt->setString(1, resumeRequest.GameAccountName);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::CheckIpCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&Battlenet::Session::HandleResumeRequestCallback, this, std::placeholders::_1)));
 }
 
 void Battlenet::Session::HandleResumeRequestCallback(PreparedQueryResult result)
@@ -431,9 +431,6 @@ void Battlenet::Session::HandleConnectionClosing(Connection::ConnectionClosing c
 
 void Battlenet::Session::HandleListSubscribeRequest(WoWRealm::ListSubscribeRequest const& /*listSubscribeRequest*/)
 {
-    if (_subscribedToRealmListUpdates || _queryCallback)
-        return;
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS);
     stmt->setUInt32(0, _gameAccountInfo->Id);
 
