@@ -14518,8 +14518,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                 break;
             }
             case FORM_GHOST_WOLF:
+            {
                 if (HasAura(58135)) // Glyph of Spectral Wolf
-                    return 27312;
+                    return 60247;
+            }
             default:
                 break;
         }

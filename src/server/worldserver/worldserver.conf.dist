@@ -3146,6 +3146,16 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#    PreventRenameCharacterOnCustomization
+#        Description: If option is set to 1, player can not rename the character in character customization.
+#                     Applies to all character customization commands.
+#        Default:     0 - (Disabled, character can be renamed in Character Customization)
+#                     1 - (Enabled, character can not be renamed in Character Customization)
+#
+
+PreventRenameCharacterOnCustomization = 0
+
+#
 #     Creature.CheckInvalidPosition
 #        Description: Check possible invalid position for creatures at startup (WARNING: SLOW WORLD SERVER STARTUP)
 #        Default:     0  - (Do not show)
