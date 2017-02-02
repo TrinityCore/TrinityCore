@@ -49,7 +49,7 @@ void PetitionMgr::LoadPetitions()
     do
     {
         Field* fields = result->Fetch();
-        AddPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()), ObjectGuid(HighGuid::Player, fields[1].GetUInt32()), fields[2].GetString(), static_cast<CharterTypes>(fields[3].GetUInt8()), true);
+        AddPetition(ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt32()), ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32()), fields[2].GetString(), static_cast<CharterTypes>(fields[3].GetUInt8()), true);
         ++count;
     } while (result->NextRow());
 
@@ -72,13 +72,13 @@ void PetitionMgr::LoadSignatures()
     {
         Field* fields = result->Fetch();
 
-        Petition* petition = GetPetition(ObjectGuid(HighGuid::Item, fields[0].GetUInt32()));
+        Petition* petition = GetPetition(ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt32()));
         if (!petition)
         {
             continue;
         }
 
-        petition->AddSignature(petition->petitionGuid, fields[1].GetUInt32(), ObjectGuid(HighGuid::Player, fields[2].GetUInt32()), true);
+        petition->AddSignature(petition->petitionGuid, fields[1].GetUInt32(), ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32()), true);
         ++count;
     } while (result->NextRow());
 
@@ -97,16 +97,12 @@ void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std
     if (isLoading)
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt = stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
     stmt->setUInt32(0, ownerGuid.GetCounter());
     stmt->setUInt32(1, petitionGuid.GetCounter());
     stmt->setString(2, name);
     stmt->setUInt8(3, uint8(type));
-    trans->Append(stmt);
-
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.Execute(stmt);
 }
 
 void PetitionMgr::RemovePetition(ObjectGuid petitionGuid)
