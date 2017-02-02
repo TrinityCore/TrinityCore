@@ -41,6 +41,10 @@ enum PaladinSpells
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
+    SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
+    SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
+    SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
+    SPELL_PALADIN_DIVINE_STEED_TAUREN            = 221885,
     SPELL_PALADIN_DIVINE_STORM                   = 53385,
     SPELL_PALADIN_DIVINE_STORM_DUMMY             = 54171,
     SPELL_PALADIN_DIVINE_STORM_HEAL              = 54172,
@@ -338,6 +342,65 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         {
             return new spell_pal_blessing_of_faith_SpellScript();
         }
+};
+
+// 190784 - Divine Steed
+class spell_pal_divine_steed : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_steed() : SpellScriptLoader("spell_pal_divine_steed") { }
+
+    class spell_pal_divine_steed_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_steed_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_HUMAN)    ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_DRAENEI)  ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_BLOODELF) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_TAUREN))
+                return false;
+            return true;
+        }
+
+        void HandleOnCast()
+        {
+            Unit* caster = GetCaster();
+
+            uint32 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+            switch (caster->getRace())
+            {
+                case RACE_HUMAN:
+                case RACE_DWARF:
+                    spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+                    break;
+                case RACE_DRAENEI:
+                    spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
+                    break;
+                case RACE_BLOODELF:
+                    spellId = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
+                    break;
+                case RACE_TAUREN:
+                    spellId = SPELL_PALADIN_DIVINE_STEED_TAUREN;
+                    break;
+                default:
+                    break;
+            }
+
+            caster->CastSpell(caster, spellId, true);
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_pal_divine_steed_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_divine_steed_SpellScript();
+    }
 };
 
 // 53385 - Divine Storm
@@ -1221,6 +1284,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_aura_mastery_immune();
     new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
+    new spell_pal_divine_steed();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
