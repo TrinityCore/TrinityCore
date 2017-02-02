@@ -1242,14 +1242,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
+    uint32 spellId3 = 0;
+    uint32 spellId4 = 0;
 
     switch (GetMiscValue())
     {
         case FORM_CAT_FORM:
             spellId = 3025;
+            spellId2 = 48629;
+            spellId3 = 106840;
+            spellId4 = 113636;
             break;
         case FORM_TREE_OF_LIFE:
-            spellId = 34123;
+            spellId = 5420;
+            spellId2 = 81097;
             break;
         case FORM_TRAVEL_FORM:
             spellId = 5419;
@@ -1260,19 +1266,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_BEAR_FORM:
             spellId = 1178;
             spellId2 = 21178;
-            break;
-        case FORM_BATTLE_STANCE:
-            spellId = 21156;
-            break;
-        case FORM_DEFENSIVE_STANCE:
-            spellId = 7376;
-            break;
-        case FORM_BERSERKER_STANCE:
-            spellId = 7381;
-            break;
-        case FORM_MOONKIN_FORM:
-            spellId = 24905;
-            spellId2 = 24907;
+            spellId3 = 106829;
+            spellId4 = 106899;
             break;
         case FORM_FLIGHT_FORM:
             spellId = 33948;
@@ -1282,23 +1277,30 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId  = 40122;
             spellId2 = 40121;
             break;
-        case FORM_METAMORPHOSIS:
-            spellId  = 54817;
-            spellId2 = 54879;
-            break;
         case FORM_SPIRIT_OF_REDEMPTION:
             spellId  = 27792;
-            spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
+            spellId2 = 27795;
             break;
         case FORM_SHADOWFORM:
-            spellId = 49868;
+            if (target->HasAura(107906)) // Glyph of Shadow
+                spellId = 107904;
+            else if (target->HasAura(126745)) // Glyph of Shadowy Friends
+                spellId = 142024;
+            else
+                spellId = 107903;
             break;
         case FORM_GHOST_WOLF:
-            spellId = 67116;
+            if (target->HasAura(58135)) // Glyph of Spectral Wolf
+                spellId = 160942;
             break;
         case FORM_GHOUL:
         case FORM_AMBIENT:
         case FORM_STEALTH:
+        case FORM_BATTLE_STANCE:
+        case FORM_DEFENSIVE_STANCE:
+        case FORM_BERSERKER_STANCE:
+        case FORM_MOONKIN_FORM:
+        case FORM_METAMORPHOSIS:
             break;
         default:
             break;
@@ -1312,6 +1314,12 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         if (spellId2)
             target->CastSpell(target, spellId2, true, NULL, this);
 
+        if (spellId3)
+            target->CastSpell(target, spellId3, true, NULL, this);
+
+        if (spellId4)
+            target->CastSpell(target, spellId4, true, NULL, this);
+
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
             Player* plrTarget = target->ToPlayer();
@@ -1322,74 +1330,19 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                     continue;
 
-                if (itr->first == spellId || itr->first == spellId2)
+                if (itr->first == spellId || itr->first == spellId2 || itr->first == spellId3 || itr->first == spellId4)
                     continue;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
                 if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
+                // always valid?
                 if ((spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_SPECIALIZATION)) && !plrTarget->IsCurrentSpecMasterySpell(spellInfo))
                     continue;
 
                 if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
-            }
-
-            // Leader of the Pack
-            if (plrTarget->HasSpell(17007))
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(24932);
-                if (spellInfo && spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() -1)))
-                    target->CastSpell(target, 24932, true, NULL, this);
-            }
-
-            switch (GetMiscValue())
-            {
-                case FORM_CAT_FORM:
-                    // Savage Roar
-                    if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, flag128(0, 0x10000000, 0)))
-                        target->CastSpell(target, 62071, true);
-                    // Nurturing Instinct
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254, EFFECT_0))
-                    {
-                        uint32 spellId3 = 0;
-                        switch (aurEff->GetId())
-                        {
-                            case 33872:
-                                spellId3 = 47179;
-                                break;
-                            case 33873:
-                                spellId3 = 47180;
-                                break;
-                        }
-                        target->CastSpell(target, spellId3, true, NULL, this);
-                    }
-                    // Master Shapeshifter - Cat
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
-                    }
-                    break;
-                case FORM_BEAR_FORM:
-                    // Master Shapeshifter - Bear
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
-                    }
-                    break;
-                case FORM_MOONKIN_FORM:
-                    // Master Shapeshifter - Moonkin
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48421, &bp, NULL, NULL, true);
-                    }
-                    break;
-                default:
-                    break;
             }
         }
     }
@@ -1399,6 +1352,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             target->RemoveOwnedAura(spellId, target->GetGUID());
         if (spellId2)
             target->RemoveOwnedAura(spellId2, target->GetGUID());
+        if (spellId3)
+            target->RemoveOwnedAura(spellId3, target->GetGUID());
+        if (spellId4)
+            target->RemoveOwnedAura(spellId4, target->GetGUID());
 
         Unit::AuraEffectList const& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         AuraEffect* newAura = NULL;
