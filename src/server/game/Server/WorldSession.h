@@ -1090,7 +1090,7 @@ class TC_GAME_API WorldSession
         void ProcessQueryCallbacks();
 
         QueryResultHolderFuture _realmAccountLoginCallback;
-        QueryCallback<PreparedQueryResult, std::string> _guildRenameCallback;
+        QueryResultHolderFuture _guildRenameCallback;
         QueryResultHolderFuture _charLoginCallback;
 
         QueryCallbackProcessor _queryProcessor;

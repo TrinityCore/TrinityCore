@@ -198,7 +198,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     // additional check, client outputs message on its own
     if (!player->IsAlive())
     {
-        player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, nullptr, nullptr);
+        player->SendEquipError(EQUIP_ERR_PLAYER_DEAD, nullptr, nullptr);
         return;
     }
 
