@@ -356,13 +356,10 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_HUMAN))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_DRAENEI))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_BLOODELF))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_TAUREN))
+            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_HUMAN)    ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_DRAENEI)  ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_BLOODELF) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STEED_TAUREN))
                 return false;
             return true;
         }
@@ -377,8 +374,6 @@ public:
             switch (caster->getRace())
             {
                 case RACE_HUMAN:
-                    spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
-                    break;
                 case RACE_DWARF:
                     spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
                     break;
@@ -395,8 +390,7 @@ public:
                     break;
             }
 
-            if (spell_id)
-                caster->CastSpell(caster, spell_id, true);
+            caster->CastSpell(caster, spell_id, true);
         }
 
         void Register()
