@@ -18,6 +18,7 @@
 
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -1568,7 +1569,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) &&
-        player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(GetLeaderGUID()))
+        player->GetTeam() != sCharacterCache->GetCharacterTeamByGuid(GetLeaderGUID()))
         return;
 
     SQLTransaction trans(nullptr);
@@ -1988,7 +1989,7 @@ bool Guild::LoadMemberFromDB(Field* fields)
         return false;
     }
 
-    sWorld->UpdateCharacterGuildId(playerGuid, GetId());
+    sCharacterCache->UpdateCharacterGuildId(playerGuid, GetId());
     m_members[lowguid] = member;
     return true;
 }
@@ -2200,7 +2201,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         }
 
         Member* member = itr->second;
-        uint32 level = Player::GetLevelFromCharacterInfo(member->GetGUID());
+        uint32 level = sCharacterCache->GetCharacterLevelByGuid(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
         {
@@ -2225,7 +2226,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
         if (player->GetGuildId() != 0)
             return false;
     }
-    else if (Player::GetGuildIdFromCharacterInfo(guid) != 0)
+    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid) != 0)
         return false;
 
     // Remove all player signs from another petitions
@@ -2277,7 +2278,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
             return false;
         }
         m_members[lowguid] = member;
-        sWorld->UpdateCharacterGuildId(guid, GetId());
+        sCharacterCache->UpdateCharacterGuildId(guid, GetId());
     }
 
     member->SaveToDB(trans);
@@ -2346,7 +2347,7 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
         player->SetRank(0);
     }
     else
-        sWorld->UpdateCharacterGuildId(guid, 0);
+        sCharacterCache->UpdateCharacterGuildId(guid, 0);
 
     _DeleteMemberFromDB(trans, lowguid);
     if (!isDisbanding)

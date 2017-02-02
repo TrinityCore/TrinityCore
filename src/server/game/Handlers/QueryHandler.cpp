@@ -27,11 +27,12 @@
 #include "UpdateMask.h"
 #include "NPCHandler.h"
 #include "MapManager.h"
+#include "CharacterCache.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-    CharacterInfo const* nameData = sWorld->GetCharacterInfo(guid);
+    CharacterCacheEntry const* nameData = sCharacterCache->GetCharacterCacheByGuid(guid);
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
     data << guid.WriteAsPacked();

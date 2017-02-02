@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -605,7 +606,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (Player* movedPlayer = ObjectAccessor::FindConnectedPlayerByName(name))
         guid = movedPlayer->GetGUID();
     else
-        guid = sWorld->GetCharacterGuidByName(name);
+        guid = sCharacterCache->GetCharacterGuidByName(name);
 
     if (guid.IsEmpty())
         return;
