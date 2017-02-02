@@ -1759,7 +1759,7 @@ float Unit::GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMa
 
     victimResistance = std::max(victimResistance, 0.0f);
     if (owner)
-        victimResistance += std::max((float(victim->getLevel()) - float(owner->getLevel()))*5.0f, 0.0f);
+        victimResistance += std::max((float(victim->getLevelForTarget(owner)) - float(owner->getLevelForTarget(victim))) * 5.0f, 0.0f);
 
     static uint32 const BOSS_LEVEL = 83;
     static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
