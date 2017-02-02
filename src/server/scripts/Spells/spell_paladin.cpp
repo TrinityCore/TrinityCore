@@ -367,30 +367,28 @@ public:
         void HandleOnCast()
         {
             Unit* caster = GetCaster();
-            if (!caster)
-                return;
 
-            uint32 spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+            uint32 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
             switch (caster->getRace())
             {
                 case RACE_HUMAN:
                 case RACE_DWARF:
-                    spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+                    spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
                     break;
                 case RACE_DRAENEI:
-                    spell_id = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
+                    spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
                     break;
                 case RACE_BLOODELF:
-                    spell_id = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
+                    spellId = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
                     break;
                 case RACE_TAUREN:
-                    spell_id = SPELL_PALADIN_DIVINE_STEED_TAUREN;
+                    spellId = SPELL_PALADIN_DIVINE_STEED_TAUREN;
                     break;
                 default:
                     break;
             }
 
-            caster->CastSpell(caster, spell_id, true);
+            caster->CastSpell(caster, spellId, true);
         }
 
         void Register()
