@@ -53,7 +53,7 @@ CharacterCache* CharacterCache::instance()
 * @return Name, Gender, Race, Class and Level of player character
 * Example Usage:
 * @code
-*    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(GUID);
+*    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(GUID);
 *    if (!characterInfo)
 *        return;
 *
