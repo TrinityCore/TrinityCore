@@ -28,7 +28,7 @@ class TC_GAME_API GameTime
     public:
         GameTime();
 
-        static GameTime* GameTime::instance();
+        static GameTime* instance();
 
         // Server start time
         time_t GetStartTime() const;

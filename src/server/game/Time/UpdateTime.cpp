@@ -31,7 +31,7 @@ UpdateTime::UpdateTime()
     _maxUpdateTimeOfLastTable = 0;
     _maxUpdateTimeOfCurrentTable = 0;
 
-    _updateTimeDataTable.resize(AVG_DIFF_COUNT, 0);
+    _updateTimeDataTable = {};
 }
 
 uint32 UpdateTime::GetAverageUpdateTime() const

@@ -25,7 +25,7 @@
 
 class TC_GAME_API UpdateTime
 {
-    using DiffTableVector = std::vector<uint32>;
+    using DiffTableArray = std::array<uint32, AVG_DIFF_COUNT>;
 
     public:        
         UpdateTime();
@@ -42,7 +42,7 @@ class TC_GAME_API UpdateTime
         void RecordUpdateTimeDuration(std::string const& text, uint32 minUpdateTime);
 
     private:
-        DiffTableVector _updateTimeDataTable;
+        DiffTableArray _updateTimeDataTable;
         uint32 _averageUpdateTime;
         uint32 _totalUpdateTime;
         uint32 _updateTimeTableIndex;
