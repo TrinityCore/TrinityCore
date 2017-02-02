@@ -376,23 +376,23 @@ public:
             uint32 spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
             switch (caster->getRace())
             {
-            case RACE_HUMAN:
-                spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
-                break;
-            case RACE_DWARF:
-                spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
-                break;
-            case RACE_DRAENEI:
-                spell_id = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
-                break;
-            case RACE_BLOODELF:
-                spell_id = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
-                break;
-            case RACE_TAUREN:
-                spell_id = SPELL_PALADIN_DIVINE_STEED_TAUREN;
-                break;
-            default:
-                break;
+                case RACE_HUMAN:
+                    spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+                    break;
+                case RACE_DWARF:
+                    spell_id = SPELL_PALADIN_DIVINE_STEED_HUMAN;
+                    break;
+                case RACE_DRAENEI:
+                    spell_id = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
+                    break;
+                case RACE_BLOODELF:
+                    spell_id = SPELL_PALADIN_DIVINE_STEED_BLOODELF;
+                    break;
+                case RACE_TAUREN:
+                    spell_id = SPELL_PALADIN_DIVINE_STEED_TAUREN;
+                    break;
+                default:
+                    break;
             }
 
             if (spell_id)
