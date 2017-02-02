@@ -24,6 +24,11 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
+namespace
+{
+    LootItemContainer _lootItemStore;
+}
+
 LootItemStorage::LootItemStorage()
 {
 }
@@ -96,15 +101,17 @@ void LootItemStorage::LoadStorageFromDB()
 
 bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 {
+    Loot* loot = &item->loot;
     // read
     boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
-    Loot* loot = &item->loot;
     auto itr = _lootItemStore.find(loot->containerID);
     if (itr == _lootItemStore.end())
         return false;
 
-    StoredLootContainer& container = itr->second;
+    StoredLootContainer const& container = itr->second;
+    lock.unlock();
+
     loot->gold = container.GetMoney();
 
     LootTemplate const* lt = LootTemplates_Item.GetLootFor(item->GetEntry());
@@ -159,9 +166,10 @@ void LootItemStorage::RemoveStoredMoneyForContainer(uint32 containerId)
 void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
-
-    _lootItemStore.erase(containerId);
+    {
+        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        _lootItemStore.erase(containerId);
+    }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
@@ -189,12 +197,12 @@ void LootItemStorage::RemoveStoredLootItemForContainer(uint32 containerId, uint3
 
 void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 {
-    // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
-
     // Saves the money and item loot associated with an openable item to the DB
     if (loot->isLooted()) // no money and no loot
         return;
+
+    // write
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(loot->containerID);
     if (itr != _lootItemStore.end())
@@ -203,10 +211,12 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
     StoredLootContainer& container = _lootItemStore[loot->containerID];
+    lock.unlock();
+
     container.SetContainer(loot->containerID);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     if (loot->gold)
         container.AddMoney(loot->gold, trans);
 

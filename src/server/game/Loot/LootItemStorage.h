@@ -91,9 +91,6 @@ class LootItemStorage
         void RemoveStoredLootForContainer(uint32 containerId);
         void RemoveStoredLootItemForContainer(uint32 containerId, uint32 itemId, uint32 count);
         void AddNewStoredLoot(Loot* loot, Player* player);
-
-    private:
-        LootItemContainer _lootItemStore;
 };
 
 #define sLootItemStorage LootItemStorage::instance()
