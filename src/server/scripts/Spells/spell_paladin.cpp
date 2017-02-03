@@ -45,7 +45,6 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
     SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
     SPELL_PALADIN_DIVINE_STEED_TAUREN            = 221885,
-    SPELL_PALADIN_DIVINE_STORM_DUMMY             = 174333,
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
@@ -79,6 +78,11 @@ enum MiscSpells
 enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
+};
+
+enum PaladinSpellVisualKit
+{
+    PALADIN_VISUAL_KIT_DIVINE_STORM = 73892
 };
 
 /*
@@ -414,8 +418,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STORM_DAMAGE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STORM_DUMMY))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_STORM_DAMAGE))
                     return false;
                 return true;
             }
@@ -423,61 +426,29 @@ class spell_pal_divine_storm : public SpellScriptLoader
             void HandleOnCast()
             {
                 Unit* caster = GetCaster();
+                caster->SendPlaySpellVisualKit(PALADIN_VISUAL_KIT_DIVINE_STORM, 0);
+            }
 
-                std::list<Unit*> targetList;
-                float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+                if (!target)
+                    return;
 
-                Trinity::NearestAttackableUnitInObjectRangeCheck u_check(caster, caster, radius);
-                Trinity::UnitListSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> searcher(caster, targetList, u_check);
-                caster->VisitNearbyObject(radius, searcher);
-
-                if (!targetList.empty())
-                {
-                    for (auto itr : targetList)
-                    {
-                        caster->CastSpell(itr, SPELL_PALADIN_DIVINE_STORM_DAMAGE, true);
-                    }
-                }
-
-                caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, true);
+                caster->CastSpell(target, SPELL_PALADIN_DIVINE_STORM_DAMAGE, true);
             }
 
             void Register() override
             {
                 OnCast += SpellCastFn(spell_pal_divine_storm_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_divine_storm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
             return new spell_pal_divine_storm_SpellScript();
-        }
-};
-
-// Divine Storm Dummy - 174333
-class spell_pal_divine_storm_dummy : public SpellScriptLoader
-{
-    public:
-        spell_pal_divine_storm_dummy() : SpellScriptLoader("spell_pal_divine_storm_dummy") { }
-
-        class spell_pal_divine_storm_dummy_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                Trinity::Containers::RandomResizeList(targets, 0);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_divine_storm_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_divine_storm_dummy_SpellScript();
         }
 };
 
@@ -1261,7 +1232,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_blessing_of_faith();
     new spell_pal_divine_steed();
     new spell_pal_divine_storm();
-    new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
