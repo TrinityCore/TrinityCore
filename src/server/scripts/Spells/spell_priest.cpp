@@ -1251,13 +1251,12 @@ public:
         void HandleOnRemove(const AuraEffect* aurEff, AuraEffectHandleModes mode)
         {
             Player* caster = GetCaster()->ToPlayer();
-            int32 max = aurEff->GetBase()->GetMaxDuration();
             int32 t = aurEff->GetBase()->GetDuration();
 
             if (caster->HasAura(SPELL_PRIEST_STRENGHT_OF_SOUL_EFFECT))
                 caster->RemoveAura(SPELL_PRIEST_STRENGHT_OF_SOUL_EFFECT);
 
-            if (t>0 && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE)) 
+            if (t > 0 && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE)) 
             {
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
             }
