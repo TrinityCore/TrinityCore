@@ -828,6 +828,7 @@ class spell_pri_penance : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Unit* target = GetExplTargetUnit())
+                {
                     if (!caster->IsFriendlyTo(target))
                     {
                         if (!caster->IsValidAttackTarget(target))
@@ -845,6 +846,7 @@ class spell_pri_penance : public SpellScriptLoader
                         if (!caster->isInFront(target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
                     }
+                }
 
                 return SPELL_CAST_OK;
             }
