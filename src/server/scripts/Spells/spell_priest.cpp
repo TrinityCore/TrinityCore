@@ -53,7 +53,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
-	SPELL_PRIEST_THE_PENITENT_AURA					= 200347,
+    SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
@@ -840,7 +840,7 @@ class spell_pri_penance : public SpellScriptLoader
                     {
                         //Support for modifications of this spell in Legion with The Penitent talent
                         if(!caster->HasAura(SPELL_PRIEST_THE_PENITENT_AURA))
-							return SPELL_FAILED_BAD_TARGETS;
+                            return SPELL_FAILED_BAD_TARGETS;
 
                         if (!caster->isInFront(target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
@@ -1185,23 +1185,23 @@ class spell_pri_power_word_shield : public SpellScriptLoader
 {
 public:
     spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
-	
+
     enum spell_enum
     {
-        SPELL_PRIEST_BODY_AND_SOUL				= 64129,
+        SPELL_PRIEST_BODY_AND_SOUL              = 64129,
         SPELL_PRIEST_BODY_AND_SOUL_ACTIVE       = 65081,
         SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE  = 197045,
         SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE = 47755,
         SPELL_PRIEST_STRENGHT_OF_SOUL           = 197535,
-        SPELL_PRIEST_STRENGHT_OF_SOUL_EFFECT	= 197548,
-        SPELL_PRIEST_RENEWED_HOPE				= 197469,
-        SPELL_PRIEST_RENEWED_HOPE_EFFECT		= 197470,
-        SPELL_PRIEST_VOID_SHIELD				= 199144,
-        SPELL_PRIEST_VOID_SHIELD_EFFECT			= 199145
+        SPELL_PRIEST_STRENGHT_OF_SOUL_EFFECT    = 197548,
+        SPELL_PRIEST_RENEWED_HOPE               = 197469,
+        SPELL_PRIEST_RENEWED_HOPE_EFFECT        = 197470,
+        SPELL_PRIEST_VOID_SHIELD                = 199144,
+        SPELL_PRIEST_VOID_SHIELD_EFFECT         = 199145
     };
     class spell_pri_power_word_shield_SpellScript : public SpellScript
     {
-		
+
         PrepareSpellScript(spell_pri_power_word_shield_SpellScript);
 
         void HandleAfterCast()
@@ -1266,7 +1266,7 @@ public:
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
             }
         }
-		
+
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
