@@ -1234,11 +1234,8 @@ public:
         {
             Player* caster = GetCaster()->ToPlayer();
             int32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-
             int32 versadmg = caster->GetRatingBonusValue(CombatRating::CR_VERSATILITY_DAMAGE_DONE);
             int32 mastery = caster->GetRatingBonusValue(CombatRating::CR_MASTERY) + 1;
-            //amount = (int32)(sp * mastery * 5.5f) * (1 + versadmg);
-            //$shield = ${ (($SP*5.5) + $m1)*(1 + $@versadmg) }
             amount = (int32)((sp * 5.5f) + mastery) * (1 + versadmg);
         }
         
@@ -1254,7 +1251,6 @@ public:
         void HandleOnRemove(const AuraEffect* aurEff, AuraEffectHandleModes mode)
         {
             Player* caster = GetCaster()->ToPlayer();
-            //int32 amount = aurEff->GetAmount();
             int32 max = aurEff->GetBase()->GetMaxDuration();
             int32 t = aurEff->GetBase()->GetDuration();
 
@@ -1263,7 +1259,6 @@ public:
 
             if (t>0 && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE)) 
             {
-                int32 amount = (int32)(caster->GetMaxPower(POWER_MANA) * 0.01f);
                 caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
             }
         }
