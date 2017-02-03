@@ -9648,7 +9648,7 @@ void ObjectMgr::LoadConversationTemplates()
                 {
                     Field* fields = actors->Fetch();
                     uint32 actorId = fields[0].GetUInt32();
-                    ConversationActorTemplate conversationActorTemplate = _conversationActorTemplateStore[actorId];
+                    ConversationActorTemplate& conversationActorTemplate = _conversationActorTemplateStore[actorId];
 
                     conversationTemplate.Actors.push_back(conversationActorTemplate);
                 } while (actors->NextRow());
@@ -9658,7 +9658,7 @@ void ObjectMgr::LoadConversationTemplates()
 
             while (currentConversationLine != nullptr)
             {
-                ConversationLineTemplate conversationActorTemplate = _conversationLineTemplateStore[currentConversationLine->ID];
+                ConversationLineTemplate& conversationActorTemplate = _conversationLineTemplateStore[currentConversationLine->ID];
                 conversationTemplate.Lines.push_back(conversationActorTemplate);
 
                 if (!currentConversationLine->NextLineID)

@@ -106,11 +106,11 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
     _duration = conversationTemplate->LastLineDuration;
 
     uint16 actorsIndex = 0;
-    for (ConversationActorTemplate actor : conversationTemplate->Actors)
+    for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actor);
 
     uint16 linesIndex = 0;
-    for (ConversationLineTemplate line : conversationTemplate->Lines)
+    for (ConversationLineTemplate const& line : conversationTemplate->Lines)
     {
         _duration += line.PreviousLineDuration;
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
