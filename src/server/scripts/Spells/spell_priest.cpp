@@ -1233,7 +1233,6 @@ public:
         void CalculateAmount(const AuraEffect* /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             Player* caster = GetCaster()->ToPlayer();
-            int32 level = caster->getLevel();
             int32 sp = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
 
             int32 versadmg = caster->GetRatingBonusValue(CombatRating::CR_VERSATILITY_DAMAGE_DONE);
