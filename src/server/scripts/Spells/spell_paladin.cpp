@@ -432,7 +432,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                Unit* target = GetExplTargetUnit();
+                Unit* target = GetHitUnit();
                 if (!target)
                     return;
 
