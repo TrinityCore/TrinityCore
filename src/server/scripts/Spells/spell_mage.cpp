@@ -315,23 +315,23 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CONJURE_REFRESHMENT) ||
-                !sSpellMgr->GetSpellInfo(SPELL_MAGE_CONJURE_REFRESHMENT_TABLE))
-                return false;
-            return true;
+            return ValidateSpellInfo
+            ({
+                SPELL_MAGE_CONJURE_REFRESHMENT,
+                SPELL_MAGE_CONJURE_REFRESHMENT_TABLE
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-            if (!caster->ToPlayer())
-                return;
-
-            Group* group = caster->ToPlayer()->GetGroup();
-            if (group)
-                caster->CastSpell(caster, SPELL_MAGE_CONJURE_REFRESHMENT_TABLE, true);
-            else
-                caster->CastSpell(caster, SPELL_MAGE_CONJURE_REFRESHMENT, true);
+            if (Player* caster = GetCaster()->ToPlayer())
+            {
+                Group* group = caster->GetGroup();
+                if (group)
+                    caster->CastSpell(caster, SPELL_MAGE_CONJURE_REFRESHMENT_TABLE, true);
+                else
+                    caster->CastSpell(caster, SPELL_MAGE_CONJURE_REFRESHMENT, true);
+            }
         }
 
         void Register() override
