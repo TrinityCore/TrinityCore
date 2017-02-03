@@ -66,8 +66,8 @@ class TC_GAME_API CharacterCache
         uint32 GetCharacterAccountIdByGuid(ObjectGuid guid) const;
         uint32 GetCharacterAccountIdByName(std::string const& name) const;
         uint8 GetCharacterLevelByGuid(ObjectGuid guid) const;
-        ObjectGuid::LowType CharacterCache::GetCharacterGuildIdByGuid(ObjectGuid guid) const;
-        uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type) const;
+        ObjectGuid::LowType GetCharacterGuildIdByGuid(ObjectGuid guid) const;
+        uint32 GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type) const;
 };
 
 #define sCharacterCache CharacterCache::instance()
