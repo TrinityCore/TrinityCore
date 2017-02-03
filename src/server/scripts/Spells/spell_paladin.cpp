@@ -391,7 +391,7 @@ public:
             caster->CastSpell(caster, spellId, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnCast += SpellCastFn(spell_pal_divine_steed_SpellScript::HandleOnCast);
         }
