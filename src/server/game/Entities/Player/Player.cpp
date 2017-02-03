@@ -5245,10 +5245,10 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             uint32 craft_skill_gain = _spell_idx->second->NumSkillUps * sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
             return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
-                 _spell_idx->second->TrivialSkillLineRankHigh,
-                 (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
-                 _spell_idx->second->TrivialSkillLineRankLow),
-                 craft_skill_gain);
+                _spell_idx->second->TrivialSkillLineRankHigh,
+                (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
+                _spell_idx->second->TrivialSkillLineRankLow),
+                craft_skill_gain);
         }
     }
     return false;
