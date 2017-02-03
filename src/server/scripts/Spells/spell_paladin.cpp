@@ -406,7 +406,7 @@ public:
     }
 };
 
-// Divine Storm - 53385
+// 53385 - Divine Storm
 class spell_pal_divine_storm : public SpellScriptLoader
 {
     public:
