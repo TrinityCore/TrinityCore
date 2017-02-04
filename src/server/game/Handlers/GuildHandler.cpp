@@ -1055,7 +1055,7 @@ void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
             data << uint32(0);                                                                      //in the block its always 1
             data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_DUNGEON);                        //dungeon
             data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RAID);                           //raid
-            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RATEDBG);                        //rated BG            
+            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RATEDBG);                        //rated BG
 
             //Completion Gold Reward block
 
