@@ -699,7 +699,7 @@ class spell_rog_vanish : public SpellScriptLoader
 
                 Unit* target = GetHitUnit();
 
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingAuras(true);
                 target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
                 if (target->GetTypeId() != TYPEID_PLAYER)
                     return;
