@@ -210,7 +210,7 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             uint8 Arg = 0;
-            int32 MapDifficultyXConditionID;
+            int32 MapDifficultyXConditionID = 0;
             uint32 TransfertAbort = 0;
         };
 

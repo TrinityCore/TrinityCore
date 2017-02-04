@@ -503,6 +503,7 @@ public:
     float GetMinRange(bool positive = false) const;
     float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
 
+    int32 CalcDuration(Unit* caster = nullptr) const;
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
 

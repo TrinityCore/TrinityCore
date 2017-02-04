@@ -73,8 +73,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             //   doing a "dance" while fighting
             if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
-                dist = i_target->GetCombatReach();
-                size = i_target->GetCombatReach() - i_target->GetObjectSize();
+                dist = 1.0f; //i_target->GetCombatReach();
+                size = 1.0f; //i_target->GetCombatReach() - i_target->GetObjectSize();
             }
             else
             {
@@ -168,8 +168,15 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (i_recheckDistance.Passed())
     {
         i_recheckDistance.Reset(100);
+
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        float allowed_dist = 0.0f;
+
+        if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
+            allowed_dist = 1.0f; // pet following owner
+        else
+            allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
             if (TransportBase* transport = owner->GetDirectTransport())
