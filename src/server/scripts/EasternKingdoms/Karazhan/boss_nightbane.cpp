@@ -50,6 +50,7 @@ enum NightbanePoints
     POINT_INTRO_END             = 1,
     POINT_INTRO_LANDING         = 2,
     POINT_PHASE_TWO_FLY         = 3,
+    POINT_PHASE_TWO_PRE_FLY     = 4,
     POINT_PHASE_TWO_LANDING     = 5,
     POINT_PHASE_TWO_END         = 6
 };
@@ -59,7 +60,8 @@ enum NightbaneSplineChain
     SPLINE_CHAIN_INTRO_START    = 1,
     SPLINE_CHAIN_INTRO_END      = 2,
     SPLINE_CHAIN_INTRO_LANDING  = 3,
-    SPLINE_CHAIN_SECOND_LANDING = 4
+    SPLINE_CHAIN_SECOND_LANDING = 4,
+    SPLINE_CHAIN_PHASE_TWO      = 5
 };
 
 enum NightbaneEvents
@@ -71,10 +73,10 @@ enum NightbaneEvents
     EVENT_EMOTE_BREATH,
     EVENT_END_INTRO,
     EVENT_END_PHASE_TWO,
-    EVENT_FACE_TARGET,
     EVENT_INTRO_LANDING,
     EVENT_LAND,
     EVENT_LANDED,
+    EVENT_PRE_FLY_END,
     EVENT_PRE_LAND,
     EVENT_RAIN_OF_BONES,
     EVENT_SMOLDERING_BREATH,
@@ -104,6 +106,8 @@ enum NightbaneMisc
 };
 
 Position const FlyPosition = { -11160.13f, -1870.683f, 97.73876f, 0.0f };
+Position const FlyPositionLeft = { -11094.42f, -1866.992f, 107.8375f, 0.0f };
+Position const FlyPositionRight = { -11193.77f, -1921.983f, 107.9845f, 0.0f };
 
 class boss_nightbane : public CreatureScript
 {
@@ -118,6 +122,7 @@ public:
         {
             _Reset();
             _flyCount = 0;
+            me->SetDisableGravity(true);
             HandleTerraceDoors(true);
             if (GameObject* urn = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_BLACKENED_URN)))
                 urn->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
@@ -125,10 +130,6 @@ public:
 
         void EnterEvadeMode(EvadeReason why) override
         {
-            float x, y, z, o;
-            me->GetRespawnPosition(x, y, z, &o);
-            me->SetHomePosition(x, y, z, o);
-            me->SetCanFly(true);
             me->SetDisableGravity(true);
             CreatureAI::EnterEvadeMode(why);
         }
@@ -150,6 +151,7 @@ public:
             {
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
+                me->setActive(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
@@ -159,12 +161,12 @@ public:
         void SetupGroundPhase()
         {
             events.SetPhase(PHASE_GROUND);
-            events.ScheduleEvent(EVENT_CLEAVE, Seconds(6), Seconds(20), GROUP_GROUND);
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, Seconds(18), Seconds(30), GROUP_GROUND);
-            events.ScheduleEvent(EVENT_BELLOWING_ROAR, Seconds(46), Minutes(1), GROUP_GROUND);
-            events.ScheduleEvent(EVENT_CHARRED_EARTH, Seconds(18), Seconds(47), GROUP_GROUND);
-            events.ScheduleEvent(EVENT_SMOLDERING_BREATH, Seconds(28), Seconds(35), GROUP_GROUND);
-            events.ScheduleEvent(EVENT_DISTRACTING_ASH, Minutes(1), Minutes(2), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_CLEAVE, Seconds(0), Seconds(15), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, Seconds(4), Seconds(23), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_BELLOWING_ROAR, Seconds(48), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_CHARRED_EARTH, Seconds(12), Seconds(18), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_SMOLDERING_BREATH, Seconds(26), Seconds(30), GROUP_GROUND);
+            events.ScheduleEvent(EVENT_DISTRACTING_ASH, Seconds(82), GROUP_GROUND);
         }
 
         void HandleTerraceDoors(bool open)
@@ -210,32 +212,35 @@ public:
                         events.ScheduleEvent(EVENT_END_INTRO, Seconds(2));
                         break;
                     case POINT_INTRO_LANDING:
-                        me->SetCanFly(false);
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         events.ScheduleEvent(EVENT_INTRO_LANDING, Seconds(3));
                         break;
                     case POINT_PHASE_TWO_LANDING:
                         events.SetPhase(PHASE_GROUND);
-                        me->SetCanFly(false);
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                         events.ScheduleEvent(EVENT_LANDED, Seconds(3));
+                        break;
+                    case POINT_PHASE_TWO_END:
+                        events.ScheduleEvent(EVENT_END_PHASE_TWO, Milliseconds(1));
                         break;
                     default:
                         break;
                 }
             }
-            else if (type == POINT_MOTION_TYPE && pointId == POINT_PHASE_TWO_FLY)
+            else if (type == POINT_MOTION_TYPE)
             {
-                events.ScheduleEvent(EVENT_FACE_TARGET, Seconds(1), GROUP_FLY);
-                events.ScheduleEvent(EVENT_PRE_LAND, Seconds(33), GROUP_FLY);
-                events.ScheduleEvent(EVENT_EMOTE_BREATH, Seconds(2), GROUP_FLY);
-                events.ScheduleEvent(EVENT_SMOKING_BLAST_T, Seconds(17), GROUP_FLY);
-                events.ScheduleEvent(EVENT_SMOKING_BLAST, Seconds(18), GROUP_FLY);
+                if (pointId == POINT_PHASE_TWO_FLY)
+                {
+                    events.ScheduleEvent(EVENT_PRE_LAND, Seconds(33), GROUP_FLY);
+                    events.ScheduleEvent(EVENT_EMOTE_BREATH, Seconds(2), GROUP_FLY);
+                    events.ScheduleEvent(EVENT_SMOKING_BLAST_T, Seconds(21), GROUP_FLY);
+                    events.ScheduleEvent(EVENT_SMOKING_BLAST, Seconds(17), GROUP_FLY);
+                }
+                else if (pointId == POINT_PHASE_TWO_PRE_FLY)
+                    events.ScheduleEvent(EVENT_PRE_FLY_END, Milliseconds(1));
             }
-            else if (type == WAYPOINT_MOTION_TYPE && pointId == POINT_PHASE_TWO_END)
-                events.ScheduleEvent(EVENT_END_PHASE_TWO, Milliseconds(1));
         }
 
         void StartPhaseFly()
@@ -245,11 +250,16 @@ public:
             events.CancelEventGroup(GROUP_GROUND);
             me->InterruptNonMeleeSpells(false);
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-            me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_FLY, FlyPosition, false);
+
+            if (me->GetDistance(FlyPositionLeft) < me->GetDistance(FlyPosition))
+                me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_PRE_FLY, FlyPositionLeft, true);
+            else if (me->GetDistance(FlyPositionRight) < me->GetDistance(FlyPosition))
+                me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_PRE_FLY, FlyPositionRight, true);
+            else
+                me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_FLY, FlyPosition, true);
          }
 
         void ExecuteEvent(uint32 eventId) override
@@ -258,16 +268,15 @@ public:
             {
                 case EVENT_BELLOWING_ROAR:
                     DoCastAOE(SPELL_BELLOWING_ROAR);
-                    events.Repeat(Seconds(46), Minutes(1));
                     break;
                 case EVENT_CHARRED_EARTH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_CHARRED_EARTH);
-                    events.Repeat(Seconds(18), Seconds(47));
+                    events.Repeat(Seconds(18), Seconds(21));
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(Seconds(6), Seconds(20));
+                    events.Repeat(Seconds(6), Seconds(15));
                     break;
                 case EVENT_DISTRACTING_ASH:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -283,24 +292,21 @@ public:
                 case EVENT_END_PHASE_TWO:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
-                case EVENT_FACE_TARGET:
-                    me->SetFacingToObject(me->GetVictim(), true);
-                    me->SetControlled(true, UNIT_STATE_ROOT);
-                    break;
                 case EVENT_INTRO_LANDING:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetInCombatWithZone();
                     break;
                 case EVENT_LAND:
                     Talk(YELL_LAND_PHASE);
-                    me->SetControlled(false, UNIT_STATE_ROOT);
-                    me->SetCanFly(true);
                     me->SetDisableGravity(true);
-                    me->GetMotionMaster()->MovePath(PATH_PHASE_TWO, false);
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_END, SPLINE_CHAIN_PHASE_TWO, false);
                     break;
                 case EVENT_LANDED:
                     SetupGroundPhase();
                     me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_PRE_FLY_END:
+                    me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_FLY, FlyPosition, true);
                     break;
                 case EVENT_PRE_LAND:
                     events.CancelEventGroup(GROUP_FLY);
@@ -312,27 +318,30 @@ public:
                 case EVENT_RAIN_OF_BONES:
                     DoResetThreat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    {
+                        me->SetFacingToObject(target, true);
                         DoCast(target, SPELL_RAIN_OF_BONES);
+                    }
                     break;
                 case EVENT_SMOLDERING_BREATH:
                     DoCastVictim(SPELL_SMOLDERING_BREATH);
-                    events.Repeat(Seconds(28), Seconds(35));
+                    events.Repeat(Seconds(28), Seconds(40));
                     break;
                 case EVENT_SMOKING_BLAST:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST);
-                    events.Repeat(Milliseconds(1200));
+                    events.Repeat(Milliseconds(1400));
                     break;
                 case EVENT_SMOKING_BLAST_T:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST_T);
-                    events.Repeat(Seconds(6));
+                    events.Repeat(Seconds(5), Seconds(7));
                     break;
                 case EVENT_TAIL_SWEEP:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         if (!me->HasInArc(float(M_PI), target))
                             DoCast(target, SPELL_TAIL_SWEEP);
-                    events.Repeat(Seconds(18), Seconds(30));
+                    events.Repeat(Seconds(20), Seconds(30));
                     break;
                 default:
                     break;
