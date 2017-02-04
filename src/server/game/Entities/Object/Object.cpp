@@ -2230,9 +2230,9 @@ void WorldObject::GetContactPoint(const WorldObject* obj, float &x, float &y, fl
     GetNearPoint(obj, x, y, z, obj->GetObjectSize(), distance2d, GetAngle(obj));
 }
 
-float WorldObject::GetObjectSize() const
+float WorldObject::GetObjectSize() const // this method name is missleading. the returned value is only dependant on the combat reach. a unit's object size is something different.
 {
-    return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
+    return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : 0.0f;
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
