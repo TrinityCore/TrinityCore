@@ -845,12 +845,12 @@ class spell_warr_victory_rush : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                if (Unit* caster = GetCaster())
+                Unit* caster = GetCaster();
+
+                if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
                 {
                     caster->CastSpell(caster, SPELL_WARRIOR_VICTORY_RUSH_HEAL, true);
-
-                    if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
-                        caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
+                    caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
                 }
             }
 
