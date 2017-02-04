@@ -23,7 +23,8 @@
 #include "ByteBuffer.h"
 #include "Socket.h"
 #include "BigNumber.h"
-#include "QueryCallback.h"
+#include "QueryResult.h"
+#include "QueryCallbackProcessor.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -102,8 +103,7 @@ private:
     uint16 _build;
     uint8 _expversion;
 
-    PreparedQueryResultFuture _queryFuture;
-    std::function<void(PreparedQueryResult)> _queryCallback;
+    QueryCallbackProcessor _queryProcessor;
 };
 
 #pragma pack(push, 1)

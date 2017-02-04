@@ -2550,22 +2550,16 @@ public:
             if (targetName)
             {
                 // Check for offline players
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_BY_NAME);
-                stmt->setString(0, name);
-                PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-                if (!result)
+                ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
+                if (guid.IsEmpty())
                 {
                     handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
                     return true;
                 }
 
                 // If player found: delete his freeze aura
-                Field* fields = result->Fetch();
-                ObjectGuid::LowType lowGuid = fields[0].GetUInt32();
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
-                stmt->setUInt32(0, lowGuid);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
+                stmt->setUInt32(0, guid.GetCounter());
                 CharacterDatabase.Execute(stmt);
 
                 handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());

@@ -111,8 +111,7 @@ private:
     MessageBuffer _packetBuffer;
     MPSCQueue<EncryptablePacket> _bufferQueue;
 
-    PreparedQueryResultFuture _queryFuture;
-    std::function<void(PreparedQueryResult&&)> _queryCallback;
+    QueryCallbackProcessor _queryProcessor;
     std::string _ipCountry;
 };
 
