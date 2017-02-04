@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,194 +15,142 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Curator
-SD%Complete: 100
-SDComment:
-SDCategory: Karazhan
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Karazhan.h"
 
-enum Curator
+enum CuratorSays
 {
-    SAY_AGGRO                       = 0,
-    SAY_SUMMON                      = 1,
-    SAY_EVOCATE                     = 2,
-    SAY_ENRAGE                      = 3,
-    SAY_KILL                        = 4,
-    SAY_DEATH                       = 5,
-
-    //Flare spell info
-    SPELL_ASTRAL_FLARE_PASSIVE      = 30234,               //Visual effect + Flare damage
-
-    //Curator spell info
-    SPELL_HATEFUL_BOLT              = 30383,
-    SPELL_EVOCATION                 = 30254,
-    SPELL_ENRAGE                    = 30403,               //Arcane Infusion: Transforms Curator and adds damage.
-    SPELL_BERSERK                   = 26662,
+    SAY_AGGRO                    = 0,
+    SAY_SUMMON                   = 1,
+    SAY_EVOCATE                  = 2,
+    SAY_ENRAGE                   = 3,
+    SAY_KILL                     = 4,
+    SAY_DEATH                    = 5
 };
 
+enum CuratorSpells : uint32
+{
+    SPELL_HATEFUL_BOLT           = 30383,
+    SPELL_EVOCATION              = 30254,
+    SPELL_ARCANE_INFUSION        = 30403,
+    SPELL_BERSERK                = 26662,
+    SPELL_SUMMON_ASTRAL_FLARE_NE = 30236,
+    SPELL_SUMMON_ASTRAL_FLARE_NW = 30239,
+    SPELL_SUMMON_ASTRAL_FLARE_SE = 30240,
+    SPELL_SUMMON_ASTRAL_FLARE_SW = 30241
+};
 
-
+enum CuratorEvents
+{
+    EVENT_HATEFUL_BOLT = 1,
+    EVENT_SUMMON_ASTRAL_FLARE,
+    EVENT_ARCANE_INFUSION,
+    EVENT_BERSERK
+};
 
 class boss_curator : public CreatureScript
 {
 public:
     boss_curator() : CreatureScript("boss_curator") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_curatorAI : public BossAI
     {
-        return new boss_curatorAI(creature);
-    }
-
-    struct boss_curatorAI : public ScriptedAI
-    {
-        boss_curatorAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            AddTimer = 10000;
-            HatefulBoltTimer = 15000;                           //This time may be wrong
-            BerserkTimer = 720000;                              //12 minutes
-            Enraged = false;
-            Evocating = false;
-        }
-
-        uint32 AddTimer;
-        uint32 HatefulBoltTimer;
-        uint32 BerserkTimer;
-
-        bool Enraged;
-        bool Evocating;
+        boss_curatorAI(Creature* creature) : BossAI(creature, DATA_CURATOR), _infused(false) { }
 
         void Reset() override
         {
-            Initialize();
-
+            _Reset();
+            _infused = false;
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
         }
 
-        void KilledUnit(Unit* /*victim*/) override
+        void KilledUnit(Unit* victim) override
         {
-            Talk(SAY_KILL);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
+            _JustDied();
             Talk(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _EnterCombat();
             Talk(SAY_AGGRO);
+
+            events.ScheduleEvent(EVENT_HATEFUL_BOLT, Seconds(12));
+            events.ScheduleEvent(EVENT_SUMMON_ASTRAL_FLARE, Seconds(10));
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
         }
 
-        void UpdateAI(uint32 diff) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!UpdateVictim())
-                return;
-
-            //always decrease BerserkTimer
-            if (BerserkTimer <= diff)
+            if (!HealthAbovePct(15) && !_infused)
             {
-                //if evocate, then break evocate
-                if (Evocating)
-                {
-                    if (me->HasAura(SPELL_EVOCATION))
-                        me->RemoveAurasDueToSpell(SPELL_EVOCATION);
-
-                    Evocating = false;
-                }
-
-                //may not be correct SAY (generic hard enrage)
-                Talk(SAY_ENRAGE);
-
-                me->InterruptNonMeleeSpells(true);
-                DoCast(me, SPELL_BERSERK);
-
-                //don't know if he's supposed to do summon/evocate after hard enrage (probably not)
-                Enraged = true;
-            } else BerserkTimer -= diff;
-
-            if (Evocating)
-            {
-                //not supposed to do anything while evocate
-                if (me->HasAura(SPELL_EVOCATION))
-                    return;
-                else
-                    Evocating = false;
+                _infused = true;
+                events.ScheduleEvent(EVENT_ARCANE_INFUSION, Milliseconds(1));
+                events.CancelEvent(EVENT_SUMMON_ASTRAL_FLARE);
             }
+        }
 
-            if (!Enraged)
+        void JustSummoned(Creature* summon) override
+        {
+            summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            BossAI::JustSummoned(summon);
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
             {
-                if (AddTimer <= diff)
-                {
-                    //Summon Astral Flare
-                    Creature* AstralFlare = DoSpawnCreature(17096, float(rand32() % 37), float(rand32() % 37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                case EVENT_HATEFUL_BOLT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                        DoCast(target, SPELL_HATEFUL_BOLT);
+                    events.Repeat(Seconds(7), Seconds(15));
+                    break;
+                case EVENT_ARCANE_INFUSION:
+                    DoCastSelf(SPELL_ARCANE_INFUSION, true);
+                    break;
+                case EVENT_SUMMON_ASTRAL_FLARE:
+                    if (roll_chance_i(50))
+                        Talk(SAY_SUMMON);
 
-                    if (AstralFlare && target)
-                    {
-                        AstralFlare->CastSpell(AstralFlare, SPELL_ASTRAL_FLARE_PASSIVE, false);
-                        AstralFlare->AI()->AttackStart(target);
-                    }
+                    DoCastSelf(RAND(SPELL_SUMMON_ASTRAL_FLARE_NE, SPELL_SUMMON_ASTRAL_FLARE_NW, SPELL_SUMMON_ASTRAL_FLARE_SE, SPELL_SUMMON_ASTRAL_FLARE_SW), true);
 
-                    //Reduce Mana by 10% of max health
-                    if (int32 mana = me->GetMaxPower(POWER_MANA))
+                    if (int32 mana = int32(me->GetMaxPower(POWER_MANA) / 10))
                     {
-                        mana /= 10;
                         me->ModifyPower(POWER_MANA, -mana);
 
-                        //if this get's us below 10%, then we evocate (the 10th should be summoned now)
-                        if (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA) < 10)
+                        if (me->GetPower(POWER_MANA) * 100 / me->GetMaxPower(POWER_MANA) < 10)
                         {
                             Talk(SAY_EVOCATE);
                             me->InterruptNonMeleeSpells(false);
-                            DoCast(me, SPELL_EVOCATION);
-                            Evocating = true;
-                            //no AddTimer cooldown, this will make first flare appear instantly after evocate end, like expected
-                            return;
-                        }
-                        else
-                        {
-                            if (urand(0, 1) == 0)
-                            {
-                                Talk(SAY_SUMMON);
-                            }
+                            DoCastSelf(SPELL_EVOCATION);
                         }
                     }
-
-                    AddTimer = 10000;
-                } else AddTimer -= diff;
-
-                if (!HealthAbovePct(15))
-                {
-                    Enraged = true;
-                    DoCast(me, SPELL_ENRAGE);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_BERSERK:
                     Talk(SAY_ENRAGE);
-                }
+                    DoCastSelf(SPELL_BERSERK, true);
+                    break;
+                default:
+                    break;
             }
-
-            if (HatefulBoltTimer <= diff)
-            {
-                if (Enraged)
-                    HatefulBoltTimer = 7000;
-                else
-                    HatefulBoltTimer = 15000;
-
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
-                    DoCast(target, SPELL_HATEFUL_BOLT);
-            } else HatefulBoltTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
+
+    private:
+        bool _infused;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_curatorAI>(creature);
+    }
 };
 
 void AddSC_boss_curator()
