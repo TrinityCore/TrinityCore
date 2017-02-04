@@ -462,7 +462,7 @@ enum CriteriaTypes
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
 };
 
-#define CRITERIA_TYPE_TOTAL 190
+#define CRITERIA_TYPE_TOTAL 205
 
 enum CriteriaTreeFlags : uint16
 {
