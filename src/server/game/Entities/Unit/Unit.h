@@ -826,14 +826,13 @@ enum MovementFlags
     MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
     MOVEMENTFLAG_DISABLE_COLLISION     = 0x20000000,
 
-    /// @todo Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
-        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING |
+        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING |
         MOVEMENTFLAG_SPLINE_ELEVATION,
 
     MOVEMENTFLAG_MASK_TURNING =
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN,
 
     MOVEMENTFLAG_MASK_MOVING_FLY =
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
@@ -2073,6 +2072,14 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveGameObject(uint32 spellid, bool del);
         void RemoveAllGameObjects();
 
+        // AreaTrigger management
+        void _RegisterAreaTrigger(AreaTrigger* areaTrigger);
+        void _UnregisterAreaTrigger(AreaTrigger* areaTrigger);
+        AreaTrigger* GetAreaTrigger(uint32 spellId) const;
+        std::vector<AreaTrigger*> GetAreaTriggers(uint32 spellId) const;
+        void RemoveAreaTrigger(uint32 spellId);
+        void RemoveAllAreaTriggers();
+
         void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
         bool HasAuraState(AuraStateType flag, SpellInfo const* spellProto = NULL, Unit const* Caster = NULL) const;
@@ -2308,6 +2315,9 @@ class TC_GAME_API Unit : public WorldObject
 
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;
+
+        typedef std::vector<AreaTrigger*> AreaTriggerList;
+        AreaTriggerList m_areaTrigger;
 
         uint32 m_transform;
 

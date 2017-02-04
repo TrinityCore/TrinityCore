@@ -22,6 +22,7 @@
 
 #include "World.h"
 #include "AchievementMgr.h"
+#include "AreaTriggerDataStore.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
@@ -33,6 +34,7 @@
 #include "CalendarMgr.h"
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterTemplateDataStore.h"
 #include "Chat.h"
 #include "Config.h"
 #include "CreatureAIRegistry.h"
@@ -1449,6 +1451,9 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_HOTSWAP_INSTALL_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnableInstall", true);
     m_bool_configs[CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED] = sConfigMgr->GetBoolDefault("HotSwap.EnablePrefixCorrection", true);
 
+    // prevent character rename on character customization
+    m_bool_configs[CONFIG_PREVENT_RENAME_CUSTOMIZATION] = sConfigMgr->GetBoolDefault("PreventRenameCharacterOnCustomization", false);
+
     // Check Invalid Position
     m_bool_configs[CONFIG_CREATURE_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("Creature.CheckInvalidPosition", false);
     m_bool_configs[CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("GameObject.CheckInvalidPosition", false);
@@ -1797,6 +1802,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Pet Name Parts...");
     sObjectMgr->LoadPetNames();
 
+    TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
+    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
 
@@ -2116,7 +2124,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadRaceAndClassExpansionRequirements();
 
     TC_LOG_INFO("server.loading", "Loading character templates...");
-    sObjectMgr->LoadCharacterTemplates();
+    sCharacterTemplateDataStore->LoadCharacterTemplates();
 
     TC_LOG_INFO("server.loading", "Loading realm names...");
     sObjectMgr->LoadRealmNames();
@@ -2181,7 +2189,6 @@ void World::LoadAutobroadcasts()
     uint32 oldMSTime = getMSTime();
 
     m_Autobroadcasts.clear();
-    m_AutobroadcastsWeights.clear();
 
     uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
@@ -2194,20 +2201,16 @@ void World::LoadAutobroadcasts()
         return;
     }
 
-    uint32 count = 0;
-
     do
     {
         Field* fields = result->Fetch();
         uint8 id = fields[0].GetUInt8();
 
-        m_Autobroadcasts[id] = fields[2].GetString();
-        m_AutobroadcastsWeights[id] = fields[1].GetUInt8();
+        m_Autobroadcasts[id] = { fields[2].GetString(), fields[1].GetUInt8() };
 
-        ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u autobroadcast definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " autobroadcast definitions in %u ms", m_Autobroadcasts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 /// Update the World !
@@ -3010,49 +3013,24 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
-    uint32 weight = 0;
-    AutobroadcastsWeightMap selectionWeights;
-    std::string msg;
-
-    for (AutobroadcastsWeightMap::const_iterator it = m_AutobroadcastsWeights.begin(); it != m_AutobroadcastsWeights.end(); ++it)
+    auto itr = Trinity::Containers::SelectRandomWeightedContainerElement(m_Autobroadcasts, [](AutobroadcastContainer::value_type const& pair)
     {
-        if (it->second)
-        {
-            weight += it->second;
-            selectionWeights[it->first] = it->second;
-        }
-    }
-
-    if (weight)
-    {
-        uint32 selectedWeight = urand(0, weight - 1);
-        weight = 0;
-        for (AutobroadcastsWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
-        {
-            weight += it->second;
-            if (selectedWeight < weight)
-            {
-                msg = m_Autobroadcasts[it->first];
-                break;
-            }
-        }
-    }
-    else
-        msg = m_Autobroadcasts[urand(0, m_Autobroadcasts.size())];
+        return pair.second.Weight;
+    });
 
     uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 
     if (abcenter == 0)
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+        sWorld->SendWorldText(LANG_AUTO_BROADCAST, itr->second.Message.c_str());
     else if (abcenter == 1)
-        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(msg).Write());
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(itr->second.Message).Write());
     else if (abcenter == 2)
     {
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(msg).Write());
+        sWorld->SendWorldText(LANG_AUTO_BROADCAST, itr->second.Message.c_str());
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(itr->second.Message).Write());
     }
 
-    TC_LOG_DEBUG("misc", "AutoBroadcast: '%s'", msg.c_str());
+    TC_LOG_DEBUG("misc", "AutoBroadcast: '%s'", itr->second.Message.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)

@@ -975,7 +975,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
         if (i->freeforall)
             continue;
 
-        item = sObjectMgr->GetItemTemplate(i->itemid);
+        item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
 
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))

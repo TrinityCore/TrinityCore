@@ -136,6 +136,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void JustRegisteredDynObject(DynamicObject* /*dynObject*/) { }
         virtual void JustUnregisteredDynObject(DynamicObject* /*dynObject*/) { }
 
+        // Called when the creature successfully registers an areatrigger
+        virtual void JustRegisteredAreaTrigger(AreaTrigger* /*areaTrigger*/) { }
+        virtual void JustUnregisteredAreaTrigger(AreaTrigger* /*areaTrigger*/) { }
+
         // Called when hit by a spell
         virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
 

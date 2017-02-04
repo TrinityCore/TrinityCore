@@ -959,9 +959,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
             }
 
-            instance->SetData(e.action.setInstanceData.field, e.action.setInstanceData.data);
-            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA: Field: %u, data: %u",
-                e.action.setInstanceData.field, e.action.setInstanceData.data);
+            switch (e.action.setInstanceData.type)
+            {
+                case 0:
+                    instance->SetData(e.action.setInstanceData.field, e.action.setInstanceData.data);
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA: SetData Field: %u, data: %u",
+                        e.action.setInstanceData.field, e.action.setInstanceData.data);
+                    break;
+                case 1:
+                    instance->SetBossState(e.action.setInstanceData.field, static_cast<EncounterState>(e.action.setInstanceData.data));
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_SET_INST_DATA: SetBossState BossId: %u, State: %u (%s)",
+                        e.action.setInstanceData.field, e.action.setInstanceData.data, InstanceScript::GetBossStateName(e.action.setInstanceData.data).c_str());
+                    break;
+                default: // Static analysis
+                    break;
+            }
             break;
         }
         case SMART_ACTION_SET_INST_DATA64:
