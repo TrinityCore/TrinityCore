@@ -443,7 +443,7 @@ public:
     struct boss_illidan_stormrageAI : public BossAI
     {
         boss_illidan_stormrageAI(Creature* creature) : BossAI(creature, DATA_ILLIDAN_STORMRAGE),
-            _intro(true), _minionsCount(0), _flameCount(0), _orientation(0.0f), _dbTargetIndex(0), _phase(0), _dead(false), _isDemon(false) { }
+            _intro(true), _minionsCount(0), _flameCount(0), _orientation(0.0f), _pillarIndex(0), _phase(0), _dead(false), _isDemon(false) { }
 
         void Reset() override
         {
@@ -641,10 +641,17 @@ public:
                     events.ScheduleEvent(EVENT_FACE_MIDDLE, Milliseconds(1), GROUP_PHASE_ALL);
                     break;
                 case POINT_RANDOM_PILLAR:
+                {
+                    float orientation = IllidanPhase2Positions[_pillarIndex].GetOrientation();
+                    ChangeOrientation(orientation);
                     ScheduleEvents(GROUP_PHASE_2, GROUP_PHASE_2);
                     break;
+                }
                 case POINT_ILLIDAN_MIDDLE:
                 {
+                    float orientation = IllidanMiddlePoint.GetOrientation();
+                    ChangeOrientation(orientation);
+
                     std::list<Creature*> triggers;
                     GetCreatureListWithEntryInGrid(triggers, me, NPC_BLADE_OF_AZZINOTH, 150.0f);
                     for (Creature* trigger : triggers)
@@ -852,7 +859,7 @@ public:
                     {
                         events.CancelEventGroup(GROUP_PHASE_2);
                         uint8 ranPos = urand(0, 3);
-                        _dbTargetIndex = ranPos;
+                        _pillarIndex = ranPos;
                         me->GetMotionMaster()->MovePoint(POINT_RANDOM_PILLAR, IllidanPhase2Positions[ranPos]);
                         events.Repeat(Seconds(30));
                         break;
@@ -866,12 +873,12 @@ public:
                     case EVENT_EYE_BLAST:
                     {
                         events.CancelEvent(EVENT_DARK_BARRAGE);
-                        Position pos = IllidanDBTargetSpawnPositions[_dbTargetIndex];
+                        Position pos = IllidanDBTargetSpawnPositions[_pillarIndex];
                         if (TempSummon* dbTarget = me->SummonCreature(NPC_ILLIDAN_DB_TARGET, pos, TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             Talk(SAY_ILLIDAN_EYE_BLAST);
                             DoCast(dbTarget, SPELL_EYE_BLAST);
-                            dbTarget->GetMotionMaster()->MovePoint(POINT_DB_TARGET, IllidanDBTargetPoints[_dbTargetIndex]);
+                            dbTarget->GetMotionMaster()->MovePoint(POINT_DB_TARGET, IllidanDBTargetPoints[_pillarIndex]);
                         }
                         break;
                     }
@@ -1004,7 +1011,7 @@ public:
         uint8 _minionsCount;
         uint8 _flameCount;
         float _orientation;
-        uint8 _dbTargetIndex;
+        uint8 _pillarIndex;
         uint8 _phase;
         bool _dead;
         bool _isDemon;
