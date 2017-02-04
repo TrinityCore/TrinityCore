@@ -133,7 +133,7 @@ class TC_GAME_API _SpellScript
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
         // Helpers
-        static bool ValidateSpellInfo(std::vector<uint32> spellIds);
+        static bool ValidateSpellInfo(std::vector<uint32> const& spellIds);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls

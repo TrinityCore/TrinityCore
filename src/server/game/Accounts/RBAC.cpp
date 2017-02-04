@@ -18,6 +18,7 @@
 #include "RBAC.h"
 #include "AccountMgr.h"
 #include "Log.h"
+#include "QueryCallback.h"
 
 namespace rbac
 {
@@ -182,7 +183,7 @@ void RBACData::LoadFromDB()
     LoadFromDBCallback(LoginDatabase.Query(stmt));
 }
 
-PreparedQueryResultFuture RBACData::LoadFromDBAsync()
+QueryCallback RBACData::LoadFromDBAsync()
 {
     ClearData();
 
