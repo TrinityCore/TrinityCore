@@ -735,6 +735,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE:
             case CRITERIA_TYPE_SEND_EVENT:
             case CRITERIA_TYPE_COOK_RECIPES_GUILD:
+            case CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS:
             case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
             case CRITERIA_TYPE_RELEASE_SPIRIT:
             case CRITERIA_TYPE_OWN_PET:
@@ -744,6 +745,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER:
             case CRITERIA_TYPE_BE_KICKED_FROM_LFG:
             case CRITERIA_TYPE_LFG_LEAVES:
+            case CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK:
             case CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET:
             case CRITERIA_TYPE_START_ORDER_HALL_MISSION:
             case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
