@@ -89,9 +89,9 @@ bool SpellImplicitTargetInfo::IsProximityBasedAoe() const
         case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
             return false;
 
-    default:
-        TC_LOG_WARN("spells", "SpellImplicitTargetInfo::IsProximityBasedAoe called a non-aoe spell");
-        break;
+        default:
+            TC_LOG_WARN("spells", "SpellImplicitTargetInfo::IsProximityBasedAoe called a non-aoe spell");
+            return false;
     }
 }
 
