@@ -7299,6 +7299,7 @@ void Player::SetInGuild(uint32 guildId)
 
     ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_GUILD_LEVEL_ENABLED, guildId != 0 && sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED));
     SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
+    sWorld->UpdateCharacterGuildId(GetGUID(), guildId);
 }
 
 ObjectGuid::LowType Player::GetGuildIdFromCharacterInfo(ObjectGuid guid)
@@ -27277,12 +27278,6 @@ std::string Player::GetCoordsMapAreaAndZoneString() const
     std::ostringstream str;
     str << Position::ToString() << " " << GetMapAreaAndZoneString();
     return str.str();
-}
-
-void Player::SetInGuild(uint32 guildId)
-{
-    SetUInt32Value(PLAYER_GUILDID, guildId);
-    sWorld->UpdateCharacterGuildId(GetGUID(), guildId);
 }
 
 Guild* Player::GetGuild()
