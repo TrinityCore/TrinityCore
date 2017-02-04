@@ -304,6 +304,10 @@ void Creature::RemoveCorpse(bool setSpawnTime)
     if (setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
 
+    // if corpse was removed during falling, the falling will continue and override relocation to respawn position
+    if (IsFalling())
+        StopMoving();
+
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
     SetHomePosition(x, y, z, o);
@@ -2831,8 +2835,8 @@ void Creature::SetObjectScale(float scale)
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
     {
-        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * scale);
-        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * scale);
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, (IsPet() ? 1.0f : minfo->bounding_radius) * scale);
+        SetFloatValue(UNIT_FIELD_COMBATREACH, (IsPet() ? DEFAULT_COMBAT_REACH : minfo->combat_reach) * scale);
     }
 }
 
@@ -2842,8 +2846,8 @@ void Creature::SetDisplayId(uint32 modelId)
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {
-        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * GetObjectScale());
-        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * GetObjectScale());
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, (IsPet() ? 1.0f : minfo->bounding_radius) * GetObjectScale());
+        SetFloatValue(UNIT_FIELD_COMBATREACH, (IsPet() ? DEFAULT_COMBAT_REACH : minfo->combat_reach) * GetObjectScale());
     }
 }
 
