@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Karazhan.h"
+#include "karazhan.h"
 
 enum CuratorSays
 {
