@@ -604,26 +604,6 @@ typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 typedef std::unordered_map<uint8, uint8> ExpansionRequirementContainer;
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
-struct CharcterTemplateClass
-{
-    CharcterTemplateClass(uint8 factionGroup, uint8 classID) :
-        FactionGroup(factionGroup), ClassID(classID) { }
-
-    uint8 FactionGroup;
-    uint8 ClassID;
-};
-
-struct CharacterTemplate
-{
-    uint32 TemplateSetId;
-    std::vector<CharcterTemplateClass> Classes;
-    std::string Name;
-    std::string Description;
-    uint8 Level;
-};
-
-typedef std::unordered_map<uint32, CharacterTemplate> CharacterTemplateContainer;
-
 struct SceneTemplate
 {
     uint32 SceneId;
@@ -1381,7 +1361,6 @@ class TC_GAME_API ObjectMgr
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
         void LoadRaceAndClassExpansionRequirements();
-        void LoadCharacterTemplates();
         void LoadRealmNames();
 
         std::string GetRealmName(uint32 realm) const;
@@ -1403,16 +1382,6 @@ class TC_GAME_API ObjectMgr
             if (itr != _classExpansionRequirementStore.end())
                 return itr->second;
             return EXPANSION_CLASSIC;
-        }
-
-        CharacterTemplateContainer const& GetCharacterTemplates() const { return _characterTemplateStore; }
-        CharacterTemplate const* GetCharacterTemplate(uint32 id) const
-        {
-            auto itr = _characterTemplateStore.find(id);
-            if (itr != _characterTemplateStore.end())
-                return &itr->second;
-
-            return nullptr;
         }
 
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
@@ -1576,7 +1545,6 @@ class TC_GAME_API ObjectMgr
         ExpansionRequirementContainer _classExpansionRequirementStore;
         RealmNameContainer _realmNameStore;
 
-        CharacterTemplateContainer _characterTemplateStore;
         SceneTemplateContainer _sceneTemplateStore;
 
         enum CreatureLinkedRespawnType

@@ -58,6 +58,7 @@ TC_GAME_API extern DB2Storage<CreatureTypeEntry>                    sCreatureTyp
 TC_GAME_API extern DB2Storage<CriteriaEntry>                        sCriteriaStore;
 TC_GAME_API extern DB2Storage<CriteriaTreeEntry>                    sCriteriaTreeStore;
 TC_GAME_API extern DB2Storage<CurrencyTypesEntry>                   sCurrencyTypesStore;
+TC_GAME_API extern DB2Storage<CurveEntry>                           sCurveStore;
 TC_GAME_API extern DB2Storage<DestructibleModelDataEntry>           sDestructibleModelDataStore;
 TC_GAME_API extern DB2Storage<DifficultyEntry>                      sDifficultyStore;
 TC_GAME_API extern DB2Storage<DungeonEncounterEntry>                sDungeonEncounterStore;
