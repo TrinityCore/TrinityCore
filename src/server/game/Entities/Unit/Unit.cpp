@@ -5794,6 +5794,10 @@ void Unit::CombatStop(bool includingCast)
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
     ClearInCombat();
+
+    // just in case
+    if (IsPetInCombat() && GetTypeId() != TYPEID_PLAYER)
+        ClearInPetCombat();
 }
 
 void Unit::CombatStopWithPets(bool includingCast)
@@ -8554,10 +8558,12 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             Dismount();
     }
 
-    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
     {
-        (*itr)->SetInCombatState(PvP, enemy);
-        (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+        Unit* controlled = *itr;
+        ++itr;
+
+        controlled->SetInCombatState(PvP, enemy);
     }
 }
 
@@ -8596,8 +8602,14 @@ void Unit::ClearInCombat()
     else
         ToPlayer()->UpdatePotionCooldown();
 
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
+}
+
+void Unit::ClearInPetCombat()
+{
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+    if (Unit* owner = GetOwner())
+        owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const
