@@ -365,6 +365,7 @@ LootItem::LootItem(LootStoreItem const& li)
     is_blocked = 0;
     is_underthreshold = 0;
     is_counted = 0;
+    rollWinnerGUID = ObjectGuid::Empty;
     canSave = true;
 }
 
@@ -921,6 +922,13 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             default:
                                 continue;
                         }
+                    }
+                    else if (!l.items[i].rollWinnerGUID.IsEmpty())
+                    {
+                        if (l.items[i].rollWinnerGUID == lv.viewer->GetGUID())
+                            slot_type = LOOT_SLOT_TYPE_OWNER;
+                        else
+                            continue;
                     }
                     else if (l.roundRobinPlayer.IsEmpty() || lv.viewer->GetGUID() == l.roundRobinPlayer || !l.items[i].is_underthreshold)
                     {

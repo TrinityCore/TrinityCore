@@ -1422,6 +1422,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                     else
                     {
                         item->is_blocked = false;
+                        item->rollWinnerGUID = player->GetGUID();
                         player->SendEquipError(msg, NULL, NULL, roll->itemid);
                     }
                 }
@@ -1488,6 +1489,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         else
                         {
                             item->is_blocked = false;
+                            item->rollWinnerGUID = player->GetGUID();
                             player->SendEquipError(msg, NULL, NULL, roll->itemid);
                         }
                     }
