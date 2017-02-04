@@ -685,7 +685,6 @@ class TC_GAME_API WorldSession
         void HandleGuildRenameRequest(WorldPacket& recvPacket);
         void HandleGuildChallengeRequest(WorldPacket& recvPacket);
         void SendGuildCancelInvite(std::string unkString, uint8 unkByte);
-        void HandleGuildRenameCallback(std::string newName);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
         void HandleGuildSwitchRankOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);

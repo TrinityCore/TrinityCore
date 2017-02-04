@@ -24,6 +24,7 @@
 #include "GuildMgr.h"
 #include "Log.h"
 #include "Guild.h"
+#include "QueryCallback.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
@@ -991,12 +992,10 @@ void WorldSession::HandleGuildRenameRequest(WorldPacket& recvPacket)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
 
-        _guildRenameCallback.SetParam(newName);
-
         stmt->setUInt32(1, pGuild->GetId());
         stmt->setString(0, newName);
 
-        _guildRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+        _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleGuildRenameCallback, this, newName, std::placeholders::_1)));
 
         WorldPacket data(SMSG_GUILD_FLAGGED_FOR_RENAME,1);
 
@@ -1007,12 +1006,11 @@ void WorldSession::HandleGuildRenameRequest(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleGuildRenameCallback(std::string newName)
+void WorldSession::HandleGuildRenameCallback(std::string newName, PreparedQueryResult result)
 {
-/*
     Guild* pGuild = GetPlayer()->GetGuild();
 
-    bool hasRenamed = ((PreparedQueryResult)_guildRenameCallback.GetFutureResult)->GetRowCount() > 0 ? true : false;
+    bool hasRenamed = (result && result->GetRowCount() > 0);
 
     WorldPacket data(SMSG_GUILD_CHANGE_NAME_RESULT, 1);
     data.WriteBit(hasRenamed);
@@ -1023,7 +1021,7 @@ void WorldSession::HandleGuildRenameCallback(std::string newName)
     if(pGuild && hasRenamed)
         pGuild->SetName(newName);
 }
-
+/*
 void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
 {
     uint8 counter = 4;
@@ -1077,5 +1075,5 @@ void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
         }
         return;
     }
-*/
 }
+*/
