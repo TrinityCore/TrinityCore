@@ -171,20 +171,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     HalionGUID = ObjectGuid::Empty;
             }
 
-            void OnUnitDeath(Unit* unit) override
-            {
-                Creature* creature = unit->ToCreature();
-                if (!creature)
-                    return;
-
-                if (creature->GetEntry() == NPC_GENERAL_ZARITHRIAN && GetBossState(DATA_HALION) != DONE)
-                {
-                    instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
-                    if (Creature* halionController = instance->GetCreature(GetGuidData(DATA_HALION_CONTROLLER)))
-                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
-                }
-            }
-
             ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
@@ -259,6 +245,10 @@ class instance_ruby_sanctum : public InstanceMapScript
                     {
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
+
+                        if (state == DONE && GetBossState(DATA_HALION) != DONE)
+                            if (Creature* halionController = instance->GetCreature(GetGuidData(DATA_HALION_CONTROLLER)))
+                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
                         break;
                     }
                     case DATA_HALION:
