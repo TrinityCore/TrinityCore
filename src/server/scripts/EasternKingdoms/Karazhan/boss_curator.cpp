@@ -97,12 +97,6 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon) override
-        {
-            summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            BossAI::JustSummoned(summon);
-        }
-
         void ExecuteEvent(uint32 eventId) override
         {
             switch (eventId)
@@ -153,7 +147,45 @@ public:
     }
 };
 
+class npc_curator_astral_flare : public CreatureScript
+{
+public:
+    npc_curator_astral_flare() : CreatureScript("npc_curator_astral_flare") { }
+
+    struct npc_curator_astral_flareAI : public ScriptedAI
+    {
+        npc_curator_astral_flareAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void Reset() override
+        {
+            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            {
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                DoZoneInCombat();
+            });
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<npc_curator_astral_flareAI>(creature);
+    }
+};
+
 void AddSC_boss_curator()
 {
     new boss_curator();
+    new npc_curator_astral_flare();
 }

@@ -1,6 +1,5 @@
 UPDATE `creature` SET `position_x`=-11187.9, `position_y`=-1883.373, `position_z`=156.0449, `orientation`=5.375582, `spawndist`=0 WHERE `guid`=135489;
-UPDATE `creature_template` SET `flags_extra`=256 WHERE `entry` IN (19781,19782,19783);
-UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=17096;
+UPDATE `creature_template` SET `unit_flags`=33554432, `flags_extra`=256, `ScriptName`='npc_curator_astral_flare' WHERE `entry` IN (17096,19781,19782,19783);
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (17096,19781,19782,19783);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
