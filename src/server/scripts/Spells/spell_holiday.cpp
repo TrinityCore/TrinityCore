@@ -1283,6 +1283,70 @@ class spell_midsummer_braziers_hit : public SpellScriptLoader
         }
 };
 
+enum RibbonPoleData
+{
+    SPELL_HAS_FULL_MIDSUMMER_SET        = 58933,
+    SPELL_BURNING_HOT_POLE_DANCE        = 58934,
+    SPELL_RIBBON_DANCE                  = 29175,
+    GO_RIBBON_POLE                      = 181605,
+};
+
+class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+
+        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET)
+                    || !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                // check if aura needs to be removed
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    target->InterruptNonMeleeSpells(false);
+                    target->RemoveAurasDueToSpell(GetId());
+                    return;
+                }
+
+                // set xp buff duration
+                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+                {
+                    aur->SetMaxDuration(std::min(3600000, aur->GetMaxDuration() + 180000));
+                    aur->RefreshDuration();
+
+                    // reward achievement criteria
+                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
+                }
+                else
+                    target->AddAura(SPELL_RIBBON_DANCE, target);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1321,4 +1385,5 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
     new spell_midsummer_braziers_hit();
+    new spell_gen_ribbon_pole_dancer_check();
 }

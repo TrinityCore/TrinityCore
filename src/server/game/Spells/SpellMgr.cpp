@@ -3170,6 +3170,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 198300: // Gathering Storms
                 spellInfo->ProcCharges = 1; // override proc charges, has 0 (unlimited) in db2
                 break;
+            case 42490: // Energized!
+            case 42492: // Cast Energized
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)
