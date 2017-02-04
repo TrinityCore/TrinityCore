@@ -1632,7 +1632,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
+        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 /*Soul Shard*/&& newitemid != 6948 /*Hearthstone*/)
             pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
 
         // send info to the client
@@ -1814,52 +1814,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
-
-    // Mad Alchemist's Potion
-    if (m_spellInfo->Id == 45051)
-    {
-        // find elixirs on target
-        bool guardianFound = false;
-        bool battleFound = false;
-        Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-        for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
-        {
-            uint32 spell_id = itr->second->GetBase()->GetId();
-            if (!guardianFound)
-                if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_GUARDIAN))
-                    guardianFound = true;
-            if (!battleFound)
-                if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_BATTLE))
-                    battleFound = true;
-            if (battleFound && guardianFound)
-                break;
-        }
-
-        // get all available elixirs by mask and spell level
-        std::set<uint32> avalibleElixirs;
-        if (!guardianFound)
-            sSpellMgr->GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_GUARDIAN, avalibleElixirs);
-        if (!battleFound)
-            sSpellMgr->GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_BATTLE, avalibleElixirs);
-        for (std::set<uint32>::iterator itr = avalibleElixirs.begin(); itr != avalibleElixirs.end();)
-        {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(*itr);
-            if (spellInfo->SpellLevel < m_spellInfo->SpellLevel || spellInfo->SpellLevel > unitTarget->getLevel())
-                avalibleElixirs.erase(itr++);
-            else if (sSpellMgr->IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_SHATTRATH))
-                avalibleElixirs.erase(itr++);
-            else if (sSpellMgr->IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_UNSTABLE))
-                avalibleElixirs.erase(itr++);
-            else
-                ++itr;
-        }
-
-        if (!avalibleElixirs.empty())
-        {
-            // cast random elixir on target
-            m_caster->CastSpell(unitTarget, Trinity::Containers::SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
-        }
-    }
 }
 
 void Spell::EffectEnergizePct(SpellEffIndex effIndex)
@@ -4080,7 +4034,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     Player* target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID().GetCounter()))
+    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID()))
         return;
 
     // Players can only fight a duel in zones with this flag
@@ -4179,16 +4133,32 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (player->IsInFlight())
         return;
 
-    player->TeleportTo(player->GetStartPosition(), TELE_TO_SPELL);
-    // homebind location is loaded always
-    // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
+    // if player is dead - teleport to graveyard
+    if (!player->IsAlive())
+    {
+        if (player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+            return;
 
-    // Stuck spell trigger Hearthstone cooldown
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
-    if (!spellInfo)
+        // player is in corpse
+        if (!player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            player->BuildPlayerRepop();
+        player->RepopAtGraveyard();
         return;
-    Spell spell(player, spellInfo, TRIGGERED_FULL_MASK);
-    spell.SendSpellCooldown();
+    }
+
+    // no hearthstone in bag or on cooldown
+    Item* hearthStone = player->GetItemByEntry(6948 /*Hearthstone*/);
+    if (!hearthStone || player->GetSpellHistory()->HasCooldown(8690 /*Spell Hearthstone*/))
+    {
+        float o = rand_norm() * 2 * M_PI;
+        Position pos = *player;
+        player->MovePositionToFirstCollision(pos, 5.0f, o);
+        player->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), player->GetOrientation());
+        return;
+    }
+
+    // we have hearthstone not on cooldown, just use it
+    player->CastSpell(player, 8690, TriggerCastFlags(TRIGGERED_FULL_MASK&~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
