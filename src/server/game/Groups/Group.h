@@ -391,9 +391,9 @@ class TC_GAME_API Group
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
-        void CountTheRoll(Rolls::iterator roll);
+        void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
         void CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint8 lootListId, uint8 choice);
-        void EndRoll(Loot* loot);
+        void EndRoll(Loot* loot, Map* allowedMap);
 
         // related to disenchant rolls
         void ResetMaxEnchantingLevel();
