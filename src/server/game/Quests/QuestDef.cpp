@@ -28,6 +28,7 @@ Quest::Quest(Field* questRecord)
     _reqCreatureOrGOcount = 0;
     _rewItemsCount = 0;
     _rewChoiceItemsCount = 0;
+    _eventIdForQuest = 0;
 
     Id = questRecord[0].GetUInt32();
     Method = questRecord[1].GetUInt8();

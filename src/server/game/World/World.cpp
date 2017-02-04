@@ -39,6 +39,7 @@
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
+#include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -52,7 +53,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "GitRevision.h"
+#include "QueryCallback.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
@@ -68,6 +69,7 @@
 #include "WeatherMgr.h"
 #include "WorldSession.h"
 #include "M2Stores.h"
+#include "WhoListStorage.h"
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1471,6 +1473,10 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
+    // Load before guilds and arena teams
+    TC_LOG_INFO("server.loading", "Loading character info store...");
+    LoadCharacterInfoStore();
+
     TC_LOG_INFO("server.loading", "Loading Broadcast texts...");
     sObjectMgr->LoadBroadcastTexts();
     sObjectMgr->LoadBroadcastTextLocales();
@@ -1873,6 +1879,8 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
+    m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
+
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -1952,8 +1960,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
-
-    LoadCharacterInfoStore();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2104,6 +2110,13 @@ void World::Update(uint32 diff)
             m_timers[i].Update(diff);
         else
             m_timers[i].SetCurrent(0);
+    }
+
+    ///- Update Who List Storage
+    if (m_timers[WUPDATE_WHO_LIST].Passed())
+    {
+        m_timers[WUPDATE_WHO_LIST].Reset();
+        sWhoListStorageMgr->Update();
     }
 
     ///- Update the game time and check for shutdown time
@@ -2614,25 +2627,22 @@ bool World::RemoveBanAccount(BanMode mode, std::string const& nameOrIP)
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
 BanReturn World::BanCharacter(std::string const& name, std::string const& duration, std::string const& reason, std::string const& author)
 {
-    Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
+    Player* banned = ObjectAccessor::FindConnectedPlayerByName(name);
     ObjectGuid::LowType guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
 
     /// Pick a player to ban if not online
-    if (!pBanned)
+    if (!banned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-        stmt->setString(0, name);
-        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
-
-        if (!resultCharacter)
+        ObjectGuid fullGuid = sWorld->GetCharacterGuidByName(name);
+        if (fullGuid.IsEmpty())
             return BAN_NOTFOUND;                                    // Nobody to ban
 
-        guid = (*resultCharacter)[0].GetUInt32();
+        guid = fullGuid.GetCounter();
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
+        guid = banned->GetGUID().GetCounter();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
@@ -2646,8 +2656,8 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
     stmt->setString(3, reason);
     CharacterDatabase.Execute(stmt);
 
-    if (pBanned)
-        pBanned->GetSession()->KickPlayer();
+    if (banned)
+        banned->GetSession()->KickPlayer();
 
     return BAN_SUCCESS;
 }
@@ -2655,23 +2665,20 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
 /// Remove a ban from a character
 bool World::RemoveBanCharacter(std::string const& name)
 {
-    Player* pBanned = ObjectAccessor::FindConnectedPlayerByName(name);
+    Player* banned = ObjectAccessor::FindConnectedPlayerByName(name);
     ObjectGuid::LowType guid = 0;
 
     /// Pick a player to ban if not online
-    if (!pBanned)
+    if (!banned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-        stmt->setString(0, name);
-        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
-
-        if (!resultCharacter)
+        ObjectGuid fullGuid = sWorld->GetCharacterGuidByName(name);
+        if (fullGuid.IsEmpty())
             return false;
 
-        guid = (*resultCharacter)[0].GetUInt32();
+        guid = fullGuid.GetCounter();
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
+        guid = banned->GetGUID().GetCounter();
 
     if (!guid)
         return false;
@@ -2909,7 +2916,7 @@ void World::UpdateRealmCharCount(uint32 accountId)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
-    m_realmCharCallbacks.push_back(CharacterDatabase.AsyncQuery(stmt));
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&World::_UpdateRealmCharCount, this, std::placeholders::_1)));
 }
 
 void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
@@ -3271,20 +3278,7 @@ uint64 World::getWorldState(uint32 index) const
 
 void World::ProcessQueryCallbacks()
 {
-    PreparedQueryResult result;
-
-    for (std::deque<std::future<PreparedQueryResult>>::iterator itr = m_realmCharCallbacks.begin(); itr != m_realmCharCallbacks.end(); )
-    {
-        if ((*itr).wait_for(std::chrono::seconds(0)) != std::future_status::ready)
-        {
-            ++itr;
-            continue;
-        }
-
-        result = (*itr).get();
-        _UpdateRealmCharCount(result);
-        itr = m_realmCharCallbacks.erase(itr);
-    }
+    _queryProcessor.ProcessReadyQueries();
 }
 
 CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
@@ -3294,6 +3288,15 @@ CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
         return &itr->second;
 
     return nullptr;
+}
+
+ObjectGuid World::GetCharacterGuidByName(std::string const& name) const
+{
+    auto itr = _characterGuidByNameStore.find(name);
+    if (itr != _characterGuidByNameStore.end())
+        return itr->second;
+
+    return ObjectGuid::Empty;
 }
 
 /**
@@ -3319,8 +3322,6 @@ CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
 
 void World::LoadCharacterInfoStore()
 {
-    TC_LOG_INFO("server.loading", "Loading character info store");
-
     _characterInfoStore.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
@@ -3349,6 +3350,18 @@ void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::stri
     data.Sex = gender;
     data.Class = playerClass;
     data.Level = level;
+    data.GuildId = 0;                           // Will be set in guild loading or guild setting
+    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
+        data.ArenaTeamId[i] = 0;                // Will be set in arena teams loading
+
+    // Fill Name to Guid Store
+    _characterGuidByNameStore[name] = guid;
+}
+
+void World::DeleteCharacterInfo(ObjectGuid const& guid, std::string const& name)
+{
+    _characterInfoStore.erase(guid);
+    _characterGuidByNameStore.erase(name);
 }
 
 void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
@@ -3386,6 +3399,30 @@ void World::UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId)
         return;
 
     itr->second.AccountId = accountId;
+}
+
+void World::UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId)
+{
+    auto itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.GuildId = guildId;
+}
+
+void World::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 slot, uint32 arenaTeamId)
+{
+    auto itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.ArenaTeamId[slot] = arenaTeamId;
+}
+
+void World::UpdateCharacterGuidByName(ObjectGuid const& guid, std::string const& oldName, std::string const& newName)
+{
+    _characterGuidByNameStore.erase(oldName);
+    _characterGuidByNameStore[newName] = guid;
 }
 
 void World::ReloadRBAC()
