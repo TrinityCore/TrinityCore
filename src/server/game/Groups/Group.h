@@ -210,7 +210,7 @@ class TC_GAME_API Group
         void   SetGroupMarkerMask(uint32 mask) { m_markerMask = mask; }
         void   AddGroupMarkerMask(uint32 mask) { m_markerMask |= mask; }
         void   RemoveGroupMarkerMask(uint32 mask) { if (mask == 0x20) m_markerMask = 0x20; m_markerMask &= ~mask; }
-        uint32 HasMarker(uint32 mask) { return m_markerMask & mask; }
+        bool   HasMarker(uint32 mask) { return (m_markerMask & mask) != 0; }
         uint32 GetMarkerMask() { return m_markerMask; }
 
         DynamicObject* GetMarkerGuidBySpell(uint32 spell);
