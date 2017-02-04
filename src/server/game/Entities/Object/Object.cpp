@@ -1116,33 +1116,23 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
 bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius) const
 {
     float sizefactor = 0;
-    sizefactor += incOwnRadius ? GetObjectSize() : 0;
-    sizefactor += incTargetRadius ? obj->GetObjectSize() : 0;
+    sizefactor += incOwnRadius ? GetObjectSize() : 0.0f;
+    sizefactor += incTargetRadius ? obj->GetObjectSize() : 0.0f;
     float maxdist = dist2compare + sizefactor;
+
+    const Position* a = this;
+    const Position* b = obj;
 
     if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
     {
-        float dtx = m_movementInfo.transport.pos.m_positionX - obj->m_movementInfo.transport.pos.m_positionX;
-        float dty = m_movementInfo.transport.pos.m_positionY - obj->m_movementInfo.transport.pos.m_positionY;
-        float disttsq = dtx * dtx + dty * dty;
-        if (is3D)
-        {
-            float dtz = m_movementInfo.transport.pos.m_positionZ - obj->m_movementInfo.transport.pos.m_positionZ;
-            disttsq += dtz * dtz;
-        }
-        return disttsq < (maxdist * maxdist);
+        a = &m_movementInfo.transport.pos;
+        b = &obj->m_movementInfo.transport.pos;
     }
 
-    float dx = GetPositionX() - obj->GetPositionX();
-    float dy = GetPositionY() - obj->GetPositionY();
-    float distsq = dx*dx + dy*dy;
     if (is3D)
-    {
-        float dz = GetPositionZ() - obj->GetPositionZ();
-        distsq += dz*dz;
-    }
-
-    return distsq < maxdist * maxdist;
+        return a->IsInDist(b, maxdist);
+    else
+        return a->IsInDist2d(b, maxdist);
 }
 
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj, VMAP::ModelIgnoreFlags ignoreFlags) const
