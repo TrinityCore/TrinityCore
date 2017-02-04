@@ -2831,7 +2831,8 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                     {
                         for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                             if (Player* member = groupRef->GetSource())
-                                l->push_back(member);
+                                if (member->IsInMap(player))
+                                    l->push_back(member);
                     }
                     // We still add the player to the list if there is no group. If we do
                     // this even if there is a group (thus the else-check), it will add the
@@ -3048,7 +3049,8 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 {
                     for (GroupReference* it = lootGroup->GetFirstMember(); it != nullptr; it = it->next())
                         if (Player* recipient = it->GetSource())
-                            l->push_back(recipient);
+                            if (recipient->IsInMap(me))
+                                l->push_back(recipient);
                 }
                 else
                 {

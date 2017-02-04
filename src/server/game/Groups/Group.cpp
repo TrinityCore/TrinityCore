@@ -617,7 +617,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
             if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
             {
-                CountTheRoll(it);
+                CountTheRoll(it, nullptr);
                 it = RollId.begin();
             }
         }
@@ -1199,17 +1199,17 @@ void Group::CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint
     }
 
     if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
-        CountTheRoll(rollI);
+        CountTheRoll(rollI, nullptr);
 }
 
 //called when roll timer expires
-void Group::EndRoll(Loot* pLoot)
+void Group::EndRoll(Loot* pLoot, Map* allowedMap)
 {
     for (Rolls::iterator itr = RollId.begin(); itr != RollId.end();)
     {
         if ((*itr)->getLoot() == pLoot)
         {
-            CountTheRoll(itr);           //i don't have to edit player votes, who didn't vote ... he will pass
+            CountTheRoll(itr, allowedMap);           //i don't have to edit player votes, who didn't vote ... he will pass
             itr = RollId.begin();
         }
         else
@@ -1217,7 +1217,7 @@ void Group::EndRoll(Loot* pLoot)
     }
 }
 
-void Group::CountTheRoll(Rolls::iterator rollI)
+void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
 {
     Roll* roll = *rollI;
     if (!roll->isValid())                                   // is loot already deleted ?
@@ -1233,13 +1233,20 @@ void Group::CountTheRoll(Rolls::iterator rollI)
         if (!roll->playerVote.empty())
         {
             uint8 maxresul = 0;
-            ObjectGuid maxguid = (*roll->playerVote.begin()).first;
-            Player* player;
+            ObjectGuid maxguid = ObjectGuid::Empty;
+            Player* player = nullptr;
 
             for (Roll::PlayerVote::const_iterator itr=roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
             {
                 if (itr->second != NEED)
                     continue;
+
+                player = ObjectAccessor::FindPlayer(itr->first);
+                if (!player || (allowedMap != nullptr && player->FindMap() != allowedMap))
+                {
+                    --roll->totalNeed;
+                    continue;
+                }
 
                 uint8 randomN = urand(1, 100);
                 SendLootRoll(itr->first, randomN, ROLL_NEED, *roll);
@@ -1249,68 +1256,18 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     maxresul = randomN;
                 }
             }
-            SendLootRollWon(maxguid, maxresul, ROLL_NEED, *roll);
-            player = ObjectAccessor::FindConnectedPlayer(maxguid);
 
-            if (player && player->GetSession())
+            if (!maxguid.IsEmpty())
             {
-                player->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
+                SendLootRollWon(maxguid, maxresul, ROLL_NEED, *roll);
+                player = ObjectAccessor::FindConnectedPlayer(maxguid);
 
-                ItemPosCountVec dest;
-                LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
-                if (msg == EQUIP_ERR_OK)
+                if (player && player->GetSession())
                 {
-                    item->is_looted = true;
-                    roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
-                    roll->getLoot()->unlootedCount--;
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
-                }
-                else
-                {
-                    item->is_blocked = false;
-                    item->rollWinnerGUID = player->GetGUID();
-                    player->SendEquipError(msg, nullptr, nullptr, roll->itemid);
-                }
-            }
-        }
-    }
-    else if (roll->totalGreed > 0)
-    {
-        if (!roll->playerVote.empty())
-        {
-            uint8 maxresul = 0;
-            ObjectGuid maxguid = (*roll->playerVote.begin()).first;
-            Player* player;
-            RollVote rollvote = NOT_VALID;
+                    player->UpdateCriteria(CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
 
-            Roll::PlayerVote::iterator itr;
-            for (itr = roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
-            {
-                if (itr->second != GREED && itr->second != DISENCHANT)
-                    continue;
-
-                uint8 randomN = urand(1, 100);
-                SendLootRoll(itr->first, randomN, itr->second, *roll);
-                if (maxresul < randomN)
-                {
-                    maxguid  = itr->first;
-                    maxresul = randomN;
-                    rollvote = itr->second;
-                }
-            }
-            SendLootRollWon(maxguid, maxresul, rollvote, *roll);
-            player = ObjectAccessor::FindConnectedPlayer(maxguid);
-
-            if (player && player->GetSession())
-            {
-                player->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
-
-                LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
-
-                if (rollvote == GREED)
-                {
                     ItemPosCountVec dest;
+                    LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
                     if (msg == EQUIP_ERR_OK)
                     {
@@ -1326,37 +1283,108 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         player->SendEquipError(msg, nullptr, nullptr, roll->itemid);
                     }
                 }
-                else if (rollvote == DISENCHANT)
+            }
+            else
+                roll->totalNeed = 0;
+        }
+    }
+
+    if (roll->totalNeed == 0 && roll->totalGreed > 0) // if (roll->totalNeed == 0 && ...), not else if, because numbers can be modified above if player is on a different map
+    {
+        if (!roll->playerVote.empty())
+        {
+            uint8 maxresul = 0;
+            ObjectGuid maxguid = ObjectGuid::Empty;
+            Player* player = nullptr;
+            RollVote rollvote = NOT_VALID;
+
+            Roll::PlayerVote::iterator itr;
+            for (itr = roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
+            {
+                if (itr->second != GREED && itr->second != DISENCHANT)
+                    continue;
+
+                player = ObjectAccessor::FindPlayer(itr->first);
+                if (!player || (allowedMap != NULL && player->FindMap() != allowedMap))
                 {
-                    item->is_looted = true;
-                    roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
-                    roll->getLoot()->unlootedCount--;
-                    player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+                    --roll->totalGreed;
+                    continue;
+                }
 
-                    ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
+                uint8 randomN = urand(1, 100);
+                SendLootRoll(itr->first, randomN, itr->second, *roll);
+                if (maxresul < randomN)
+                {
+                    maxguid  = itr->first;
+                    maxresul = randomN;
+                    rollvote = itr->second;
+                }
+            }
 
-                    ItemPosCountVec dest;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
-                    if (msg == EQUIP_ERR_OK)
-                        player->AutoStoreLoot(disenchant->ID, LootTemplates_Disenchant, true);
-                    else // If the player's inventory is full, send the disenchant result in a mail.
+            if (!maxguid.IsEmpty())
+            {
+                SendLootRollWon(maxguid, maxresul, rollvote, *roll);
+                player = ObjectAccessor::FindConnectedPlayer(maxguid);
+
+                if (player && player->GetSession())
+                {
+                    player->UpdateCriteria(CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
+
+                    LootItem* item = &(roll->itemSlot >= roll->getLoot()->items.size() ? roll->getLoot()->quest_items[roll->itemSlot - roll->getLoot()->items.size()] : roll->getLoot()->items[roll->itemSlot]);
+
+                    if (rollvote == GREED)
                     {
-                        Loot loot;
-                        loot.FillLoot(disenchant->ID, LootTemplates_Disenchant, player, true);
-
-                        uint32 max_slot = loot.GetMaxSlotInLootFor(player);
-                        for (uint32 i = 0; i < max_slot; ++i)
+                        ItemPosCountVec dest;
+                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                        if (msg == EQUIP_ERR_OK)
                         {
-                            LootItem* lootItem = loot.LootItemInSlot(i, player);
-                            player->SendEquipError(msg, nullptr, nullptr, lootItem->itemid);
-                            player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
+                            item->is_looted = true;
+                            roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
+                            roll->getLoot()->unlootedCount--;
+                            player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+                        }
+                        else
+                        {
+                            item->is_blocked = false;
+                            item->rollWinnerGUID = player->GetGUID();
+                            player->SendEquipError(msg, nullptr, nullptr, roll->itemid);
+                        }
+                    }
+                    else if (rollvote == DISENCHANT)
+                    {
+                        item->is_looted = true;
+                        roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
+                        roll->getLoot()->unlootedCount--;
+                        player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
+
+                        ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
+
+                        ItemPosCountVec dest;
+                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                        if (msg == EQUIP_ERR_OK)
+                            player->AutoStoreLoot(disenchant->ID, LootTemplates_Disenchant, true);
+                        else // If the player's inventory is full, send the disenchant result in a mail.
+                        {
+                            Loot loot;
+                            loot.FillLoot(disenchant->ID, LootTemplates_Disenchant, player, true);
+
+                            uint32 max_slot = loot.GetMaxSlotInLootFor(player);
+                            for (uint32 i = 0; i < max_slot; ++i)
+                            {
+                                LootItem* lootItem = loot.LootItemInSlot(i, player);
+                                player->SendEquipError(msg, nullptr, nullptr, lootItem->itemid);
+                                player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
+                            }
                         }
                     }
                 }
             }
+            else
+                roll->totalGreed = 0;
         }
     }
-    else
+
+    if (roll->totalNeed == 0 && roll->totalGreed == 0) // if, not else, because numbers can be modified above if player is on a different map
     {
         SendLootAllPassed(*roll);
 
