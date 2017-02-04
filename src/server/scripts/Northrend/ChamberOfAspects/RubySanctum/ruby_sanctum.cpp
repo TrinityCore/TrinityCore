@@ -163,10 +163,10 @@ class at_baltharus_plateau : public AreaTriggerScript
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = instance->GetCreature(DATA_XERESTRASZA))
                     xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
                     baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 

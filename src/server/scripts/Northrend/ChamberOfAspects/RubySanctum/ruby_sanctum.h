@@ -49,7 +49,8 @@ enum RSDataTypes
     DATA_BURNING_TREE_4                     = 16,
     DATA_FLAME_RING                         = 17,
     DATA_TWILIGHT_FLAME_RING                = 18,
-    DATA_BALTHARUS_CLONE                    = 19
+    DATA_BALTHARUS_CLONE                    = 19,
+    DATA_FLAME_WALLS                        = 20
 };
 
 enum RSSharedActions

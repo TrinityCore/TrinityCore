@@ -201,7 +201,7 @@ class npc_onyx_flamecaller : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
-                if (Creature* zarithrian = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GENERAL_ZARITHRIAN)))
+                if (Creature* zarithrian = _instance->GetCreature(DATA_GENERAL_ZARITHRIAN))
                     zarithrian->AI()->JustSummoned(me);
             }
 
