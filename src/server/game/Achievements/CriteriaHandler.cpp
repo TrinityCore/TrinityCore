@@ -2237,6 +2237,9 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 scenarioCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
+        ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
+
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())
             continue;
