@@ -583,7 +583,7 @@ class spell_pri_imp_shadowform : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (roll_chance_i(aurEff->GetAmount()))
-                    eventInfo.GetActor()->RemoveMovementImpairingAuras();
+                    eventInfo.GetActor()->RemoveMovementImpairingAuras(true);
             }
 
             void Register() override
