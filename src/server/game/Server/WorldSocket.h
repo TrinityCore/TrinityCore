@@ -65,7 +65,7 @@ public:
     void Start() override;
     bool Update() override;
 
-    void SendPacket(WorldPacket& packet);
+    void SendPacket(WorldPacket const& packet);
 
 protected:
     void OnClose() override;

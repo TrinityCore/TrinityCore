@@ -470,7 +470,7 @@ void WorldSocket::SendPacketAndLogOpcode(WorldPacket& packet)
     SendPacket(packet);
 }
 
-void WorldSocket::SendPacket(WorldPacket& packet)
+void WorldSocket::SendPacket(WorldPacket const& packet)
 {
     if (!IsOpen())
         return;
