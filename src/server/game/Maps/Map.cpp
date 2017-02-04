@@ -95,7 +95,7 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
         if (fread(&header, sizeof(header), 1, file) == 1)
         {
             if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic.asUInt != MapVersionMagic.asUInt)
-                TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please recreate using the mapextractor.",
+                TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files.",
                     fileName.c_str(), 4, header.mapMagic.asChar, 4, header.versionMagic.asChar, 4, MapMagic.asChar, 4, MapVersionMagic.asChar);
             else
                 ret = true;
@@ -234,7 +234,7 @@ void Map::DeleteStateMachine()
 }
 
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent):
-_creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false),
+_creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false), _areaTriggersToMoveLock(false),
 i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
@@ -302,6 +302,15 @@ void Map::AddToGrid(GameObject* obj, Cell const& cell)
 
 template<>
 void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
+{
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+
+    obj->SetCurrentCell(cell);
+}
+
+template<>
+void Map::AddToGrid(AreaTrigger* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
@@ -784,6 +793,7 @@ void Map::Update(const uint32 t_diff)
 
     MoveAllCreaturesInMoveList();
     MoveAllGameObjectsInMoveList();
+    MoveAllAreaTriggersInMoveList();
 
     if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
         ProcessRelocationNotifies(t_diff);
@@ -1092,6 +1102,39 @@ void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float
     ASSERT(integrity_check == old_cell);
 }
 
+void Map::AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation)
+{
+    Cell integrity_check(at->GetPositionX(), at->GetPositionY());
+    Cell old_cell = at->GetCurrentCell();
+
+    ASSERT(integrity_check == old_cell);
+    Cell new_cell(x, y);
+
+    if (!getNGrid(new_cell.GridX(), new_cell.GridY()))
+        return;
+
+    // delay areatrigger move for grid/cell to grid/cell moves
+    if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
+    {
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "AreaTrigger (%s) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+        AddAreaTriggerToMoveList(at, x, y, z, orientation);
+        // in diffcell/diffgrid case notifiers called at finishing move at in Map::MoveAllAreaTriggersInMoveList
+    }
+    else
+    {
+        at->Relocate(x, y, z, orientation);
+        at->UpdateShape();
+        at->UpdateObjectVisibility(false);
+        RemoveAreaTriggerFromMoveList(at);
+    }
+
+    old_cell = at->GetCurrentCell();
+    integrity_check = Cell(at->GetPositionX(), at->GetPositionY());
+    ASSERT(integrity_check == old_cell);
+}
+
 void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang)
 {
     if (_creatureToMoveLock) //can this happen?
@@ -1147,6 +1190,25 @@ void Map::RemoveDynamicObjectFromMoveList(DynamicObject* dynObj)
 
     if (dynObj->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
         dynObj->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+}
+
+void Map::AddAreaTriggerToMoveList(AreaTrigger* at, float x, float y, float z, float ang)
+{
+    if (_areaTriggersToMoveLock) //can this happen?
+        return;
+
+    if (at->_moveState == MAP_OBJECT_CELL_MOVE_NONE)
+        _areaTriggersToMove.push_back(at);
+    at->SetNewCellPosition(x, y, z, ang);
+}
+
+void Map::RemoveAreaTriggerFromMoveList(AreaTrigger* at)
+{
+    if (_areaTriggersToMoveLock) //can this happen?
+        return;
+
+    if (at->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
+        at->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
@@ -1286,6 +1348,44 @@ void Map::MoveAllDynamicObjectsInMoveList()
 
     _dynamicObjectsToMove.clear();
     _dynamicObjectsToMoveLock = false;
+}
+
+void Map::MoveAllAreaTriggersInMoveList()
+{
+    _areaTriggersToMoveLock = true;
+    for (std::vector<AreaTrigger*>::iterator itr = _areaTriggersToMove.begin(); itr != _areaTriggersToMove.end(); ++itr)
+    {
+        AreaTrigger* at = *itr;
+        if (at->FindMap() != this) //transport is teleported to another map
+            continue;
+
+        if (at->_moveState != MAP_OBJECT_CELL_MOVE_ACTIVE)
+        {
+            at->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+            continue;
+        }
+
+        at->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+        if (!at->IsInWorld())
+            continue;
+
+        // do move or do move to respawn or remove creature if previous all fail
+        if (AreaTriggerCellRelocation(at, Cell(at->_newPosition.m_positionX, at->_newPosition.m_positionY)))
+        {
+            // update pos
+            at->Relocate(at->_newPosition);
+            at->UpdateObjectVisibility(false);
+        }
+        else
+        {
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "AreaTrigger (%s) cannot be moved to unloaded grid.", at->GetGUID().ToString().c_str());
+#endif
+        }
+    }
+
+    _areaTriggersToMove.clear();
+    _areaTriggersToMoveLock = false;
 }
 
 bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
@@ -1471,6 +1571,67 @@ bool Map::DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell)
     return false;
 }
 
+bool Map::AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell)
+{
+    Cell const& old_cell = at->GetCurrentCell();
+    if (!old_cell.DiffGrid(new_cell))                       // in same grid
+    {
+        // if in same cell then none do
+        if (old_cell.DiffCell(new_cell))
+        {
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
+#endif
+
+            at->RemoveFromGrid();
+            AddToGrid(at, new_cell);
+        }
+        else
+        {
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved in same grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+#endif
+        }
+
+        return true;
+    }
+
+    // in diff. grids but active AreaTrigger
+    if (at->isActiveObject())
+    {
+        EnsureGridLoadedForActiveObject(new_cell, at);
+
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "Active AreaTrigger (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+
+        at->RemoveFromGrid();
+        AddToGrid(at, new_cell);
+
+        return true;
+    }
+
+    // in diff. loaded grid normal AreaTrigger
+    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    {
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+
+        at->RemoveFromGrid();
+        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
+        AddToGrid(at, new_cell);
+
+        return true;
+    }
+
+    // fail to move: normal AreaTrigger attempt move to unloaded grid
+#ifdef TRINITY_DEBUG
+    TC_LOG_DEBUG("maps", "AreaTrigger (%s) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+    return false;
+}
+
 bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
     float resp_x, resp_y, resp_z, resp_o;
@@ -1550,6 +1711,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
             // Must know real mob position before move
             MoveAllCreaturesInMoveList();
             MoveAllGameObjectsInMoveList();
+            MoveAllAreaTriggersInMoveList();
 
             // move creatures to respawn grids if this is diff.grid or to remove list
             ObjectGridEvacuator worker;
@@ -1559,6 +1721,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
             // Finish creature moves, remove and delete all creatures with delayed remove before unload
             MoveAllCreaturesInMoveList();
             MoveAllGameObjectsInMoveList();
+            MoveAllAreaTriggersInMoveList();
         }
 
         {

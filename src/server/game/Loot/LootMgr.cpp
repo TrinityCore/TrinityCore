@@ -813,6 +813,15 @@ uint32 Loot::GetMaxSlotInLootFor(Player* player) const
     return items.size() + (itr != PlayerQuestItems.end() ?  itr->second->size() : 0);
 }
 
+// return true if there is any item that is lootable for any player (not quest item, FFA or conditional)
+bool Loot::hasItemForAll() const
+{
+    for (LootItem const& item : items)
+        if (!item.is_looted && !item.freeforall && item.conditions.empty())
+            return true;
+    return false;
+}
+
 // return true if there is any FFA, quest or conditional item for the player.
 bool Loot::hasItemFor(Player* player) const
 {
