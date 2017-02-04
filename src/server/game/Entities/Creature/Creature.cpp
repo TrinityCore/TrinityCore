@@ -554,7 +554,7 @@ void Creature::Update(uint32 diff)
                 if (m_groupLootTimer <= diff)
                 {
                     if (Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID))
-                        group->EndRoll(&loot);
+                        group->EndRoll(&loot, GetMap());
 
                     m_groupLootTimer = 0;
                     lootingGroupLowGUID.Clear();

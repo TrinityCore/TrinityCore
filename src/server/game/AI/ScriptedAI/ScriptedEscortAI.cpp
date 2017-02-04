@@ -126,7 +126,8 @@ void npc_escortAI::JustDied(Unit* /*killer*/)
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
                 if (Player* member = groupRef->GetSource())
-                    member->FailQuest(m_pQuestForEscort->GetQuestId());
+                    if (member->IsInMap(player))
+                        member->FailQuest(m_pQuestForEscort->GetQuestId());
         }
         else
             player->FailQuest(m_pQuestForEscort->GetQuestId());
