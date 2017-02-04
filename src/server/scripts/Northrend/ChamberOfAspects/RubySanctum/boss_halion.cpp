@@ -560,7 +560,7 @@ class npc_halion_controller : public CreatureScript
 
             void JustRespawned() override
             {
-                if (_instance->GetGuidData(DATA_HALION))
+                if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
                     return;
 
                 Reset();
@@ -636,7 +636,7 @@ class npc_halion_controller : public CreatureScript
                         _events.ScheduleEvent(EVENT_START_INTRO, Seconds(2));
                         break;
                     case ACTION_INTRO_HALION_2:
-                        if (_instance->GetGuidData(DATA_HALION))
+                        if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
                             return;
 
                         for (uint8 i = DATA_BURNING_TREE_1; i <= DATA_BURNING_TREE_4; ++i)
@@ -715,7 +715,7 @@ class npc_halion_controller : public CreatureScript
                             break;
                         case EVENT_INTRO_PROGRESS_3:
                             DoCast(me, SPELL_FIERY_EXPLOSION);
-                            if (_instance->GetGuidData(DATA_HALION))
+                            if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
                                 return;
                             if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                                 halion->AI()->Talk(SAY_INTRO);
@@ -1475,7 +1475,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->TriggerSpell))
                     return false;
                 return true;
             }
@@ -1487,7 +1487,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
                 int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
 
                 caster->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff, caster->GetGUID());
@@ -1863,7 +1863,7 @@ class spell_halion_blazing_aura : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[EFFECT_1].TriggerSpell);
+                GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->GetEffect(EFFECT_1)->TriggerSpell);
             }
 
             void Register() override
