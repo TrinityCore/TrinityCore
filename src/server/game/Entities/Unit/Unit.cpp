@@ -1110,8 +1110,12 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 // Physical Damage
                 if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
                 {
-                    // Get blocked status
-                    blocked = isSpellBlocked(victim, spellInfo, attackType);
+                    // Spells with this attribute were already calculated in MeleeSpellHitResult
+                    if (!spellInfo->HasAttribute(SPELL_ATTR3_BLOCKABLE_SPELL))
+                    {
+                        // Get blocked status
+                        blocked = isSpellBlocked(victim, spellInfo, attackType);
+                    }
                 }
 
                 if (crit)
@@ -2493,7 +2497,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     bool canDodge = true;
     bool canParry = true;
-    bool canBlock = spellInfo->HasAttribute(SPELL_ATTR3_BLOCKABLE_SPELL) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_DIRECT_DAMAGE); // Block damage will be calculated later for such spells
+    bool canBlock = spellInfo->HasAttribute(SPELL_ATTR3_BLOCKABLE_SPELL);
 
     // if victim is casting or cc'd it can't avoid attacks
     if (victim->IsNonMeleeSpellCast(false) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
