@@ -303,9 +303,9 @@ class TC_GAME_API Group
         void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid Guid);
-        void CountTheRoll(Rolls::iterator roll);
+        void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
         void CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
-        void EndRoll(Loot* loot);
+        void EndRoll(Loot* loot, Map* allowedMap);
 
         // related to disenchant rolls
         void ResetMaxEnchantingLevel();

@@ -2145,6 +2145,8 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
+        ClearComboPoints();
+        ClearComboPointHolders();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
@@ -13467,6 +13469,17 @@ void Player::RemoveEnchantmentDurations(Item* item)
     }
 }
 
+void Player::RemoveEnchantmentDurationsReferences(Item* item)
+{
+    for (EnchantDurationList::iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end();)
+    {
+        if (itr->item == item)
+            itr = m_enchantDuration.erase(itr);
+        else
+            ++itr;
+    }
+}
+
 void Player::RemoveArenaEnchantments(EnchantmentSlot slot)
 {
     // remove enchantments from equipped items first to clean up the m_enchantDuration list
@@ -19605,6 +19618,10 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 stmt->setUInt32(2, lowGuid);
                 trans->Append(stmt);
 
+                RemoveTradeableItem(item);
+                RemoveEnchantmentDurationsReferences(item);
+                RemoveItemDurations(item);
+
                 // also THIS item should be somewhere else, cheat attempt
                 item->FSetState(ITEM_REMOVED); // we are IN updateQueue right now, can't use SetState which modifies the queue
                 DeleteRefundReference(item->GetGUID());
@@ -23631,14 +23648,12 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
 
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
-    if (!pRewardSource)
+    if (!pRewardSource || !IsInMap(pRewardSource))
         return false;
+
     const WorldObject* player = GetCorpse();
     if (!player || IsAlive())
         player = this;
-
-    if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
-        return false;
 
     if (player->GetMap()->IsDungeon())
         return true;
@@ -23648,14 +23663,12 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 
 bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
 {
-    if (!pOther)
+    if (!pOther || !IsInMap(pOther))
         return false;
+
     const WorldObject* player = GetCorpse();
     if (!player || IsAlive())
         player = this;
-
-    if (player->GetMapId() != pOther->GetMapId() || player->GetInstanceId() != pOther->GetInstanceId())
-        return false;
 
     return pOther->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE);
 }
@@ -23909,7 +23922,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid guidMember) const
 
         /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
         for (GroupReference const* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (itr->GetSource() && itr->GetSource()->IsInCombat())
+            if (itr->GetSource() && itr->GetSource()->IsInMap(this) && itr->GetSource()->IsInCombat())
                 return ERR_PARTY_LFG_BOOT_IN_COMBAT;
 
         /* Missing support for these types
@@ -25753,7 +25766,6 @@ void Player::ActivateSpec(uint8 spec)
     if (Pet* pet = GetPet())
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
 
-    ClearComboPointHolders();
     ClearAllReactives();
     UnsummonAllTotems();
     ExitVehicle();
