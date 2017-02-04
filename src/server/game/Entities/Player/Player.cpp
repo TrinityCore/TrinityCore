@@ -25751,6 +25751,13 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
         return;
     }
 
+    // dont allow protected item to be looted by someone else
+    if (!item->rollWinnerGUID.IsEmpty() && item->rollWinnerGUID != GetGUID())
+    {
+        SendLootRelease(GetLootGUID());
+        return;
+    }
+
     ItemPosCountVec dest;
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
