@@ -1991,11 +1991,6 @@ class TC_GAME_API Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
-        // Part of Evade mechanics
-        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
-        void UpdateLastDamagedTime(SpellInfo const* spellProto);
-        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
-
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;
         bool IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications = false);
 
@@ -2145,8 +2140,6 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _aiAnimKitId;
         uint16 _movementAnimKitId;
         uint16 _meleeAnimKitId;
-
-        time_t _lastDamagedTime; // Part of Evade mechanics
 
         SpellHistory* _spellHistory;
 };

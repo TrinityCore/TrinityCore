@@ -2943,7 +2943,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         {
             target->Kill(caster);
             if (caster->GetTypeId() == TYPEID_UNIT)
-                caster->ToCreature()->RemoveCorpse();
+                caster->ToCreature()->DespawnOrUnsummon();
         }
 
         if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT))
