@@ -474,19 +474,21 @@ void AchievementMgr::Reset()
     CheckAllAchievementCriteria();
 }
 
-void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, bool evenIfCriteriaComplete)
+void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete)
 {
-    TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", type, miscvalue1, miscvalue2);
+    TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", condition, value, evenIfCriteriaComplete);
 
     // disable for gamemasters with GM-mode enabled
     if (m_player->IsGameMaster())
         return;
 
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, 0/*get all*/);
-    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
-    {
-        AchievementCriteriaEntry const* achievementCriteria = (*i);
+    AchievementCriteriaEntryList const* achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByCondition(condition, value);
+    if (!achievementCriteriaList)
+        return;
 
+    for (auto itr = achievementCriteriaList->begin(); itr != achievementCriteriaList->end(); ++itr)
+    {
+        AchievementCriteriaEntry const* achievementCriteria = *itr;
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
         if (!achievement)
             continue;
@@ -495,14 +497,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
         if ((IsCompletedCriteria(achievementCriteria, achievement) && !evenIfCriteriaComplete) || HasAchieved(achievement->ID))
             continue;
 
-        for (uint8 j = 0; j < MAX_CRITERIA_REQUIREMENTS; ++j)
-            if (achievementCriteria->AdditionalRequirements[j].Type == miscvalue1 &&
-                (!achievementCriteria->AdditionalRequirements[j].Asset ||
-                achievementCriteria->AdditionalRequirements[j].Asset == miscvalue2))
-            {
-                RemoveCriteriaProgress(achievementCriteria);
-                break;
-            }
+        RemoveCriteriaProgress(achievementCriteria);
     }
 }
 
@@ -2294,6 +2289,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
                             m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->areatableID[j]].push_back(criteria);
                     }
                 }
+            }
+        }
+
+        for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
+        {
+            if (criteria->AdditionalRequirements[i].Type != ACHIEVEMENT_CRITERIA_CONDITION_NONE)
+            {
+                ASSERT(criteria->AdditionalRequirements[i].Type < ACHIEVEMENT_CRITERIA_CONDITION_MAX,
+                    "ACHIEVEMENT_CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
+                    criteria->AdditionalRequirements[i].Type + 1, ACHIEVEMENT_CRITERIA_CONDITION_MAX);
+
+                if (i == 0
+                    || criteria->AdditionalRequirements[i].Type != criteria->AdditionalRequirements[i - 1].Type
+                    || criteria->AdditionalRequirements[i].Asset != criteria->AdditionalRequirements[i - 1].Asset)
+                    m_AchievementCriteriasByCondition[criteria->AdditionalRequirements[i].Type][criteria->AdditionalRequirements[i].Asset].push_back(criteria);
             }
         }
 
