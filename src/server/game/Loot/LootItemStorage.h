@@ -18,13 +18,13 @@
 #ifndef __LOOTITEMSTORAGE_H
 #define __LOOTITEMSTORAGE_H
 
-#include "Common.h"
-#include "LootMgr.h"
+#include "Define.h"
 
-#include <unordered_map>
 #include <vector>
 
+class Item;
 class Player;
+struct Loot;
 namespace boost
 {
     class shared_mutex;
@@ -73,8 +73,6 @@ class StoredLootContainer
         uint32 _money;
         uint32 _containerId;
 };
-
-typedef std::unordered_map<uint32, StoredLootContainer> LootItemContainer;
 
 class LootItemStorage
 {

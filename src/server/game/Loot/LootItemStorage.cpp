@@ -18,15 +18,18 @@
 #include "LootItemStorage.h"
 #include "ItemTemplate.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <unordered_map>
+
 namespace
 {
-    LootItemContainer _lootItemStore;
+    std::unordered_map<uint32, StoredLootContainer> _lootItemStore;
 }
 
 LootItemStorage::LootItemStorage()
