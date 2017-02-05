@@ -803,7 +803,8 @@ void Spell::SelectSpellTargets()
         }
         else if (m_spellInfo->Speed > 0.0f)
         {
-            float dist = m_caster->GetDistance(*m_targets.GetDstPos());
+            // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
+            float dist = m_caster->GetExactDist(*m_targets.GetDstPos());
             if (!m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
                 m_delayMoment = uint64(std::floor(dist / m_spellInfo->Speed * 1000.0f));
             else
