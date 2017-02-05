@@ -3447,6 +3447,11 @@ void BattlegroundMap::RemoveAllPlayers()
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
 }
 
+Player* Map::GetPlayer(ObjectGuid const& guid)
+{
+    return ObjectAccessor::GetPlayer(this, guid);
+}
+
 AreaTrigger* Map::GetAreaTrigger(ObjectGuid const& guid)
 {
     return _objectsStore.Find<AreaTrigger>(guid);
