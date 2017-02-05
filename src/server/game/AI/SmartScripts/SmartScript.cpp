@@ -605,7 +605,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsUnit(*itr))
                     if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
                         for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                            if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
+                            if (Player* player = ObjectAccessor::GetPlayer(*(*itr), it->second.Passenger.Guid))
                                 player->AreaExploredOrEventHappens(e.action.quest.quest);
 
                 if (IsPlayer(*itr))
@@ -702,7 +702,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_INVOKER_CAST:
         {
-            Unit* tempLastInvoker = GetLastInvoker();
+            Unit* tempLastInvoker = GetLastInvoker(unit);
             if (!tempLastInvoker)
                 break;
 
@@ -955,7 +955,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             // Special handling for vehicles
             if (Vehicle* vehicle = unit->GetVehicleKit())
                 for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
-                    if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger.Guid))
+                    if (Player* player = ObjectAccessor::GetPlayer(*unit, it->second.Passenger.Guid))
                         player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
@@ -1099,7 +1099,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else if (IsUnit(*itr)) // Special handling for vehicles
                         if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
                             for (SeatMap::iterator seatItr = vehicle->Seats.begin(); seatItr != vehicle->Seats.end(); ++seatItr)
-                                if (Player* player = ObjectAccessor::FindPlayer(seatItr->second.Passenger.Guid))
+                                if (Player* player = ObjectAccessor::GetPlayer(*(*itr), seatItr->second.Passenger.Guid))
                                     player->KilledMonsterCredit(e.action.killedMonster.creature);
                 }
 
@@ -4115,14 +4115,14 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
     }
 }
 
-Unit* SmartScript::GetLastInvoker()
+Unit* SmartScript::GetLastInvoker(Unit* invoker)
 {
-    WorldObject* lookupRoot = me;
-    if (!lookupRoot)
-        lookupRoot = go;
+    // Look for invoker only on map of base object... Prevents multithreaded crashes
+    if (WorldObject* baseObject = GetBaseObject())
+        return ObjectAccessor::GetUnit(*baseObject, mLastInvoker);
+    // used for area triggers invoker cast
+    else if (invoker)
+        return ObjectAccessor::GetUnit(*invoker, mLastInvoker);
 
-    if (lookupRoot)
-        return ObjectAccessor::GetUnit(*lookupRoot, mLastInvoker);
-
-    return ObjectAccessor::FindPlayer(mLastInvoker);
+    return nullptr;
 }
