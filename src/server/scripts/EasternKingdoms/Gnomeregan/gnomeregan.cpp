@@ -193,10 +193,7 @@ public:
                 {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                     {
-                        if (summon->IsAlive())
-                            summon->DisappearAndDie();
-                        else
-                            summon->RemoveCorpse();
+                        summon->DespawnOrUnsummon();
                     }
                 }
         }

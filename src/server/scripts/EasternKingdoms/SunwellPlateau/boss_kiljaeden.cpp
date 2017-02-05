@@ -1178,7 +1178,7 @@ public:
                         break;
                     case 3:
                         me->KillSelf();
-                        me->RemoveCorpse();
+                        me->DespawnOrUnsummon();
                         break;
                 }
             } else uiTimer -=diff;

@@ -808,9 +808,9 @@ public:
                 if (!Vashj || !Vashj->IsAlive() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
-                    me->setDeathState(DEAD);
-                    me->RemoveCorpse();
                     me->SetFaction(FACTION_FRIENDLY);
+                    me->DespawnOrUnsummon();
+                    return;
                 }
 
                 CheckTimer = 1000;

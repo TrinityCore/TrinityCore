@@ -272,7 +272,7 @@ m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTi
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0), _cyclicSplinePathId(0),
-m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _isMissingSwimmingFlagOutOfCombat(false), _noNpcDamageBelowPctHealth(0.f)
+m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0), _isMissingSwimmingFlagOutOfCombat(false), _noNpcDamageBelowPctHealth(0.f)
 {
     m_valuesCount = UNIT_END;
 
@@ -334,12 +334,7 @@ void Creature::RemoveFromWorld()
 
 void Creature::DisappearAndDie()
 {
-    DestroyForNearbyPlayers();
-    //SetVisibility(VISIBILITY_OFF);
-    //ObjectAccessor::UpdateObjectVisibility(this);
-    if (IsAlive())
-        setDeathState(JUST_DIED);
-    RemoveCorpse(false);
+    ForcedDespawn(0);
 }
 
 bool Creature::IsReturningHome() const
@@ -391,7 +386,7 @@ bool Creature::IsFormationLeaderMoveAllowed() const
     return m_formation->CanLeaderStartMoving();
 }
 
-void Creature::RemoveCorpse(bool setSpawnTime)
+void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 {
     if (getDeathState() != CORPSE)
         return;
@@ -401,11 +396,13 @@ void Creature::RemoveCorpse(bool setSpawnTime)
         m_corpseRemoveTime = GameTime::GetGameTime();
         setDeathState(DEAD);
         RemoveAllAuras();
-        DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
         loot.clear();
         uint32 respawnDelay = m_respawnDelay;
         if (CreatureAI* ai = AI())
             ai->CorpseRemoved(respawnDelay);
+
+        if (destroyForNearbyPlayers)
+            DestroyForNearbyPlayers();
 
         // Should get removed later, just keep "compatibility" with scripts
         if (setSpawnTime)
@@ -467,9 +464,9 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
-    // get difficulty 1 mode entry
+    // get difficulty 1 mode entry, skip for pets
     CreatureTemplate const* cinfo = normalInfo;
-    for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0;)
+    for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0 && !IsPet();)
     {
         // we already have valid Map pointer for current creature!
         if (normalInfo->DifficultyEntry[diff - 1])
@@ -585,12 +582,15 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     else
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
 
+    // if unit is in combat, keep this flag
+    unit_flags &= ~UNIT_FLAG_IN_COMBAT;
+    if (IsInCombat())
+        unit_flags |= UNIT_FLAG_IN_COMBAT;
+
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynamicflags);
-
-    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -983,6 +983,10 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
         GetMap()->GetFullTerrainStatusForPosition(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), data, MAP_ALL_LIQUIDS, DEFAULT_COLLISION_HEIGHT);
         ProcessPositionDataChanged(data);
     }
+
+    // Allow players to see those units while dead, do it here (mayby altered by addon auras)
+    if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
 
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
@@ -2071,7 +2075,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
         }
 
         // Skip corpse decay time
-        RemoveCorpse(!overrideRespawnTime);
+        RemoveCorpse(!overrideRespawnTime, false);
 
         SetCorpseDelay(corpseDelay);
         SetRespawnDelay(respawnDelay);
@@ -2384,6 +2388,14 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
     if (!IsAlive())
         return false;
 
+    // we cannot assist in evade mode
+    if (IsInEvadeMode())
+        return false;
+
+    // or if enemy is in evade mode
+    if (enemy->GetTypeId() == TYPEID_UNIT && enemy->ToCreature()->IsInEvadeMode())
+        return false;
+
     // we don't need help from non-combatant ;)
     if (IsCivilian())
         return false;
@@ -2482,21 +2494,40 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
         if (!ai->CanAIAttack(victim))
             return false;
 
-    if (GetMap()->IsDungeon())
-        return true;
+    // we cannot attack in evade mode
+    if (IsInEvadeMode())
+        return false;
 
-    // if the mob is actively being damaged, do not reset due to distance unless it's a world boss
-    if (!isWorldBoss())
-        if (GameTime::GetGameTime() - GetLastDamagedTime() <= MAX_AGGRO_RESET_TIME)
+    // or if enemy is in evade mode
+    if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
+        return false;
+
+    if (!GetCharmerOrOwnerGUID().IsPlayer())
+    {
+        if (GetMap()->IsDungeon())
             return true;
 
-    //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
+        // don't check distance to home position if recently damaged, this should include taunt auras
+        if (!isWorldBoss() && (GetLastDamagedTime() > GameTime::GetGameTime() || HasAuraType(SPELL_AURA_MOD_TAUNT)))
+            return true;
+    }
+
+    // Map visibility range, but no more than 2*cell size
+    float dist = std::min<float>(GetMap()->GetVisibilityRange(), SIZE_OF_GRID_CELL * 2);
 
     if (Unit* unit = GetCharmerOrOwner())
         return victim->IsWithinDist(unit, dist);
     else
-        return victim->IsInDist(&m_homePosition, dist);
+    {
+        // include sizes for huge npcs
+        dist += GetCombatReach() + victim->GetCombatReach();
+
+        // to prevent creatures in air ignore attacks because distance is already too high...
+        if (GetMovementTemplate().IsFlightAllowed())
+            return victim->IsInDist2d(&m_homePosition, dist);
+        else
+            return victim->IsInDist(&m_homePosition, dist);
+    }
 }
 
 CreatureAddon const* Creature::GetCreatureAddon() const

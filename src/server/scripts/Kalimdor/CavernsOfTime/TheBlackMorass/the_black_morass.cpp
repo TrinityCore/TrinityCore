@@ -201,8 +201,7 @@ public:
                     //if we reach this it means event was running but at some point reset.
                     if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
                     {
-                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-                        me->RemoveCorpse();
+                        me->DespawnOrUnsummon();
                         me->Respawn();
                         return;
                     }

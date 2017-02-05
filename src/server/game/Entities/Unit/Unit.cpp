@@ -304,8 +304,8 @@ Unit::Unit(bool isWorldObject) :
     i_motionMaster(new MotionMaster(this)), m_vehicle(nullptr),
     m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_isEngaged(false), m_combatManager(this), m_threatManager(this),
-    i_AI(nullptr), m_aiLocked(false), _lastDamagedTime(0),
-    m_spellHistory(new SpellHistory(this)), _isIgnoringCombat(false)
+    i_AI(nullptr), m_aiLocked(false), m_spellHistory(new SpellHistory(this)),
+    _isIgnoringCombat(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -926,13 +926,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         victim->ModifyHealth(-(int32)damage);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
-        {
             victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::NonPeriodicDamage, spellProto ? spellProto->Id : 0);
-            victim->UpdateLastDamagedTime(spellProto);
-        }
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
+        {
+            // Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
+            if (damagetype != DOT && damage > 0 && !victim->GetOwnerGUID().IsPlayer() && (!spellProto || !spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD)))
+                victim->ToCreature()->SetLastDamagedTime(GameTime::GetGameTime() + MAX_AGGRO_RESET_TIME);
             victim->GetThreatManager().AddThreat(this, float(damage), spellProto);
+        }
         else                                                // victim is a player
         {
             // random durability for items (HIT TAKEN)
@@ -14827,17 +14829,6 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
         }
     }
     return val;
-}
-
-void Unit::UpdateLastDamagedTime(SpellInfo const* spellProto)
-{
-    if (GetTypeId() != TYPEID_UNIT || IsPet())
-        return;
-
-    if (spellProto && spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD))
-        return;
-
-    SetLastDamagedTime(GameTime::GetGameTime());
 }
 
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)

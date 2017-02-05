@@ -83,7 +83,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist =nullptr) const;
+        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
         bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapId != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
@@ -244,7 +244,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
-        void RemoveCorpse(bool setSpawnTime = true);
+        void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds forceRespawnTime = 0s);
         void DespawnOrUnsummon(Milliseconds time, Seconds forceRespawnTime = 0s) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
@@ -351,6 +351,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsMovementPreventedByCasting() const override;
 
+        // Part of Evade mechanics
+        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
+
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
@@ -455,6 +459,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Spell Focusing
         CreatureSpellFocusData _spellFocusInfo;
 
+        time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
         bool _isMissingSwimmingFlagOutOfCombat;

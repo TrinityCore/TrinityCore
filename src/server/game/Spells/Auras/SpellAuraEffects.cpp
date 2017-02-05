@@ -3094,7 +3094,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         {
             target->Kill(caster);
             if (caster->GetTypeId() == TYPEID_UNIT)
-                caster->ToCreature()->RemoveCorpse();
+                caster->ToCreature()->DespawnOrUnsummon();
         }
 
         bool seatChange = (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)                             // Seat change on the same direct vehicle

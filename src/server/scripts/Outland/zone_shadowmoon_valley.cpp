@@ -380,7 +380,6 @@ public:
 
             FlyTimer = 10000;
             me->SetDisableGravity(false);
-            me->SetVisible(true);
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -422,10 +421,7 @@ public:
 
                     PlayerGUID.Clear();
                 }
-                me->SetVisible(false);
-                me->SetDisableGravity(false);
-                me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-                me->RemoveCorpse();
+                me->DespawnOrUnsummon(1);
             }
         }
 
@@ -1190,7 +1186,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->RemoveCorpse();
+            me->DespawnOrUnsummon();
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
                 ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
         }

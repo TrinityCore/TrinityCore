@@ -178,11 +178,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
-                    {
-                        creature->GetMotionMaster()->Clear(true);
-                        me->DealDamage(creature, creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-                        creature->RemoveCorpse();
-                    }
+                        creature->DespawnOrUnsummon();
                 }
                 adds.clear();
 
@@ -190,11 +186,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, *itr);
                     if (creature && creature->IsAlive())
-                    {
-                        creature->GetMotionMaster()->Clear(true);
-                        me->DealDamage(creature, creature->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-                        creature->RemoveCorpse();
-                    }
+                        creature->DespawnOrUnsummon();
                 }
                 assassins.clear();
             }

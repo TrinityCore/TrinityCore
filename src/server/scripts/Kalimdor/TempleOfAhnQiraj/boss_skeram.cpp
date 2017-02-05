@@ -130,7 +130,7 @@ class boss_skeram : public CreatureScript
                     Talk(SAY_DEATH);
                 }
                 else
-                    me->RemoveCorpse();
+                    me->DespawnOrUnsummon();
             }
 
             void JustEngagedWith(Unit* who) override
