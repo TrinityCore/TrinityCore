@@ -3911,6 +3911,13 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
 
     Unit* target = aurApp->GetTarget();
 
+    // Do not apply such auras in normal way
+    if (GetAmount() >= 1000)
+    {
+        target->SetInstantCast(apply);
+        return;
+    }
+
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
 }
 
