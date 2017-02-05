@@ -18,12 +18,13 @@
 #ifndef _PETITIONMGR_H
 #define _PETITIONMGR_H
 
-#include "Common.h"
+#include "Define.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 
-#include <map>
-#include <unordered_map>
+#include <string>
+#include <utility>
+#include <vector>
 
 enum PetitionTurns
 {
@@ -57,8 +58,6 @@ struct Petition
     void UpdateName(std::string const& newName);
     void RemoveSignatureBySigner(ObjectGuid playerGuid);
 };
-
-typedef std::unordered_map<ObjectGuid, Petition> PetitionContainer;
 
 class PetitionMgr
 {

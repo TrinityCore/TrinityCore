@@ -16,15 +16,17 @@
 */
 
 #include "PetitionMgr.h"
-#include "Common.h"
+#include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
 #include "Timer.h"
 
+#include <unordered_map>
+
 namespace
 {
-    PetitionContainer _petitionStore;
+    std::unordered_map<ObjectGuid, Petition> _petitionStore;
 }
 
 PetitionMgr* PetitionMgr::instance()
@@ -143,7 +145,7 @@ Petition* PetitionMgr::GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterT
 
 void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type)
 {
-    for (PetitionContainer::iterator itr = _petitionStore.begin(); itr != _petitionStore.end();)
+    for (auto itr = _petitionStore.begin(); itr != _petitionStore.end();)
     {
         if (itr->second.ownerGuid == ownerGuid)
         {
