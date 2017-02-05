@@ -1,3 +1,4 @@
+/*
 -- Ursal the Mauler SAI
 SET @ENTRY := 2039;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
@@ -76,3 +77,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 13, 9105.24, 1843.42, 1327.53, 0, 0, 0, 0, 100, 0),
 (@PATH, 14, 9109.59, 1840.99, 1327.5, 0, 0, 0, 0, 100, 0),
 (@PATH, 15, 9120.07, 1836.26, 1328.29, 0, 0, 0, 0, 100, 0);
+*/

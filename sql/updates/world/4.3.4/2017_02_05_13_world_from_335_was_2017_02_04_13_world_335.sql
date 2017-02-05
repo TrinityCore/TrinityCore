@@ -1,3 +1,4 @@
+/*
 -- Saving Sharpbeak
 -- Sharpbeak's Cage SAI
 SET @ENTRY := 144070;
@@ -57,3 +58,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `creature_text` WHERE `entry`= 8023;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (8023, 0, 0, '%s chirps a goodbye to $n.', 16, 0, 100, 0, 0, 0, 4138, 0, 'Sharpbeak');
+*/
