@@ -7977,8 +7977,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     // PvP case - can't attack when attacker or target are in sanctuary
     // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
-    if (target->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE)
-        && ((target->HasPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY)) || (HasPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY))))
+    if (target->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE) && (target->IsInSanctuary() || IsInSanctuary()))
         return false;
 
     // additional checks - only PvP case
@@ -8076,7 +8075,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
                 return false;
             // can't assist player out of sanctuary from sanctuary if has pvp enabled
             if (target->HasPvpFlag(UNIT_BYTE2_FLAG_PVP))
-                if (HasPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY) && !target->HasPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY))
+                if (IsInSanctuary() && !target->IsInSanctuary())
                     return false;
         }
     }

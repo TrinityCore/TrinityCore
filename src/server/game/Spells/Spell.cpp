@@ -4970,6 +4970,18 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
     if (Unit* target = m_targets.GetUnitTarget())
     {
+        // do not allow to cast on hostile targets in sanctuary
+        if (!m_caster->IsFriendlyTo(target))
+        {
+            if (m_caster->IsInSanctuary() || target->IsInSanctuary())
+            {
+                // fix for duels
+                Player* player = m_caster->ToPlayer();
+                if (!player || !player->duel || target != player->duel->opponent)
+                    return SPELL_FAILED_NOTHING_TO_DISPEL;
+            }
+        }
+
         SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, m_caster->GetEntry() == WORLD_TRIGGER); // skip stealth checks for GO casts
         if (castResult != SPELL_CAST_OK)
             return castResult;
@@ -5532,8 +5544,30 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             }
             case SPELL_EFFECT_STEAL_BENEFICIAL_BUFF:
             {
-                if (m_targets.GetUnitTarget() == m_caster)
+                if (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget() == m_caster)
                     return SPELL_FAILED_BAD_TARGETS;
+
+                uint32 dispelMask = m_spellInfo->GetDispelMask(DispelType(effect->MiscValue));
+                bool hasStealableAura = false;
+                for (AuraApplication* visibleAura : m_targets.GetUnitTarget()->GetVisibleAuras())
+                {
+                    if (!visibleAura->IsPositive())
+                        continue;
+
+                    Aura const* aura = visibleAura->GetBase();
+                    if (!(aura->GetSpellInfo()->GetDispelMask() & dispelMask))
+                        continue;
+
+                    if (aura->IsPassive() || aura->GetSpellInfo()->HasAttribute(SPELL_ATTR4_NOT_STEALABLE))
+                        continue;
+
+                    hasStealableAura = true;
+                    break;
+                }
+
+                if (!hasStealableAura)
+                    return SPELL_FAILED_NOTHING_TO_STEAL;
+
                 break;
             }
             case SPELL_EFFECT_LEAP_BACK:
@@ -5545,6 +5579,13 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     else
                         return SPELL_FAILED_DONT_REPORT;
                 }
+                break;
+            }
+            case SPELL_EFFECT_JUMP:
+            case SPELL_EFFECT_JUMP_DEST:
+            {
+                if (m_caster->HasUnitState(UNIT_STATE_ROOT))
+                    return SPELL_FAILED_ROOTED;
                 break;
             }
             case SPELL_EFFECT_TALENT_SPEC_SELECT:
