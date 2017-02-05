@@ -759,8 +759,10 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct TC_GAME_API WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck
+    struct TC_GAME_API WorldObjectSpellTrajTargetCheck : public WorldObjectSpellTargetCheck
     {
+        float _range;
+        Position const* _position;
         WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster,
             SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);

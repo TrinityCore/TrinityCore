@@ -1554,7 +1554,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
     // limit max range to 300 yards, sometimes triggered spells can have 50000yds
     float bestDist = m_spellInfo->GetMaxRange(false);
     if (SpellInfo const* triggerSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].TriggerSpell))
-        bestDist = std::min(std::max(bestDist, triggerSpellInfo->GetMaxRange(false)), 300.0f);
+        bestDist = std::min(std::max(bestDist, triggerSpellInfo->GetMaxRange(false)), std::min(dist2d, 300.0f));
 
     std::list<WorldObject*>::const_iterator itr = targets.begin();
     for (; itr != targets.end(); ++itr)
@@ -7751,14 +7751,18 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
 }
 
 WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
-    : WorldObjectSpellAreaTargetCheck(range, position, caster, caster, spellInfo, selectionType, condList) { }
+    : WorldObjectSpellTargetCheck(caster, caster, spellInfo, selectionType, condList), _range(range), _position(position) { }
 
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
     if (!_caster->HasInLine(target, target->GetObjectSize(), TRAJECTORY_MISSILE_SIZE))
         return false;
-    return WorldObjectSpellAreaTargetCheck::operator ()(target);
+
+    if (target->GetExactDist2d(_position) > _range)
+        return false;
+
+    return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
 } //namespace Trinity
