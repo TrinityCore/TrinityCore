@@ -3174,6 +3174,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42492: // Cast Energized
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
+            case 29726: // Test Ribbon Pole Channel
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+                break;
             // VIOLET HOLD SPELLS
             //
             case 54258: // Water Globule (Ichoron)

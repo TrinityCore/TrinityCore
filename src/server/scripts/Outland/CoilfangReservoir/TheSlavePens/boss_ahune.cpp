@@ -73,6 +73,7 @@ enum Spells
     SPELL_SLIPPERY_FLOOR_AMBIENT        = 46314,
     SPELL_SLIPPERY_FLOOR_PERIODIC       = 46320,
     SPELL_SLIPPERY_FLOOR_SLIP           = 45947,
+    SPELL_SLIPPERY_FLOOR_YOU_SLIPPED    = 45946,
 
     // Frozen Core
     SPELL_SUICIDE                       = 45254,
@@ -101,19 +102,18 @@ enum Events
     EVENT_EMERGE                        = 1,
     EVENT_INITIAL_EMERGE                = 2,
     EVENT_SYNCH_HEALTH                  = 3,
-    EVENT_FOUND_OPENING                 = 4,
-    EVENT_LOOKFOROPENING_0              = 5,
-    EVENT_LOOKFOROPENING_1              = 6,
-    EVENT_LOOKFOROPENING_2              = 7,
-    EVENT_SUMMON_HAILSTONE              = 8,
-    EVENT_SUMMON_COLDWEAVE              = 9,
-    EVENT_SUMMON_FROSTWIND              = 10,
-    EVENT_SUMMON_AHUNE                  = 11,
-    EVENT_CLOSE_OPENING                 = 12,
-    EVENT_AHUNE_PHASE_ONE               = 13,
-    EVENT_AHUNE_PHASE_TWO               = 14,
-    EVENT_START_LOOKING_FOR_OPENING     = 15,
-    EVENT_STOP_LOOKING_FOR_OPENING      = 16
+    EVENT_LOOKFOROPENING_0              = 4,
+    EVENT_LOOKFOROPENING_1              = 5,
+    EVENT_LOOKFOROPENING_2              = 6,
+    EVENT_SUMMON_HAILSTONE              = 7,
+    EVENT_SUMMON_COLDWEAVE              = 8,
+    EVENT_SUMMON_FROSTWIND              = 9,
+    EVENT_SUMMON_AHUNE                  = 10,
+    EVENT_CLOSE_OPENING                 = 11,
+    EVENT_AHUNE_PHASE_ONE               = 12,
+    EVENT_AHUNE_PHASE_TWO               = 13,
+    EVENT_START_LOOKING_FOR_OPENING     = 14,
+    EVENT_STOP_LOOKING_FOR_OPENING      = 15
 };
 
 enum Actions
@@ -169,19 +169,14 @@ public:
     {
         boss_ahuneAI(Creature* creature) : BossAI(creature, DATA_AHUNE)
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+            me->SetControlled(true, UNIT_STATE_ROOT);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_INITIAL_EMERGE, 4);
-            events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3000);
+            events.ScheduleEvent(EVENT_INITIAL_EMERGE, Milliseconds(4));
+            events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3));
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
@@ -194,7 +189,6 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            _JustDied();
             instance->DoCastSpellOnPlayers(SPELL_AHUNE_ACHIEVEMENT);
 
             if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AHUNE_BUNNY)))
@@ -209,11 +203,8 @@ public:
                     if (group->isLFGGroup())
                         sLFGMgr->FinishDungeon(group->GetGUID(), 286);
             }
-        }
 
-        void JustSummoned(Creature* summon) override
-        {
-            BossAI::JustSummoned(summon);
+            _JustDied();
         }
 
         void DoAction(int32 action) override
@@ -221,7 +212,7 @@ public:
             if (action == ACTION_AHUNE_RETREAT)
             {
                 Submerge();
-                events.ScheduleEvent(EVENT_EMERGE, 35000);
+                events.ScheduleEvent(EVENT_EMERGE, Seconds(35));
             }
         }
 
@@ -246,10 +237,10 @@ public:
                         break;
                     case EVENT_SYNCH_HEALTH:
                         if (Creature* frozenCore = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FROZEN_CORE)))
-                            DoCast(frozenCore, SPELL_SYNCH_HEALTH);
+                            DoCast(frozenCore, SPELL_SYNCH_HEALTH, true);
                         else
                             DoCast(me, SPELL_SUICIDE);
-                        events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3000);
+                        events.Repeat(Seconds(3));
                         break;
                     default:
                         break;
@@ -268,8 +259,8 @@ public:
             me->RemoveAurasDueToSpell(SPELL_STAY_SUBMERGED);
             DoCast(me, SPELL_STAND);
             DoCast(me, SPELL_RESURFACE, true);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3000);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3));
         }
 
         void Submerge()
@@ -277,7 +268,7 @@ public:
             if (Creature* frozenCore = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FROZEN_CORE)))
                 frozenCore->AI()->DoAction(ACTION_AHUNE_RETREAT);
             me->RemoveAurasDueToSpell(SPELL_AHUNES_SHIELD);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
             DoCast(me, SPELL_SUBMERGED, true);
             DoCast(me, SPELL_AHUNE_SELF_STUN, true);
             DoCast(me, SPELL_STAY_SUBMERGED, true);
@@ -308,16 +299,9 @@ public:
         void Initialize()
         {
             me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+            me->setRegeneratingHealth(false);
             DoCast(me, SPELL_FROZEN_CORE_GETS_HIT);
             DoCast(me, SPELL_ICE_SPEAR_AURA);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            DoCast(SPELL_MINION_DESPAWNER);
-            if (Creature* ahune = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AHUNE)))
-                ahune->AI()->EnterEvadeMode();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -333,23 +317,20 @@ public:
         {
             if (action == ACTION_AHUNE_RETREAT)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_AURA);
-                _events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3000, 0, PHASE_TWO);
+                _events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3), 0, PHASE_TWO);
             }
             else if (action == ACTION_AHUNE_RESURFACE)
             {
                 _events.Reset();
                 DoCast(me, SPELL_ICE_SPEAR_AURA);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
-                return;
-
             _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -358,10 +339,10 @@ public:
                 {
                     case EVENT_SYNCH_HEALTH:
                         if (Creature* ahune = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_AHUNE)))
-                            DoCast(ahune, SPELL_SYNCH_HEALTH);
+                            DoCast(ahune, SPELL_SYNCH_HEALTH, true);
                         else
                             DoCast(me, SPELL_SUICIDE);
-                        _events.ScheduleEvent(EVENT_SYNCH_HEALTH, 3000);
+                        _events.Repeat(Seconds(3));
                         break;
                     default:
                         break;
@@ -435,11 +416,11 @@ public:
                 _submerged = false;
                 _events.Reset();
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_SUMMON_AHUNE, 10000);
-                _events.ScheduleEvent(EVENT_START_LOOKING_FOR_OPENING, 14000, 0, PHASE_ONE);
-                _events.ScheduleEvent(EVENT_SUMMON_COLDWEAVE, 22000, 0, PHASE_ONE);
-                _events.ScheduleEvent(EVENT_SUMMON_HAILSTONE, 14000, 0, PHASE_ONE);
-                _events.ScheduleEvent(EVENT_AHUNE_PHASE_TWO, 108000, 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_SUMMON_AHUNE, Seconds(10));
+                _events.ScheduleEvent(EVENT_START_LOOKING_FOR_OPENING, Seconds(14), 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_SUMMON_COLDWEAVE, Seconds(22), 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_SUMMON_HAILSTONE, Seconds(14), 0, PHASE_ONE);
+                _events.ScheduleEvent(EVENT_AHUNE_PHASE_TWO, Seconds(108), 0, PHASE_ONE);
             }
         }
 
@@ -466,9 +447,9 @@ public:
                     case EVENT_SUMMON_COLDWEAVE:
                         DoCast(SPELL_SUMMON_COLDWEAVE);
                         DoCast(SPELL_SUMMON_COLDWEAVE);
-                        _events.ScheduleEvent(EVENT_SUMMON_COLDWEAVE, 8000, 0, PHASE_ONE);
+                        _events.Repeat(Seconds(8));
                         if (_submerged)
-                            _events.ScheduleEvent(EVENT_SUMMON_FROSTWIND, 4000, 0, PHASE_ONE);
+                            _events.ScheduleEvent(EVENT_SUMMON_FROSTWIND, Seconds(4), 0, PHASE_ONE);
                         break;
                     case EVENT_SUMMON_FROSTWIND:
                         DoCast(SPELL_SUMMON_FROSTWIND);
@@ -494,17 +475,17 @@ public:
                             ahune->AI()->DoAction(ACTION_AHUNE_RETREAT);
                         _events.Reset();
                         _events.SetPhase(PHASE_TWO);
-                        _events.ScheduleEvent(EVENT_CLOSE_OPENING, 25000, 0, PHASE_TWO);
-                        _events.ScheduleEvent(EVENT_AHUNE_PHASE_ONE, 35000, 0, PHASE_TWO);
+                        _events.ScheduleEvent(EVENT_CLOSE_OPENING, Seconds(25), 0, PHASE_TWO);
+                        _events.ScheduleEvent(EVENT_AHUNE_PHASE_ONE, Seconds(35), 0, PHASE_TWO);
                         break;
                     case EVENT_AHUNE_PHASE_ONE:
                         _submerged = true;
                         _events.Reset();
                         _events.SetPhase(PHASE_ONE);
-                        _events.ScheduleEvent(EVENT_SUMMON_COLDWEAVE, 8000, 0, PHASE_ONE);
-                        _events.ScheduleEvent(EVENT_SUMMON_HAILSTONE, 5000, 0, PHASE_ONE);
-                        _events.ScheduleEvent(EVENT_START_LOOKING_FOR_OPENING, 5000, 0, PHASE_ONE);
-                        _events.ScheduleEvent(EVENT_AHUNE_PHASE_TWO, 100000, 0, PHASE_ONE);
+                        _events.ScheduleEvent(EVENT_SUMMON_COLDWEAVE, Seconds(8), 0, PHASE_ONE);
+                        _events.ScheduleEvent(EVENT_SUMMON_HAILSTONE, Seconds(5), 0, PHASE_ONE);
+                        _events.ScheduleEvent(EVENT_START_LOOKING_FOR_OPENING, Seconds(5), 0, PHASE_ONE);
+                        _events.ScheduleEvent(EVENT_AHUNE_PHASE_TWO, Seconds(100), 0, PHASE_ONE);
                         break;
                     default:
                         break;
@@ -581,10 +562,10 @@ public:
             switch (spellInfo->Id)
             {
                 case SPELL_SHAMANS_LOOK_FOR_OPENING:
-                    _events.ScheduleEvent(EVENT_LOOKFOROPENING_0, 17000);
+                    _events.ScheduleEvent(EVENT_LOOKFOROPENING_0, Seconds(17));
                     break;
                 case SPELL_FOUND_OPENING:
-                    _events.ScheduleEvent(EVENT_FOUND_OPENING, 0);
+                    Talk(EMOTE_RETREAT);
                     break;
                 default:
                     break;
@@ -607,21 +588,19 @@ public:
                 {
                     case EVENT_LOOKFOROPENING_0:
                         LookOpening(true, 0);
-                        _events.ScheduleEvent(EVENT_LOOKFOROPENING_1, 26000);
+                        _events.ScheduleEvent(EVENT_LOOKFOROPENING_1, Seconds(26));
                         break;
                     case EVENT_LOOKFOROPENING_1:
                         LookOpening(true, 1);
-                        _events.ScheduleEvent(EVENT_LOOKFOROPENING_2, 25000);
+                        _events.ScheduleEvent(EVENT_LOOKFOROPENING_2, Seconds(25));
                         break;
                     case EVENT_LOOKFOROPENING_2:
                         LookOpening(true, 2);
-                        _events.ScheduleEvent(EVENT_STOP_LOOKING_FOR_OPENING, 27000);
+                        _events.ScheduleEvent(EVENT_STOP_LOOKING_FOR_OPENING, Seconds(27));
                         break;
                     case EVENT_STOP_LOOKING_FOR_OPENING:
                         LookOpening(false, _mySpot);
                         break;
-                    case EVENT_FOUND_OPENING:
-                        Talk(EMOTE_RETREAT);
                     default:
                         break;
                 }
@@ -799,25 +778,26 @@ public:
 
         void PeriodicTick(AuraEffect const* aurEff)
         {
-            if (Creature* caster = GetCaster()->ToCreature())
-                switch (aurEff->GetTickNumber())
-                {
-                    case 1:
-                        caster->CastSpell(caster, SPELL_SUMMON_ICE_SPEAR_GO);
-                        break;
-                    case 3:
-                        if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
-                            spike->UseDoorOrButton();
-                        caster->AI()->DoCastAOE(SPELL_ICE_SPEAR_KNOCKBACK, true);
-                        break;
-                    case 5:
-                        if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
-                            spike->Delete();
-                        caster->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
+            if (Unit* tmpCaster = GetCaster())
+                if (Creature* caster = tmpCaster->ToCreature())
+                    switch (aurEff->GetTickNumber())
+                    {
+                        case 1:
+                            caster->CastSpell(caster, SPELL_SUMMON_ICE_SPEAR_GO);
+                            break;
+                        case 3:
+                            if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
+                                spike->UseDoorOrButton();
+                            caster->AI()->DoCastAOE(SPELL_ICE_SPEAR_KNOCKBACK, true);
+                            break;
+                        case 5:
+                            if (GameObject* spike = caster->FindNearestGameObject(GO_ICE_SPEAR, 3.0f))
+                                spike->Delete();
+                            caster->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
         }
 
         void Register() override
@@ -884,6 +864,16 @@ public:
             return true;
         }
 
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            if (targets.empty())
+                return;
+
+            WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+            targets.clear();
+            targets.push_back(target);
+        }
+
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ICE_SPEAR_BUNNY, true);
@@ -891,6 +881,7 @@ public:
 
         void Register() override
         {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ice_spear_target_picker_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
             OnEffectHitTarget += SpellEffectFn(spell_ice_spear_target_picker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
@@ -922,7 +913,10 @@ public:
         {
             if (Unit* target = GetHitUnit())
                 if (target->isMoving())
+                {
                     target->CastSpell(target, SPELL_SLIPPERY_FLOOR_SLIP, true);
+                    target->CastSpell(target, SPELL_SLIPPERY_FLOOR_YOU_SLIPPED, true);
+                }
         }
 
         void Register() override

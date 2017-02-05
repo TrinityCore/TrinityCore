@@ -55,6 +55,8 @@ class PlayerSocial;
 class SpellCastTargets;
 class PlayerAI;
 
+enum GroupCategory : uint8;
+
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS                       128
@@ -1164,6 +1166,12 @@ struct ResurrectionData
     uint32 Health;
     uint32 Mana;
     uint32 Aura;
+};
+
+struct GroupUpdateCounter
+{
+    ObjectGuid GroupGuid;
+    int32 UpdateSequenceNumber;
 };
 
 enum TalentLearnResult
@@ -2402,6 +2410,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
         void RemoveGroupUpdateFlag(uint32 flag) { m_groupUpdateMask &= ~flag; }
+        void SetPartyType(GroupCategory category, uint8 type);
+        void ResetGroupUpdateSequenceIfNeeded(Group const* group);
+        int32 NextGroupUpdateSequenceNumber(GroupCategory category);
         Player* GetNextRandomRaidMember(float radius);
         PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
 
@@ -2744,6 +2755,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Group* m_groupInvite;
         uint32 m_groupUpdateMask;
         bool m_bPassOnGroupLoot;
+        std::array<GroupUpdateCounter, 2> m_groupUpdateSequences;
 
         // last used pet number (for BG's)
         uint32 m_lastpetnumber;
