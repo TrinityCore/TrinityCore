@@ -295,6 +295,20 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
+
+    // We were spawned on transport, calculate real position
+    if (IsSpawnedOnTransport())
+    {
+        Position& pos = m_movementInfo.transport.pos;
+        pos.m_positionX = x;
+        pos.m_positionY = y;
+        pos.m_positionZ = z;
+        pos.SetOrientation(o);
+
+        if (TransportBase* transport = GetDirectTransport())
+            transport->CalculatePassengerPosition(x, y, z, &o);
+    }
+
     SetHomePosition(x, y, z, o);
     GetMap()->CreatureRelocation(this, x, y, z, o);
 }
@@ -2446,6 +2460,7 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
 {
     if (m_spawnId)
     {
+        // for npcs on transport, this will return transport offset
         if (CreatureData const* data = sObjectMgr->GetCreatureData(GetSpawnId()))
         {
             x = data->posX;
@@ -2460,24 +2475,13 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
         }
     }
 
-    // changed this from current position to home position, fixes world summons with infinite duration
-    if (GetTransport())
-    {
-        x = GetPositionX();
-        y = GetPositionY();
-        z = GetPositionZ();
-        if (ori)
-            *ori = GetOrientation();
-    }
-    else
-    {
-        Position homePos = GetHomePosition();
-        x = homePos.GetPositionX();
-        y = homePos.GetPositionY();
-        z = homePos.GetPositionZ();
-        if (ori)
-            *ori = homePos.GetOrientation();
-    }
+    // changed this from current position to home position, fixes world summons with infinite duration (wg npcs for example)
+    Position homePos = GetHomePosition();
+    x = homePos.GetPositionX();
+    y = homePos.GetPositionY();
+    z = homePos.GetPositionZ();
+    if (ori)
+        *ori = homePos.GetOrientation();
 
     if (dist)
         *dist = 0;
