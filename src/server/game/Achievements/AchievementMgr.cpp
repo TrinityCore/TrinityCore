@@ -341,36 +341,35 @@ void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
     }
 }
 
-void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, bool evenIfCriteriaComplete)
+void PlayerAchievementMgr::ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete)
 {
-    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::ResetCriteria(%u, " UI64FMTD ", " UI64FMTD ")", type, miscValue1, miscValue2);
+    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::ResetCriteria(%u, %d, %s)", condition, failAsset, evenIfCriteriaComplete ? "true" : "false");
 
     // disable for gamemasters with GM-mode enabled
     if (_owner->IsGameMaster())
         return;
 
-    CriteriaList const& achievementCriteriaList = GetCriteriaByType(type);
-    for (Criteria const* achievementCriteria : achievementCriteriaList)
+    if (CriteriaList const* achievementCriteriaList = sCriteriaMgr->GetCriteriaByFailEvent(condition, failAsset))
     {
-        if (achievementCriteria->Entry->FailEvent != miscValue1 || (achievementCriteria->Entry->FailAsset && achievementCriteria->Entry->FailAsset != int64(miscValue2)))
-            continue;
-
-        std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(achievementCriteria->ID);
-        bool allComplete = true;
-        for (CriteriaTree const* tree : *trees)
+        for (Criteria const* achievementCriteria : *achievementCriteriaList)
         {
-            // don't update already completed criteria if not forced or achievement already complete
-            if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
+            std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(achievementCriteria->ID);
+            bool allComplete = true;
+            for (CriteriaTree const* tree : *trees)
             {
-                allComplete = false;
-                break;
+                // don't update already completed criteria if not forced or achievement already complete
+                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
+                {
+                    allComplete = false;
+                    break;
+                }
             }
+
+            if (allComplete)
+                continue;
+
+            RemoveCriteriaProgress(achievementCriteria);
         }
-
-        if (allComplete)
-            continue;
-
-        RemoveCriteriaProgress(achievementCriteria);
     }
 }
 

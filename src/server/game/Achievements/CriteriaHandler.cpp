@@ -3270,6 +3270,10 @@ void CriteriaMgr::LoadCriteriaList()
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
+        ASSERT(criteriaEntry->StartEvent < CRITERIA_TIMED_TYPE_MAX, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->StartEvent + 1, CRITERIA_TIMED_TYPE_MAX);
+        ASSERT(criteriaEntry->FailEvent < CRITERIA_CONDITION_MAX, "CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->FailEvent + 1, CRITERIA_CONDITION_MAX);
 
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())
@@ -3327,6 +3331,9 @@ void CriteriaMgr::LoadCriteriaList()
 
         if (criteriaEntry->StartTimer)
             _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
+
+        if (criteriaEntry->FailEvent)
+            _criteriasByFailEvent[criteriaEntry->FailEvent][criteriaEntry->FailAsset].push_back(criteria);
     }
 
     for (auto& p : _criteriaTrees)

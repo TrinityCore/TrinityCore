@@ -83,7 +83,7 @@ public:
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction& trans);
 
-    void ResetCriteria(CriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
+    void ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete = false);
 
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;

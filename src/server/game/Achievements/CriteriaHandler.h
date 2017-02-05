@@ -351,6 +351,12 @@ public:
         return _criteriasByTimedType[type];
     }
 
+    CriteriaList const* GetCriteriaByFailEvent(CriteriaCondition condition, int32 asset)
+    {
+        auto itr = _criteriasByFailEvent[condition].find(asset);
+        return itr != _criteriasByFailEvent[condition].end() ? &itr->second : nullptr;
+    }
+
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
     {
         CriteriaDataMap::const_iterator iter = _criteriaDataMap.find(Criteria->ID);
@@ -407,6 +413,7 @@ private:
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
+    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[CRITERIA_CONDITION_MAX];
 };
 
 #define sCriteriaMgr CriteriaMgr::Instance()
