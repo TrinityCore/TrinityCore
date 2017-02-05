@@ -291,7 +291,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
     // Should get removed later, just keep "compatibility" with scripts
     if (setSpawnTime)
-        m_respawnTime = time(NULL) + respawnDelay;
+        m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
 
     // if corpse was removed during falling, the falling will continue and override relocation to respawn position
     if (IsFalling())
@@ -932,6 +932,9 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS && map->IsDungeon())
+        m_respawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
+
     switch (GetCreatureTemplate()->rank)
     {
         case CREATURE_ELITE_RARE:
@@ -1422,18 +1425,17 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
     m_spawnId = spawnId;
     m_creatureData = data;
+    m_respawnradius = data->spawndist;
+    m_respawnDelay = data->spawntimesecs;
     if (!Create(map->GenerateLowGuid<HighGuid::Unit>(), map, data->phaseMask, data->id, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
 
     //We should set first home position, because then AI calls home movement
     SetHomePosition(data->posX, data->posY, data->posZ, data->orientation);
 
-    m_respawnradius = data->spawndist;
-
-    m_respawnDelay = data->spawntimesecs;
     m_deathState = ALIVE;
 
-    m_respawnTime  = GetMap()->GetCreatureRespawnTime(m_spawnId);
+    m_respawnTime = GetMap()->GetCreatureRespawnTime(m_spawnId);
 
     // Is the creature script objecting to us spawning? If yes, delay by one second (then re-check in ::Update)
     if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetEntry(), GetCreatureTemplate(), GetCreatureData(), map))
@@ -1695,7 +1697,10 @@ void Creature::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         m_corpseRemoveTime = time(NULL) + m_corpseDelay;
-        m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
+        if (IsDungeonBoss() && !m_respawnDelay)
+            m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
+        else
+            m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -2514,7 +2519,7 @@ void Creature::AllLootRemovedFromCorpse()
     else
         m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);
 
-    m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
+    m_respawnTime = std::max<time_t>(m_corpseRemoveTime + m_respawnDelay, m_respawnTime);
 }
 
 uint8 Creature::getLevelForTarget(WorldObject const* target) const
