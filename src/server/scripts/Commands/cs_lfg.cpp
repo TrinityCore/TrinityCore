@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "LFGMgr.h"
@@ -80,7 +81,7 @@ public:
 
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;

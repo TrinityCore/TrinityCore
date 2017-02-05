@@ -2220,47 +2220,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
-{
-    ObjectGuid guid(HighGuid::Player, lowguid);
-    return ObjectAccessor::FindPlayer(guid);
-}
-
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return false;
-
-    name = characterInfo->Name;
-    return true;
-}
-
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return 0;
-
-    return Player::TeamForRace(characterInfo->Race);
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid guid) const
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-        return characterInfo->AccountId;
-
-    return 0;
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name) const
-{
-    ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
-    if (!guid.IsEmpty())
-        return GetPlayerAccountIdByGUID(guid);
-
-    return 0;
-}
 
 void ObjectMgr::LoadItemLocales()
 {
