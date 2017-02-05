@@ -441,7 +441,8 @@ void ThreatManager::doAddThreat(Unit* victim, float threat)
         {
             float redirectThreat = CalculatePct(threat, redirectThreadPct);
             threat -= redirectThreat;
-            _addThreat(redirectTarget, redirectThreat);
+            if (ThreatCalcHelper::isValidProcess(redirectTarget, GetOwner()))
+                _addThreat(redirectTarget, redirectThreat);
         }
     }
 
