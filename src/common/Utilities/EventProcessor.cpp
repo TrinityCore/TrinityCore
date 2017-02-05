@@ -131,7 +131,6 @@ void EventProcessor::ModifyEventTime(BasicEvent* Event, uint64 newTime)
         m_events.insert(std::pair<uint64, BasicEvent*>(newTime, Event));
         break;
     }
-
 }
 
 uint64 EventProcessor::CalculateTime(uint64 t_offset) const
