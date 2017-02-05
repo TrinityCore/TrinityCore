@@ -29,7 +29,7 @@ enum CuratorSays
     SAY_DEATH                    = 5
 };
 
-enum CuratorSpells : uint32
+enum CuratorSpells
 {
     SPELL_HATEFUL_BOLT           = 30383,
     SPELL_EVOCATION              = 30254,
