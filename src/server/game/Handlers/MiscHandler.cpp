@@ -982,7 +982,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_INSPECT");
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::GetPlayer(*_player, guid);
     if (!player)
     {
         TC_LOG_DEBUG("network", "CMSG_INSPECT: No player found from %s", guid.ToString().c_str());
@@ -1018,7 +1018,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::GetPlayer(*_player, guid);
 
     if (!player)
     {
@@ -1455,7 +1455,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     recvData >> guid.ReadAsPacked();
 
     TC_LOG_DEBUG("network", "CMSG_QUERY_INSPECT_ACHIEVEMENTS [%s] Inspected Player [%s]", _player->GetGUID().ToString().c_str(), guid.ToString().c_str());
-    Player* player = ObjectAccessor::FindPlayer(guid);
+    Player* player = ObjectAccessor::GetPlayer(*_player, guid);
     if (!player)
         return;
 

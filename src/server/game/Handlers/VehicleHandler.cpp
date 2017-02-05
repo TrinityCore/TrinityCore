@@ -130,13 +130,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
     ObjectGuid guid;
     data >> guid;
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::GetPlayer(*_player, guid))
     {
         if (!player->GetVehicleKit())
             return;
         if (!player->IsInRaidWith(_player))
             return;
         if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            return;
+        // Dont' allow players to enter player vehicle on arena
+        if (!_player->FindMap() || _player->FindMap()->IsBattleArena())
             return;
 
         _player->EnterVehicle(player);

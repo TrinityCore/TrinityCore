@@ -985,21 +985,18 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 Player* member = itr->GetSource();
                 if (!member || !member->GetSession())
                     continue;
-                if (i->AllowedForPlayer(member))
+                if (member->IsAtGroupRewardDistance(pLootedObject) && i->AllowedForPlayer(member))
                 {
-                    if (member->IsAtGroupRewardDistance(pLootedObject))
-                    {
-                        r->totalPlayersRolling++;
+                    r->totalPlayersRolling++;
 
-                        if (member->GetPassOnGroupLoot())
-                        {
-                            r->playerVote[member->GetGUID()] = PASS;
-                            r->totalPass++;
-                            // can't broadcast the pass now. need to wait until all rolling players are known.
-                        }
-                        else
-                            r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
+                    if (member->GetPassOnGroupLoot())
+                    {
+                        r->playerVote[member->GetGUID()] = PASS;
+                        r->totalPass++;
+                        // can't broadcast the pass now. need to wait until all rolling players are known.
                     }
+                    else
+                        r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
                 }
             }
 
@@ -1071,13 +1068,10 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             if (!member || !member->GetSession())
                 continue;
 
-            if (i->AllowedForPlayer(member))
+            if (member->IsAtGroupRewardDistance(pLootedObject) && i->AllowedForPlayer(member))
             {
-                if (member->IsAtGroupRewardDistance(pLootedObject))
-                {
-                    r->totalPlayersRolling++;
-                    r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
-                }
+                r->totalPlayersRolling++;
+                r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
             }
         }
 
@@ -1132,8 +1126,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (!playerToRoll || !playerToRoll->GetSession())
                     continue;
 
-                bool allowedForPlayer = i->AllowedForPlayer(playerToRoll);
-                if (allowedForPlayer && playerToRoll->IsAtGroupRewardDistance(lootedObject))
+                if (playerToRoll->IsAtGroupRewardDistance(lootedObject) && i->AllowedForPlayer(playerToRoll))
                 {
                     r->totalPlayersRolling++;
                     if (playerToRoll->GetPassOnGroupLoot())
@@ -1208,8 +1201,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             if (!playerToRoll || !playerToRoll->GetSession())
                 continue;
 
-            bool allowedForPlayer = i->AllowedForPlayer(playerToRoll);
-            if (allowedForPlayer && playerToRoll->IsAtGroupRewardDistance(lootedObject))
+            if (playerToRoll->IsAtGroupRewardDistance(lootedObject) && i->AllowedForPlayer(playerToRoll))
             {
                 r->totalPlayersRolling++;
                 r->playerVote[playerToRoll->GetGUID()] = NOT_EMITED_YET;

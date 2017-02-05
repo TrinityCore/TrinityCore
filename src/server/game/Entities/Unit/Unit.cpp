@@ -11295,7 +11295,7 @@ void Unit::ClearComboPointHolders()
     {
         ObjectGuid guid = *m_ComboPointHolders.begin();
 
-        Player* player = ObjectAccessor::FindPlayer(guid);
+        Player* player = ObjectAccessor::GetPlayer(*this, guid);
         if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
             player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
         else
