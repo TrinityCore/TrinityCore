@@ -1121,7 +1121,6 @@ void WorldSession::HandleCharRenameCallback(std::shared_ptr<CharacterRenameInfo>
     SendCharRename(RESPONSE_SUCCESS, renameInfo.get());
 
     sCharacterCache->UpdateCharacterData(renameInfo->Guid, renameInfo->Name);
-    sCharacterCache->UpdateCharacterGuidByName(renameInfo->Guid, oldName, renameInfo->Name);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
@@ -1414,7 +1413,6 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     CharacterDatabase.CommitTransaction(trans);
 
     sCharacterCache->UpdateCharacterData(customizeInfo->Guid, customizeInfo->Name, customizeInfo->Gender);
-    sCharacterCache->UpdateCharacterGuidByName(customizeInfo->Guid, oldName, customizeInfo->Name);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
@@ -1715,7 +1713,6 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     }
 
     sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->Gender, factionChangeInfo->Race);
-    sCharacterCache->UpdateCharacterGuidByName(factionChangeInfo->Guid, oldName, factionChangeInfo->Name);
 
     if (oldRace != factionChangeInfo->Race)
     {

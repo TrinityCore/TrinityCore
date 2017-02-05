@@ -18,13 +18,14 @@
 #ifndef __CHARACTERCACHE_H
 #define __CHARACTERCACHE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "ObjectGuid.h"
 
-#include <unordered_map>
+#include <string>
 
 struct CharacterCacheEntry
 {
+    ObjectGuid Guid;
     std::string Name;
     uint32 AccountId;
     uint8 Class;
@@ -34,9 +35,6 @@ struct CharacterCacheEntry
     ObjectGuid::LowType GuildId;
     uint32 ArenaTeamId[3];
 };
-
-typedef std::unordered_map<std::string, ObjectGuid> CharacterGuidByNameContainer;
-typedef std::unordered_map<ObjectGuid, CharacterCacheEntry> CharacterCacheContainer;
 
 class TC_GAME_API CharacterCache
 {
@@ -54,7 +52,6 @@ class TC_GAME_API CharacterCache
         void UpdateCharacterAccountId(ObjectGuid const& guid, uint32 accountId);
         void UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId);
         void UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 slot, uint32 arenaTeamId);
-        void UpdateCharacterGuidByName(ObjectGuid const& guid, std::string const& oldName, std::string const& newName);
 
         bool HasCharacterCacheEntry(ObjectGuid const& guid) const;
         CharacterCacheEntry const* GetCharacterCacheByGuid(ObjectGuid const& guid) const;

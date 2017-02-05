@@ -24,10 +24,12 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+#include <unordered_map>
+
 namespace
 {
-    CharacterCacheContainer _characterCacheStore;
-    CharacterGuidByNameContainer _characterGuidByNameStore;
+    std::unordered_map<ObjectGuid, CharacterCacheEntry> _characterCacheStore;
+    std::unordered_map<std::string, CharacterCacheEntry*> _characterCacheByNameStore;
 }
 
 CharacterCache::CharacterCache()
@@ -93,6 +95,7 @@ Modifying functions
 void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterCacheEntry& data = _characterCacheStore[guid];
+    data.Guid = guid;
     data.Name = name;
     data.AccountId = accountId;
     data.Race = race;
@@ -104,13 +107,13 @@ void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accou
         data.ArenaTeamId[i] = 0;                // Will be set in arena teams loading
 
     // Fill Name to Guid Store
-    _characterGuidByNameStore[name] = guid;
+    _characterCacheByNameStore[name] = &data;
 }
 
 void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::string const& name)
 {
     _characterCacheStore.erase(guid);
-    _characterGuidByNameStore.erase(name);
+    _characterCacheByNameStore.erase(name);
 }
 
 void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
@@ -119,6 +122,7 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (itr == _characterCacheStore.end())
         return;
 
+    std::string oldName = itr->second.Name;
     itr->second.Name = name;
 
     if (gender != GENDER_NONE)
@@ -130,6 +134,10 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
     data << guid;
     sWorld->SendGlobalMessage(&data);
+
+    // Correct name -> pointer storage
+    _characterCacheByNameStore.erase(oldName);
+    _characterCacheByNameStore[name] = &itr->second;
 }
 
 void CharacterCache::UpdateCharacterLevel(ObjectGuid const& guid, uint8 level)
@@ -168,12 +176,6 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
-void CharacterCache::UpdateCharacterGuidByName(ObjectGuid const& guid, std::string const& oldName, std::string const& newName)
-{
-    _characterGuidByNameStore.erase(oldName);
-    _characterGuidByNameStore[newName] = guid;
-}
-
 /*
 Getters
 */
@@ -193,18 +195,18 @@ CharacterCacheEntry const* CharacterCache::GetCharacterCacheByGuid(ObjectGuid co
 
 CharacterCacheEntry const* CharacterCache::GetCharacterCacheByName(std::string const& name) const
 {
-    auto itr = _characterGuidByNameStore.find(name);
-    if (itr != _characterGuidByNameStore.end())
-        return GetCharacterCacheByGuid(itr->second);
+    auto itr = _characterCacheByNameStore.find(name);
+    if (itr != _characterCacheByNameStore.end())
+        return itr->second;
 
     return nullptr;
 }
 
 ObjectGuid CharacterCache::GetCharacterGuidByName(std::string const& name) const
 {
-    auto itr = _characterGuidByNameStore.find(name);
-    if (itr != _characterGuidByNameStore.end())
-        return itr->second;
+    auto itr = _characterCacheByNameStore.find(name);
+    if (itr != _characterCacheByNameStore.end())
+        return itr->second->Guid;
 
     return ObjectGuid::Empty;
 }
@@ -239,9 +241,9 @@ uint32 CharacterCache::GetCharacterAccountIdByGuid(ObjectGuid guid) const
 
 uint32 CharacterCache::GetCharacterAccountIdByName(std::string const& name) const
 {
-    ObjectGuid guid = GetCharacterGuidByName(name);
-    if (!guid.IsEmpty())
-        return GetCharacterAccountIdByGuid(guid);
+    auto itr = _characterCacheByNameStore.find(name);
+    if (itr != _characterCacheByNameStore.end())
+        return itr->second->AccountId;
 
     return 0;
 }

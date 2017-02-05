@@ -385,7 +385,6 @@ public:
             }
 
             sCharacterCache->UpdateCharacterData(targetGuid, newName);
-            sCharacterCache->UpdateCharacterGuidByName(targetGuid, playerOldName, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
