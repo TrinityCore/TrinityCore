@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define _CHANNELAPPENDERS_H
 
 #include "Channel.h"
+#include "CharacterCache.h"
 
 // initial packet data (notify type and channel name)
 template<class PacketModifier>
@@ -184,7 +185,7 @@ struct ChannelOwnerAppend
 {
     explicit ChannelOwnerAppend(Channel const* channel, ObjectGuid const& ownerGuid) : _channel(channel), _ownerGuid(ownerGuid)
     {
-        CharacterInfo const* cInfo = sWorld->GetCharacterInfo(_ownerGuid);
+        CharacterCacheEntry const* cInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid);
         if (!cInfo || cInfo->Name.empty())
             _ownerName = "PLAYER_NOT_FOUND";
         else

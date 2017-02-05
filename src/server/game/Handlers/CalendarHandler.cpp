@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,13 +35,13 @@ Copied events should probably have a new owner
 
 */
 
+#include "CharacterCache.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "CalendarMgr.h"
-#include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GuildMgr.h"
@@ -432,6 +432,9 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
 
     recvData >> eventId >> inviteId >> name >> isPreInvite >> isGuildEvent;
 
+    if (!normalizePlayerName(name))
+        return;
+
     if (Player* player = ObjectAccessor::FindConnectedPlayerByName(name))
     {
         // Invitee is online
@@ -441,15 +444,16 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     }
     else
     {
-        // Invitee offline, get data from database
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
-        stmt->setString(0, name);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        // Invitee offline, get data from storage
+        ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(name);
+        if (!guid.IsEmpty())
         {
-            Field* fields = result->Fetch();
-            inviteeGuid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
-            inviteeTeam = Player::TeamForRace(fields[1].GetUInt8());
-            inviteeGuildId = Player::GetGuildIdFromDB(inviteeGuid);
+            if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid))
+            {
+                inviteeGuid = guid;
+                inviteeTeam = Player::TeamForRace(characterInfo->Race);
+                inviteeGuildId = characterInfo->GuildId;
+            }
         }
     }
 

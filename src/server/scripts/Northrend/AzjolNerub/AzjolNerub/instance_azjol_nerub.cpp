@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ ObjectData const gameobjectData[] =
     { 0,                  0                  } // END
 };
 
-BossBoundaryData const boundaries = 
+BossBoundaryData const boundaries =
 {
     { DATA_KRIKTHIR, new RectangleBoundary(400.0f, 580.0f, 623.5f, 810.0f) },
     { DATA_HADRONOX, new ZRangeBoundary(666.0f, 776.0f) },

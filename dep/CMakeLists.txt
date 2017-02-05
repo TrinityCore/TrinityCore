@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -24,7 +24,7 @@ if(SERVERS OR TOOLS)
   add_subdirectory(zlib)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
-  add_subdirectory(cppformat)
+  add_subdirectory(fmt)
   add_subdirectory(SFMT)
   add_subdirectory(utf8cpp)
   add_subdirectory(valgrind)

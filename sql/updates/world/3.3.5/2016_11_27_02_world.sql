@@ -1,0 +1,6 @@
+-- 
+DELETE FROM `creature_addon` WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id` IN (34812, 34823,34819,34822, 34824, 32830, 32840, 32824, 32827, 32831, 32825, 32829, 32839));
+DELETE FROM `game_event_creature` WHERE `guid` IN (SELECT `guid` FROM `creature` WHERE `id` IN (34812, 34823,34819,34822, 34824, 32830, 32840, 32824, 32827, 32831, 32825, 32829, 32839));
+DELETE FROM `creature` WHERE `id` IN (34812, 34823,34819,34822, 34824, 32830, 32840, 32824, 32827, 32831, 32825, 32829, 32839);
+-- Fix DB error
+UPDATE `smart_scripts` SET `link`=10 WHERE `entryorguid`=27959 AND `source_type`=0 AND `id`=9;

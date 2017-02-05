@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -303,9 +303,9 @@ class TC_GAME_API Group
         void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
         void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(ObjectGuid Guid);
-        void CountTheRoll(Rolls::iterator roll);
+        void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
         void CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choise);
-        void EndRoll(Loot* loot);
+        void EndRoll(Loot* loot, Map* allowedMap);
 
         // related to disenchant rolls
         void ResetMaxEnchantingLevel();

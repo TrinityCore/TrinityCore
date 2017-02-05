@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@
 #include <limits.h>
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 5
+#define MMAP_VERSION 6
 
 struct MmapTileHeader
 {
@@ -63,16 +63,14 @@ namespace MMAP
         m_skipBattlegrounds  (skipBattlegrounds),
         m_maxWalkableAngle   (maxWalkableAngle),
         m_bigBaseUnit        (bigBaseUnit),
+        m_totalTiles         (0u),
+        m_totalTilesProcessed(0u),
         m_rcContext          (NULL),
         _cancelationToken    (false)
     {
         m_terrainBuilder = new TerrainBuilder(skipLiquid);
 
         m_rcContext = new rcContext(false);
-
-        // percentageDone - Initializing
-        m_totalTiles = 0;
-        m_totalTilesBuilt = 0;
 
         discoverTiles();
     }
@@ -157,8 +155,7 @@ namespace MMAP
         }
         printf("found %u.\n\n", count);
 
-        // percentageDone - total tiles to process
-        m_totalTiles = count;
+        m_totalTiles.store(count, std::memory_order_relaxed);
     }
 
     /**************************************************************************/
@@ -393,7 +390,8 @@ namespace MMAP
             // add all tiles within bounds to tile list.
             for (uint32 i = minX; i <= maxX; ++i)
                 for (uint32 j = minY; j <= maxY; ++j)
-                    tiles->insert(StaticMapTree::packTileID(i, j));
+                    if (tiles->insert(StaticMapTree::packTileID(i, j)).second)
+                        ++m_totalTiles;
         }
 
         if (!tiles->empty())
@@ -404,6 +402,7 @@ namespace MMAP
             if (!navMesh)
             {
                 printf("[Map %03i] Failed creating navmesh!\n", mapID);
+                m_totalTilesProcessed += tiles->size();
                 return;
             }
 
@@ -416,6 +415,7 @@ namespace MMAP
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
 
+                ++m_totalTilesProcessed;
                 if (shouldSkipTile(mapID, tileX, tileY))
                     continue;
 
@@ -431,8 +431,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        // percentageDone - added, now it will show addional reference percentage done of the overall process
-        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesBuilt), mapID, tileX, tileY);
+        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -466,9 +465,6 @@ namespace MMAP
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
-
-        // percentageDone - increment tiles built
-        m_totalTilesBuilt++;
     }
 
     /**************************************************************************/

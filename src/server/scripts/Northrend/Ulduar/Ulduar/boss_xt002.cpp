@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -207,6 +207,12 @@ class boss_xt002 : public CreatureScript
                 Initialize();
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                _DespawnAtEvade();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -444,24 +450,17 @@ class npc_xt002_heart : public CreatureScript
     public:
         npc_xt002_heart() : CreatureScript("npc_xt002_heart") { }
 
-        struct npc_xt002_heartAI : public ScriptedAI
+        struct npc_xt002_heartAI : public NullCreatureAI
         {
-            npc_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
-            {
-                SetCombatMovement(false);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override { }
+            npc_xt002_heartAI(Creature* creature) : NullCreatureAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)) : nullptr;
-                if (!xt002 || !xt002->AI())
-                    return;
-
-                xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
-                xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
+                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
+                {
+                    xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
+                    xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
+                }
             }
 
         private:
@@ -1048,7 +1047,7 @@ class spell_xt002_submerged : public SpellScriptLoader
                     return;
 
                 target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
+                target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             }
 
             void Register() override

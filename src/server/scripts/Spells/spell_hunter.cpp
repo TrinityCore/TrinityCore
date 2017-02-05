@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -687,8 +687,8 @@ class spell_hun_lock_and_load : public SpellScriptLoader
                     return false;
 
                 // Do not proc on traps for immolation/explosive trap
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !(damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
                     return false;
 
                 return roll_chance_i(aurEff->GetAmount());
@@ -752,11 +752,11 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             SpellCastResult DoCheckCast()
             {
-                Pet* pet = GetCaster()->ToPlayer()->GetPet();
+                Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
                 ASSERT(pet); // checked in Spell::CheckCast
 
-                if (!pet->IsAlive())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                if (!pet->IsPet() || !pet->IsAlive())
+                    return SPELL_FAILED_NO_PET;
 
                 // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
                 SpellCastResult result = SPELL_CAST_OK;

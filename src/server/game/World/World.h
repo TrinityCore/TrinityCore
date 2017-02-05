@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "QueryResult.h"
-#include "QueryCallback.h"
+#include "QueryCallbackProcessor.h"
 #include "Realm/Realm.h"
 
 #include <atomic>
@@ -83,6 +83,7 @@ enum WorldTimers
     WUPDATE_AHBOT,
     WUPDATE_PINGDB,
     WUPDATE_CHECK_FILECHANGES,
+    WUPDATE_WHO_LIST,
     WUPDATE_COUNT
 };
 
@@ -91,7 +92,6 @@ enum WorldBoolConfigs
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
     CONFIG_ADDON_CHANNEL,
-    CONFIG_ALLOW_PLAYER_COMMANDS,
     CONFIG_CLEAN_CHARACTER_DB,
     CONFIG_GRID_UNLOAD,
     CONFIG_STATS_SAVE_ONLY_ON_LOGOUT,
@@ -114,6 +114,7 @@ enum WorldBoolConfigs
     CONFIG_WEATHER,
     CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL,
     CONFIG_QUEST_IGNORE_RAID,
+    CONFIG_CHAT_PARTY_RAID_WARNINGS,
     CONFIG_DETECT_POS_COLLISION,
     CONFIG_RESTRICTED_LFG_CHANNEL,
     CONFIG_CHAT_FAKE_MESSAGE_PREVENTING,
@@ -554,6 +555,8 @@ struct CharacterInfo
     uint8 Race;
     uint8 Sex;
     uint8 Level;
+    ObjectGuid::LowType GuildId;
+    uint32 ArenaTeamId[3];
 };
 
 /// The World
@@ -769,13 +772,6 @@ class TC_GAME_API World
 
         void UpdateAreaDependentAuras();
 
-        CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
-        void AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
-        void DeleteCharacterInfo(ObjectGuid const& guid) { _characterInfoStore.erase(guid); }
-        bool HasCharacterInfo(ObjectGuid const& guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
-        void UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level);
-
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
@@ -881,12 +877,8 @@ class TC_GAME_API World
         typedef std::map<uint8, uint8> AutobroadcastsWeightMap;
         AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
-        typedef std::unordered_map<ObjectGuid, CharacterInfo> CharacterInfoContainer;
-        CharacterInfoContainer _characterInfoStore;
-        void LoadCharacterInfoStore();
-
         void ProcessQueryCallbacks();
-        std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+        QueryCallbackProcessor _queryProcessor;
 };
 
 TC_GAME_API extern Realm realm;

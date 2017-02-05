@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1587,6 +1587,15 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_ADD_FLAT_MODIFIER] = true;
     isTriggerAura[SPELL_AURA_ADD_PCT_MODIFIER] = true;
     isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
+    isTriggerAura[SPELL_AURA_MOD_INVISIBILITY] = true;
+    isTriggerAura[SPELL_AURA_FORCE_REACTION] = true;
+    isTriggerAura[SPELL_AURA_MOD_TAUNT] = true;
+    isTriggerAura[SPELL_AURA_MOD_DETAUNT] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_DONE] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER_PCT] = true;
+    isTriggerAura[SPELL_AURA_MOD_HIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_MOD_WEAPON_CRIT_PERCENT] = true;
+    isTriggerAura[SPELL_AURA_MOD_BLOCK_PERCENT] = true;
 
     isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
@@ -1595,6 +1604,7 @@ void SpellMgr::LoadSpellProcs()
     isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
     isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_INVISIBILITY] = true;
 
     spellTypeMask[SPELL_AURA_MOD_STEALTH] = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
     spellTypeMask[SPELL_AURA_MOD_CONFUSE] = PROC_SPELL_TYPE_DAMAGE;
@@ -1602,6 +1612,7 @@ void SpellMgr::LoadSpellProcs()
     spellTypeMask[SPELL_AURA_MOD_ROOT] = PROC_SPELL_TYPE_DAMAGE;
     spellTypeMask[SPELL_AURA_MOD_STUN] = PROC_SPELL_TYPE_DAMAGE;
     spellTypeMask[SPELL_AURA_TRANSFORM] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_INVISIBILITY] = PROC_SPELL_TYPE_DAMAGE;
 
     // This generates default procs to retain compatibility with previous proc system
     TC_LOG_INFO("server.loading", "Generating spell proc data from SpellMap...");
@@ -1657,7 +1668,18 @@ void SpellMgr::LoadSpellProcs()
         }
 
         if (!procSpellTypeMask)
+        {
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (spellInfo->Effects[i].IsAura())
+                {
+                    TC_LOG_ERROR("sql.sql", "Spell Id %u has DBC ProcFlags %u, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.", spellInfo->Id, spellInfo->ProcFlags);
+                    break;
+                }
+            }
+
             continue;
+        }
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
@@ -1674,14 +1696,30 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
-        // Reflect auras should only proc off reflects
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (spellInfo->Effects[i].IsAura(SPELL_AURA_REFLECT_SPELLS) || spellInfo->Effects[i].IsAura(SPELL_AURA_REFLECT_SPELLS_SCHOOL))
+            if (!spellInfo->Effects[i].IsAura())
+                continue;
+
+            switch (spellInfo->Effects[i].ApplyAuraName)
             {
-                procEntry.HitMask = PROC_HIT_REFLECT;
-                break;
+                // Reflect auras should only proc off reflects
+                case SPELL_AURA_REFLECT_SPELLS:
+                case SPELL_AURA_REFLECT_SPELLS_SCHOOL:
+                    procEntry.HitMask = PROC_HIT_REFLECT;
+                    break;
+                // Only drop charge on crit
+                case SPELL_AURA_MOD_WEAPON_CRIT_PERCENT:
+                    procEntry.HitMask = PROC_HIT_CRITICAL;
+                    break;
+                // Only drop charge on block
+                case SPELL_AURA_MOD_BLOCK_PERCENT:
+                    procEntry.HitMask = PROC_HIT_BLOCK;
+                    break;
+                default:
+                    continue;
             }
+            break;
         }
 
         procEntry.AttributesMask  = 0;
@@ -2453,6 +2491,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         {
             switch (spellInfo->Effects[j].ApplyAuraName)
             {
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_CONFUSE:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_STUN:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                    break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -2533,6 +2579,84 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             }
         }
 
+        // spells ignoring hit result should not be binary
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        {
+            bool setFlag = false;
+            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            {
+                if (spellInfo->Effects[j].IsEffect())
+                {
+                    switch (spellInfo->Effects[j].Effect)
+                    {
+                        case SPELL_EFFECT_SCHOOL_DAMAGE:
+                        case SPELL_EFFECT_WEAPON_DAMAGE:
+                        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                        case SPELL_EFFECT_TRIGGER_SPELL:
+                        case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+                            break;
+                        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+                        case SPELL_EFFECT_APPLY_AURA:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+                        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+                        {
+                            if (spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
+                                spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE_PERCENT ||
+                                spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_DUMMY ||
+                                spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_LEECH ||
+                                spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_HEALTH_FUNNEL ||
+                                spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
+                                break;
+                        }
+                        default:
+                        {
+                            // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
+                            if (!spellInfo->Effects[j].CalcValue() && !((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                                break;
+
+                            // Sindragosa Frost Breath
+                            if (spellInfo->Id == 69649 || spellInfo->Id == 71056 || spellInfo->Id == 71057 || spellInfo->Id == 71058 || spellInfo->Id == 73061 || spellInfo->Id == 73062 || spellInfo->Id == 73063 || spellInfo->Id == 73064)
+                                break;
+
+                            // Frostbolt
+                            if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->SpellFamilyFlags[0] & 0x20))
+                                break;
+
+                            // Frost Fever
+                            if (spellInfo->Id == 55095)
+                                break;
+
+                            // Haunt
+                            if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellInfo->SpellFamilyFlags[1] & 0x40000))
+                                break;
+
+                            setFlag = true;
+                            break;
+                        }
+                    }
+
+                    if (setFlag)
+                    {
+                        spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY_SPELL;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Remove normal school mask to properly calculate damage
+        if ((spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL) && (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_MAGIC))
+        {
+            spellInfo->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
+            spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC;
+        }
+
         if (!spellInfo->_IsPositiveEffect(EFFECT_0, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
 
@@ -2545,7 +2669,65 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (spellInfo->SpellVisual[0] == 3879)
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
 
+        switch (spellInfo->SpellFamilyName)
+        {
+            case SPELLFAMILY_WARRIOR:
+                // Shout / Piercing Howl
+                if (spellInfo->SpellFamilyFlags[0] & 0x20000/* || spellInfo->SpellFamilyFlags[1] & 0x20*/)
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                break;
+            case SPELLFAMILY_DRUID:
+                // Roar
+                if (spellInfo->SpellFamilyFlags[0] & 0x8)
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                break;
+            case SPELLFAMILY_GENERIC:
+                // Stoneclaw Totem effect
+                if (spellInfo->Id == 5729)
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                break;
+            default:
+                break;
+        }
+
         spellInfo->_InitializeExplicitTargetMask();
+    }
+
+    // addition for binary spells, ommit spells triggering other spells
+    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    {
+        spellInfo = mSpellInfoMap[i];
+        if (!spellInfo)
+            continue;
+
+        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+            continue;
+
+        bool allNonBinary = true;
+        bool overrideAttr = false;
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        {
+            if (spellInfo->Effects[j].IsAura() && spellInfo->Effects[j].TriggerSpell)
+            {
+                switch (spellInfo->Effects[j].ApplyAuraName)
+                {
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                        if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(spellInfo->Effects[j].TriggerSpell))
+                        {
+                            overrideAttr = true;
+                            if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+                                allNonBinary = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (overrideAttr && allNonBinary)
+            spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -2605,13 +2787,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42835: // Spout, remove damage effect, only anim is needed
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
-            case 30657: // Quake
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 30571;
-                break;
-            case 30541: // Blaze (needs conditions entry)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
-                break;
             case 63665: // Charge (Argent Tournament emote on riders)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
@@ -2664,6 +2839,21 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 63320: // Glyph of Life Tap
                 // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
+            case 51627: // Turn the Tables (Rank 1)
+            case 51628: // Turn the Tables (Rank 2)
+            case 51629: // Turn the Tables (Rank 3)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 52910: // Turn the Tables
+            case 52914: // Turn the Tables
+            case 52915: // Turn the Tables
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
+            case 29441: // Magic Absorption (Rank 1)
+            case 29444: // Magic Absorption (Rank 2)
+                // Caused off by 1 calculation (ie 79 resistance at level 80)
+                spellInfo->SpellLevel = 0;
                 break;
             case 5308:  // Execute (Rank 1)
             case 20658: // Execute (Rank 2)
@@ -2738,10 +2928,23 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
                 break;
+            case 47977: // Magic Broom
+            case 48025: // Headless Horseman's Mount
+            case 54729: // Winged Steed of the Ebon Blade
+            case 71342: // Big Love Rocket
+            case 72286: // Invincible
+            case 74856: // Blazing Hippogryph
+            case 75614: // Celestial Steed
+            case 75973: // X-53 Touring Rocket
+                // First two effects apply auras, which shouldn't be there
+                // due to NO_TARGET applying aura on current caster (core bug)
+                // Just wipe effect data, to mimic blizz-behavior
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
             case 56342: // Lock and Load (Rank 1)
-                // @workaround: Delete dummy effect from rank 1,
-                // effect apply aura has TargetA == TargetB == 0 but core still applies it to caster
-                // core bug?
+                // @workaround: Delete dummy effect from rank 1
+                // effect apply aura has NO_TARGET but core still applies it to caster (same as above)
                 spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
             case 53480: // Roar of Sacrifice
@@ -2880,7 +3083,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49064: // Explosive Trap Effect (Rank 5)
             case 49065: // Explosive Trap Effect (Rank 6)
             case 43446: // Explosive Trap Effect (Hexlord Malacrass)
+            case 50661: // Weakened Resolve
             case 68979: // Unleashed Souls
+            case 48714: // Compelled
+            case 7853:  // The Art of Being a Water Terror: Force Cast on Player
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
@@ -3284,6 +3490,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(157); // 90yd
                 break;
             case 72706: // Achievement Check (Valithria Dreamwalker)
             case 71357: // Order Whelp
@@ -3314,6 +3521,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 69030: // Val'kyr Target Search
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
             case 69198: // Raging Spirit Visual
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
@@ -3467,6 +3675,119 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            case 41485: // Deadly Poison - Black Temple
+            case 41487: // Envenom - Black Temple
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                break;
+            default:
+                break;
+        }
+
+        switch (spellInfo->Id)
+        {
+            // Proc attribute correction
+            // Remove procflags from test/debug/deprecated spells to avoid DB Errors
+            case 2479:  // Honorless Target
+            case 3232:  // Gouge Stun Test
+            case 3409:  // Crippling Poison
+            case 4312:  // Strider Presence
+            case 5707:  // Lifestone Regeneration
+            case 5760:  // Mind-numbing Poison
+            case 6727:  // Poison Mushroom
+            case 6984:  // Frost Shot (Rank 2)
+            case 7164:  // Defensive Stance
+            case 7288:  // Immolate Cumulative (TEST) (Rank 1)
+            case 7291:  // Food (TEST)
+            case 7331:  // Healing Aura (TEST) (Rank 1)
+            case 7824:  // Blacksmithing Skill +10
+            case 12551: // Frost Shot
+            case 13218: // Wound Poison (Rank 1)
+            case 13222: // Wound Poison II (Rank 2)
+            case 13223: // Wound Poison III (Rank 3)
+            case 13224: // Wound Poison IV (Rank 4)
+            case 14795: // Venomhide Poison
+            case 16610: // Razorhide
+            case 18099: // Chill Nova
+            case 18802: // Frost Shot
+            case 20000: // Alexander's Test Periodic Aura
+            case 21163: // Polished Armor (Rank 1)
+            case 22818: // Mol'dar's Moxie
+            case 22820: // Slip'kik's Savvy
+            case 23333: // Warsong Flag
+            case 23335: // Silverwing Flag
+            case 25160: // Sand Storm
+            case 27189: // Wound Poison V (Rank 5)
+            case 28726: // Nightmare Seed
+            case 28754: // Fury of the Ashbringer
+            case 30802: // Unleashed Rage (Rank 1)
+            case 31481: // Lung Burst
+            case 32430: // Battle Standard
+            case 32431: // Battle Standard
+            case 32447: // Travel Form
+            case 33370: // Spell Haste
+            case 33807: // Abacus of Violent Odds
+            case 34132: // Gladiator's Totem of the Third Wind
+            case 34135: // Libram of Justice
+            case 34666: // Tamed Pet Passive 08 (DND)
+            case 34667: // Tamed Pet Passive 09 (DND)
+            case 34775: // Dragonspine Flurry
+            case 34889: // Fire Breath (Rank 1)
+            case 34976: // Netherstorm Flag
+            case 35131: // Bladestorm
+            case 35323: // Fire Breath (Rank 2)
+            case 35336: // Energizing Spores
+            case 36148: // Chill Nova
+            case 36613: // Aspect of the Spirit Hunter
+            case 36786: // Soul Chill
+            case 37174: // Perceived Weakness
+            case 37482: // Exploited Weakness
+            case 37526: // Battle Rush
+            case 37588: // Dive
+            case 37985: // Fire Breath
+            case 38317: // Forgotten Knowledge
+            case 38843: // Soul Chill
+            case 39015: // Atrophic Blow
+            case 40396: // Fel Infusion
+            case 40603: // Taunt Gurtogg
+            case 40803: // Ron's Test Buff
+            case 41435: // The Twin Blades of Azzinoth
+            case 42369: // Merciless Libram of Justice
+            case 42371: // Merciless Gladiator's Totem of the Third Wind
+            case 42636: // Birmingham Tools Test 3
+            case 43727: // Vengeful Libram of Justice
+            case 43729: // Vengeful Gladiator's Totem of the Third Wind
+            case 43817: // Focused Assault
+            case 44305: // You're a ...! (Effects2)
+            case 45384: // Birmingham Tools Test 4
+            case 45433: // Birmingham Tools Test 5
+            case 46093: // Brutal Libram of Justice
+            case 46099: // Brutal Gladiator's Totem of the Third Wind
+            case 46705: // Honorless Target
+            case 49883: // Flames
+            case 50655: // Frost Cut
+            case 50995: // Empowered Blood Presence (Rank 1)
+            case 55482: // Fire Breath (Rank 3)
+            case 55483: // Fire Breath (Rank 4)
+            case 55484: // Fire Breath (Rank 5)
+            case 55485: // Fire Breath (Rank 6)
+            case 57974: // Wound Poison VI (Rank 6)
+            case 57975: // Wound Poison VII (Rank 7)
+            case 60062: // Essence of Life
+            case 60302: // Meteorite Whetstone
+            case 60437: // Grim Toll
+            case 60492: // Embrace of the Spider
+            case 63024: // Gravity Bomb
+            case 64772: // Comet's Trail
+            case 65004: // Alacrity of the Elements
+            case 65019: // Mjolnir Runestone
+            case 65024: // Implosion
+            case 71003: // Vegard's Touch
+            case 72559: // Birmingham Tools Test 3
+            case 72560: // Birmingham Tools Test 3
+            case 72561: // Birmingham Tools Test 5
+            case 72980: // Shadow Resonance
+                spellInfo->ProcFlags = 0;
+                break;
             default:
                 break;
         }

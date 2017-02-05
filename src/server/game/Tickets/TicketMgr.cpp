@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Common.h"
 #include "TicketMgr.h"
 #include "DatabaseEnv.h"
@@ -168,7 +169,7 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true, false)).c_str());
 
     std::string name;
-    if (sObjectMgr->GetPlayerNameByGUID(_assignedTo, name))
+    if (sCharacterCache->GetCharacterNameByGuid(_assignedTo, name))
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
 
     if (detailed)
@@ -428,4 +429,14 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
         data << uint32(GMTICKET_STATUS_DEFAULT);
 
     session->SendPacket(&data);
+}
+
+std::string GmTicket::GetAssignedToName() const
+{
+    std::string name;
+    // save queries if ticket is not assigned
+    if (_assignedTo)
+        sCharacterCache->GetCharacterNameByGuid(_assignedTo, name);
+
+    return name;
 }

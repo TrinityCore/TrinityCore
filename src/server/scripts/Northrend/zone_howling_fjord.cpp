@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ enum Entries
 
     SPELL_HEALING_POTION = 17534,
     SPELL_BURN           = 42685,
-    
+
     EVENT_EMOTE_BEG    = 1,
     EVENT_BEGIN        = 2,
     EVENT_START_ESCORT = 3,
@@ -646,7 +646,7 @@ public:
             }
             else
                 player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
-        }		
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override

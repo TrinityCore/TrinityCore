@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -602,7 +602,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE             = 695,
     RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL              = 696,
     RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS                 = 697,
-    // 698 - reuse
+    RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT                = 698,
     RBAC_PERM_COMMAND_RELOAD_SPELL_PROC                      = 699,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS                   = 700,
     RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
@@ -734,7 +734,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_TICKET_SUGGESTION_UNASSIGN             = 827, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_SUGGESTION_VIEW                 = 828, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_ALL                       = 829, // not on 3.3.5a
-    // 830 reuse
+    RBAC_PERM_COMMAND_BNET_ACCOUNT_LIST_GAME_ACCOUTNS        = 830, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_BUG                       = 831, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT                 = 832, // not on 3.3.5a
     RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION                = 833, // not on 3.3.5a
@@ -749,12 +749,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 844, // not on 3.3.5a
-    RBAC_PERM_COMMAND_ANTICHEAT                              = 845,
-    RBAC_PERM_COMMAND_ANTICHEAT_GLOBAL                       = 846,
-    RBAC_PERM_COMMAND_ANTICHEAT_PLAYER                       = 847,
-    RBAC_PERM_COMMAND_ANTICHEAT_HANDLE                       = 848,
-    RBAC_PERM_COMMAND_ANTICHEAT_JAIL                         = 849,
-    RBAC_PERM_COMMAND_ANTICHEAT_WARN                         = 850,
+    RBAC_PERM_COMMAND_GO_OFFSET                              = 845,
+    RBAC_PERM_COMMAND_ANTICHEAT                              = 846,
+    RBAC_PERM_COMMAND_ANTICHEAT_GLOBAL                       = 847,
+    RBAC_PERM_COMMAND_ANTICHEAT_PLAYER                       = 848,
+    RBAC_PERM_COMMAND_ANTICHEAT_HANDLE                       = 849,
+    RBAC_PERM_COMMAND_ANTICHEAT_JAIL                         = 850,
+    RBAC_PERM_COMMAND_ANTICHEAT_WARN                         = 851,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
@@ -923,7 +924,7 @@ class TC_GAME_API RBACData
 
         /// Loads all permissions assigned to current account
         void LoadFromDB();
-        PreparedQueryResultFuture LoadFromDBAsync();
+        QueryCallback LoadFromDBAsync();
         void LoadFromDBCallback(PreparedQueryResult result);
 
         /// Sets security level

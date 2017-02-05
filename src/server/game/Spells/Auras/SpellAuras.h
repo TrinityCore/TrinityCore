@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -148,8 +148,6 @@ class TC_GAME_API Aura
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
-        void RefreshSpellMods();
-
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
         bool HasMoreThanOneEffectForType(AuraType auraType) const;
@@ -173,7 +171,7 @@ class TC_GAME_API Aura
         bool IsSingleTargetWith(Aura const* aura) const;
         void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
         void UnregisterSingleTarget();
-        int32 CalcDispelChance(Unit* auraTarget, bool offensive) const;
+        int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
         void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 * amount);
 

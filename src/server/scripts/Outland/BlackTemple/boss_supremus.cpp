@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -200,7 +200,7 @@ public:
         void InitializeAI() override
         {
             float x, y, z;
-            me->GetNearPoint(me, x, y, z, 1, 100.0f, float(M_PI * 2 * rand_norm()));
+            me->GetNearPoint(me, x, y, z, 1, 100.0f, frand(0.f, 2.f * float(M_PI)));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             DoCastSelf(SPELL_MOLTEN_FLAME, true);
         }
@@ -208,7 +208,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_flameAI(creature);
+        return GetBlackTempleAI<npc_molten_flameAI>(creature);
     }
 };
 
@@ -249,7 +249,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_volcanoAI(creature);
+        return GetBlackTempleAI<npc_volcanoAI>(creature);
     }
 };
 

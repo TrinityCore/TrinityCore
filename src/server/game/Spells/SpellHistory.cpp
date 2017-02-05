@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,7 +137,6 @@ void SpellHistory::SaveToDB(SQLTransaction& trans)
 
 void SpellHistory::Update()
 {
-    SQLTransaction t;
     Clock::time_point now = Clock::now();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
@@ -163,6 +162,9 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item,
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Spell* spell /*= nullptr*/)
 {
+    if (spell && spell->IsIgnoringCooldowns())
+        return;
+
     if (Player* player = _owner->ToPlayer())
     {
         // potions start cooldown until exiting combat
@@ -176,7 +178,7 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Sp
         }
     }
 
-    if (spellInfo->IsCooldownStartedOnEvent() || spellInfo->IsPassive() || (spell && spell->IsIgnoringCooldowns()))
+    if (spellInfo->IsCooldownStartedOnEvent() || spellInfo->IsPassive())
         return;
 
     StartCooldown(spellInfo, itemID, spell);

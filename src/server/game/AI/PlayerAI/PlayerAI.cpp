@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2016-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1269,11 +1269,13 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
     {
         Player::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
         for (Player::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+        {
             if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
                 me->KillSelf();
                 return;
             }
+        }
     }
 
     if (charmer->IsInCombat())

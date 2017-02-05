@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -150,6 +150,34 @@ namespace Trinity
                 return;
 
             if (!player->HaveAtClient(i_source))
+                return;
+
+            if (WorldSession* session = player->GetSession())
+                session->SendPacket(i_message);
+        }
+    };
+
+    struct TC_GAME_API MessageDistDelivererToHostile
+    {
+        Unit* i_source;
+        WorldPacket* i_message;
+        uint32 i_phaseMask;
+        float i_distSq;
+
+        MessageDistDelivererToHostile(Unit* src, WorldPacket* msg, float dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+        {
+        }
+
+        void Visit(PlayerMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
+
+        void SendPacket(Player* player)
+        {
+            // never send packet to self
+            if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
             if (WorldSession* session = player->GetSession())
@@ -782,6 +810,28 @@ namespace Trinity
             Unit const* i_obj;
             float i_range;
             uint32 i_hp;
+    };
+
+    class FriendlyBelowHpPctEntryInRange
+    {
+        public:
+            FriendlyBelowHpPctEntryInRange(Unit const* obj, uint32 entry, float range, uint8 pct, bool excludeSelf) : i_obj(obj), i_entry(entry), i_range(range), i_pct(pct), i_excludeSelf(excludeSelf) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_excludeSelf && i_obj->GetGUID() == u->GetGUID())
+                    return false;
+                if (u->GetEntry() == i_entry && u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->HealthBelowPct(i_pct))
+                    return true;
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            uint32 i_entry;
+            float i_range;
+            uint8 i_pct;
+            bool i_excludeSelf;
     };
 
     class FriendlyCCedInRange

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,6 +153,17 @@ namespace MMAP
             fclose(file);
             return false;
         }
+
+        long pos = ftell(file);
+        fseek(file, 0, SEEK_END);
+        if (static_cast<int32>(fileHeader.size) > ftell(file) - pos)
+        {
+            TC_LOG_ERROR("maps", "MMAP:loadMap: %03u%02i%02i.mmtile has corrupted data size", mapId, x, y);
+            fclose(file);
+            return false;
+        }
+
+        fseek(file, pos, SEEK_SET);
 
         unsigned char* data = (unsigned char*)dtAlloc(fileHeader.size, DT_ALLOC_PERM);
         ASSERT(data);

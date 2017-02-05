@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,13 +121,13 @@ enum AlchemistStone
     SPELL_ALCHEMISTS_STONE_EXTRA_MANA       = 21400
 };
 
-// Item - 13503: Alchemist's Stone 
-// Item - 35748: Guardian's Alchemist Stone 
-// Item - 35749: Sorcerer's Alchemist Stone 
-// Item - 35750: Redeemer's Alchemist Stone 
-// Item - 35751: Assassin's Alchemist Stone 
-// Item - 44322: Mercurial Alchemist Stone 
-// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 13503: Alchemist's Stone
+// Item - 35748: Guardian's Alchemist Stone
+// Item - 35749: Sorcerer's Alchemist Stone
+// Item - 35750: Redeemer's Alchemist Stone
+// Item - 35751: Assassin's Alchemist Stone
+// Item - 44322: Mercurial Alchemist Stone
+// Item - 44323: Indestructible Alchemist's Stone
 // Item - 44324: Mighty Alchemist's Stone
 
 // 17619 - Alchemist's Stone
@@ -282,9 +282,9 @@ class spell_item_arcane_shroud : public SpellScriptLoader
 };
 
 // Item - 12846: Argent Dawn Commission
-// Item - 13209: Seal of the Dawn 
-// Item - 19812: Rune of the Dawn 
- 
+// Item - 13209: Seal of the Dawn
+// Item - 19812: Rune of the Dawn
+
 // 17670 - Argent Dawn Commission
 class spell_item_argent_dawn_commission : public SpellScriptLoader
 {
@@ -331,7 +331,7 @@ enum AuraOfMadness
     SAY_MADNESS             = 21954
 };
 
-// Item - 31859: Darkmoon Card: Madness 
+// Item - 31859: Darkmoon Card: Madness
 // 39446 - Aura of Madness
 class spell_item_aura_of_madness : public SpellScriptLoader
 {
@@ -1146,6 +1146,46 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
         }
 };
 
+// Item 10721: Gnomish Harm Prevention Belt 
+// 13234 - Harm Prevention Belt
+enum HarmPreventionBelt
+{
+    SPELL_FORCEFIELD_COLLAPSE = 13235
+};
+
+class spell_item_harm_prevention_belt : public SpellScriptLoader
+{
+    public:
+        spell_item_harm_prevention_belt() : SpellScriptLoader("spell_item_harm_prevention_belt") { }
+
+        class spell_item_harm_prevention_belt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_harm_prevention_belt_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FORCEFIELD_COLLAPSE))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(ProcEventInfo& /*eventInfo*/)
+            {
+                GetTarget()->CastSpell((Unit*)nullptr, SPELL_FORCEFIELD_COLLAPSE, true);
+            }
+
+            void Register() override
+            {
+                OnProc += AuraProcFn(spell_item_harm_prevention_belt_AuraScript::HandleProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_harm_prevention_belt_AuraScript();
+        }
+};
+
 // Item 23004 - Idol of Longevity
 // 28847 - Healing Touch Refund
 enum IdolOfLongevity
@@ -1362,8 +1402,8 @@ enum MarkOfConquest
     SPELL_MARK_OF_CONQUEST_ENERGIZE     = 39599
 };
 
-// Item - 27920: Mark of Conquest 
-// Item - 27921: Mark of Conquest 
+// Item - 27920: Mark of Conquest
+// Item - 27921: Mark of Conquest
 // 33510 - Health Restore
 class spell_item_mark_of_conquest : public SpellScriptLoader
 {
@@ -4439,9 +4479,9 @@ class spell_item_universal_remote : public SpellScriptLoader
                 {
                     uint8 chance = urand(0, 99);
                     if (chance < 15)
-                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem());
                     else if (chance < 25)
-                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem()); 
+                        GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem());
                     else
                         GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
                 }
@@ -4522,6 +4562,141 @@ class spell_item_zandalarian_charm : public SpellScriptLoader
         uint32 _spellId;
 };
 
+// 45051 - Mad Alchemist's Potion (34440)
+class spell_item_mad_alchemists_potion : public SpellScriptLoader
+{
+public:
+    spell_item_mad_alchemists_potion() : SpellScriptLoader("spell_item_mad_alchemists_potion") {}
+
+    class mad_alchemists_potion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(mad_alchemists_potion_SpellScript);
+
+        void SecondaryEffect()
+        {
+            std::vector<uint32> availableElixirs =
+            {
+                // Battle Elixirs
+                33720, // Onslaught Elixir (28102)
+                54452, // Adept's Elixir (28103)
+                33726, // Elixir of Mastery (28104)
+                28490, // Elixir of Major Strength (22824)
+                28491, // Elixir of Healing Power (22825)
+                28493, // Elixir of Major Frost Power (22827)
+                54494, // Elixir of Major Agility (22831)
+                28501, // Elixir of Major Firepower (22833)
+                28503,// Elixir of Major Shadow Power (22835)
+                38954, // Fel Strength Elixir (31679)
+                // Guardian Elixirs
+                39625, // Elixir of Major Fortitude (32062)
+                39626, // Earthen Elixir (32063)
+                39627, // Elixir of Draenic Wisdom (32067)
+                39628, // Elixir of Ironskin (32068)
+                28502, // Elixir of Major Defense (22834)
+                28514, // Elixir of Empowerment (22848)
+                // Other
+                28489, // Elixir of Camouflage (22823)
+                28496  // Elixir of the Searching Eye (22830)
+            };
+
+            Unit* target = GetCaster();
+
+            if (target->getPowerType() == POWER_MANA)
+                    availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
+
+            uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+
+            bool useElixir = true;
+
+            SpellGroup chosenSpellGroup = SPELL_GROUP_NONE;
+            if (sSpellMgr->IsSpellMemberOfSpellGroup(chosenElixir, SPELL_GROUP_ELIXIR_BATTLE))
+                chosenSpellGroup = SPELL_GROUP_ELIXIR_BATTLE;
+            if (sSpellMgr->IsSpellMemberOfSpellGroup(chosenElixir, SPELL_GROUP_ELIXIR_GUARDIAN))
+                chosenSpellGroup = SPELL_GROUP_ELIXIR_GUARDIAN;
+            // If another spell of the same group is already active the elixir should not be cast
+            if (chosenSpellGroup)
+            {
+                Unit::AuraApplicationMap& Auras = target->GetAppliedAuras();
+                for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
+                {
+                    uint32 spell_id = itr->second->GetBase()->GetId();
+                    if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, chosenSpellGroup) && spell_id != chosenElixir)
+                    {
+                        useElixir = false;
+                        break;
+                    }
+                }
+            }
+
+            if (useElixir)
+                target->CastSpell(target, chosenElixir, true, GetCastItem());
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(mad_alchemists_potion_SpellScript::SecondaryEffect);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new mad_alchemists_potion_SpellScript();
+    }
+};
+
+// 53750 - Crazy Alchemist's Potion (40077)
+class spell_item_crazy_alchemists_potion : public SpellScriptLoader
+{
+public:
+    spell_item_crazy_alchemists_potion() : SpellScriptLoader("spell_item_crazy_alchemists_potion") {}
+
+    class crazy_alchemists_potion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(crazy_alchemists_potion_SpellScript);
+
+        void SecondaryEffect()
+        {
+            std::vector<uint32> availableElixirs =
+            {
+                43185, // Runic Healing Potion (33447)
+                53750, // Crazy Alchemist's Potion (40077)
+                53761, // Powerful Rejuvenation Potion (40087)
+                53762, // Indestructible Potion (40093)
+                53908, // Potion of Speed (40211)
+                53909, // Potion of Wild Magic (40212)
+                53910, // Mighty Arcane Protection Potion (40213)
+                53911, // Mighty Fire Protection Potion (40214)
+                53913, // Mighty Frost Protection Potion (40215)
+                53914, // Mighty Nature Protection Potion (40216)
+                53915  // Mighty Shadow Protection Potion (40217)
+            };
+
+            Unit* target = GetCaster();
+
+            if (!target->IsInCombat())
+                availableElixirs.push_back(53753); // Potion of Nightmares (40081)
+            if (target->getPowerType() == POWER_MANA)
+                availableElixirs.push_back(43186); // Runic Mana Potion(33448)
+
+            uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+
+            target->CastSpell(target, chosenElixir, true, GetCastItem());
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(crazy_alchemists_potion_SpellScript::SecondaryEffect);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new crazy_alchemists_potion_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4558,6 +4733,7 @@ void AddSC_item_spell_scripts()
     new spell_item_flask_of_the_north();
     new spell_item_frozen_shadoweave();
     new spell_item_gnomish_death_ray();
+    new spell_item_harm_prevention_belt();
     new spell_item_healing_touch_refund();
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
@@ -4636,4 +4812,7 @@ void AddSC_item_spell_scripts()
 
     new spell_item_zandalarian_charm("spell_item_unstable_power", SPELL_UNSTABLE_POWER_AURA_STACK);
     new spell_item_zandalarian_charm("spell_item_restless_strength", SPELL_RESTLESS_STRENGTH_AURA_STACK);
+    
+    new spell_item_mad_alchemists_potion();
+    new spell_item_crazy_alchemists_potion();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -213,7 +213,7 @@ void OpcodeTable::Initialize()
     /*0x05F*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_GAMEOBJECT_QUERY_RESPONSE, STATUS_NEVER);
     /*0x060*/ DEFINE_HANDLER(CMSG_CREATURE_QUERY,                          STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleCreatureQueryOpcode       );
     /*0x061*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CREATURE_QUERY_RESPONSE,   STATUS_NEVER);
-    /*0x062*/ DEFINE_HANDLER(CMSG_WHO,                                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleWhoOpcode                 );
+    /*0x062*/ DEFINE_HANDLER(CMSG_WHO,                                     STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleWhoOpcode                 );
     /*0x063*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_WHO,                       STATUS_NEVER);
     /*0x064*/ DEFINE_HANDLER(CMSG_WHOIS,                                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleWhoisOpcode               );
     /*0x065*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_WHOIS,                     STATUS_NEVER);

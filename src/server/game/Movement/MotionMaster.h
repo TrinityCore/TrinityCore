@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@
 #include "Object.h"
 #include "MoveSplineInitArgs.h"
 #include "SplineChain.h"
-#include "WaypointManager.h"
 
 class MovementGenerator;
 class Unit;
@@ -164,7 +163,6 @@ class TC_GAME_API MotionMaster
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);
-        void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
     private:
@@ -181,6 +179,7 @@ class TC_GAME_API MotionMaster
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);
         void DelayedDelete(MovementGenerator* curr);
+        void ClearExpireList();
 
         ExpireList* _expireList;
         MovementGenerator* _slot[MAX_MOTION_SLOT];

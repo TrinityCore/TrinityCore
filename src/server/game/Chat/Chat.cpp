@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 
 #include "AccountMgr.h"
 #include "CellImpl.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
@@ -87,7 +88,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
     if (target)
         target_session = target->GetSession();
     else if (guid)
-        target_account = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+        target_account = sCharacterCache->GetCharacterAccountIdByGuid(guid);
 
     if (!target_session && !target_account)
     {
@@ -273,6 +274,9 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
         {
             if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd))
             {
+                if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
+                    return false;
+
                 if (text[0] != '\0')
                     SendSysMessage(LANG_NO_SUBCMD);
                 else
@@ -878,25 +882,30 @@ GameObject* ChatHandler::GetNearbyGameObject()
     return obj;
 }
 
-GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry)
+GameObject* ChatHandler::GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid)
 {
     if (!m_session)
         return nullptr;
-
-    Player* pl = m_session->GetPlayer();
-
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, entry, lowguid));
-
-    if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
-    {
-        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
-        if (bounds.first == bounds.second)
-            return nullptr;
-
+    auto bounds = m_session->GetPlayer()->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+    if (bounds.first != bounds.second)
         return bounds.first->second;
-    }
+    return nullptr;
+}
 
-    return obj;
+Creature* ChatHandler::GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid)
+{
+    if (!m_session)
+        return nullptr;
+    // Select the first alive creature or a dead one if not found
+    Creature* creature = nullptr;
+    auto bounds = m_session->GetPlayer()->GetMap()->GetCreatureBySpawnIdStore().equal_range(lowguid);
+    for (auto it = bounds.first; it != bounds.second; ++it)
+    {
+        creature = it->second;
+        if (it->second->IsAlive())
+            break;
+    }
+    return creature;
 }
 
 enum SpellLinkType
@@ -986,9 +995,9 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
 
 enum GuidLinkType
 {
-    SPELL_LINK_PLAYER     = 0,                              // must be first for selection in not link case
-    SPELL_LINK_CREATURE   = 1,
-    SPELL_LINK_GAMEOBJECT = 2
+    GUID_LINK_PLAYER     = 0,                              // must be first for selection in not link case
+    GUID_LINK_CREATURE   = 1,
+    GUID_LINK_GAMEOBJECT = 2
 };
 
 static char const* const guidKeys[] =
@@ -999,7 +1008,7 @@ static char const* const guidKeys[] =
     nullptr
 };
 
-ObjectGuid ChatHandler::extractGuidFromLink(char* text)
+ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& guidHigh)
 {
     int type = 0;
 
@@ -1008,46 +1017,40 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
     // |color|Hplayer:name|h[name]|h|r
     char* idS = extractKeyFromLink(text, guidKeys, &type);
     if (!idS)
-        return ObjectGuid::Empty;
+        return 0;
 
     switch (type)
     {
-        case SPELL_LINK_PLAYER:
+        case GUID_LINK_PLAYER:
         {
+            guidHigh = HighGuid::Player;
             std::string name = idS;
             if (!normalizePlayerName(name))
-                return ObjectGuid::Empty;
+                return 0;
 
             if (Player* player = ObjectAccessor::FindPlayerByName(name))
-                return player->GetGUID();
+                return player->GetGUID().GetCounter();
 
-            if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
-                return guid;
+            ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(name);
+            return guid.GetCounter();
 
-            return ObjectGuid::Empty;
         }
-        case SPELL_LINK_CREATURE:
+        case GUID_LINK_CREATURE:
         {
+            guidHigh = HighGuid::Unit;
             ObjectGuid::LowType lowguid = atoul(idS);
-
-            if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return ObjectGuid(HighGuid::Unit, data->id, lowguid);
-            else
-                return ObjectGuid::Empty;
+            return lowguid;
         }
-        case SPELL_LINK_GAMEOBJECT:
+        case GUID_LINK_GAMEOBJECT:
         {
+            guidHigh = HighGuid::GameObject;
             ObjectGuid::LowType lowguid = atoul(idS);
-
-            if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return ObjectGuid(HighGuid::GameObject, data->id, lowguid);
-            else
-                return ObjectGuid::Empty;
+            return lowguid;
         }
     }
 
     // unknown type?
-    return ObjectGuid::Empty;
+    return 0;
 }
 
 std::string ChatHandler::extractPlayerNameFromLink(char* text)
@@ -1083,7 +1086,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        ObjectGuid guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : ObjectGuid::Empty;
+        ObjectGuid guid = !pl && (player_guid || player_name) ? sCharacterCache->GetCharacterGuidByName(name) : ObjectGuid::Empty;
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
@@ -1235,14 +1238,14 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(char const* cname, Player*& player
         {
             if (!normalizePlayerName(name))
             {
-                PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+                SendSysMessage(LANG_PLAYER_NOT_FOUND);
                 SetSentErrorMessage(true);
                 return false;
             }
 
             player = ObjectAccessor::FindPlayerByName(name);
             if (offline)
-                guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+                guid = sCharacterCache->GetCharacterGuidByName(name);
         }
     }
 

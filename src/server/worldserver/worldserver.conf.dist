@@ -1844,6 +1844,14 @@ PreserveCustomChannels = 1
 PreserveCustomChannelDuration = 14
 
 #
+#    PartyRaidWarnings
+#        Description: Allow any user to use raid warnings when in a 5-man party.
+#        Default:     0 - (Disabled, Blizzlike)
+#                     1 - (Enabled)
+
+PartyRaidWarnings = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1964,6 +1972,7 @@ GM.ForceShutdownThreshold = 30
 #        Default:     1 - (Raid)
 #                     0 - (Party)
 #                     2 - (Faction)
+#                     3 - (None)
 
 Visibility.GroupMode = 1
 
@@ -3272,6 +3281,15 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 #                    0 - (use BuyPrice)
 
 AuctionHouseBot.BuyPrice.Seller = 1
+
+#
+#    AuctionHouseBot.BidPrice.*
+#       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
+#       Default:     0.6 - (Min)
+#                    0.9 - (Max)
+
+AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Max = 0.9
 
 #
 #    AuctionHouseBot.Alliance.Price.Ratio

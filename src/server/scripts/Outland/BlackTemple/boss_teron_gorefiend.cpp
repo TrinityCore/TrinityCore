@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,6 +86,12 @@ enum Events
     EVENT_FINISH_INTRO
 };
 
+enum Phases
+{
+    PHASE_INTRO = 1,
+    PHASE_COMBAT
+};
+
 enum Actions
 {
     ACTION_START_INTRO = 1
@@ -108,15 +114,15 @@ public:
     {
         boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND), _intro(false)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetReactState(REACT_PASSIVE);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            creature->SetReactState(REACT_PASSIVE);
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_AGGRO);
+            events.SetPhase(PHASE_COMBAT);
             events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
             events.ScheduleEvent(EVENT_INCINERATE, Seconds(12));
             events.ScheduleEvent(EVENT_SUMMON_DOOM_BLOSSOM, Seconds(8));
@@ -137,6 +143,7 @@ public:
             {
                 _intro = true;
                 Talk(SAY_INTRO);
+                events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_FINISH_INTRO, Seconds(20));
             }
         }
@@ -156,6 +163,9 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (!events.IsInPhase(PHASE_INTRO) && !UpdateVictim())
+                return;
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
@@ -165,55 +175,52 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_ENRAGE:
-                    DoCast(SPELL_BERSERK);
-                    break;
-                case EVENT_INCINERATE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_INCINERATE);
-                    Talk(SAY_INCINERATE);
-                    events.Repeat(Seconds(12), Seconds(20));
-                    break;
-                case EVENT_SUMMON_DOOM_BLOSSOM:
-                    DoCastSelf(SPELL_SUMMON_DOOM_BLOSSOM, true);
-                    Talk(SAY_BLOSSOM);
-                    events.Repeat(Seconds(30), Seconds(40));
-                    break;
-                case EVENT_SHADOW_DEATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
-                        DoCast(target, SPELL_SHADOW_OF_DEATH);
-                    events.Repeat(Seconds(30), Seconds(35));
-                    break;
-                case EVENT_CRUSHING_SHADOWS:
-                    me->CastCustomSpell(SPELL_CRUSHING_SHADOWS, SPELLVALUE_MAX_TARGETS, 5, me);
-                    Talk(SAY_CRUSHING);
-                    events.Repeat(Seconds(18), Seconds(30));
-                    break;
-                case EVENT_FINISH_INTRO:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    break;
-                default:
-                    break;
+                    case EVENT_ENRAGE:
+                        DoCast(SPELL_BERSERK);
+                        break;
+                    case EVENT_INCINERATE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_INCINERATE);
+                        Talk(SAY_INCINERATE);
+                        events.Repeat(Seconds(12), Seconds(20));
+                        break;
+                    case EVENT_SUMMON_DOOM_BLOSSOM:
+                        DoCastSelf(SPELL_SUMMON_DOOM_BLOSSOM, true);
+                        Talk(SAY_BLOSSOM);
+                        events.Repeat(Seconds(30), Seconds(40));
+                        break;
+                    case EVENT_SHADOW_DEATH:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
+                            DoCast(target, SPELL_SHADOW_OF_DEATH);
+                        events.Repeat(Seconds(30), Seconds(35));
+                        break;
+                    case EVENT_CRUSHING_SHADOWS:
+                        me->CastCustomSpell(SPELL_CRUSHING_SHADOWS, SPELLVALUE_MAX_TARGETS, 5, me);
+                        Talk(SAY_CRUSHING);
+                        events.Repeat(Seconds(18), Seconds(30));
+                        break;
+                    case EVENT_FINISH_INTRO:
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    default:
+                        break;
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
 
-            if (!UpdateVictim())
-                return;
-
             DoMeleeAttackIfReady();
         }
-            private:
-                bool _intro;
+
+    private:
+        bool _intro;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_teron_gorefiendAI>(creature);
+        return GetBlackTempleAI<boss_teron_gorefiendAI>(creature);
     }
 };
 
@@ -223,18 +230,16 @@ public:
     npc_doom_blossom() : CreatureScript("npc_doom_blossom") { }
     struct npc_doom_blossomAI : public NullCreatureAI
     {
-        npc_doom_blossomAI(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript())
+        npc_doom_blossomAI(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()) { }
+
+        void Reset() override
         {
             /* Workaround - Until SMSG_SET_PLAY_HOVER_ANIM be implemented */
-            me->SetDisableGravity(true);
             Position pos;
             pos.Relocate(me);
             pos.m_positionZ += 8.0f;
             me->GetMotionMaster()->MoveTakeoff(0, pos);
-        }
 
-        void Reset() override
-        {
             DoCast(SPELL_SUMMON_BLOSSOM_MOVE_TARGET);
             _scheduler.CancelAll();
             me->SetInCombatWithZone();
@@ -262,7 +267,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return  GetInstanceAI<npc_doom_blossomAI>(creature);
+        return  GetBlackTempleAI<npc_doom_blossomAI>(creature);
     }
 };
 
@@ -270,13 +275,14 @@ class npc_shadowy_construct : public CreatureScript
 {
 public:
     npc_shadowy_construct() : CreatureScript("npc_shadowy_construct") { }
+
     struct npc_shadowy_constructAI : public ScriptedAI
     {
-        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+        npc_shadowy_constructAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
         {
             //This creature must be immune everything, except spells of Vengeful Spirit.
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_MAGIC, true);
+            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+            creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
         void Reset() override
@@ -335,7 +341,7 @@ public:
                     me->AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
-                //He only should target Vengeful Spirits if has no other player available
+                // He should target Vengeful Spirits only if has no other player available
                 else if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoResetThreat();
@@ -350,12 +356,11 @@ public:
         TaskScheduler _scheduler;
         InstanceScript* _instance;
         ObjectGuid targetGUID;
-
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return  GetInstanceAI<npc_shadowy_constructAI>(creature);
+        return  GetBlackTempleAI<npc_shadowy_constructAI>(creature);
     }
 };
 
@@ -374,6 +379,7 @@ public:
     }
 };
 
+// 40251 - Shadow of Death
 class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 {
     public:
@@ -429,6 +435,7 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
         }
 };
 
+// 40268 - Spiritual Vengeance
 class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 {
     public:
@@ -445,8 +452,8 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
 
             void Register() override
             {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY_SILENCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_teron_gorefiend_spiritual_vengeance_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY_SILENCE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -456,6 +463,7 @@ class spell_teron_gorefiend_spiritual_vengeance : public SpellScriptLoader
         }
 };
 
+// 41999 - Shadow of Death Remove
 class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 {
     public:

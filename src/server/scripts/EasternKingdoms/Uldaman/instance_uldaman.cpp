@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -222,8 +222,8 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
 
                 // Vault Walkers
@@ -232,8 +232,8 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
 
                 // Earthen Guardians
@@ -242,8 +242,8 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+
+                    target->DespawnOrUnsummon();
                 }
             }
 

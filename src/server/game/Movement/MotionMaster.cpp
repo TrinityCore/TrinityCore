@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,37 +88,14 @@ void MotionMaster::UpdateMotion(uint32 diff)
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
-    if (!top()->Update(_owner, diff))
-    {
-        _cleanFlag &= ~MMCF_UPDATE;
+    bool isMoveGenUpdateSuccess = top()->Update(_owner, diff);
+    _cleanFlag &= ~MMCF_UPDATE;
+
+    if (!isMoveGenUpdateSuccess)
         MovementExpired();
-    }
-    else
-        _cleanFlag &= ~MMCF_UPDATE;
 
     if (_expireList)
-    {
-        for (size_t i = 0; i < _expireList->size(); ++i)
-        {
-            MovementGenerator* mg = (*_expireList)[i];
-            DirectDelete(mg);
-        }
-
-        delete _expireList;
-        _expireList = nullptr;
-
-        if (empty())
-            Initialize();
-        else if (NeedInitTop())
-            InitTop();
-        else if (_cleanFlag & MMCF_RESET)
-            top()->Reset(_owner);
-
-        _cleanFlag &= ~MMCF_RESET;
-    }
-
-    // probably not the best place to pu this but im not really sure where else to put it.
-    _owner->UpdateUnderwaterState(_owner->GetMap(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+        ClearExpireList();
 }
 
 void MotionMaster::Clear(bool reset /*= true*/)
@@ -133,6 +110,27 @@ void MotionMaster::Clear(bool reset /*= true*/)
     }
     else
         DirectClean(reset);
+}
+
+void MotionMaster::ClearExpireList()
+{
+    for (size_t i = 0; i < _expireList->size(); ++i)
+    {
+        MovementGenerator* mg = (*_expireList)[i];
+        DirectDelete(mg);
+    }
+
+    delete _expireList;
+    _expireList = nullptr;
+
+    if (empty())
+        Initialize();
+    else if (NeedInitTop())
+        InitTop();
+    else if (_cleanFlag & MMCF_RESET)
+        top()->Reset(_owner);
+
+    _cleanFlag &= ~MMCF_RESET;
 }
 
 void MotionMaster::MovementExpired(bool reset /*= true*/)
@@ -680,15 +678,6 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
     TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
         _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
         _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
-}
-
-void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
-{
-    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
-
-    TC_LOG_DEBUG("misc", "%s (GUID: %u) start moving over path(repeatable: %s)",
-        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
-        _owner->GetGUID().GetCounter(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
