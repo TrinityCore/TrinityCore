@@ -172,8 +172,7 @@ public:
             {
                 if (Creature* mob = ObjectAccessor::GetCreature(*me, beams[i]))
                 {
-                    mob->setDeathState(DEAD);
-                    mob->RemoveCorpse();
+                    mob->DespawnOrUnsummon();
                 }
             }
         }
