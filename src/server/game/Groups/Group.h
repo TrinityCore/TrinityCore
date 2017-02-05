@@ -116,6 +116,14 @@ enum GroupFlags
     GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
 
+enum GroupCategory : uint8
+{
+    GROUP_CATEGORY_HOME     = 0,
+    GROUP_CATEGORY_INSTANCE = 1,
+
+    MAX_GROUP_CATEGORY
+};
+
 enum GroupUpdateFlags
 {
     GROUP_UPDATE_FLAG_NONE              = 0x00000000,       // nothing
@@ -218,7 +226,6 @@ class TC_GAME_API Group
             uint8       group;
             uint8       flags;
             uint8       roles;
-            int32       updateSequenceNumber;
             bool        readyChecked;
         };
         typedef std::list<MemberSlot> MemberSlotList;
@@ -287,6 +294,7 @@ class TC_GAME_API Group
         bool isBGGroup()   const;
         bool isBFGroup()   const;
         bool IsCreated()   const;
+        GroupCategory GetGroupCategory() const { return m_groupCategory; }
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
         const char * GetLeaderName() const;
@@ -347,7 +355,7 @@ class TC_GAME_API Group
         void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
-        void SendUpdateDestroyGroupToPlayer(Player* player, uint8 partyIndex, int32 sequenceNum) const;
+        void SendUpdateDestroyGroupToPlayer(Player* player) const;
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>
@@ -419,6 +427,7 @@ class TC_GAME_API Group
         ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
         GroupFlags          m_groupFlags;
+        GroupCategory       m_groupCategory;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Difficulty          m_legacyRaidDifficulty;
