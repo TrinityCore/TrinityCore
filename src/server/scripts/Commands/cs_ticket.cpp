@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Config.h"
 #include "Language.h"
@@ -125,8 +126,8 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
         return true;
     }
 
-    ObjectGuid targetGuid = sWorld->GetCharacterGuidByName(target);
-    uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(targetGuid);
+    ObjectGuid targetGuid = sCharacterCache->GetCharacterGuidByName(target);
+    uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(targetGuid);
     // Target must exist and have administrative rights
     if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
     {
@@ -326,7 +327,7 @@ bool ticket_commandscript::HandleTicketUnAssignCommand(ChatHandler* handler, cha
     else
     {
         ObjectGuid guid = ticket->GetAssignedToGUID();
-        uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
+        uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(guid);
         security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
     }
 

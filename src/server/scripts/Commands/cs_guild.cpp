@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "AchievementMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Guild.h"
@@ -162,7 +163,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid))
             return false;
 
-        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromCharacterInfo(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : sCharacterCache->GetCharacterGuildIdByGuid(targetGuid);
         if (!guildId)
             return false;
 
@@ -189,7 +190,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &target_name))
             return false;
 
-        ObjectGuid::LowType guildId = target ? target->GetGuildId() : Player::GetGuildIdFromCharacterInfo(targetGuid);
+        ObjectGuid::LowType guildId = target ? target->GetGuildId() : sCharacterCache->GetCharacterGuildIdByGuid(targetGuid);
         if (!guildId)
             return false;
 
@@ -272,7 +273,7 @@ public:
         handler->PSendSysMessage(LANG_GUILD_INFO_NAME, guild->GetName().c_str(), std::to_string(guild->GetId()).c_str()); // Guild Id + Name
 
         std::string guildMasterName;
-        if (ObjectMgr::GetPlayerNameByGUID(guild->GetLeaderGUID(), guildMasterName))
+        if (sCharacterCache->GetCharacterNameByGuid(guild->GetLeaderGUID(), guildMasterName))
             handler->PSendSysMessage(LANG_GUILD_INFO_GUILD_MASTER, guildMasterName.c_str(), guild->GetLeaderGUID().ToString().c_str()); // Guild Master
 
         // Format creation date

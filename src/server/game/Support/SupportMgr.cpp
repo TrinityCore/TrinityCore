@@ -16,6 +16,7 @@
  */
 
 #include "SupportMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -47,7 +48,7 @@ std::string Ticket::GetPlayerName() const
 {
     std::string name;
     if (!_playerGuid.IsEmpty())
-        ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
+        sCharacterCache->GetCharacterNameByGuid(_playerGuid, name);
 
     return name;
 }
@@ -61,7 +62,7 @@ std::string Ticket::GetAssignedToName() const
 {
     std::string name;
     if (!_assignedTo.IsEmpty())
-        ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
+        sCharacterCache->GetCharacterNameByGuid(_assignedTo, name);
 
     return name;
 }

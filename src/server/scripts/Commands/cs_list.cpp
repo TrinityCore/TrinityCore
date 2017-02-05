@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -479,7 +480,7 @@ public:
 
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
 
-        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
         {
             target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;

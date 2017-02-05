@@ -20,6 +20,7 @@
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHousePackets.h"
+#include "CharacterCache.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
@@ -394,7 +395,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     // impossible have online own another character (use this for speedup check in case online owner)
     ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* auction_owner = ObjectAccessor::FindPlayer(ownerGuid);
-    if (!auction_owner && ObjectMgr::GetPlayerAccountIdByGUID(ownerGuid) == player->GetSession()->GetAccountId())
+    if (!auction_owner && sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid) == player->GetSession()->GetAccountId())
     {
         //you cannot bid your another character auction:
         SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);

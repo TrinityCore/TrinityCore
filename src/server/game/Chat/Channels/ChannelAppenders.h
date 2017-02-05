@@ -20,6 +20,7 @@
 
 #include "Channel.h"
 #include "ChannelPackets.h"
+#include "CharacterCache.h"
 #include "World.h"
 
 // initial packet data (notify type and channel name)
@@ -184,7 +185,7 @@ struct ChannelOwnerAppend
 {
     explicit ChannelOwnerAppend(Channel const* channel, ObjectGuid const& ownerGuid) : _channel(channel), _ownerGuid(ownerGuid)
     {
-        if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(_ownerGuid))
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid))
             _ownerName = characterInfo->Name;
     }
 

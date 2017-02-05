@@ -2541,53 +2541,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return false;
-
-    name = characterInfo->Name;
-    return true;
-}
-
-bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-    {
-        name = characterInfo->Name;
-        _class = characterInfo->Class;
-        return true;
-    }
-
-    return false;
-}
-
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-        return Player::TeamForRace(characterInfo->Race);
-
-    return 0;
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-        return characterInfo->AccountId;
-
-    return 0;
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name)
-{
-    ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
-    if (!guid.IsEmpty())
-        return GetPlayerAccountIdByGUID(guid);
-
-    return 0;
-}
-
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
 {
     if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)

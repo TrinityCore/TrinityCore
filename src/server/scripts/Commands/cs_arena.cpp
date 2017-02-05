@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ArenaTeamMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"
@@ -86,7 +87,7 @@ public:
 
         if (type == 2 || type == 3 || type == 5 )
         {
-            if (Player::GetArenaTeamIdFromCharacterInfo(target->GetGUID(), type) != 0)
+            if (sCharacterCache->GetCharacterArenaTeamIdByGuid(target->GetGUID(), type) != 0)
             {
                 handler->PSendSysMessage(LANG_ARENA_ERROR_SIZE, target->GetName().c_str());
                 handler->SetSentErrorMessage(true);
@@ -277,7 +278,7 @@ public:
         arena->SetCaptain(targetGuid);
 
         std::string oldCaptainName;
-        if (!ObjectMgr::GetPlayerNameByGUID(arena->GetCaptain(), oldCaptainName))
+        if (!sCharacterCache->GetCharacterNameByGuid(arena->GetCaptain(), oldCaptainName))
         {
             handler->SetSentErrorMessage(true);
             return false;

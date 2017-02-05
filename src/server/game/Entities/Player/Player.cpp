@@ -35,6 +35,7 @@
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "CharacterCache.h"
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterTemplateDataStore.h"
 #include "CharacterPackets.h"
@@ -3723,7 +3724,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
     ObjectGuid::LowType guid = playerguid.GetCounter();
     uint32 charDeleteMethod = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerguid);
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(playerguid);
     std::string name;
     if (characterInfo)
         name = characterInfo->Name;
@@ -3749,7 +3750,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (ObjectGuid::LowType guildId = Player::GetGuildIdFromCharacterInfo(playerguid))
+    if (ObjectGuid::LowType guildId = sCharacterCache->GetCharacterGuildIdByGuid(playerguid))
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guild->DeleteMember(trans, playerguid, false, false, true);
 
@@ -3855,7 +3856,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
-                    uint32 pl_account = ObjectMgr::GetPlayerAccountIdByGUID(playerguid);
+                    uint32 pl_account = sCharacterCache->GetCharacterAccountIdByGuid(playerguid);
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
                 }
@@ -4098,7 +4099,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
             Garrison::DeleteFromDB(guid, trans);
 
-            sWorld->DeleteCharacterInfo(playerguid, name);
+            sCharacterCache->DeleteCharacterCacheEntry(playerguid, name);
             break;
         }
         // The character gets unlinked from the account, the name gets freed up and appears as deleted ingame
@@ -4107,7 +4108,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_DELETE_INFO);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
-            sWorld->UpdateCharacterInfoDeleted(playerguid, true);
+            sCharacterCache->UpdateCharacterInfoDeleted(playerguid, true);
             break;
         }
         default:
@@ -6913,16 +6914,7 @@ void Player::SetInGuild(ObjectGuid::LowType guildId)
     ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_GUILD_LEVEL_ENABLED, guildId != 0);
     SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
 
-    sWorld->UpdateCharacterGuildId(GetGUID(), guildId);
-}
-
-ObjectGuid::LowType Player::GetGuildIdFromCharacterInfo(ObjectGuid guid)
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return UI64LIT(0);
-
-    return characterInfo->GuildId;
+    sCharacterCache->UpdateCharacterGuildId(GetGUID(), guildId);
 }
 
 void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
@@ -6934,15 +6926,6 @@ void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
 {
     SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
     SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
-}
-
-uint32 Player::GetArenaTeamIdFromCharacterInfo(ObjectGuid guid, uint8 type)
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return 0;
-
-    return characterInfo->ArenaTeamId[type];
 }
 
 uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
@@ -6989,15 +6972,6 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
     }
 
     return zone;
-}
-
-uint32 Player::GetLevelFromCharacterInfo(ObjectGuid guid)
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return 0;
-
-    return characterInfo->Level;
 }
 
 void Player::UpdateArea(uint32 newArea)
@@ -17588,7 +17562,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (!result)
     {
         std::string name = "<unknown>";
-        ObjectMgr::GetPlayerNameByGUID(guid, name);
+        sCharacterCache->GetCharacterNameByGuid(guid, name);
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player '%s' (%s) not found in table `characters`, can't load. ", name.c_str(), guid.ToString().c_str());
         return false;
     }
@@ -22058,7 +22032,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid)
 
 void Player::LeaveAllArenaTeams(ObjectGuid guid)
 {
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid);
     if (!characterInfo)
         return;
 

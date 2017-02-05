@@ -18,6 +18,7 @@
 
 #include "PlayerDump.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -754,7 +755,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(guid), account, name, gender, race, playerClass, level, false);
+    sCharacterCache->AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(guid), account, name, gender, race, playerClass, level, false);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();

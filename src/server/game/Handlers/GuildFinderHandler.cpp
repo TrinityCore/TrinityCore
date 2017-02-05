@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "WorldSession.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
@@ -182,7 +183,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPackets::GuildFinder::LFGui
             recruitData.Availability = recruitRequestPair.second.GetAvailability();
             recruitData.SecondsSinceCreated = now - recruitRequestPair.second.GetSubmitTime();
             recruitData.SecondsUntilExpiration = recruitRequestPair.second.GetExpiryTime() - now;
-            if (CharacterInfo const* charInfo = sWorld->GetCharacterInfo(recruitRequestPair.first))
+            if (CharacterCacheEntry const* charInfo = sCharacterCache->GetCharacterCacheByGuid(recruitRequestPair.first))
             {
                 recruitData.Name = charInfo->Name;
                 recruitData.CharacterClass = charInfo->Class;

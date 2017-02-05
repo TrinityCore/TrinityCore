@@ -20,6 +20,7 @@
 #include "AuctionHouseMgr.h"
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Log.h"
@@ -147,7 +148,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 
     uint32 rc_account = 0;
     if (!receiver)
-        rc_account = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
+        rc_account = sCharacterCache->GetCharacterAccountIdByGuid(receiverGuid);
 
     if (!receiver && !rc_account)                            // sender not exist
     {
