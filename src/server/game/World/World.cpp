@@ -35,6 +35,7 @@
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
+#include "CharacterCache.h"
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
@@ -1940,8 +1941,8 @@ void World::SetInitialWorldSettings()
     }
 
     // Load before guilds and arena teams
-    TC_LOG_INFO("server.loading", "Loading character info store...");
-    LoadCharacterInfoStore();
+    TC_LOG_INFO("server.loading", "Loading character cache store...");
+    sCharacterCache->LoadCharacterCacheStorage();
 
     TC_LOG_INFO("server.loading", "Loading Guild rewards...");
     sGuildMgr->LoadGuildRewards();
@@ -2839,7 +2840,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string const& nameOrIP)
         if (mode == BAN_ACCOUNT)
             account = AccountMgr::GetId(nameOrIP);
         else if (mode == BAN_CHARACTER)
-            account = ObjectMgr::GetPlayerAccountIdByPlayerName(nameOrIP);
+            account = sCharacterCache->GetCharacterAccountIdByName(nameOrIP);
 
         if (!account)
             return false;
@@ -2863,7 +2864,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
     /// Pick a player to ban if not online
     if (!banned)
     {
-        guid = sWorld->GetCharacterGuidByName(name);
+        guid = sCharacterCache->GetCharacterGuidByName(name);
         if (guid.IsEmpty())
             return BAN_NOTFOUND;                                    // Nobody to ban
     }
@@ -2900,7 +2901,7 @@ bool World::RemoveBanCharacter(std::string const& name)
     /// Pick a player to ban if not online
     if (!banned)
     {
-        guid = sWorld->GetCharacterGuidByName(name);
+        guid = sCharacterCache->GetCharacterGuidByName(name);
         if (guid.IsEmpty())
             return false;                                    // Nobody to ban
     }
@@ -3534,164 +3535,6 @@ uint32 World::getWorldState(uint32 index) const
 void World::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyQueries();
-}
-
-ObjectGuid World::GetCharacterGuidByName(std::string const& name) const
-{
-    auto itr = _characterGuidByNameStore.find(name);
-    if (itr != _characterGuidByNameStore.end())
-        return itr->second;
-
-    return ObjectGuid::Empty;
-}
-
-/**
- * @brief Loads several pieces of information on server startup with the GUID
- * There is no further database query necessary.
- * These are a number of methods that work into the calling function.
- *
- * @param guid Requires a guid to call
- * @return Name, Sex, Race, Class and Level of player character
- * Example Usage:
- * @code
- *    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(GUID);
- *    if (!nameData)
- *        return;
- *
- *    std::string playerName = characterInfo->Name;
- *    uint8 playerGender = characterInfo->Sex;
- *    uint8 playerRace = characterInfo->Race;
- *    uint8 playerClass = characterInfo->Class;
- *    uint8 playerLevel = characterInfo->Level;
- * @endcode
- */
-
-CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
-{
-    CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
-    if (itr != _characterInfoStore.end())
-        return &itr->second;
-
-    return nullptr;
-}
-
-void World::LoadCharacterInfoStore()
-{
-    _characterInfoStore.clear();
-
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
-        return;
-    }
-
-    do
-    {
-        Field* fields = result->Fetch();
-        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()), fields[2].GetUInt32(), fields[1].GetString(),
-            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/, fields[7].GetUInt32() != 0);
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters", _characterInfoStore.size());
-}
-
-void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted)
-{
-    CharacterInfo& data = _characterInfoStore[guid];
-    data.Name = name;
-    data.AccountId = accountId;
-    data.Race = race;
-    data.Sex = gender;
-    data.Class = playerClass;
-    data.Level = level;
-    data.GuildId = 0;                           // Will be set in guild loading or guild setting
-    for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
-        data.ArenaTeamId[i] = 0;                // Will be set in arena teams loading
-    data.IsDeleted = isDeleted;
-
-    // Fill Name to Guid Store
-    _characterGuidByNameStore[name] = guid;
-}
-
-void World::DeleteCharacterInfo(ObjectGuid const& guid, std::string const& name)
-{
-    _characterInfoStore.erase(guid);
-    _characterGuidByNameStore.erase(name);
-}
-
-void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
-{
-    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.Name = name;
-
-    if (gender != GENDER_NONE)
-        itr->second.Sex = gender;
-
-    if (race != RACE_NONE)
-        itr->second.Race = race;
-
-    WorldPackets::Misc::InvalidatePlayer data;
-    data.Guid = guid;
-    SendGlobalMessage(data.Write());
-}
-
-void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
-{
-    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.Level = level;
-}
-
-void World::UpdateCharacterInfoAccount(ObjectGuid const& guid, uint32 accountId)
-{
-    auto itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.AccountId = accountId;
-}
-
-void World::UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId)
-{
-    auto itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.GuildId = guildId;
-}
-
-void World::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 slot, uint32 arenaTeamId)
-{
-    auto itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.ArenaTeamId[slot] = arenaTeamId;
-}
-
-void World::UpdateCharacterGuidByName(ObjectGuid const& guid, std::string const& oldName, std::string const& newName)
-{
-    _characterGuidByNameStore.erase(oldName);
-    _characterGuidByNameStore[newName] = guid;
-}
-
-void World::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name /*= nullptr*/)
-{
-    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
-    if (itr == _characterInfoStore.end())
-        return;
-
-    itr->second.IsDeleted = deleted;
-
-    if (name)
-        itr->second.Name = *name;
 }
 
 void World::ReloadRBAC()

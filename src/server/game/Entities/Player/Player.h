@@ -1438,7 +1438,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
-        static uint32 GetLevelFromCharacterInfo(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
@@ -1705,14 +1704,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ObjectGuid::LowType GetGuildId() const { return m_unitData->GuildGUID->GetCounter(); /* return only lower part */ }
         Guild* GetGuild();
         Guild const* GetGuild() const;
-        static ObjectGuid::LowType GetGuildIdFromCharacterInfo(ObjectGuid guid);
         ObjectGuid::LowType GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid);
 
         // Arena Team
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type);
         void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value);
-        static uint32 GetArenaTeamIdFromCharacterInfo(ObjectGuid guid, uint8 slot);
         static void LeaveAllArenaTeams(ObjectGuid guid);
         uint32 GetArenaTeamId(uint8 /*slot*/) const { return 0; }
         uint32 GetArenaPersonalRating(uint8 slot) const { return m_activePlayerData->PvpInfo[slot].Rating; }

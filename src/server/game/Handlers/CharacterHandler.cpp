@@ -26,6 +26,7 @@
 #include "BattlegroundPackets.h"
 #include "BattlePetPackets.h"
 #include "CalendarMgr.h"
+#include "CharacterCache.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "ClientConfigPackets.h"
@@ -333,8 +334,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (!(charInfo.Flags & (CHARACTER_FLAG_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
                 _legitCharacters.insert(charInfo.Guid);
 
-            if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
+            if (!sCharacterCache->HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sCharacterCache->AddCharacterCacheEntry(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, false);
 
             if (charInfo.Class == CLASS_DEMON_HUNTER)
                 demonHunterCount++;
@@ -399,8 +400,8 @@ void WorldSession::HandleCharUndeleteEnum(PreparedQueryResult result)
 
             TC_LOG_INFO("network", "Loading undeleted char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            if (!sWorld->HasCharacterInfo(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sWorld->AddCharacterInfo(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, true);
+            if (!sCharacterCache->HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sCharacterCache->AddCharacterCacheEntry(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.Sex, charInfo.Race, charInfo.Class, charInfo.Level, true);
 
             charEnum.Characters.emplace_back(charInfo);
         }
@@ -738,7 +739,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterInfo(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.m_playerData->NativeSex, newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
+            sCharacterCache->AddCharacterCacheEntry(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.m_playerData->NativeSex, newChar.getRace(), newChar.getClass(), newChar.getLevel(), false);
 
             newChar.CleanupsBeforeDelete();
         };
@@ -784,7 +785,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
         return;
     }
 
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(charDelete.Guid);
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(charDelete.Guid);
     if (!characterInfo)
     {
         sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
@@ -1323,15 +1324,14 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<WorldPackets::Charac
 
     SendCharRename(RESPONSE_SUCCESS, renameInfo.get());
 
-    sWorld->UpdateCharacterInfo(renameInfo->Guid, renameInfo->NewName);
-    sWorld->UpdateCharacterGuidByName(renameInfo->Guid, oldName, renameInfo->NewName);
+    sCharacterCache->UpdateCharacterData(renameInfo->Guid, renameInfo->NewName);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPackets::Character::SetPlayerDeclinedNames& packet)
 {
     // not accept declined names for unsupported languages
     std::string name;
-    if (!ObjectMgr::GetPlayerNameByGUID(packet.Player, name))
+    if (!sCharacterCache->GetCharacterNameByGuid(packet.Player, name))
     {
         SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, packet.Player);
         return;
@@ -1549,7 +1549,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
 
     // character with this name already exist
     /// @todo: make async
-    ObjectGuid newGuid = sWorld->GetCharacterGuidByName(customizeInfo->CharName);
+    ObjectGuid newGuid = sCharacterCache->GetCharacterGuidByName(customizeInfo->CharName);
     if (!newGuid.IsEmpty())
     {
         if (newGuid != customizeInfo->CharGUID)
@@ -1599,8 +1599,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<WorldPackets::Cha
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sWorld->UpdateCharacterInfo(customizeInfo->CharGUID, customizeInfo->CharName, customizeInfo->SexID);
-    sWorld->UpdateCharacterGuidByName(customizeInfo->CharGUID, oldName, customizeInfo->CharName);
+    sCharacterCache->UpdateCharacterData(customizeInfo->CharGUID, customizeInfo->CharName, &customizeInfo->SexID);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
@@ -1783,7 +1782,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     }
 
     // get the players old (at this moment current) race
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(factionChangeInfo->Guid);
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(factionChangeInfo->Guid);
     if (!characterInfo)
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
@@ -1864,7 +1863,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
     }
 
     // character with this name already exist
-    ObjectGuid newGuid = sWorld->GetCharacterGuidByName(factionChangeInfo->Name);
+    ObjectGuid newGuid = sCharacterCache->GetCharacterGuidByName(factionChangeInfo->Name);
     if (!newGuid.IsEmpty())
     {
         if (newGuid != factionChangeInfo->Guid)
@@ -1932,8 +1931,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
     }
 
-    sWorld->UpdateCharacterInfo(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->SexID, factionChangeInfo->RaceID);
-    sWorld->UpdateCharacterGuidByName(factionChangeInfo->Guid, oldName, factionChangeInfo->Name);
+    sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, &factionChangeInfo->SexID, &factionChangeInfo->RaceID);
 
     if (oldRace != factionChangeInfo->RaceID)
     {
@@ -2468,7 +2466,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
         stmt->setUInt32(0, GetBattlenetAccountId());
         LoginDatabase.Execute(stmt);
 
-        sWorld->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid, false, &undeleteInfo->Name);
+        sCharacterCache->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid, false, &undeleteInfo->Name);
 
         SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_OK, undeleteInfo.get());
     }));
