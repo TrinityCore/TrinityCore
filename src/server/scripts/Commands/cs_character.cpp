@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
@@ -208,7 +209,7 @@ public:
             return;
         }
 
-        if (sWorld->GetCharacterGuidByName(delInfo.name))
+        if (sCharacterCache->GetCharacterGuidByName(delInfo.name))
         {
             handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
             return;
@@ -223,7 +224,7 @@ public:
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
         stmt->setUInt32(0, delInfo.guid.GetCounter());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-            sWorld->AddCharacterInfo(delInfo.guid, delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
+            sCharacterCache->AddCharacterCacheEntry(delInfo.guid, delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
     }
 
     static void HandleCharacterLevel(Player* player, ObjectGuid playerGuid, uint32 oldLevel, uint32 newLevel, ChatHandler* handler)
@@ -326,7 +327,7 @@ public:
                 if (handler->HasLowerSecurity(NULL, targetGuid))
                     return false;
 
-                sObjectMgr->GetPlayerNameByGUID(targetGuid, playerOldName);
+                sCharacterCache->GetCharacterNameByGuid(targetGuid, playerOldName);
             }
 
             if (!normalizePlayerName(newName))
@@ -383,15 +384,14 @@ public:
                 CharacterDatabase.Execute(stmt);
             }
 
-            sWorld->UpdateCharacterInfo(targetGuid, newName);
-            sWorld->UpdateCharacterGuidByName(targetGuid, playerOldName, newName);
+            sCharacterCache->UpdateCharacterData(targetGuid, newName);
 
             handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
 
             if (WorldSession* session = handler->GetSession())
             {
                 if (Player* player = session->GetPlayer())
-                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sObjectMgr->GetPlayerAccountIdByGUID(targetGuid));
+                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sCharacterCache->GetCharacterAccountIdByGuid(targetGuid));
             }
             else
                 sLog->outCommand(0, "CONSOLE forced rename '%s' to '%s' (%s)", playerOldName.c_str(), newName.c_str(), targetGuid.ToString().c_str());
@@ -447,7 +447,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromCharacterInfo(targetGuid);
+        int32 oldlevel = target ? target->getLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
 
         if (newlevel < 1)
@@ -564,7 +564,7 @@ public:
         if (!handler->extractPlayerTarget(playerNameStr, nullptr, &targetGuid, &targetName))
             return false;
 
-        CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(targetGuid);
+        CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(targetGuid);
         if (!characterInfo)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -616,7 +616,7 @@ public:
         sWorld->UpdateRealmCharCount(oldAccountId);
         sWorld->UpdateRealmCharCount(newAccountId);
 
-        sWorld->UpdateCharacterInfoAccount(targetGuid, newAccountId);
+        sCharacterCache->UpdateCharacterAccountId(targetGuid, newAccountId);
 
         handler->PSendSysMessage(LANG_CHANGEACCOUNT_SUCCESS, targetName.c_str(), accountName.c_str());
 
@@ -863,14 +863,14 @@ public:
         }
         else
         {
-            characterGuid = sWorld->GetCharacterGuidByName(characterName);
+            characterGuid = sCharacterCache->GetCharacterGuidByName(characterName);
             if (characterGuid.IsEmpty())
             {
                 handler->PSendSysMessage(LANG_NO_PLAYER, characterName.c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            accountId = sObjectMgr->GetPlayerAccountIdByGUID(characterGuid);
+            accountId = sCharacterCache->GetCharacterAccountIdByGuid(characterGuid);
         }
 
         std::string accountName;
@@ -901,7 +901,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromCharacterInfo(targetGuid);
+        int32 oldlevel = target ? target->getLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
         int32 addlevel = levelStr ? atoi(levelStr) : 1;
         int32 newlevel = oldlevel + addlevel;
 
@@ -999,7 +999,7 @@ public:
                 return false;
             }
 
-            if (sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(HighGuid::Player, guid)))
+            if (sCharacterCache->GetCharacterAccountIdByGuid(ObjectGuid(HighGuid::Player, guid)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
                 handler->SetSentErrorMessage(true);
@@ -1058,10 +1058,10 @@ public:
                 return false;
             }
 
-            guid = sWorld->GetCharacterGuidByName(name);
+            guid = sCharacterCache->GetCharacterGuidByName(name);
         }
 
-        if (!sObjectMgr->GetPlayerAccountIdByGUID(guid))
+        if (!sCharacterCache->GetCharacterAccountIdByGuid(guid))
         {
             handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
             handler->SetSentErrorMessage(true);

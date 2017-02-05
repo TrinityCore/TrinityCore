@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "LFG.h"
@@ -270,7 +271,7 @@ public:
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
         // ... and try to extract a player out of it.
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;

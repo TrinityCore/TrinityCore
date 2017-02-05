@@ -28,6 +28,7 @@ EndScriptData */
 #include "ArenaTeamMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 
 class arena_commandscript : public CommandScript
 {
@@ -83,7 +84,7 @@ public:
 
         if (type == 2 || type == 3 || type == 5 )
         {
-            if (Player::GetArenaTeamIdFromCharacterInfo(target->GetGUID(), type) != 0)
+            if (sCharacterCache->GetCharacterArenaTeamIdByGuid(target->GetGUID(), type) != 0)
             {
                 handler->PSendSysMessage(LANG_ARENA_ERROR_SIZE, target->GetName().c_str());
                 handler->SetSentErrorMessage(true);
@@ -273,7 +274,7 @@ public:
 
         arena->SetCaptain(targetGuid);
 
-        CharacterInfo const* oldCaptainNameData = sWorld->GetCharacterInfo(arena->GetCaptain());
+        CharacterCacheEntry const* oldCaptainNameData = sCharacterCache->GetCharacterCacheByGuid(arena->GetCaptain());
         if (!oldCaptainNameData)
         {
             handler->SetSentErrorMessage(true);
