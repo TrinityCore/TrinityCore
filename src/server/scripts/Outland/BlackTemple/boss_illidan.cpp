@@ -858,9 +858,8 @@ public:
                     case EVENT_FLY_TO_RANDOM_PILLAR:
                     {
                         events.CancelEventGroup(GROUP_PHASE_2);
-                        uint8 ranPos = urand(0, 3);
-                        _pillarIndex = ranPos;
-                        me->GetMotionMaster()->MovePoint(POINT_RANDOM_PILLAR, IllidanPhase2Positions[ranPos]);
+                        _pillarIndex = urand(0, 3);
+                        me->GetMotionMaster()->MovePoint(POINT_RANDOM_PILLAR, IllidanPhase2Positions[_pillarIndex]);
                         events.Repeat(Seconds(30));
                         break;
                     }
@@ -1567,7 +1566,10 @@ public:
         void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type == POINT_MOTION_TYPE && pointId == POINT_DB_TARGET)
+            {
+                me->RemoveAurasDueToSpell(SPELL_EYE_BLAST_TRIGGER);
                 me->RemoveAurasDueToSpell(SPELL_EYE_BLAST);
+            }
         }
     };
 
