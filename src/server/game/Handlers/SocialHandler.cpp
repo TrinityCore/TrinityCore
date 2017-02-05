@@ -17,6 +17,7 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -43,10 +44,10 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
         GetPlayerInfo().c_str(), packet.Name.c_str());
 
     FriendsResult friendResult = FRIEND_NOT_FOUND;
-    ObjectGuid friendGuid = sWorld->GetCharacterGuidByName(packet.Name);
+    ObjectGuid friendGuid = sCharacterCache->GetCharacterGuidByName(packet.Name);
     if (!friendGuid.IsEmpty())
     {
-        if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(friendGuid))
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(friendGuid))
         {
             uint32 team = Player::TeamForRace(characterInfo->Race);
             uint32 friendAccountId = characterInfo->AccountId;
@@ -97,7 +98,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
     TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: %s asked to Ignore: %s",
         GetPlayer()->GetName().c_str(), packet.Name.c_str());
 
-    ObjectGuid ignoreGuid = sWorld->GetCharacterGuidByName(packet.Name);
+    ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(packet.Name);
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
     if (!ignoreGuid.IsEmpty())
     {
