@@ -401,7 +401,7 @@ bool AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)
             float average = fields[1].GetFloat();
             uint32 total_reports = fields[2].GetUInt32();
 
-            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guid))
+            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(lowGuid))
                 handler->PSendSysMessage(LANG_COMMAND_ACGLOBAL_AVERAGE_STATS, player->GetName().c_str(), average, total_reports);
 
         } while (resultDB->NextRow());
@@ -427,7 +427,7 @@ bool AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)
             float average = fields[1].GetFloat();
             uint32 total_reports = fields[2].GetUInt32();
 
-            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(guid))
+            if (Player* player = ObjectAccessor::FindPlayerByLowGUID(lowGuid))
                 handler->PSendSysMessage(LANG_COMMAND_ACGLOBAL_REPORT_STATS, player->GetName().c_str(), total_reports, average);
 
         } while (resultDB->NextRow());
