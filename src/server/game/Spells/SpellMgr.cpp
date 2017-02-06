@@ -3420,6 +3420,21 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             if (!effect)
                 continue;
+
+            if (effect->IsEffect() && (effect->TargetA.GetTarget() == TARGET_DEST_TRAJ || effect->TargetB.GetTarget() == TARGET_DEST_TRAJ))
+            {
+                // Get triggered spell if any
+                if (SpellInfo* spellInfoTrigger = const_cast<SpellInfo*>(GetSpellInfo(effect->TriggerSpell)))
+                {
+                    float maxRangeMain = spellInfo->GetMaxRange();
+                    float maxRangeTrigger = spellInfoTrigger->GetMaxRange();
+
+                    // check if triggered spell has enough max range to cover trajectory
+                    if (maxRangeTrigger < maxRangeMain)
+                        spellInfoTrigger->RangeEntry = spellInfo->RangeEntry;
+                }
+            }
+
             switch (effect->Effect)
             {
                 case SPELL_EFFECT_CHARGE:
