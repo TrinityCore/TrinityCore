@@ -748,8 +748,15 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
-    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYSCENE                   = 844, // not on 3.3.5a
-    RBAC_PERM_COMMAND_GO_OFFSET                              = 845,
+    RBAC_PERM_COMMAND_SCENE                                  = 844, // not on 3.3.5a
+    RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845, // not on 3.3.5a
+    RBAC_PERM_COMMAND_SCENE_PLAY                             = 846, // not on 3.3.5a
+    RBAC_PERM_COMMAND_SCENE_PLAY_PACKAGE                     = 847, // not on 3.3.5a
+    RBAC_PERM_COMMAND_SCENE_CANCEL                           = 848, // not on 3.3.5a
+    RBAC_PERM_COMMAND_LIST_SCENES                            = 849, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851, // not on 3.3.5a
+    RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
