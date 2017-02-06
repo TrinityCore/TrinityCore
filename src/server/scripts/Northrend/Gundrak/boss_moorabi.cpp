@@ -107,6 +107,7 @@ class boss_moorabi : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                me->RemoveAurasOnEvade();
                 _DespawnAtEvade();
             }
             
