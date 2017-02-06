@@ -811,20 +811,16 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& c
         return;
     }
 
-    uint32 accountId = 0;
-    uint8 level = 0;
-    std::string name;
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DATA_BY_GUID);
-    stmt->setUInt64(0, charDelete.Guid.GetCounter());
-
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(charDelete.Guid);
+    if (!characterInfo)
     {
-        Field* fields = result->Fetch();
-        accountId = fields[0].GetUInt32();
-        name = fields[1].GetString();
-        level = fields[2].GetUInt8();
+        sScriptMgr->OnPlayerFailedDelete(charDelete.Guid, initAccountId);
+        return;
     }
+
+    uint32 accountId = characterInfo->AccountId;
+    std::string name = characterInfo->Name;
+    uint8 level = characterInfo->Level;
 
     // prevent deleting other players' characters using cheating tools
     if (accountId != initAccountId)

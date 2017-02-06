@@ -671,6 +671,7 @@ class npc_halion_controller : public CreatureScript
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
 
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, Seconds(7));
+                        break;
                     }
                     case ACTION_ACTIVATE_EMBERS:
                         _events.ScheduleEvent(EVENT_ACTIVATE_EMBERS, Seconds(6));

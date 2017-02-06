@@ -394,7 +394,7 @@ void GuildMgr::LoadGuilds()
     }
 
     // 9. Fill all guild bank tabs
-    TC_LOG_INFO("guild", "Filling bank tabs with items...");
+    TC_LOG_INFO("server.loading", "Filling bank tabs with items...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -441,7 +441,13 @@ void GuildMgr::LoadGuilds()
     }
 
     // 10. Load guild achievements
+    TC_LOG_INFO("server.loading", "Loading guild achievements...");
     {
+        uint32 oldMSTime = getMSTime();
+
+        uint32 achievementCount = 0;
+        uint32 criteriaCount = 0;
+
         PreparedQueryResult achievementResult;
         PreparedQueryResult criteriaResult;
         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
@@ -453,8 +459,15 @@ void GuildMgr::LoadGuilds()
             stmt->setUInt64(0, itr->first);
             criteriaResult = CharacterDatabase.Query(stmt);
 
+            if (achievementResult)
+                achievementCount += achievementResult->GetRowCount();
+            if (criteriaResult)
+                criteriaCount += criteriaResult->GetRowCount();
+
             itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
         }
+
+        TC_LOG_INFO("server.loading", ">> Loaded %u guild achievements and %u criterias in %u ms", achievementCount, criteriaCount, GetMSTimeDiffToNow(oldMSTime));
     }
 
     // 11. Validate loaded guild data

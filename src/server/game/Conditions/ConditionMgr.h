@@ -91,7 +91,8 @@ enum ConditionTypes
     CONDITION_IN_WATER              = 40,                   // 0                0              0                  true if unit in water
     CONDITION_TERRAIN_SWAP          = 41,                   // terrainSwap      0              0                  true if object is in terrainswap
     CONDITION_STAND_STATE           = 42,                   // stateType        state          0                  true if unit matches specified sitstate (0,x: has exactly state x; 1,0: any standing state; 1,1: any sitting state;)
-    CONDITION_MAX                   = 43                    // MAX
+    CONDITION_DAILY_QUEST_DONE      = 43,                   // quest id         0              0                  true if daily quest has been completed for the day
+    CONDITION_MAX                   = 44                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
