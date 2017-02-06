@@ -85,7 +85,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             if (!verticeFields[4].IsNull() && !verticeFields[5].IsNull())
                 verticesTargetByAreaTrigger[areaTriggerId].emplace_back(verticeFields[4].GetFloat(), verticeFields[5].GetFloat());
-            else if (verticeFields[4].IsNull() != !verticeFields[5].IsNull())
+            else if (verticeFields[4].IsNull() != verticeFields[5].IsNull())
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_polygon_vertices` has listed invalid target vertices (AreaTrigger: %u, Index: %u).", areaTriggerId, verticeFields[1].GetUInt32());
         }
         while (vertices->NextRow());
@@ -191,7 +191,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[7].GetUInt32();
             miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[8].GetUInt32();
 
-            miscTemplate.SplinePoints = splinesBySpellMisc[miscTemplate.MiscId];
+            miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
 
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
         }
