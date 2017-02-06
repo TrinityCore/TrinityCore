@@ -701,6 +701,9 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     pos.Relocate(x, y, z);
     spell->m_targets.ModDst(pos);
 
+    // we changed dest, recalculate flight time
+    spell->RecalculateDelayMomentForDst();
+
     WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
     data << uint64(casterGuid);
     data << uint8(castCount);
