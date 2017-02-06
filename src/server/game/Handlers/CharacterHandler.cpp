@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "AnticheatMgr.h"
 #include "Battleground.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
@@ -209,6 +210,10 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_LOCATION);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AC_HAS_REPORTS);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ANTICHEAT_HAS_REPORTS, stmt);
 
     return res;
 }
@@ -875,6 +880,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
+
+    sAnticheatMgr->HandlePlayerLogin(pCurrChar, holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ANTICHEAT_HAS_REPORTS));
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState != ALIVE)

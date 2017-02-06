@@ -608,4 +608,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // DeserterTracker
     PrepareStatement(CHAR_INS_DESERTER_TRACK, "INSERT INTO battleground_deserters (guid, type, datetime) VALUES (?, ?, NOW())", CONNECTION_ASYNC);
+
+    // Passive Anti-Cheat
+    PrepareStatement(CHAR_SEL_AC_HAS_REPORTS, "SELECT 1 FROM daily_players_reports WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_AC_PLAYER_DAILY_REPORTS, "DELETE FROM daily_players_reports WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_AC_PLAYER_DAILY_REPORTS, "INSERT INTO daily_players_reports (guid, average, total_reports, speed_reports, fly_reports, jump_reports, waterwalk_reports, teleportplane_reports, climb_reports, creation_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_AC_PLAYER_REPORTS, "DELETE FROM players_reports_status WHERE guid = ?", CONNECTION_BOTH);
+    PrepareStatement(CHAR_INS_AC_PLAYER_REPORTS, "INSERT INTO players_reports_status (guid, average, total_reports, speed_reports, fly_reports, jump_reports, waterwalk_reports, teleportplane_reports, climb_reports, creation_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_BOTH);
 }

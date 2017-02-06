@@ -14,6 +14,7 @@
 #    UPDATE SETTINGS
 #    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
+#    ANTICHEAT SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
 #    CHAT SETTINGS
@@ -1431,6 +1432,55 @@ Warden.ClientCheckFailAction = 0
 #                     0     - (Permanent ban)
 
 Warden.BanDuration = 86400
+
+#
+###################################################################################################
+
+###################################################################################################
+# ANTICHEAT SETTINGS
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Anticheat.Enable = 0
+
+#
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+
+#
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+
+Anticheat.DetectionsEnabled = 31
+
+#
+#     Anticheat.ReportDelay
+#        Description: Minimum wait time (in ms) between hack reports for same player, putting 0 disables this check (not recommended)
+#        Default:     5000 (5 secs)
+
+Anticheat.ReportDelay = 5000
+
+#
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
 
 #
 ###################################################################################################

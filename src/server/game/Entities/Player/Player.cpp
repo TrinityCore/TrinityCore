@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "AnticheatMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "Battlefield.h"
@@ -19382,6 +19383,7 @@ void Player::SaveToDB(bool create /*=false*/)
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveGlyphs(trans);
     _SaveInstanceTimeRestrictions(trans);
+    sAnticheatMgr->SavePlayerData(GetGUID(), trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
