@@ -104,13 +104,13 @@ struct npc_grim_batol_twilight_beguiler : public ScriptedAI
                         Position pos = gronn->GetHomePosition();
                         pos.SetOrientation(pos.GetOrientation() + (float)M_PI / 1.5f);
 
-                        if (pos.HasInLine(&me->GetHomePosition(), 15.0f))
+                        if (pos.HasInLine(&me->GetHomePosition(), 15.0f, 0.f))
                             DoCastSelf(SPELL_ENSLAVE_GRONN_COSMETIC_LEFT);
                         else
                         {
                             pos = gronn->GetHomePosition();
                             pos.SetOrientation(pos.GetOrientation() - (float)M_PI / 1.5f);
-                            if (pos.HasInLine(&me->GetHomePosition(), 15.0f))
+                            if (pos.HasInLine(&me->GetHomePosition(), 15.0f, 0.f))
                                 DoCastSelf(SPELL_ENSLAVE_GRONN_COSMETIC_RIGHT);
                         }
                     }

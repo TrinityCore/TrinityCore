@@ -5907,6 +5907,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         if (!spellInfo)
             continue;
 
+        // Fix range for trajectory triggered spell
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        {
+            if (spellInfo->Effects[j].IsEffect() && (spellInfo->Effects[j].TargetA.GetTarget() == TARGET_DEST_TRAJ || spellInfo->Effects[j].TargetB.GetTarget() == TARGET_DEST_TRAJ))
+            {
+                // Get triggered spell if any
+                if (SpellInfo* spellInfoTrigger = const_cast<SpellInfo*>(GetSpellInfo(spellInfo->Effects[j].TriggerSpell)))
+                {
+                    float maxRangeMain = spellInfo->RangeEntry ? spellInfo->RangeEntry->RangeMax[0] : 0.0f;
+                    float maxRangeTrigger = spellInfoTrigger->RangeEntry ? spellInfoTrigger->RangeEntry->RangeMax[0] : 0.0f;
+
+                    // check if triggered spell has enough max range to cover trajectory
+                    if (maxRangeTrigger < maxRangeMain)
+                        spellInfoTrigger->RangeEntry = spellInfo->RangeEntry;
+                }
+            }
+        }
+
         for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             switch (spellInfo->Effects[j].Effect)

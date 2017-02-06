@@ -752,7 +752,7 @@ struct npc_brazie_fertilitize_o_tron_2000 : public ScriptedAI
             Position pos = me->GetPosition();
             pos.SetOrientation(pos.GetAngle(spitterTarget));
 
-            if (pos.HasInLine(who, 5.0f))
+            if (pos.HasInLine(who, 5.0f, 0.f))
                 CreatureAI::AttackStart(who);
         }
     }
@@ -855,7 +855,7 @@ struct npc_brazie_spot : public ScriptedAI
             Position pos = me->GetPosition();
             pos.SetOrientation(pos.GetAngle(spitterTarget));
 
-            if (pos.HasInLine(who, 5.0f))
+            if (pos.HasInLine(who, 5.0f, 0.f))
             {
                 me->SetFacingToObject(spitterTarget);
                 me->SetNoCallAssistance(true);
@@ -989,7 +989,7 @@ struct npc_brazie_zombie : public ScriptedAI
         Position pos = me->GetPosition();
         pos.SetOrientation(pos.GetAngle(GoalStalkerPositions[_pathIndex]));
 
-        if (pos.HasInLine(who, 4.8f))
+        if (pos.HasInLine(who, 4.8f, 0.f))
         {
             if (Creature* target = who->ToCreature())
             {

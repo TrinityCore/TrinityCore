@@ -658,7 +658,7 @@ struct npc_alakir_ice_storm : public ScriptedAI
                     std::vector<Position> possibleDestinations;
                     for (Position destination : _iceStormPositions)
                     {
-                        if (pos.HasInLine(&destination, alakir->GetCombatReach()))
+                        if (pos.HasInLine(&destination, alakir->GetCombatReach(), 0.f))
                             possibleDestinations.push_back(destination);
                     }
 

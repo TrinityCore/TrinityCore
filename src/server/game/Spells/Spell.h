@@ -49,6 +49,7 @@ class Item;
 class Object;
 class PathGenerator;
 class Player;
+class SpellEvent;
 class SpellImplicitTargetInfo;
 class SpellInfo;
 class SpellScript;
@@ -68,6 +69,7 @@ enum WeaponAttackType : uint8;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 #define MAX_SPELL_RANGE_TOLERANCE 3.0f
+#define TRAJECTORY_MISSILE_SIZE 3.0f
 
 enum SpellCastFlags
 {
@@ -426,7 +428,7 @@ class TC_GAME_API Spell
         void SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask);
-        void SelectImplicitTrajTargets(SpellEffIndex effIndex);
+        void SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
 
         void SelectEffectTypeImplicitTargets(uint8 effIndex);
 
@@ -554,6 +556,8 @@ class TC_GAME_API Spell
         uint64 GetDelayStart() const { return m_delayStart; }
         void SetDelayStart(uint64 m_time) { m_delayStart = m_time; }
         uint64 GetDelayMoment() const { return m_delayMoment; }
+        uint64 CalculateDelayMomentForDst() const;
+        void RecalculateDelayMomentForDst();
 
         bool IsNeedSendToClient() const;
 
@@ -769,6 +773,7 @@ class TC_GAME_API Spell
         uint32 m_spellState;
         int32 m_timer;
 
+        SpellEvent* _spellEvent;
         TriggerCastFlags _triggeredCastFlags;
 
         // if need this can be replaced by Aura copy
@@ -830,9 +835,12 @@ namespace Trinity
         bool operator()(WorldObject* target);
     };
 
-    struct TC_GAME_API WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck
+    struct TC_GAME_API WorldObjectSpellTrajTargetCheck : public WorldObjectSpellTargetCheck
     {
-        WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster, SpellInfo const* spellInfo);
+        float _range;
+        Position const* _position;
+        WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster,
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
         bool operator()(WorldObject* target);
     };
 }
