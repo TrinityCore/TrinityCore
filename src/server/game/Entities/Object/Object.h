@@ -448,7 +448,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
 
-        float GetObjectSize() const;
+        virtual float GetCombatReach() const { return 0.0f; } // overridden (only) in Unit
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 

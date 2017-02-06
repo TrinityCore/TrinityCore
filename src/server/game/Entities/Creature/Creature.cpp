@@ -2343,7 +2343,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
     else
     {
         // include sizes for huge npcs
-        dist += GetObjectSize() + victim->GetObjectSize();
+        dist += GetCombatReach() + victim->GetCombatReach();
 
         // to prevent creatures in air ignore attacks because distance is already too high...
         if (GetCreatureTemplate()->InhabitType & INHABIT_AIR)

@@ -135,7 +135,7 @@ public:
 
             // before GM
             float x, y, z;
-            gmPlayer->GetClosePoint(x, y, z, player->GetObjectSize());
+            gmPlayer->GetClosePoint(x, y, z, player->GetCombatReach());
             player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation());
         }
 

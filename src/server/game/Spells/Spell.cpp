@@ -1222,7 +1222,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     // if this is a proximity based aoe (Frost Nova, Psychic Scream, ...), include the caster's own combat reach
     if(targetType.IsProximityBasedAoe())
-        radius += GetCaster()->GetObjectSize();
+        radius += GetCaster()->GetCombatReach();
 
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
@@ -1313,7 +1313,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         {
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             float angle = targetType.CalcDirectionAngle();
-            float objSize = m_caster->GetObjectSize();
+            float objSize = m_caster->GetCombatReach();
 
             switch (targetType.GetTarget())
             {
@@ -1368,7 +1368,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
         default:
         {
             float angle = targetType.CalcDirectionAngle();
-            float objSize = target->GetObjectSize();
+            float objSize = target->GetCombatReach();
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
             if (dist < objSize)
                 dist = objSize;
@@ -1580,7 +1580,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
             }
         }
 
-        const float size = std::max((*itr)->GetObjectSize(), 1.0f);
+        const float size = std::max((*itr)->GetCombatReach(), 1.0f);
         const float objDist2d = srcPos.GetExactDist2d(*itr);
         const float dz = (*itr)->GetPositionZ() - srcPos.m_positionZ;
 
@@ -5238,12 +5238,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!target->IsWithinLOSInMap(m_caster)) //Do full LoS/Path check. Don't exclude m2
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
-                    float objSize = target->GetObjectSize();
+                    float objSize = target->GetCombatReach();
                     float range = m_spellInfo->GetMaxRange(true, m_caster, this) * 1.5f + objSize; // can't be overly strict
 
                     m_preGeneratedPath.SetPathLengthLimit(range);
                     // first try with raycast, if it fails fall back to normal path
-                    float targetObjectSize = std::min(target->GetObjectSize(), 4.0f);
+                    float targetObjectSize = std::min(target->GetCombatReach(), 4.0f);
                     bool result = m_preGeneratedPath.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, true);
                     if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
@@ -7783,7 +7783,7 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else if (_spellInfo->HasAttribute(SPELL_ATTR0_CU_CONE_LINE))
     {
-        if (!_caster->HasInLine(target, target->GetObjectSize(), _caster->GetObjectSize()))
+        if (!_caster->HasInLine(target, target->GetCombatReach(), _caster->GetCombatReach()))
             return false;
     }
     else
@@ -7800,7 +7800,7 @@ WorldObjectSpellTrajTargetCheck::WorldObjectSpellTrajTargetCheck(float range, Po
 bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 {
     // return all targets on missile trajectory (0 - size of a missile)
-    if (!_caster->HasInLine(target, target->GetObjectSize(), TRAJECTORY_MISSILE_SIZE))
+    if (!_caster->HasInLine(target, target->GetCombatReach(), TRAJECTORY_MISSILE_SIZE))
         return false;
 
     if (target->GetExactDist2d(_position) > _range)

@@ -561,7 +561,7 @@ public:
 
             // before GM
             float x, y, z;
-            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetObjectSize());
+            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetCombatReach());
             target->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, target->GetOrientation());
             target->SetPhaseMask(handler->GetSession()->GetPlayer()->GetPhaseMask(), true);
         }
