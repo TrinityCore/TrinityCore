@@ -742,6 +742,9 @@ class TC_GAME_API PlayerScript : public UnitScript
 
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player presses release when he died
+        virtual void OnPlayerRepop(Player* /*player*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1072,6 +1075,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnPlayerRepop(Player* player);
 
     public: /* AccountScript */
 
