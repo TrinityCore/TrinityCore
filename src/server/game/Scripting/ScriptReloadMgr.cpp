@@ -37,7 +37,6 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #else
 
 #include <algorithm>
-#include <regex>
 #include <vector>
 #include <future>
 #include <memory>
@@ -45,6 +44,8 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <type_traits>
 #include <unordered_set>
 #include <unordered_map>
+
+#include "Regex.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
