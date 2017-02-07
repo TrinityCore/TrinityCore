@@ -308,10 +308,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         // Now we have cooldown data (if found any), time to apply mods
         if (Player* modOwner = _owner->GetSpellModOwner())
         {
-            if (cooldown > 0)
+            if (cooldown >= 0)
                 modOwner->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, cooldown, spell);
 
-            if (categoryCooldown > 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+            if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
                 modOwner->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, categoryCooldown, spell);
         }
 
