@@ -24,7 +24,7 @@ namespace VMAP
     // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
     IVMapManager* VMapFactory::createOrGetVMapManager()
     {
-        static VMapManager2 gVMapManager; // the implementation class should be taken from config ... Please change if you like :-)
+        static VMapManager2 gVMapManager;
         return &gVMapManager;
     }
 }
