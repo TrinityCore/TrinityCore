@@ -21,24 +21,10 @@
 
 namespace MMAP
 {
-    // ######################## MMapFactory ########################
-    // our global singleton copy
-    MMapManager* g_MMapManager = NULL;
-
+    // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
     MMapManager* MMapFactory::createOrGetMMapManager()
     {
-        if (g_MMapManager == NULL)
-            g_MMapManager = new MMapManager();
-
-        return g_MMapManager;
-    }
-
-    void MMapFactory::clear()
-    {
-        if (g_MMapManager)
-        {
-            delete g_MMapManager;
-            g_MMapManager = NULL;
-        }
+        static MMapManager g_MMapManager;
+        return &g_MMapManager;
     }
 }

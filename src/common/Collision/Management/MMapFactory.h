@@ -42,7 +42,6 @@ namespace MMAP
     {
         public:
             static MMapManager* createOrGetMMapManager();
-            static void clear();
     };
 }
 

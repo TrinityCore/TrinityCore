@@ -33,7 +33,6 @@ namespace VMAP
     {
         public:
             static IVMapManager* createOrGetVMapManager();
-            static void clear();
     };
 
 }

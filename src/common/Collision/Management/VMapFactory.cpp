@@ -21,22 +21,10 @@
 
 namespace VMAP
 {
-    IVMapManager* gVMapManager = NULL;
-
-    //===============================================
-    // just return the instance
+    // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
     IVMapManager* VMapFactory::createOrGetVMapManager()
     {
-        if (gVMapManager == nullptr)
-            gVMapManager= new VMapManager2();                // should be taken from config ... Please change if you like :-)
-        return gVMapManager;
-    }
-
-    //===============================================
-    // delete all internal data structures
-    void VMapFactory::clear()
-    {
-        delete gVMapManager;
-        gVMapManager = NULL;
+        static VMapManager2 gVMapManager; // the implementation class should be taken from config ... Please change if you like :-)
+        return &gVMapManager;
     }
 }

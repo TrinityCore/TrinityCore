@@ -140,9 +140,6 @@ World::~World()
     while (cliCmdQueue.next(command))
         delete command;
 
-    VMAP::VMapFactory::clear();
-    MMAP::MMapFactory::clear();
-
     /// @todo free addSessQueue
 }
 
