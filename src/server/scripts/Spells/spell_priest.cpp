@@ -1260,7 +1260,7 @@ public:
             }
         }
 
-        void HandleOnRemove(const AuraEffect* aurEff, AuraEffectHandleModes mode)
+        void HandleOnRemove(const AuraEffect* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Player* player = GetCaster()->ToPlayer())
             {
