@@ -757,7 +757,6 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
                         aur->SetDamage(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), damage, DOT, aur->GetSpellEffectInfo()) * aur->GetDonePct());
                         aur->CalculatePeriodic(caster, false, false);
                         aur->GetBase()->RefreshDuration();
-						
                     }
             }
 
