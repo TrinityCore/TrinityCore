@@ -445,8 +445,8 @@ void GuildMgr::LoadGuilds()
     {
         uint32 oldMSTime = getMSTime();
 
-        uint32 achievementCount = 0;
-        uint32 criteriaCount = 0;
+        uint64 achievementCount = 0;
+        uint64 criteriaCount = 0;
 
         PreparedQueryResult achievementResult;
         PreparedQueryResult criteriaResult;
@@ -467,7 +467,7 @@ void GuildMgr::LoadGuilds()
             itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
         }
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u guild achievements and %u criterias in %u ms", achievementCount, criteriaCount, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " UI64FMTD " guild achievements and " UI64FMTD " criterias in %u ms", achievementCount, criteriaCount, GetMSTimeDiffToNow(oldMSTime));
     }
 
     // 11. Validate loaded guild data
