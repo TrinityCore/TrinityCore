@@ -229,6 +229,16 @@ namespace Trinity
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
+
+        inline float xp_on_weekend_rate(uint32 initial_rate = 1.0f)
+        {
+            if(IsEventActive(sWorld->getIntConfig(CONFIG_RATE_XP_WEEKEND_EVID)))
+            {
+                initial_rate *= sWorld->getRate(RATE_XP_WEEKEND);
+            }
+            // Original value is unaffected if no event.
+            return initial_rate;
+        }
     } // namespace Trinity::XP
 } // namespace Trinity
 
