@@ -4283,6 +4283,9 @@ void Player::BuildPlayerRepop()
 
     // set and clear other
     SetAnimTier(UNIT_BYTE1_FLAG_ALWAYS_STAND, false);
+
+    // OnPlayerRepop hook
+    sScriptMgr->OnPlayerRepop(this);
 }
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
