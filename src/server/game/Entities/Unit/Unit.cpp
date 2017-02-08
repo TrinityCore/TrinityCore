@@ -10576,7 +10576,7 @@ bool Unit::IsInFeralForm() const
 bool Unit::IsInTravelForm() const
 {
     ShapeshiftForm form = GetShapeshiftForm();
-    return form == FORM_TRAVEL_FORM || form == FORM_AQUATIC_FORM || form == FORM_FLIGHT_FORM || form == FORM_FLIGHT_FORM_EPIC;
+    return IsTravelForm(form);
 }
 
 bool Unit::IsTravelForm(ShapeshiftForm form) const
