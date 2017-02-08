@@ -1226,7 +1226,7 @@ public:
         }
     };
 
-    class spell_pri_power_word_shield_AuraScript :public AuraScript
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
 
