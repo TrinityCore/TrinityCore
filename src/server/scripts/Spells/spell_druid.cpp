@@ -1326,7 +1326,6 @@ class spell_dru_travel_form_playerscript : public PlayerScript
 
             if (!player->IsInWater() && !player->IsInTravelForm() && !CheckIfPlayerIsOutdoor(player))
             {
-                player->Say("Outdoor", LANG_UNIVERSAL);
                 // Indoor Case
                 if (player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM))
                     player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
@@ -1335,25 +1334,21 @@ class spell_dru_travel_form_playerscript : public PlayerScript
             {
                 // Swift Flight Form
                 player->CastSpell(player, SPELL_DRUID_FORM_SWIFT_FLIGHT_FORM, true);
-                player->Say("Flight epic", LANG_UNIVERSAL);
             }
             else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 60 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
             {
                 // Flight Form
                 player->CastSpell(player, SPELL_DRUID_FORM_FLIGHT_FORM, true);
-                player->Say("Flight", LANG_UNIVERSAL);
             }
             else if (player->GetShapeshiftForm() != FORM_AQUATIC_FORM && player->IsInWater())
             {
                 // Aquatic Form
                 player->CastSpell(player, SPELL_DRUID_FORM_AQUATIC_FORM, true);
-                player->Say("Aquatic", LANG_UNIVERSAL);
             }
             else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && !player->IsInWater() && !player->IsFlying())
             {
                 // Stag Form
                 player->CastSpell(player, SPELL_DRUID_FORM_STAG_FORM, true);
-                player->Say("Stag", LANG_UNIVERSAL);
             }
         }
 
