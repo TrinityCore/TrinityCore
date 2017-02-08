@@ -838,7 +838,7 @@ class spell_pri_penance : public SpellScriptLoader
                     }
                     else
                     {
-                        //Support for modifications of this spell in Legion with The Penitent talent
+                        //Support for modifications of this spell in Legion with The Penitent talent (7.1.5)
                         if(!caster->HasAura(SPELL_PRIEST_THE_PENITENT_AURA))
                             return SPELL_FAILED_BAD_TARGETS;
 
