@@ -8,6 +8,8 @@ UPDATE `creature_template` SET `unit_flags`=33555200 WHERE  `entry` IN(36710,365
 UPDATE `gameobject_loot_template` SET `QuestRequired`=0 WHERE `Entry`=28677 and`Item`=49352;
 UPDATE `gameobject_loot_template` SET `QuestRequired`=0 WHERE `Entry`=28678 and`Item`=49351;
 UPDATE `gameobject_template` SET `size`=2 WHERE `entry` IN(202947,202948);
+UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31167;
+UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31166;
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10847;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
@@ -230,22 +232,3 @@ DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+56,@CGUID+57);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (@CGUID+56, 0, 0, 0, 1, 0, 57718), -- 23033 (Invisible Stalker (Floating))
 (@CGUID+57, 0, 0, 0, 1, 0, 57718); -- 23033 (Invisible Stalker (Floating))
-
-UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31167;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31166;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.3828198 WHERE `DisplayID`=2176;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.31, `CombatReach`=1 WHERE `DisplayID`=26918;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.3828198 WHERE `DisplayID`=1418;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.3, `CombatReach`=0.5 WHERE `DisplayID`=9903;
-UPDATE `creature_model_info` SET `BoundingRadius`=0.3828198 WHERE `DisplayID`=1141;
-
-UPDATE `creature_equip_template` SET `ItemID2`=0, `ItemID3`=3698 WHERE (`CreatureID`=36272 AND `ID`=1); -- Apothecary Frye
-UPDATE `creature_equip_template` SET `ItemID2`=0, `ItemID3`=2052 WHERE (`CreatureID`=3873 AND `ID`=1); -- Tormented Officer
-
-/*
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
-(62822, UNKNOWN, UNKNOWN, 'Eu sou só uma patética criatura feita de carne e cerveja.', 12, 0, 100, 6, 0, UNKNOWN, UNKNOWN, 'Primo Mãomole to Player'),
-(36296, UNKNOWN, UNKNOWN, 'Eles se deram ao trabalho de lhe dizer quem eu sou e por que estou fazendo isso?', 12, 0, 100, 6, 0, UNKNOWN, UNKNOWN, 'Boticário Humberto to Player'),
-(36272, UNKNOWN, UNKNOWN, 'Ótimo! Não somos medrosos, somos incompetentes.', 12, 0, 100, UNKNOWN, 0, UNKNOWN, UNKNOWN, 'Boticário Frias to Player'),
-(36565, UNKNOWN, UNKNOWN, 'Uma pitadinha disso... uma pitadinha daquilo outro...', 12, 0, 100, UNKNOWN, 0, UNKNOWN, UNKNOWN, 'Boticário Balduíno to Player');
-*/

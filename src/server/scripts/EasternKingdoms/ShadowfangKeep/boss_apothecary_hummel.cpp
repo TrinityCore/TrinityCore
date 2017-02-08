@@ -521,7 +521,6 @@ class spell_apothecary_perfume_spill : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                std::cout << "\n GetTarget Perfume: " << GetTarget()->GetName();
                 GetTarget()->CastSpell((Unit*)nullptr, SPELL_PERFUME_SPILL_DAMAGE, true);
             }
 
@@ -549,7 +548,6 @@ class spell_apothecary_cologne_spill : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                std::cout << "\n GetTarget Cologne: " << GetTarget()->GetName();
                 GetTarget()->CastSpell((Unit*)nullptr, SPELL_PERFUME_SPILL_DAMAGE, true);
             }
 
