@@ -39,6 +39,8 @@ enum MageSpells
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_CHILLED                           = 205708,
+    SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
+    SPELL_MAGE_CONJURE_REFRESHMENT_TABLE         = 167145,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
