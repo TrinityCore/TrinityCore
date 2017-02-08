@@ -17,7 +17,8 @@ if (SCRIPTS)
   list (FIND SCRIPTS_AVAILABLE_OPTIONS "${SCRIPTS}" SCRIPTS_INDEX)
   if (${SCRIPTS_INDEX} EQUAL -1)
     message(FATAL_ERROR "The value (${SCRIPTS}) of your SCRIPTS variable is invalid! "
-                        "Allowed values are: ${SCRIPTS_AVAILABLE_OPTIONS}")
+                        "Allowed values are: ${SCRIPTS_AVAILABLE_OPTIONS} if you still "
+                        "have problems search on forum for TCE00019.")
   endif()
 endif()
 
