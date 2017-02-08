@@ -1692,6 +1692,10 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
     uint32 modelid = target->GetModelForForm(form);
 
+    // called by playerscript for travel form
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnPlayerChangeShapeshift(target->ToPlayer(), form);
+
     if (apply)
     {
         // remove polymorph before changing display id to keep new display id

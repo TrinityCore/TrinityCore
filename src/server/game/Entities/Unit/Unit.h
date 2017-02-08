@@ -1969,6 +1969,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetShapeshiftForm(ShapeshiftForm form);
 
         bool IsInFeralForm() const;
+        bool IsInTravelForm() const;
+        bool IsTravelForm(ShapeshiftForm form) const;
 
         bool IsInDisallowedMountForm() const;
 

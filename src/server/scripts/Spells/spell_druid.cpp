@@ -66,6 +66,23 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881
 };
 
+enum DruidShapeshiftSpells
+{
+    SPELL_DRUID_FORM_TRAVEL_FORM            = 783,
+    SPELL_DRUID_FORM_FLIGHT_FORM            = 33943,
+    SPELL_DRUID_FORM_SWIFT_FLIGHT_FORM      = 40120,
+    SPELL_DRUID_FORM_AQUATIC_FORM           = 1066,
+    SPELL_DRUID_FORM_STAG_FORM              = 165961
+};
+
+enum MiscSpells
+{
+    SPELL_COLD_WEATHER_FLYING               = 54197,
+    SPELL_FLIGHT_MASTERS_LICENSE            = 90267,
+    SPELL_WISDOM_OF_THE_FOUR_WINDS          = 115913,
+    SPELL_DRAENOR_PATHFINDER                = 191645
+};
+
 // 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
@@ -1139,6 +1156,217 @@ class spell_dru_flight_form : public SpellScriptLoader
         }
 };
 
+// 783 - Travel Form
+class spell_dru_travel_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+
+        class spell_dru_travel_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_travel_form_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    if (!player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
+                        return SPELL_FAILED_ONLY_OUTDOORS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dru_travel_form_SpellScript();
+        }
+
+        class spell_dru_travel_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_travel_form_AuraScript);
+
+            void AfterApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                    sScriptMgr->OnPlayerMovementUpdate(GetTarget()->ToPlayer());
+            }
+
+            void AfterRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+                        target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_travel_form_AuraScript();
+        }
+};
+
+// Tavel Form (Cancel)
+// Called by 165961 - Stag Form, 1066 - Aquatic Form, 33943 - Flight Form & 40120 - Swift Form
+class spell_dru_travel_form_cancel : public SpellScriptLoader
+{
+    public:
+        spell_dru_travel_form_cancel() : SpellScriptLoader("spell_dru_travel_form_cancel") { }
+
+        class spell_dru_travel_form_cancel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_travel_form_cancel_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_DRUID_FORM_TRAVEL_FORM
+                });
+            }
+
+            void AfterRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+                        target->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_cancel_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_travel_form_cancel_AuraScript();
+        }
+};
+
+class spell_dru_travel_form_playerscript : public PlayerScript
+{
+    public:
+        spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") { }
+
+        bool CheckIfPlayerCanFly(Player* player)
+        {
+            bool CanFly = false;
+            uint32 MapID = player->GetMapId();
+
+            switch (MapID)
+            {
+                case 0: // Eastern Kingdoms
+                case 1: // Kalimdor
+                {
+                    if (player->HasSpell(SPELL_FLIGHT_MASTERS_LICENSE))
+                        CanFly = true;
+                    break;
+                }
+                case 530: // Outland
+                {
+                    CanFly = true;
+                    break;
+                }
+                case 571: // Northrend
+                {
+                    if (player->HasSpell(SPELL_COLD_WEATHER_FLYING))
+                        CanFly = true;
+                    break;
+                }
+                case 870: // Pandaria
+                {
+                    if (player->HasSpell(SPELL_WISDOM_OF_THE_FOUR_WINDS))
+                        CanFly = true;
+                    break;
+                }
+                case 1116: // Draenor
+                {
+                    if (player->HasSpell(SPELL_DRAENOR_PATHFINDER))
+                        CanFly = true;
+                    break;
+                }
+            }
+
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(player->GetAreaId()))
+                if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE)
+                    CanFly = false;
+
+            return CanFly;
+        }
+
+        bool CheckIfPlayerIsOutdoor(Player* player)
+        {
+            if (player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
+                return true;
+
+            return false;
+        }
+
+        void OnMovementUpdate(Player* player)
+        {
+            if (!player || player->getClass() != CLASS_DRUID || !player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM))
+                return;
+
+            if (!player->IsInWater() && !player->IsInTravelForm() && !CheckIfPlayerIsOutdoor(player))
+            {
+                player->Say("Outdoor", LANG_UNIVERSAL);
+                // Indoor Case
+                if (player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM))
+                    player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
+            }
+            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 71 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
+            {
+                // Swift Flight Form
+                player->CastSpell(player, SPELL_DRUID_FORM_SWIFT_FLIGHT_FORM, true);
+                player->Say("Flight epic", LANG_UNIVERSAL);
+            }
+            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 60 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
+            {
+                // Flight Form
+                player->CastSpell(player, SPELL_DRUID_FORM_FLIGHT_FORM, true);
+                player->Say("Flight", LANG_UNIVERSAL);
+            }
+            else if (player->GetShapeshiftForm() != FORM_AQUATIC_FORM && player->IsInWater())
+            {
+                // Aquatic Form
+                player->CastSpell(player, SPELL_DRUID_FORM_AQUATIC_FORM, true);
+                player->Say("Aquatic", LANG_UNIVERSAL);
+            }
+            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && !player->IsInWater() && !player->IsFlying())
+            {
+                // Stag Form
+                player->CastSpell(player, SPELL_DRUID_FORM_STAG_FORM, true);
+                player->Say("Stag", LANG_UNIVERSAL);
+            }
+        }
+
+        void OnChangeShapeshift(Player* player, ShapeshiftForm form)
+        {
+            if (!player || player->getClass() != CLASS_DRUID)
+                return;
+
+            if (player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM) && !player->IsTravelForm(form))
+                player->RemoveAura(SPELL_DRUID_FORM_TRAVEL_FORM);
+        }
+};
+
 // 61391 - Typhoon
 class spell_dru_typhoon : public SpellScriptLoader
 {
@@ -1318,6 +1546,9 @@ void AddSC_druid_spell_scripts()
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
     new spell_dru_flight_form();
+    new spell_dru_travel_form();
+    new spell_dru_travel_form_cancel();
+    new spell_dru_travel_form_playerscript();
     new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_wild_growth();
