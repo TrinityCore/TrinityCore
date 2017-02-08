@@ -2039,7 +2039,7 @@ float WorldObject::GetGridActivationRange() const
 {
     if (isActiveObject())
     {
-        if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetCinematicMgr->IsOnCinematic())
+        if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetCinematicMgr()->IsOnCinematic())
             return std::max(DEFAULT_VISIBILITY_INSTANCE, GetMap()->GetVisibilityRange());
 
         return GetMap()->GetVisibilityRange();
