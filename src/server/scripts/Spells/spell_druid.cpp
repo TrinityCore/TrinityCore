@@ -1267,7 +1267,7 @@ class spell_dru_travel_form_playerscript : public PlayerScript
 
         bool CheckIfPlayerCanFly(Player* player)
         {
-            bool CanFly = false;
+            bool canfly = false;
             uint32 MapID = player->GetMapId();
 
             switch (MapID)
@@ -1276,39 +1276,41 @@ class spell_dru_travel_form_playerscript : public PlayerScript
                 case 1: // Kalimdor
                 {
                     if (player->HasSpell(SPELL_FLIGHT_MASTERS_LICENSE))
-                        CanFly = true;
+                        canfly = true;
                     break;
                 }
                 case 530: // Outland
                 {
-                    CanFly = true;
+                    canfly = true;
                     break;
                 }
                 case 571: // Northrend
                 {
                     if (player->HasSpell(SPELL_COLD_WEATHER_FLYING))
-                        CanFly = true;
+                        canfly = true;
                     break;
                 }
                 case 870: // Pandaria
                 {
                     if (player->HasSpell(SPELL_WISDOM_OF_THE_FOUR_WINDS))
-                        CanFly = true;
+                        canfly = true;
                     break;
                 }
                 case 1116: // Draenor
                 {
                     if (player->HasSpell(SPELL_DRAENOR_PATHFINDER))
-                        CanFly = true;
+                        canfly = true;
                     break;
                 }
+                default:
+                    break;
             }
 
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(player->GetAreaId()))
                 if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE)
-                    CanFly = false;
+                    canfly = false;
 
-            return CanFly;
+            return canfly;
         }
 
         bool CheckIfPlayerIsOutdoor(Player* player)
@@ -1327,8 +1329,7 @@ class spell_dru_travel_form_playerscript : public PlayerScript
             if (!player->IsInWater() && !player->IsInTravelForm() && !CheckIfPlayerIsOutdoor(player))
             {
                 // Indoor Case
-                if (player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM))
-                    player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
+                player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
             }
             else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 71 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
             {
@@ -1358,7 +1359,7 @@ class spell_dru_travel_form_playerscript : public PlayerScript
                 return;
 
             if (player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM) && !player->IsTravelForm(form))
-                player->RemoveAura(SPELL_DRUID_FORM_TRAVEL_FORM);
+                player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
         }
 };
 
