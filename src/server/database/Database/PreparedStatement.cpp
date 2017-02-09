@@ -183,8 +183,8 @@ void PreparedStatement::setNull(const uint8 index)
     statement_data[index].type = TYPE_NULL;
 }
 
-MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt, std::string const& queryString) :
-m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(queryString)
+MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt, std::string queryString) :
+m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(std::move(queryString))
 {
     /// Initialize variable parameters
     m_paramCount = mysql_stmt_param_count(stmt);

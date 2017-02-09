@@ -119,7 +119,7 @@ class TC_DATABASE_API MySQLPreparedStatement
     friend class PreparedStatement;
 
     public:
-        MySQLPreparedStatement(MYSQL_STMT* stmt, std::string const& queryString);
+        MySQLPreparedStatement(MYSQL_STMT* stmt, std::string queryString);
         ~MySQLPreparedStatement();
 
         void setBool(const uint8 index, const bool value);
