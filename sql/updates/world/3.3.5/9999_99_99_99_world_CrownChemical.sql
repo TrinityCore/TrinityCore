@@ -41,7 +41,6 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (36296,3,0,"Baxter! Get in here and help! NOW!",12,0,100,0,0,0,38592,3,'SAY_CALL_BAXTER'),
 (36296,4,0,"It is time, Frye!  Attack!",12,0,100,0,0,0,38593,3,'SAY_CALL_FRYE'),
 (36296,5,0,"...please don't think less of me.",12,0,100,0,0,0,38597,3,'SAY_HUMMEL_DEATH'),
-(36296,6,0,"Apothecaries! Give your life for the Crown!",12,0,100,0,0,0,38594,3,"say text"),
 (36272,0,0,"Great. We're not gutless, we're incompetent.",12,0,100,0,0,0,38596,3,'SAY_FRYE_DEATH'),
 (36565,0,0,"It has been the greatest honor of my life to serve with you, Hummel.",12,0,100,0,0,0,38595,3,'SAY_BAXTER_DEATH');
 

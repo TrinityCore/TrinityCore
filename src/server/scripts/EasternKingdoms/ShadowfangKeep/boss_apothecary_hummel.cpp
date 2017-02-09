@@ -250,7 +250,7 @@ class boss_apothecary_hummel : public CreatureScript
                 bool _isDead;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_apothecary_hummelAI>(creature);
         }
@@ -310,7 +310,7 @@ class npc_apothecary_frye : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_apothecary_fryeAI>(creature);
         }
@@ -371,7 +371,7 @@ class npc_apothecary_baxter : public CreatureScript
             EventMap _events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<npc_apothecary_baxterAI>(creature);
         }
