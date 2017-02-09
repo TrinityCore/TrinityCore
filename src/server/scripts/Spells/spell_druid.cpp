@@ -1268,9 +1268,9 @@ class spell_dru_travel_form_playerscript : public PlayerScript
         bool CheckIfPlayerCanFly(Player* player)
         {
             bool canfly = false;
-            uint32 MapID = player->GetMapId();
+            uint32 mapid = player->GetMapId();
 
-            switch (MapID)
+            switch (mapid)
             {
                 case 0: // Eastern Kingdoms
                 case 1: // Kalimdor
