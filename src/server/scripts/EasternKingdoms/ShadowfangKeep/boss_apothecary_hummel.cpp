@@ -119,7 +119,7 @@ class boss_apothecary_hummel : public CreatureScript
                 _DespawnAtEvade(Seconds(10));
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 if (action == ACTION_START_EVENT && events.IsInPhase(PHASE_ALL))
                 {
@@ -158,7 +158,7 @@ class boss_apothecary_hummel : public CreatureScript
                     DoCastSelf(SPELL_QUIET_SUICIDE, true);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (!_isDead)
                     Talk(SAY_HUMMEL_DEATH);
@@ -176,7 +176,7 @@ class boss_apothecary_hummel : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
@@ -268,7 +268,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
 {
     npc_apothecary_genericAI(Creature* creature, Position pos) : ScriptedAI(creature), _movePos(pos) { }
 
-    void DoAction(int32 action)
+    void DoAction(int32 action) override
     {
         if (action == ACTION_START_EVENT)
         {
@@ -302,9 +302,9 @@ class npc_apothecary_frye : public CreatureScript
         {
             npc_apothecary_fryeAI(Creature* creature) : npc_apothecary_genericAI(creature, FryeMovePos) { }
 
-            void AttackStart(Unit* /*who*/) { }
+            void AttackStart(Unit* /*who*/) override { }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 Talk(SAY_FRYE_DEATH);
             }
@@ -332,7 +332,7 @@ class npc_apothecary_baxter : public CreatureScript
                 _events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(12));
             }
 
-            void JustDied(Unit* /*who*/)
+            void JustDied(Unit* /*who*/) override
             {
                 _events.Reset();
                 Talk(SAY_BAXTER_DEATH);
