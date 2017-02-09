@@ -11,9 +11,9 @@ UPDATE `gameobject_template` SET `size`=2 WHERE `entry` IN(202947,202948);
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31167;
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31166;
 
-DELETE FROM `gossip_menu_option` WHERE `menu_id`=10847;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`OptionBroadcastTextID`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`,`BoxBroadcastTextID`) VALUES
-(10847, 0, 0, 'Start fight', 46457,0,3,0,0,0,0,'',0);
+DELETE FROM `gossip_menu_option` WHERE `menu_id` IN(10847);
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(10847, 0, 0, "Begin the battle.", 36652, 1, 1, 0, 0, 0, 0, '', 0, 0);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN(68644,68614,68798);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
@@ -222,6 +222,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, 
 (@OGUID+93, 181018, 33, 0, 0, 1, 1, -248.9913, 2299.535, 82.2632, 4.380776, 0, 0, -0.8141155, 0.580703, 7200, 255, 1, 23420), -- Hanging, Tall/Thin, Medium - Val (Area: Shadowfang Keep)
 (@OGUID+94, 181019, 33, 0, 0, 1, 1, -268.6615, 2295.618, 77.50943, 0.6283169, 0, 0, 0.3090162, 0.9510568, 7200, 255, 1, 23420); -- Standing, Interior, Medium - Val (Area: Shadowfang Keep)
 
+DELETE FROM `game_event_creature` WHERE `guid` IN(208792,208793,208794);
 DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+62 AND `eventEntry`=8;
 INSERT INTO `game_event_creature` SELECT 8, creature.guid FROM `creature` WHERE creature.guid BETWEEN @CGUID+0 AND @CGUID+14;
 

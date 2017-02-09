@@ -102,7 +102,7 @@ class boss_apothecary_hummel : public CreatureScript
                 DoAction(ACTION_START_EVENT);
             }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
                 _deadCount = 0;
@@ -110,6 +110,13 @@ class boss_apothecary_hummel : public CreatureScript
                 events.SetPhase(PHASE_ALL);
                 me->setFaction(FACTION_APOTHECARY_FRIENDLY);
                 me->SummonCreatureGroup(1);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                _EnterEvadeMode();
+                _DespawnAtEvade(Seconds(10));
             }
 
             void DoAction(int32 action)
@@ -157,6 +164,7 @@ class boss_apothecary_hummel : public CreatureScript
                     Talk(SAY_HUMMEL_DEATH);
 
                 events.Reset();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
                 instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -215,7 +223,6 @@ class boss_apothecary_hummel : public CreatureScript
                             Talk(SAY_CALL_FRYE);
                             EntryCheckPredicate pred(NPC_APOTHECARY_FRYE);
                             summons.DoAction(ACTION_START_FIGHT, pred);
-                            summons.DoZoneInCombat(NPC_APOTHECARY_FRYE);
                             break;
                         }
                         case EVENT_PERFUME_SPRAY:
@@ -270,7 +277,10 @@ struct npc_apothecary_genericAI : public ScriptedAI
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
+        {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetInCombatWithZone();
+        }
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
@@ -291,11 +301,6 @@ class npc_apothecary_frye : public CreatureScript
         struct npc_apothecary_fryeAI : public npc_apothecary_genericAI
         {
             npc_apothecary_fryeAI(Creature* creature) : npc_apothecary_genericAI(creature, FryeMovePos) { }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
 
             void AttackStart(Unit* /*who*/) { }
 
