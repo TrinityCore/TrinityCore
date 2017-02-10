@@ -1,3 +1,4 @@
+/*
 -- 
 SET @ENTRY := 5781;
 UPDATE `creature_template` SET `AIName`="SmartAI", `InhabitType`=`InhabitType`|8 WHERE `entry`=@ENTRY;
@@ -18,3 +19,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (3250, 0, 0, "%s lays an egg!", 16, 0, 100, 0, 0, 0, 1408, 'Silithid Creeper'),
 (5781, 0, 0, "%s begins to crack and open...", 16, 0, 100, 0, 0, 0, 1409, 'Silithid Creeper Egg'),
 (5781, 1, 0, "%s splits open!", 16, 0, 100, 0, 0, 0, 1410, 'Silithid Creeper Egg');
+*/
