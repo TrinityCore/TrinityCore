@@ -556,7 +556,8 @@ enum InhabitTypeValues
     INHABIT_GROUND = 1,
     INHABIT_WATER  = 2,
     INHABIT_AIR    = 4,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
+    INHABIT_ROOT   = 8,
+    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -860,6 +861,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void RemoveCorpse(bool setSpawnTime = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(Milliseconds const& time) { DespawnOrUnsummon(uint32(time.count())); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
