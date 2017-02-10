@@ -102,7 +102,7 @@ enum MiscSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH               = 32409,
     SPELL_SHAMAN_EXHAUSTION                      = 57723,
     SPELL_SHAMAN_SATED                           = 57724,
-    SPELL_MAGE_CHILLED =                         = 205708
+    SPELL_MAGE_CHILLED                           = 205708
 };
 
 // -31571 - Arcane Potency
