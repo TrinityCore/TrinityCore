@@ -816,6 +816,10 @@ uint32 Loot::GetMaxSlotInLootFor(Player* player) const
 // return true if there is any item that is lootable for any player (not quest item, FFA or conditional)
 bool Loot::hasItemForAll() const
 {
+    // Gold is always lootable
+    if (gold)
+        return true;
+
     for (LootItem const& item : items)
         if (!item.is_looted && !item.freeforall && item.conditions.empty())
             return true;
