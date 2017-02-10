@@ -932,7 +932,7 @@ public:
 
 void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 {
-    me->RemoveCorpse();
+    me->DespawnOrUnsummon();
 
     if (!MobGUID)
         return;

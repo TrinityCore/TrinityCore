@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "World.h"
 
 #define DUMP_TABLE_COUNT 32
@@ -677,7 +678,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterInfo(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
+    sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
 

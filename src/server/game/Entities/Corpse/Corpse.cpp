@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Common.h"
 #include "Corpse.h"
 #include "Player.h"
@@ -180,7 +181,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 bool Corpse::IsExpired(time_t t) const
 {
     // Deleted character
-    if (!sWorld->GetCharacterInfo(GetOwnerGUID()))
+    if (!sCharacterCache->HasCharacterCacheEntry(GetOwnerGUID()))
         return true;
 
     if (m_type == CORPSE_BONES)
