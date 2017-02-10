@@ -469,11 +469,11 @@ class spell_mage_frostbolt : public SpellScriptLoader
 {
 public:
     spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
- 
+
     class spell_mage_frostbolt_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_mage_frostbolt_SpellScript);
- 
+
         bool Validate(SpellInfo const* /*spell*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
@@ -486,13 +486,13 @@ public:
             if (Unit* target = GetHitUnit())
                 GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
         }
- 
+
         void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
- 
+
     SpellScript* GetSpellScript() const override
     {
         return new spell_mage_frostbolt_SpellScript();
