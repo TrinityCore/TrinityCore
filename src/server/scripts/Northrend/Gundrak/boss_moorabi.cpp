@@ -19,6 +19,8 @@
 #include "gundrak.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
+#include "gundrak.h"
 
 enum Spells
 {
@@ -74,20 +76,12 @@ class boss_moorabi : public CreatureScript
 
         struct boss_moorabiAI : public BossAI
         {
-            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _transformed = false;
-            }
+            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI), _transformed(false) { }
 
             void Reset() override
             {
                 _Reset();
-                Initialize();
+                _transformed = false;
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
@@ -99,17 +93,17 @@ class boss_moorabi : public CreatureScript
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 
                 events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18), 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10), 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20), 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12), 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18));
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10));
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20));
+                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12));
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
                 _DespawnAtEvade();
             }
-            
+
             void JustSummoned(Creature* /*summon*/) override {}
 
             uint32 GetData(uint32 type) const override
@@ -184,7 +178,7 @@ class boss_moorabi : public CreatureScript
                         default:
                             break;
                     }
-                    
+
                     if(me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
@@ -229,12 +223,12 @@ class spell_moorabi_mojo_frenzy : public SpellScriptLoader
         class spell_moorabi_mojo_frenzy_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_moorabi_mojo_frenzy_AuraScript);
-            
+
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
             }
-            
+
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
