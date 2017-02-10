@@ -49,6 +49,7 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
     SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
+    SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
@@ -592,6 +593,40 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
         {
             return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
         }
+};
+
+// 1706 - Levitate
+class spell_pri_levitate : public SpellScriptLoader
+{
+public:
+    spell_pri_levitate() : SpellScriptLoader("spell_pri_levitate") { }
+
+    class spell_pri_levitate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_levitate_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEVITATE_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_LEVITATE_EFFECT, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_levitate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_levitate_SpellScript;
+    }
 };
 
 // 7001 - Lightwell Renew
@@ -1254,6 +1289,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_item_greater_heal_refund();
     new spell_pri_guardian_spirit();
     new spell_pri_leap_of_faith_effect_trigger();
+    new spell_pri_levitate();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();
