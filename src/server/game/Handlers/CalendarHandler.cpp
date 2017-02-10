@@ -35,13 +35,13 @@ Copied events should probably have a new owner
 
 */
 
+#include "CharacterCache.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "CalendarMgr.h"
-#include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 #include "GuildMgr.h"
@@ -445,10 +445,10 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     else
     {
         // Invitee offline, get data from storage
-        ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
+        ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(name);
         if (!guid.IsEmpty())
         {
-            if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+            if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid))
             {
                 inviteeGuid = guid;
                 inviteeTeam = Player::TeamForRace(characterInfo->Race);
