@@ -66,6 +66,8 @@ enum WarriorSpells
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
+    SPELL_WARRIOR_SHOCKWAVE                         = 46968,
+    SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
@@ -1078,6 +1080,60 @@ public:
     }
 };
 
+// Shockwave - 46968
+class spell_warr_shockwave : public SpellScriptLoader
+{
+public:
+	spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
+
+	class spell_warr_shockwave_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warr_shockwave_SpellScript);
+
+		int32 hitTargets = 0;
+		
+		bool Validate(SpellInfo const* /*spellInfo*/) override
+		{
+			if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHOCKWAVE) ||
+				!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHOCKWAVE_STUN))
+				return false;
+			return true;
+		}
+		
+		void HandleDamage(SpellEffIndex /*effIndex*/)
+		{
+			if (Unit* caster = GetCaster())
+				if (Unit* target = GetHitUnit()) {
+					caster->CastSpell(target, SPELL_WARRIOR_SHOCKWAVE_STUN, true);
+					hitTargets++;
+				}
+		}
+
+		// Cooldown reduced by 20 sec if it strikes at least 3 targets.
+		void HandleAfterHit()
+		{
+			if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+				return;
+			
+			if (hitTargets >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints) {
+				GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
+				hitTargets = 0;
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+			AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_warr_shockwave_SpellScript();
+	}
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1104,4 +1160,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_vigilance_trigger();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_jump();
+    new spell_warr_shockwave();
 }
