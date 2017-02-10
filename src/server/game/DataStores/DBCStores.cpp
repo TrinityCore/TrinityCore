@@ -521,10 +521,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesProfanity->Name, wname));
 
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (uint32 i = 0; i < sNamesReservedStore.GetNumRows(); ++i)
@@ -538,10 +538,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesReserved->Name, wname));
 
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(wname, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
+                NamesReservedValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sPhaseStore, dbcPath, "Phase.dbc"); // 15595
