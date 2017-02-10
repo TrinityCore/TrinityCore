@@ -2084,7 +2084,7 @@ class spell_illidan_return_glaives : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->SendPlaySpellVisual(SPELL_GLAIVE_VISUAL_KIT);
+                GetHitUnit()->SendPlaySpellVisualKit(SPELL_GLAIVE_VISUAL_KIT,0);
                 if (Creature* caster = GetCaster()->ToCreature())
                     caster->DespawnOrUnsummon();
             }
