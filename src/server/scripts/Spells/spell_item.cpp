@@ -4602,7 +4602,7 @@ public:
             Unit* target = GetCaster();
 
             if (target->getPowerType() == POWER_MANA)
-                    availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
+                availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
 
             uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
 
@@ -4614,13 +4614,13 @@ public:
             if (sSpellMgr->IsSpellMemberOfSpellGroup(chosenElixir, SPELL_GROUP_ELIXIR_GUARDIAN))
                 chosenSpellGroup = SPELL_GROUP_ELIXIR_GUARDIAN;
             // If another spell of the same group is already active the elixir should not be cast
-            if (chosenSpellGroup)
+            if (chosenSpellGroup != SPELL_GROUP_NONE)
             {
-                Unit::AuraApplicationMap& Auras = target->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
+                Unit::AuraApplicationMap const& auraMap = target->GetAppliedAuras();
+                for (auto itr = auraMap.begin(); itr != auraMap.end(); ++itr)
                 {
-                    uint32 spell_id = itr->second->GetBase()->GetId();
-                    if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, chosenSpellGroup) && spell_id != chosenElixir)
+                    uint32 spellId = itr->second->GetBase()->GetId();
+                    if (sSpellMgr->IsSpellMemberOfSpellGroup(spellId, chosenSpellGroup) && spellId != chosenElixir)
                     {
                         useElixir = false;
                         break;
