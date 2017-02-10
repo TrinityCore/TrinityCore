@@ -26,7 +26,7 @@
 #include "shadowfang_keep.h"
 #include "GridNotifiersImpl.h"
 
-enum hummel
+enum ApothecarySpells
 {
     SPELL_PERFUME_SPRAY          = 68607,
     SPELL_CHAIN_REACTION         = 68821,
@@ -73,9 +73,11 @@ enum ApothecaryMisc
 {
     ACTION_START_EVENT          = 1,
     ACTION_START_FIGHT          = 2,
-    QUEST_YOUVE_BEEN_SERVED     = 14488,
     FACTION_APOTHECARY_HOSTILE  = 14,
     FACTION_APOTHECARY_FRIENDLY = 35,
+    GOSSIP_OPTION_START         = 0,
+    GOSSIP_MENU_HUMMEL          = 10847,
+    QUEST_YOUVE_BEEN_SERVED     = 14488,
     NPC_APOTHECARY_FRYE         = 36272,
     NPC_APOTHECARY_BAXTER       = 36565,
     NPC_VIAL_BUNNY              = 36530,
@@ -97,9 +99,12 @@ class boss_apothecary_hummel : public CreatureScript
 
             void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                CloseGossipMenuFor(player);
-                DoAction(ACTION_START_EVENT);
+                if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    CloseGossipMenuFor(player);
+                    DoAction(ACTION_START_EVENT);
+                }
             }
 
             void Reset() override
