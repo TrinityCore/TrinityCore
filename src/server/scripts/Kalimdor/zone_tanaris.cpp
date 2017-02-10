@@ -19,13 +19,12 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 648, 10277, 10279(Special flight path).
+SDComment: Quest support: 648, 10277
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
 npc_custodian_of_time
-npc_steward_of_time
 npc_OOX17
 EndContentData */
 
@@ -294,52 +293,6 @@ public:
 };
 
 /*######
-## npc_steward_of_time
-######*/
-
-#define GOSSIP_ITEM_FLIGHT  "Please take me to the master's lair."
-
-class npc_steward_of_time : public CreatureScript
-{
-public:
-    npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
-
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            player->CastSpell(player, 34891, true);               //(Flight through Caverns)
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(10279) == QUEST_STATUS_INCOMPLETE || player->GetQuestRewardStatus(10279))
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FLIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(9978, creature->GetGUID());
-        }
-        else
-            player->SEND_GOSSIP_MENU(9977, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*######
 ## npc_OOX17
 ######*/
 
@@ -602,6 +555,5 @@ public:
 void AddSC_tanaris()
 {
     new npc_custodian_of_time();
-    new npc_steward_of_time();
     new npc_OOX17();
 }
