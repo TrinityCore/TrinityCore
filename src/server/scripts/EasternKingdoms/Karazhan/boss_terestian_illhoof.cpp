@@ -125,7 +125,8 @@ public:
                     events.Repeat(Seconds(42));
                     break;
                 case EVENT_SHADOWBOLT:
-                    DoCast(SelectTarget(SELECT_TARGET_TOPAGGRO, 0), SPELL_SHADOW_BOLT);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        DoCast(target, SPELL_SHADOW_BOLT);
                     events.Repeat(Seconds(4), Seconds(10));
                     break;
                 case EVENT_SUMMON_KILREK:
