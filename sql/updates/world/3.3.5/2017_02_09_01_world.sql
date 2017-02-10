@@ -4,4 +4,4 @@ UPDATE `spell_target_position` SET `PositionX`=-11251.6, `PositionY`=-1703.42, `
 
 DELETE FROM `spell_target_position` WHERE `ID`=30120;
 INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`Orientation`,`VerifiedBuild`)VALUES
-(30120, 0, 532, -11234.2, -1698.46, 179.24, 0.67621, 0)
+(30120, 0, 532, -11234.2, -1698.46, 179.24, 0.67621, 0);
