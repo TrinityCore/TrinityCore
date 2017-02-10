@@ -61,7 +61,9 @@ enum PriestSpells
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_LEVITATE                           = 1706,
+    SPELL_PRIEST_LEVITATE_EFFECT                    = 111759
 };
 
 enum PriestSpellIcons
@@ -1241,6 +1243,70 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+// 1706 - Levitate
+class spell_pri_levitate : public SpellScriptLoader
+{
+public:
+    spell_pri_levitate() : SpellScriptLoader("spell_pri_levitate") { }
+
+    class spell_pri_levitate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_levitate_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEVITATE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEVITATE_EFFECT))
+                return false;
+            return true;
+        }
+        
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+        
+        SpellCastResult CheckCast()
+        {
+            Player* caster = GetCaster()->ToPlayer();
+
+            if (Unit* target = GetExplTargetUnit())
+            {
+                if (!caster->IsInRaidWith(target))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!target->IsAlive())
+                    return SPELL_FAILED_DONT_REPORT;
+            }
+
+            return SPELL_CAST_OK;
+        }
+        
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetHitUnit()) 
+                {
+                    caster->CastSpell(target, SPELL_PRIEST_LEVITATE_EFFECT, true);
+                }
+            }
+             
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_pri_levitate_SpellScript::CheckCast);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_levitate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_levitate_SpellScript;
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1254,6 +1320,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_item_greater_heal_refund();
     new spell_pri_guardian_spirit();
     new spell_pri_leap_of_faith_effect_trigger();
+    new spell_pri_levitate();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();
