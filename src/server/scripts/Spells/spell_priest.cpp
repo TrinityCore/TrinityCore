@@ -1291,7 +1291,6 @@ public:
                     caster->CastSpell(target, SPELL_PRIEST_LEVITATE_EFFECT, true);
                 }
             }
-             
         }
 
         void Register() override
