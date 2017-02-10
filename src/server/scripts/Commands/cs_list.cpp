@@ -29,6 +29,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "CharacterCache.h"
 #include <iostream>
 
 class list_commandscript : public CommandScript
@@ -476,7 +477,7 @@ public:
 
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
         {
             target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;
