@@ -116,7 +116,7 @@ public:
             switch (eventId)
             {
                 case EVENT_SACRIFICE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_SACRIFICE, true);
                         target->CastSpell(target, SPELL_SUMMON_DEMONCHAINS, true);
@@ -137,7 +137,7 @@ public:
                     DoCastAOE(SPELL_FIENDISH_PORTAL_1);
                     break;
                 case EVENT_SUMMON_PORTAL_2:
-                    DoCastVictim(SPELL_FIENDISH_PORTAL_2);
+                    DoCastAOE(SPELL_FIENDISH_PORTAL_2, true);
                     break;
                 case EVENT_ENRAGE:
                     DoCastSelf(SPELL_BERSERK, true);
