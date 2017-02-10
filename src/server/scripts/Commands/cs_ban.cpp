@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
@@ -307,7 +308,7 @@ public:
 
         if (!target)
         {
-            ObjectGuid fullGuid = sWorld->GetCharacterGuidByName(name);
+            ObjectGuid fullGuid = sCharacterCache->GetCharacterGuidByName(name);
             if (fullGuid.IsEmpty())
             {
                 handler->SendSysMessage(LANG_BANINFO_NOCHARACTER);
