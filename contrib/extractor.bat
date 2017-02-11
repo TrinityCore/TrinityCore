@@ -22,13 +22,18 @@ IF %M%==4 GOTO ALL
 IF %M%==5 GOTO EOF
 :MAPS
 start mapextractor.exe
+ECHO wait before mapextractor.exe closes before continue
 pause
 GOTO MENU
 :VMAPS
-start vmap4extractor.exe
 md vmaps
-start vmap4assembler.exe Buildings vmaps
+start vmap4extractor.exe
+ECHO wait before vmap4extractor.exe closes before continue
 pause
+start vmap4assembler.exe Buildings vmaps
+ECHO wait before vmap4assembler.exe closes before continue
+pause
+rmdir Buildings /s /q
 GOTO MENU
 :MMAPS
 md mmaps
@@ -39,13 +44,16 @@ GOTO MENU
 start mapextractor.exe
 ECHO wait before mapextractor.exe closes before continue
 pause
-start vmap4extractor.exe
 md vmaps
+start vmap4extractor.exe
+ECHO wait before vmap4extractor.exe closes before continue
+pause
 start vmap4assembler.exe Buildings vmaps
-rmdir Buildings /s /q
 ECHO wait before vmap4assembler.exe closes before continue
 pause
+rmdir Buildings /s /q
 md mmaps
-start mmaps_generator.exe
+start mmaps_generator.exe --threads %NUMBER_OF_PROCESSORS%
+ECHO wait before mmaps_generator.exe closes before continue (may take hours)
 pause
 GOTO MENU
