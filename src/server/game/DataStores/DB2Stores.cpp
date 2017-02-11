@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -170,6 +170,8 @@ DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", Que
 DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPoints.db2", RandPropPointsLoadInfo::Instance());
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeLoadInfo::Instance());
 DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionLoadInfo::Instance());
+DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioLoadInfo::Instance());
+DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", ScenarioStepLoadInfo::Instance());
 DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", SceneScriptLoadInfo::Instance());
 DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneScriptPackage.db2", SceneScriptPackageLoadInfo::Instance());
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", SkillLineLoadInfo::Instance());
@@ -465,6 +467,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sRandPropPointsStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sScalingStatDistributionStore);
+    LOAD_DB2(sScenarioStore);
+    LOAD_DB2(sScenarioStepStore);
     LOAD_DB2(sSceneScriptStore);
     LOAD_DB2(sSceneScriptPackageStore);
     LOAD_DB2(sSkillLineStore);
@@ -737,7 +741,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         std::wstring name;
         ASSERT(Utf8toWStr(namesProfanity->Name, name));
         if (namesProfanity->Language != -1)
-            _nameValidators[namesProfanity->Language].emplace_back(name, std::regex::icase | std::regex::optimize);
+            _nameValidators[namesProfanity->Language].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
         else
         {
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
@@ -745,7 +749,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 if (i == LOCALE_none)
                     continue;
 
-                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
             }
         }
     }
@@ -754,7 +758,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         std::wstring name;
         ASSERT(Utf8toWStr(namesReserved->Name, name));
-        _nameValidators[TOTAL_LOCALES].emplace_back(name, std::regex::icase | std::regex::optimize);
+        _nameValidators[TOTAL_LOCALES].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
@@ -768,7 +772,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 continue;
 
             if (namesReserved->LocaleMask & (1 << i))
-                _nameValidators[i].emplace_back(name, std::regex::icase | std::regex::optimize);
+                _nameValidators[i].emplace_back(name, Trinity::regex::icase | Trinity::regex::optimize);
         }
     }
 
@@ -790,7 +794,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
-        _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
+    {
+        if (questPackageItem->FilterType != QUEST_PACKAGE_FILTER_UNMATCHED)
+            _questPackages[questPackageItem->QuestPackageID].first.push_back(questPackageItem);
+        else
+            _questPackages[questPackageItem->QuestPackageID].second.push_back(questPackageItem);
+    }
 
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
@@ -1571,13 +1580,13 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
 
 ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const
 {
-    for (std::wregex const& regex : _nameValidators[locale])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : _nameValidators[locale])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (std::wregex const& regex : _nameValidators[TOTAL_LOCALES])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : _nameValidators[TOTAL_LOCALES])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;
@@ -1621,7 +1630,16 @@ std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItem
 {
     auto itr = _questPackages.find(questPackageID);
     if (itr != _questPackages.end())
-        return &itr->second;
+        return &itr->second.first;
+
+    return nullptr;
+}
+
+std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItemsFallback(uint32 questPackageID) const
+{
+    auto itr = _questPackages.find(questPackageID);
+    if (itr != _questPackages.end())
+        return &itr->second.second;
 
     return nullptr;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,9 +182,14 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
         }
     }
 
+    uint32 preferredMountDisplay = 0;
+    if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
+        if (GetPlayer()->HasSpell(mount->SpellId))
+            preferredMountDisplay = mount->DisplayId;
+
     std::vector<uint32> nodes;
     sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
-    GetPlayer()->ActivateTaxiPathTo(nodes, unit);
+    GetPlayer()->ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
 }
 
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)

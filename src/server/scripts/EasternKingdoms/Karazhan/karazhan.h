@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 12;
 
-enum DataTypes
+enum KZDataTypes
 {
     DATA_ATTUMEN                    = 0,
     DATA_MOROES                     = 1,
@@ -56,14 +56,14 @@ enum DataTypes
     DATA_GO_SIDE_ENTRANCE_DOOR      = 29
 };
 
-enum OperaEvents
+enum KZOperaEvents
 {
     EVENT_OZ                        = 1,
     EVENT_HOOD                      = 2,
     EVENT_RAJ                       = 3
 };
 
-enum MiscCreatures
+enum KZMiscCreatures
 {
     NPC_HYAKISS_THE_LURKER          = 16179,
     NPC_ROKAD_THE_RAVAGER           = 16181,
@@ -83,7 +83,7 @@ enum MiscCreatures
     NPC_KILREK                      = 17229
 };
 
-enum GameObjectIds
+enum KZGameObjectIds
 {
     GO_STAGE_CURTAIN                = 183932,
     GO_STAGE_DOOR_LEFT              = 184278,
@@ -99,7 +99,7 @@ enum GameObjectIds
     GO_DUST_COVERED_CHEST           = 185119
 };
 
-enum Misc
+enum KZMisc
 {
     OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };

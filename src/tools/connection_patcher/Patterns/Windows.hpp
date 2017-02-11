@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ namespace Connection_Patcher
 
             struct x64
             {
-                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x45, 0x33, 0xC9, 0x48, 0x89, 0x45, 0x90 }; }
+                static const std::vector<unsigned char> CertBundleCASCLocalFile() { return{ 0x45, 0x33, 0xC9, 0x48, 0x89, 0xBC, 0x24, 0x00, 0x02 }; }
                 static const std::vector<unsigned char> CertBundleSignatureCheck() { return{ 0x75, 0x19, 0x48, 0xFF, 0xC3, 0x48, 0x83, 0xFB, 0x02 }; }
             };
         };

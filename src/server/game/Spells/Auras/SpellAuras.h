@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -247,12 +247,12 @@ class TC_GAME_API Aura
         // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
         // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
         // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
-        bool IsProcOnCooldown() const;
-        void AddProcCooldown(uint32 msec);
+        bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
+        void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
-        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo);
-        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
+        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
+        bool IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         float CalcPPMProcChance(Unit* actor) const;
@@ -288,7 +288,7 @@ class TC_GAME_API Aura
 
         AuraScript* GetScriptByName(std::string const& scriptName) const;
 
-        std::list<AuraScript*> m_loadedScripts;
+        std::vector<AuraScript*> m_loadedScripts;
 
         AuraEffectVector GetAuraEffects() const { return _effects; }
 
@@ -307,6 +307,7 @@ class TC_GAME_API Aura
 
     private:
         void _DeleteRemovedApplications();
+
     protected:
         SpellInfo const* const m_spellInfo;
         ObjectGuid const m_castGuid;
@@ -335,6 +336,7 @@ class TC_GAME_API Aura
 
         ChargeDropEvent* m_dropEvent;
 
+        std::chrono::steady_clock::time_point m_procCooldown;
         std::chrono::steady_clock::time_point m_lastProcAttemptTime;
         std::chrono::steady_clock::time_point m_lastProcSuccessTime;
 

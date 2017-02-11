@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -128,10 +128,10 @@ class TC_GAME_API AuctionHouseObject
 
     struct PlayerGetAllThrottleData
     {
-        uint32 Global;
-        uint32 Cursor;
-        uint32 Tombstone;
-        time_t NextAllowedReplication;
+        uint32 Global = 0;
+        uint32 Cursor = 0;
+        uint32 Tombstone = 0;
+        time_t NextAllowedReplication = 0;
 
         bool IsReplicationInProgress() const { return Cursor != Tombstone && Global != 0; }
     };

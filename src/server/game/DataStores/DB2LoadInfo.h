@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -713,7 +713,6 @@ struct ChrSpecializationLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_STRING, "Name2" },
             { false, FT_STRING, "Description" },
-            { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
             { false, FT_SHORT, "SpellIconID" },
             { false, FT_BYTE, "ClassID" },
             { false, FT_BYTE, "OrderIndex" },
@@ -3356,6 +3355,43 @@ struct ScalingStatDistributionLoadInfo
             { false, FT_INT, "MaxLevel" },
         };
         return { &fields[0], std::extent<decltype(fields)>::value, ScalingStatDistributionMeta::Instance(), HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
+    }
+};
+
+struct ScenarioLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "Data" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "Type" },
+        };
+        return { &fields[0], std::extent<decltype(fields)>::value, ScenarioMeta::Instance(), HOTFIX_SEL_SCENARIO };
+    }
+};
+
+struct ScenarioStepLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "CriteriaTreeID" },
+            { false, FT_SHORT, "ScenarioID" },
+            { false, FT_SHORT, "PreviousStepID" },
+            { false, FT_SHORT, "QuestRewardID" },
+            { false, FT_BYTE, "Step" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_INT, "BonusRequiredStepID" },
+        };
+        return { &fields[0], std::extent<decltype(fields)>::value, ScenarioStepMeta::Instance(), HOTFIX_SEL_SCENARIO_STEP };
     }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@ uint32 const EncounterCount               = 3;
 #define SPScriptName "instance_the_slave_pens"
 #define DataHeader "SP"
 
-enum DataTypes
+enum SPDataTypes
 {
     DATA_MENNU_THE_BETRAYER               = 1,
     DATA_ROKMAR_THE_CRACKLER              = 2,
@@ -43,7 +43,7 @@ enum DataTypes
     DATA_LUMA_SKYMOTHER                   = 16
 };
 
-enum CreaturesIds
+enum SPCreaturesIds
 {
     NPC_AHUNE                            = 25740,
     NPC_FROZEN_CORE                      = 25865,
@@ -60,7 +60,7 @@ enum CreaturesIds
     NPC_WHISP_SOURCE_BUNNY               = 26121
 };
 
-enum GameObjectIds
+enum SPGameObjectIds
 {
     GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882

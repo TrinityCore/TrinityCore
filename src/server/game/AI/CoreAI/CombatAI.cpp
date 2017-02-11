@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ void AggressorAI::UpdateAI(uint32 /*diff*/)
 
 void CombatAI::InitializeAI()
 {
-    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         if (me->m_spells[i] && sSpellMgr->GetSpellInfo(me->m_spells[i]))
             spells.push_back(me->m_spells[i]);
 

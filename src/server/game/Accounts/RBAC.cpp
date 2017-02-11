@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "RBAC.h"
 #include "AccountMgr.h"
 #include "Log.h"
+#include "QueryCallback.h"
 
 namespace rbac
 {
@@ -182,7 +183,7 @@ void RBACData::LoadFromDB()
     LoadFromDBCallback(LoginDatabase.Query(stmt));
 }
 
-PreparedQueryResultFuture RBACData::LoadFromDBAsync()
+QueryCallback RBACData::LoadFromDBAsync()
 {
     ClearData();
 

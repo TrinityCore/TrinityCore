@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -727,6 +727,36 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_OWN_TOY:
             case CRITERIA_TYPE_OWN_TOY_COUNT:
             case CRITERIA_TYPE_OWN_HEIRLOOMS:
+            case CRITERIA_TYPE_SURVEY_GAMEOBJECT:
+            case CRITERIA_TYPE_CLEAR_DIGSITE:
+            case CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA:
+            case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE_GUILD:
+            case CRITERIA_TYPE_DEFEAT_CREATURE_GROUP:
+            case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE:
+            case CRITERIA_TYPE_SEND_EVENT:
+            case CRITERIA_TYPE_COOK_RECIPES_GUILD:
+            case CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS:
+            case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
+            case CRITERIA_TYPE_RELEASE_SPIRIT:
+            case CRITERIA_TYPE_OWN_PET:
+            case CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER:
+            case CRITERIA_TYPE_COMPLETE_LFG_DUNGEON:
+            case CRITERIA_TYPE_LFG_VOTE_KICKS_INITIATED_BY_PLAYER:
+            case CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            case CRITERIA_TYPE_BE_KICKED_FROM_LFG:
+            case CRITERIA_TYPE_LFG_LEAVES:
+            case CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK:
+            case CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET:
+            case CRITERIA_TYPE_START_ORDER_HALL_MISSION:
+            case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
+            case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
+            case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
+            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            case CRITERIA_TYPE_PRESTIGE_REACHED:
+            case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
+            case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+            case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
+            case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
                 break;                                   // Not implemented yet :(
         }
 
@@ -990,6 +1020,17 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
                         return true;
 
             return false;
+        }
+        case CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter * criteriaTree->Entry->Amount;
+            });
+            return progress >= requiredCount;
         }
         default:
             break;
@@ -1632,6 +1673,18 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (miscValue1 != reqValue)
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY: // 144
+        {
+            if (!referencePlayer)
+                return false;
+            Garrison* garrison = referencePlayer->GetGarrison();
+            if (!garrison)
+                return false;
+            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+            if (!follower || follower->PacketInfo.GarrFollowerID != reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
         {
             if (!referencePlayer)
@@ -1691,8 +1744,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "TYPE_WIN_BG";
         case CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             return "COMPLETE_RESEARCH";
+        case CRITERIA_TYPE_SURVEY_GAMEOBJECT:
+            return "SURVEY_GAMEOBJECT";
         case CRITERIA_TYPE_REACH_LEVEL:
             return "REACH_LEVEL";
+        case CRITERIA_TYPE_CLEAR_DIGSITE:
+            return "CLEAR_DIGSITE";
         case CRITERIA_TYPE_REACH_SKILL_LEVEL:
             return "REACH_SKILL_LEVEL";
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
@@ -1721,6 +1778,10 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "COMPLETE_RAID";
         case CRITERIA_TYPE_KILLED_BY_CREATURE:
             return "KILLED_BY_CREATURE";
+        case CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA:
+            return "MANUAL_COMPLETE_CRITERIA";
+        case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE_GUILD:
+            return "COMPLETE_CHALLENGE_MODE_GUILD";
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
             return "KILLED_BY_PLAYER";
         case CRITERIA_TYPE_FALL_WITHOUT_DYING:
@@ -1799,6 +1860,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "MONEY_FROM_QUEST_REWARD";
         case CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
             return "GOLD_SPENT_FOR_TRAVELLING";
+        case CRITERIA_TYPE_DEFEAT_CREATURE_GROUP:
+            return "DEFEAT_CREATURE_GROUP";
         case CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
             return "GOLD_SPENT_AT_BARBER";
         case CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
@@ -1811,8 +1874,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "BE_SPELL_TARGET2";
         case CRITERIA_TYPE_SPECIAL_PVP_KILL:
             return "SPECIAL_PVP_KILL";
+        case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE:
+            return "COMPLETE_CHALLENGE_MODE";
         case CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
             return "FISH_IN_GAMEOBJECT";
+        case CRITERIA_TYPE_SEND_EVENT:
+            return "SEND_EVENT";
         case CRITERIA_TYPE_ON_LOGIN:
             return "ON_LOGIN";
         case CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
@@ -1823,8 +1890,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "LOSE_DUEL";
         case CRITERIA_TYPE_KILL_CREATURE_TYPE:
             return "KILL_CREATURE_TYPE";
+        case CRITERIA_TYPE_COOK_RECIPES_GUILD:
+            return "COOK_RECIPE_GUILD";
         case CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
             return "GOLD_EARNED_BY_AUCTIONS";
+        case CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS:
+            return "EARN_PET_BATTLE_ACHIEVEMENT_POINTS";
         case CRITERIA_TYPE_CREATE_AUCTION:
             return "CREATE_AUCTION";
         case CRITERIA_TYPE_HIGHEST_AUCTION_BID:
@@ -1845,10 +1916,18 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "LOOT_EPIC_ITEM";
         case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             return "RECEIVE_EPIC_ITEM";
+        case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
+            return "SEND_EVENT_SCENARIO";
         case CRITERIA_TYPE_ROLL_NEED:
             return "ROLL_NEED";
         case CRITERIA_TYPE_ROLL_GREED:
             return "ROLL_GREED";
+        case CRITERIA_TYPE_RELEASE_SPIRIT:
+            return "RELEASE_SPIRIT";
+        case CRITERIA_TYPE_OWN_PET:
+            return "OWN_PET";
+        case CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER:
+            return "GARRISON_COMPLETE_DUNGEON_ENCOUNTER";
         case CRITERIA_TYPE_HIGHEST_HIT_DEALT:
             return "HIT_DEALT";
         case CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
@@ -1877,8 +1956,18 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "ACCEPTED_SUMMONINGS";
         case CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return "EARN_ACHIEVEMENT_POINTS";
+        case CRITERIA_TYPE_COMPLETE_LFG_DUNGEON:
+            return "COMPLETE_LFG_DUNGEON";
         case CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
             return "USE_LFD_TO_GROUP_WITH_PLAYERS";
+        case CRITERIA_TYPE_LFG_VOTE_KICKS_INITIATED_BY_PLAYER:
+            return "LFG_VOTE_KICKS_INITIATED_BY_PLAYER";
+        case CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            return "LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER";
+        case CRITERIA_TYPE_BE_KICKED_FROM_LFG:
+            return "BE_KICKED_FROM_LFG";
+        case CRITERIA_TYPE_LFG_LEAVES:
+            return "LFG_LEAVES";
         case CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
             return "SPENT_GOLD_GUILD_REPAIRS";
         case CRITERIA_TYPE_REACH_GUILD_LEVEL:
@@ -1903,6 +1992,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "HONORABLE_KILLS_GUILD";
         case CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             return "KILL_CREATURE_TYPE_GUILD";
+        case CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK:
+            return "COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK";
         case CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             return "GUILD_CHALLENGE_TYPE";
         case CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
@@ -1923,6 +2014,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "COMPLETE_SCENARIO_COUNT";
         case CRITERIA_TYPE_COMPLETE_SCENARIO:
             return "COMPLETE_SCENARIO";
+        case CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET:
+            return "REACH_AREATRIGGER_WITH_ACTIONSET";
         case CRITERIA_TYPE_OWN_BATTLE_PET:
             return "OWN_BATTLE_PET";
         case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
@@ -1953,12 +2046,16 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "UPGRADE_GARRISON";
         case CRITERIA_TYPE_START_GARRISON_MISSION:
             return "START_GARRISON_MISSION";
+        case CRITERIA_TYPE_START_ORDER_HALL_MISSION:
+            return "START_ORDER_HALL_MISSION";
         case CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
             return "COMPLETE_GARRISON_MISSION_COUNT";
         case CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
             return "COMPLETE_GARRISON_MISSION";
         case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
             return "RECRUIT_GARRISON_FOLLOWER_COUNT";
+        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            return "RECRUIT_GARRISON_FOLLOWER";
         case CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
             return "LEARN_GARRISON_BLUEPRINT_COUNT";
         case CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
@@ -1971,10 +2068,26 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "OWN_TOY";
         case CRITERIA_TYPE_OWN_TOY_COUNT:
             return "OWN_TOY_COUNT";
-        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
-            return "RECRUIT_GARRISON_FOLLOWER";
+        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
+            return "RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY";
         case CRITERIA_TYPE_OWN_HEIRLOOMS:
             return "OWN_HEIRLOOMS";
+        case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
+            return "ARTIFACT_POWER_EARNED";
+        case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
+            return "ARTIFACT_TRAITS_UNLOCKED";
+        case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            return "HONOR_LEVEL_REACHED";
+        case CRITERIA_TYPE_PRESTIGE_REACHED:
+            return "PRESTIGE_REACHED";
+        case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
+            return "ORDER_HALL_TALENT_LEARNED";
+        case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+            return "APPEARANCE_UNLOCKED_BY_SLOT";
+        case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
+            return "ORDER_HALL_RECRUIT_TROOP";
+        case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
+            return "COMPLETE_WORLD_QUEST";
     }
     return "MISSING_TYPE";
 }
@@ -2073,9 +2186,9 @@ void CriteriaMgr::LoadCriteriaList()
             achievementCriteriaTreeIds[achievement->CriteriaTree] = achievement;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
-    //for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-    //    if (scenarioStep->CriteriaTreeID)
-    //        scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+    for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
+        if (scenarioStep->CriteriaTreeID)
+            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
@@ -2126,6 +2239,9 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 scenarioCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
+        ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
+
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())
             continue;

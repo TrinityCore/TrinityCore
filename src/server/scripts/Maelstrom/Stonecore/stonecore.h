@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #define SCScriptName "instance_stonecore"
 #define DataHeader "SC"
 
-enum DataTypes
+enum SCDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_CORBORUS,
@@ -44,7 +44,7 @@ enum DataTypes
     DATA_STONECORE_TELEPORTER_2,
 };
 
-enum Misc
+enum SCMisc
 {
     ACTION_CORBORUS_INTRO,
     ACTION_SLABHIDE_INTRO,
