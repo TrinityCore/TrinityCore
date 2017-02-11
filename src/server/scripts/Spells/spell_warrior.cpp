@@ -842,11 +842,7 @@ class spell_warr_victory_rush : public SpellScriptLoader
 
             void HandleHeal()
             {
-                if (!GetHitUnit())
-                    return;
-
                 Unit* caster = GetCaster();
-
                 caster->CastSpell(caster, SPELL_WARRIOR_VICTORY_RUSH_HEAL, true);
                 caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
             }
