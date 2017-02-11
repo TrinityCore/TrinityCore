@@ -1163,7 +1163,7 @@ void ObjectMgr::LoadGameObjectAddons()
 
         if (!gameObjectAddon.ParentRotation.isUnit())
         {
-            TC_LOG_ERROR("sql.sql", "GameObject (GUID: %u) has invalid parent rotation in `gameobject_addon`, set to default", guid);
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid parent rotation in `gameobject_addon`, set to default", guid);
             gameObjectAddon.ParentRotation = G3D::Quat();
         }
 
