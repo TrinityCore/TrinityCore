@@ -20,6 +20,8 @@
 
 #include <G3D/Vector3.h>
 
+#include "Define.h"
+
 #define MAX_AREATRIGGER_ENTITY_DATA 6
 
 enum AreaTriggerFlags
