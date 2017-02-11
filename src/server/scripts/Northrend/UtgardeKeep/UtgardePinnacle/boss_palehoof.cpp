@@ -195,7 +195,7 @@ public:
 
     struct boss_palehoofAI : public BossAI
     {
-        boss_palehoofAI(Creature* creature) : BossAI(creature, DATA_GORTOK_PALEHOOF), _dungeonMode(DUNGEON_MODE(2, 4)) { }
+        boss_palehoofAI(Creature* creature) : BossAI(creature, DATA_GORTOK_PALEHOOF), _dungeonMode(DUNGEON_MODE(2, 4)), _encountersCount(0) { }
 
         void Reset() override
         {
