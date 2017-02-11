@@ -1,0 +1,14 @@
+TRUNCATE TABLE `area_poi`;
+TRUNCATE TABLE `area_poi_state`;
+TRUNCATE TABLE `chr_upgrade_bucket_spell`;
+TRUNCATE TABLE `creature`;
+TRUNCATE TABLE `creature_difficulty`;
+TRUNCATE TABLE `curve_point`;
+TRUNCATE TABLE `gameobjects`;
+TRUNCATE TABLE `hotfix_data`;
+TRUNCATE TABLE `item`;
+TRUNCATE TABLE `item_sparse`;
+TRUNCATE TABLE `spell_effect_group_size`;
+TRUNCATE TABLE `spell_misc`;
+TRUNCATE TABLE `tact_key`;
+TRUNCATE TABLE `taxi_path_node`;

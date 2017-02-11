@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -433,7 +433,6 @@ struct ChrSpecializationEntry
     LocalizedString* Name;
     LocalizedString* Name2;
     LocalizedString* Description;
-    char* BackgroundFile;
     uint16 SpellIconID;
     uint8 ClassID;
     uint8 OrderIndex;
@@ -1729,7 +1728,7 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116 || ID == 1220;
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
@@ -2048,6 +2047,35 @@ struct ScalingStatDistributionEntry
     uint16 ItemLevelCurveID;
     uint32 MinLevel;
     uint32 MaxLevel;
+};
+
+struct ScenarioEntry
+{
+    uint32 ID;
+    LocalizedString* Name;
+    uint16 Data;                                                    // Seems to indicate different things, for zone invasions, this is the area id
+    uint8 Flags;
+    uint8 Type;
+};
+
+struct ScenarioStepEntry
+{
+    uint32 ID;
+    LocalizedString* Description;
+    LocalizedString* Name;
+    uint16 CriteriaTreeID;
+    uint16 ScenarioID;
+    uint16 PreviousStepID;                                          // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
+    uint16 QuestRewardID;
+    uint8 Step;
+    uint8 Flags;
+    uint32 BonusRequiredStepID;                                     // Bonus step can only be completed if scenario is in the step specified in this field
+
+    // helpers
+    bool IsBonusObjective() const
+    {
+        return Flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE;
+    }
 };
 
 struct SceneScriptEntry

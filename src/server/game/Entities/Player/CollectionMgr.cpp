@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -238,7 +238,7 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, uint32 castItem)
 
     // Get heirloom offset to update only one part of dynamic field
     std::vector<uint32> const& fields = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
-    uint8 offset = uint8(std::find(fields.begin(), fields.end(), itemId) - fields.begin());
+    uint16 offset = uint16(std::find(fields.begin(), fields.end(), itemId) - fields.begin());
 
     player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, offset, flags);
     itr->second.flags = flags;
@@ -278,7 +278,7 @@ void CollectionMgr::CheckHeirloomUpgrades(Item* item)
         if (newItemId)
         {
             std::vector<uint32> const& fields = player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
-            uint8 offset = uint8(std::find(fields.begin(), fields.end(), itr->first) - fields.begin());
+            uint16 offset = uint16(std::find(fields.begin(), fields.end(), itr->first) - fields.begin());
 
             player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, offset, newItemId);
             player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, offset, 0);
@@ -475,7 +475,16 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
     }
 
     // Static item appearances known by every player
-    static uint32 const hiddenAppearanceItems[3] = { 134110, 134111, 134112 };
+    static uint32 constexpr hiddenAppearanceItems[] =
+    {
+        134110, // Hidden Helm
+        134111, // Hidden Cloak
+        134112, // Hidden Shoulder
+        142503, // Hidden Shirt
+        142504, // Hidden Tabard
+        143539  // Hidden Belt
+    };
+
     for (uint32 hiddenItem : hiddenAppearanceItems)
     {
         ItemModifiedAppearanceEntry const* hiddenAppearance = sDB2Manager.GetItemModifiedAppearance(hiddenItem, 0);

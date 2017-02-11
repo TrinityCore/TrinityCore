@@ -335,7 +335,9 @@ GenerateSwappingCode(io::Printer* printer) const {
 
 void RepeatedPrimitiveFieldGenerator::
 GenerateConstructorCode(io::Printer* printer) const {
-  // Not needed for repeated fields.
+  if (descriptor_->options().packed()) {
+    printer->Print(variables_, "_$name$_cached_byte_size_ = 0;\n");
+  }
 }
 
 void RepeatedPrimitiveFieldGenerator::

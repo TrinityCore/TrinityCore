@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,19 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::EarnedAchiev
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProgress const& criteria)
+{
+    data << uint32(criteria.Id);
+    data << uint64(criteria.Quantity);
+    data << criteria.Player;
+    data.AppendPackedTime(criteria.Date);
+    data << uint32(criteria.TimeFromStart);
+    data << uint32(criteria.TimeFromCreate);
+    data.WriteBits(criteria.Flags, 4);
+    data.FlushBits();
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchievements const& allAchievements)
 {
     data << uint32(allAchievements.Earned.size());
@@ -36,16 +49,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchieveme
         data << earned;
 
     for (WorldPackets::Achievement::CriteriaProgress const& progress : allAchievements.Progress)
-    {
-        data << uint32(progress.Id);
-        data << uint64(progress.Quantity);
-        data << progress.Player;
-        data.AppendPackedTime(progress.Date);
-        data << uint32(progress.TimeFromStart);
-        data << uint32(progress.TimeFromCreate);
-        data.WriteBits(progress.Flags, 4);
-        data.FlushBits();
-    }
+        data << progress;
 
     return data;
 }
@@ -173,6 +177,30 @@ WorldPacket const* WorldPackets::Achievement::AllGuildAchievements::Write()
 
     for (EarnedAchievement const& earned : Earned)
         _worldPacket << earned;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Achievement::GuildGetAchievementMembers::Read()
+{
+    _worldPacket >> PlayerGUID;
+    _worldPacket >> GuildGUID;
+    _worldPacket >> AchievementID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::GuildAchievementMember const& guildAchievementMember)
+{
+    data << guildAchievementMember.MemberGUID;
+    return data;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildAchievementMembers::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << int32(AchievementID);
+    _worldPacket << uint32(Member.size());
+    for (GuildAchievementMember const& member : Member)
+        _worldPacket << member;
 
     return &_worldPacket;
 }

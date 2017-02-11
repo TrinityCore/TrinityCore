@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -166,8 +166,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_RACES, "SELECT ID, Name_lang, NameFemale_lang, NameMale_lang FROM chr_races_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // ChrSpecialization.db2
-    PrepareStatement(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT MasterySpellID1, MasterySpellID2, Name, Name2, Description, BackgroundFile, SpellIconID, "
-        "ClassID, OrderIndex, PetTalentType, Role, PrimaryStatOrder, ID, Flags, AnimReplacementSetID FROM chr_specialization ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT MasterySpellID1, MasterySpellID2, Name, Name2, Description, SpellIconID, ClassID, "
+        "OrderIndex, PetTalentType, Role, PrimaryStatOrder, ID, Flags, AnimReplacementSetID FROM chr_specialization ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CHR_SPECIALIZATION, "SELECT ID, Name_lang, Name2_lang, Description_lang FROM chr_specialization_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 
@@ -685,6 +685,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ScalingStatDistribution.db2
     PrepareStatement(HOTFIX_SEL_SCALING_STAT_DISTRIBUTION, "SELECT ID, ItemLevelCurveID, MinLevel, MaxLevel FROM scaling_stat_distribution"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // Scenario.db2
+    PrepareStatement(HOTFIX_SEL_SCENARIO, "SELECT ID, Name, Data, Flags, Type FROM scenario ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO, "SELECT ID, Name_lang FROM scenario_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ScenarioStep.db2
+    PrepareStatement(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description, Name, CriteriaTreeID, ScenarioID, PreviousStepID, QuestRewardID, Step, Flags, "
+        "BonusRequiredStepID FROM scenario_step ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_SCENARIO_STEP, "SELECT ID, Description_lang, Name_lang FROM scenario_step_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // SceneScript.db2
     PrepareStatement(HOTFIX_SEL_SCENE_SCRIPT, "SELECT ID, Name, Script, PrevScriptId, NextScriptId FROM scene_script ORDER BY ID DESC", CONNECTION_SYNCH);

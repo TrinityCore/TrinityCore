@@ -52,6 +52,10 @@ target_include_directories(casc
     PRIVATE
       ${CMAKE_SOURCE_DIR}/dep)
 
+target_link_libraries(casc
+  PUBLIC
+    zlib)
+
 set_target_properties(casc
   PROPERTIES
     FOLDER

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef WDTFILE_H
 #define WDTFILE_H
 
-#include "mpqfile.h"
+#include "cascfile.h"
 #include "wmo.h"
 #include <string>
 #include <vector>
@@ -30,7 +30,7 @@ class ADTFile;
 class WDTFile
 {
 private:
-    MPQFile WDT;
+    CASCFile WDT;
     std::string filename;
 public:
     WDTFile(char* file_name, char* file_name1);

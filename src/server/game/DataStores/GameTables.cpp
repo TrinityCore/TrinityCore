@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ GameTable<GtArtifactLevelXPEntry>           sArtifactLevelXPGameTable;
 GameTable<GtBarberShopCostBaseEntry>        sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                    sBaseMPGameTable;
 GameTable<GtCombatRatingsEntry>             sCombatRatingsGameTable;
+GameTable<GtCombatRatingsMultByILvl>        sCombatRatingsMultByILvlGameTable;
 GameTable<GtHpPerStaEntry>                  sHpPerStaGameTable;
 GameTable<GtItemSocketCostPerLevelEntry>    sItemSocketCostPerLevelGameTable;
 GameTable<GtNpcDamageByClassEntry>          sNpcDamageByClassGameTable[MAX_EXPANSIONS];
@@ -112,6 +113,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
+    LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
     LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
     LOAD_GT(sNpcDamageByClassGameTable[0], "NpcDamageByClass.txt");
