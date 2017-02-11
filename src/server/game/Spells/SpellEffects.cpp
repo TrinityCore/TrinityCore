@@ -4740,6 +4740,16 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     uint32 name_id = effectInfo->MiscValue;
 
+    Unit::AuraEffectList const& overrideSummonedGameObjects = m_caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SUMMONED_OBJECT);
+    for (AuraEffect const* aurEff : overrideSummonedGameObjects)
+    {
+        if (uint32(aurEff->GetMiscValue()) == name_id)
+        {
+            name_id = uint32(aurEff->GetMiscValueB());
+            break;
+        }
+    }
+
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(name_id);
 
     if (!goinfo)
