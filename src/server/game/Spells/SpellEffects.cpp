@@ -4665,6 +4665,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
+        // charge changes fall time
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
         // Spell is not using explicit target - no generated path
         if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
@@ -4755,6 +4759,10 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     float speedz = damage/ 10.f;
     //1891: Disengage
     unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
+
+    // changes fall time
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear(SpellEffIndex effIndex)
