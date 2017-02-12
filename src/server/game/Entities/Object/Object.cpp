@@ -2901,6 +2901,9 @@ void WorldObject::SetAIAnimKitId(uint16 animKitId)
     if (m_aiAnimKitId == animKitId)
         return;
 
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
     m_aiAnimKitId = animKitId;
 
     WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
@@ -2914,6 +2917,9 @@ void WorldObject::SetMovementAnimKitId(uint16 animKitId)
     if (m_movementAnimKitId == animKitId)
         return;
 
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
+        return;
+
     m_movementAnimKitId = animKitId;
 
     WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
@@ -2925,6 +2931,9 @@ void WorldObject::SetMovementAnimKitId(uint16 animKitId)
 void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
 {
     if (m_meleeAnimKitId == animKitId)
+        return;
+
+    if (animKitId && !sAnimKitStore.LookupEntry(animKitId))
         return;
 
     m_meleeAnimKitId = animKitId;
