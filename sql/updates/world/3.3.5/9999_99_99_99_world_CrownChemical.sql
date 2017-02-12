@@ -11,6 +11,16 @@ UPDATE `gameobject_template` SET `size`=2 WHERE `entry` IN(202947,202948);
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31167;
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31166;
 
+DELETE FROM `item_loot_template` WHERE `Entry`=54537;
+INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
+(54537, 1, 50010, 20, 0, 1, 0, 1, 1, NULL), -- Necklaces
+(54537, 49927, 0, 100, 0, 1, 0, 5, 10, NULL), -- Love Token
+(54537, 49715, 0, 6, 0, 1, 0, 1, 1, NULL), -- Forever-Lovely Rose
+(54537, 50446, 0, 6, 0, 1, 0, 1, 1, NULL), -- Toxic Wasteling
+(54537, 50741, 0, 6, 0, 1, 0, 1, 1, NULL), -- Vile Fumigator's Mask
+(54537, 50471, 0, 1.1, 0, 1, 0, 1, 1, NULL), -- The Heartbreaker
+(54537, 50250, 0, 0.03, 0, 1, 0, 1, 1, NULL); -- Big Love Rocket
+
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN(10847);
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (10847, 0, 0, "Begin the battle.", 36652, 1, 1, 0, 0, 0, 0, '', 0, 0);
