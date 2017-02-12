@@ -685,10 +685,11 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted != 0;
-            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted != 0;
-            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted != 0;
-            case GAMEOBJECT_TYPE_SPELLCASTER: return spellCaster.allowMounted != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.allowMounted != 0;
+            case GAMEOBJECT_TYPE_TEXT:          return text.allowMounted != 0;
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.allowMounted != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:   return spellCaster.allowMounted != 0;
+            case GAMEOBJECT_TYPE_UI_LINK:       return UILink.allowMounted != 0;
             default: return false;
         }
     }
@@ -697,20 +698,21 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:          return door.open;
-            case GAMEOBJECT_TYPE_BUTTON:        return button.open;
-            case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.open;
-            case GAMEOBJECT_TYPE_CHEST:         return chest.open;
-            case GAMEOBJECT_TYPE_TRAP:          return trap.open;
-            case GAMEOBJECT_TYPE_GOOBER:        return goober.open;
-            case GAMEOBJECT_TYPE_AREADAMAGE:    return areaDamage.open;
-            case GAMEOBJECT_TYPE_CAMERA:        return camera.open;
-            case GAMEOBJECT_TYPE_FLAGSTAND:     return flagStand.open;
-            case GAMEOBJECT_TYPE_FISHINGHOLE:   return fishingHole.open;
-            case GAMEOBJECT_TYPE_FLAGDROP:      return flagDrop.open;
-            case GAMEOBJECT_TYPE_NEW_FLAG:      return newflag.open;
-            case GAMEOBJECT_TYPE_NEW_FLAG_DROP: return newflagdrop.open;
-            case GAMEOBJECT_TYPE_CAPTURE_POINT: return capturePoint.open;
+            case GAMEOBJECT_TYPE_DOOR:              return door.open;
+            case GAMEOBJECT_TYPE_BUTTON:            return button.open;
+            case GAMEOBJECT_TYPE_QUESTGIVER:        return questgiver.open;
+            case GAMEOBJECT_TYPE_CHEST:             return chest.open;
+            case GAMEOBJECT_TYPE_TRAP:              return trap.open;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.open;
+            case GAMEOBJECT_TYPE_AREADAMAGE:        return areaDamage.open;
+            case GAMEOBJECT_TYPE_CAMERA:            return camera.open;
+            case GAMEOBJECT_TYPE_FLAGSTAND:         return flagStand.open;
+            case GAMEOBJECT_TYPE_FISHINGHOLE:       return fishingHole.open;
+            case GAMEOBJECT_TYPE_FLAGDROP:          return flagDrop.open;
+            case GAMEOBJECT_TYPE_NEW_FLAG:          return newflag.open;
+            case GAMEOBJECT_TYPE_NEW_FLAG_DROP:     return newflagdrop.open;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.open;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.open;
             default: return 0;
         }
     }
@@ -744,10 +746,11 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_BUTTON:      return button.linkedTrap;
-            case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrap;
-            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrap;
-            case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrap;
+            case GAMEOBJECT_TYPE_BUTTON:            return button.linkedTrap;
+            case GAMEOBJECT_TYPE_CHEST:             return chest.linkedTrap;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:       return spellFocus.linkedTrap;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.linkedTrap;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.linkedTrap;
             default: return 0;
         }
     }
@@ -773,8 +776,10 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:       return chest.chestLoot;
-            case GAMEOBJECT_TYPE_FISHINGHOLE: return fishingHole.chestLoot;
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.chestLoot;
+            case GAMEOBJECT_TYPE_FISHINGHOLE:           return fishingHole.chestLoot;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.chestLoot;
+            case GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD: return challengeModeReward.chestLoot;
             default: return 0;
         }
     }
@@ -793,9 +798,10 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_GOOBER:        return goober.eventID;
-            case GAMEOBJECT_TYPE_CHEST:         return chest.triggeredEvent;
-            case GAMEOBJECT_TYPE_CAMERA:        return camera.eventID;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.eventID;
+            case GAMEOBJECT_TYPE_CHEST:             return chest.triggeredEvent;
+            case GAMEOBJECT_TYPE_CAMERA:            return camera.eventID;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.triggeredEvent;
             default: return 0;
         }
     }
