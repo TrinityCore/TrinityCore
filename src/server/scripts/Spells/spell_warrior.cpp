@@ -1080,7 +1080,7 @@ public:
     }
 };
 
-// Shockwave - 46968
+// 46968 - Shockwave
 class spell_warr_shockwave : public SpellScriptLoader
 {
 public:
@@ -1089,47 +1089,58 @@ public:
     class spell_warr_shockwave_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_warr_shockwave_SpellScript);
-
-        int32 hitTargets = 0;
-
+        
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHOCKWAVE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHOCKWAVE_STUN))
-                return false;
-            return true;
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_SHOCKWAVE,
+                SPELL_WARRIOR_SHOCKWAVE_STUN
+            });
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void CountTargets(std::list<WorldObject*>& targetList)
+        {
+            _targetCount = targetList.size();
         }
 
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* caster = GetCaster())
-                if (Unit* target = GetHitUnit()) 
-                {
-                    caster->CastSpell(target, SPELL_WARRIOR_SHOCKWAVE_STUN, true);
-                    hitTargets++;
-                }
-        }
-
-        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
-        void HandleAfterHit()
-        {
-            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (hitTargets >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints) {
-                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
-                hitTargets = 0;
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+            
+            if (target)
+            {
+                caster->CastSpell(target, SPELL_WARRIOR_SHOCKWAVE_STUN, true);
             }
         }
 
-        void Register()
+        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
+        void HandleAfterCast()
         {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterHit);
+            if (_targetCount >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints) 
+            {
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
+            }
         }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
+        }
+
+        private:
+            uint32 _targetCount = 0;
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_warr_shockwave_SpellScript();
     }
