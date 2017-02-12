@@ -6908,6 +6908,12 @@ void ObjectMgr::LoadGameObjectTemplate()
                 if (uint32 transportMap = got.garrisonBuilding.SpawnMap)
                     _transportMaps.insert(transportMap);
                 break;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:
+                if (got.gatheringNode.open)
+                    CheckGOLockId(&got, got.gatheringNode.open, 0);
+                if (got.gatheringNode.linkedTrap)
+                    CheckGOLinkedTrapId(&got, got.gatheringNode.linkedTrap, 20);
+                break;
         }
 
        ++count;
