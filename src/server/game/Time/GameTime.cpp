@@ -17,12 +17,6 @@
 
 #include "GameTime.h"
 
-GameTime::GameTime()
-{
-    UpdateGameTimers();
-    SetStartTime();
-}
-
 GameTime* GameTime::instance()
 {
     static GameTime instance;
@@ -61,7 +55,7 @@ uint32 GameTime::GetUptime() const
 
 void GameTime::UpdateGameTimers()
 {
-    _gameTime = time(NULL);
+    _gameTime = time(nullptr);
     _gameMSTime = getMSTime();
     _gameTimeSystemPoint = std::chrono::system_clock::now();
     _gameTimeSteadyPoint = std::chrono::steady_clock::now();
