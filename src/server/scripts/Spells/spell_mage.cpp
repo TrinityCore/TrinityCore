@@ -466,7 +466,7 @@ class spell_mage_focus_magic : public SpellScriptLoader
 
 /* 228597 - Frostbolt
    11426  - Ice Barrier
-   190356 - Blizzard */
+   190357 - Blizzard */
 class spell_mage_trigger_chilled : public SpellScriptLoader
 {
     public:
