@@ -17,6 +17,12 @@
 
 #include "GameTime.h"
 
+GameTime::GameTime()
+{
+    UpdateGameTimers();
+    SetStartTime();
+}
+
 GameTime* GameTime::instance()
 {
     static GameTime instance;

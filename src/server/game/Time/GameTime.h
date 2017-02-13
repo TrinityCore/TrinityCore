@@ -26,7 +26,7 @@
 class TC_GAME_API GameTime
 {
     public:
-        GameTime() = default;
+        GameTime();
 
         static GameTime* instance();
 
@@ -53,11 +53,11 @@ class TC_GAME_API GameTime
 
     private:
         // Game Time
-        time_t _startTime = time(nullptr);
-        time_t _gameTime = time(nullptr);
-        uint32 _gameMSTime = getMSTime();
-        std::chrono::system_clock::time_point _gameTimeSystemPoint = std::chrono::system_clock::now();
-        std::chrono::steady_clock::time_point _gameTimeSteadyPoint = std::chrono::steady_clock::now();
+        time_t _startTime;
+        time_t _gameTime;
+        uint32 _gameMSTime;
+        std::chrono::system_clock::time_point _gameTimeSystemPoint;
+        std::chrono::steady_clock::time_point _gameTimeSteadyPoint;
 };
 
 #define sGameTime GameTime::instance()
