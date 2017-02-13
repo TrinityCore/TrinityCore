@@ -41,8 +41,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_time = time(NULL);
 
-    lootForBody = false;
-    lootRecipient = NULL;
+    lootRecipient = nullptr;
 }
 
 Corpse::~Corpse() { }
