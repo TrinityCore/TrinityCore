@@ -101,7 +101,8 @@ enum MiscSpells
     SPELL_HUNTER_INSANITY                        = 95809,
     SPELL_PRIEST_SHADOW_WORD_DEATH               = 32409,
     SPELL_SHAMAN_EXHAUSTION                      = 57723,
-    SPELL_SHAMAN_SATED                           = 57724
+    SPELL_SHAMAN_SATED                           = 57724,
+    SPELL_MAGE_CHILLED                           = 205708
 };
 
 // -31571 - Arcane Potency
@@ -463,40 +464,39 @@ class spell_mage_focus_magic : public SpellScriptLoader
         }
 };
 
-// 116 - Frostbolt
-/// Updated 4.3.4
+// 228597 - Frostbolt
 class spell_mage_frostbolt : public SpellScriptLoader
 {
-   public:
-       spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
+public:
+    spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
 
-       class spell_mage_frostbolt_SpellScript : public SpellScript
-       {
-           PrepareSpellScript(spell_mage_frostbolt_SpellScript);
+    class spell_mage_frostbolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_frostbolt_SpellScript);
 
-           void RecalculateDamage(SpellEffIndex /*effIndex*/)
-           {
-               if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
-               {
-                   if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_SHATTER, EFFECT_1))
-                   {
-                       int32 damage = GetHitDamage();
-                       AddPct(damage, aurEff->GetAmount());
-                       SetHitDamage(damage);
-                   }
-               }
-           }
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
+                return false;
+            return true;
+        }
+ 
+        void HandleHit(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+                GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
+        }
 
-           void Register() override
-           {
-               OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-           }
-       };
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
 
-       SpellScript* GetSpellScript() const override
-       {
-           return new spell_mage_frostbolt_SpellScript();
-       }
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_frostbolt_SpellScript();
+    }
 };
 
 // 56372 - Glyph of Ice Block
