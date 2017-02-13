@@ -4216,6 +4216,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
+        // charge changes fall time
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
         Optional<Movement::SpellEffectExtraData> spellEffectExtraData;
         if (effectInfo->MiscValueB)
@@ -4321,6 +4325,10 @@ void Spell::EffectLeapBack(SpellEffIndex /*effIndex*/)
     float speedz = damage / 10.f;
     // Disengage
     unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
+
+    // changes fall time
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
