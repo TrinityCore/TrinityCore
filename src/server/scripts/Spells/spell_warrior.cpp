@@ -728,9 +728,9 @@ public:
         // Cooldown reduced by 20 sec if it strikes at least 3 targets.
         void HandleAfterCast()
         {
-            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints)) 
+            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue())) 
             {
-                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue() * IN_MILLISECONDS));
             }
         }
 
