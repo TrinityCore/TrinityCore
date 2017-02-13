@@ -1101,7 +1101,7 @@ Group* Creature::GetLootRecipientGroup() const
     return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
 }
 
-void Creature::SetLootRecipient(Unit* unit)
+void Creature::SetLootRecipient(Unit* unit, bool withGroup)
 {
     // set the player whose group should receive the right
     // to loot the creature after it dies
@@ -1123,8 +1123,13 @@ void Creature::SetLootRecipient(Unit* unit)
         return;
 
     m_lootRecipient = player->GetGUID();
-    if (Group* group = player->GetGroup())
-        m_lootRecipientGroup = group->GetGUID();
+    if (withGroup)
+    {
+        if (Group* group = player->GetGroup())
+            m_lootRecipientGroup = group->GetGUID();
+    }
+    else
+        m_lootRecipientGroup = ObjectGuid::Empty;
 
     AddDynamicFlag(UNIT_DYNFLAG_TAPPED);
 }
@@ -1888,6 +1893,7 @@ void Creature::Respawn(bool force)
         m_respawnTime = 0;
         ResetPickPocketRefillTimer();
         loot.clear();
+
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
         else
@@ -3080,7 +3086,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
 
 void Creature::StartPickPocketRefillTimer()
 {
-    _pickpocketLootRestore = time(NULL) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
+    _pickpocketLootRestore = time(nullptr) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);
 }
 
 void Creature::SetTextRepeatId(uint8 textGroup, uint8 id)

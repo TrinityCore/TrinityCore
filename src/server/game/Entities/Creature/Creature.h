@@ -195,15 +195,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Loot loot;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
-        bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(NULL); }
-        void SetSkinner(ObjectGuid guid) { _skinner = guid; }
-        ObjectGuid GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
+        bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(nullptr); }
+        ObjectGuid GetLootRecipientGUID() const { return m_lootRecipient; }
         Player* GetLootRecipient() const;
         Group* GetLootRecipientGroup() const;
         bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
-        void SetLootRecipient (Unit* unit);
+        void SetLootRecipient (Unit* unit, bool withGroup = true);
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() const { return m_LootMode; }
@@ -356,7 +355,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         ObjectGuid m_lootRecipient;
         ObjectGuid m_lootRecipientGroup;
-        ObjectGuid _skinner;
 
         /// Timers
         time_t _pickpocketLootRestore;
