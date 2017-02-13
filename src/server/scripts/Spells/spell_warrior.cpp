@@ -52,6 +52,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1       = 29841,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
+    SPELL_WARRIOR_SHOCKWAVE                         = 46968,
+    SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
@@ -66,8 +68,6 @@ enum WarriorSpells
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
-    SPELL_WARRIOR_SHOCKWAVE                         = 46968,
-    SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
@@ -685,6 +685,72 @@ class spell_warr_second_wind_trigger : public SpellScriptLoader
         }
 };
 
+// 46968 - Shockwave
+class spell_warr_shockwave : public SpellScriptLoader
+{
+public:
+    spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
+
+    class spell_warr_shockwave_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shockwave_SpellScript);
+        
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_SHOCKWAVE,
+                SPELL_WARRIOR_SHOCKWAVE_STUN
+            });
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void CountTargets(std::list<WorldObject*>& targetList)
+        {
+            _targetCount = targetList.size();
+        }
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+            
+            if (target)
+            {
+                caster->CastSpell(target, SPELL_WARRIOR_SHOCKWAVE_STUN, true);
+            }
+        }
+
+        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
+        void HandleAfterCast()
+        {
+            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints)) 
+            {
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
+            }
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
+        }
+
+        private:
+            uint32 _targetCount = 0;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_shockwave_SpellScript();
+    }
+};
+
 // 52437 - Sudden Death
 class spell_warr_sudden_death : public SpellScriptLoader
 {
@@ -1077,72 +1143,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_warr_heroic_leap_jump_SpellScript();
-    }
-};
-
-// 46968 - Shockwave
-class spell_warr_shockwave : public SpellScriptLoader
-{
-public:
-    spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
-
-    class spell_warr_shockwave_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_shockwave_SpellScript);
-        
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo
-            ({
-                SPELL_WARRIOR_SHOCKWAVE,
-                SPELL_WARRIOR_SHOCKWAVE_STUN
-            });
-        }
-
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void CountTargets(std::list<WorldObject*>& targetList)
-        {
-            _targetCount = targetList.size();
-        }
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            Unit* target = GetHitUnit();
-            
-            if (target)
-            {
-                caster->CastSpell(target, SPELL_WARRIOR_SHOCKWAVE_STUN, true);
-            }
-        }
-
-        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
-        void HandleAfterCast()
-        {
-            if (_targetCount >= GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints) 
-            {
-                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHOCKWAVE, -(GetSpellInfo()->GetEffect(EFFECT_3)->BasePoints * IN_MILLISECONDS));
-            }
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
-        }
-
-        private:
-            uint32 _targetCount = 0;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_shockwave_SpellScript();
     }
 };
 
