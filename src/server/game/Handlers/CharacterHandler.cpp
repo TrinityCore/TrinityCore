@@ -736,7 +736,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data << pCurrChar->GetMapId();
     data << pCurrChar->GetPositionX();
     data << pCurrChar->GetPositionY();
-    data << pCurrChar->GetPositionZ();
+    data << pCurrChar->GetPositionZ() + pCurrChar->GetHoverHeight();
     data << pCurrChar->GetOrientation();
     SendPacket(&data);
 

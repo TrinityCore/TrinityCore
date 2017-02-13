@@ -47,6 +47,21 @@ namespace Movement
         bool _transformForTransport;
     };
 
+    // Transforms z coordinate with hover offset
+    class HoverMovementTransform
+    {
+    public:
+        HoverMovementTransform(float z_offset) : _offset(z_offset) { }
+        Vector3 operator()(Vector3 input)
+        {
+            input.z += _offset;
+            return input;
+        }
+
+    private:
+        float _offset;
+    };
+
     /*  Initializes and launches spline movement
      */
     class TC_GAME_API MoveSplineInit

@@ -42,6 +42,7 @@ public:
 
 protected:
     ControlArray points;
+    ControlArray pointsVisual;
 
     index_type index_lo;
     index_type index_hi;
@@ -108,9 +109,11 @@ public:
     EvaluationMode mode() const { return (EvaluationMode)m_mode;}
     bool isCyclic() const { return cyclic;}
 
-    const ControlArray& getPoints() const { return points;}
+    // Do not use except spline initialization!
+    const ControlArray* allocateVisualPoints() const { return &pointsVisual; }
+    const ControlArray& getPoints(bool visual) const { return visual ? pointsVisual : points;}
     index_type getPointCount() const { return points.size();}
-    const Vector3& getPoint(index_type i) const { return points[i];}
+    const Vector3& getPoint(index_type i, bool visual) const { return visual ? pointsVisual[i] : points[i];}
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m);
