@@ -464,39 +464,41 @@ class spell_mage_focus_magic : public SpellScriptLoader
         }
 };
 
-// 228597 - Frostbolt
-class spell_mage_frostbolt : public SpellScriptLoader
+/* 228597 - Frostbolt
+   11426  - Ice Barrier
+   190356 - Blizzard */
+class spell_mage_trigger_chilled : public SpellScriptLoader
 {
-public:
-    spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
+    public:
+        spell_mage_trigger_chilled() : SpellScriptLoader("spell_mage_trigger_chilled") { }
 
-    class spell_mage_frostbolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_frostbolt_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
+        class spell_mage_trigger_chilled_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
-                return false;
-            return true;
-        }
- 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* target = GetHitUnit())
-                GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
-        }
+            PrepareSpellScript(spell_mage_trigger_chilled_SpellScript);
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
+                    return false;
+                return true;
+            }
 
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_mage_frostbolt_SpellScript();
-    }
+            void HandleChilled()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_mage_trigger_chilled_SpellScript::HandleChilled);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mage_trigger_chilled_SpellScript();
+        }
 };
 
 // 56372 - Glyph of Ice Block
@@ -1364,7 +1366,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_conjure_refreshment();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
-    new spell_mage_frostbolt();
+    new spell_mage_trigger_chilled();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_glyph_of_ice_block();
