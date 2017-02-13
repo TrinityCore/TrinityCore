@@ -605,7 +605,10 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
 
     // don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        _owner->ToPlayer()->SetFallInformation(0, _owner->GetPositionZ());
         return;
+    }
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
