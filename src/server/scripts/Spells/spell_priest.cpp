@@ -386,7 +386,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
         }
 };
 
-// Improved Power Word Shield
+// 24191 - Improved Power Word Shield
 class spell_pri_improved_power_word_shield : public SpellScriptLoader
 {
     public:
@@ -1181,7 +1181,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
-//17 - Power Word : Shield
+// 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
 public:
