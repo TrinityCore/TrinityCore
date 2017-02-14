@@ -375,6 +375,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_CLOSEST_ENEMY:
         case SMART_TARGET_CLOSEST_FRIENDLY:
         case SMART_TARGET_STORED:
+        case SMART_TARGET_LOOT_RECIPIENTS:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled target_type(%u), Entry " SI64FMTD " SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -809,7 +810,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
-        case SMART_ACTION_ADD_QUEST:
+        case SMART_ACTION_OFFER_QUEST:
             if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
                 return false;
             break;
@@ -1233,7 +1234,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ALLOW_COMBAT_MOVEMENT:
         case SMART_ACTION_CALL_FOR_HELP:
         case SMART_ACTION_SET_DATA:
-        case SMART_ACTION_MOVE_FORWARD:
         case SMART_ACTION_SET_VISIBILITY:
         case SMART_ACTION_WP_PAUSE:
         case SMART_ACTION_SET_FLY:
@@ -1278,8 +1278,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_GO_FLAG:
         case SMART_ACTION_REMOVE_GO_FLAG:
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
-        case SMART_ACTION_RISE_UP:
+        case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
+        case SMART_ACTION_DISABLE_EVADE:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

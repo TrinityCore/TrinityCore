@@ -16,30 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Npcs_Special
-SD%Complete: 100
-SDComment: To be used for special NPCs that are located globally.
-SDCategory: NPCs
-EndScriptData
-*/
-
-/* ContentData
-npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
-npc_lunaclaw_spirit      80%    support for quests 6001/6002 (Body and Heart)
-npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
-npc_dancing_flames      100%    midsummer event NPC
-npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
-npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
-npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
-npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
-npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
-npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
-npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
-npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
-npc_train_wrecker       100%    Wind-Up Train Wrecker that kills train set
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -570,6 +546,115 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_torch_tossing_target_bunny_controllerAI(creature);
+    }
+};
+
+/*######
+## npc_midsummer_bunny_pole
+######*/
+
+enum RibbonPoleData
+{
+    GO_RIBBON_POLE              = 181605,
+    SPELL_RIBBON_DANCE_COSMETIC = 29726,
+    SPELL_RED_FIRE_RING         = 46836,
+    SPELL_BLUE_FIRE_RING        = 46842,
+    EVENT_CAST_RED_FIRE_RING    = 1,
+    EVENT_CAST_BLUE_FIRE_RING   = 2
+};
+
+class npc_midsummer_bunny_pole : public CreatureScript
+{
+public:
+    npc_midsummer_bunny_pole() : CreatureScript("npc_midsummer_bunny_pole") { }
+
+    struct npc_midsummer_bunny_poleAI : public ScriptedAI
+    {
+        npc_midsummer_bunny_poleAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            events.Reset();
+            running = false;
+        }
+        
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void DoAction(int32 /*action*/) override
+        {
+            // Don't start event if it's already running.
+            if (running)
+                return;
+
+            running = true;
+            events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 1);
+        }
+
+        bool checkNearbyPlayers()
+        {
+            // Returns true if no nearby player has aura "Test Ribbon Pole Channel".
+            std::list<Player*> players;
+            Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
+            Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
+            me->VisitNearbyWorldObject(10.0f, searcher);
+
+            return players.empty();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!running)
+                return;
+
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+            case EVENT_CAST_RED_FIRE_RING:
+            {
+                if (checkNearbyPlayers())
+                {
+                    Reset();
+                    return;
+                }
+
+                if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
+                    me->CastSpell(go, SPELL_RED_FIRE_RING, true);
+
+                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, Seconds(5));
+            }
+            break;
+            case EVENT_CAST_BLUE_FIRE_RING:
+            {
+                if (checkNearbyPlayers())
+                {
+                    Reset();
+                    return;
+                }
+
+                if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
+                    me->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
+
+                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, Seconds(5));
+            }
+            break;
+            }
+        }
+
+    private:
+        EventMap events;
+        bool running;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_midsummer_bunny_poleAI(creature);
     }
 };
 
@@ -1691,51 +1776,54 @@ class npc_wormhole : public CreatureScript
 
 enum PetTrainer
 {
-    TEXT_ISHUNTER               = 5838,
-    TEXT_NOTHUNTER              = 5839,
-    TEXT_PETINFO                = 13474,
-    TEXT_CONFIRM                = 7722
+    MENU_ID_PET_TRAINING     = 4783,
+    MENU_ID_PET_UNLEARN      = 6520,
+    NPC_TEXT_PET_FAMILIES    = 13474,
+    NPC_TEXT_PET_TRAINING    = 5838,
+    NPC_TEXT_UNLEARN         = 7722,
+    OPTION_ID_HOW_DO_I_TRAIN = 0,
+    OPTION_ID_UNTRAIN_MY_PET = 1,
+    OPTION_ID_PLEASE_DO      = 0,
 };
-
-#define GOSSIP_PET1             "How do I train my pet?"
-#define GOSSIP_PET2             "I wish to untrain my pet."
-#define GOSSIP_PET_CONFIRM      "Yes, please do."
 
 class npc_pet_trainer : public CreatureScript
 {
 public:
     npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) /*override*/
     {
+        player->PlayerTalkClass->ClearMenus();
+
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        if (player->getClass() == CLASS_HUNTER)
+        if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            if (player->GetPet() && player->GetPet()->getPetType() == HUNTER_PET)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            player->PlayerTalkClass->SendGossipMenu(TEXT_ISHUNTER, creature->GetGUID());
-            return true;
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_UNTRAIN_MY_PET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
         }
-        player->PlayerTalkClass->SendGossipMenu(TEXT_NOTHUNTER, creature->GetGUID());
+        else
+        {
+            player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_TRAINING, OPTION_ID_HOW_DO_I_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(NPC_TEXT_PET_TRAINING, creature->GetGUID());
+        }
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) /*override*/
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
-                player->PlayerTalkClass->SendGossipMenu(TEXT_PETINFO, creature->GetGUID());
+                player->SEND_GOSSIP_MENU(NPC_TEXT_PET_FAMILIES, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET_CONFIRM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->PlayerTalkClass->SendGossipMenu(TEXT_CONFIRM, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM_DB(MENU_ID_PET_UNLEARN, OPTION_ID_PLEASE_DO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->SEND_GOSSIP_MENU(NPC_TEXT_UNLEARN, creature->GetGUID());
                 }
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
@@ -2077,7 +2165,7 @@ public:
 
                 float displacement = 0.7f;
                 for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i%2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 1);
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), G3D::Quat(), 1);
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
@@ -2380,6 +2468,7 @@ void AddSC_npcs_special()
     new npc_chicken_cluck();
     new npc_dancing_flames();
     new npc_torch_tossing_target_bunny_controller();
+    new npc_midsummer_bunny_pole();
     new npc_doctor();
     new npc_injured_patient();
     new npc_garments_of_quests();

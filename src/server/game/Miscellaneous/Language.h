@@ -873,7 +873,7 @@ enum TrinityStrings
     LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
     LANG_ACCOUNT_NOT_DELETED            = 1003,
     LANG_ACCOUNT_CREATED                = 1004,
-    LANG_ACCOUNT_TOO_LONG               = 1005,
+    LANG_ACCOUNT_NAME_TOO_LONG          = 1005,
     LANG_ACCOUNT_ALREADY_EXIST          = 1006,
     LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
     LANG_ACCOUNT_NOT_CREATED            = 1008,
@@ -1238,5 +1238,7 @@ enum TrinityStrings
     LANG_INSTANCE_BIND_MISMATCH                   = 11014,
     LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
     LANG_SELECT_PLAYER_OR_PET                     = 11016,
+    LANG_SHUTDOWN_DELAYED                         = 11017,
+    LANG_SHUTDOWN_CANCELLED                       = 11018
 };
 #endif

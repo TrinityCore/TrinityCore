@@ -1158,6 +1158,11 @@ SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id)
     return mSpellAreaForAreaMap.equal_range(area_id);
 }
 
+SpellAreaForQuestAreaMapBounds SpellMgr::GetSpellAreaForQuestAreaMapBounds(uint32 area_id, uint32 quest_id) const
+{
+    return mSpellAreaForQuestAreaMap.equal_range(std::pair<uint32, uint32>(area_id, quest_id));
+}
+
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
@@ -2625,6 +2630,12 @@ void SpellMgr::LoadSpellAreas()
         if (spellArea.auraSpell)
             mSpellAreaForAuraMap.insert(SpellAreaForAuraMap::value_type(abs(spellArea.auraSpell), sa));
 
+        if (spellArea.areaId && spellArea.questStart)
+            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questStart), sa));
+
+        if (spellArea.areaId && spellArea.questEnd)
+            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questEnd), sa));
+
         ++count;
     } while (result->NextRow());
 
@@ -3173,6 +3184,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 42490: // Energized!
             case 42492: // Cast Energized
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+                break;
+            case 29726: // Test Ribbon Pole Channel
+                spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
                 break;
             // VIOLET HOLD SPELLS
             //

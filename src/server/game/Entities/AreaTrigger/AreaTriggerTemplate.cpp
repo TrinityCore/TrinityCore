@@ -17,6 +17,8 @@
 
 #include "AreaTriggerTemplate.h"
 
+#include <cmath>
+
 // Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
 void AreaTriggerTemplate::InitMaxSearchRadius()
 {
