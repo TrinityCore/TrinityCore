@@ -932,10 +932,20 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range, true, i_incOwnRadius, i_incTargetRadius) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
-                    return true;
-                else
+                if (!u->IsAlive())
                     return false;
+
+                float searchRadius = i_range;
+                if (i_incOwnRadius) searchRadius += i_obj->GetCombatReach();
+                if (i_incTargetRadius) searchRadius += u->GetCombatReach();
+
+                if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinDoubleVerticalCylindar(i_obj, searchRadius, searchRadius))
+                    return false;
+
+                if (!i_funit->IsFriendlyTo(u))
+                    return false;
+
+                return !i_playerOnly || u->GetTypeId() == TYPEID_PLAYER;
             }
 
         private:
@@ -969,7 +979,17 @@ namespace Trinity
                 else if (!_refUnit->IsInPartyWith(u))
                     return false;
 
-                return !_refUnit->IsHostileTo(u) && u->IsAlive() && _source->IsWithinDistInMap(u, _range, true, i_incOwnRadius, i_incTargetRadius);
+                if (_refUnit->IsHostileTo(u))
+                    return false;
+
+                if (!u->IsAlive())
+                    return false;
+
+                float searchRadius = _range;
+                if (i_incOwnRadius) searchRadius += _source->GetCombatReach();
+                if (i_incTargetRadius) searchRadius += u->GetCombatReach();
+
+                return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinDoubleVerticalCylindar(_source, searchRadius, searchRadius);
             }
 
         private:
@@ -1047,7 +1067,14 @@ namespace Trinity
                 if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
-                return i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range, true, i_incOwnRadius, i_incTargetRadius);
+                if (!i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr))
+                    return false;
+
+                float searchRadius = i_range;
+                if (i_incOwnRadius) searchRadius += i_obj->GetCombatReach();
+                if (i_incTargetRadius) searchRadius += u->GetCombatReach();
+
+                return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinDoubleVerticalCylindar(i_obj, searchRadius, searchRadius);
             }
 
         private:
