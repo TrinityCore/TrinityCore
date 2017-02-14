@@ -25303,6 +25303,43 @@ bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
     return v_map != 571 || HasSpell(54197); // 54197 = Cold Weather Flying
 }
 
+bool Player::CanFlyInArea(uint32 mapid, uint32 areaid) const
+{
+    bool canfly = false;
+
+    switch (mapid)
+    {
+        case 0: // Eastern Kingdoms
+        case 1: // Kalimdor
+            if (HasSpell(90267)) // Flight Masters Licence
+                canfly = true;
+            break;
+        case 530: // Outland
+            canfly = true;
+            break;
+        case 571: // Northrend
+            if (HasSpell(54197)) // Cold Weather Flying
+                canfly = true;
+            break;
+        case 870: // Pandaria
+            if (HasSpell(115913)) // Wisdom of the Four Winds
+                canfly = true;
+            break;
+        case 1116: // Draenor
+            if (HasSpell(191645)) // Draenor Pathfinder
+                canfly = true;
+            break;
+        default:
+            break;
+    }
+
+    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid))
+        if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE)
+            canfly = false;
+
+    return canfly;
+}
+
 void Player::LearnSpellHighestRank(uint32 spellid)
 {
     LearnSpell(spellid, false);

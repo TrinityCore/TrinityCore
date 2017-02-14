@@ -2283,6 +2283,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void HandleFall(MovementInfo const& movementInfo);
 
         bool CanFlyInZone(uint32 mapid, uint32 zone) const;
+        bool CanFlyInArea(uint32 mapid, uint32 areaid) const;
 
         void SetClientControl(Unit* target, bool allowMove);
 

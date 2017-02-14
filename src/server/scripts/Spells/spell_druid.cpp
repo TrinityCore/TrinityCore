@@ -75,14 +75,6 @@ enum DruidShapeshiftSpells
     SPELL_DRUID_FORM_STAG_FORM              = 165961
 };
 
-enum MiscSpells
-{
-    SPELL_COLD_WEATHER_FLYING               = 54197,
-    SPELL_FLIGHT_MASTERS_LICENSE            = 90267,
-    SPELL_WISDOM_OF_THE_FOUR_WINDS          = 115913,
-    SPELL_DRAENOR_PATHFINDER                = 191645
-};
-
 // 1850 - Dash
 class spell_dru_dash : public SpellScriptLoader
 {
@@ -1265,78 +1257,22 @@ class spell_dru_travel_form_playerscript : public PlayerScript
     public:
         spell_dru_travel_form_playerscript() : PlayerScript("spell_dru_travel_form_playerscript") { }
 
-        bool CheckIfPlayerCanFly(Player* player)
-        {
-            bool canfly = false;
-            uint32 mapid = player->GetMapId();
-
-            switch (mapid)
-            {
-                case 0: // Eastern Kingdoms
-                case 1: // Kalimdor
-                {
-                    if (player->HasSpell(SPELL_FLIGHT_MASTERS_LICENSE))
-                        canfly = true;
-                    break;
-                }
-                case 530: // Outland
-                {
-                    canfly = true;
-                    break;
-                }
-                case 571: // Northrend
-                {
-                    if (player->HasSpell(SPELL_COLD_WEATHER_FLYING))
-                        canfly = true;
-                    break;
-                }
-                case 870: // Pandaria
-                {
-                    if (player->HasSpell(SPELL_WISDOM_OF_THE_FOUR_WINDS))
-                        canfly = true;
-                    break;
-                }
-                case 1116: // Draenor
-                {
-                    if (player->HasSpell(SPELL_DRAENOR_PATHFINDER))
-                        canfly = true;
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(player->GetAreaId()))
-                if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE)
-                    canfly = false;
-
-            return canfly;
-        }
-
-        bool CheckIfPlayerIsOutdoor(Player* player)
-        {
-            if (player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
-                return true;
-
-            return false;
-        }
-
         void OnMovementUpdate(Player* player)
         {
             if (!player || player->getClass() != CLASS_DRUID || !player->HasAura(SPELL_DRUID_FORM_TRAVEL_FORM))
                 return;
 
-            if (!player->IsInWater() && !player->IsInTravelForm() && !CheckIfPlayerIsOutdoor(player))
+            if (!player->IsInWater() && !player->IsInTravelForm() && !player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
             {
                 // Indoor Case
                 player->RemoveAurasDueToSpell(SPELL_DRUID_FORM_TRAVEL_FORM);
             }
-            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 71 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
+            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 71 && player->CanFlyInArea(player->GetMapId(), player->GetAreaId()) && !player->IsInCombat() && !player->IsInWater())
             {
                 // Swift Flight Form
                 player->CastSpell(player, SPELL_DRUID_FORM_SWIFT_FLIGHT_FORM, true);
             }
-            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 60 && CheckIfPlayerCanFly(player) && !player->IsInCombat() && !player->IsInWater())
+            else if (player->GetShapeshiftForm() != FORM_TRAVEL_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM && player->GetShapeshiftForm() != FORM_FLIGHT_FORM_EPIC && player->getLevel() >= 60 && player->CanFlyInArea(player->GetMapId(), player->GetAreaId()) && !player->IsInCombat() && !player->IsInWater())
             {
                 // Flight Form
                 player->CastSpell(player, SPELL_DRUID_FORM_FLIGHT_FORM, true);
