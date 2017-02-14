@@ -28,6 +28,7 @@
 
 enum ApothecarySpells
 {
+    SPELL_ALLURING_PERFUME       = 68589,
     SPELL_PERFUME_SPRAY          = 68607,
     SPELL_CHAIN_REACTION         = 68821,
     SPELL_SUMMON_TABLE           = 69218,
@@ -38,7 +39,7 @@ enum ApothecarySpells
     SPELL_THROW_COLOGNE          = 68841,
     SPELL_BUNNY_LOCKDOWN         = 69039,
     SPELL_THROW_PERFUME          = 68799,
-    SPELL_ALLURING_PERFUME_SPILL = 68798,
+    SPELL_PERFUME_SPILL          = 68798,
     SPELL_COLOGNE_SPILL          = 68614,
     SPELL_PERFUME_SPILL_DAMAGE   = 68927,
     SPELL_COLOGNE_SPILL_DAMAGE   = 68934
@@ -81,6 +82,7 @@ enum ApothecaryMisc
     NPC_APOTHECARY_FRYE         = 36272,
     NPC_APOTHECARY_BAXTER       = 36565,
     NPC_VIAL_BUNNY              = 36530,
+    NPC_CROWN_APOTHECARY        = 36885,
     PHASE_ALL                   = 0,
     PHASE_INTRO                 = 1
 };
@@ -147,6 +149,7 @@ class boss_apothecary_hummel : public CreatureScript
                         if (!_isDead)
                         {
                             _isDead = true;
+                            me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                             DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
                             Talk(SAY_HUMMEL_DEATH);
@@ -208,13 +211,21 @@ class boss_apothecary_hummel : public CreatureScript
                             events.ScheduleEvent(EVENT_START_FIGHT, Seconds(4));
                             break;
                         case EVENT_START_FIGHT:
+                        {
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                             me->SetInCombatWithZone();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
                             events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
+
+                            std::vector<Creature*> trashs;
+                            me->GetCreatureListWithEntryInGrid(trashs, NPC_CROWN_APOTHECARY);
+                            for (Creature* crea : trashs)
+                                crea->DespawnOrUnsummon();
+
                             break;
+                        }
                         case EVENT_CALL_BAXTER:
                         {
                             Talk(SAY_CALL_BAXTER);
@@ -309,6 +320,11 @@ class npc_apothecary_frye : public CreatureScript
 
             void AttackStart(Unit* /*who*/) override { }
 
+            void EnterCombat(Unit* /*who*/) override
+            {
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+            }
+
             void JustDied(Unit* /*who*/) override
             {
                 Talk(SAY_FRYE_DEATH);
@@ -370,6 +386,8 @@ class npc_apothecary_baxter : public CreatureScript
                             break;
                     }
                 }
+
+                DoMeleeAttackIfReady();
             }
 
         private:
@@ -395,7 +413,7 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
             void HandleAfterCast()
             {
                 Unit* caster = GetCaster();
-                if (!caster->IsInCombat())
+                if (!caster->IsInCombat() || roll_chance_i(50))
                     return;
 
                 std::list<Creature*> triggers;
@@ -504,7 +522,7 @@ class spell_apothecary_throw_perfume : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effindex*/)
             {
-                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ALLURING_PERFUME_SPILL, true);
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PERFUME_SPILL, true);
             }
 
             void Register() override
@@ -531,7 +549,7 @@ class spell_apothecary_perfume_spill : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_PERFUME_SPILL_DAMAGE, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PERFUME_SPILL_DAMAGE, true);
             }
 
             void Register() override
@@ -558,7 +576,7 @@ class spell_apothecary_cologne_spill : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_PERFUME_SPILL_DAMAGE, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_COLOGNE_SPILL_DAMAGE, true);
             }
 
             void Register() override

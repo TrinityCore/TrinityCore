@@ -1,8 +1,8 @@
 SET @CGUID := 400000;
 SET @OGUID := 400000;
 
-UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='boss_apothecary_hummel', `mechanic_immune_mask`=617299839 WHERE `entry`=36296;
-UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='npc_apothecary_baxter', `mechanic_immune_mask`=617299839 WHERE  `entry`=36565;
+UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='boss_apothecary_hummel', `mechanic_immune_mask`=617297791 WHERE `entry`=36296;
+UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='npc_apothecary_baxter', `mechanic_immune_mask`=617297791 WHERE  `entry`=36565;
 UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='npc_apothecary_frye', `mechanic_immune_mask`=617297791 WHERE  `entry`=36272;
 UPDATE `creature_template` SET `unit_flags`=33555200 WHERE  `entry` IN(36710,36530);
 UPDATE `gameobject_loot_template` SET `QuestRequired`=0 WHERE `Entry`=28677 and`Item`=49352;
@@ -11,6 +11,7 @@ UPDATE `gameobject_template` SET `size`=2 WHERE `entry` IN(202947,202948);
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31167;
 UPDATE `creature_model_info` SET `BoundingRadius`=0.4596, `CombatReach`=1.8 WHERE `DisplayID`=31166;
 
+DELETE FROM `creature_loot_template` WHERE `Entry`=36296 AND `Item`=50250;
 DELETE FROM `item_loot_template` WHERE `Entry`=54537;
 INSERT INTO `item_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
 (54537, 1, 50010, 20, 0, 1, 0, 1, 1, NULL), -- Necklaces
