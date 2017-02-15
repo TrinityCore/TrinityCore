@@ -31,6 +31,452 @@
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 
+struct BfWGCoordGY
+{
+    Position Pos;
+    uint32 GraveyardID;
+    uint32 TextID;          // for gossip menu
+    TeamId StartControl;
+};
+
+// 7 in sql, 7 in header
+BfWGCoordGY const WGGraveYard[BATTLEFIELD_WG_GRAVEYARD_MAX] =
+{
+    { { 5104.750f, 2300.940f, 368.579f, 0.733038f }, 1329, BATTLEFIELD_WG_GOSSIPTEXT_GY_NE,       TEAM_NEUTRAL  },
+    { { 5099.120f, 3466.036f, 368.484f, 5.317802f }, 1330, BATTLEFIELD_WG_GOSSIPTEXT_GY_NW,       TEAM_NEUTRAL  },
+    { { 4314.648f, 2408.522f, 392.642f, 6.268125f }, 1333, BATTLEFIELD_WG_GOSSIPTEXT_GY_SE,       TEAM_NEUTRAL  },
+    { { 4331.716f, 3235.695f, 390.251f, 0.008500f }, 1334, BATTLEFIELD_WG_GOSSIPTEXT_GY_SW,       TEAM_NEUTRAL  },
+    { { 5537.986f, 2897.493f, 517.057f, 4.819249f }, 1285, BATTLEFIELD_WG_GOSSIPTEXT_GY_KEEP,     TEAM_NEUTRAL  },
+    { { 5032.454f, 3711.382f, 372.468f, 3.971623f }, 1331, BATTLEFIELD_WG_GOSSIPTEXT_GY_HORDE,    TEAM_HORDE    },
+    { { 5140.790f, 2179.120f, 390.950f, 1.972220f }, 1332, BATTLEFIELD_WG_GOSSIPTEXT_GY_ALLIANCE, TEAM_ALLIANCE },
+};
+
+uint32 const ClockWorldState[]         = { 3781, 4354 };
+uint32 const WintergraspFaction[]      = { 1732, 1735, 35 };
+
+Position const WintergraspStalkerPos   = { 4948.985f, 2937.789f, 550.5172f,  1.815142f };
+
+Position const WintergraspRelicPos     = { 5440.379f, 2840.493f, 430.2816f, -1.832595f };
+G3D::Quat const WintergraspRelicRot    = { 0.f, 0.f, -0.7933531f, 0.6087617f };
+
+uint8 const WG_MAX_OBJ              = 32;
+uint8 const WG_MAX_TURRET           = 15;
+uint8 const WG_MAX_KEEP_NPC         = 39;
+uint8 const WG_MAX_OUTSIDE_NPC      = 14;
+uint8 const WG_OUTSIDE_ALLIANCE_NPC = 7;
+uint8 const WG_MAX_TELEPORTER       = 12;
+uint8 const WG_MAX_WORKSHOP         = 6;
+uint8 const WG_MAX_TOWER            = 7;
+
+// *****************************************************
+// ************ Destructible (Wall, Tower..) ***********
+// *****************************************************
+
+struct WintergraspBuildingSpawnData
+{
+    uint32 entry;
+    uint32 WorldState;
+    Position pos;
+    G3D::Quat rot;
+    WintergraspGameObjectBuildingType type;
+};
+
+WintergraspBuildingSpawnData const WGGameObjectBuilding[WG_MAX_OBJ] =
+{
+    // Wall (Not spawned in db)
+    // Entry  WS      X          Y          Z           O                rX   rY   rZ             rW             Type
+    { 190219, 3749, { 5371.457f, 3047.472f, 407.5710f,  3.14159300f }, { 0.f, 0.f, -1.000000000f, 0.00000000f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190220, 3750, { 5331.264f, 3047.105f, 407.9228f,  0.05235888f }, { 0.f, 0.f,  0.026176450f, 0.99965730f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191795, 3764, { 5385.841f, 2909.490f, 409.7127f,  0.00872424f }, { 0.f, 0.f,  0.004362106f, 0.99999050f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191796, 3772, { 5384.452f, 2771.835f, 410.2704f,  3.14159300f }, { 0.f, 0.f, -1.000000000f, 0.00000000f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191799, 3762, { 5371.436f, 2630.610f, 408.8163f,  3.13285800f }, { 0.f, 0.f,  0.999990500f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191800, 3766, { 5301.838f, 2909.089f, 409.8661f,  0.00872424f }, { 0.f, 0.f,  0.004362106f, 0.99999050f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191801, 3770, { 5301.063f, 2771.411f, 409.9014f,  3.14159300f }, { 0.f, 0.f, -1.000000000f, 0.00000000f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191802, 3751, { 5280.197f, 2995.583f, 408.8249f,  1.61442800f }, { 0.f, 0.f,  0.722363500f, 0.69151360f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191803, 3752, { 5279.136f, 2956.023f, 408.6041f,  1.57079600f }, { 0.f, 0.f,  0.707106600f, 0.70710690f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191804, 3767, { 5278.685f, 2882.513f, 409.5388f,  1.57079600f }, { 0.f, 0.f,  0.707106600f, 0.70710690f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191806, 3769, { 5279.502f, 2798.945f, 409.9983f,  1.57079600f }, { 0.f, 0.f,  0.707106600f, 0.70710690f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191807, 3759, { 5279.937f, 2724.766f, 409.9452f,  1.56207000f }, { 0.f, 0.f,  0.704014800f, 0.71018530f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191808, 3760, { 5279.601f, 2683.786f, 409.8488f,  1.55334100f }, { 0.f, 0.f,  0.700908700f, 0.71325110f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191809, 3761, { 5330.955f, 2630.777f, 409.2826f,  3.13285800f }, { 0.f, 0.f,  0.999990500f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190369, 3753, { 5256.085f, 2933.963f, 409.3571f,  3.13285800f }, { 0.f, 0.f,  0.999990500f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190370, 3758, { 5257.463f, 2747.327f, 409.7427f, -3.13285800f }, { 0.f, 0.f, -0.999990500f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190371, 3754, { 5214.960f, 2934.089f, 409.1905f, -0.00872424f }, { 0.f, 0.f, -0.004362106f, 0.99999050f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190372, 3757, { 5215.821f, 2747.566f, 409.1884f, -3.13285800f }, { 0.f, 0.f, -0.999990500f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190374, 3755, { 5162.273f, 2883.043f, 410.2556f,  1.57952200f }, { 0.f, 0.f,  0.710185100f, 0.70401500f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 190376, 3756, { 5163.724f, 2799.838f, 409.2270f,  1.57952200f }, { 0.f, 0.f,  0.710185100f, 0.70401500f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+
+    // Tower of keep (Not spawned in db)
+    { 190221, 3711, { 5281.154f, 3044.588f, 407.8434f,  3.115388f }, { 0.f, 0.f,  0.9999142f, 0.013101960f }, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // NW
+    { 190373, 3713, { 5163.757f, 2932.228f, 409.1904f,  3.124123f }, { 0.f, 0.f,  0.9999619f, 0.008734641f }, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // SW
+    { 190377, 3714, { 5166.397f, 2748.368f, 409.1884f, -1.570796f }, { 0.f, 0.f, -0.7071066f, 0.707106900f }, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // SE
+    { 190378, 3712, { 5281.192f, 2632.479f, 409.0985f, -1.588246f }, { 0.f, 0.f, -0.7132492f, 0.700910500f }, BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER }, // NE
+
+    // Wall (with passage) (Not spawned in db)
+    { 191797, 3765, { 5343.290f, 2908.860f, 409.5757f, 0.00872424f }, { 0.f, 0.f,  0.004362106f, 0.9999905f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191798, 3771, { 5342.719f, 2771.386f, 409.6249f, 3.14159300f }, { 0.f, 0.f, -1.000000000f, 0.0000000f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+    { 191805, 3768, { 5279.126f, 2840.797f, 409.7826f, 1.57952200f }, { 0.f, 0.f,  0.710185100f, 0.7040150f }, BATTLEFIELD_WG_OBJECTTYPE_WALL },
+
+    // South tower (Not spawned in db)
+    { 190356, 3704, { 4557.173f, 3623.943f, 395.8828f,  1.675516f }, { 0.f, 0.f,  0.7431450f, 0.669130400f }, BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // W
+    { 190357, 3705, { 4398.172f, 2822.497f, 405.6270f, -3.124123f }, { 0.f, 0.f, -0.9999619f, 0.008734641f }, BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // S
+    { 190358, 3706, { 4459.105f, 1944.326f, 434.9912f, -2.002762f }, { 0.f, 0.f, -0.8422165f, 0.539139500f }, BATTLEFIELD_WG_OBJECTTYPE_TOWER }, // E
+
+    // Door of forteress (Not spawned in db)
+    { GO_WINTERGRASP_FORTRESS_GATE, 3763, { 5162.991f, 2841.232f, 410.1892f, -3.132858f }, { 0.f, 0.f, -0.9999905f, 0.00436732f }, BATTLEFIELD_WG_OBJECTTYPE_DOOR },
+
+    // Last door (Not spawned in db)
+    { GO_WINTERGRASP_VAULT_GATE, 3773, { 5397.108f, 2841.54f, 425.9014f, 3.141593f }, { 0.f, 0.f, -1.f, 0.f }, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST },
+};
+
+struct StaticWintergraspTowerInfo
+{
+    uint8 TowerId;
+
+    struct
+    {
+        uint8 Damaged;
+        uint8 Destroyed;
+    } TextIds;
+};
+
+StaticWintergraspTowerInfo const TowerData[WG_MAX_TOWER] =
+{
+    { BATTLEFIELD_WG_TOWER_FORTRESS_NW,   { BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_NW_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_SW,   { BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_SW_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_SE,   { BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_SE_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_FORTRESS_NE,   { BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DAMAGE,   BATTLEFIELD_WG_TEXT_NE_KEEPTOWER_DESTROY   } },
+    { BATTLEFIELD_WG_TOWER_SHADOWSIGHT,   { BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DAMAGE,  BATTLEFIELD_WG_TEXT_WESTERN_TOWER_DESTROY  } },
+    { BATTLEFIELD_WG_TOWER_WINTER_S_EDGE, { BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DAMAGE, BATTLEFIELD_WG_TEXT_SOUTHERN_TOWER_DESTROY } },
+    { BATTLEFIELD_WG_TOWER_FLAMEWATCH,    { BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DAMAGE,  BATTLEFIELD_WG_TEXT_EASTERN_TOWER_DESTROY  } }
+};
+
+Position const WGTurret[WG_MAX_TURRET] =
+{
+    { 5391.19f, 3060.8f,  419.616f, 1.69557f },
+    { 5266.75f, 2976.5f,  421.067f, 3.20354f },
+    { 5234.86f, 2948.8f,  420.88f,  1.61311f },
+    { 5323.05f, 2923.7f,  421.645f, 1.5817f },
+    { 5363.82f, 2923.87f, 421.709f, 1.60527f },
+    { 5264.04f, 2861.34f, 421.587f, 3.21142f },
+    { 5264.68f, 2819.78f, 421.656f, 3.15645f },
+    { 5322.16f, 2756.69f, 421.646f, 4.69978f },
+    { 5363.78f, 2756.77f, 421.629f, 4.78226f },
+    { 5236.2f,  2732.68f, 421.649f, 4.72336f },
+    { 5265.02f, 2704.63f, 421.7f,   3.12507f },
+    { 5350.87f, 2616.03f, 421.243f, 4.72729f },
+    { 5390.95f, 2615.5f,  421.126f, 4.6409f },
+    { 5148.8f,  2820.24f, 421.621f, 3.16043f },
+    { 5147.98f, 2861.93f, 421.63f,  3.18792f },
+};
+
+struct WintergraspObjectPositionData
+{
+    Position Pos;
+    uint32 HordeEntry;
+    uint32 AllianceEntry;
+};
+
+// Here there is all npc keeper spawn point
+WintergraspObjectPositionData const WGKeepNPC[WG_MAX_KEEP_NPC] =
+{
+    //  X             Y             Z            O            horde                          alliance
+    // North East
+    { { 5326.203125f, 2660.026367f, 409.100891f, 2.543383f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Roaming Guard
+    { { 5298.430176f, 2738.760010f, 409.316010f, 3.971740f }, BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER, BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH }, // Vieron Blazefeather
+    { { 5335.310059f, 2764.110107f, 409.274994f, 4.834560f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5349.810059f, 2763.629883f, 409.333008f, 4.660030f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    // North
+    { { 5373.470215f, 2789.060059f, 409.322998f, 2.600540f }, BATTLEFIELD_WG_NPC_STONE_GUARD_MUKAR, BATTLEFIELD_WG_NPC_KNIGHT_DAMERON }, // Stone Guard Mukar
+    { { 5296.560059f, 2789.870117f, 409.274994f, 0.733038f }, BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN, BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA }, // Voodoo Master Fu'jin
+    { { 5372.670000f, 2786.740000f, 409.442000f, 2.809980f }, BATTLEFIELD_WG_NPC_CHAMPION_ROS_SLAI, BATTLEFIELD_WG_NPC_MARSHAL_MAGRUDER }, // Wintergrasp Quartermaster
+    { { 5368.709961f, 2856.360107f, 409.322998f, 2.949610f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5367.910156f, 2826.520020f, 409.322998f, 3.333580f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5389.270020f, 2847.370117f, 418.759003f, 3.106690f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5388.560059f, 2834.770020f, 418.759003f, 3.071780f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5359.129883f, 2837.989990f, 409.364014f, 4.698930f }, BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH, BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH }, // Commander Dardosh
+    { { 5366.129883f, 2833.399902f, 409.322998f, 3.141590f }, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS }, // Tactical Officer Kilrath
+    //  X             Y             Z            O            horde                          alliance
+    // North West
+    { { 5350.680176f, 2917.010010f, 409.274994f, 1.466080f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5335.120117f, 2916.800049f, 409.444000f, 1.500980f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5295.560059f, 2926.669922f, 409.274994f, 0.872665f }, BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF, BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE }, // Stronghoof
+    { { 5371.399902f, 3026.510010f, 409.205994f, 3.250030f }, BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT, BATTLEFIELD_WG_NPC_ANCHORITE_TESSA }, // Primalist Mulfort
+    { { 5392.123535f, 3031.110352f, 409.187683f, 3.677212f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Roaming Guard
+    // South
+    { { 5270.060059f, 2847.550049f, 409.274994f, 3.071780f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5270.160156f, 2833.479980f, 409.274994f, 3.124140f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5179.109863f, 2837.129883f, 409.274994f, 3.211410f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5179.669922f, 2846.600098f, 409.274994f, 3.089230f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5234.970215f, 2883.399902f, 409.274994f, 4.293510f }, BATTLEFIELD_WG_NPC_LIEUTENANT_MURP, BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO }, // Lieutenant Murp
+    //  X             Y             Z            O            horde                          alliance
+    // Portal guards (from around the fortress)
+    { { 5319.209473f, 3055.947754f, 409.176636f, 1.020201f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5311.612305f, 3061.207275f, 408.734161f, 0.965223f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5264.713379f, 3017.283447f, 408.479706f, 3.482424f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5269.096191f, 3008.315918f, 408.826294f, 3.843706f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5201.414551f, 2945.096924f, 409.190735f, 0.945592f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5193.386230f, 2949.617188f, 409.190735f, 1.145859f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5148.116211f, 2904.761963f, 409.193756f, 3.368532f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5153.355957f, 2895.501465f, 409.199310f, 3.549174f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5154.353027f, 2787.349365f, 409.250183f, 2.555644f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5150.066406f, 2777.876953f, 409.343903f, 2.708797f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5193.706543f, 2732.882812f, 409.189514f, 4.845073f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5202.126953f, 2737.570557f, 409.189514f, 5.375215f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5269.181152f, 2671.174072f, 409.098999f, 2.457459f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5264.960938f, 2662.332520f, 409.098999f, 2.598828f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5307.111816f, 2616.006836f, 409.095734f, 5.355575f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },       // Standing Guard
+    { { 5316.770996f, 2619.430176f, 409.027740f, 5.363431f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A }        // Standing Guard
+};
+
+WintergraspObjectPositionData const WGOutsideNPC[WG_MAX_OUTSIDE_NPC] =
+{
+    { { 5032.04f, 3681.79f, 362.980f, 4.210f }, BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER, 0 },
+    { { 5020.71f, 3626.19f, 360.150f, 4.640f }, BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN, 0 },
+    { { 4994.85f, 3660.51f, 359.150f, 2.260f }, BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH, 0 },
+    { { 5015.46f, 3677.11f, 362.970f, 6.009f }, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH, 0 },
+    { { 5031.12f, 3663.77f, 363.500f, 3.110f }, BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF, 0 },
+    { { 5042.74f, 3675.82f, 363.060f, 3.358f }, BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT, 0 },
+    { { 5014.45f, 3640.87f, 361.390f, 3.280f }, BATTLEFIELD_WG_NPC_LIEUTENANT_MURP, 0 },
+    { { 5100.07f, 2168.89f, 365.779f, 1.972f }, 0, BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH },
+    { { 5081.70f, 2173.73f, 365.878f, 0.855f }, 0, BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA },
+    { { 5078.28f, 2183.70f, 365.029f, 1.466f }, 0, BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH },
+    { { 5088.49f, 2188.18f, 365.647f, 5.253f }, 0, BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS },
+    { { 5095.67f, 2193.28f, 365.924f, 4.939f }, 0, BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE },
+    { { 5088.61f, 2167.66f, 365.689f, 0.680f }, 0, BATTLEFIELD_WG_NPC_ANCHORITE_TESSA },
+    { { 5080.40f, 2199.00f, 359.489f, 2.967f }, 0, BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO },
+};
+
+struct WintergraspTeleporterData
+{
+    uint32 Entry;
+    Position Pos;
+    G3D::Quat Rot;
+};
+
+WintergraspTeleporterData const WGPortalDefenderData[WG_MAX_TELEPORTER + 10] =
+{
+    // Player teleporter
+    { 190763, { 5153.408f, 2901.349f, 409.1913f, -0.06981169f }, { 0.f, 0.f, -0.03489876f, 0.9993908f } },
+    { 191575, { 5153.408f, 2901.349f, 409.1913f, -0.06981169f }, { 0.f, 0.f, -0.03489876f, 0.9993908f } },
+    { 190763, { 5153.931f, 2781.671f, 409.2455f,  1.65806200f }, { 0.f, 0.f,  0.73727700f, 0.6755905f } },
+    { 191575, { 5153.931f, 2781.671f, 409.2455f,  1.65806200f }, { 0.f, 0.f,  0.73727700f, 0.6755905f } },
+    { 190763, { 5196.671f, 2737.345f, 409.1892f, -2.93213900f }, { 0.f, 0.f, -0.99452110f, 0.1045355f } },
+    { 191575, { 5196.671f, 2737.345f, 409.1892f, -2.93213900f }, { 0.f, 0.f, -0.99452110f, 0.1045355f } },
+    { 190763, { 5197.050f, 2944.814f, 409.1913f,  2.33874000f }, { 0.f, 0.f,  0.92050460f, 0.3907318f } },
+    { 191575, { 5197.050f, 2944.814f, 409.1913f,  2.33874000f }, { 0.f, 0.f,  0.92050460f, 0.3907318f } },
+    { 190763, { 5268.698f, 2666.421f, 409.0985f, -0.71558490f }, { 0.f, 0.f, -0.35020730f, 0.9366722f } },
+    { 191575, { 5268.698f, 2666.421f, 409.0985f, -0.71558490f }, { 0.f, 0.f, -0.35020730f, 0.9366722f } },
+    { 190763, { 5269.208f, 3013.838f, 408.8276f, -1.76278200f }, { 0.f, 0.f, -0.77162460f, 0.6360782f } },
+    { 191575, { 5269.208f, 3013.839f, 408.7695f, -1.76277900f }, { 0.f, 0.f, -0.77162360f, 0.6360794f } },
+    { 190763, { 5269.208f, 3013.839f, 408.7695f,  4.52040600f }, { 0.f, 0.f, -0.77162360f, 0.6360794f } },
+    { 190763, { 5311.445f, 2618.931f, 409.0916f, -2.37364400f }, { 0.f, 0.f, -0.92718320f, 0.3746083f } },
+    { 191575, { 5311.445f, 2618.931f, 409.0916f, -2.37364400f }, { 0.f, 0.f, -0.92718320f, 0.3746083f } },
+    { 190763, { 5314.580f, 3055.852f, 408.8620f,  0.54105060f }, { 0.f, 0.f,  0.26723770f, 0.9636307f } },
+    { 191575, { 5314.580f, 3055.852f, 408.8620f,  0.54105060f }, { 0.f, 0.f,  0.26723770f, 0.9636307f } },
+    { 190763, { 5391.277f, 2828.094f, 418.6752f, -2.16420600f }, { 0.f, 0.f, -0.88294700f, 0.4694727f } },
+    { 191575, { 5391.277f, 2828.094f, 418.6752f, -2.16420600f }, { 0.f, 0.f, -0.88294700f, 0.4694727f } },
+    { 192819, { 5401.634f, 2853.667f, 418.6748f,  2.63544400f }, { 0.f, 0.f,  0.96814730f, 0.2503814f } },
+    // Vehicle teleporter
+    { 192951, { 5314.515f, 2703.687f, 408.5502f, -0.89011660f }, { 0.f, 0.f, -0.43051050f, 0.9025856f } },
+    { 192951, { 5316.252f, 2977.042f, 408.5385f, -0.82030330f }, { 0.f, 0.f, -0.39874840f, 0.9170604f } }
+};
+
+// *********************************************************
+// **********Tower Element(GameObject, Creature)************
+// *********************************************************
+
+struct WintergraspGameObjectData
+{
+    Position Pos;
+    G3D::Quat Rot;
+    uint32 HordeEntry;
+    uint32 AllianceEntry;
+};
+
+struct WintergraspTowerData
+{
+    uint32 towerEntry;                  // Gameobject id of tower
+    std::vector<WintergraspGameObjectData> GameObject;   // Gameobject position and entry (Horde/Alliance)
+
+    // Creature: Turrets and Guard /// @todo: Killed on Tower destruction ? Tower damage ? Requires confirming
+    std::vector<WintergraspObjectPositionData> CreatureBottom;
+};
+
+uint8 const WG_MAX_ATTACKTOWERS = 3;
+// 192414 : 0 in sql, 1 in header
+// 192278 : 0 in sql, 3 in header
+WintergraspTowerData const AttackTowers[WG_MAX_ATTACKTOWERS] =
+{
+    // West tower
+    {
+        190356,
+        {
+            { { 4559.113f, 3606.216f, 419.9992f, 4.799657f }, { 0.f, 0.f, -0.67558960f, 0.73727790f }, 192488, 192501 },    // Flag on tower
+            { { 4539.420f, 3622.490f, 420.0342f, 3.211419f }, { 0.f, 0.f, -0.99939060f, 0.03490613f }, 192488, 192501 },    // Flag on tower
+            { { 4555.258f, 3641.648f, 419.9740f, 1.675514f }, { 0.f, 0.f,  0.74314400f, 0.66913150f }, 192488, 192501 },    // Flag on tower
+            { { 4574.872f, 3625.911f, 420.0792f, 0.087266f }, { 0.f, 0.f,  0.04361916f, 0.99904820f }, 192488, 192501 },    // Flag on tower
+            { { 4433.899f, 3534.142f, 360.2750f, 4.433136f }, { 0.f, 0.f, -0.79863550f, 0.60181500f }, 192269, 192278 },    // Flag near workshop
+            { { 4572.933f, 3475.519f, 363.0090f, 1.422443f }, { 0.f, 0.f,  0.65275960f, 0.75756520f }, 192269, 192277 }     // Flag near bridge
+        },
+        {
+            { { 4418.688477f, 3506.251709f, 358.975494f,  4.293305f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A }      // Roaming Guard
+        }
+    },
+    // South Tower
+    {
+        190357,
+        {
+            { { 4416.004f, 2822.666f, 429.8512f, 6.2657330f }, { 0.f, 0.f, -0.00872612f, 0.99996190f }, 192488, 192501 },    // Flag on tower
+            { { 4398.819f, 2804.698f, 429.7920f, 4.6949370f }, { 0.f, 0.f, -0.71325020f, 0.70090960f }, 192488, 192501 },    // Flag on tower
+            { { 4387.622f, 2719.566f, 389.9351f, 4.7385700f }, { 0.f, 0.f, -0.69779010f, 0.71630230f }, 192366, 192414 },    // Flag near tower
+            { { 4464.124f, 2855.453f, 406.1106f, 0.8290324f }, { 0.f, 0.f,  0.40274720f, 0.91531130f }, 192366, 192429 },    // Flag near tower
+            { { 4526.457f, 2810.181f, 391.1997f, 3.2899610f }, { 0.f, 0.f, -0.99724960f, 0.07411628f }, 192269, 192278 }     // Flag near bridge
+        },
+        {
+            { { 4452.859863f, 2808.870117f, 402.604004f, 6.056290f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4455.899902f, 2835.958008f, 401.122559f, 0.034907f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4412.649414f, 2953.792236f, 374.799957f, 0.980838f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Roaming Guard
+            { { 4362.089844f, 2811.510010f, 407.337006f, 3.193950f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4412.290039f, 2753.790039f, 401.015015f, 5.829400f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4421.939941f, 2773.189941f, 400.894989f, 5.707230f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A }      // Standing Guard
+        }
+    },
+    // East Tower
+    {
+        190358,
+        {
+            { { 4466.793f, 1960.418f, 459.1437f, 1.151916f }, { 0.f, 0.f,  0.5446386f, 0.8386708f }, 192488, 192501 },     // Flag on tower
+            { { 4475.351f, 1937.031f, 459.0702f, 5.846854f }, { 0.f, 0.f, -0.2164392f, 0.9762961f }, 192488, 192501 },     // Flag on tower
+            { { 4451.758f, 1928.104f, 459.0759f, 4.276057f }, { 0.f, 0.f, -0.8433914f, 0.5372996f }, 192488, 192501 },     // Flag on tower
+            { { 4442.987f, 1951.898f, 459.0930f, 2.740162f }, { 0.f, 0.f,  0.9799242f, 0.1993704f }, 192488, 192501 }      // Flag on tower
+        },
+        {
+            { { 4501.060059f, 1990.280029f, 431.157013f, 1.029740f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4463.830078f, 2015.180054f, 430.299988f, 1.431170f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4494.580078f, 1943.760010f, 435.627014f, 6.195920f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4450.149902f, 1897.579956f, 435.045013f, 4.398230f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A },     // Standing Guard
+            { { 4428.870117f, 1906.869995f, 432.648010f, 3.996800f }, BATTLEFIELD_WG_NPC_GUARD_H, BATTLEFIELD_WG_NPC_GUARD_A }      // Standing Guard
+        }
+    }
+};
+
+struct WintergraspTowerCannonData
+{
+    uint32 towerEntry;
+    std::vector<Position> TowerCannonBottom;
+    std::vector<Position> TurretTop;
+};
+
+uint8 const WG_MAX_TOWER_CANNON = 7;
+
+WintergraspTowerCannonData const TowerCannon[WG_MAX_TOWER_CANNON] =
+{
+    {
+        190221,
+        {
+            // no cannons at bottom
+        },
+        {
+            { 5255.88f, 3047.63f, 438.499f, 3.13677f },
+            { 5280.90f, 3071.32f, 438.499f, 1.62879f }
+        }
+    },
+    {
+        190373,
+        {
+            // no cannons at bottom
+        },
+        {
+            { 5138.59f, 2935.16f, 439.845f, 3.11723f },
+            { 5163.06f, 2959.52f, 439.846f, 1.47258f }
+        }
+    },
+    {
+        190377,
+        {
+            // no cannons at bottom
+        },
+        {
+            { 5163.84f, 2723.74f, 439.844f, 1.39940f },
+            { 5139.69f, 2747.40f, 439.844f, 3.17221f }
+        }
+    },
+    {
+        190378,
+        {
+            // no cannons at bottom
+        },
+        {
+            { 5278.21f, 2607.23f, 439.755f, 4.71944f },
+            { 5255.01f, 2631.98f, 439.755f, 3.15257f }
+        }
+    },
+    {
+        190356,
+        {
+            { 4537.380371f, 3599.531738f, 402.886993f, 3.998462f },
+            { 4581.497559f, 3604.087158f, 402.886963f, 5.651723f }
+        },
+        {
+            { 4469.448242f, 1966.623779f, 465.647217f, 1.153573f },
+            { 4581.895996f, 3626.438477f, 426.539062f, 0.117806f }
+        }
+    },
+    {
+        190357,
+        {
+            { 4421.640137f, 2799.935791f, 412.630920f, 5.459298f },
+            { 4420.263184f, 2845.340332f, 412.630951f, 0.742197f }
+        },
+        {
+            { 4423.430664f, 2822.762939f, 436.283142f, 6.223487f },
+            { 4397.825684f, 2847.629639f, 436.283325f, 1.579430f },
+            { 4398.814941f, 2797.266357f, 436.283051f, 4.703747f }
+        }
+    },
+    {
+        190358,
+        {
+            { 4448.138184f, 1974.998779f, 441.995911f, 1.967238f },
+            { 4448.713379f, 1955.148682f, 441.995178f, 0.380733f }
+        },
+        {
+            { 4469.448242f, 1966.623779f, 465.647217f, 1.153573f },
+            { 4481.996582f, 1933.658325f, 465.647186f, 5.873029f }
+        }
+    }
+};
+
+// *********************************************************
+// *****************WorkShop Data & Element*****************
+// *********************************************************
+
+struct StaticWintergraspWorkshopInfo
+{
+    uint8 WorkshopId;
+    uint32 WorldStateId;
+
+    struct
+    {
+        uint8 AllianceCapture;
+        uint8 AllianceAttack;
+        uint8 HordeCapture;
+        uint8 HordeAttack;
+    } TextIds;
+};
+
+StaticWintergraspWorkshopInfo const WorkshopData[WG_MAX_WORKSHOP] =
+{
+    { BATTLEFIELD_WG_WORKSHOP_NE, WORLDSTATE_WORKSHOP_NE, { BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_ALLIANCE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_ALLIANCE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_CAPTURE_HORDE,   BATTLEFIELD_WG_TEXT_SUNKEN_RING_ATTACK_HORDE   } },
+    { BATTLEFIELD_WG_WORKSHOP_NW, WORLDSTATE_WORKSHOP_NW, { BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_ALLIANCE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_ALLIANCE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_CAPTURE_HORDE, BATTLEFIELD_WG_TEXT_BROKEN_TEMPLE_ATTACK_HORDE } },
+    { BATTLEFIELD_WG_WORKSHOP_SE, WORLDSTATE_WORKSHOP_SE, { BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_ALLIANCE,     BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_ALLIANCE,     BATTLEFIELD_WG_TEXT_EASTSPARK_CAPTURE_HORDE,     BATTLEFIELD_WG_TEXT_EASTSPARK_ATTACK_HORDE     } },
+    { BATTLEFIELD_WG_WORKSHOP_SW, WORLDSTATE_WORKSHOP_SW, { BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_ALLIANCE,     BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_ALLIANCE,     BATTLEFIELD_WG_TEXT_WESTSPARK_CAPTURE_HORDE,     BATTLEFIELD_WG_TEXT_WESTSPARK_ATTACK_HORDE     } },
+    // KEEP WORKSHOPS - It can't be taken, so it doesn't have a textids
+    { BATTLEFIELD_WG_WORKSHOP_KEEP_WEST, WORLDSTATE_WORKSHOP_K_W, { 0, 0, 0, 0 } },
+    { BATTLEFIELD_WG_WORKSHOP_KEEP_EAST, WORLDSTATE_WORKSHOP_K_E, { 0, 0, 0, 0 } }
+};
+
 BattlefieldWG::~BattlefieldWG()
 {
     for (WintergraspWorkshop* workshop : Workshops)
@@ -95,17 +541,22 @@ bool BattlefieldWG::SetupBattlefield()
         m_Timer = m_RestartAfterCrash;
     }
 
+    SetData(BATTLEFIELD_WG_DATA_WON_A, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ATTACKED_A)));
+    SetData(BATTLEFIELD_WG_DATA_DEF_A, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDED_A)));
+    SetData(BATTLEFIELD_WG_DATA_WON_H, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ATTACKED_H)));
+    SetData(BATTLEFIELD_WG_DATA_DEF_H, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDED_H)));
+
     for (uint8 i = 0; i < BATTLEFIELD_WG_GRAVEYARD_MAX; i++)
     {
         BfGraveyardWG* graveyard = new BfGraveyardWG(this);
 
         // When between games, the graveyard is controlled by the defending team
-        if (WGGraveYard[i].startcontrol == TEAM_NEUTRAL)
-            graveyard->Initialize(m_DefenderTeam, WGGraveYard[i].gyid);
+        if (WGGraveYard[i].StartControl == TEAM_NEUTRAL)
+            graveyard->Initialize(m_DefenderTeam, WGGraveYard[i].GraveyardID);
         else
-            graveyard->Initialize(WGGraveYard[i].startcontrol, WGGraveYard[i].gyid);
+            graveyard->Initialize(WGGraveYard[i].StartControl, WGGraveYard[i].GraveyardID);
 
-        graveyard->SetTextId(WGGraveYard[i].textid);
+        graveyard->SetTextId(WGGraveYard[i].TextID);
         m_GraveyardList[i] = graveyard;
     }
 
@@ -124,13 +575,14 @@ bool BattlefieldWG::SetupBattlefield()
     }
 
     // Spawn NPCs in the defender's keep, both Horde and Alliance
-    for (uint8 i = 0; i < WG_MAX_KEEP_NPC; i++)
+    for (uint8 i = 0; i < WG_MAX_KEEP_NPC; ++i)
     {
         // Horde npc
-        if (Creature* creature = SpawnCreature(WGKeepNPC[i].entryHorde, WGKeepNPC[i].x, WGKeepNPC[i].y, WGKeepNPC[i].z, WGKeepNPC[i].o, TEAM_HORDE))
+        if (Creature* creature = SpawnCreature(WGKeepNPC[i].HordeEntry, WGKeepNPC[i].Pos))
             KeepCreature[TEAM_HORDE].insert(creature->GetGUID());
+
         // Alliance npc
-        if (Creature* creature = SpawnCreature(WGKeepNPC[i].entryAlliance, WGKeepNPC[i].x, WGKeepNPC[i].y, WGKeepNPC[i].z, WGKeepNPC[i].o, TEAM_ALLIANCE))
+        if (Creature* creature = SpawnCreature(WGKeepNPC[i].AllianceEntry, WGKeepNPC[i].Pos))
             KeepCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
     }
 
@@ -140,13 +592,13 @@ bool BattlefieldWG::SetupBattlefield()
             HideNpc(creature);
 
     // Spawn Horde NPCs outside the keep
-    for (uint8 i = 0; i < WG_OUTSIDE_ALLIANCE_NPC; i++)
-        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].entryHorde, WGOutsideNPC[i].x, WGOutsideNPC[i].y, WGOutsideNPC[i].z, WGOutsideNPC[i].o, TEAM_HORDE))
+    for (uint8 i = 0; i < WG_OUTSIDE_ALLIANCE_NPC; ++i)
+        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].HordeEntry, WGOutsideNPC[i].Pos))
             OutsideCreature[TEAM_HORDE].insert(creature->GetGUID());
 
     // Spawn Alliance NPCs outside the keep
-    for (uint8 i = WG_OUTSIDE_ALLIANCE_NPC; i < WG_MAX_OUTSIDE_NPC; i++)
-        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].entryAlliance, WGOutsideNPC[i].x, WGOutsideNPC[i].y, WGOutsideNPC[i].z, WGOutsideNPC[i].o, TEAM_ALLIANCE))
+    for (uint8 i = WG_OUTSIDE_ALLIANCE_NPC; i < WG_MAX_OUTSIDE_NPC; ++i)
+        if (Creature* creature = SpawnCreature(WGOutsideNPC[i].AllianceEntry, WGOutsideNPC[i].Pos))
             OutsideCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
 
     // Hide units outside the keep that are defenders
@@ -158,7 +610,7 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < WG_MAX_TURRET; i++)
     {
         Position towerCannonPos = WGTurret[i].GetPosition();
-        if (Creature* creature = SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos, TEAM_ALLIANCE))
+        if (Creature* creature = SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos))
         {
             CanonList.insert(creature->GetGUID());
             HideNpc(creature);
@@ -168,7 +620,7 @@ bool BattlefieldWG::SetupBattlefield()
     // Spawn all gameobjects
     for (uint8 i = 0; i < WG_MAX_OBJ; i++)
     {
-        if (GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].x, WGGameObjectBuilding[i].y, WGGameObjectBuilding[i].z, WGGameObjectBuilding[i].o))
+        if (GameObject* go = SpawnGameObject(WGGameObjectBuilding[i].entry, WGGameObjectBuilding[i].pos, WGGameObjectBuilding[i].rot))
         {
             BfWGGameObjectBuilding* b = new BfWGGameObjectBuilding(this, WGGameObjectBuilding[i].type, WGGameObjectBuilding[i].WorldState);
             b->Init(go);
@@ -179,9 +631,10 @@ bool BattlefieldWG::SetupBattlefield()
     }
 
     // Spawning portal defender
-    for (uint8 i = 0; i < WG_MAX_TELEPORTER; i++)
+    for (uint8 i = 0; i < WG_MAX_TELEPORTER; ++i)
     {
-        if (GameObject* go = SpawnGameObject(WGPortalDefenderData[i].entry, WGPortalDefenderData[i].x, WGPortalDefenderData[i].y, WGPortalDefenderData[i].z, WGPortalDefenderData[i].o))
+        WintergraspTeleporterData const& teleporter = WGPortalDefenderData[i];
+        if (GameObject* go = SpawnGameObject(teleporter.Entry, teleporter.Pos, teleporter.Rot))
         {
             DefenderPortalList.insert(go->GetGUID());
             go->SetFaction(WintergraspFaction[GetDefenderTeam()]);
@@ -200,6 +653,10 @@ bool BattlefieldWG::Update(uint32 diff)
         sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, m_isActive);
         sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDER, m_DefenderTeam);
         sWorld->setWorldState(ClockWorldState[0], m_Timer);
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ATTACKED_A, GetData(BATTLEFIELD_WG_DATA_WON_A));
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDED_A, GetData(BATTLEFIELD_WG_DATA_DEF_A));
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_ATTACKED_H, GetData(BATTLEFIELD_WG_DATA_WON_H));
+        sWorld->setWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDED_H, GetData(BATTLEFIELD_WG_DATA_DEF_H));
         m_saveTimer = 60 * IN_MILLISECONDS;
     }
     else
@@ -211,7 +668,7 @@ bool BattlefieldWG::Update(uint32 diff)
 void BattlefieldWG::OnBattleStart()
 {
     // Spawn titan relic
-    if (GameObject* relic = SpawnGameObject(GO_WINTERGRASP_TITAN_S_RELIC, 5440.0f, 2840.8f, 430.43f, 0))
+    if (GameObject* relic = SpawnGameObject(GO_WINTERGRASP_TITAN_S_RELIC, WintergraspRelicPos, WintergraspRelicRot))
     {
         // Update faction of relic, only attacker can click on
         relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
@@ -296,6 +753,13 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
         if (GameObject* relic = GetGameObject(m_titansRelicGUID))
             relic->RemoveFromWorld();
     m_titansRelicGUID.Clear();
+
+    // successful defense
+    if (endByTimer)
+        UpdateData(GetDefenderTeam() == TEAM_HORDE ? BATTLEFIELD_WG_DATA_DEF_H : BATTLEFIELD_WG_DATA_DEF_A, 1);
+    // successful attack (note that teams have already been swapped, so defender team is the one who won)
+    else
+        UpdateData(GetDefenderTeam() == TEAM_HORDE ? BATTLEFIELD_WG_DATA_WON_H : BATTLEFIELD_WG_DATA_WON_A, 1);
 
     // Remove turret
     for (GuidSet::const_iterator itr = CanonList.begin(); itr != CanonList.end(); ++itr)
@@ -816,7 +1280,7 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE), int32(IsWarTime() ? 1 : 0));
 
     for (uint32 i = 0; i < 2; ++i)
-        packet.Worldstates.emplace_back(ClockWorldState[i], int32(time(NULL) + (m_Timer / 1000)));
+        packet.Worldstates.emplace_back(ClockWorldState[i], int32(time(nullptr) + (m_Timer / 1000)));
 
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_VEHICLE_H)));
     packet.Worldstates.emplace_back(uint32(BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H), int32(GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H)));
@@ -852,6 +1316,14 @@ void BattlefieldWG::SendInitWorldStatesToAll()
 
 void BattlefieldWG::BrokenWallOrTower(TeamId /*team*/)
 {
+/*
+uint32 const WGQuest[2][6] =
+{
+    { 13186, 13181, 13222, 13538, 13177, 13179 },
+    { 13185, 13183, 13223, 13539, 13178, 13180 },
+};
+*/
+
 // might be some use for this in the future. old code commented out below. KL
 /*    if (team == GetDefenderTeam())
     {
@@ -1086,7 +1558,7 @@ void BfWGGameObjectBuilding::Rebuild()
         // Rebuild gameobject
         if (build->IsDestructibleBuilding())
         {
-            build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+            build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
             if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
                 if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
                     go->SetGoState(GO_STATE_READY);
@@ -1188,7 +1660,7 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
         case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_INTACT:
         case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
         case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
-            go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+            go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
             break;
         case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_DESTROY:
         case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
@@ -1233,33 +1705,23 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
     if (towerId > 3) // Attacker towers
     {
         // Spawn associate gameobjects
-        for (uint8 i = 0; i < AttackTowers[towerId - 4].nbObject; i++)
+        for (WintergraspGameObjectData const& gobData : AttackTowers[towerId - 4].GameObject)
         {
-            WintergraspObjectPositionData const& gobData = AttackTowers[towerId - 4].GameObject[i];
-            if (GameObject* goHorde = _wg->SpawnGameObject(gobData.entryHorde, gobData.x, gobData.y, gobData.z, gobData.o))
+            if (GameObject* goHorde = _wg->SpawnGameObject(gobData.HordeEntry, gobData.Pos, gobData.Rot))
                 m_GameObjectList[TEAM_HORDE].insert(goHorde->GetGUID());
-            if (GameObject* goAlliance = _wg->SpawnGameObject(gobData.entryAlliance, gobData.x, gobData.y, gobData.z, gobData.o))
+
+            if (GameObject* goAlliance = _wg->SpawnGameObject(gobData.AllianceEntry, gobData.Pos, gobData.Rot))
                 m_GameObjectList[TEAM_ALLIANCE].insert(goAlliance->GetGUID());
         }
 
         // Spawn associate npc bottom
-        for (uint8 i = 0; i < AttackTowers[towerId - 4].nbCreatureBottom; i++)
+        for (WintergraspObjectPositionData const& creatureData : AttackTowers[towerId - 4].CreatureBottom)
         {
-            WintergraspObjectPositionData const& creatureData = AttackTowers[towerId - 4].CreatureBottom[i];
-            if (Creature* creature = _wg->SpawnCreature(creatureData.entryHorde, creatureData.x, creatureData.y, creatureData.z, creatureData.o, TEAM_HORDE))
+            if (Creature* creature = _wg->SpawnCreature(creatureData.HordeEntry, creatureData.Pos))
                 m_CreatureBottomList[TEAM_HORDE].insert(creature->GetGUID());
-            if (Creature* creature = _wg->SpawnCreature(creatureData.entryAlliance, creatureData.x, creatureData.y, creatureData.z, creatureData.o, TEAM_ALLIANCE))
-                m_CreatureBottomList[TEAM_ALLIANCE].insert(creature->GetGUID());
-        }
 
-        // Spawn associate npc top
-        for (uint8 i = 0; i < AttackTowers[towerId - 4].nbCreatureTop; i++)
-        {
-            WintergraspObjectPositionData const& creatureData = AttackTowers[towerId - 4].CreatureTop[i];
-            if (Creature* creature = _wg->SpawnCreature(creatureData.entryHorde, creatureData.x, creatureData.y, creatureData.z, creatureData.o, TEAM_HORDE))
-                m_CreatureTopList[TEAM_HORDE].insert(creature->GetGUID());
-            if (Creature* creature = _wg->SpawnCreature(creatureData.entryAlliance, creatureData.x, creatureData.y, creatureData.z, creatureData.o, TEAM_ALLIANCE))
-                m_CreatureTopList[TEAM_ALLIANCE].insert(creature->GetGUID());
+            if (Creature* creature = _wg->SpawnCreature(creatureData.AllianceEntry, creatureData.Pos))
+                m_CreatureBottomList[TEAM_ALLIANCE].insert(creature->GetGUID());
         }
     }
 
@@ -1269,10 +1731,9 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
         _staticTowerInfo = &TowerData[towerId];
 
         // Spawn Turret bottom
-        for (uint8 i = 0; i < TowerCannon[towerId].nbTowerCannonBottom; i++)
+        for (Position const& turretPos : TowerCannon[towerId].TowerCannonBottom)
         {
-            Position const& turretPos = TowerCannon[towerId].TowerCannonBottom[i];
-            if (Creature* turret = _wg->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos, TEAM_ALLIANCE))
+            if (Creature* turret = _wg->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos))
             {
                 m_TowerCannonBottomList.insert(turret->GetGUID());
                 switch (go->GetEntry())
@@ -1289,15 +1750,15 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
                         turret->setFaction(WintergraspFaction[_wg->GetAttackerTeam()]);
                         break;
                 }
+
                 _wg->HideNpc(turret);
             }
         }
 
         // Spawn Turret top
-        for (uint8 i = 0; i < TowerCannon[towerId].nbTurretTop; i++)
+        for (Position const& towerCannonPos : TowerCannon[towerId].TurretTop)
         {
-            Position const& towerCannonPos = TowerCannon[towerId].TurretTop[i];
-            if (Creature* turret = _wg->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos, TeamId(0)))
+            if (Creature* turret = _wg->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, towerCannonPos))
             {
                 m_TurretTopList.insert(turret->GetGUID());
                 switch (go->GetEntry())
@@ -1431,21 +1892,9 @@ WintergraspWorkshop::WintergraspWorkshop(BattlefieldWG* wg, uint8 type)
     _staticInfo = &WorkshopData[type];
 }
 
-void WintergraspWorkshop::AddCreature(WintergraspObjectPositionData const& obj)
+uint8 WintergraspWorkshop::GetId() const
 {
-    if (Creature* creature = _wg->SpawnCreature(obj.entryHorde, obj.x, obj.y, obj.z, obj.o, TEAM_HORDE))
-        _creatureOnPoint[TEAM_HORDE].insert(creature->GetGUID());
-
-    if (Creature* creature = _wg->SpawnCreature(obj.entryAlliance, obj.x, obj.y, obj.z, obj.o, TEAM_ALLIANCE))
-        _creatureOnPoint[TEAM_ALLIANCE].insert(creature->GetGUID());
-}
-
-void WintergraspWorkshop::AddGameObject(WintergraspObjectPositionData const& obj)
-{
-    if (GameObject* go = _wg->SpawnGameObject(obj.entryHorde, obj.x, obj.y, obj.z, obj.o))
-        _gameObjectOnPoint[TEAM_HORDE].insert(go->GetGUID());
-    if (GameObject* go = _wg->SpawnGameObject(obj.entryAlliance, obj.x, obj.y, obj.z, obj.o))
-        _gameObjectOnPoint[TEAM_ALLIANCE].insert(go->GetGUID());
+    return _staticInfo->WorkshopId;
 }
 
 void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool init /*= false*/)

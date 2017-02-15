@@ -556,7 +556,8 @@ enum InhabitTypeValues
     INHABIT_GROUND = 1,
     INHABIT_WATER  = 2,
     INHABIT_AIR    = 4,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
+    INHABIT_ROOT   = 8,
+    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -711,6 +712,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool LoadCreaturesAddon();
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
+        void SetSpawnHealth();
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -857,6 +859,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void RemoveCorpse(bool setSpawnTime = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(Milliseconds const& time) { DespawnOrUnsummon(uint32(time.count())); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -940,7 +943,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
-        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
@@ -1016,8 +1020,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* m_formation;
         bool m_TriggerJustRespawned;
 
-        Spell const* m_focusSpell;   ///> Locks the target during spell cast for proper facing
+        /* Spell focus system */
+        Spell const* m_focusSpell;   // Locks the target during spell cast for proper facing
         uint32 m_focusDelay;
+        bool m_shouldReacquireTarget;
+        ObjectGuid m_suppressedTarget; // Stores the creature's "real" target while casting
+        float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         CreatureTextRepeatGroup m_textRepeat;
 };

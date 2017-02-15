@@ -27,6 +27,7 @@ EndScriptData */
 #include "AreaTriggerDataStore.h"
 #include "AuctionHouseMgr.h"
 #include "BattlegroundMgr.h"
+#include "CharacterTemplateDataStore.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
@@ -387,7 +388,7 @@ public:
     static bool HandleReloadCharacterTemplate(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Character Templates...");
-        sObjectMgr->LoadCharacterTemplates();
+        sCharacterTemplateDataStore->LoadCharacterTemplates();
         handler->SendGlobalGMSysMessage("DB table `character_template` and `character_template_class` reloaded.");
         return true;
     }

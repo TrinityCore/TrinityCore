@@ -91,7 +91,7 @@ public:
 
         void Despawn()
         {
-            me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             me->RemoveCorpse();
         }
 
@@ -218,7 +218,7 @@ public:
             {
                 Creature* Teron = (ObjectAccessor::GetCreature((*me), TeronGUID));
                 if (!Teron || !Teron->IsAlive() || Teron->IsInEvadeMode())
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
                 CheckTeronTimer = 5000;
             } else CheckTeronTimer -= diff;
@@ -236,9 +236,9 @@ public:
         return GetInstanceAI<boss_teron_gorefiendAI>(creature);
     }
 
-    struct boss_teron_gorefiendAI : public ScriptedAI
+    struct boss_teron_gorefiendAI : public BossAI
     {
-        boss_teron_gorefiendAI(Creature* creature) : ScriptedAI(creature)
+        boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -277,8 +277,7 @@ public:
 
         void Reset() override
         {
-            instance->SetBossState(DATA_TERON_GOREFIEND, NOT_STARTED);
-
+            _Reset();
             Initialize();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -316,9 +315,8 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetBossState(DATA_TERON_GOREFIEND, DONE);
-
             Talk(SAY_DEATH);
+            _JustDied();
         }
 
         float CalculateRandomLocation(float Loc, uint32 radius)
@@ -363,7 +361,7 @@ public:
             /**    WHAT IS FULLY NECESSARY FOR GOREFIEND TO BE 100% COMPLETE    *****/
             /************************************************************************/
 
-            Unit* ghost = NULL;
+            Unit* ghost = nullptr;
             if (!GhostGUID.IsEmpty())
                 ghost = ObjectAccessor::GetUnit(*me, GhostGUID);
             if (ghost && ghost->IsAlive() && ghost->HasAura(SPELL_SHADOW_OF_DEATH))
@@ -379,7 +377,7 @@ public:
                 }*/
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Creature* Construct = NULL;
+                    Creature* Construct = nullptr;
                     float X = CalculateRandomLocation(ghost->GetPositionX(), 10);
                     float Y = CalculateRandomLocation(ghost->GetPositionY(), 10);
                     Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
@@ -435,17 +433,13 @@ public:
 
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    Creature* Shadow = NULL;
                     float X = CalculateRandomLocation(me->GetPositionX(), 10);
-                    Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
-                    if (Shadow)
+                    if (Creature* shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0))
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                        if (!target)
-                            target = me->GetVictim();
-
-                        if (target)
-                            Shadow->AI()->AttackStart(target);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            shadow->AI()->AttackStart(target);
+                        else if (Unit* victim = me->GetVictim())
+                            shadow->AI()->AttackStart(victim);
                     }
                 }
                 SummonShadowsTimer = 60000;
