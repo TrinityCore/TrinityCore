@@ -34,7 +34,7 @@
 #include "Pet.h"
 #include "LFG.h"
 #include "GroupMgr.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "DisableMgr.h"
 #include "SpellHistory.h"
 #include "Transport.h"

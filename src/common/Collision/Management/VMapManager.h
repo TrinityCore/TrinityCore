@@ -23,6 +23,8 @@
 #include <unordered_map>
 #include <vector>
 #include "Define.h"
+#include <string>
+#include "ModelIgnoreFlags.h"
 
 //===========================================================
 

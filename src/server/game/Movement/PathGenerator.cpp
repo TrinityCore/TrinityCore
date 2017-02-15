@@ -19,7 +19,7 @@
 #include "PathGenerator.h"
 #include "Map.h"
 #include "Creature.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "MMapManager.h"
 #include "Log.h"
 #include "DisableMgr.h"

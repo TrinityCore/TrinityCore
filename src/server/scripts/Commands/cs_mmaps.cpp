@@ -30,7 +30,7 @@
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "PathGenerator.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "Map.h"
 #include "TargetedMovementGenerator.h"
 #include "GridNotifiers.h"

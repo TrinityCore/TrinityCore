@@ -19,7 +19,7 @@
 #include "Map.h"
 #include "MapManager.h"
 #include "Battleground.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "CellImpl.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
@@ -35,7 +35,7 @@
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "VMapFactory.h"
+#include "VMapManager.h"
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','8'} };

@@ -32,7 +32,7 @@
 #include "Util.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"
-#include "VMapFactory.h"
+#include "VMapManager.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"

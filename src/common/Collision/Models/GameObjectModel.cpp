@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VMapFactory.h"
+#include "VMapManager.h"
 #include "VMapManager.h"
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
