@@ -464,41 +464,6 @@ class spell_mage_focus_magic : public SpellScriptLoader
         }
 };
 
-// 228597 - Frostbolt
-class spell_mage_frostbolt : public SpellScriptLoader
-{
-public:
-    spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
-
-    class spell_mage_frostbolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_frostbolt_SpellScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
-                return false;
-            return true;
-        }
- 
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* target = GetHitUnit())
-                GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_mage_frostbolt_SpellScript();
-    }
-};
-
 // 56372 - Glyph of Ice Block
 class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 {
@@ -1300,6 +1265,43 @@ class spell_mage_time_warp : public SpellScriptLoader
         }
 };
 
+/* 228597 - Frostbolt
+   84721  - Frozen Orb
+   190357 - Blizzard */
+class spell_mage_trigger_chilled : public SpellScriptLoader
+{
+    public:
+        spell_mage_trigger_chilled() : SpellScriptLoader("spell_mage_trigger_chilled") { }
+
+        class spell_mage_trigger_chilled_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_trigger_chilled_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED))
+                    return false;
+                return true;
+            }
+
+            void HandleChilled()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_MAGE_CHILLED, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_mage_trigger_chilled_SpellScript::HandleChilled);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mage_trigger_chilled_SpellScript();
+        }
+};
+
 // 33395 Water Elemental's Freeze
 /// Updated 4.3.4
 class spell_mage_water_elemental_freeze : public SpellScriptLoader
@@ -1364,7 +1366,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_conjure_refreshment();
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
-    new spell_mage_frostbolt();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
     new spell_mage_glyph_of_ice_block();
@@ -1382,5 +1383,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_time_warp();
+    new spell_mage_trigger_chilled();
     new spell_mage_water_elemental_freeze();
 }
