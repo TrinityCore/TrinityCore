@@ -40,6 +40,13 @@ namespace VMAP
         thread_safe_environment = true;
     }
 
+    // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
+    VMapManager* VMapManager::createOrGetVMapManager()
+    {
+        static VMapManager gVMapManager;
+        return &gVMapManager;
+    }
+
     VMapManager::~VMapManager(void)
     {
         for (InstanceTreeMap::iterator i = iInstanceMapTrees.begin(); i != iInstanceMapTrees.end(); ++i)

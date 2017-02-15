@@ -119,6 +119,7 @@ namespace VMAP
             static std::string getMapFileName(unsigned int mapId);
 
             VMapManager();
+            static VMapManager* createOrGetVMapManager();
             ~VMapManager(void);
 
             void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);

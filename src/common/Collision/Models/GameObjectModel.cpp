@@ -91,7 +91,7 @@ void LoadGameObjectModelList(std::string const& dataPath)
 GameObjectModel::~GameObjectModel()
 {
     if (iModel)
-        ((VMAP::VMapManager*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
+        ((VMAP::VMapManager*)VMAP::VMapManager::createOrGetVMapManager())->releaseModelInstance(name);
 }
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
@@ -108,7 +108,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
         return false;
     }
 
-    iModel = ((VMAP::VMapManager*)VMAP::VMapFactory::createOrGetVMapManager())->acquireModelInstance(dataPath + "vmaps/", it->second.name);
+    iModel = ((VMAP::VMapManager*)VMAP::VMapManager::createOrGetVMapManager())->acquireModelInstance(dataPath + "vmaps/", it->second.name);
 
     if (!iModel)
         return false;

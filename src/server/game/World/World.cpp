@@ -1224,8 +1224,8 @@ void World::LoadConfigSettings(bool reload)
     if (!enableHeight)
         TC_LOG_ERROR("server.loading", "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
 
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
+    VMAP::VMapManager::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
+    VMAP::VMapManager::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     TC_LOG_INFO("server.loading", "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
     TC_LOG_INFO("server.loading", "VMap data directory is: %svmaps", m_dataPath.c_str());
 
@@ -1370,7 +1370,7 @@ void World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapManager::createOrGetVMapManager()))
     {
         vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
         vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
@@ -1434,7 +1434,7 @@ void World::SetInitialWorldSettings()
         if (sMapStore.LookupEntry(mapId))
             mapIds.push_back(mapId);
 
-    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapManager::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
