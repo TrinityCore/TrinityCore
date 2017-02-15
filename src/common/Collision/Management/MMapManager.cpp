@@ -38,7 +38,7 @@ namespace MMAP
 
     void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
-        // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
+        // the caller must pass the list of all mapIds that will be used in the VMapManager lifetime
         for (const uint32& mapId : mapIds)
             loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr));
 

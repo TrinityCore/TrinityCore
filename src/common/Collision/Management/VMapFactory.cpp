@@ -17,14 +17,14 @@
  */
 
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 
 namespace VMAP
 {
     // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
     IVMapManager* VMapFactory::createOrGetVMapManager()
     {
-        static VMapManager2 gVMapManager;
+        static VMapManager gVMapManager;
         return &gVMapManager;
     }
 }

@@ -28,7 +28,7 @@ namespace VMAP
 {
     class ModelInstance;
     class GroupModel;
-    class VMapManager2;
+    class VMapManager;
     enum class LoadResult : uint8;
     enum class ModelIgnoreFlags : uint32;
 
@@ -77,10 +77,10 @@ namespace VMAP
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
             bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
-            bool InitMap(const std::string &fname, VMapManager2* vm);
-            void UnloadMap(VMapManager2* vm);
-            bool LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
-            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
+            bool InitMap(const std::string &fname, VMapManager* vm);
+            void UnloadMap(VMapManager* vm);
+            bool LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
+            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
             bool isTiled() const { return iIsTiled; }
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             void getModelInstances(ModelInstance* &models, uint32 &count);

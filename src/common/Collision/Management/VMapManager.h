@@ -75,7 +75,7 @@ namespace VMAP
         VMAP_DISABLE_LIQUIDSTATUS   = 0x8
     };
 
-    class TC_COMMON_API VMapManager2 : public IVMapManager
+    class TC_COMMON_API VMapManager : public IVMapManager
     {
         protected:
             // Tree to check collision
@@ -98,8 +98,8 @@ namespace VMAP
             G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
             static std::string getMapFileName(unsigned int mapId);
 
-            VMapManager2();
-            ~VMapManager2(void);
+            VMapManager();
+            ~VMapManager(void);
 
             void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
             int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
