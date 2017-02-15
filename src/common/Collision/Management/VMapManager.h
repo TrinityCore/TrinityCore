@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _VMAPMANAGER2_H
-#define _VMAPMANAGER2_H
+#ifndef _VMAPMANAGER_H
+#define _VMAPMANAGER_H
 
 #include <mutex>
 #include <unordered_map>
