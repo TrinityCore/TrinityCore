@@ -61,7 +61,7 @@ Location MoveSpline::ComputePosition() const
         }
 
         if (splineflags.orientationInversed)
-            c.orientation = -c.orientation;
+            c.orientation = c.orientation - float(M_PI);
     }
     return c;
 }
