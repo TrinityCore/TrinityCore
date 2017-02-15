@@ -104,7 +104,7 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
 
 bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 {
-    if (VMAP::IVMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager())
+    if (VMAP::VMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager())
     {
         if (vmgr->isMapLoadingEnabled())
         {
@@ -2348,7 +2348,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
     {
-        VMAP::IVMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
+        VMAP::VMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
         if (vmgr->isHeightCalcEnabled())
             vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f, maxSearchDist);   // look from a bit higher pos to find the floor
     }
@@ -2429,7 +2429,7 @@ bool Map::IsOutdoors(float x, float y, float z) const
 bool Map::GetAreaInfo(float x, float y, float z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const
 {
     float vmap_z = z;
-    VMAP::IVMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
+    VMAP::VMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
     if (vmgr->getAreaInfo(GetId(), x, y, vmap_z, flags, adtId, rootId, groupId))
     {
         // check if there's terrain between player height and object height
@@ -2519,7 +2519,7 @@ uint8 Map::GetTerrainType(float x, float y) const
 ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data) const
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
-    VMAP::IVMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
+    VMAP::VMapManager* vmgr = VMAP::VMapManager::createOrGetVMapManager();
     float liquid_level = INVALID_HEIGHT;
     float ground_level = INVALID_HEIGHT;
     uint32 liquid_type = 0;

@@ -1241,7 +1241,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz, VMAP::ModelIgnoreFla
 {
     /*float x, y, z;
     GetPosition(x, y, z);
-    VMAP::IVMapManager* vMapManager = VMAP::VMapManager::createOrGetVMapManager();
+    VMAP::VMapManager* vMapManager = VMAP::VMapManager::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
     {
