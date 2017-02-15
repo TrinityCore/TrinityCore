@@ -1437,7 +1437,7 @@ void World::SetInitialWorldSettings()
     if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapManager::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);
 
-    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    MMAP::MMapManager* mmmgr = MMAP::MMapManager::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
