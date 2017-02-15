@@ -318,13 +318,6 @@ class npc_apothecary_frye : public CreatureScript
         {
             npc_apothecary_fryeAI(Creature* creature) : npc_apothecary_genericAI(creature, FryeMovePos) { }
 
-            void AttackStart(Unit* /*who*/) override { }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-            }
-
             void JustDied(Unit* /*who*/) override
             {
                 Talk(SAY_FRYE_DEATH);
