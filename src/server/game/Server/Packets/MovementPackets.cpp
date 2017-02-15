@@ -378,7 +378,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.SpecialTime = moveSpline.effect_start_time;
     }
 
-    if (splineFlags.unknown6)
+    if (splineFlags.fadeObject)
         movementSpline.SpecialTime = moveSpline.effect_start_time;
 
     ::Movement::Spline<int32> const& spline = moveSpline.spline;
