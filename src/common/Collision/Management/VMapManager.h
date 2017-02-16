@@ -156,11 +156,11 @@ namespace VMAP
             void releaseModelInstance(const std::string& filename);
 
             // what's the use of this? o.O
-            virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const
+            std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y);
+            LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y);
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 
