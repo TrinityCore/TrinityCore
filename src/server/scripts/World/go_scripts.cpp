@@ -1603,7 +1603,7 @@ enum BellHourlyObjects
 
 enum BellHourlyMisc
 {
-    GAMEEVENT_HOURLY_BELLS = 73
+    GAME_EVENT_HOURLY_BELLS = 73
 };
 
 enum BellHourlyEvent
@@ -1651,7 +1651,7 @@ public:
 
         void OnGameEvent(bool start, uint16 eventId) override
         {
-            if (eventId == EVENT_HOURLY_BELLS && start)
+            if (eventId == GAME_EVENT_HOURLY_BELLS && start)
             {
                 time_t time = sWorld->GetGameTime();
                 tm localTm;
