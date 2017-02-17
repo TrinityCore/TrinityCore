@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,7 +109,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
 
     private:
-        bool AssistPlayerInCombat(Unit* who);
+        bool AssistPlayerInCombatAgainst(Unit* who);
         bool IsPlayerOrGroupInRange();
         void FillPointMovementListForCreature();
 

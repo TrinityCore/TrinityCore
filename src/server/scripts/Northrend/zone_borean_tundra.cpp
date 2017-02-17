@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2271,7 +2271,8 @@ public:
         void DoAction(int32 /*iParam*/) override
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->SetFacingToObject(player);
             uiEventTimer = 3000;
@@ -2300,7 +2301,6 @@ public:
                         switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                                 Talk(SAY_HIDDEN_CULTIST_1);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;
@@ -2311,7 +2311,8 @@ public:
                                 uiEventPhase = 2;
                                 break;
                             case NPC_TOM_HEGGER:
-                                Talk(SAY_HIDDEN_CULTIST_3);
+                                if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
+                                    Talk(SAY_HIDDEN_CULTIST_3, player);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;
                                 break;

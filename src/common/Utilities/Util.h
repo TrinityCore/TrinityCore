@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -335,6 +335,7 @@ class HookList final
         ContainerType _container;
 
     public:
+        typedef typename ContainerType::const_iterator const_iterator;
         typedef typename ContainerType::iterator iterator;
 
         HookList<T>& operator+=(T t)
@@ -343,7 +344,7 @@ class HookList final
             return *this;
         }
 
-        size_t size()
+        size_t size() const
         {
             return _container.size();
         }
@@ -354,6 +355,16 @@ class HookList final
         }
 
         iterator end()
+        {
+            return _container.end();
+        }
+
+        const_iterator begin() const
+        {
+            return _container.begin();
+        }
+
+        const_iterator end() const
         {
             return _container.end();
         }

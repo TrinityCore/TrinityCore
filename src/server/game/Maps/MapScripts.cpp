@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -884,6 +884,28 @@ void Map::ScriptsProcess()
                 // Source must be Player.
                 if (Player* player = _GetScriptPlayer(source, true, step.script))
                     player->SendMovieStart(step.script->PlayMovie.MovieID);
+                break;
+
+            case SCRIPT_COMMAND_MOVEMENT:
+                // Source must be Creature.                
+                if (Creature* cSource = _GetScriptCreature(source, true, step.script))
+                {
+                    if (!cSource->IsAlive())
+                        return;
+
+                    cSource->GetMotionMaster()->MovementExpired();
+                    cSource->GetMotionMaster()->MoveIdle();
+
+                    switch (step.script->Movement.MovementType)
+                    {
+                        case RANDOM_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MoveRandom((float)step.script->Movement.MovementDistance);
+                            break;
+                        case WAYPOINT_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MovePath(step.script->Movement.Path, false);
+                            break;
+                    }
+                }
                 break;
 
             case SCRIPT_COMMAND_PLAY_ANIMKIT:

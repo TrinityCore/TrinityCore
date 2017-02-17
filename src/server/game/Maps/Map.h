@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -299,6 +299,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
         void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
+        void AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER>
         void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
@@ -359,6 +360,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
         void MoveAllDynamicObjectsInMoveList();
+        void MoveAllAreaTriggersInMoveList();
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
@@ -498,7 +500,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return NULL;  }
         BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return NULL; }
 
-        float GetWaterOrGroundLevel(float x, float y, float z, float* ground = NULL, bool swim = false) const;
+        float GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, float* ground = NULL, bool swim = false) const;
         float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
         void Balance() { _dynamicTree.balance(); }
@@ -588,6 +590,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
         bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
+        bool AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
@@ -596,6 +599,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveGameObjectFromMoveList(GameObject* go);
         void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
         void RemoveDynamicObjectFromMoveList(DynamicObject* go);
+        void AddAreaTriggerToMoveList(AreaTrigger* at, float x, float y, float z, float ang);
+        void RemoveAreaTriggerFromMoveList(AreaTrigger* at);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
@@ -605,6 +610,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         bool _dynamicObjectsToMoveLock;
         std::vector<DynamicObject*> _dynamicObjectsToMove;
+
+        bool _areaTriggersToMoveLock;
+        std::vector<AreaTrigger*> _areaTriggersToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);

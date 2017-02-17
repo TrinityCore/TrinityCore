@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -137,7 +137,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     Field* fields = result->Fetch();
 
-    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("RA.MinLevel", 3))
+    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("Ra.MinLevel", SEC_ADMINISTRATOR))
     {
         TC_LOG_INFO("commands.ra", "User %s has no privilege to login", user.c_str());
         return false;

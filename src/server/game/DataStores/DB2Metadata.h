@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -981,9 +981,9 @@ struct ChrSpecializationMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "isssshbbbbbiii";
-        static uint8 const arraySizes[14] = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(11, 14, 0x1A96EDE4, types, arraySizes);
+        static char const* types = "issshbbbbbiii";
+        static uint8 const arraySizes[13] = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2Meta instance(10, 13, 0x6F1BA4F3, types, arraySizes);
         return &instance;
     }
 };
@@ -1434,7 +1434,7 @@ struct DungeonEncounterMeta
     {
         static char const* types = "isihhbbbi";
         static uint8 const arraySizes[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(0, 9, 0x8E0853BB, types, arraySizes);
+        static DB2Meta instance(0, 9, 0x164CF266, types, arraySizes);
         return &instance;
     }
 };
@@ -4200,6 +4200,17 @@ struct QuestV2CliTaskMeta
     }
 };
 
+struct QuestXGroupActivityMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "ii";
+        static uint8 const arraySizes[2] = { 1, 1 };
+        static DB2Meta instance(-1, 2, 0xD40C68F3, types, arraySizes);
+        return &instance;
+    }
+};
+
 struct QuestXPMeta
 {
     static DB2Meta const* Instance()
@@ -5960,17 +5971,6 @@ struct WbAccessControlListMeta
     }
 };
 
-struct WbCertBlacklistMeta
-{
-    static DB2Meta const* Instance()
-    {
-        static char const* types = "sb";
-        static uint8 const arraySizes[2] = { 1, 20 };
-        static DB2Meta instance(-1, 2, 0x23D156DE, types, arraySizes);
-        return &instance;
-    }
-};
-
 struct WbCertWhitelistMeta
 {
     static DB2Meta const* Instance()
@@ -5978,17 +5978,6 @@ struct WbCertWhitelistMeta
         static char const* types = "sbbb";
         static uint8 const arraySizes[4] = { 1, 1, 1, 1 };
         static DB2Meta instance(-1, 4, 0xE7A86A2C, types, arraySizes);
-        return &instance;
-    }
-};
-
-struct WbPermissionsMeta
-{
-    static DB2Meta const* Instance()
-    {
-        static char const* types = "sb";
-        static uint8 const arraySizes[2] = { 1, 1 };
-        static DB2Meta instance(-1, 2, 0x7A15E8CA, types, arraySizes);
         return &instance;
     }
 };

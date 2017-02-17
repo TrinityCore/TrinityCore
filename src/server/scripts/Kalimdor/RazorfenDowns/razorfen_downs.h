@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum RFDDataTypes
 {
     // Main Bosses
     DATA_TUTEN_KASH                        = 0,
@@ -36,7 +36,7 @@ enum DataTypes
     DATA_EXTINGUISHING_THE_IDOL            = 6
 };
 
-enum CreatureIds
+enum RFDCreatureIds
 {
     // Used in Tuten Kash summon event
     NPC_TOMB_FIEND                         = 7349,
@@ -50,7 +50,7 @@ enum CreatureIds
     NPC_PLAGUEMAW_THE_ROTTING              = 7356
 };
 
-enum GameObjectIds
+enum RFDGameObjectIds
 {
     // Used for Tuten Kash summon event
     GO_GONG                                = 148917,

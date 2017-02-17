@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -176,13 +176,6 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
-}
-
-void WorldPackets::Misc::AreaTrigger::Read()
-{
-    _worldPacket >> AreaTriggerID;
-    Entered = _worldPacket.ReadBit();
-    FromClient = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Misc::SetDungeonDifficulty::Read()
@@ -434,10 +427,28 @@ void WorldPackets::Misc::ObjectUpdateRescued::Read()
     _worldPacket >> ObjectGUID;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << TargetObjectGUID;
+    _worldPacket << Position;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 {
     _worldPacket << int32(SoundKitID);
     _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << int32(SoundKitID);
 
     return &_worldPacket;
 }

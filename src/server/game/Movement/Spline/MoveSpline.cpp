@@ -61,7 +61,7 @@ Location MoveSpline::ComputePosition() const
         }
 
         if (splineflags.orientationInversed)
-            c.orientation = -c.orientation;
+            c.orientation = c.orientation - float(M_PI);
     }
     return c;
 }
@@ -178,7 +178,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::Unknown6))
+    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::FadeObject))
     {
         effect_start_time = Duration() * args.time_perc;
         if (args.flags.parabolic && effect_start_time < Duration())
@@ -203,11 +203,11 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        TC_LOG_ERROR("misc", "MoveSplineInitArgs::Validate: expression '%s' failed for %s Entry: %u", #exp, unit->GetGUID().ToString().c_str(), unit->GetEntry());\
+        TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s Entry: %u", #exp, unit->GetGUID().ToString().c_str(), unit->GetEntry());\
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity > 0.1f);
+    CHECK(velocity > 0.01f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     CHECK(_checkPathLengths());
     return true;

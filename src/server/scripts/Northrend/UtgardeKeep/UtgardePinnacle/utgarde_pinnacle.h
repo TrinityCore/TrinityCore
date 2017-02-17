@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum UPDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_SVALA_SORROWGRAVE          = 0,
@@ -44,7 +44,7 @@ enum DataTypes
     DATA_GORTOK_PALEHOOF_SPHERE     = 12
 };
 
-enum CreatureIds
+enum UPCreatureIds
 {
     NPC_SVALA_SORROWGRAVE           = 26668,
     NPC_GORTOK_PALEHOOF             = 26687,
@@ -74,7 +74,7 @@ enum CreatureIds
     NPC_AVENGING_SPIRIT             = 27386
 };
 
-enum GameObjectIds
+enum UPGameObjectIds
 {
     GO_GORTOK_PALEHOOF_SPHERE       = 188593,
     GO_UTGARDE_MIRROR               = 191745,

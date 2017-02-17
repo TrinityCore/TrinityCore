@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -148,15 +148,29 @@ class TC_GAME_API UnitAI
         {
             ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
             if (position >= threatlist.size())
-                return NULL;
+                return nullptr;
 
             std::list<Unit*> targetList;
+            Unit* currentVictim = nullptr;
+            if (auto currentVictimReference = me->getThreatManager().getCurrentVictim())
+            {
+                currentVictim = currentVictimReference->getTarget();
+
+                // Current victim always goes first
+                if (currentVictim && predicate(currentVictim))
+                    targetList.push_back(currentVictim);
+            }
+
             for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
+            {
+                if (currentVictim != nullptr && (*itr)->getTarget() != currentVictim && predicate((*itr)->getTarget()))
                     targetList.push_back((*itr)->getTarget());
+                else if (currentVictim == nullptr && predicate((*itr)->getTarget()))
+                    targetList.push_back((*itr)->getTarget());
+            }
 
             if (position >= targetList.size())
-                return NULL;
+                return nullptr;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
                 targetList.sort(Trinity::ObjectDistanceOrderPred(me));
@@ -187,7 +201,7 @@ class TC_GAME_API UnitAI
                     break;
             }
 
-            return NULL;
+            return nullptr;
         }
 
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -241,6 +255,7 @@ class TC_GAME_API UnitAI
 
         void DoCast(uint32 spellId);
         void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
+        void DoCastSelf(uint32 spellId, bool triggered = false) { DoCast(me, spellId, triggered); }
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
 

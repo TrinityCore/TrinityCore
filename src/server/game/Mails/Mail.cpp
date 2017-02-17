@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,6 +71,13 @@ MailSender::MailSender(Player* sender)
     m_messageType = MAIL_NORMAL;
     m_stationery = sender->IsGameMaster() ? MAIL_STATIONERY_GM : MAIL_STATIONERY_DEFAULT;
     m_senderId = sender->GetGUID().GetCounter();
+}
+
+MailSender::MailSender(uint32 senderEntry)
+{
+    m_messageType = MAIL_CREATURE;
+    m_senderId = senderEntry;
+    m_stationery = MAIL_STATIONERY_DEFAULT;
 }
 
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUID().GetCounter()) { }

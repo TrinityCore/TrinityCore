@@ -27,6 +27,7 @@
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "invitation_types.pb.h"
+#include "role_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -41,8 +42,10 @@ void protobuf_AssignDesc_friends_5ftypes_2eproto();
 void protobuf_ShutdownFile_friends_5ftypes_2eproto();
 
 class Friend;
+class FriendOfFriend;
 class FriendInvitation;
 class FriendInvitationParams;
+class SubscribeResponse;
 
 // ===================================================================
 
@@ -146,6 +149,134 @@ class TC_PROTO_API Friend : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 attributes_epoch() const;
   inline void set_attributes_epoch(::google::protobuf::uint64 value);
 
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.Friend)
+ private:
+  inline void set_has_account_id();
+  inline void clear_has_account_id();
+  inline void set_has_privileges();
+  inline void clear_has_privileges();
+  inline void set_has_attributes_epoch();
+  inline void clear_has_attributes_epoch();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::EntityId* account_id_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
+  mutable int _role_cached_byte_size_;
+  ::google::protobuf::uint64 privileges_;
+  ::google::protobuf::uint64 attributes_epoch_;
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_friends_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_friends_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static Friend* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API FriendOfFriend : public ::google::protobuf::Message {
+ public:
+  FriendOfFriend();
+  virtual ~FriendOfFriend();
+
+  FriendOfFriend(const FriendOfFriend& from);
+
+  inline FriendOfFriend& operator=(const FriendOfFriend& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FriendOfFriend& default_instance();
+
+  void Swap(FriendOfFriend* other);
+
+  // implements Message ----------------------------------------------
+
+  FriendOfFriend* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const FriendOfFriend& from);
+  void MergeFrom(const FriendOfFriend& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.EntityId account_id = 1;
+  inline bool has_account_id() const;
+  inline void clear_account_id();
+  static const int kAccountIdFieldNumber = 1;
+  inline const ::bgs::protocol::EntityId& account_id() const;
+  inline ::bgs::protocol::EntityId* mutable_account_id();
+  inline ::bgs::protocol::EntityId* release_account_id();
+  inline void set_allocated_account_id(::bgs::protocol::EntityId* account_id);
+
+  // repeated .bgs.protocol.Attribute attribute = 2;
+  inline int attribute_size() const;
+  inline void clear_attribute();
+  static const int kAttributeFieldNumber = 2;
+  inline const ::bgs::protocol::Attribute& attribute(int index) const;
+  inline ::bgs::protocol::Attribute* mutable_attribute(int index);
+  inline ::bgs::protocol::Attribute* add_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >&
+      attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
+      mutable_attribute();
+
+  // repeated uint32 role = 3 [packed = true];
+  inline int role_size() const;
+  inline void clear_role();
+  static const int kRoleFieldNumber = 3;
+  inline ::google::protobuf::uint32 role(int index) const;
+  inline void set_role(int index, ::google::protobuf::uint32 value);
+  inline void add_role(::google::protobuf::uint32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+      role() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+      mutable_role();
+
+  // optional uint64 privileges = 4 [default = 0];
+  inline bool has_privileges() const;
+  inline void clear_privileges();
+  static const int kPrivilegesFieldNumber = 4;
+  inline ::google::protobuf::uint64 privileges() const;
+  inline void set_privileges(::google::protobuf::uint64 value);
+
+  // optional uint64 attributes_epoch = 5;
+  inline bool has_attributes_epoch() const;
+  inline void clear_attributes_epoch();
+  static const int kAttributesEpochFieldNumber = 5;
+  inline ::google::protobuf::uint64 attributes_epoch() const;
+  inline void set_attributes_epoch(::google::protobuf::uint64 value);
+
   // optional string full_name = 6;
   inline bool has_full_name() const;
   inline void clear_full_name();
@@ -170,7 +301,7 @@ class TC_PROTO_API Friend : public ::google::protobuf::Message {
   inline ::std::string* release_battle_tag();
   inline void set_allocated_battle_tag(::std::string* battle_tag);
 
-  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.Friend)
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.FriendOfFriend)
  private:
   inline void set_has_account_id();
   inline void clear_has_account_id();
@@ -200,7 +331,7 @@ class TC_PROTO_API Friend : public ::google::protobuf::Message {
   friend void protobuf_ShutdownFile_friends_5ftypes_2eproto();
 
   void InitAsDefaultInstance();
-  static Friend* default_instance_;
+  static FriendOfFriend* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -475,6 +606,157 @@ class TC_PROTO_API FriendInvitationParams : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static FriendInvitationParams* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
+ public:
+  SubscribeResponse();
+  virtual ~SubscribeResponse();
+
+  SubscribeResponse(const SubscribeResponse& from);
+
+  inline SubscribeResponse& operator=(const SubscribeResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SubscribeResponse& default_instance();
+
+  void Swap(SubscribeResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  SubscribeResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SubscribeResponse& from);
+  void MergeFrom(const SubscribeResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 max_friends = 1;
+  inline bool has_max_friends() const;
+  inline void clear_max_friends();
+  static const int kMaxFriendsFieldNumber = 1;
+  inline ::google::protobuf::uint32 max_friends() const;
+  inline void set_max_friends(::google::protobuf::uint32 value);
+
+  // optional uint32 max_received_invitations = 2;
+  inline bool has_max_received_invitations() const;
+  inline void clear_max_received_invitations();
+  static const int kMaxReceivedInvitationsFieldNumber = 2;
+  inline ::google::protobuf::uint32 max_received_invitations() const;
+  inline void set_max_received_invitations(::google::protobuf::uint32 value);
+
+  // optional uint32 max_sent_invitations = 3;
+  inline bool has_max_sent_invitations() const;
+  inline void clear_max_sent_invitations();
+  static const int kMaxSentInvitationsFieldNumber = 3;
+  inline ::google::protobuf::uint32 max_sent_invitations() const;
+  inline void set_max_sent_invitations(::google::protobuf::uint32 value);
+
+  // repeated .bgs.protocol.Role role = 4;
+  inline int role_size() const;
+  inline void clear_role();
+  static const int kRoleFieldNumber = 4;
+  inline const ::bgs::protocol::Role& role(int index) const;
+  inline ::bgs::protocol::Role* mutable_role(int index);
+  inline ::bgs::protocol::Role* add_role();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
+      role() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
+      mutable_role();
+
+  // repeated .bgs.protocol.friends.v1.Friend friends = 5;
+  inline int friends_size() const;
+  inline void clear_friends();
+  static const int kFriendsFieldNumber = 5;
+  inline const ::bgs::protocol::friends::v1::Friend& friends(int index) const;
+  inline ::bgs::protocol::friends::v1::Friend* mutable_friends(int index);
+  inline ::bgs::protocol::friends::v1::Friend* add_friends();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+      friends() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+      mutable_friends();
+
+  // repeated .bgs.protocol.Invitation sent_invitations = 6;
+  inline int sent_invitations_size() const;
+  inline void clear_sent_invitations();
+  static const int kSentInvitationsFieldNumber = 6;
+  inline const ::bgs::protocol::Invitation& sent_invitations(int index) const;
+  inline ::bgs::protocol::Invitation* mutable_sent_invitations(int index);
+  inline ::bgs::protocol::Invitation* add_sent_invitations();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
+      sent_invitations() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
+      mutable_sent_invitations();
+
+  // repeated .bgs.protocol.Invitation received_invitations = 7;
+  inline int received_invitations_size() const;
+  inline void clear_received_invitations();
+  static const int kReceivedInvitationsFieldNumber = 7;
+  inline const ::bgs::protocol::Invitation& received_invitations(int index) const;
+  inline ::bgs::protocol::Invitation* mutable_received_invitations(int index);
+  inline ::bgs::protocol::Invitation* add_received_invitations();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
+      received_invitations() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
+      mutable_received_invitations();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.friends.v1.SubscribeResponse)
+ private:
+  inline void set_has_max_friends();
+  inline void clear_has_max_friends();
+  inline void set_has_max_received_invitations();
+  inline void clear_has_max_received_invitations();
+  inline void set_has_max_sent_invitations();
+  inline void clear_has_max_sent_invitations();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 max_friends_;
+  ::google::protobuf::uint32 max_received_invitations_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role > role_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend > friends_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > sent_invitations_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > received_invitations_;
+  ::google::protobuf::uint32 max_sent_invitations_;
+  friend void TC_PROTO_API protobuf_AddDesc_friends_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_friends_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_friends_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static SubscribeResponse* default_instance_;
+};
 // ===================================================================
 
 
@@ -634,59 +916,212 @@ inline void Friend::set_attributes_epoch(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.Friend.attributes_epoch)
 }
 
+// -------------------------------------------------------------------
+
+// FriendOfFriend
+
+// optional .bgs.protocol.EntityId account_id = 1;
+inline bool FriendOfFriend::has_account_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void FriendOfFriend::set_has_account_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void FriendOfFriend::clear_has_account_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void FriendOfFriend::clear_account_id() {
+  if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_account_id();
+}
+inline const ::bgs::protocol::EntityId& FriendOfFriend::account_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.account_id)
+  return account_id_ != NULL ? *account_id_ : *default_instance_->account_id_;
+}
+inline ::bgs::protocol::EntityId* FriendOfFriend::mutable_account_id() {
+  set_has_account_id();
+  if (account_id_ == NULL) account_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.FriendOfFriend.account_id)
+  return account_id_;
+}
+inline ::bgs::protocol::EntityId* FriendOfFriend::release_account_id() {
+  clear_has_account_id();
+  ::bgs::protocol::EntityId* temp = account_id_;
+  account_id_ = NULL;
+  return temp;
+}
+inline void FriendOfFriend::set_allocated_account_id(::bgs::protocol::EntityId* account_id) {
+  delete account_id_;
+  account_id_ = account_id;
+  if (account_id) {
+    set_has_account_id();
+  } else {
+    clear_has_account_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.FriendOfFriend.account_id)
+}
+
+// repeated .bgs.protocol.Attribute attribute = 2;
+inline int FriendOfFriend::attribute_size() const {
+  return attribute_.size();
+}
+inline void FriendOfFriend::clear_attribute() {
+  attribute_.Clear();
+}
+inline const ::bgs::protocol::Attribute& FriendOfFriend::attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.attribute)
+  return attribute_.Get(index);
+}
+inline ::bgs::protocol::Attribute* FriendOfFriend::mutable_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.FriendOfFriend.attribute)
+  return attribute_.Mutable(index);
+}
+inline ::bgs::protocol::Attribute* FriendOfFriend::add_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.FriendOfFriend.attribute)
+  return attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >&
+FriendOfFriend::attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.FriendOfFriend.attribute)
+  return attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
+FriendOfFriend::mutable_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.FriendOfFriend.attribute)
+  return &attribute_;
+}
+
+// repeated uint32 role = 3 [packed = true];
+inline int FriendOfFriend::role_size() const {
+  return role_.size();
+}
+inline void FriendOfFriend::clear_role() {
+  role_.Clear();
+}
+inline ::google::protobuf::uint32 FriendOfFriend::role(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.role)
+  return role_.Get(index);
+}
+inline void FriendOfFriend::set_role(int index, ::google::protobuf::uint32 value) {
+  role_.Set(index, value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendOfFriend.role)
+}
+inline void FriendOfFriend::add_role(::google::protobuf::uint32 value) {
+  role_.Add(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.FriendOfFriend.role)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+FriendOfFriend::role() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.FriendOfFriend.role)
+  return role_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+FriendOfFriend::mutable_role() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.FriendOfFriend.role)
+  return &role_;
+}
+
+// optional uint64 privileges = 4 [default = 0];
+inline bool FriendOfFriend::has_privileges() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void FriendOfFriend::set_has_privileges() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void FriendOfFriend::clear_has_privileges() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void FriendOfFriend::clear_privileges() {
+  privileges_ = GOOGLE_ULONGLONG(0);
+  clear_has_privileges();
+}
+inline ::google::protobuf::uint64 FriendOfFriend::privileges() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.privileges)
+  return privileges_;
+}
+inline void FriendOfFriend::set_privileges(::google::protobuf::uint64 value) {
+  set_has_privileges();
+  privileges_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendOfFriend.privileges)
+}
+
+// optional uint64 attributes_epoch = 5;
+inline bool FriendOfFriend::has_attributes_epoch() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void FriendOfFriend::set_has_attributes_epoch() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void FriendOfFriend::clear_has_attributes_epoch() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void FriendOfFriend::clear_attributes_epoch() {
+  attributes_epoch_ = GOOGLE_ULONGLONG(0);
+  clear_has_attributes_epoch();
+}
+inline ::google::protobuf::uint64 FriendOfFriend::attributes_epoch() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.attributes_epoch)
+  return attributes_epoch_;
+}
+inline void FriendOfFriend::set_attributes_epoch(::google::protobuf::uint64 value) {
+  set_has_attributes_epoch();
+  attributes_epoch_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendOfFriend.attributes_epoch)
+}
+
 // optional string full_name = 6;
-inline bool Friend::has_full_name() const {
+inline bool FriendOfFriend::has_full_name() const {
   return (_has_bits_[0] & 0x00000020u) != 0;
 }
-inline void Friend::set_has_full_name() {
+inline void FriendOfFriend::set_has_full_name() {
   _has_bits_[0] |= 0x00000020u;
 }
-inline void Friend::clear_has_full_name() {
+inline void FriendOfFriend::clear_has_full_name() {
   _has_bits_[0] &= ~0x00000020u;
 }
-inline void Friend::clear_full_name() {
+inline void FriendOfFriend::clear_full_name() {
   if (full_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     full_name_->clear();
   }
   clear_has_full_name();
 }
-inline const ::std::string& Friend::full_name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.Friend.full_name)
+inline const ::std::string& FriendOfFriend::full_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.full_name)
   return *full_name_;
 }
-inline void Friend::set_full_name(const ::std::string& value) {
+inline void FriendOfFriend::set_full_name(const ::std::string& value) {
   set_has_full_name();
   if (full_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     full_name_ = new ::std::string;
   }
   full_name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.Friend.full_name)
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendOfFriend.full_name)
 }
-inline void Friend::set_full_name(const char* value) {
+inline void FriendOfFriend::set_full_name(const char* value) {
   set_has_full_name();
   if (full_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     full_name_ = new ::std::string;
   }
   full_name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.Friend.full_name)
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.FriendOfFriend.full_name)
 }
-inline void Friend::set_full_name(const char* value, size_t size) {
+inline void FriendOfFriend::set_full_name(const char* value, size_t size) {
   set_has_full_name();
   if (full_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     full_name_ = new ::std::string;
   }
   full_name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.Friend.full_name)
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.FriendOfFriend.full_name)
 }
-inline ::std::string* Friend::mutable_full_name() {
+inline ::std::string* FriendOfFriend::mutable_full_name() {
   set_has_full_name();
   if (full_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     full_name_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.Friend.full_name)
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.FriendOfFriend.full_name)
   return full_name_;
 }
-inline ::std::string* Friend::release_full_name() {
+inline ::std::string* FriendOfFriend::release_full_name() {
   clear_has_full_name();
   if (full_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
@@ -696,7 +1131,7 @@ inline ::std::string* Friend::release_full_name() {
     return temp;
   }
 }
-inline void Friend::set_allocated_full_name(::std::string* full_name) {
+inline void FriendOfFriend::set_allocated_full_name(::std::string* full_name) {
   if (full_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete full_name_;
   }
@@ -707,62 +1142,62 @@ inline void Friend::set_allocated_full_name(::std::string* full_name) {
     clear_has_full_name();
     full_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.Friend.full_name)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.FriendOfFriend.full_name)
 }
 
 // optional string battle_tag = 7;
-inline bool Friend::has_battle_tag() const {
+inline bool FriendOfFriend::has_battle_tag() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
-inline void Friend::set_has_battle_tag() {
+inline void FriendOfFriend::set_has_battle_tag() {
   _has_bits_[0] |= 0x00000040u;
 }
-inline void Friend::clear_has_battle_tag() {
+inline void FriendOfFriend::clear_has_battle_tag() {
   _has_bits_[0] &= ~0x00000040u;
 }
-inline void Friend::clear_battle_tag() {
+inline void FriendOfFriend::clear_battle_tag() {
   if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     battle_tag_->clear();
   }
   clear_has_battle_tag();
 }
-inline const ::std::string& Friend::battle_tag() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.Friend.battle_tag)
+inline const ::std::string& FriendOfFriend::battle_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
   return *battle_tag_;
 }
-inline void Friend::set_battle_tag(const ::std::string& value) {
+inline void FriendOfFriend::set_battle_tag(const ::std::string& value) {
   set_has_battle_tag();
   if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     battle_tag_ = new ::std::string;
   }
   battle_tag_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.Friend.battle_tag)
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
 }
-inline void Friend::set_battle_tag(const char* value) {
+inline void FriendOfFriend::set_battle_tag(const char* value) {
   set_has_battle_tag();
   if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     battle_tag_ = new ::std::string;
   }
   battle_tag_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.Friend.battle_tag)
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
 }
-inline void Friend::set_battle_tag(const char* value, size_t size) {
+inline void FriendOfFriend::set_battle_tag(const char* value, size_t size) {
   set_has_battle_tag();
   if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     battle_tag_ = new ::std::string;
   }
   battle_tag_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.Friend.battle_tag)
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
 }
-inline ::std::string* Friend::mutable_battle_tag() {
+inline ::std::string* FriendOfFriend::mutable_battle_tag() {
   set_has_battle_tag();
   if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     battle_tag_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.Friend.battle_tag)
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
   return battle_tag_;
 }
-inline ::std::string* Friend::release_battle_tag() {
+inline ::std::string* FriendOfFriend::release_battle_tag() {
   clear_has_battle_tag();
   if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
@@ -772,7 +1207,7 @@ inline ::std::string* Friend::release_battle_tag() {
     return temp;
   }
 }
-inline void Friend::set_allocated_battle_tag(::std::string* battle_tag) {
+inline void FriendOfFriend::set_allocated_battle_tag(::std::string* battle_tag) {
   if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete battle_tag_;
   }
@@ -783,7 +1218,7 @@ inline void Friend::set_allocated_battle_tag(::std::string* battle_tag) {
     clear_has_battle_tag();
     battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.Friend.battle_tag)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.FriendOfFriend.battle_tag)
 }
 
 // -------------------------------------------------------------------
@@ -1286,6 +1721,202 @@ inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
 FriendInvitationParams::mutable_previous_role_deprecated() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.FriendInvitationParams.previous_role_deprecated)
   return &previous_role_deprecated_;
+}
+
+// -------------------------------------------------------------------
+
+// SubscribeResponse
+
+// optional uint32 max_friends = 1;
+inline bool SubscribeResponse::has_max_friends() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SubscribeResponse::set_has_max_friends() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SubscribeResponse::clear_has_max_friends() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SubscribeResponse::clear_max_friends() {
+  max_friends_ = 0u;
+  clear_has_max_friends();
+}
+inline ::google::protobuf::uint32 SubscribeResponse::max_friends() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_friends)
+  return max_friends_;
+}
+inline void SubscribeResponse::set_max_friends(::google::protobuf::uint32 value) {
+  set_has_max_friends();
+  max_friends_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_friends)
+}
+
+// optional uint32 max_received_invitations = 2;
+inline bool SubscribeResponse::has_max_received_invitations() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SubscribeResponse::set_has_max_received_invitations() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SubscribeResponse::clear_has_max_received_invitations() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SubscribeResponse::clear_max_received_invitations() {
+  max_received_invitations_ = 0u;
+  clear_has_max_received_invitations();
+}
+inline ::google::protobuf::uint32 SubscribeResponse::max_received_invitations() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_received_invitations)
+  return max_received_invitations_;
+}
+inline void SubscribeResponse::set_max_received_invitations(::google::protobuf::uint32 value) {
+  set_has_max_received_invitations();
+  max_received_invitations_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_received_invitations)
+}
+
+// optional uint32 max_sent_invitations = 3;
+inline bool SubscribeResponse::has_max_sent_invitations() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SubscribeResponse::set_has_max_sent_invitations() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SubscribeResponse::clear_has_max_sent_invitations() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SubscribeResponse::clear_max_sent_invitations() {
+  max_sent_invitations_ = 0u;
+  clear_has_max_sent_invitations();
+}
+inline ::google::protobuf::uint32 SubscribeResponse::max_sent_invitations() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.max_sent_invitations)
+  return max_sent_invitations_;
+}
+inline void SubscribeResponse::set_max_sent_invitations(::google::protobuf::uint32 value) {
+  set_has_max_sent_invitations();
+  max_sent_invitations_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_sent_invitations)
+}
+
+// repeated .bgs.protocol.Role role = 4;
+inline int SubscribeResponse::role_size() const {
+  return role_.size();
+}
+inline void SubscribeResponse::clear_role() {
+  role_.Clear();
+}
+inline const ::bgs::protocol::Role& SubscribeResponse::role(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.role)
+  return role_.Get(index);
+}
+inline ::bgs::protocol::Role* SubscribeResponse::mutable_role(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.role)
+  return role_.Mutable(index);
+}
+inline ::bgs::protocol::Role* SubscribeResponse::add_role() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.role)
+  return role_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
+SubscribeResponse::role() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.role)
+  return role_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
+SubscribeResponse::mutable_role() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.role)
+  return &role_;
+}
+
+// repeated .bgs.protocol.friends.v1.Friend friends = 5;
+inline int SubscribeResponse::friends_size() const {
+  return friends_.size();
+}
+inline void SubscribeResponse::clear_friends() {
+  friends_.Clear();
+}
+inline const ::bgs::protocol::friends::v1::Friend& SubscribeResponse::friends(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.friends)
+  return friends_.Get(index);
+}
+inline ::bgs::protocol::friends::v1::Friend* SubscribeResponse::mutable_friends(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.friends)
+  return friends_.Mutable(index);
+}
+inline ::bgs::protocol::friends::v1::Friend* SubscribeResponse::add_friends() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.friends)
+  return friends_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >&
+SubscribeResponse::friends() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.friends)
+  return friends_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::friends::v1::Friend >*
+SubscribeResponse::mutable_friends() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.friends)
+  return &friends_;
+}
+
+// repeated .bgs.protocol.Invitation sent_invitations = 6;
+inline int SubscribeResponse::sent_invitations_size() const {
+  return sent_invitations_.size();
+}
+inline void SubscribeResponse::clear_sent_invitations() {
+  sent_invitations_.Clear();
+}
+inline const ::bgs::protocol::Invitation& SubscribeResponse::sent_invitations(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
+  return sent_invitations_.Get(index);
+}
+inline ::bgs::protocol::Invitation* SubscribeResponse::mutable_sent_invitations(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
+  return sent_invitations_.Mutable(index);
+}
+inline ::bgs::protocol::Invitation* SubscribeResponse::add_sent_invitations() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
+  return sent_invitations_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
+SubscribeResponse::sent_invitations() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
+  return sent_invitations_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
+SubscribeResponse::mutable_sent_invitations() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.sent_invitations)
+  return &sent_invitations_;
+}
+
+// repeated .bgs.protocol.Invitation received_invitations = 7;
+inline int SubscribeResponse::received_invitations_size() const {
+  return received_invitations_.size();
+}
+inline void SubscribeResponse::clear_received_invitations() {
+  received_invitations_.Clear();
+}
+inline const ::bgs::protocol::Invitation& SubscribeResponse::received_invitations(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
+  return received_invitations_.Get(index);
+}
+inline ::bgs::protocol::Invitation* SubscribeResponse::mutable_received_invitations(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
+  return received_invitations_.Mutable(index);
+}
+inline ::bgs::protocol::Invitation* SubscribeResponse::add_received_invitations() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
+  return received_invitations_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >&
+SubscribeResponse::received_invitations() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
+  return received_invitations_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
+SubscribeResponse::mutable_received_invitations() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.friends.v1.SubscribeResponse.received_invitations)
+  return &received_invitations_;
 }
 
 

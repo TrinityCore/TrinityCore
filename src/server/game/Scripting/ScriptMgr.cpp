@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -94,6 +94,10 @@ struct is_script_database_bound<TransportScript>
 
 template<>
 struct is_script_database_bound<AchievementCriteriaScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<AreaTriggerEntityScript>
     : std::true_type { };
 
 template<>
@@ -640,6 +644,64 @@ class ScriptRegistrySwapHooks<InstanceMapScript, Base>
 {
 public:
     ScriptRegistrySwapHooks()  : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping AreaTriggerEntityScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping SceneScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<SceneScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
 
     void BeforeReleaseContext(std::string const& context) final override
     {
@@ -2153,6 +2215,11 @@ void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus 
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
 }
 
+void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
@@ -2301,6 +2368,73 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
 {
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
     FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
+}
+
+// AreaTriggerEntityScript
+void ScriptMgr::OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnInitialize(areaTrigger);
+}
+
+void ScriptMgr::OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnCreate(areaTrigger);
+}
+
+void ScriptMgr::OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnUpdate(areaTrigger, diff);
+}
+
+void ScriptMgr::OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnSplineIndexReached(areaTrigger, splineIndex);
+}
+
+void ScriptMgr::OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnDestinationReached(areaTrigger);
+}
+
+void ScriptMgr::OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit)
+{
+    ASSERT(areaTrigger);
+    ASSERT(unit);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnUnitEnter(areaTrigger, unit);
+}
+
+void ScriptMgr::OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit)
+{
+    ASSERT(areaTrigger);
+    ASSERT(unit);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnUnitExit(areaTrigger, unit);
+}
+
+void ScriptMgr::OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger)
+{
+    ASSERT(areaTrigger);
+
+    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
+    tmpscript->OnRemove(areaTrigger);
 }
 
 // Scene
@@ -2512,6 +2646,12 @@ GroupScript::GroupScript(const char* name)
     ScriptRegistry<GroupScript>::Instance()->AddScript(this);
 }
 
+AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
+}
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2539,4 +2679,5 @@ template class TC_GAME_API ScriptRegistry<GuildScript>;
 template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
+template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;

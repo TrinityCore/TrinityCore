@@ -1799,6 +1799,7 @@ BindRequest::BindRequest(const BindRequest& from)
 
 void BindRequest::SharedCtor() {
   _cached_size_ = 0;
+  _deprecated_imported_service_hash_cached_byte_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2155,6 +2156,7 @@ BindResponse::BindResponse(const BindResponse& from)
 
 void BindResponse::SharedCtor() {
   _cached_size_ = 0;
+  _imported_service_id_cached_byte_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
