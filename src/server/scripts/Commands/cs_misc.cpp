@@ -1567,7 +1567,7 @@ public:
          * * Level: %u (%u/%u XP (%u XP left)        - X.    LANG_PINFO_CHR_LEVEL
          * * Race: %s %s, Class %s                   - XI.   LANG_PINFO_CHR_RACE
          * * Alive ?: %s                             - XII.  LANG_PINFO_CHR_ALIVE
-         * * Phase: %s                               - XIII. LANG_PINFO_CHR_PHASE (if not GM)
+         * * Phases: %s                              - XIII. LANG_PINFO_CHR_PHASE (if not GM)
          * * Money: %ug%us%uc                        - XIV.  LANG_PINFO_CHR_MONEY
          * * Map: %s, Area: %s                       - XV.   LANG_PINFO_CHR_MAP
          * * Guild: %s (Id: %u)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
@@ -1623,7 +1623,7 @@ public:
         // Position data print
         uint32 mapId;
         uint32 areaId;
-        uint32 phase            = 0;
+        std::set<uint32> phases;
         std::string areaName    = handler->GetTrinityString(LANG_UNKNOWN);
         std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
 
@@ -1655,7 +1655,7 @@ public:
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
             gender            = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
-            phase             = target->GetPhaseMask();
+            phases            = target->GetPhases();
         }
         // get additional information from DB
         else
@@ -1840,10 +1840,10 @@ public:
         // Output XII. LANG_PINFO_CHR_ALIVE
         handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive.c_str());
 
-        // Output XIII. LANG_PINFO_CHR_PHASE if player is not in GM mode (GM is in every phase)
-        if (target && !target->IsGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
-            handler->PSendSysMessage(LANG_PINFO_CHR_PHASE, phase);        // precise than just target (safer ?).
-                                                                          // However, as we usually just require a target here, we use target instead.
+        // Output XIII. LANG_PINFO_CHR_PHASES if player is not in GM mode (GM is in every phase)
+        if (target && !target->IsGameMaster() && !phases.empty())
+            handler->PSendSysMessage(LANG_PINFO_CHR_PHASES, StringJoin(phases, "|").c_str());
+
         // Output XIV. LANG_PINFO_CHR_MONEY
         uint32 gold                   = money / GOLD;
         uint32 silv                   = (money % GOLD) / SILVER;
