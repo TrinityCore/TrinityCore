@@ -1576,34 +1576,34 @@ public:
 
 enum BellHourlySoundFX
 {
-    BELLTOLLHORDE = 6595, // Horde
-    BELLTOLLTRIBAL = 6675,
-    BELLTOLLALLIANCE = 6594, // Alliance
-    BELLTOLLNIGHTELF = 6674,
+    BELLTOLLHORDE      = 6595, // Horde
+    BELLTOLLTRIBAL     = 6675,
+    BELLTOLLALLIANCE   = 6594, // Alliance
+    BELLTOLLNIGHTELF   = 6674,
     BELLTOLLDWARFGNOME = 7234,
-    BELLTOLLKHARAZHAN = 9154 // Kharazhan
+    BELLTOLLKHARAZHAN  = 9154 // Kharazhan
 };
 
 enum BellHourlySoundAreas
 {
-    B_UNDERCITY_AREA = 1497,
-    B_IRONFORGE_1_AREA = 809,
-    B_IRONFORGE_2_AREA = 1,
-    B_DARNASSUS_AREA = 1657,
-    B_TELDRASSIL_ZONE = 141,
-    B_KHARAZHAN_MAPID = 532
+    UNDERCITY_AREA     = 1497,
+    IRONFORGE_1_AREA   = 809,
+    IRONFORGE_2_AREA   = 1,
+    DARNASSUS_AREA     = 1657,
+    TELDRASSIL_ZONE    = 141,
+    KHARAZHAN_MAPID    = 532
 };
 
-enum BellHourlyMisc
+enum BellHourlyObjects
 {
-    GO_HORDE_BELL = 175885,
-    GO_ALLIANCE_BELL = 176573,
-    GO_KHARAZHAN_BELL = 182064
+    GO_HORDE_BELL      = 175885,
+    GO_ALLIANCE_BELL   = 176573,
+    GO_KHARAZHAN_BELL  = 182064
 };
 
 enum BellHourlyEvent
 {
-    EVENT_RING_BELL = 1
+    EVENT_RING_BELL    = 1
 };
 
 class go_bells : public GameObjectScript
@@ -1613,11 +1613,7 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go)
-        {
-            _started = false;
-            _rings = 0;
-        };
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _started(false), _rings(0) { };
 
         void UpdateAI(uint32 diff) override
         {
@@ -1641,21 +1637,36 @@ public:
                 case EVENT_RING_BELL:
                 {
                     if (go->GetEntry() == GO_HORDE_BELL)
-                        if (go->GetAreaId() == B_UNDERCITY_AREA)
+                    {
+                        if (go->GetAreaId() == UNDERCITY_AREA)
+                        {
                             go->PlayDirectSound(BELLTOLLTRIBAL);
+                        }
                         else
+                        {
                             go->PlayDirectSound(BELLTOLLHORDE);
-
+                        }
+                    }
                     if (go->GetEntry() == GO_ALLIANCE_BELL)
-                        if (go->GetAreaId() == B_IRONFORGE_1_AREA || go->GetAreaId() == B_IRONFORGE_2_AREA)
+                    {
+                        if (go->GetAreaId() == IRONFORGE_1_AREA || go->GetAreaId() == IRONFORGE_2_AREA)
+                        {
                             go->PlayDirectSound(BELLTOLLDWARFGNOME);
-                        else if (go->GetAreaId() == B_DARNASSUS_AREA || go->GetZoneId() == B_TELDRASSIL_ZONE)
+                        }
+                        else if (go->GetAreaId() == DARNASSUS_AREA || go->GetZoneId() == TELDRASSIL_ZONE)
+                        {
                             go->PlayDirectSound(BELLTOLLNIGHTELF);
+                        }
                         else
+                        {
                             go->PlayDirectSound(BELLTOLLALLIANCE);
+                        }
+                    }
 
                     if (go->GetEntry() == GO_KHARAZHAN_BELL)
+                    {
                         go->PlayDirectSound(BELLTOLLKHARAZHAN);
+                    }
 
                     if (_rings == 0)
                     {
@@ -1663,8 +1674,7 @@ public:
                         break;
                     }
 
-                    if (_rings != 0)
-                        _rings--;
+                    _rings--;
 
                     if (_rings > 0)
                         _events.ScheduleEvent(EVENT_RING_BELL, Seconds(3));
