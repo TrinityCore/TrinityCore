@@ -1640,28 +1640,19 @@ public:
                     if (go->GetEntry() == GO_HORDE_BELL)
                     {
                         if (go->GetAreaId() == UNDERCITY_AREA)
-                        {
                             go->PlayDirectSound(BELLTOLLHORDE);
-                        }
                         else
-                        {
                             go->PlayDirectSound(BELLTOLLTRIBAL);
-                        }
                     }
+
                     if (go->GetEntry() == GO_ALLIANCE_BELL)
                     {
                         if (go->GetAreaId() == IRONFORGE_1_AREA || go->GetAreaId() == IRONFORGE_2_AREA)
-                        {
                             go->PlayDirectSound(BELLTOLLDWARFGNOME);
-                        }
                         else if (go->GetAreaId() == DARNASSUS_AREA || go->GetZoneId() == TELDRASSIL_ZONE)
-                        {
                             go->PlayDirectSound(BELLTOLLNIGHTELF);
-                        }
                         else
-                        {
                             go->PlayDirectSound(BELLTOLLALLIANCE);
-                        }
                     }
 
                     if (go->GetEntry() == GO_KHARAZHAN_BELL)
