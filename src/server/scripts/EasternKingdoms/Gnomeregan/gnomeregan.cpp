@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@ Script Data End */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "Player.h"
 #include "gnomeregan.h"
 
@@ -192,10 +193,7 @@ public:
                 {
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *itr))
                     {
-                        if (summon->IsAlive())
-                            summon->DisappearAndDie();
-                        else
-                            summon->RemoveCorpse();
+                        summon->DespawnOrUnsummon();
                     }
                 }
         }
@@ -545,8 +543,56 @@ public:
 
 };
 
+// 12709 - Collecting Fallout
+class spell_collecting_fallout : public SpellScriptLoader
+{
+    public:
+        spell_collecting_fallout() : SpellScriptLoader("spell_collecting_fallout") { }
+
+        class spell_collecting_fallout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_collecting_fallout_SpellScript);
+
+            bool Load() override
+            {
+                _spellFail = true;
+                return true;
+            }
+
+            void OnLaunch(SpellEffIndex effIndex)
+            {
+                // estimated 25% chance of success
+                if (roll_chance_i(25))
+                    _spellFail = false;
+                else
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void HandleFail(SpellEffIndex effIndex)
+            {
+                if (!_spellFail)
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunch += SpellEffectFn(spell_collecting_fallout_SpellScript::OnLaunch, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+                OnEffectLaunch += SpellEffectFn(spell_collecting_fallout_SpellScript::HandleFail, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+
+            bool _spellFail;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_collecting_fallout_SpellScript();
+        }
+};
+
 void AddSC_gnomeregan()
 {
     new npc_blastmaster_emi_shortfuse();
     new boss_grubbis();
+
+    new spell_collecting_fallout();
 }

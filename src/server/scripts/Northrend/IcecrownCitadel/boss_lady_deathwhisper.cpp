@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,6 +213,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Reset() override
             {
+                _Reset();
                 Initialize();
                 _phase = PHASE_ONE;
                 DoCastSelf(SPELL_SHADOW_CHANNELING);
@@ -366,7 +367,8 @@ class boss_lady_deathwhisper : public CreatureScript
                             {
                                 for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                                     if (Player* member = itr->GetSource())
-                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
+                                        if (member->IsInMap(owner))
+                                            member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                             }
                             else
                                 owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
@@ -880,7 +882,8 @@ class npc_darnavan : public CreatureScript
                     {
                         for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                             if (Player* member = itr->GetSource())
-                                member->FailQuest(QUEST_DEPROGRAMMING);
+                                if (member->IsInMap(owner))
+                                    member->FailQuest(QUEST_DEPROGRAMMING);
                     }
                     else
                         owner->FailQuest(QUEST_DEPROGRAMMING);

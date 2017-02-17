@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,9 +93,9 @@ enum DataTypes
     DATA_PUTRICIDE_TABLE               = 16,
     DATA_NAUSEA_ACHIEVEMENT            = 17,
     DATA_ORB_WHISPERER_ACHIEVEMENT     = 18,
-    DATA_PRINCE_KELESETH_GUID          = 19,
-    DATA_PRINCE_TALDARAM_GUID          = 20,
-    DATA_PRINCE_VALANAR_GUID           = 21,
+    DATA_PRINCE_KELESETH               = 19,
+    DATA_PRINCE_TALDARAM               = 20,
+    DATA_PRINCE_VALANAR                = 21,
     DATA_BLOOD_PRINCES_CONTROL         = 22,
     DATA_SINDRAGOSA_FROSTWYRMS         = 23,
     DATA_SPINESTALKER                  = 24,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -150,6 +150,34 @@ namespace Trinity
                 return;
 
             if (!player->HaveAtClient(i_source))
+                return;
+
+            if (WorldSession* session = player->GetSession())
+                session->SendPacket(i_message);
+        }
+    };
+
+    struct TC_GAME_API MessageDistDelivererToHostile
+    {
+        Unit* i_source;
+        WorldPacket* i_message;
+        uint32 i_phaseMask;
+        float i_distSq;
+
+        MessageDistDelivererToHostile(Unit* src, WorldPacket* msg, float dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+        {
+        }
+
+        void Visit(PlayerMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
+
+        void SendPacket(Player* player)
+        {
+            // never send packet to self
+            if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
             if (WorldSession* session = player->GetSession())

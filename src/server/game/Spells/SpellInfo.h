@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 #include "DBCStructure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
+#include "Unit.h"
 
 #include <boost/container/flat_set.hpp>
 
@@ -81,7 +82,8 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CHANNEL,
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
-    TARGET_SELECT_CATEGORY_AREA
+    TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_TRAJ
 };
 
 enum SpellTargetReferenceTypes
@@ -179,6 +181,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
     SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
     SPELL_ATTR0_CU_NO_INITIAL_THREAT             = 0x00000010,
+    SPELL_ATTR0_CU_AURA_CC                       = 0x00000020,
     SPELL_ATTR0_CU_DONT_BREAK_STEALTH            = 0x00000040,
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
@@ -191,6 +194,8 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
     SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
     SPELL_ATTR0_CU_NEEDS_AMMO_DATA               = 0x00080000,
+    SPELL_ATTR0_CU_BINARY_SPELL                  = 0x00100000,
+    SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC  = 0x00200000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -452,6 +457,10 @@ class TC_GAME_API SpellInfo
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
 
+        WeaponAttackType GetAttackType() const;
+
+        bool IsItemFitToSpellRequirements(Item const* item) const;
+
         bool IsAffected(uint32 familyName, flag96 const& familyFlags) const;
 
         bool IsAffectedBySpellMods() const;
@@ -519,6 +528,8 @@ class TC_GAME_API SpellInfo
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
         bool SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
 
+        uint32 GetAllowedMechanicMask() const;
+
     private:
         // loading helpers
         void _InitializeExplicitTargetMask();
@@ -538,6 +549,8 @@ class TC_GAME_API SpellInfo
 
         SpellDiminishInfo _diminishInfoNonTriggered;
         SpellDiminishInfo _diminishInfoTriggered;
+
+        uint32 _allowedMechanicMask;
 
         ImmunityInfo _immunityInfo[MAX_SPELL_EFFECTS];
 };

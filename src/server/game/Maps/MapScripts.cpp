@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -295,7 +295,7 @@ void Map::ScriptsProcess()
             switch (step.sourceGUID.GetHigh())
             {
                 case HighGuid::Item: // as well as HighGuid::Container
-                    if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
+                    if (Player* player = GetPlayer(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
                 case HighGuid::Unit:
@@ -306,7 +306,7 @@ void Map::ScriptsProcess()
                     source = GetPet(step.sourceGUID);
                     break;
                 case HighGuid::Player:
-                    source = HashMapHolder<Player>::Find(step.sourceGUID);
+                    source = GetPlayer(step.sourceGUID);
                     break;
                 case HighGuid::Transport:
                 case HighGuid::GameObject:
@@ -338,7 +338,7 @@ void Map::ScriptsProcess()
                     target = GetPet(step.targetGUID);
                     break;
                 case HighGuid::Player:                       // empty GUID case also
-                    target = HashMapHolder<Player>::Find(step.targetGUID);
+                    target = GetPlayer(step.targetGUID);
                     break;
                 case HighGuid::Transport:
                 case HighGuid::GameObject:
@@ -870,6 +870,28 @@ void Map::ScriptsProcess()
                 // Source must be Player.
                 if (Player* player = _GetScriptPlayer(source, true, step.script))
                     player->SendMovieStart(step.script->PlayMovie.MovieID);
+                break;
+
+            case SCRIPT_COMMAND_MOVEMENT:
+                // Source must be Creature.
+                if (Creature* cSource = _GetScriptCreature(source, true, step.script))
+                {
+                    if (!cSource->IsAlive())
+                        return;
+
+                    cSource->GetMotionMaster()->MovementExpired();
+                    cSource->GetMotionMaster()->MoveIdle();
+
+                    switch (step.script->Movement.MovementType)
+                    {
+                        case RANDOM_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MoveRandom((float)step.script->Movement.MovementDistance);
+                            break;
+                        case WAYPOINT_MOTION_TYPE:
+                            cSource->GetMotionMaster()->MovePath(step.script->Movement.Path, false);
+                            break;
+                    }
+                }
                 break;
 
             default:
