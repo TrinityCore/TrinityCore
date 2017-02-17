@@ -321,7 +321,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         // We were teleported, skip packets that were broadcast before teleport
         if (movementInfo.pos.GetExactDist2d(mover) > SIZE_OF_GRIDS)
         {
-            recvData.rfinish();                 // prevent warnings spam
+            recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
