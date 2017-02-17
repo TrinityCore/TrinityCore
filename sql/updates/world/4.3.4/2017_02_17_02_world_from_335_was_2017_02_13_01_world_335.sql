@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `game_event_creature` WHERE `guid`=54395;
 INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
@@ -34,3 +35,4 @@ INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`,
 (543950, 23,1593.42, -4439.46, 6.090, 5.994130),
 (543950, 24,1608.40, -4435.44, 7.850, 0.264650),
 (543950, 25,1629.31, -4427.41, 13.73, 0.358897);
+*/

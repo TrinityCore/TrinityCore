@@ -1,5 +1,6 @@
 -- 
 DELETE FROM `linked_respawn` WHERE `guid`=127005;
+/*
 DELETE FROM `creature` WHERE `id`=14842;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (12776, 14842, 0, 0, 0, 1, 1, 0, 0, -4982.69, -963.739, 501.659, 0.802197, 300, 0, 0, 955, 0, 2, 0, 0, 0, 0);
@@ -62,3 +63,4 @@ INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`,
 (127760, 45,-5003.69, -1018.41, 501.656, 1.20824),
 (127760, 46,-4998.19, -1003.91, 501.658, 1.20824),
 (127760, 47,-4990.70, -984.164, 501.6595, 1.208244);
+*/
