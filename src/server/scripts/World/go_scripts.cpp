@@ -1576,34 +1576,39 @@ public:
 
 enum BellHourlySoundFX
 {
-    BELLTOLLHORDE      = 6595, // Horde
-    BELLTOLLTRIBAL     = 6675,
-    BELLTOLLALLIANCE   = 6594, // Alliance
-    BELLTOLLNIGHTELF   = 6674,
-    BELLTOLLDWARFGNOME = 7234,
-    BELLTOLLKHARAZHAN  = 9154 // Kharazhan
+    BELLTOLLHORDE          = 6595, // Horde
+    BELLTOLLTRIBAL         = 6675,
+    BELLTOLLALLIANCE       = 6594, // Alliance
+    BELLTOLLNIGHTELF       = 6674,
+    BELLTOLLDWARFGNOME     = 7234,
+    BELLTOLLKHARAZHAN      = 9154 // Kharazhan
 };
 
 enum BellHourlySoundAreas
 {
-    UNDERCITY_AREA     = 1497,
-    IRONFORGE_1_AREA   = 809,
-    IRONFORGE_2_AREA   = 1,
-    DARNASSUS_AREA     = 1657,
-    TELDRASSIL_ZONE    = 141,
-    KHARAZHAN_MAPID    = 532
+    UNDERCITY_AREA         = 1497,
+    IRONFORGE_1_AREA       = 809,
+    IRONFORGE_2_AREA       = 1,
+    DARNASSUS_AREA         = 1657,
+    TELDRASSIL_ZONE        = 141,
+    KHARAZHAN_MAPID        = 532
 };
 
 enum BellHourlyObjects
 {
-    GO_HORDE_BELL      = 175885,
-    GO_ALLIANCE_BELL   = 176573,
-    GO_KHARAZHAN_BELL  = 182064
+    GO_HORDE_BELL          = 175885,
+    GO_ALLIANCE_BELL       = 176573,
+    GO_KHARAZHAN_BELL      = 182064
+};
+
+enum BellHourlyMisc
+{
+    GAMEEVENT_HOURLY_BELLS = 73
 };
 
 enum BellHourlyEvent
 {
-    EVENT_RING_BELL    = 1
+    EVENT_RING_BELL        = 1
 };
 
 class go_bells : public GameObjectScript
@@ -1613,11 +1618,40 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go), _rings(0) { };
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _rings(0)
+        {
+            InitializeAI();
+        }
+
+        void InitializeAI()
+        {
+            switch (go->GetEntry())
+            {
+                case GO_HORDE_BELL:
+                    _soundId = go->GetAreaId() == UNDERCITY_AREA ? BELLTOLLHORDE : BELLTOLLTRIBAL;
+                    break;
+                case GO_ALLIANCE_BELL:
+                {
+                    if (go->GetAreaId() == IRONFORGE_1_AREA || go->GetAreaId() == IRONFORGE_2_AREA)
+                        _soundId = BELLTOLLDWARFGNOME;
+                    else if (go->GetAreaId() == DARNASSUS_AREA || go->GetZoneId() == TELDRASSIL_ZONE)
+                        _soundId = BELLTOLLNIGHTELF;
+                    else
+                        _soundId = BELLTOLLALLIANCE;
+
+                    break;
+                }
+                case GO_KHARAZHAN_BELL:
+                {
+                    _soundId = BELLTOLLKHARAZHAN;
+                    break;
+                }
+            }
+        }
 
         void OnGameEvent(bool start, uint16 eventId) override
         {
-            if (eventId == 73 && start == true)
+            if (eventId == EVENT_HOURLY_BELLS && start)
             {
                 time_t time = sWorld->GetGameTime();
                 tm localTm;
@@ -1635,50 +1669,24 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_RING_BELL:
-                {
-                    if (go->GetEntry() == GO_HORDE_BELL)
+                    case EVENT_RING_BELL:
                     {
-                        if (go->GetAreaId() == UNDERCITY_AREA)
-                            go->PlayDirectSound(BELLTOLLHORDE);
-                        else
-                            go->PlayDirectSound(BELLTOLLTRIBAL);
-                    }
+                        go->PlayDirectSound(_soundId);
 
-                    if (go->GetEntry() == GO_ALLIANCE_BELL)
-                    {
-                        if (go->GetAreaId() == IRONFORGE_1_AREA || go->GetAreaId() == IRONFORGE_2_AREA)
-                            go->PlayDirectSound(BELLTOLLDWARFGNOME);
-                        else if (go->GetAreaId() == DARNASSUS_AREA || go->GetZoneId() == TELDRASSIL_ZONE)
-                            go->PlayDirectSound(BELLTOLLNIGHTELF);
-                        else
-                            go->PlayDirectSound(BELLTOLLALLIANCE);
-                    }
+                        for (auto i = 1; i < _rings + 1; ++i)
+                            _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4));
 
-                    if (go->GetEntry() == GO_KHARAZHAN_BELL)
-                    {
-                        go->PlayDirectSound(BELLTOLLKHARAZHAN);
-                    }
-
-                    if (_rings == 0)
                         break;
-
-                    _rings--;
-
-                    if (_rings > 0)
-                        _events.ScheduleEvent(EVENT_RING_BELL, Seconds(3));
-
-                    break;
-                }
-                default:
-                    break;
+                    }
+                    default:
+                        break;
                 }
             }
         }
     private:
         EventMap _events;
-        bool _started;
-        int _rings;
+        uint8 _rings;
+        uint32 _soundId;
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
