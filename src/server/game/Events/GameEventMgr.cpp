@@ -28,7 +28,6 @@
 #include "BattlegroundMgr.h"
 #include "UnitAI.h"
 #include "GameObjectAI.h"
-#include "ScriptMgr.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -1642,13 +1641,8 @@ public:
     void Visit(std::unordered_map<ObjectGuid, GameObject*>& gameObjectMap)
     {
         for (auto const& p : gameObjectMap)
-        {
             if (p.second->IsInWorld())
-            {
                 p.second->AI()->OnGameEvent(_activate, _eventId);
-                sScriptMgr->OnGameEvent(_activate, _eventId);
-            }
-        }
     }
 
     template<class T>
