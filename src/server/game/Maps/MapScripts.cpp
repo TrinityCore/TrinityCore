@@ -873,7 +873,7 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_MOVEMENT:
-                // Source must be Creature.                
+                // Source must be Creature.
                 if (Creature* cSource = _GetScriptCreature(source, true, step.script))
                 {
                     if (!cSource->IsAlive())
