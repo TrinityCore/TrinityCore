@@ -1613,22 +1613,23 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go), _started(false), _rings(0) { };
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _rings(0) { };
+
+        void OnGameEvent(bool start, uint16 eventId) override
+        {
+            if (eventId == 73 && start == true)
+            {
+                time_t time = sWorld->GetGameTime();
+                tm localTm;
+                localtime_r(&time, &localTm);
+                _rings = (localTm.tm_hour - 1) % 12 + 1;
+                _events.ScheduleEvent(EVENT_RING_BELL, Seconds(1));
+            }
+        }
 
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
-
-            time_t time = sWorld->GetGameTime();
-            tm localTm;
-            localtime_r(&time, &localTm);
-
-            if ((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started)
-            {
-                _rings = (localTm.tm_hour - 1) % 12 + 1;
-                _events.ScheduleEvent(EVENT_RING_BELL, Seconds(1));
-                _started = true;
-            }
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
@@ -1640,11 +1641,11 @@ public:
                     {
                         if (go->GetAreaId() == UNDERCITY_AREA)
                         {
-                            go->PlayDirectSound(BELLTOLLTRIBAL);
+                            go->PlayDirectSound(BELLTOLLHORDE);
                         }
                         else
                         {
-                            go->PlayDirectSound(BELLTOLLHORDE);
+                            go->PlayDirectSound(BELLTOLLTRIBAL);
                         }
                     }
                     if (go->GetEntry() == GO_ALLIANCE_BELL)
@@ -1669,10 +1670,7 @@ public:
                     }
 
                     if (_rings == 0)
-                    {
-                        _started = false;
                         break;
-                    }
 
                     _rings--;
 
