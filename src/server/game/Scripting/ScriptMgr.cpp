@@ -1776,6 +1776,11 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
     tmpscript->OnUpdate(go, diff);
 }
 
+void ScriptMgr::OnGameEvent(bool start, uint16 eventId)
+{
+    FOREACH_SCRIPT(GameObjectScript)->OnGameEvent(start, eventId);
+}
+
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
 {
     ASSERT(caster);
