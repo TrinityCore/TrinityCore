@@ -281,7 +281,7 @@ class TC_GAME_API SmartScript
 
         uint32 mPathId;
         SmartAIEventStoredList mStoredEvents;
-        std::list<uint32>mRemIDs;
+        std::vector<uint32> mRemIDs;
 
         uint32 mTextTimer;
         uint32 mLastTextID;
@@ -295,7 +295,7 @@ class TC_GAME_API SmartScript
         {
             if (!mStoredEvents.empty())
             {
-                for (SmartAIEventStoredList::iterator i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
+                for (auto i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
                 {
                     if (i->event_id == id)
                     {

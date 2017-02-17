@@ -1583,7 +1583,7 @@ class TC_GAME_API SmartWaypointMgr
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
-typedef std::list<SmartScriptHolder> SmartAIEventStoredList;
+typedef std::vector<SmartScriptHolder> SmartAIEventStoredList;
 
 // all events for all entries / guids
 typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;

@@ -219,6 +219,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mLastWPIDReached;
         bool mWPReached;
         uint32 mWPPauseTimer;
+        uint32 mEscortNPCFlags;
         WayPoint* mLastWP;
         Position mLastOOCPos;//set on enter combat
         uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }

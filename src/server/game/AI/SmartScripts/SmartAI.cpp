@@ -25,6 +25,7 @@
 #include "Group.h"
 #include "SmartAI.h"
 #include "ScriptMgr.h"
+#include "Vehicle.h"
 
 SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 {
@@ -36,6 +37,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mCurrentWPID = 0;//first wp id is 1 !!
     mWPReached = false;
     mWPPauseTimer = 0;
+    mEscortNPCFlags = 0;
     mLastWP = nullptr;
 
     mCanRepeatPath = false;
@@ -115,28 +117,39 @@ WayPoint* SmartAI::GetNextWayPoint()
     return nullptr;
 }
 
-void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
+void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
 {
     if (me->IsInCombat())// no wp movement in combat
     {
         TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
         return;
     }
+
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
+
     if (path)
+    {
         if (!LoadPath(path))
             return;
+    }
+
     if (!mWayPoints || mWayPoints->empty())
         return;
 
-    AddEscortState(SMART_ESCORT_ESCORTING);
-    mCanRepeatPath = repeat;
-
-    SetRun(run);
-
     if (WayPoint* wp = GetNextWayPoint())
     {
+        AddEscortState(SMART_ESCORT_ESCORTING);
+        mCanRepeatPath = repeat;
+
+        SetRun(run);
+
+        if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
+        {
+            mEscortNPCFlags = me->GetUInt32Value(UNIT_NPC_FLAGS);
+            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+        }
+
         mLastOOCPos = me->GetPosition();
         me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
         GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, wp->id, GetScript()->GetPathId());
@@ -205,6 +218,12 @@ void SmartAI::EndPath(bool fail)
     mCurrentWPID = 0;
     mWPPauseTimer = 0;
     mLastWP = nullptr;
+
+    if (mEscortNPCFlags)
+    {
+        me->SetUInt32Value(UNIT_NPC_FLAGS, mEscortNPCFlags);
+        mEscortNPCFlags = 0;
+    }
 
     if (mCanRepeatPath)
     {
@@ -285,10 +304,18 @@ void SmartAI::UpdatePath(const uint32 diff)
         // Escort failed, no players in range 
         if (!IsEscortInvokerInRange())
         {
-            StopPath(mDespawnTime, mEscortQuestID, true);
+            StopPath(0, mEscortQuestID, true);
+
+            // allow to properly hook out of range despawn action, which in most cases should perform the same operation as dying
+            GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, me);
+            me->DespawnOrUnsummon(1);
+            return;
         }
         mEscortInvokerCheckTimer = 1000;
-    } else mEscortInvokerCheckTimer -= diff;
+    }
+    else
+        mEscortInvokerCheckTimer -= diff;
+
     // handle pause
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
@@ -307,11 +334,13 @@ void SmartAI::UpdatePath(const uint32 diff)
                 if (mLastWPIDReached == SMART_ESCORT_LAST_OOC_POINT)
                     mWPReached = true;
             }
+
             mWPPauseTimer = 0;
-        } else {
-            mWPPauseTimer -= diff;
         }
+        else
+            mWPPauseTimer -= diff;
     }
+
     if (HasEscortState(SMART_ESCORT_RETURNING))
     {
         if (mWPReached)//reached OOC WP
@@ -322,8 +351,10 @@ void SmartAI::UpdatePath(const uint32 diff)
             mWPReached = false;
         }
     }
+
     if ((!me->HasReactState(REACT_PASSIVE) && me->IsInCombat()) || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
         return;
+
     // handle next wp
     if (mWPReached)//reached WP
     {
@@ -452,6 +483,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     if (!_EnterEvadeMode())
         return;
+
     me->AddUnitState(UNIT_STATE_EVADE);
 
     GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);//must be after aura clear so we can cast spells from db
@@ -518,7 +550,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     //never attack friendly
-    if (me->IsFriendlyTo(who))
+    if (!me->IsValidAssistTarget(who->GetVictim()))
         return false;
 
     //too far away and no free sight?
@@ -621,6 +653,14 @@ void SmartAI::JustSummoned(Creature* creature)
 
 void SmartAI::AttackStart(Unit* who)
 {
+    // dont allow charmed npcs to act on their own
+    if (!IsAIControlled())
+    {
+        if (who && mCanAutoAttack)
+            me->Attack(who, true);
+        return;
+    }
+
     if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
     {
         if (mCanCombatMove)

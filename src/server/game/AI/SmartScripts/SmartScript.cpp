@@ -2981,7 +2981,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 l->assign(objectList->begin(), objectList->end());
             }
 
-            break; // previously return l; memory leak
+            break;
         }
         case SMART_TARGET_CLOSEST_CREATURE:
         {
@@ -3297,7 +3297,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_ON_SPELLCLICK:
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
-        case SMART_EVENT_GOSSIP_HELLO: // added no report use distinction for gameobjects
+        case SMART_EVENT_GOSSIP_HELLO:
             if (e.event.gossipHello.noReportUse && var0)
                 return;
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
@@ -3841,8 +3841,8 @@ void SmartScript::OnUpdate(uint32 const diff)
 
     if (!mRemIDs.empty())
     {
-        for (std::list<uint32>::iterator i = mRemIDs.begin(); i != mRemIDs.end(); ++i)
-             RemoveStoredEvent((*i));
+        for (auto i : mRemIDs)
+             RemoveStoredEvent(i);
 
         mRemIDs.clear();
     }
