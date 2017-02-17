@@ -140,7 +140,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (me->HealthBelowPct(71) && me->HealthAbovePct(59) && !firstVanish)
             {
