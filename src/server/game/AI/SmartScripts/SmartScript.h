@@ -79,8 +79,7 @@ class TC_GAME_API SmartScript
         ObjectList* GetTargetList(uint32 id);
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset);
-        uint32 GetCounterId(uint32 id);
-        uint32 GetCounterValue(uint32 id);
+        uint32 GetCounterValue(uint32 id) const;
 
         GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
         Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const;
@@ -98,23 +97,27 @@ class TC_GAME_API SmartScript
         CounterMap mCounterList;
 
     private:
-        void IncPhase(int32 p = 1)
+        void IncPhase(uint32 p)
         {
-            if (p >= 0)
-                mEventPhase += (uint32)p;
-            else
-                DecPhase(-p);
+            // protect phase from overflowing
+            mEventPhase = std::min<uint32>(SMART_EVENT_PHASE_12, mEventPhase + p);
         }
 
-        void DecPhase(int32 p = 1)
+        void DecPhase(uint32 p)
         {
-            if (mEventPhase > (uint32)p)
-                mEventPhase -= (uint32)p;
-            else
+            if (p >= mEventPhase)
                 mEventPhase = 0;
+            else
+                mEventPhase -= p;
         }
 
-        bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
+        bool IsInPhase(uint32 p) const
+        {
+            if (mEventPhase == 0)
+                return false;
+            return ((1 << (mEventPhase - 1)) & p) != 0;
+        }
+
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
         SmartAIEventList mEvents;
@@ -131,8 +134,8 @@ class TC_GAME_API SmartScript
         uint32 mEventPhase;
 
         uint32 mPathId;
-        SmartAIEventList mStoredEvents;
-        std::list<uint32> mRemIDs;
+        SmartAIEventStoredList mStoredEvents;
+        std::vector<uint32> mRemIDs;
 
         uint32 mTextTimer;
         uint32 mLastTextID;

@@ -1373,10 +1373,8 @@ class go_twilight_portal : public GameObjectScript
                 }
             }
 
-            bool GossipHello(Player* player, bool isUse) override
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                if (!isUse)
-                    return true;
                 if (_spellId != 0)
                     player->CastSpell(player, _spellId, true);
                 return true;

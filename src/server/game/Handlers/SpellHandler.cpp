@@ -261,7 +261,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPackets::GameObject::GameObjRe
 
     if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Guid))
     {
-        if (go->AI()->GossipHello(_player, false))
+        if (go->AI()->GossipHello(_player, true))
             return;
 
         _player->UpdateCriteria(CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
