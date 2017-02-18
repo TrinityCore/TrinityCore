@@ -327,7 +327,7 @@ TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool re
 TC_COMMON_API bool StringToBool(std::string const& str);
 
 template<class Container>
-TC_COMMON_API std::string StringJoin(Container const& c, std::string delinimiter)
+std::string StringJoin(Container const& c, std::string delimiter)
 {
     if (c.empty())
         return "";
@@ -337,7 +337,7 @@ TC_COMMON_API std::string StringJoin(Container const& c, std::string delinimiter
     os << *itr++;
 
     for (; itr != c.end(); ++itr)
-        os << delinimiter << *itr;
+        os << delimiter << *itr;
 
     return os.str();
 }
