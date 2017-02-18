@@ -352,6 +352,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasPitch = false;
     bool hasSpline = false;
     bool hasSplineElevation = false;
+    bool hasAIAnimKit = false;
+    bool hasMovementAnimKit = false;
+    bool hasMeleeAnimKit = false;
 
     uint32 stopFrameCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -474,9 +477,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_ANIMKITS)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << uint16(self->GetAIAnimKitId());                        // AiID
-        *data << uint16(self->GetMovementAnimKitId());                  // MovementID
-        *data << uint16(self->GetMeleeAnimKitId());                     // MeleeID
+        hasAIAnimKit = self->GetAIAnimKitId();
+        data->WriteBit(hasAIAnimKit);
+        hasMovementAnimKit = self->GetMovementAnimKitId();
+        data->WriteBit(hasMovementAnimKit);
+        hasMeleeAnimKit = self->GetMeleeAnimKitId();
+        data->WriteBit(hasMeleeAnimKit);
     }
 
     data->FlushBits();
@@ -647,13 +653,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (flags & UPDATEFLAG_ANIMKITS)
     {
-        Unit const* unit = ToUnit();
-        if (unit->GetAIAnimKitId())
-            *data << uint16(unit->GetAIAnimKitId());
-        if (unit->GetMovementAnimKitId())
-            *data << uint16(unit->GetMovementAnimKitId());
-        if (unit->GetMeleeAnimKitId())
-            *data << uint16(unit->GetMeleeAnimKitId());
+        WorldObject const* self = static_cast<WorldObject const*>(this);
+        if (hasAIAnimKit)
+            *data << uint16(self->GetAIAnimKitId());
+        if (hasMovementAnimKit)
+            *data << uint16(self->GetMovementAnimKitId());
+        if (hasMeleeAnimKit)
+            *data << uint16(self->GetMeleeAnimKitId());
     }
 
     if (flags & UPDATEFLAG_TRANSPORT)
