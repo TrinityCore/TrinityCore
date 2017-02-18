@@ -478,11 +478,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
         hasAIAnimKit = self->GetAIAnimKitId();
-        data->WriteBit(hasAIAnimKit);
+        data->WriteBit(!hasAIAnimKit);
         hasMovementAnimKit = self->GetMovementAnimKitId();
-        data->WriteBit(hasMovementAnimKit);
+        data->WriteBit(!hasMovementAnimKit);
         hasMeleeAnimKit = self->GetMeleeAnimKitId();
-        data->WriteBit(hasMeleeAnimKit);
+        data->WriteBit(!hasMeleeAnimKit);
     }
 
     data->FlushBits();
