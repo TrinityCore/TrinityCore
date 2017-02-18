@@ -1618,12 +1618,9 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go), _rings(0)
-        {
-            InitializeAI();
-        }
+        go_bellsAI(GameObject* go) : GameObjectAI(go) { }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             switch (go->GetEntry())
             {
@@ -1656,8 +1653,10 @@ public:
                 time_t time = sWorld->GetGameTime();
                 tm localTm;
                 localtime_r(&time, &localTm);
-                _rings = (localTm.tm_hour - 1) % 12 + 1;
-                _events.ScheduleEvent(EVENT_RING_BELL, Seconds(1));
+                uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
+
+                for (auto i = 0; i < _rings; ++i)
+                    _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4 + 1));
             }
         }
 
@@ -1670,14 +1669,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RING_BELL:
-                    {
                         go->PlayDirectSound(_soundId);
-
-                        for (auto i = 1; i < _rings + 1; ++i)
-                            _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4));
-
                         break;
-                    }
                     default:
                         break;
                 }
@@ -1685,7 +1678,6 @@ public:
         }
     private:
         EventMap _events;
-        uint8 _rings;
         uint32 _soundId;
     };
 
