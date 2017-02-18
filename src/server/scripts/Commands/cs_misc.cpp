@@ -235,15 +235,11 @@ public:
 
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
-        std::ostringstream phases;
-        for (uint32 phaseId : object->GetPhases())
-            phases << phaseId << ", ";
-
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->MapName->Str[handler->GetSessionDbcLocale()] : unknown),
             zoneId, (zoneEntry ? zoneEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
-            object->GetPhaseMask(), phases.str().c_str(),
+            object->GetPhaseMask(), StringJoin(object->GetPhases(), ", ").c_str(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -1840,9 +1836,9 @@ public:
         // Output XII. LANG_PINFO_CHR_ALIVE
         handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive.c_str());
 
-        // Output XIII. LANG_PINFO_CHR_PHASES if player is not in GM mode (GM is in every phase)
-        if (target && !target->IsGameMaster() && !phases.empty())
-            handler->PSendSysMessage(LANG_PINFO_CHR_PHASES, StringJoin(phases, "|").c_str());
+        // Output XIII. LANG_PINFO_CHR_PHASES
+        if (target && !phases.empty())
+            handler->PSendSysMessage(LANG_PINFO_CHR_PHASES, StringJoin(phases, ", ").c_str());
 
         // Output XIV. LANG_PINFO_CHR_MONEY
         uint32 gold                   = money / GOLD;
