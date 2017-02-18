@@ -1603,11 +1603,7 @@ enum BellHourlyObjects
 
 enum BellHourlyMisc
 {
-    GAME_EVENT_HOURLY_BELLS = 73
-};
-
-enum BellHourlyEvent
-{
+    GAME_EVENT_HOURLY_BELLS = 73,
     EVENT_RING_BELL        = 1
 };
 
