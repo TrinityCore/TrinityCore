@@ -38,7 +38,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
 
     if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
     {
-        size_t dot_pos = _fileName.find_last_of(".");
+        size_t dot_pos = _fileName.find_last_of('.');
         if (dot_pos != std::string::npos)
             _fileName.insert(dot_pos, sLog->GetLogsTimestamp());
         else
