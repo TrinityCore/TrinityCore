@@ -1635,10 +1635,8 @@ public:
                     break;
                 }
                 case GO_KHARAZHAN_BELL:
-                {
                     _soundId = BELLTOLLKHARAZHAN;
                     break;
-                }
             }
         }
 
