@@ -576,7 +576,7 @@ public:
             {
                 if (Group* group = players.begin()->GetSource()->GetGroup())
                     if (group->isLFGGroup())
-                        sLFGMgr->FinishDungeon(group->GetGUID(), 285);
+                        sLFGMgr->FinishDungeon(group->GetGUID(), 285, me->GetMap());
             }
         }
 

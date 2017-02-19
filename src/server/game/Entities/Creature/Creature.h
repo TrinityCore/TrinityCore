@@ -69,6 +69,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
 static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+static const uint32 PET_FOCUS_REGEN_INTERVAL = 4 * IN_MILLISECONDS;
 static const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
 static const uint8 MAX_KILL_CREDIT = 2;
@@ -452,7 +453,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist =nullptr) const;
+        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
+        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapid != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -473,6 +475,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
+        bool HasMechanicTemplateImmunity(uint32 mask) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const override;
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
         bool isElite() const;
@@ -555,15 +558,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Loot loot;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
-        bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(NULL); }
-        void SetSkinner(ObjectGuid guid) { _skinner = guid; }
-        ObjectGuid GetSkinner() const { return _skinner; } // Returns the player who skinned this creature
+        bool CanGeneratePickPocketLoot() const { return _pickpocketLootRestore <= time(nullptr); }
+        ObjectGuid GetLootRecipientGUID() const { return m_lootRecipient; }
         Player* GetLootRecipient() const;
         Group* GetLootRecipientGroup() const;
         bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
-        void SetLootRecipient (Unit* unit);
+        void SetLootRecipient (Unit* unit, bool withGroup = true);
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() const { return m_LootMode; }
@@ -586,7 +588,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
-        Player* SelectNearestPlayer(float distance = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
 
         void DoFleeToGetAssistance();
@@ -601,7 +602,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
-        void RemoveCorpse(bool setSpawnTime = true);
+        void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds const& forceRespawnTime = Seconds(0));
         void DespawnOrUnsummon(Milliseconds const& time, Seconds const& forceRespawnTime = Seconds(0)) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
@@ -701,6 +702,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
+        // Part of Evade mechanics
+        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
+
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
@@ -716,7 +721,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         ObjectGuid m_lootRecipient;
         uint32 m_lootRecipientGroup;
-        ObjectGuid _skinner;
 
         /// Timers
         time_t _pickpocketLootRestore;
@@ -730,7 +734,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
         ReactStates m_reactState;                           // for AI, not charmInfo
-        void RegenerateMana();
         void RegenerateHealth();
         void Regenerate(Powers power);
         MovementGeneratorType m_defaultMovementType;
@@ -781,6 +784,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         int32 outfitId;
+        time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 };
 

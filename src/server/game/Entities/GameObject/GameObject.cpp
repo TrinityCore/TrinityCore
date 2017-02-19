@@ -482,6 +482,10 @@ void GameObject::Update(uint32 diff)
                         return;
                     }
 
+                    // Call AI Reset (required for example in SmartAI to clear one time events)
+                    if (AI())
+                        AI()->Reset();
+
                     // Respawn timer
                     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
                     if (poolid)
@@ -582,7 +586,7 @@ void GameObject::Update(uint32 diff)
                         {
                             Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
                             if (group)
-                                group->EndRoll(&loot);
+                                group->EndRoll(&loot, GetMap());
                             m_groupLootTimer = 0;
                             lootingGroupLowGUID = 0;
                         }
@@ -1202,7 +1206,7 @@ void GameObject::Use(Unit* user)
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (AI()->GossipHello(playerUser))
+        if (AI()->GossipHello(playerUser, false))
             return;
     }
 
@@ -1290,7 +1294,7 @@ void GameObject::Use(Unit* user)
 
                 if (itr->second)
                 {
-                    if (Player* ChairUser = ObjectAccessor::FindPlayer(itr->second))
+                    if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
                     {
                         if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->GetStandState() != UNIT_STAND_STATE_SIT check is required.

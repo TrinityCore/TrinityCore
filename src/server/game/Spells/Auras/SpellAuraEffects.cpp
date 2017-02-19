@@ -787,6 +787,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                         case 49472: // Drink Coffee
                         case 57073:
                         case 61830:
+                        case 72623:
                             if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                                 return;
                             // Get SPELL_AURA_MOD_POWER_REGEN aura from spell
@@ -1708,7 +1709,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_MOONKIN:
             {
                 // remove movement affects
-                target->RemoveMovementImpairingAuras();
+                target->RemoveAurasByShapeShift();
 
                 // and polymorphic affects
                 if (target->IsPolymorphed())
@@ -1799,7 +1800,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             {
                 target->setPowerType(POWER_MANA);
                 // Remove movement impairing effects also when shifting out
-                target->RemoveMovementImpairingAuras();
+                target->RemoveAurasByShapeShift();
             }
         }
 
@@ -2961,7 +2962,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         {
             target->Kill(caster);
             if (caster->GetTypeId() == TYPEID_UNIT)
-                caster->ToCreature()->RemoveCorpse();
+                caster->ToCreature()->DespawnOrUnsummon();
         }
 
         if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT))

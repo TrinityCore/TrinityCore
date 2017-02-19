@@ -114,7 +114,9 @@ enum ScriptCommands
     SCRIPT_COMMAND_EQUIP                 = 31,               // soucre = Creature, datalong = equipment id
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
-    SCRIPT_COMMAND_PLAYMOVIE             = 34                // source = Player, datalong = movie id
+    SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
+    SCRIPT_COMMAND_MOVEMENT              = 35,               // source = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
+    SCRIPT_COMMAND_PLAY_ANIMKIT          = 36                // source = Creature, datalong = AnimKit id (NOT ON 3.3.5A, DON'T REUSE)
 };
 
 // Benchmarked: Faster than std::unordered_map (insert/find)
@@ -380,6 +382,13 @@ struct ScriptInfo
         {
             uint32 MovieID;         // datalong
         } PlayMovie;
+
+        struct                       // SCRIPT_COMMAND_MOVEMENT (35)
+        {
+            uint32 MovementType;     // datalong
+            uint32 MovementDistance; // datalong2
+            int32  Path;             // dataint
+        } Movement;
     };
 
     std::string GetDebugInfo() const;
@@ -725,8 +734,6 @@ class TC_GAME_API ObjectMgr
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
-        Player* GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const;
-
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
@@ -790,24 +797,6 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
-
-        /**
-        * Retrieves the player name by guid.
-        *
-        * If the player is online, the name is retrieved immediately otherwise
-        * a database query is done.
-        *
-        * @remark Use sWorld->GetCharacterInfo because it doesn't require a database query when player is offline
-        *
-        * @param guid player full guid
-        * @param name returned name
-        *
-        * @return true if player was found, false otherwise
-        */
-        bool GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const;
-        uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);

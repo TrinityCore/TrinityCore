@@ -464,7 +464,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             if (Player* player = itr->GetSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
-                FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
+                if (player->IsInMap(lootOwner))
+                    FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
         for (uint8 i = 0; i < items.size(); ++i)
         {
@@ -1543,6 +1544,9 @@ void LoadLootTemplates_Creature()
 
     for (LootIdSet::const_iterator itr = lootIdSetUsed.begin(); itr != lootIdSetUsed.end(); ++itr)
         lootIdSet.erase(*itr);
+
+    // 1 means loot for player corpse
+    lootIdSet.erase(PLAYER_CORPSE_LOOT_ENTRY);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Creature.ReportUnusedIds(lootIdSet);

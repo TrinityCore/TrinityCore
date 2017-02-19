@@ -46,6 +46,7 @@
 #include "Util.h"
 #include "TemporarySummon.h"
 #include "GridNotifiers.h"
+#include "CellImpl.h"
 #include "Formulas.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
@@ -765,7 +766,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             // Vanish (not exist)
             case 18461:
             {
-                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveMovementImpairingAuras(true);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
                 // If this spell is given to an NPC, it must handle the rest using its own AI
@@ -786,7 +787,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             // Demonic Empowerment -- succubus
             case 54437:
             {
-                unitTarget->RemoveMovementImpairingAuras();
+                unitTarget->RemoveMovementImpairingAuras(true);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
 
@@ -1867,7 +1868,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (sScriptMgr->OnGossipHello(player, gameObjTarget))
             return;
 
-        if (gameObjTarget->AI()->GossipHello(player))
+        if (gameObjTarget->AI()->GossipHello(player, false))
             return;
 
         switch (gameObjTarget->GetGoType())
@@ -2307,12 +2308,19 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
             // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
             uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
-            if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                spellId = spellInfo->Id;
+            int32 basePoints = m_spellInfo->Effects[effIndex].CalcValue();
+            if (basePoints > MAX_VEHICLE_SEATS)
+            {
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(basePoints);
+                if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                    spellId = spellInfo->Id;
+            }
 
-            // Hard coded enter vehicle spell
-            m_originalCaster->CastSpell(summon, spellId, true);
+            // if we have small value, it indicates seat position
+            if (basePoints > 0 && basePoints < MAX_VEHICLE_SEATS)
+                m_originalCaster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, basePoints, summon, true);
+            else
+                m_originalCaster->CastSpell(summon, spellId, true);
 
             uint32 faction = properties->Faction;
             if (!faction)
@@ -3623,7 +3631,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 30918: // Improved Sprint
                 {
                     // Removes snares and roots.
-                    unitTarget->RemoveMovementImpairingAuras();
+                    unitTarget->RemoveMovementImpairingAuras(true);
                     break;
                 }
                 // Plant Warmaul Ogre Banner
@@ -3632,10 +3640,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     {
                         caster->RewardPlayerAndGroupAtEvent(18388, unitTarget);
                         if (Creature* target = unitTarget->ToCreature())
-                        {
-                            target->setDeathState(CORPSE);
-                            target->RemoveCorpse();
-                        }
+                            target->DespawnOrUnsummon();
                     }
                     break;
                 // Mug Transformation
@@ -4562,9 +4567,28 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    WorldPacket data(SMSG_CLEAR_TARGET, 8);
+    float dist = m_caster->GetVisibilityRange();
+
+    // clear focus
+    WorldPacket data(SMSG_BREAK_TARGET, m_caster->GetPackGUID().size());
+    data << m_caster->GetPackGUID();
+    Trinity::MessageDistDelivererToHostile notifierBreak(m_caster, &data, dist);
+    m_caster->VisitNearbyWorldObject(dist, notifierBreak);
+
+    // and selection
+    data.Initialize(SMSG_CLEAR_TARGET, 8);
     data << uint64(m_caster->GetGUID());
-    m_caster->SendMessageToSet(&data, true);
+    Trinity::MessageDistDelivererToHostile notifierClear(m_caster, &data, dist);
+    m_caster->VisitNearbyWorldObject(dist, notifierClear);
+
+    // we should also force pets to remove us from current target
+    Unit::AttackerSet attackerSet;
+    for (Unit::AttackerSet::const_iterator itr = m_caster->getAttackers().begin(); itr != m_caster->getAttackers().end(); ++itr)
+        if ((*itr)->GetTypeId() == TYPEID_UNIT && !(*itr)->CanHaveThreatList())
+            attackerSet.insert(*itr);
+
+    for (Unit::AttackerSet::const_iterator itr = attackerSet.begin(); itr != attackerSet.end(); ++itr)
+        (*itr)->AttackStop();
 }
 
 void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
@@ -4622,9 +4646,9 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
 
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
-    m_caster->ToPlayer()->SendLoot(creature->GetGUID(), LOOT_SKINNING);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+    m_caster->ToPlayer()->SendLoot(creature->GetGUID(), LOOT_SKINNING);
 
     int32 reqValue = targetLevel < 10 ? 0 : targetLevel < 20 ? (targetLevel-10)*10 : targetLevel*5;
 
@@ -4641,6 +4665,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
+        // charge changes fall time
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
         // Spell is not using explicit target - no generated path
         if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
@@ -4731,6 +4759,10 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     float speedz = damage/ 10.f;
     //1891: Disengage
     unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
+
+    // changes fall time
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear(SpellEffIndex effIndex)

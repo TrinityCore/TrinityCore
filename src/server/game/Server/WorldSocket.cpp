@@ -324,7 +324,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             {
                 return HandlePing(packet) ? ReadDataHandlerResult::Ok : ReadDataHandlerResult::Error;
             }
-            catch (ByteBufferPositionException const&)
+            catch (ByteBufferException const&)
             {
             }
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_PING", GetRemoteIpAddress().to_string().c_str());
@@ -346,7 +346,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 HandleAuthSession(packet);
                 return ReadDataHandlerResult::WaitingForQuery;
             }
-            catch (ByteBufferPositionException const&)
+            catch (ByteBufferException const&)
             {
             }
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string().c_str());
