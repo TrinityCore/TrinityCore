@@ -21,6 +21,7 @@
 
 #include "GossipDef.h"
 #include "QuestDef.h"
+#include "Creature.h"
 
 // Gossip Item Text
 #define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
