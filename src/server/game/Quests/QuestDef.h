@@ -359,6 +359,7 @@ class TC_GAME_API Quest
         uint32 GetRewSpell() const { return RewardSpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
+        uint32 GetRewMailSenderEntry() const { return RewardMailSenderEntry; }
         uint32 GetRewTitle() const { return RewardTitleId; }
         uint32 GetPOIContinent() const { return POIContinent; }
         float  GetPOIx() const { return POIx; }
@@ -510,6 +511,7 @@ class TC_GAME_API Quest
         uint32 RequiredMaxRepFaction = 0;
         int32  RequiredMaxRepValue  = 0;
         uint32 SourceItemIdCount    = 0;
+        uint32 RewardMailSenderEntry = 0;
         uint32 SpecialFlags         = 0; // custom flags, not sniffed/WDB
 };
 

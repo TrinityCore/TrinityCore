@@ -507,7 +507,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
             switch (gossipListId)
             {
                 case 1:

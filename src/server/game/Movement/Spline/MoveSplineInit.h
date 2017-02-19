@@ -146,6 +146,8 @@ namespace Movement
          */
         void SetVelocity(float velocity);
 
+        void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
+
         PointsArray& Path() { return args.path; }
 
         /* Disables transport coordinate transformations for cases where raw offsets are available
@@ -204,5 +206,10 @@ namespace Movement
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+
+    inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H
