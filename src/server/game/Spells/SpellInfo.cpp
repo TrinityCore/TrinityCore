@@ -510,14 +510,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;
     }
-    else
+    else if (GetScalingExpectedStat() == ExpectedStatType::None)
     {
-        if (GetScalingExpectedStat() == ExpectedStatType::None)
+        if (caster && basePointsPerLevel != 0.0f)
         {
-            int32 level = caster ? int32(caster->getLevel()) : 0;
+            int32 level = int32(caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
-            level -= int32(_spellInfo->BaseLevel);
+
+            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
+            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
             if (level < 0)
                 level = 0;
             value += level * basePointsPerLevel;
